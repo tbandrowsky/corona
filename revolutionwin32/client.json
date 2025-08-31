@@ -1,0 +1,7 @@
+{
+  "CoronaServer": {
+    "Host": "mightyware.com",
+    "Path": "corona",
+    "Port": 80
+  }
+}

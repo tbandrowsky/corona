@@ -1,0 +1,7 @@
+{
+    "Client": {
+        "host": "mightyware",
+        "port": 80,
+        "base_path": ""
+    }
+}
