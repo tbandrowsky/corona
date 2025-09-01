@@ -317,24 +317,31 @@ namespace corona
 		test_obj.put_member("prompt", std::string("hello"));
         test_obj.put_member("object_id", 42i64);
 		
-        std::vector<std::string> keysc = { "amount", "prompt", "object_id", "obj_value", "arr_value" };
-		test_in.put_json(keysc, test_obj);
+		xtable_columns columns;
+        columns.columns[1] = { field_types::ft_double, 1, "amount" };
+        columns.columns[2] = { field_types::ft_string, 2, "prompt" };
+        columns.columns[3] = { field_types::ft_int64, 3, "object_id" };
+        columns.columns[4] = { field_types::ft_object, 4, "obj_value" };
+        columns.columns[5] = { field_types::ft_array, 5, "arr_value" };
+
+		test_in.put_json(&columns, test_obj);
+
 		json jtest_out = jp.create_object();
-        test_in.get_json(jtest_out, keysc);
+		test_in.get_json(&columns, jtest_out);
 
-		comp1.add(4.0);
-		comp1.add("hello");
-		comp1.add(42i64);
+		comp1.add(1, 4.0);
+		comp1.add(2, "hello");
+		comp1.add(3, 42i64);
 
-		comp2.add(4.0);
-		comp2.add("hello");
-		comp2.add(42i64);
+		comp2.add(1, 4.0);
+		comp2.add(2, "hello");
+		comp2.add(3, 42i64);
 
 		bool result;
 		result = comp1 == comp2;
 		_tests->test({ "xr =", result, __FILE__, __LINE__ });
 
-		comp3.add(2.0);
+		comp3.add(1, 2.0);
 		result = comp3 < comp1;
 		_tests->test({ "xr <", result, __FILE__, __LINE__ });
 
@@ -346,24 +353,24 @@ namespace corona
 
 		// partial keys are equal.
 		comp3.clear();
-		comp3.add(4.0);
+		comp3.add(1, 4.0);
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 1", result, __FILE__, __LINE__ });
 
-		comp3.add("hello");
+		comp3.add(2, "hello");
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 2", result, __FILE__, __LINE__ });
 
-		comp3.add(42i64);
+		comp3.add(3, 42i64);
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 3", result, __FILE__, __LINE__ });
 
 		comp3.clear();
-		comp3.add(2.0);
+		comp3.add(1, 2.0);
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 1", result, __FILE__, __LINE__ });
 
-		comp3.add("hello");
+		comp3.add(2, "hello");
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 2", result, __FILE__, __LINE__ });
 
@@ -373,8 +380,7 @@ namespace corona
 		result = not (comp1 < comp3);
 		_tests->test({ "xr < key 3, swo", result, __FILE__, __LINE__ });
 
-
-		comp3.add(42i64);
+		comp3.add(3, 42i64);
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 3", result, __FILE__, __LINE__ });
 
@@ -383,7 +389,7 @@ namespace corona
 
 		// implied equality
 		comp3.clear();
-		comp3.add(4.0);
+		comp3.add(1, 4.0);
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 2.1", result, __FILE__, __LINE__ });
 
@@ -391,7 +397,7 @@ namespace corona
 		_tests->test({ "xr < key 2.1 swo", result, __FILE__, __LINE__ });
 
 
-		comp3.add("hello");
+		comp3.add(2, "hello");
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 2.2", result, __FILE__, __LINE__ });
 
@@ -399,7 +405,7 @@ namespace corona
 		_tests->test({ "xr < key 2.2 swo", result, __FILE__, __LINE__ });
 
 
-		comp3.add(43i64);
+		comp3.add(3, 43i64);
 		result = not(comp3 < comp1);
 		_tests->test({ "xr < key 2.3", result, __FILE__, __LINE__ });
 
@@ -408,8 +414,8 @@ namespace corona
 
 
 		comp3.clear();
-		comp3.add(4.0);
-		comp3.add("ahello");
+		comp3.add(1, 4.0);
+		comp3.add(2, "ahello");
 		result = comp3 < comp1;
 		_tests->test({ "xr < key 3.1", result, __FILE__, __LINE__ });
 		result = not(comp1 < comp3);
@@ -419,28 +425,28 @@ namespace corona
 
 		// partial keys are equal.
 		comp3.clear();
-		comp3.add(4.0);
+		comp3.add(1, 4.0);
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 1", result, __FILE__, __LINE__ });
 
-		comp3.add("hello");
+		comp3.add(2, "hello");
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 2", result, __FILE__, __LINE__ });
 
-		comp3.add(42i64);
+		comp3.add(3, 42i64);
 		result = comp3 == comp1;
 		_tests->test({ "xr == key 3", result, __FILE__, __LINE__ });
 
 		comp3.clear();
-		comp3.add(2.0);
+		comp3.add(1, 2.0);
 		result = not (comp3 == comp1);
 		_tests->test({ "xr == key 1", result, __FILE__, __LINE__ });
 
-		comp3.add("hello");
+		comp3.add(2, "hello");
 		result = not (comp3 == comp1);
 		_tests->test({ "xr == key 2", result, __FILE__, __LINE__ });
 
-		comp3.add(42i64);
+		comp3.add(3, 42i64);
 		result = not (comp3 == comp1);
 		_tests->test({ "xr == key 3", result, __FILE__, __LINE__ });
 
@@ -490,16 +496,16 @@ namespace corona
 
 		// and now, unit tests that simulate our indexes.
 		comp1.clear();
-		comp1.add("Roger");
-		comp1.add(13i64);
+		comp1.add(1, "Roger");
+		comp1.add(2, 13i64);
 
 		comp2.clear();
-		comp2.add("Sam");
-		comp2.add(14i64);
+		comp2.add(1, "Sam");
+		comp2.add(2, 14i64);
 
 		comp3.clear();
-		comp3.add("Xavier");
-		comp3.add(15i64);
+		comp3.add(1, "Xavier");
+		comp3.add(2, 15i64);
 
 		result = comp1 < comp2;
 		_tests->test({ "index <", result, __FILE__, __LINE__ });
