@@ -21,7 +21,7 @@ namespace corona
 	};
 
 	template <typename storable_type>
-	concept xblock_storable = requires(storable_type a, size_t b, char *buff, const char* src, size_t *length)
+	concept xblock_storable = requires(storable_type a, size_t b, char *buff, const char* src, int32_t *length)
 	{
 		{ a.before_read(b) == buff };
 		{ a.after_read(buff, b) };
@@ -55,8 +55,31 @@ namespace corona
 			location = src->location;
 		}
 
-		size_t size() { return sizeof(xblock_ref); }
-		const char* data() { return (const char*)this; }
+		virtual char* before_read(int32_t _size)
+		{
+			char* bytes = (char *)this;
+			return bytes;
+		}
+
+		virtual void after_read(char* _bytes, int32_t _size)
+		{
+		}
+
+		virtual char* before_write(int32_t* _size)
+		{
+			*_size = sizeof(xblock_ref);
+			return (char *)this;
+		}
+
+		virtual void after_write(char* _t)
+		{
+
+		}
+
+		virtual void finished_io(char* _bytes)
+		{
+		}
+
 	};
 
 	class xfor_each_result

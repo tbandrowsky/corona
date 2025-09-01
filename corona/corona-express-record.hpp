@@ -41,7 +41,7 @@ namespace corona
 		return ((int32_t)fta << 8) | (int32_t)ftb;
 	}
 
-	static field_types allowed_field_type_operations[65536] = { ft_string };
+	static field_types allowed_field_type_operations[65536] = { field_types::ft_string };
 
 	void init_field_comparisons()
 	{
@@ -94,12 +94,12 @@ namespace corona
                 throw std::logic_error("field ids must be added in ascending order");
 			f.field_id = _field_id;
 			f.record_offset = get_end();
-			f.size_bytes = sizeof(d);
+			f.size_bytes = sizeof(_d);
 			f.field_type = _field_type;
 			field_data.push_back(f);
 			record_data.resize(record_data.size() + f.size_bytes);
-			char* I = (char*)&_d;
-			std::copy(I, I + _length, record_data.begin() + f.record_offset);
+			T* target = (char*)&_d;
+			*target = _d;
 		}
 
 		std::strong_ordering strong_compare(double a, double b) const
@@ -345,38 +345,41 @@ namespace corona
 				break;
 				case field_types::ft_array:
 				{
-					std::string s;
-					std::string s = m.to_json_typed();
-					add(acol.field_id, s);
+					std::string a = m.to_json_typed();
+					add(acol.field_id, a);
 				}
 				break;
 				case field_types::ft_object:
 				{
-					std::string s;
-					std::string s = m.to_json_typed();
-					add(acol.field_id, s);
+					std::string o = m.to_json_typed();
+					add(acol.field_id, o);
 				}
 				break;
 				case field_types::ft_double:
 					{
-						double s = (double)m;
-						add(acol.field_id, s);
+						double f8 = (double)m;
+						add(acol.field_id, f8);
 					}
 					break;
 				case field_types::ft_datetime:
 					{
-						date_time s = (date_time)m;
-						add(acol.field_id, s);
+						date_time dt = (date_time)m;
+						add(acol.field_id, dt);
 					}
 					break;
 				case field_types::ft_int64:
 					{
-						int64_t s = (int64_t)m;
-						add(acol.field_id, s);
+						int64_t i8 = (int64_t)m;
+						add(acol.field_id, i8);
 					}
 					break;
 				}
 			}
+		}
+
+		bool is_empty()
+		{
+			return this->record_data.size() == 0 and field_data.size() == 0;
 		}
 
 		void get_json(xtable_columns* _xt, json& _dest) const
