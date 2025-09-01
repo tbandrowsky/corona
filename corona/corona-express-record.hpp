@@ -36,6 +36,7 @@ namespace corona
 
 	struct xrecord
 	{
+	protected:
 		std::vector<xfield> field_data;
 		std::vector<char> record_data;
 
@@ -302,12 +303,33 @@ namespace corona
 			return temp;
 		}
 
+		std::strong_ordering compare_field(this_field_idx, that_field_idx, _other)
+		{
+
+		}
+
         std::strong_ordering operator<=>(const xrecord& _other) const
         {
-			int start_idx = 0;
-			for (int i = 0; i < field_data.size(); i++)
+			int this_idx = 0;
+			int that_idx = 0;
+			while (this_idx < field_data.size() && that_idx < _other.field_data.size())
 			{
-				for ()
+                int this_field_id = field_data[this_idx].field_id;
+                int that_field_id = _other.field_data[that_idx].field_id;
+
+				if (this_field == that_field) {
+
+					auto ordering = compare_field(this_field_idx, that_field_idx, _other);
+
+					that_idx++;
+					this_idx++;
+                }
+                else if (this_field < that_field) {
+                    this_idx++;
+                }
+				else if (this_field > that_field) {
+					that_idx++;
+				}
 
 			}
         }
