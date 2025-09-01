@@ -556,41 +556,10 @@ namespace corona
                 return 0;
 		}
 
-		std::weak_ordering operator <=>(const date_time& _src) const
+		std::strong_ordering operator <=>(const date_time& _src) const
 		{
 			return sql_date_time <=> _src.sql_date_time;
 		}
-
-		bool operator<(const date_time& b) const
-		{
-			return compare(b) < 0;
-		}
-
-		bool operator>(const date_time& b) const
-		{
-			return compare(b) > 0;
-		}
-
-		bool operator>=(const date_time& b) const
-		{
-			return compare(b) == 0;
-		}
-
-		bool operator<=(const date_time& b) const
-		{
-			return compare(b) <= 0;
-		}
-
-		bool operator==(const date_time& b) const
-		{
-			return compare(b) == 0;
-		}
-
-		bool operator!=(const date_time& b) const
-		{
-			return compare(b) != 0;
-		}
-
 
 		bool operator<(const double& b) const
 		{

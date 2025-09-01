@@ -102,6 +102,115 @@ namespace corona
 			std::copy(I, I + _length, record_data.begin() + f.record_offset);
 		}
 
+		std::strong_ordering strong_compare(double a, double b) const
+		{
+			if (std::isnan(a) && std::isnan(b)) return std::strong_ordering::equal;
+			if (std::isnan(a)) return std::strong_ordering::less;
+			if (std::isnan(b)) return std::strong_ordering::greater;
+			if (a < b) return std::strong_ordering::less;
+			if (a > b) return std::strong_ordering::greater;
+			return std::strong_ordering::equal;
+		}
+
+		std::strong_ordering compare_field(int32_t this_field_idx, int32_t that_field_idx, const xrecord& _other) const
+		{
+
+			std::strong_ordering comparison;
+
+			auto& this_field = field_data[this_field_idx];
+			auto& that_field = _other.field_data[that_field_idx];
+
+			const char* this_data = &record_data[this_field.record_offset];
+			const char* that_data = &_other.record_data[that_field.record_offset];
+
+			field_types op_type = allowed_field_type_operations[make_field_pair(this_field.field_type, that_field.field_type)];
+
+			if (op_type == field_types::ft_string)
+			{
+				std::string stringthis, stringthat;
+
+				if (this_field.field_type == field_types::ft_string)
+					stringthis = std::string(this_data, this_field.size_bytes);
+				else if (this_field.field_type == field_types::ft_double)
+					stringthis = std::to_string(*((double*)this_data));
+				else if (this_field.field_type == field_types::ft_int64)
+					stringthis = std::to_string(*((int64_t*)this_data));
+
+				if (that_field.field_type == field_types::ft_string)
+					stringthat = std::string(that_data, that_field.size_bytes);
+				else if (that_field.field_type == field_types::ft_double)
+					stringthat = std::to_string(*((double*)that_data));
+				else if (that_field.field_type == field_types::ft_int64)
+					stringthat = std::to_string(*((int64_t*)that_data));
+
+				comparison = stringthis <=> stringthat;
+			}
+			else if (op_type == field_types::ft_double)
+			{
+				double doublethis, doublethat;
+
+				if (this_field.field_type == field_types::ft_double)
+					doublethis = *((double*)this_data);
+				else if (this_field.field_type == field_types::ft_string)
+					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+				else if (this_field.field_type == field_types::ft_int64)
+					doublethis = (double)(*((int64_t*)this_data));
+				else if (this_field.field_type == field_types::ft_bool)
+					doublethis = (double)(*((bool*)this_data));
+				else if (this_field.field_type == field_types::ft_array)
+					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+				else if (this_field.field_type == field_types::ft_object)
+					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+
+				if (that_field.field_type == field_types::ft_double)
+					doublethat = *((double*)that_data);
+				else if (that_field.field_type == field_types::ft_string)
+					doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+				else if (that_field.field_type == field_types::ft_int64)
+					doublethat = (double)(*((int64_t*)that_data));
+				else if (that_field.field_type == field_types::ft_bool)
+					doublethat = (double)(*((bool*)that_data));
+				else if (that_field.field_type == field_types::ft_array)
+					doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+				else if (that_field.field_type == field_types::ft_object)
+					doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+
+				comparison = strong_compare(doublethis, doublethat);
+			}
+			else if (op_type == field_types::ft_int64)
+			{
+				int64_t int64this, int64that;
+
+				if (this_field.field_type == field_types::ft_int64)
+					int64this = *((int64_t*)this_data);
+				else if (this_field.field_type == field_types::ft_string)
+					int64this = std::strtoll(std::string(this_data, this_field.size_bytes).c_str(), nullptr, 10);
+				else if (this_field.field_type == field_types::ft_double)
+					int64this = (int64_t)(*((double*)this_data));
+
+				if (that_field.field_type == field_types::ft_int64)
+					int64that = *((int64_t*)that_data);
+				else if (that_field.field_type == field_types::ft_string)
+					int64that = std::strtoll(std::string(that_data, that_field.size_bytes).c_str(), nullptr, 10);
+				else if (that_field.field_type == field_types::ft_double)
+					int64that = (int64_t)(*((double*)that_data));
+
+				comparison = int64this <=> int64that;
+			}
+			else if (op_type == field_types::ft_datetime)
+			{
+				date_time datetimethis, datetimethat;
+
+				if (this_field.field_type == field_types::ft_datetime)
+					datetimethis = *((date_time*)this_data);
+
+				if (that_field.field_type == field_types::ft_datetime)
+					datetimethat = *((date_time*)that_data);
+
+				comparison = datetimethis <=> datetimethat;
+			}
+		}
+
 	public:
 
 		xrecord() = default;
@@ -109,6 +218,7 @@ namespace corona
 		xrecord(xrecord&& _xrecord) = default;
 		xrecord &operator =(const xrecord& _xrecord) = default;
 		xrecord &operator =(xrecord&& _xrecord) = default;
+		bool operator ==(const xrecord& _other) const = default;
 
         void add(int32_t _field_id, const char* _data, size_t _length, field_types _field_type)
         {
@@ -330,139 +440,25 @@ namespace corona
 			return temp;
 		}
 
-		std::strong_ordering strong_compare(double a, double b) {
-			if (std::isnan(a) && std::isnan(b)) return std::strong_ordering::equal;
-			if (std::isnan(a)) return std::strong_ordering::less;
-			if (std::isnan(b)) return std::strong_ordering::greater;
-			if (a < b) return std::strong_ordering::less;
-			if (a > b) return std::strong_ordering::greater;
-			return std::strong_ordering::equal;
-		}
-
-		std::strong_ordering strong_compare(date_time& a, date_time& b) {
-			if (a.return std::strong_ordering::equal;
-			if (std::isnan(a)) return std::strong_ordering::less;
-			if (std::isnan(b)) return std::strong_ordering::greater;
-			if (a < b) return std::strong_ordering::less;
-			if (a > b) return std::strong_ordering::greater;
-			return std::strong_ordering::equal;
-		}
-
-		std::strong_ordering compare_field(int32_t this_field_idx, int32_t that_field_idx, const xrecord& _other)	
-		{
-
-			std::strong_ordering comparison;
-
-			auto& this_field = field_data[this_field_idx];
-			auto& that_field = _other.field_data[that_field_idx];
-
-            const char* this_data = &record_data[this_field.record_offset];
-            const char* that_data = &_other.record_data[that_field.record_offset];
-
-            field_types op_type = allowed_field_type_operations[make_field_pair(this_field.field_type, that_field.field_type)];
-
-			if (op_type == field_types::ft_string)
-			{
-				std::string stringthis, stringthat;
-
-                if (this_field.field_type == field_types::ft_string)
-                    stringthis = std::string(this_data, this_field.size_bytes);
-                else if (this_field.field_type == field_types::ft_double)
-                    stringthis = std::to_string(*((double*)this_data));
-                else if (this_field.field_type == field_types::ft_int64)
-                    stringthis = std::to_string(*((int64_t*)this_data));
-
-                if (that_field.field_type == field_types::ft_string)	
-                    stringthat = std::string(that_data, that_field.size_bytes);
-                else if (that_field.field_type == field_types::ft_double)
-                    stringthat = std::to_string(*((double*)that_data));
-                else if (that_field.field_type == field_types::ft_int64)
-                    stringthat = std::to_string(*((int64_t*)that_data));
-
-				comparison = stringthis <=> stringthat;
-			}
-			else if (op_type == field_types::ft_double)
-			{
-				double doublethis, doublethat;
-
-                if (this_field.field_type == field_types::ft_double)
-                    doublethis = *((double*)this_data);
-                else if (this_field.field_type == field_types::ft_string)
-                    doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
-                else if (this_field.field_type == field_types::ft_int64)
-                    doublethis = (double)(*((int64_t*)this_data));
-                else if (this_field.field_type == field_types::ft_bool)
-					doublethis = (double)(*((bool*)this_data));
-				else if (this_field.field_type == field_types::ft_array)
-					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
-				else if (this_field.field_type == field_types::ft_object)
-					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
-
-                if (that_field.field_type == field_types::ft_double)
-                    doublethat = *((double*)that_data);
-                else if (that_field.field_type == field_types::ft_string)
-                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
-                else if (that_field.field_type == field_types::ft_int64)
-                    doublethat = (double)(*((int64_t*)that_data));
-                else if (that_field.field_type == field_types::ft_bool)
-                    doublethat = (double)(*((bool*)that_data));
-                else if (that_field.field_type == field_types::ft_array)
-                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
-                else if (that_field.field_type == field_types::ft_object)
-                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
-
-				comparison = strong_compare(doublethis,doublethat);
-			}
-			else if (op_type == field_types::ft_int64)
-			{
-				int64_t int64this, int64that;
-
-                if (this_field.field_type == field_types::ft_int64)
-                    int64this = *((int64_t*)this_data);
-                else if (this_field.field_type == field_types::ft_string)
-                    int64this = std::strtoll(std::string(this_data, this_field.size_bytes).c_str(), nullptr, 10);
-                else if (this_field.field_type == field_types::ft_double)
-                    int64this = (int64_t)(*((double*)this_data));
-
-                if (that_field.field_type == field_types::ft_int64)
-                    int64that = *((int64_t*)that_data);
-                else if (that_field.field_type == field_types::ft_string)
-                    int64that = std::strtoll(std::string(that_data, that_field.size_bytes).c_str(), nullptr, 10);
-                else if (that_field.field_type == field_types::ft_double)
-                    int64that = (int64_t)(*((double*)that_data));
-
-                comparison = int64this <=> int64that;
-			}
-			else if (op_type == field_types::ft_datetime)
-			{
-				date_time datetimethis, datetimethat;
-
-                if (this_field.field_type == field_types::ft_datetime)
-                    datetimethis = *((date_time*)this_data);
-
-                if (that_field.field_type == field_types::ft_datetime)
-                    datetimethat = *((date_time*)that_data);
-
-				comparison = datetimethis <=> datetimethat;
-
-			}
-		}
 
         std::strong_ordering operator<=>(const xrecord& _other) const
         {
 			int32_t this_idx = 0;
 			int32_t that_idx = 0;
+			int32_t comparison_count = 0;
+
 			while (this_idx < field_data.size() && that_idx < _other.field_data.size())
 			{
 				int32_t this_field_id = field_data[this_idx].field_id;
 				int32_t that_field_id = _other.field_data[that_idx].field_id;
 
 				if (this_field_id == that_field_id) {
-
 					auto ordering = compare_field(this_idx, that_idx, _other);
-
+					if (ordering != std::strong_ordering::equal)
+						return ordering;
 					that_idx++;
 					this_idx++;
+					comparison_count++;
                 }
                 else if (this_field_id < that_field_id) {
                     this_idx++;
@@ -470,12 +466,25 @@ namespace corona
 				else if (this_field_id > that_field_id) {
 					that_idx++;
 				}
-
 			}
+
+			std::strong_ordering ordering;
+
+            if (comparison_count == _other.field_data.size() or comparison_count == field_data.size())
+				ordering = std::strong_ordering::equal;
+			else if (_other.field_data.size() > field_data.size())
+				ordering = std::strong_ordering::greater;
+			else 
+				ordering = std::strong_ordering::less;
+			return ordering;
         }
 
+		void clear()
+		{
+            field_data.clear();
+            record_data.clear();
+		}
 	};
-
 
 
 	void test_xrecord(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
