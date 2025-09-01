@@ -29,10 +29,35 @@ namespace corona
 	class xfield
 	{
 	public:
-        int32_t                 field_id;
 		int32_t					record_offset;
-        int32_t                 size_bytes;
+		int32_t                 size_bytes;
+		int32_t                 field_id;
+		field_types	            field_type;
 	};
+
+	typedef int32_t field_pair_type;
+	field_pair_type make_field_pair(field_types fta, field_types ftb)
+	{
+		return ((int32_t)fta << 8) | (int32_t)ftb;
+	}
+
+	static field_types allowed_field_type_operations[65536] = { ft_string };
+
+	void init_field_comparisons()
+	{
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_double)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_string)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_int64)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_int64)] = field_types::ft_int64;
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_double)] = field_types::ft_int64;
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_string)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_double)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_int64)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_datetime, field_types::ft_datetime)] = field_types::ft_datetime;
+	}
 
 	struct xrecord
 	{
@@ -62,7 +87,7 @@ namespace corona
 			return f.record_offset + f.size_bytes;
 		}
 
-		template<typename T> void add_poco(int32_t _field_id, T _d)
+		template<typename T> void add_poco(int32_t _field_id, T _d, field_types _field_type)
 		{
 			xfield f;
             if (_field_id <= get_last_id())
@@ -70,6 +95,7 @@ namespace corona
 			f.field_id = _field_id;
 			f.record_offset = get_end();
 			f.size_bytes = sizeof(d);
+			f.field_type = _field_type;
 			field_data.push_back(f);
 			record_data.resize(record_data.size() + f.size_bytes);
 			char* I = (char*)&_d;
@@ -84,7 +110,7 @@ namespace corona
 		xrecord &operator =(const xrecord& _xrecord) = default;
 		xrecord &operator =(xrecord&& _xrecord) = default;
 
-        void add(int32_t _field_id, const char* _data, size_t _length)
+        void add(int32_t _field_id, const char* _data, size_t _length, field_types _field_type)
         {
             xfield f;
 			if (_field_id <= get_last_id())
@@ -92,6 +118,7 @@ namespace corona
 			f.field_id = _field_id;
 			f.record_offset = get_end();
             f.size_bytes = _length;
+            f.field_type = _field_type;
             field_data.push_back(f);
             record_data.resize(record_data.size() + _length);
             std::copy(_data, _data + _length, record_data.begin() + f.record_offset);
@@ -99,22 +126,22 @@ namespace corona
 
 		void add(int32_t _field_id, double _d)
 		{
-            add_poco<double>(_field_id, _d);
+            add_poco<double>(_field_id, _d, field_types::ft_double);
 		}
 
 		void add(int32_t _field_id, date_time _d)
 		{
-			add_poco<date_time>(_field_id, _d);
+			add_poco<date_time>(_field_id, _d, field_types::ft_datetime);
 		}
 
 		void add(int32_t _field_id, int64_t _d)
 		{
-			add_poco<int64_t>(_field_id, _d);
+			add_poco<int64_t>(_field_id, _d, field_types::ft_int64);
 		}
 
 		void add(int32_t _field_id, const std::string& _d)
 		{
-			add(_field_id, _d.c_str(), _d.size());
+			add(_field_id, _d.c_str(), _d.size(), field_types::ft_string);
 		}
 
 		virtual char* before_read(int32_t _size)  
@@ -303,31 +330,144 @@ namespace corona
 			return temp;
 		}
 
-		std::strong_ordering compare_field(this_field_idx, that_field_idx, _other)
+		std::strong_ordering strong_compare(double a, double b) {
+			if (std::isnan(a) && std::isnan(b)) return std::strong_ordering::equal;
+			if (std::isnan(a)) return std::strong_ordering::less;
+			if (std::isnan(b)) return std::strong_ordering::greater;
+			if (a < b) return std::strong_ordering::less;
+			if (a > b) return std::strong_ordering::greater;
+			return std::strong_ordering::equal;
+		}
+
+		std::strong_ordering strong_compare(date_time& a, date_time& b) {
+			if (a.return std::strong_ordering::equal;
+			if (std::isnan(a)) return std::strong_ordering::less;
+			if (std::isnan(b)) return std::strong_ordering::greater;
+			if (a < b) return std::strong_ordering::less;
+			if (a > b) return std::strong_ordering::greater;
+			return std::strong_ordering::equal;
+		}
+
+		std::strong_ordering compare_field(int32_t this_field_idx, int32_t that_field_idx, const xrecord& _other)	
 		{
 
+			std::strong_ordering comparison;
+
+			auto& this_field = field_data[this_field_idx];
+			auto& that_field = _other.field_data[that_field_idx];
+
+            const char* this_data = &record_data[this_field.record_offset];
+            const char* that_data = &_other.record_data[that_field.record_offset];
+
+            field_types op_type = allowed_field_type_operations[make_field_pair(this_field.field_type, that_field.field_type)];
+
+			if (op_type == field_types::ft_string)
+			{
+				std::string stringthis, stringthat;
+
+                if (this_field.field_type == field_types::ft_string)
+                    stringthis = std::string(this_data, this_field.size_bytes);
+                else if (this_field.field_type == field_types::ft_double)
+                    stringthis = std::to_string(*((double*)this_data));
+                else if (this_field.field_type == field_types::ft_int64)
+                    stringthis = std::to_string(*((int64_t*)this_data));
+
+                if (that_field.field_type == field_types::ft_string)	
+                    stringthat = std::string(that_data, that_field.size_bytes);
+                else if (that_field.field_type == field_types::ft_double)
+                    stringthat = std::to_string(*((double*)that_data));
+                else if (that_field.field_type == field_types::ft_int64)
+                    stringthat = std::to_string(*((int64_t*)that_data));
+
+				comparison = stringthis <=> stringthat;
+			}
+			else if (op_type == field_types::ft_double)
+			{
+				double doublethis, doublethat;
+
+                if (this_field.field_type == field_types::ft_double)
+                    doublethis = *((double*)this_data);
+                else if (this_field.field_type == field_types::ft_string)
+                    doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+                else if (this_field.field_type == field_types::ft_int64)
+                    doublethis = (double)(*((int64_t*)this_data));
+                else if (this_field.field_type == field_types::ft_bool)
+					doublethis = (double)(*((bool*)this_data));
+				else if (this_field.field_type == field_types::ft_array)
+					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+				else if (this_field.field_type == field_types::ft_object)
+					doublethis = std::strtod(std::string(this_data, this_field.size_bytes).c_str(), nullptr);
+
+                if (that_field.field_type == field_types::ft_double)
+                    doublethat = *((double*)that_data);
+                else if (that_field.field_type == field_types::ft_string)
+                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+                else if (that_field.field_type == field_types::ft_int64)
+                    doublethat = (double)(*((int64_t*)that_data));
+                else if (that_field.field_type == field_types::ft_bool)
+                    doublethat = (double)(*((bool*)that_data));
+                else if (that_field.field_type == field_types::ft_array)
+                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+                else if (that_field.field_type == field_types::ft_object)
+                    doublethat = std::strtod(std::string(that_data, that_field.size_bytes).c_str(), nullptr);
+
+				comparison = strong_compare(doublethis,doublethat);
+			}
+			else if (op_type == field_types::ft_int64)
+			{
+				int64_t int64this, int64that;
+
+                if (this_field.field_type == field_types::ft_int64)
+                    int64this = *((int64_t*)this_data);
+                else if (this_field.field_type == field_types::ft_string)
+                    int64this = std::strtoll(std::string(this_data, this_field.size_bytes).c_str(), nullptr, 10);
+                else if (this_field.field_type == field_types::ft_double)
+                    int64this = (int64_t)(*((double*)this_data));
+
+                if (that_field.field_type == field_types::ft_int64)
+                    int64that = *((int64_t*)that_data);
+                else if (that_field.field_type == field_types::ft_string)
+                    int64that = std::strtoll(std::string(that_data, that_field.size_bytes).c_str(), nullptr, 10);
+                else if (that_field.field_type == field_types::ft_double)
+                    int64that = (int64_t)(*((double*)that_data));
+
+                comparison = int64this <=> int64that;
+			}
+			else if (op_type == field_types::ft_datetime)
+			{
+				date_time datetimethis, datetimethat;
+
+                if (this_field.field_type == field_types::ft_datetime)
+                    datetimethis = *((date_time*)this_data);
+
+                if (that_field.field_type == field_types::ft_datetime)
+                    datetimethat = *((date_time*)that_data);
+
+				comparison = datetimethis <=> datetimethat;
+
+			}
 		}
 
         std::strong_ordering operator<=>(const xrecord& _other) const
         {
-			int this_idx = 0;
-			int that_idx = 0;
+			int32_t this_idx = 0;
+			int32_t that_idx = 0;
 			while (this_idx < field_data.size() && that_idx < _other.field_data.size())
 			{
-                int this_field_id = field_data[this_idx].field_id;
-                int that_field_id = _other.field_data[that_idx].field_id;
+				int32_t this_field_id = field_data[this_idx].field_id;
+				int32_t that_field_id = _other.field_data[that_idx].field_id;
 
-				if (this_field == that_field) {
+				if (this_field_id == that_field_id) {
 
-					auto ordering = compare_field(this_field_idx, that_field_idx, _other);
+					auto ordering = compare_field(this_idx, that_idx, _other);
 
 					that_idx++;
 					this_idx++;
                 }
-                else if (this_field < that_field) {
+                else if (this_field_id < that_field_id) {
                     this_idx++;
                 }
-				else if (this_field > that_field) {
+				else if (this_field_id > that_field_id) {
 					that_idx++;
 				}
 
@@ -347,6 +487,8 @@ namespace corona
 		using namespace std::literals;
 
 		xrecord comp1, comp2, comp3, test_in, test_out;
+
+		init_field_comparisons();
 
 		json_parser jp;
         json test_obj = jp.create_object();

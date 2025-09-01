@@ -65,11 +65,46 @@ namespace corona
 		}
 	};
 
+	class SQL_TIMESTAMP_STRUCT_CORONA {
+	public:
+		SQLSMALLINT    year;
+		SQLUSMALLINT   month;
+		SQLUSMALLINT   day;
+		SQLUSMALLINT   hour;
+		SQLUSMALLINT   minute;
+		SQLUSMALLINT   second;
+		SQLUINTEGER    fraction;
+
+		SQL_TIMESTAMP_STRUCT_CORONA() = default;
+		SQL_TIMESTAMP_STRUCT_CORONA(const SQL_TIMESTAMP_STRUCT_CORONA& _src) = default;
+		SQL_TIMESTAMP_STRUCT_CORONA(SQL_TIMESTAMP_STRUCT_CORONA&& _src) = default;
+		SQL_TIMESTAMP_STRUCT_CORONA& operator = (const SQL_TIMESTAMP_STRUCT_CORONA& _src) = default;
+		SQL_TIMESTAMP_STRUCT_CORONA& operator = (SQL_TIMESTAMP_STRUCT_CORONA&& _src) = default;
+        std::strong_ordering operator<=>(const SQL_TIMESTAMP_STRUCT_CORONA& _other) const
+        {
+            if (year != _other.year)
+                return year <=> _other.year;
+            if (month != _other.month)
+                return month <=> _other.month;
+            if (day != _other.day)
+                return day <=> _other.day;
+            if (hour != _other.hour)
+                return hour <=> _other.hour;
+            if (minute != _other.minute)
+                return minute <=> _other.minute;
+            if (second != _other.second)
+                return second <=> _other.second;
+            if (fraction != _other.fraction)
+                return fraction <=> _other.fraction;
+            return std::strong_ordering::equal;
+        }
+	};
+
 	class date_time
 	{
-		SQL_TIMESTAMP_STRUCT  sql_date_time;
+		SQL_TIMESTAMP_STRUCT_CORONA  sql_date_time;
 
-		void system_time_to_sql_time(const SYSTEMTIME& sysTime, SQL_TIMESTAMP_STRUCT& sqlTimestamp) const 
+		void system_time_to_sql_time(const SYSTEMTIME& sysTime, SQL_TIMESTAMP_STRUCT_CORONA& sqlTimestamp) const
 		{
 			sqlTimestamp.year = sysTime.wYear;
 			sqlTimestamp.month = sysTime.wMonth;
@@ -80,7 +115,7 @@ namespace corona
 			sqlTimestamp.fraction = sysTime.wMilliseconds * 1000000i64; // Convert milliseconds to nanoseconds
 		}
 
-		void sql_time_to_system_time(const SQL_TIMESTAMP_STRUCT& sqlTimestamp, SYSTEMTIME& sysTime)  const 
+		void sql_time_to_system_time(const SQL_TIMESTAMP_STRUCT_CORONA& sqlTimestamp, SYSTEMTIME& sysTime)  const
 		{
 			sysTime.wYear = sqlTimestamp.year;
 			sysTime.wMonth = sqlTimestamp.month;
@@ -513,45 +548,17 @@ namespace corona
 
 		int compare(const date_time& _src) const
 		{
-			FILETIME fthis, fsrc;
-			
-			SYSTEMTIME system_time;
-			sql_time_to_system_time(sql_date_time, system_time);
-			SystemTimeToFileTime(&system_time, &fthis);
-
-			SYSTEMTIME system_time_2;
-			sql_time_to_system_time(_src.sql_date_time, system_time_2);
-			SystemTimeToFileTime(&system_time_2, &fsrc);
-			LARGE_INTEGER lithis, lisrc;
-			lithis.HighPart = fthis.dwHighDateTime;
-			lithis.LowPart = fthis.dwLowDateTime;
-			lisrc.HighPart = fsrc.dwHighDateTime;
-			lisrc.LowPart = fsrc.dwLowDateTime;
-			if (lithis.QuadPart < lisrc.QuadPart)
-				return -1;
-			else if (lithis.QuadPart > lisrc.QuadPart)
-				return 1;
-			else
-				return 0;
+            if (sql_date_time < _src.sql_date_time)
+                return -1;
+            else if (sql_date_time > _src.sql_date_time)
+                return 1;
+            else
+                return 0;
 		}
 
 		std::weak_ordering operator <=>(const date_time& _src) const
 		{
-			FILETIME fthis, fsrc;
-			SYSTEMTIME system_time;
-			sql_time_to_system_time(sql_date_time, system_time);
-			SystemTimeToFileTime(&system_time, &fthis);
-
-			SYSTEMTIME system_time_2;
-			sql_time_to_system_time(_src.sql_date_time, system_time_2);
-			SystemTimeToFileTime(&system_time_2, &fsrc);
-			LARGE_INTEGER lithis, lisrc;
-			lithis.HighPart = fthis.dwHighDateTime;
-			lithis.LowPart = fthis.dwLowDateTime;
-			lisrc.HighPart = fsrc.dwHighDateTime;
-			lisrc.LowPart = fsrc.dwLowDateTime;
-			auto temp = lithis.QuadPart <=> lisrc.QuadPart;
-			return temp;
+			return sql_date_time <=> _src.sql_date_time;
 		}
 
 		bool operator<(const date_time& b) const
