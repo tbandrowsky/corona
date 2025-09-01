@@ -21,11 +21,12 @@ namespace corona
 	};
 
 	template <typename storable_type>
-	concept xblock_storable = requires(storable_type a, size_t b, const char* src, size_t length)
+	concept xblock_storable = requires(storable_type a, size_t b, char *buff, const char* src, size_t *length)
 	{
-		{ a.size() == b };
-		{ a.data() == src };
-		{ storable_type(src, length) };
+		{ a.before_read(b) == buff };
+		{ a.after_read(buff, b) };
+		{ a.before_write(length) == buff };
+		{ a.after_write(buff) };
 	};
 
 	struct xblock_ref
