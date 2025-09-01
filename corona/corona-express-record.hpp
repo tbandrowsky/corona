@@ -41,6 +41,16 @@ namespace corona
 
 		// and field stuff
 
+		int32_t get_last_id()
+		{
+			int32_t last_id = 0;
+			if (field_data.size() == 0)
+				return last_id;
+
+			xfield& f = field_data.back();
+			return f.field_id;
+		}
+
 		int32_t get_end()
 		{
 			int32_t offset = 0;
@@ -54,6 +64,8 @@ namespace corona
 		template<typename T> void add_poco(int32_t _field_id, T _d)
 		{
 			xfield f;
+            if (_field_id <= get_last_id())
+                throw std::logic_error("field ids must be added in ascending order");
 			f.field_id = _field_id;
 			f.record_offset = get_end();
 			f.size_bytes = sizeof(d);
@@ -66,15 +78,17 @@ namespace corona
 	public:
 
 		xrecord() = default;
-		xrecord(const xrecord& _xrecord2) = default;
-		xrecord(xrecord&& _xrecord2) = default;
-		xrecord &operator =(const xrecord2& _xrecord2) = default;
-		xrecord &operator =(xrecord2&& _xrecord2) = default;
+		xrecord(const xrecord& _xrecord) = default;
+		xrecord(xrecord&& _xrecord) = default;
+		xrecord &operator =(const xrecord& _xrecord) = default;
+		xrecord &operator =(xrecord&& _xrecord) = default;
 
         void add(int32_t _field_id, const char* _data, size_t _length)
         {
             xfield f;
-            f.field_id = _field_id;
+			if (_field_id <= get_last_id())
+				throw std::logic_error("field ids must be added in ascending order");
+			f.field_id = _field_id;
 			f.record_offset = get_end();
             f.size_bytes = _length;
             field_data.push_back(f);
@@ -288,6 +302,36 @@ namespace corona
 			return temp;
 		}
 
+        std::strong_ordering operator<=>(const xrecord& _other) const
+        {
+            size_t len = field_data.size();
+            if (len > _other.field_data.size())
+                len = _other.field_data.size();
+            for (size_t i = 0; i < len; i++)
+            {
+                auto& f1 = field_data[i];
+                auto& f2 = _other.field_data[i];
+                if (f1.field_id < f2.field_id)
+                    return std::strong_ordering::less;
+                if (f1.field_id > f2.field_id)
+                    return std::strong_ordering::greater;
+                if (f1.size_bytes < f2.size_bytes)
+                    return std::strong_ordering::less;
+                if (f1.size_bytes > f2.size_bytes)
+                    return std::strong_ordering::greater;
+                int cmp = memcmp(&record_data[f1.record_offset], &(_other.record_data[f2.record_offset]), f1.size_bytes);
+                if (cmp < 0)
+                    return std::strong_ordering::less;
+                if (cmp > 0)
+                    return std::strong_ordering::greater;
+            }
+            if (field_data.size() < _other.field_data.size())
+                return std::strong_ordering::less;
+            if (field_data.size() > _other.field_data.size())
+                return std::strong_ordering::greater;
+            return std::strong_ordering::equal;
+        }
+
 	};
 
 
@@ -457,11 +501,15 @@ namespace corona
 		jsrc.put_member_i64("Atoms", 124);
 		jsrc.put_member("Today", date_time::now());
 
-		std::vector<std::string> keys = { "Name", "Age", "Atoms", "Today" };
+		xtable_columns columns2;
+		columns2.columns[1] = { field_types::ft_string, 1, "Name" };
+		columns2.columns[2] = { field_types::ft_string, 2, "Age" };
+		columns2.columns[3] = { field_types::ft_int64, 3, "Atoms" };
+		columns2.columns[4] = { field_types::ft_datetime, 4, "Today" };
 
-		xrecord compj(keys, jsrc);
+		xrecord compj;
 		json jdst = jp.create_object();
-		compj.get_json(jdst, keys);
+		compj.get_json(&columns2, jdst);
 
 		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
 		_tests->test({ "rt name", result, __FILE__, __LINE__ });
@@ -469,7 +517,7 @@ namespace corona
 		result = (double)jsrc["Age"] == (double)jdst["Age"];
 		_tests->test({ "rt age", result, __FILE__, __LINE__ });
 
-		result = (_int64)jsrc["Atoms"] == (_int64)jdst["Atoms"];
+		result = (int64_t)jsrc["Atoms"] == (int64_t)jdst["Atoms"];
 		_tests->test({ "rt atoms", result, __FILE__, __LINE__ });
 
 		result = (date_time)jsrc["Today"] == (date_time)jdst["Today"];
