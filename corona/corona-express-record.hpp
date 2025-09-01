@@ -304,32 +304,12 @@ namespace corona
 
         std::strong_ordering operator<=>(const xrecord& _other) const
         {
-            size_t len = field_data.size();
-            if (len > _other.field_data.size())
-                len = _other.field_data.size();
-            for (size_t i = 0; i < len; i++)
-            {
-                auto& f1 = field_data[i];
-                auto& f2 = _other.field_data[i];
-                if (f1.field_id < f2.field_id)
-                    return std::strong_ordering::less;
-                if (f1.field_id > f2.field_id)
-                    return std::strong_ordering::greater;
-                if (f1.size_bytes < f2.size_bytes)
-                    return std::strong_ordering::less;
-                if (f1.size_bytes > f2.size_bytes)
-                    return std::strong_ordering::greater;
-                int cmp = memcmp(&record_data[f1.record_offset], &(_other.record_data[f2.record_offset]), f1.size_bytes);
-                if (cmp < 0)
-                    return std::strong_ordering::less;
-                if (cmp > 0)
-                    return std::strong_ordering::greater;
-            }
-            if (field_data.size() < _other.field_data.size())
-                return std::strong_ordering::less;
-            if (field_data.size() > _other.field_data.size())
-                return std::strong_ordering::greater;
-            return std::strong_ordering::equal;
+			int start_idx = 0;
+			for (int i = 0; i < field_data.size(); i++)
+			{
+				for ()
+
+			}
         }
 
 	};
