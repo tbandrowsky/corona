@@ -662,6 +662,8 @@ namespace corona
 
 		xrecord compj;
 		json jdst = jp.create_object();
+		json jkeys = jp.create_object();
+
 		compj.get_json(&columns2, jdst);
 
 		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
@@ -678,9 +680,10 @@ namespace corona
 
 		// and with the json
 		jdst = jp.create_object();
-		xrecord xsrc(keys, jsrc);
-		xrecord readin = xrecord(xsrc.data(), xsrc.size());
-		readin.get_json(jdst, keys);
+		xrecord xsrc;
+        xsrc.put_json(&columns2, jsrc);
+		xrecord readin = xsrc;
+		readin.get_json(&columns2, jkeys);
 
 		// and finally, checking our matches after the round trip
 		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
