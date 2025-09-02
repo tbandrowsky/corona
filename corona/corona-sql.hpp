@@ -522,42 +522,53 @@ namespace corona
 			sql_error(SQL_HANDLE_STMT, hStmt, status);
 
 			xrecord xparams;
-			std::vector<point> offsets;
+            xtable_columns parameterlist, selectlist;
 
+			int id = 0;
 			for (auto& param : _statement.parameters)
 			{
 				auto binding = sql->find(param.corona_field_name);
 				if (binding != std::end(sql->mappings)) {
-					switch (binding->field_type) 
+					xcolumn col;
+                    col.field_name = param.corona_field_name;
+					col.field_type = param.field_type;
+                    col.field_id = id++;
+					parameterlist.columns[ col.field_id ] = col;
+					switch (binding->field_type)
 					{
 					case field_types::ft_string:
-						{
-							std::string field = (std::string)_statement.source_object[param.corona_field_name];
-							int nsz = field.size() + 1;
-							int offset = xparams.bind(field);
-							offsets.push_back({ offset, nsz });
-						}
-						break;
+					{
+						std::string sfield = (std::string)_statement.source_object[param.corona_field_name];
+						xparams.add(col.field_id, sfield);
+					}
+					break;
 					case field_types::ft_double:
-						{
-							int offset = xparams.bind((double)_statement.source_object[param.corona_field_name]);
-							offsets.push_back({ offset, 0 });
+					{
+						std::string sfield = (double)_statement.source_object[param.corona_field_name];
+						offsets.push_back({ offset, 0 });
 
-						}
-						break;
+					}
+					break;
 					case field_types::ft_datetime:
-						{
-							int offset = xparams.bind((date_time)_statement.source_object[param.corona_field_name]);
-							offsets.push_back({ offset, 0 });
+					{
+						int offset = xparams.bind((date_time)_statement.source_object[param.corona_field_name]);
+						offsets.push_back({ offset, 0 });
 					}
-						break;
+					break;
 					case field_types::ft_int64:
-						{
-							int offset = xparams.bind((int64_t)_statement.source_object[param.corona_field_name]);
-							offsets.push_back({ offset, 0 });
-						}
-						break;
+					{
+						int offset = xparams.bind((int64_t)_statement.source_object[param.corona_field_name]);
+						offsets.push_back({ offset, 0 });
 					}
+					break;
+					}
+				}
+			}
+            id = 0;
+			for (auto& param : _statement.parameters)
+			{
+				auto binding = sql->find(param.corona_field_name);
+				if (binding != std::end(sql->mappings)) {
 				}
 			}
 
