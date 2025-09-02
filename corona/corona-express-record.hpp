@@ -18,12 +18,52 @@ namespace corona
 		field_types				field_type;
 		int32_t					field_id;
 		istring<256>			field_name;
+
+        void get_json(json& _j) const
+        {
+            _j.put_member("field_id", field_id);
+            _j.put_member("field_name", (std::string)field_name);
+            _j.put_member("field_type", (int32_t)field_id);
+        }
+
+        void put_json(const json& _j)
+        {
+            field_id = (int32_t)_j["field_id"];
+            field_name = (std::string)_j["field_name"];
+            field_type = (field_types)((int32_t)_j["field_type"]);
+        }
 	};
 
 	class xtable_columns
 	{
 	public:
 		std::map<int32_t, xcolumn>	columns;
+
+        void get_json(json& _j) const
+        {
+            json_parser jp;
+            json a = jp.create_array();
+            for (auto& col : columns)
+            {
+                json c = jp.create_object();
+                col.second.get_json(c);
+                a.push_back(c);
+            }
+            _j.share_member("columns", a);
+        }
+
+        void put_json(const json& _j)
+        {
+            json_parser jp;
+            json a = _j["columns"];
+            columns.clear();
+            for (auto& item : a.array_items())
+            {
+                xcolumn col;
+                col.put_json(item);
+                columns[col.field_id] = col;
+            }
+        }
 	};
 
 	class xfield
@@ -220,6 +260,16 @@ namespace corona
 		xrecord &operator =(xrecord&& _xrecord) = default;
 		bool operator ==(const xrecord& _other) const = default;
 
+		char* get_ptr(int32_t _field_id) const
+		{
+            for (auto& f : field_data) {
+                if (f.field_id == _field_id) {
+                    return &record_data[f.record_offset];
+                }
+            }
+            return nullptr;
+		}
+
         void add(int32_t _field_id, const char* _data, size_t _length, field_types _field_type)
         {
             xfield f;
@@ -377,7 +427,7 @@ namespace corona
 			}
 		}
 
-		bool is_empty()
+		bool empty() const
 		{
 			return this->record_data.size() == 0 and field_data.size() == 0;
 		}
@@ -481,6 +531,36 @@ namespace corona
 				ordering = std::strong_ordering::less;
 			return ordering;
         }
+
+		bool exact_equal(const xrecord& _other) const
+		{
+			int32_t this_idx = 0;
+			int32_t that_idx = 0;
+			int32_t comparison_count = 0;
+
+			while (this_idx < field_data.size() && that_idx < _other.field_data.size())
+			{
+				int32_t this_field_id = field_data[this_idx].field_id;
+				int32_t that_field_id = _other.field_data[that_idx].field_id;
+
+				if (this_field_id == that_field_id) {
+					auto ordering = compare_field(this_idx, that_idx, _other);
+					if (ordering != std::strong_ordering::equal)
+						return false;
+					that_idx++;
+					this_idx++;
+				}
+                else if (this_field_id < that_field_id) {
+                    return false;
+                }
+                else if (this_field_id > that_field_id) {
+                    that_idx++;
+                }
+			}
+
+			return true;
+
+		}
 
 		void clear()
 		{

@@ -22,10 +22,12 @@ namespace corona
 		field_types			field_type;
 		int					string_size;
 		bool				is_expression;
+		int                 field_id;
 
 		sql_field_mapping()
 		{
 			primary_key = 0;
+			field_id = 0;
 			string_size = 100;
 			field_type = field_types::ft_string;
 		}
@@ -71,9 +73,9 @@ namespace corona
 		sql_field_mappings mappings;
 		std::string connection_name;
 		std::string sql_table_name;
-		std::vector<std::string> primary_key;
-		std::vector<std::string> all_fields;
-
+		xtable_columns all_fields;
+		xtable_columns primary_key;
+		
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
@@ -82,7 +84,7 @@ namespace corona
 			_dest.put_member("sql_table_name", sql_table_name);
 
 			json jmappings = jp.create_array();
-			for (auto mapping : mappings)
+			for (auto& mapping : mappings)
 			{
 				json jmapping = jp.create_object();
 				mapping.get_json(jmapping);
@@ -97,6 +99,7 @@ namespace corona
 			connection_name = _src["connection_name"];
 			sql_table_name = _src["sql_table_name"];
 			primary_key.clear();
+            all_fields.clear();
 
 			if (connection_name.empty()) {
 				validation_error ve;
@@ -121,14 +124,21 @@ namespace corona
 			json jmappings = _src["mappings"];
 
 			if (jmappings.array()) {
+				int id = 1;
 				for (auto mapping : jmappings)
 				{
 					sql_field_mapping sfm;
 					sfm.put_json(_errors, mapping);
+					xcolumn pk;
+					pk.field_name = sfm.corona_field_name;
+					pk.field_id = id;
+					pk.field_type = sfm.field_type;
 					if (sfm.primary_key) {
-						primary_key.push_back(sfm.corona_field_name);
+						primary_key.columns[id] = pk;
 					}
-					all_fields.push_back(sfm.corona_field_name);
+					all_fields.columns[id] = pk;
+					sfm.field_id = id;
+					id+=2;
 					mappings.push_back(sfm);
 				}
 			}
@@ -251,7 +261,6 @@ namespace corona
 						ssp.sql_field_name = "?";
 						ssp.field_type = fld.field_type;
 						ssp.string_size = fld.string_size;
-
 						stmt.parameters.push_back(ssp);
 
 						select_key << comma;
@@ -532,7 +541,7 @@ namespace corona
 					xcolumn col;
                     col.field_name = param.corona_field_name;
 					col.field_type = param.field_type;
-                    col.field_id = id++;
+                    col.field_id = id;
 					parameterlist.columns[ col.field_id ] = col;
 					switch (binding->field_type)
 					{
@@ -544,40 +553,34 @@ namespace corona
 					break;
 					case field_types::ft_double:
 					{
-						std::string sfield = (double)_statement.source_object[param.corona_field_name];
-						offsets.push_back({ offset, 0 });
+						double dfield = (double)_statement.source_object[param.corona_field_name];
+						xparams.add(col.field_id, sfield);
 
 					}
 					break;
 					case field_types::ft_datetime:
 					{
-						int offset = xparams.bind((date_time)_statement.source_object[param.corona_field_name]);
-						offsets.push_back({ offset, 0 });
+						date_time dt = (date_time)_statement.source_object[param.corona_field_name];
+						xparams.add(col.field_id, dt);
 					}
 					break;
 					case field_types::ft_int64:
 					{
-						int offset = xparams.bind((int64_t)_statement.source_object[param.corona_field_name]);
-						offsets.push_back({ offset, 0 });
+						int64_t i64 = (int64_t)_statement.source_object[param.corona_field_name];
+						xparams.add(col.field_id, i64);
 					}
 					break;
 					}
-				}
-			}
-            id = 0;
-			for (auto& param : _statement.parameters)
-			{
-				auto binding = sql->find(param.corona_field_name);
-				if (binding != std::end(sql->mappings)) {
+                    id++;
 				}
 			}
 
 			int offset_idx = 0;
 			for (auto& param : _statement.parameters)
 			{
-				char *dest = xparams.get_ptr(offsets[offset_idx].x);
 				auto binding = sql->find(param.corona_field_name);
 				if (binding != std::end(sql->mappings)) {
+					char* dest = xparams.get_ptr(binding.field_id);
 					switch (binding->field_type)
 					{
 					case field_types::ft_string:
@@ -606,12 +609,9 @@ namespace corona
 					break;
 					}
 				}
-				offset_idx++;
-
 			}
 
 			xrecord xresults;
-			offsets.clear();
 
 			std::vector<std::string> all_columns;
 			std::vector<std::string> mapped_columns;
@@ -624,8 +624,9 @@ namespace corona
 				{
 					std::string temp(binding.string_size, ' ');
 					int offset = xresults.bind(temp);
-					offsets.push_back({ offset, binding.string_size + 1 });
 					// for the indicator
+					xresults.add(binding.field_id, temp);
+					xresults.add(binding.field_id, temp);
 					offset = xresults.bind(0i64);
 					offsets.push_back({ offset, 0 });
 					all_columns.push_back(binding.corona_field_name);

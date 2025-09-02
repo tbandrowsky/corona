@@ -98,6 +98,12 @@ namespace corona
                 return fraction <=> _other.fraction;
             return std::strong_ordering::equal;
         }
+        bool operator==(const SQL_TIMESTAMP_STRUCT_CORONA& _other) const
+        {
+            return (year == _other.year and month == _other.month and day == _other.day and
+                hour == _other.hour and minute == _other.minute and second == _other.second and
+                fraction == _other.fraction);
+        }
 	};
 
 	class date_time
@@ -560,6 +566,11 @@ namespace corona
 		{
 			return sql_date_time <=> _src.sql_date_time;
 		}
+
+        bool operator==(const date_time& _src) const
+        {
+            return sql_date_time == _src.sql_date_time;
+        }
 
 		bool operator<(const double& b) const
 		{

@@ -541,7 +541,7 @@ namespace corona
 			{
 				if (item.first == _key) {
 					xrecord temp = _process(item.first, item.second);
-					if (not temp.is_empty())
+					if (not temp.empty())
 					{
 						result.push_back(temp);
 					}
@@ -1009,8 +1009,7 @@ namespace corona
 		xblock_ref		  root_block;
 
 		std::shared_ptr<xbranch_block> root;
-		std::vector<std::string> key_members;
-		std::vector<std::string> object_members;
+		xtable_columns key_members, object_members;
 		int64_t count = 0;
 
 		relative_ptr_type get_location()
@@ -1023,9 +1022,11 @@ namespace corona
 			json_parser jp;
 			_dest.put_member_i64("root_type", root_block.block_type);
 			_dest.put_member_i64("root_location", root_block.location);
-			json kms = jp.create_array(key_members);
+			json kms = jp.create_object();
+			key_members.get_json(kms);
 			_dest.share_member("key_members", kms);
-			json oms = jp.create_array(object_members);
+            json oms = jp.create_object();
+			object_members.get_json(oms);
 			_dest.share_member("object_members", oms); 
 			_dest.put_member_i64("count", count);
 		}
@@ -1036,9 +1037,9 @@ namespace corona
 			root_block.location = _src["root_location"];
 			root_block.block_type = (xblock_types)((int64_t)_src["root_type"]);
 			json kms = _src["key_members"];
-			key_members = kms.to_string_array();
+			key_members.put_json(kms);
 			json oms = _src["object_members"];
-			object_members = oms.to_string_array();
+			object_members.put_json(oms);
 			count = (int64_t)_src["count"];
 		}
 
