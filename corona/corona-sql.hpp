@@ -612,84 +612,73 @@ namespace corona
 				}
 			}
 
-			xrecord xresults;
-
-			std::vector<std::string> all_columns;
+			xtable_columns all_columns;
 			std::vector<std::string> mapped_columns;
+
+			xrecord xresults;
 
 			for (auto& binding : _statement.result_mappings)
 			{
+				xcolumn new_column;
 				switch (binding.field_type)
 				{
 				case field_types::ft_string:
 				{
 					std::string temp(binding.string_size, ' ');
-					int offset = xresults.bind(temp);
 					// for the indicator
 					xresults.add(binding.field_id, temp);
-					xresults.add(binding.field_id, temp);
-					offset = xresults.bind(0i64);
-					offsets.push_back({ offset, 0 });
-					all_columns.push_back(binding.corona_field_name);
+					xresults.add(binding.field_id+1, 0i64);
+					all_columns.columns[ binding.field_id ] = binding.corona_field_name;
 					mapped_columns.push_back(binding.corona_field_name);
 					all_columns.push_back(binding.corona_field_name + "_null");
+					all_columns.columns[binding.field_id + 1] = binding.corona_field_name;
 
 				}
 				break;
 				case field_types::ft_double:
 				{
-					int offset = xresults.bind((double)0.0);
-					offsets.push_back({ offset, 0 });
-					// for the indicator
-					offset = xresults.bind(0i64);
-					offsets.push_back({ offset, 0 });
+					xresults.add(binding.field_id, (double)0.0);
+					xresults.add(binding.field_id + 1, 0i64);
 					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
 					all_columns.push_back(binding.corona_field_name + "_null");
-
 				}
 				break;
 				case field_types::ft_datetime:
 				{
-					int offset = xresults.bind(date_time::now());
-					offsets.push_back({ offset, 0 });
-					// for the indicator
-					offset = xresults.bind(0i64);
-					offsets.push_back({ offset, 0 });
+					xresults.add(binding.field_id, date_time::now());
+					xresults.add(binding.field_id + 1, 0i64);
 					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
 					all_columns.push_back(binding.corona_field_name + "_null");
-
 				}
 				break;
 				case field_types::ft_int64:
 				{
-					int offset = xresults.bind((int64_t)0);
-					offsets.push_back({ offset, 0 });
-					// for the indicator
-					offset = xresults.bind(0i64);
-					offsets.push_back({ offset, 0 });
+					xresults.add(binding.field_id, (int64_t)0);
+					xresults.add(binding.field_id + 1, 0i64);
 					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
 					all_columns.push_back(binding.corona_field_name + "_null");
-
 				}
 				break;
 				}
 			}
 
-			offset_idx = 0;
+			auto result_fields = xresults.get_fields();
 			int result_idx = 1;
-			for (auto& binding : _statement.result_mappings)
+			for (int i = 0; i < result_fields.size(); i+=2)
 			{
-				char* dest = xresults.get_ptr(offsets[offset_idx].x);
-				SQLLEN* destind = (SQLLEN*)xresults.get_ptr(offsets[offset_idx + 1].x);
+				auto& rfield = result_fields[i];
+				char* dest = rfield.ptr;
+				auto& ifield = result_fields[i + 1];
+				SQLLEN* destind = (SQLLEN*)ifield.ptr;
 
-				switch (binding.field_type)
+				switch (rfield.field.field_type)
 					{
 					case field_types::ft_string:
 					{
-						status = SQLBindCol(hStmt, result_idx, SQL_C_CHAR, dest, binding.string_size, destind);
+						status = SQLBindCol(hStmt, result_idx, SQL_C_CHAR, dest, rfield.field.size_bytes, destind);
 						sql_error(SQL_HANDLE_STMT, hStmt, status);
 					}
 					break;
@@ -712,7 +701,6 @@ namespace corona
 					}
 					break;
 					}
-				offset_idx+=2;
 				result_idx++;
 			}
 

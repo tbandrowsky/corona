@@ -1089,7 +1089,6 @@ namespace corona
 		std::string								data;
 		file_block*								fb;
 		std::shared_ptr<xtable_header>			table_header;
-
 		shared_lockable							locker;
 
 		xtable(xblock_cache* _cache, std::shared_ptr<xtable_header> _header) :
@@ -1124,17 +1123,28 @@ namespace corona
 			return table_header->get_location();
 		}
 
+		void create_key(xrecord& _dest, int64_t _object_id)
+		{
+            std::find_if(table_header->key_members.columns.begin(), table_header->key_members.columns.end(), [_dest, _object_id](auto &col_pair) {
+                if (col_pair.second->field_name == object_id_field) {
+                    _dest.add(col_pair.second->field_id, _object_id);
+                    return true;
+                }
+                return false;
+                });
+		}
+
 		virtual json get(int64_t _key)
 		{
 			json_parser jp;
 			json jresult;
-			xrecord key;
-			key.add(_key);
+			xrecord key; // make sure its initialized
+			create_key(key, _key);
 			xrecord result = table_header->root->get(key);
-			if (not result.is_empty()) {
+			if (not result.empty()) {
 				jresult = jp.create_object();
-				key.get_json(jresult, table_header->key_members);
-				result.get_json(jresult, table_header->object_members);
+				key.get_json(&table_header->key_members, jresult );
+				result.get_json(&table_header->object_members, jresult );
 				return jresult;
 			}
 			return jresult;
@@ -1144,12 +1154,13 @@ namespace corona
 		{
 			json_parser jp;
 			json jresult;
-			xrecord key(table_header->key_members, _object);
+			xrecord key;
+            key.put_json(&table_header->key_members, _object);
 			xrecord result = table_header->root->get(key);
-			if (not result.is_empty()) {
+			if (not result.empty()) {
 				jresult = jp.create_object();
-				key.get_json(jresult, table_header->key_members);
-				result.get_json(jresult, table_header->object_members);
+				key.get_json(&table_header->key_members, jresult);
+				result.get_json(&table_header->object_members, jresult);
 				return jresult;
 			}
 			return jresult;
@@ -1157,12 +1168,13 @@ namespace corona
 
 		virtual void put(json _object) override
 		{
-			xrecord key(table_header->key_members, _object);
-			if (key.is_wildcard()) {
-				::DebugBreak();
-			}
-			xrecord data(table_header->object_members, _object);			 
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
+			xrecord data;
+			data.put_json(&table_header->object_members, _object);
+
 			table_header->root->put(0, key, data);
+
 			::InterlockedIncrement64(&table_header->count);
 
 			if (table_header->root->is_full()) {
@@ -1182,14 +1194,15 @@ namespace corona
 		virtual void erase(int64_t _id) 
 		{
 			xrecord key;
-			key.add(_id);
+			create_key(key, _id);
 			table_header->root->erase(key);
 			::InterlockedDecrement64(&table_header->count);
 		}
 
 		virtual void erase(json _object) override
 		{
-			xrecord key(table_header->key_members, _object);
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
 			::InterlockedDecrement64(&table_header->count);
 			table_header->root->erase(key);
 		}
@@ -1216,13 +1229,14 @@ namespace corona
 		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) override
 		{
 			
-			xrecord key(table_header->key_members, _object);
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
 			xfor_each_result result;
 			result = table_header->root->for_each(key, [_process, this](const xrecord& _key, const xrecord& _data)->relative_ptr_type {
 				json_parser jp;
 				json obj = jp.create_object();
-				_key.get_json(obj, table_header->key_members);
-				_data.get_json(obj, table_header->object_members);
+				_key.get_json(&table_header->key_members, obj);
+				_data.get_json(&table_header->object_members, obj);
 				return _process(obj);
 				});
 			return result;
@@ -1230,15 +1244,16 @@ namespace corona
 
 		virtual json select(json _object, std::function<json(json& _item)> _process) override
 		{
-			xrecord key(table_header->key_members, _object);
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
 			json_parser jp;
 			json target = jp.create_array();
 			table_header->root->select(key, [_process, this, &target](const xrecord& _key, const xrecord& _data)->xrecord {
 				json_parser jp;
 				json obj = jp.create_object();
 				xrecord empty;
-				_key.get_json(obj, table_header->key_members);
-				_data.get_json(obj, table_header->object_members);
+				_key.get_json(&table_header->key_members, obj);
+				_data.get_json(&table_header->object_members, obj);
 				json jresult = _process(obj);
 				if (jresult.object()) {
 					target.push_back(jresult);
@@ -1460,7 +1475,7 @@ namespace corona
 	xblock_ref xbranch_block::find_block(const xrecord& key)
 	{
 		xblock_ref found_block;
-		found_block.block_type == xblock_types::xb_none;
+		found_block.block_type = xblock_types::xb_none;
 
 		if constexpr (debug_branch) {
 			std::string key_render = key.to_string();
@@ -1494,9 +1509,9 @@ namespace corona
 		while (not pleaf->is_full())
 		{
 			xrecord key, value;
-			key.add(id);
-			value.add(10 + id % 50);
-			value.add(100 + (id % 4) * 50);
+			key.add(1, id);
+			value.add(2,10 + id % 50);
+			value.add(3,100 + (id % 4) * 50);
 			pleaf->put(0, key, value);
 			id++;
 		}
@@ -1525,9 +1540,9 @@ namespace corona
 		for (int64_t i = 1; i < id; i++)
 		{
 			xrecord key, value, valueread;
-			key.add(i);
-			value.add(10 + i % 50);
-			value.add(100 + (i % 4) * 50);
+			key.add(1, i);
+			value.add(2, 10 + i % 50);
+			value.add(3, 100 + (i % 4) * 50);
 			valueread = pleaf->get(key);
 			
 			if constexpr (debug_xblock) {
@@ -1572,9 +1587,9 @@ namespace corona
 		for (int64_t i = 1; i < test_record_count; i++)
 		{
 			xrecord key, value;
-			key.add(i);
-			value.add(10 + i % 50);
-			value.add(100 + (i % 4) * 50);
+			key.add(1, i);
+			value.add(2, 10 + i % 50);
+			value.add(3, 100 + (i % 4) * 50);
 			pbranch->put(0, key, value);
 			xrecord valueread = pbranch->get(key);
 			if (not valueread.exact_equal(value)) {
@@ -1611,9 +1626,9 @@ namespace corona
 		for (int64_t i = 1; i < test_record_count; i++)
 		{
 			xrecord key, value, valueread;
-			key.add(i);
-			value.add(10 + i % 50);
-			value.add(100 + (i % 4) * 50);
+			key.add(1, i);
+			value.add(2, 10 + i % 50);
+			value.add(3, 100 + (i % 4) * 50);
 			valueread = pbranch->get(key);
 
 			if constexpr (debug_xblock) {
@@ -1650,8 +1665,10 @@ namespace corona
 		xblock_cache cache(&fb, giga_to_bytes(1));
 
 		std::shared_ptr<xtable_header> header = std::make_shared<xtable_header>();
-		header->key_members = { object_id_field };
-		header->object_members = { "name", "age", "weight" };
+		header->key_members.columns[ 1 ] = { field_types::ft_int64, 1, object_id_field };
+		header->object_members.columns[2] = { field_types::ft_int64, 2, "name" };
+		header->object_members.columns[3] = { field_types::ft_double, 3, "age" };
+		header->object_members.columns[4] = { field_types::ft_double, 4, "weight" };
 
 		std::shared_ptr<xtable> ptable;
 		ptable = std::make_shared<xtable>(&cache, header);

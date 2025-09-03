@@ -57,13 +57,20 @@ namespace corona
             json_parser jp;
             json a = _j["columns"];
             columns.clear();
-            for (auto& item : a.array_items())
-            {
-                xcolumn col;
-                col.put_json(item);
-                columns[col.field_id] = col;
-            }
+			if (a.array()) {
+				for (auto item : a)
+				{
+					xcolumn col;
+					col.put_json(item);
+					columns[col.field_id] = col;
+				}
+			}
         }
+
+		void clear()
+		{
+			columns.clear();
+		}
 	};
 
 	class xfield
