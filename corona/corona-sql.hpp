@@ -533,7 +533,6 @@ namespace corona
 			xrecord xparams;
             xtable_columns parameterlist, selectlist;
 
-			int id = 0;
 			for (auto& param : _statement.parameters)
 			{
 				auto binding = sql->find(param.corona_field_name);
@@ -541,73 +540,75 @@ namespace corona
 					xcolumn col;
                     col.field_name = param.corona_field_name;
 					col.field_type = param.field_type;
-                    col.field_id = id;
+                    col.field_id = param.parameter_index;
 					parameterlist.columns[ col.field_id ] = col;
 					switch (binding->field_type)
 					{
-					case field_types::ft_string:
-					{
-						std::string sfield = (std::string)_statement.source_object[param.corona_field_name];
-						xparams.add(col.field_id, sfield);
-					}
-					break;
-					case field_types::ft_double:
-					{
-						double dfield = (double)_statement.source_object[param.corona_field_name];
-						xparams.add(col.field_id, sfield);
+						case field_types::ft_string:
+						{
+							std::string sfield = (std::string)_statement.source_object[param.corona_field_name];
+							xparams.add(col.field_id, sfield);
+						}
+						break;
 
+						case field_types::ft_double:
+						{
+							double dfield = (double)_statement.source_object[param.corona_field_name];
+							xparams.add(col.field_id, dfield);
+
+						}
+						break;
+
+						case field_types::ft_datetime:
+						{
+							date_time dt = (date_time)_statement.source_object[param.corona_field_name];
+							xparams.add(col.field_id, dt);
+						}
+						break;
+
+						case field_types::ft_int64:
+						{
+							int64_t i64 = (int64_t)_statement.source_object[param.corona_field_name];
+							xparams.add(col.field_id, i64);
+						}
+						break;
 					}
-					break;
-					case field_types::ft_datetime:
-					{
-						date_time dt = (date_time)_statement.source_object[param.corona_field_name];
-						xparams.add(col.field_id, dt);
-					}
-					break;
-					case field_types::ft_int64:
-					{
-						int64_t i64 = (int64_t)_statement.source_object[param.corona_field_name];
-						xparams.add(col.field_id, i64);
-					}
-					break;
-					}
-                    id++;
 				}
 			}
 
-			int offset_idx = 0;
-			for (auto& param : _statement.parameters)
+			auto parameter_fields = xparams.get_fields();
+
+			for (auto& param : parameter_fields)
 			{
-				auto binding = sql->find(param.corona_field_name);
-				if (binding != std::end(sql->mappings)) {
-					char* dest = xparams.get_ptr(binding.field_id);
-					switch (binding->field_type)
-					{
-					case field_types::ft_string:
-					{
-						status = SQLBindParameter(hStmt, param.parameter_index, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, offsets[offset_idx].y, 0, dest, 0, NULL);
-						sql_error(SQL_HANDLE_STMT, hStmt, status);
-					}
-					break;
-					case field_types::ft_double:
-					{
-						status = SQLBindParameter(hStmt, param.parameter_index, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, dest, 0, NULL);
-						sql_error(SQL_HANDLE_STMT, hStmt, status);
-					}
-					break;
-					case field_types::ft_datetime:
-					{
-						status = SQLBindParameter(hStmt, param.parameter_index, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, dest, 0, NULL);
-						sql_error(SQL_HANDLE_STMT, hStmt, status);
-					}
-					break;
-					case field_types::ft_int64:
-					{
-						status = SQLBindParameter(hStmt, param.parameter_index, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, dest, 0, NULL);
-						sql_error(SQL_HANDLE_STMT, hStmt, status);
-					}
-					break;
-					}
+				switch (param.field.field_type)
+				{
+				case field_types::ft_string:
+				{
+					status = SQLBindParameter(hStmt, param.field.field_id, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, param.field.size_bytes, 0, param.ptr, 0, NULL);
+					sql_error(SQL_HANDLE_STMT, hStmt, status);
+				}
+				break;
+
+				case field_types::ft_double:
+				{
+					status = SQLBindParameter(hStmt, param.field.field_id, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, param.ptr, 0, NULL);
+					sql_error(SQL_HANDLE_STMT, hStmt, status);
+				}
+				break;
+
+				case field_types::ft_datetime:
+				{
+					status = SQLBindParameter(hStmt, param.field.field_id, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TIMESTAMP, 0, 0, param.ptr, 0, NULL);
+					sql_error(SQL_HANDLE_STMT, hStmt, status);
+				}
+				break;
+
+				case field_types::ft_int64:
+				{
+					status = SQLBindParameter(hStmt, param.field.field_id, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, param.ptr, 0, NULL);
+					sql_error(SQL_HANDLE_STMT, hStmt, status);
+				}
+				break;
 				}
 			}
 

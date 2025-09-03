@@ -260,14 +260,23 @@ namespace corona
 		xrecord &operator =(xrecord&& _xrecord) = default;
 		bool operator ==(const xrecord& _other) const = default;
 
-		char* get_ptr(int32_t _field_id) const
+		struct get_field_result
 		{
+			char*			ptr;
+			xfield			field;
+		};
+
+		std::vector<get_field_result> get_fields()
+		{
+			std::vector<get_field_result> fields;
             for (auto& f : field_data) {
-                if (f.field_id == _field_id) {
-                    return &record_data[f.record_offset];
-                }
+				get_field_result gfr = {};
+				gfr.field = f;
+				gfr.ptr = record_data.data() + f.record_offset;
+                fields.push_back(gfr);
+
             }
-            return nullptr;
+            return fields;
 		}
 
         void add(int32_t _field_id, const char* _data, size_t _length, field_types _field_type)
