@@ -19,6 +19,8 @@ For Future Consideration
 
 */
 
+// visual C++ compiler warning disable
+#pragma warning(disable: 4100)
 
 #ifndef CORONA_H
 #define CORONA_H

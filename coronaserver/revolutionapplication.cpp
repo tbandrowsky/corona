@@ -30,8 +30,8 @@ namespace corona::apps::revolution
 
         virtual void put_json(json& _src)
         {
-            class_name = (int64_t)_src["class_name"];
-            object_id = (int64_t)_src["object_id"];
+            class_name = (std::string)_src["class_name"];
+            object_id = _src.get_member("object_id").get_int64();
             created = (date_time)_src["created"];
             created_by = (std::string)_src["created_by"];
             updated = (date_time)_src["updated"];

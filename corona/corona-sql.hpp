@@ -620,6 +620,9 @@ namespace corona
 			for (auto& binding : _statement.result_mappings)
 			{
 				xcolumn new_column;
+                new_column.field_id = binding.field_id;
+                new_column.field_name = binding.corona_field_name;
+                new_column.field_type = binding.field_type;	
 				switch (binding.field_type)
 				{
 				case field_types::ft_string:
@@ -628,10 +631,11 @@ namespace corona
 					// for the indicator
 					xresults.add(binding.field_id, temp);
 					xresults.add(binding.field_id+1, 0i64);
-					all_columns.columns[ binding.field_id ] = binding.corona_field_name;
 					mapped_columns.push_back(binding.corona_field_name);
-					all_columns.push_back(binding.corona_field_name + "_null");
-					all_columns.columns[binding.field_id + 1] = binding.corona_field_name;
+					all_columns.columns[ binding.field_id ] = new_column;
+                    new_column.field_id = binding.field_id + 1;
+                    new_column.field_name = binding.corona_field_name + "_null";
+					all_columns.columns[binding.field_id + 1] = new_column;
 
 				}
 				break;
@@ -639,27 +643,33 @@ namespace corona
 				{
 					xresults.add(binding.field_id, (double)0.0);
 					xresults.add(binding.field_id + 1, 0i64);
-					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
-					all_columns.push_back(binding.corona_field_name + "_null");
+					all_columns.columns[binding.field_id] = new_column;
+					new_column.field_id = binding.field_id + 1;
+					new_column.field_name = binding.corona_field_name + "_null";
+					all_columns.columns[binding.field_id + 1] = new_column;
 				}
 				break;
 				case field_types::ft_datetime:
 				{
 					xresults.add(binding.field_id, date_time::now());
 					xresults.add(binding.field_id + 1, 0i64);
-					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
-					all_columns.push_back(binding.corona_field_name + "_null");
+					all_columns.columns[binding.field_id] = new_column;
+					new_column.field_id = binding.field_id + 1;
+					new_column.field_name = binding.corona_field_name + "_null";
+					all_columns.columns[binding.field_id + 1] = new_column;
 				}
 				break;
 				case field_types::ft_int64:
 				{
 					xresults.add(binding.field_id, (int64_t)0);
 					xresults.add(binding.field_id + 1, 0i64);
-					all_columns.push_back(binding.corona_field_name);
 					mapped_columns.push_back(binding.corona_field_name);
-					all_columns.push_back(binding.corona_field_name + "_null");
+					all_columns.columns[binding.field_id] = new_column;
+					new_column.field_id = binding.field_id + 1;
+					new_column.field_name = binding.corona_field_name + "_null";
+					all_columns.columns[binding.field_id + 1] = new_column;
 				}
 				break;
 				}
@@ -714,7 +724,7 @@ namespace corona
 				while (status == SQL_SUCCESS or status == SQL_SUCCESS_WITH_INFO)
 				{
 					json new_object = jp.create_object();
-					xresults.get_json(new_object, all_columns);
+					xresults.get_json(&all_columns, new_object);
 					json obj = jp.create_object();
 					for (auto key : _statement.result_keys)
 					{
