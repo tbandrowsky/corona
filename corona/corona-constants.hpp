@@ -649,6 +649,7 @@ namespace corona
 	const std::string class_name_field = "class_name";
 	const std::string base_class_name_field = "base_class_name";
 	const std::string object_id_field = "object_id";
+	const std::string class_id_field = "class_id";
 	const std::string include_children_field = "include_children";
 	const std::string data_field = "data";
 	const std::string success_field = "success";

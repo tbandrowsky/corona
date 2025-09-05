@@ -790,8 +790,6 @@ namespace corona
 	{
 	protected:
 		int64_t											table_location;
-        xtable_columns									key_columns;
-        xtable_columns									object_columns;
 	public:
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
@@ -800,7 +798,7 @@ namespace corona
 		virtual std::string								get_index_name() = 0;
 		virtual std::vector<std::string>				&get_index_keys() = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
-		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db) = 0;
+		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, class_interface *_parent_class) = 0;
 		virtual std::string								get_index_key_string() = 0;
 		virtual int64_t									get_location() { return table_location; }
 
@@ -813,6 +811,8 @@ namespace corona
 	protected:
 		int64_t											table_location;
 	public:
+		xtable_columns									table_columns;
+		xtable_columns									key_columns;
 
 		virtual bool is_server_only(const std::string& _field_name) = 0;
 		virtual void get_json(json& _dest) = 0;
@@ -2509,13 +2509,31 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
+		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, class_interface *_parent_class) override
 		{
 			std::shared_ptr<xtable> table;
+			xtable_columns key_columns, object_columns;
+            int column_id = 1;
+			
+            for (auto key : index_keys) {
+				auto field = _parent_class->get_field(key);
+				if (field) {
+					xcolumn cx;
+					cx.field_id = column_id;
+					cx.field_name = field->get_field_name();
+                    cx.field_type = field->get_field_type();	
+					key_columns.columns[column_id] = cx;
+
+                    if ((field->get_field_name() == object_id_field || field->get_field_name()==class_id_field)) {
+						object_columns.columns[column_id] = cx;
+                    }
+				}
+				column_id++;
+            }
 
 			auto table_header = std::make_shared<xtable_header>();
 			table_header->key_members = key_columns;
-			table_header->object_members = table_columns;
+			table_header->object_members = object_columns;
 			table = std::make_shared<xtable>(_db->get_cache(), table_header);
 			table_location = table->get_location();
 			return table;
@@ -2549,10 +2567,8 @@ namespace corona
 		std::map<std::string, bool> ancestors;
 		std::map<std::string, bool> descendants;
 		std::shared_ptr<sql_integration> sql;
-		xtable_columns table_columns;
-		xtable_columns key_columns;
 
-		void copy_from(const class_implementation* _src)
+		void copy_from(const class_interface* _src)
 		{
 			class_id = _src->get_class_id();
 			class_name = _src->get_class_name();
@@ -2697,15 +2713,19 @@ namespace corona
 			std::shared_ptr<xtable> table;
 			
 			auto table_header = std::make_shared<xtable_header>();
-			int field_id = 1;
+			int column_id = 1;
 			for (auto &f : fields) {
 			
-                if (f.second->get_field_name() == object_id_field_name ||
-					f.second->get_field_name() == "class_id") {
-					table_header->key_columns[field_id] = { f.first, f.second->get_field_type() };
+				xcolumn col;
+                col.field_type = f.second->get_field_type();
+                col.field_name = f.first;
+				col.field_id = column_id;
+                if (f.second->get_field_name() == object_id_field ||
+					f.second->get_field_name() == class_id_field) {
+					table_header->key_members.columns[column_id] = col;
                 }
-				table_header->object_columns[field_id] = { f.first, f.second->get_field_type() };
-				field_id++;
+				table_header->object_members.columns[column_id] = col;
+				column_id++;
 			}
 			table = std::make_shared<xtable>(_db->get_cache(), table_header);
 			table_location = table_header->get_location();
@@ -2740,9 +2760,23 @@ namespace corona
 			if (table_location > null_row)
 			{
 				current_table = std::make_shared<xtable>(_db->get_cache(), table_location);
+
 				auto table_header = std::make_shared<xtable_header>();
-				table_header->object_members = _object_columns;
-				table_header->key_members = _key_columns;
+				int column_id = 1;
+				for (auto& f : fields) {
+
+					xcolumn col;
+					col.field_type = f.second->get_field_type();
+					col.field_name = f.first;
+					col.field_id = column_id;
+					if (f.second->get_field_name() == object_id_field ||
+						f.second->get_field_name() == class_id_field) {
+						table_header->key_members.columns[column_id] = col;
+					}
+					table_header->object_members.columns[column_id] = col;
+					column_id++;
+				}
+
 				new_table = std::make_shared<xtable>(_db->get_cache(), table_header);
 				table_location = new_table->get_location();
 				json_parser jp;
@@ -2756,8 +2790,20 @@ namespace corona
 			else
 			{
 				auto table_header = std::make_shared<xtable_header>();
-				table_header->object_members = _object_columns;
-				table_header->key_members = _key_columns;
+				int column_id = 1;
+				for (auto& f : fields) {
+
+					xcolumn col;
+					col.field_type = f.second->get_field_type();
+					col.field_name = f.first;
+					col.field_id = column_id;
+					if (f.second->get_field_name() == object_id_field ||
+						f.second->get_field_name() == class_id_field) {
+						table_header->key_members.columns[column_id] = col;
+					}
+					table_header->object_members.columns[column_id] = col;
+					column_id++;
+				}
 				current_table = std::make_shared<xtable>(_db->get_cache(), table_header);
 				table_location = table_header->get_location();
 				table = current_table;
@@ -2844,14 +2890,6 @@ namespace corona
 			}
 			_dest.share_member("parents", ja);
 
-			if (table_fields.size() > 0) {
-				json jtable_fields = jp.create_array();
-				for (auto tf : table_fields) {
-					jtable_fields.push_back(tf);
-				}
-				_dest.share_member("table_fields", jtable_fields);
-			}
-
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
 				for (auto field : fields) {
@@ -2926,14 +2964,6 @@ namespace corona
 				table_location = null_row;
 
 			jtable_fields = _src["table_fields"];
-
-			table_fields.clear();
-			if (jtable_fields.array()) {
-				for (auto tf : jtable_fields) {
-					std::string stf = (std::string)tf;
-					table_fields.push_back(stf);
-				}
-			}
 
 			ancestors.clear();
 			jancestors = _src["ancestors"];
@@ -3155,17 +3185,26 @@ namespace corona
 			if (jsql.object()) {
 				sql = std::make_shared<sql_integration>();
 				sql->put_json(_errors, jsql);
+				int column_id = 0;
+
 				for (auto& mp : sql->mappings) {
 					auto fi = fields.find(mp.corona_field_name);
+
 					if (fi != fields.end()) {
-						mp.field_type = fi->second->get_field_type();
+
+						xcolumn col;
+						col.field_id = column_id;
+						col.field_name = mp.corona_field_name;
+						col.field_type = fi->second->get_field_type();
 						if (mp.string_size <= 0) {
 							mp.string_size = 100;
 						}
+						if (mp.primary_key) {
+							sql->primary_key.columns[column_id] = col;
+                        }
+                        sql->all_fields.columns[column_id] = col;
 					}
 				}
-				auto keys = sql->primary_key;
-				keys[.insert(keys.end()], object_id_field);
 				std::string backing_index_name = sql->sql_table_name + "_idx";
 				std::shared_ptr<index_implementation> idx = std::make_shared<index_implementation>(backing_index_name, keys, nullptr);
 				indexes.insert_or_assign(backing_index_name, idx);
@@ -3635,8 +3674,7 @@ namespace corona
 				result = tb->get(_object_id);
 				if (result.object()) {
 					auto stb = get_stable(_db);
-					json skey = result.extract(sql->primary_key);
-					json sqlobja = stb->get(skey);
+					json sqlobja = stb->get(result);
 					json sqlobj = sqlobja.get_first_element();
 					result.merge(sqlobj);
 				}
