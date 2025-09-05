@@ -800,7 +800,7 @@ namespace corona
 		virtual std::string								get_index_name() = 0;
 		virtual std::vector<std::string>				&get_index_keys() = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
-		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, xtable_columns &_key_columns, xtable_columns&_object_columns) = 0;
+		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db) = 0;
 		virtual std::string								get_index_key_string() = 0;
 		virtual int64_t									get_location() { return table_location; }
 
@@ -830,8 +830,8 @@ namespace corona
 		virtual std::shared_ptr<xtable_interface>		get_table(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<sql_table>				get_stable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
-		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface* _db, xtable_columns& _key_columns, xtable_columns& _object_columns) = 0;
-		virtual std::shared_ptr<xtable>					alter_xtable(corona_database_interface* _db, xtable_columns& _key_columns, xtable_columns& _object_columns) = 0;
+		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface* _db) = 0;
+		virtual std::shared_ptr<xtable>					alter_xtable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					find_index(corona_database_interface* _db, json& _keys) const = 0;
 		virtual	bool									open(activity* _context, json _existing_definition, int64_t _location) = 0;
 		virtual	bool									update(activity* _context, json _changed_class) = 0;
@@ -2509,13 +2509,13 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, xtable_columns& _key_columns, xtable_columns& _object_columns) override
+		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
 		{
 			std::shared_ptr<xtable> table;
 
 			auto table_header = std::make_shared<xtable_header>();
-			table_header->key_members = _key_columns;
-			table_header->object_members = _object_columns;
+			table_header->key_members = key_columns;
+			table_header->object_members = table_columns;
 			table = std::make_shared<xtable>(_db->get_cache(), table_header);
 			table_location = table->get_location();
 			return table;
@@ -2543,22 +2543,22 @@ namespace corona
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
-		std::vector<std::string> table_fields;//these are the fields that are in the xtable definition for this class
 		std::vector<std::string> parents;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
 		std::map<std::string, std::shared_ptr<index_interface>> indexes;
 		std::map<std::string, bool> ancestors;
 		std::map<std::string, bool> descendants;
 		std::shared_ptr<sql_integration> sql;
+		xtable_columns table_columns;
+		xtable_columns key_columns;
 
-		void copy_from(const class_interface* _src)
+		void copy_from(const class_implementation* _src)
 		{
 			class_id = _src->get_class_id();
 			class_name = _src->get_class_name();
 			class_description = _src->get_class_description();
 			base_class_name = _src->get_base_class_name();
 			table_location = _src->get_location();
-			table_fields = _src->get_table_fields();
 			parents = _src->get_parents();
 			auto new_fields = _src->get_fields();
 			for (auto fld : new_fields) {
@@ -2569,8 +2569,9 @@ namespace corona
 				indexes.insert_or_assign(idx->get_index_name(), idx);
 			}
 			ancestors = _src->get_ancestors();
-			descendants = _src->get_descendants();
-
+			descendants = _src->get_descendants();			
+			table_columns = _src->table_columns;
+			key_columns = _src->key_columns;
 		}
 
 
@@ -2691,12 +2692,7 @@ namespace corona
 			return parents;
 		}
 
-		virtual std::vector<std::string> get_table_fields() const override
-		{
-			return table_fields;
-		}
-
-		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, xtable_columns& _key_columns, xtable_columns& _object_columns) override
+		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
 		{
 			std::shared_ptr<xtable> table;
 			
@@ -2737,8 +2733,8 @@ namespace corona
 			{
 				current_table = std::make_shared<xtable>(_db->get_cache(), table_location);
 				auto table_header = std::make_shared<xtable_header>();
-				table_header->object_members = _object_members;
-				table_header->key_members = _key_members;
+				table_header->object_members = _object_columns;
+				table_header->key_members = _key_columns;
 				new_table = std::make_shared<xtable>(_db->get_cache(), table_header);
 				table_location = new_table->get_location();
 				json_parser jp;
@@ -2752,8 +2748,8 @@ namespace corona
 			else
 			{
 				auto table_header = std::make_shared<xtable_header>();
-				table_header->object_members = _object_members;
-				table_header->key_members = _key_members;
+				table_header->object_members = _object_columns;
+				table_header->key_members = _key_columns;
 				current_table = std::make_shared<xtable>(_db->get_cache(), table_header);
 				table_location = table_header->get_location();
 				table = current_table;
@@ -3160,8 +3156,8 @@ namespace corona
 						}
 					}
 				}
-				std::vector keys = sql->primary_key;
-				keys.insert(keys.end(), object_id_field);
+				auto keys = sql->primary_key;
+				keys[.insert(keys.end()], object_id_field);
 				std::string backing_index_name = sql->sql_table_name + "_idx";
 				std::shared_ptr<index_implementation> idx = std::make_shared<index_implementation>(backing_index_name, keys, nullptr);
 				indexes.insert_or_assign(backing_index_name, idx);
