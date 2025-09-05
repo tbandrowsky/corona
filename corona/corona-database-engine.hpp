@@ -2734,7 +2734,7 @@ namespace corona
 		/// </summary>
 		/// <param name="_db">Pointer to the corona_database_interface representing the database connection.</param>
 		/// <returns>A shared pointer to the current xtable after alteration.</returns>
-		virtual std::shared_ptr<xtable> alter_xtable(corona_database_interface* _db, xtable_columns& _key_columns, xtable_columns& _object_columns) override
+		virtual std::shared_ptr<xtable> alter_xtable(corona_database_interface* _db) override
 		{
 			std::shared_ptr<xtable> current_table, new_table, table;
 			if (table_location > null_row)
