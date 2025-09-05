@@ -2697,8 +2697,13 @@ namespace corona
 			std::shared_ptr<xtable> table;
 			
 			auto table_header = std::make_shared<xtable_header>();
-			table_header->object_members = _object_columns;
-			table_header->key_members = _key_columns;
+			for (auto &f : fields) {
+				table_header->object_members = _object_columns;
+                if (f.second->) {
+                    _key_columns.push_back({ f.first, f.second->get_field_type() });
+                }
+				table_header->key_members = _key_columns;
+			}
 			table = std::make_shared<xtable>(_db->get_cache(), table_header);
 			table_location = table_header->get_location();
 			system_monitoring_interface::active_mon->log_information(std::format("Created xtable for class {0} at location {1}", class_name, table_location));
