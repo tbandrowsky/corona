@@ -212,6 +212,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <None Include="naughty_monsters.json" />
     <None Include="sqlintegrationschema.json" />
     <None Include="table_test_schema.json" />
   </ItemGroup>
