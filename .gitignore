@@ -367,3 +367,4 @@ FodyWeavers.xsd
 *.cxdb
 *.zip
 *.csv
+seed_data/
