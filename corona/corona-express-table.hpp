@@ -1136,15 +1136,16 @@ namespace corona
 			return table_header->get_location();
 		}
 
-		void create_key(xrecord& _dest, int64_t _object_id)
+		bool create_key(xrecord& _dest, int64_t _object_id)
 		{
-            std::find_if(table_header->key_members.columns.begin(), table_header->key_members.columns.end(), [_dest, _object_id](auto &col_pair) {
-                if (col_pair.second->field_name == object_id_field) {
-                    _dest.add(col_pair.second->field_id, _object_id);
+            auto itr = std::find_if(table_header->key_members.columns.begin(), table_header->key_members.columns.end(), [&_dest, _object_id](auto &col_pair) {
+				if (std::string(col_pair.second.field_name) == object_id_field) {
+                    _dest.add(col_pair.second.field_id, _object_id);
                     return true;
                 }
                 return false;
                 });
+            return itr != table_header->key_members.columns.end();
 		}
 
 		virtual json get(int64_t _key)
@@ -1207,9 +1208,10 @@ namespace corona
 		virtual void erase(int64_t _id) 
 		{
 			xrecord key;
-			create_key(key, _id);
-			table_header->root->erase(key);
-			::InterlockedDecrement64(&table_header->count);
+			if (create_key(key, _id)) {
+				table_header->root->erase(key);
+				::InterlockedDecrement64(&table_header->count);
+			}
 		}
 
 		virtual void erase(json _object) override

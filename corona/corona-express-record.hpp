@@ -145,7 +145,7 @@ namespace corona
 			f.field_type = _field_type;
 			field_data.push_back(f);
 			record_data.resize(record_data.size() + f.size_bytes);
-			T* target = (char*)&_d;
+			T* target = (T*)(char*)&_d;
 			*target = _d;
 		}
 
@@ -256,6 +256,8 @@ namespace corona
 
 				comparison = datetimethis <=> datetimethat;
 			}
+
+			return comparison;
 		}
 
 	public:
@@ -265,7 +267,6 @@ namespace corona
 		xrecord(xrecord&& _xrecord) = default;
 		xrecord &operator =(const xrecord& _xrecord) = default;
 		xrecord &operator =(xrecord&& _xrecord) = default;
-		bool operator ==(const xrecord& _other) const = default;
 
         xrecord(char* _bytes, int32_t _size) {
             after_read(_bytes, _size);
@@ -347,7 +348,7 @@ namespace corona
 			}
             _bytes = (char*)pfield_data;
 
-			std::copy(_bytes, _bytes + record_size, record_data);
+			std::copy(_bytes, _bytes + record_size, std::back_inserter(record_data));
 		}
 
 		virtual char* before_write(int32_t* _size)  const
@@ -551,6 +552,12 @@ namespace corona
 				ordering = std::strong_ordering::less;
 			return ordering;
         }
+
+		bool operator ==(const xrecord& _other) const
+		{
+			return exact_equal(_other);
+		}
+
 
 		bool exact_equal(const xrecord& _other) const
 		{
