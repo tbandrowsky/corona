@@ -38,7 +38,7 @@ namespace corona
 		data_block(const data_block& _src) = default;
 		data_block& operator = (const data_block& _src) = default;
 
-		virtual char* before_write(int32_t* _size) = 0;
+		virtual char* before_write(int32_t* _size)  const = 0;
 		virtual char* before_write(int _offset, int _size)
 		{
 			return nullptr;
@@ -269,7 +269,7 @@ namespace corona
 			;
 		}
 
-		virtual char* before_write(int32_t* _size) override
+		virtual char* before_write(int32_t* _size) const override
 		{
 			*_size = strlen(data.c_str());
 			return (char*)data.c_str();
@@ -331,17 +331,21 @@ namespace corona
 
 		virtual void finished_io(char* _bytes) override
 		{
-			;
+			if (_bytes)
+			{
+				delete[] _bytes;
+			}
 		}
 
-		virtual char* before_write(int32_t* _size) override
+		virtual char* before_write(int32_t* _size) const override
 		{
 			std::stringstream buff;
 
 			data.serialize(buff);
-			bytes = buff.str();
-			*_size = bytes.size();
-			return (char*)bytes.c_str();
+			std::string temp = buff.str();
+			char* bytes = new char[temp.size() + 1];
+			std::copy(temp.c_str(), temp.c_str() + temp.size() + 1, bytes);
+			return bytes;
 		}
 
 		virtual void after_write(char* _t) override
@@ -379,7 +383,7 @@ namespace corona
 		}
 
 
-		virtual char* before_write(int32_t* _size) override
+		virtual char* before_write(int32_t* _size) const override
 		{
 			*_size = sizeof(data);
 			char* io_bytes = (char*)&data;

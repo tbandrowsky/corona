@@ -65,7 +65,7 @@ namespace corona
 		{
 		}
 
-		virtual char* before_write(int32_t* _size)
+		virtual char* before_write(int32_t* _size) const
 		{
 			*_size = sizeof(xblock_ref);
 			return (char *)this;
@@ -157,7 +157,7 @@ namespace corona
 
 		shared_lockable locker;
 
-		xrecord_block_header								xheader;
+		mutable xrecord_block_header						xheader;
 		std::map<xrecord, data_type>						records;
 		file_block		*									fb;
 
@@ -246,7 +246,7 @@ namespace corona
 		bool is_full()
 		{
 			read_scope_lock lockit(locker);
-			int s = (records.size() + 1);
+			int s = records.size() + 1;
 			return s >= xrecords_per_block;
 		}
 
@@ -294,24 +294,31 @@ namespace corona
 			}
 		}
 
-		virtual char* before_write(int32_t* _size) override
+		virtual char* before_write(int32_t* _size) const override
 		{
 			int32_t offset = xheader.size();
 
 			xheader.count = 0;
 			int i = 0;
 
+			std::vector<std::pair<char*, char*>> temp_records;
+
 			for (auto& r : records)
 			{
-				auto& rl = xheader.records[i];
+				xblock_location rl = {};
                 rl.key_offset = offset;
-                rl.key_size = r.first.size();
-				offset += r.first.size();
+                char *write_key = r.first.before_write(&rl.key_size);
+				offset += rl.key_size;
 				rl.value_offset = offset;
-                rl.value_size = r.second.size();
-                offset += r.second.size();
+				char* write_value = r.first.before_write(&rl.value_size);
+                offset += rl.value_size;
+				xheader.records[i] = rl;
+                temp_records.push_back(std::make_pair(write_key, write_value));	
 				xheader.count++;
 				i++;
+                if (i >= xrecords_per_block) {
+                    throw std::runtime_error("Too many records in block");
+                }
 			}
 
 			*_size = offset;
@@ -322,12 +329,13 @@ namespace corona
 			for (auto& r : records)
 			{
 				auto& rl = xheader.records[i];
+				auto& pair = temp_records[i];
 
-				const char *ksrc = r.first.data();
+				const char *ksrc = pair.first;
                 char* kdest = bytes + rl.key_offset;
 				std::copy(ksrc, ksrc + rl.key_size, kdest);
 
-				const char *vsrc = r.second.data();
+				const char *vsrc = pair.second;
 				char* vdest = bytes + rl.value_offset;
 				std::copy(vsrc, vsrc + rl.value_size, vdest);
 				i++;
@@ -1002,8 +1010,6 @@ namespace corona
 
 	class xtable_header : public data_block
 	{
-		std::string		  data;
-
 	public:
 
 		xblock_ref		  root_block;
@@ -1017,7 +1023,7 @@ namespace corona
 			return header.block_location;
 		}
 
-		virtual void get_json(json _dest)
+		virtual void get_json(json _dest) const
 		{
 			json_parser jp;
 			_dest.put_member_i64("root_type", root_block.block_type);
@@ -1045,32 +1051,39 @@ namespace corona
 
 		virtual char* before_read(int32_t _size)  override
 		{
-			data.resize(_size);
-			return (char*)data.c_str();
+			char *t = new char[_size + 1];
+			return t;
 		}
 
 		virtual void after_read(char* _bytes, int32_t _size) override
 		{
 			json_parser parser;
-			json temp = parser.parse_object(data);
-			put_json(temp);
+			json temp;
+			bool safe = std::any_of(_bytes, _bytes + _size, [](char c) { return c == 0; });
+
+			if (safe) {
+				temp = parser.parse_object(_bytes);
+				put_json(temp);
+			}
 		}
 
 		virtual void finished_io(char* _bytes) override
 		{
-			;
+			if (_bytes)
+				delete [] _bytes;
 		}
 
-		virtual char* before_write(int32_t* _size) override
+		virtual char* before_write(int32_t* _size) const override
 		{
 			json_parser jp;
 			json temp = jp.create_object();
 			get_json(temp);
-			data = temp.to_json_typed();
+			std::string data = temp.to_json_typed();
 			if (data.size() > giga_to_bytes(1))
 				throw std::logic_error("Block too big");
 			*_size = (int32_t)data.size();
-			char *r = data.data();
+			char* r = new char[data.size() + 10];
+			std::copy(data.c_str(), data.c_str() + data.size() + 1, r);
 			return r;
 		}
 

@@ -267,6 +267,10 @@ namespace corona
 		xrecord &operator =(xrecord&& _xrecord) = default;
 		bool operator ==(const xrecord& _other) const = default;
 
+        xrecord(char* _bytes, int32_t _size) {
+            after_read(_bytes, _size);
+        }
+
 		struct get_field_result
 		{
 			char*			ptr;
@@ -346,7 +350,7 @@ namespace corona
 			std::copy(_bytes, _bytes + record_size, record_data);
 		}
 
-		virtual char* before_write(int32_t* _size) 
+		virtual char* before_write(int32_t* _size)  const
 		{
 			int32_t header_size = sizeof(int32_t) + sizeof(xfield) * field_data.size();
 			int32_t record_size = 0, record_count = 0;

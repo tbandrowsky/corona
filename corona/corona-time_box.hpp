@@ -349,7 +349,7 @@ namespace corona
 			return *this;
 		}
 
-		bool is_empty()
+		bool is_empty() const
 		{
 			return sql_date_time.year == 0 and sql_date_time.month == 0;
 		}
@@ -461,7 +461,7 @@ namespace corona
 			return temp;
 		}
 
-		std::string format(std::string _format)
+		std::string format(std::string _format) const
 		{
 			char time_buff[256] = {};
 			strncpy_s(time_buff, _format.c_str(), _TRUNCATE);
@@ -509,7 +509,7 @@ namespace corona
 			return temp;
 		}
 
-		operator SYSTEMTIME ()
+		operator SYSTEMTIME () const
 		{
 			SYSTEMTIME system_time;
 			sql_time_to_system_time(sql_date_time, system_time);
@@ -517,37 +517,37 @@ namespace corona
 			return system_time;
 		}
 		
-		int year()
+		int year() const
 		{
 			return sql_date_time.year;
 		}
 
-		int month()
+		int month() const
 		{
 			return sql_date_time.month;
 		}
 
-		int day()
+		int day() const
 		{
 			return sql_date_time.day;
 		}
 
-		int hour()
+		int hour() const
 		{
 			return sql_date_time.hour;
 		}
 
-		int minute()
+		int minute() const
 		{
 			return sql_date_time.minute;
 		}
 
-		int second()
+		int second() const
 		{
 			return sql_date_time.second;
 		}
 
-		int millisecond()
+		int millisecond() const
 		{
 			return sql_date_time.fraction / 1000000i64;
 		}

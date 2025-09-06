@@ -3,6 +3,13 @@
 #ifndef CORONA_CORONA_CLIENT_HPP
 #define CORONA_CORONA_CLIENT_HPP
 
+/*
+
+Now that you wrote the open api wrapper, and the class generator from it, you can just 
+generate all this stuff... or just use C# on the client end.
+
+*/
+
 namespace corona
 {
 
@@ -14,7 +21,6 @@ namespace corona
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
-		std::vector<std::string> table_fields;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
 		std::map<std::string, std::shared_ptr<index_interface>> indexes;
 		std::map<std::string, bool> ancestors;
@@ -27,7 +33,6 @@ namespace corona
 			class_name = _src->get_class_name();
 			class_description = _src->get_class_description();
 			base_class_name = _src->get_base_class_name();
-			table_fields = _src->get_table_fields();
 			auto new_fields = _src->get_fields();
 			for (auto fld : new_fields) {
 				fields.insert_or_assign(fld->get_field_name(), fld);
@@ -110,11 +115,6 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::vector<std::string> get_table_fields() const
-		{
-			return table_fields;
-		}
-
 		virtual std::map<std::string, bool>  const& get_descendants() const
 		{
 			return descendants;
@@ -144,14 +144,6 @@ namespace corona
 			_dest.put_member(class_name_field, class_name);
 			_dest.put_member("class_description", class_description);
 			_dest.put_member("base_class_name", base_class_name);
-			
-			if (table_fields.size() > 0) {
-				json jtable_fields = jp.create_array();
-				for (auto tf : table_fields) {
-					jtable_fields.push_back(tf);
-				}
-				_dest.put_member("table_fields", jtable_fields);
-			}
 
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
@@ -205,15 +197,6 @@ namespace corona
 			class_name = _src[class_name_field];
 			class_description = _src["class_description"];
 			base_class_name = _src["base_class_name"];
-
-			jtable_fields = _src["table_fields"];
-
-			table_fields.clear();
-			if (jtable_fields.array()) {
-				for (auto tf : jtable_fields) {
-					table_fields.push_back((std::string)tf);
-				}
-			}
 
 			ancestors.clear();
 			jancestors = _src["ancestors"];

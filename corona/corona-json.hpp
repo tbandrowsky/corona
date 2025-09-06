@@ -36,27 +36,27 @@ namespace corona
 			;
 		}
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			return "";
 		}
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return "";
 		}
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return "";
 		}
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return "";
 		}
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return "";
 		}
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return true;
 		}
@@ -64,11 +64,11 @@ namespace corona
 		{
 			;
 		}
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "";
 		}
-		virtual std::string get_type_name()
+		virtual std::string get_type_name() const
 		{
 			std::string temp;
 
@@ -79,17 +79,17 @@ namespace corona
 
 			return temp;
 		}
-		virtual std::string get_ctype_name()
+		virtual std::string get_ctype_name() const
 		{
 			return typeid(*this).name();
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_none;
 		}
 
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
 			return _src;
 		}
@@ -101,20 +101,20 @@ namespace corona
 			return jv;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return 0;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return false;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return 0.0;
 		}
@@ -184,29 +184,29 @@ namespace corona
 	public:
 		double value;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const 
 		{
 			return std::to_string(value);
 		}
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return std::to_string(value);
 		}
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return std::format("{}", value);
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
 			_src << to_json_typed();
 			return _src;
 
 		}
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return false;
 		}
@@ -218,7 +218,7 @@ namespace corona
 			}
 			value = std::strtod(_src.data(), nullptr);
 		}
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			std::vector<std::string> options = corona::split(_format, ',');
 
@@ -336,12 +336,12 @@ namespace corona
 
 			return formatted_number;
 		}
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_double;
 		}
 
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "$double";
 		}
@@ -353,20 +353,20 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return value;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt((time_t)value);
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return value != 0.0;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return value;
 		}
@@ -378,46 +378,46 @@ namespace corona
 	public:
 		date_time value;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			std::string v = value;
 			return value;
 		}
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return "\"" + to_string() + "\"";
 		}
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return value;
 		}
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return value.is_empty();
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
 			_src << to_json_typed();
 			return _src;
 
 		}
-		virtual void from_string(const std::string_view& _src)
+		virtual void from_string(const std::string_view& _src) 
 		{
 			value = std::string(_src);
 		}
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const 
 		{
 			return value.format(_format);
 		}
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_datetime;
 		}
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const 
 		{
 			return "$datetime";
 		}
@@ -429,19 +429,19 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return value.get_time_t();
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			return value;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return true;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return value.get_time_t();
 		}
@@ -453,21 +453,21 @@ namespace corona
 	public:
 		std::vector<char> value;
 
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return "\"" + to_string() + "\"";
 		}
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return value.size() == 0;
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			std::string st;
 			for (auto ea : value) 
@@ -477,7 +477,7 @@ namespace corona
 			}
 			return st;
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
 			_src << to_json_typed();
 			return _src;
@@ -493,12 +493,12 @@ namespace corona
 			}
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_blob;
 		}
 
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "$blob";
 		}
@@ -512,20 +512,20 @@ namespace corona
 		}
 
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return 0;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return true;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return 0.0;
 		}
@@ -537,38 +537,38 @@ namespace corona
 	public:
 		int64_t value;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			return std::to_string(value);
 		}
 
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return std::to_string(value);
 		}
 
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src) const
 		{
 			_src << to_json_typed();
 			return _src;
 
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return false;
 		}
 
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return std::to_string(value);
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return std::format("{}", value);
 		}
@@ -579,12 +579,12 @@ namespace corona
 			value = std::stoll(temp);
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_int64;
 		}
 
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "$int64";
 		}
@@ -597,20 +597,20 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return value;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt(value);
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return value != 0;
 		}
-		virtual double to_double()
+		virtual double to_double() const const
 		{
 			return value;
 		}
@@ -622,38 +622,38 @@ namespace corona
 	public:
 		object_reference_type value;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			return std::format("{0}:{1}", value.class_name, value.object_id);
 		}
 
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			return std::format("{0}:{1}", value.class_name, value.object_id);
 		}
 
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src) const
 		{
 			_src << to_json_typed();
 			return _src;
 
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return false;
 		}
 
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return std::format("{0}", to_key());
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return std::format("{}", to_key());
 		}
@@ -668,12 +668,12 @@ namespace corona
 				value.object_id = strtol(arr[1].c_str(), nullptr, 10);
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_reference;
 		}
 
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "$reference";
 		}
@@ -686,20 +686,20 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return value.object_id;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return value.object_id != 0 and not value.class_name.empty();
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return value.object_id;
 		}
@@ -712,27 +712,27 @@ namespace corona
 	public:
 		std::string value;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			return value;
 		}
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
             std::string temp = + "\"" + escape_json_string(value) + "\"";
 			return temp;
 		}
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return get_type_prefix() + " " + to_json();
 		}
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src) const
 		{
 			_src << to_json_typed();
 			return _src;
 
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return value;
 		}
@@ -741,21 +741,21 @@ namespace corona
 			value = _src;
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return value.empty();
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_string;
 		}
 
-		virtual std::string get_type_prefix()
+		virtual std::string get_type_prefix() const
 		{
 			return "$string";
 		}
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return value;
 		}
@@ -767,21 +767,21 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return std::strtoll(value.c_str(), nullptr, 10);
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			dt.parse(value);
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return not value.empty();
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return std::strtod(value.c_str(), nullptr);
 		}
@@ -793,7 +793,7 @@ namespace corona
 	public:
 		std::vector<std::shared_ptr<json_value>> elements;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			std::string ret = "";
 			std::string comma = "";
@@ -805,7 +805,7 @@ namespace corona
 			return ret;
 		}
 
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			std::string ret = "[ ";
 			std::string comma = "";
@@ -818,12 +818,12 @@ namespace corona
 			return ret;
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return elements.empty();
 		}
 
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src) const
 		{
 			_src << "[ ";
 			std::string comma = "";
@@ -836,23 +836,23 @@ namespace corona
 			return _src;
 		}
 
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			return to_json();
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_array;
 		}
 
 
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return to_json();
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return to_json();
 		}
@@ -871,20 +871,20 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return 0;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return true;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return 0.0;
 		}
@@ -896,7 +896,7 @@ namespace corona
 	public:
 		std::map<std::string, std::shared_ptr<json_value>> members;
 
-		virtual std::string to_key()
+		virtual std::string to_key() const
 		{
 			std::string ret = "";
 			std::string comma = "";
@@ -910,7 +910,7 @@ namespace corona
 			return ret;
 		}
 
-		virtual std::string to_json()
+		virtual std::string to_json() const
 		{
 			std::string ret = "{ ";
 			std::string comma = "";
@@ -930,7 +930,7 @@ namespace corona
 			return ret;
 		}
 
-		virtual std::string to_json_typed()
+		virtual std::string to_json_typed() const
 		{
 			std::string ret = "{ ";
 			std::string comma = "";
@@ -947,7 +947,7 @@ namespace corona
 			return ret;
 		}
 
-		virtual std::stringstream& serialize(std::stringstream& _src)
+		virtual std::stringstream& serialize(std::stringstream& _src) const
 		{
 			_src << "{ ";
 			std::string comma = "";
@@ -963,17 +963,17 @@ namespace corona
 			return _src;
 		}
 
-		virtual bool is_empty()
+		virtual bool is_empty() const
 		{
 			return members.empty();
 		}
 
-		virtual field_types get_field_type()
+		virtual field_types get_field_type() const
 		{
 			return field_types::ft_object;
 		}
 
-		virtual std::string to_string()
+		virtual std::string to_string() const
 		{
 			return to_json();
 		}
@@ -983,13 +983,13 @@ namespace corona
 			members.clear();
 		}
 
-		virtual std::string format(std::string _format)
+		virtual std::string format(std::string _format) const
 		{
 			return to_json();
 		}
 
 
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_object>();
 			for (auto member : members) {
@@ -1005,20 +1005,20 @@ namespace corona
 			return t;
 		}
 
-		virtual int64_t to_int64()
+		virtual int64_t to_int64() const
 		{
 			return 0;
 		}
-		virtual date_time to_datetime()
+		virtual date_time to_datetime() const
 		{
 			date_time dt;
 			return dt;
 		}
-		virtual bool to_bool()
+		virtual bool to_bool() const
 		{
 			return true;
 		}
-		virtual double to_double()
+		virtual double to_double() const
 		{
 			return 0.0;
 		}
@@ -1152,7 +1152,7 @@ namespace corona
 			return value_base->to_json_typed();
 		}
 
-		std::stringstream& serialize(std::stringstream& _dest)
+		std::stringstream& serialize(std::stringstream& _dest) const
 		{
 			if (value_base) {
 				value_base->serialize(_dest);

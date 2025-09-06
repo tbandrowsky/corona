@@ -797,7 +797,7 @@ namespace corona
 		virtual std::string								get_index_name() = 0;
 		virtual std::vector<std::string>				&get_index_keys() = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
-		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>& _fields) = 0;
+		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) = 0;
 		virtual std::string								get_index_key_string() = 0;
 		virtual int64_t									get_location() { return table_location; }
 
@@ -844,7 +844,6 @@ namespace corona
 		virtual	bool									open(activity* _context, json _existing_definition, int64_t _location) = 0;
 		virtual	bool									update(activity* _context, json _changed_class) = 0;
 		virtual	bool									create(activity* _context, json _changed_class) = 0;
-		virtual std::vector<std::string>				get_table_fields()  const = 0;
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
@@ -2527,12 +2526,13 @@ namespace corona
 				auto ifield = _fields.find(key);
 				if (ifield != std::end(_fields)) {
 					xcolumn cx;
+					auto& ifs = ifield->second;
 					cx.field_id = column_id;
-					cx.field_name = field->get_field_name();
-                    cx.field_type = field->get_field_type();	
+					cx.field_name = ifs->get_field_name();
+                    cx.field_type = ifs->get_field_type();
 					key_columns.columns[column_id] = cx;
 
-                    if ((field->get_field_name() == object_id_field || field->get_field_name()==class_id_field)) {
+                    if ((ifs->get_field_name() == object_id_field || ifs->get_field_name()==class_id_field)) {
 						object_columns.columns[column_id] = cx;
                     }
 				}
@@ -2829,18 +2829,8 @@ namespace corona
 
 			auto stable = std::make_shared<sql_table>(sql, connection);
 
-			// we're going to make our xtable anyway so we can slap our object id 
-			// on top of a sql server primary key
-			// but we don't do this all the time, because we'd like to keep the data around.
-			std::shared_ptr<xtable> table;
-
-			auto table_header = std::make_shared<xtable_header>();
-			int column_id = 1;
-			table_header->key_members = sql->primary_key;
-            table_header->object_members = sql->all_fields;
-			table = std::make_shared<xtable>(_db->get_cache(), table_header);
-			table_location = table_header->get_location();
-			system_monitoring_interface::active_mon->log_information(std::format("Created xtable for class {0} at location {1}", class_name, table_location));
+			create_xtable(_db);
+				
 			return stable;
 		}
 
@@ -3437,10 +3427,6 @@ namespace corona
 			std::map<std::string, bool> existing_table_fields;
 			std::vector<std::shared_ptr<field_interface>> new_fields;
 
-			for (auto tf : table_fields) {
-				existing_table_fields.insert_or_assign(tf, true);
-			}
-
 			for (auto f : changed_class.fields)
 			{
 				combined_fields[f.first] = f.second;
@@ -3449,16 +3435,6 @@ namespace corona
 			for (auto f : fields)
 			{
 				combined_fields[f.first] = f.second;
-			}
-
-			fields.clear();
-			for (auto& field : combined_fields)
-			{
-				if (existing_table_fields.find(field.first)==std::end(existing_table_fields)) {
-					table_fields.push_back(field.first);
-					new_fields.push_back(field.second);
-				}
-				fields[field.first] = field.second;
 			}
 
 			for (auto idx : changed_class.indexes)
@@ -3511,7 +3487,7 @@ namespace corona
 				else 
 				{
 					auto class_data = get_table(_context->db);
-					auto table = new_index.second->create_xtable(_context->db);
+					auto table = new_index.second->create_xtable(_context->db, fields);
 
 					auto& keys = new_index.second->get_index_keys();
 					date_time dt = date_time::now();
@@ -3624,11 +3600,6 @@ namespace corona
 				}
 			}
 
-			for (auto& field : fields)
-			{
-				table_fields.push_back(field.first);
-			}
-
 			auto view_descendants = descendants | std::views::filter([this](auto& pair) {
 				return pair.first != class_name;
 				});
@@ -3658,7 +3629,7 @@ namespace corona
 			create_table(_context->db);
 			for (auto idx : indexes)
 			{
-				idx.second->create_xtable(_context->db);
+				idx.second->create_xtable(_context->db, fields);
 			}
 
 			return true;
@@ -3994,15 +3965,18 @@ namespace corona
 			{
 				auto backing_table = get_xtable(_db);
 				json idx_search = jp.create_object();
-				for (auto& s : sql->primary_key) {
-					idx_search.put_member(s, s);
+				std::vector<std::string> key_field_names;
+				for (auto& s : sql->primary_key.columns) {
+					std::string name = std::string(s.second.field_name);
+					idx_search.put_member(name, name);
+                    key_field_names.push_back(name);
 				}
 
 				auto index_table = find_index(_db, idx_search);
 
 				for (auto ob : obj)
 				{
-					json key = ob.extract(sql->primary_key);
+					json key = ob.extract(key_field_names);
 					json ob_found;
 
 					if (index_table)
