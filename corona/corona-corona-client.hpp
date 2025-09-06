@@ -360,15 +360,8 @@ namespace corona
 						}
 					}
 				}
-				std::vector keys = sql->primary_key;
-				keys.insert(keys.end(), object_id_field);
-				std::string backing_index_name = sql->sql_table_name + "_idx";
-				std::shared_ptr<index_implementation> idx = std::make_shared<index_implementation>(backing_index_name, keys, nullptr);
-				indexes.insert_or_assign(backing_index_name, idx);
 			}
-
 		}
-
 
 		virtual std::shared_ptr<xtable> find_index(corona_database_interface* _db, json& _object)  const
 		{
