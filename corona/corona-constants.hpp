@@ -120,7 +120,7 @@ namespace corona
 
 		object_reference_type& operator = (std::string& _src)
 		{
-			std::regex ortexpr("([A-Za-z0-9\_]+)([:])([0-9]+)", std::regex_constants::syntax_option_type::ECMAScript);
+			std::regex ortexpr("([A-Za-z0-9_]+)([:])([0-9]+)", std::regex_constants::syntax_option_type::ECMAScript);
 
 			std::smatch results;
 			class_name = "";

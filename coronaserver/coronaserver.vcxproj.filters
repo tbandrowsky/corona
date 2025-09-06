@@ -35,7 +35,6 @@
     <CopyFileToFolders Include="onboarding_email_template.html" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="corona.postman_collection.json" />
     <None Include="deploy.ps1" />
     <None Include="eventmessages.txt">
