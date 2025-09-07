@@ -145,7 +145,7 @@ namespace corona
 			f.field_type = _field_type;
 			field_data.push_back(f);
 			record_data.resize(record_data.size() + f.size_bytes);
-			T* target = (T*)(char*)&_d;
+			T* target = (T*)(record_data.data() + f.record_offset);
 			*target = _d;
 		}
 
