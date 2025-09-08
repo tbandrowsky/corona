@@ -1493,7 +1493,7 @@ namespace corona
 
 		bool empty() const
 		{
-			return value_base == nullptr;
+			return value_base == nullptr or value_base->is_empty();
 		}
 
 		bool error()

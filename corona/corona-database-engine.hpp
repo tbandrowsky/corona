@@ -6079,7 +6079,7 @@ private:
 						bool run_on_change = (bool)new_dataset["run_on_change"];
 						json existing_dataset = get_dataset(dataset_name, dataset_version, sys_perm);
 
-						if (not run_on_change and existing_dataset) {
+						if (not (run_on_change or existing_dataset.empty())) {
 							system_monitoring_interface::active_mon->log_job_section_stop("DataSet", dataset_name + " Already Done", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 							continue;
 						}
