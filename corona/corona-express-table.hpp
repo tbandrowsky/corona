@@ -525,7 +525,7 @@ namespace corona
 			xfor_each_result result;
 			result.is_all = true;
 			result.is_any = false;
-			for (auto item : records) 
+			for (auto& item : records) 
 			{
 				if (item.first == _key) {
 					if (_process(item.first, item.second) != null_row)
@@ -545,7 +545,7 @@ namespace corona
 		virtual std::vector<xrecord> select(xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			std::vector<xrecord> result = {};
-			for (auto item : records)
+			for (auto& item : records)
 			{
 				if (item.first == _key or _key.empty()) {
 					xrecord temp = _process(item.first, item.second);

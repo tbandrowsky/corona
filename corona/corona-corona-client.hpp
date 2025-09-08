@@ -29,7 +29,6 @@ namespace corona
 
 		void copy_from(const class_interface* _src)
 		{
-			class_id = _src->get_class_id();
 			class_name = _src->get_class_name();
 			class_description = _src->get_class_description();
 			base_class_name = _src->get_base_class_name();

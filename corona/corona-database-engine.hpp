@@ -54,7 +54,6 @@ namespace corona
 	"class_name" : "sys_class",
 	"class_description" : "Class definitions",
 	"fields" : {			
-			"class_id":"int64",			
 			"class_name":"string",
 			"class_description":"string",
 			"table_location":"int64",
@@ -817,7 +816,6 @@ namespace corona
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
 
-        virtual int64_t									get_class_id() const = 0;
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
 		virtual std::string								get_base_class_name()  const = 0;
@@ -2565,7 +2563,6 @@ namespace corona
 	{
 
 	protected:
-		int64_t		class_id;
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
@@ -2578,7 +2575,6 @@ namespace corona
 
 		void copy_from(const class_interface* _src)
 		{
-			class_id = _src->get_class_id();
 			class_name = _src->get_class_name();
 			class_description = _src->get_class_description();
 			base_class_name = _src->get_base_class_name();
@@ -2604,7 +2600,6 @@ namespace corona
 		class_implementation()
 		{
 			table_location = null_row;
-			class_id = null_row;
 		} 
 
 		class_implementation(const class_interface* _src)
@@ -2667,16 +2662,6 @@ namespace corona
 			return all_info;
 		}
 
-		virtual int64_t	get_class_id() const override
-		{
-			return class_id;
-		}
-
-		class_implementation& set_class_id(int64_t _class_id)
-		{
-			class_id = _class_id;
-			return *this;
-		}
 
 		virtual std::string get_class_name() const override
 		{
@@ -2909,7 +2894,6 @@ namespace corona
 			json_parser jp;
 
 			_dest.put_member(class_name_field, class_name);
-			_dest.put_member_i64(object_id_field, class_id);
 			_dest.put_member("class_description", class_description);
 			_dest.put_member("base_class_name", base_class_name);
 			_dest.put_member_i64("table_location", table_location);
@@ -2973,7 +2957,6 @@ namespace corona
 			class_name = _src[class_name_field];
 			class_description = _src["class_description"];
 			base_class_name = _src["base_class_name"];
-            class_id = (int64_t)_src[object_id_field];
 			table_location = (int64_t)_src["table_location"];
 
 			parents.clear();
@@ -3350,11 +3333,6 @@ namespace corona
 			bool alter_table = false;
 			json_parser jp;
 
-			if (class_id <= 0) {
-				std::string msg = std::format("{0} was not assigned a class_id", class_name);
-				throw std::logic_error(msg);
-			}
-
 			changed_class.put_json(_context->errors, _changed_class);
 
 			if (_context->errors.size())
@@ -3565,10 +3543,6 @@ namespace corona
 				ve.message = "class description not found";
 				_context->errors.push_back(ve);
 				return false;
-			}
-
-			if (class_id <= 0) {
-				class_id = _context->db->get_next_object_id();
 			}
 
 			ancestors.clear();
@@ -4147,8 +4121,7 @@ namespace corona
 		delete_object
 		*/
 
-		std::shared_ptr<class_implementation> classes;
-		
+		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
 		allocation_index get_allocation_index(int64_t _size)
@@ -4316,11 +4289,17 @@ namespace corona
 				std::shared_ptr<class_implementation> cdimp = std::make_shared<class_implementation>();
 				json key = jp.create_object();
 				key.put_member(class_name_field, _class_name);
-				json class_def = classes->get_single_object(this, key, false, get_system_permission());
-				if (class_def) {
+				json class_def = classes->select(key, [&key](json& _target)-> json {
+					if (key.compare(_target) == 0) {
+						return _target;
+					}
+					json jx;
+					return jx;
+					});
+				if (class_def.array() and class_def.size()>0) {
 					activity get_activity;
 					get_activity.db = this;
-					cdimp->open(&get_activity, class_def, -1);
+					cdimp->open(&get_activity, class_def.get_first_element(), -1);
 					cd = cdimp;
 					class_cache.insert(_class_name, cd);
 				}
@@ -4367,25 +4346,26 @@ namespace corona
 			
 			cache = std::make_unique<xblock_cache>(static_cast<file_block*>(this), maximum_record_cache_size_bytes);
 
-
-
 			header.data.object_id = 1;
 			header_location = header.append(this);
 
 			// now create the classes table.  it too is an xtable and participates properly
 			// in the cache and allocation system.
-			classes = std::make_shared<class_implementation>();		
+			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
-			std::vector<validation_error> class_errors;
-			json class_definition = jp.create_object();
-			activity update_activity;
-			update_activity.db = this;
-			class_definition = jp.parse_object(class_definition_string);
+			class_data_header->key_members.columns[1] = { field_types::ft_string, 1, "class_name" };
+			class_data_header->object_members.columns[2] = { field_types::ft_string, 2, "class_description" };
+			class_data_header->object_members.columns[3] = { field_types::ft_string, 3, "base_class_name" };
+			class_data_header->object_members.columns[4] = { field_types::ft_array, 4, "parents" };
+			class_data_header->object_members.columns[5] = { field_types::ft_object, 5, "fields" };
+			class_data_header->object_members.columns[6] = { field_types::ft_object, 6, "indexes" };
+			class_data_header->object_members.columns[7] = { field_types::ft_int64, 7, "table_location" };
+			class_data_header->object_members.columns[8] = { field_types::ft_array, 8, "ancestors" };
+			class_data_header->object_members.columns[9] = { field_types::ft_array, 9, "descendants" };
+			class_data_header->object_members.columns[10] = { field_types::ft_object, 9, "sql" };
 
-			bool success = classes->create(&update_activity, class_definition);
-
-			auto cxtable = classes->get_xtable(this);
-			header.data.classes_location = cxtable->get_location();
+            classes = std::make_shared<xtable>(cache.get(), class_data_header);
+			header.data.classes_location = classes->get_location();
 
 			created_classes = jp.create_object();
 
@@ -4413,7 +4393,7 @@ namespace corona
 				return result;
 			}
 
-			json test =  classes->get_single_object(this, R"({"class_name":"sys_object"})"_jobject, false, get_system_permission() );
+			json test =  classes->get(R"({"class_name":"sys_object"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_object after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4444,7 +4424,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_error"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_error"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_error after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4475,7 +4455,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_server"})"_jobject, false, get_system_permission() );
+			test = classes->get(R"({"class_name":"sys_server"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_server after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4503,7 +4483,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_command"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_command"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_command after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4559,7 +4539,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_grant"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_grant"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_grant after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4615,7 +4595,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_grant"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_grant"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_team after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4623,10 +4603,6 @@ namespace corona
 			}
 
 			created_classes.put_member("sys_team", true);
-
-
-
-
 
 			response = create_class(R"(
 {
@@ -4664,7 +4640,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_dataset"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_dataset"})"_jobject);
 			if (test.empty() or test.is_member("class_name", "SysParseError")) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_dataset after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4714,7 +4690,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_schema"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_schema"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_schema after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4835,7 +4811,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get_single_object(this, R"({"class_name":"sys_user"})"_jobject, false, get_system_permission());
+			test = classes->get(R"({"class_name":"sys_user"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_schema after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4885,7 +4861,7 @@ namespace corona
 
 			new_user_request = create_system_request(new_user_data);
 			json new_user_result =  create_user(new_user_request);
-			success = (bool)new_user_result[success_field];
+			bool success = (bool)new_user_result[success_field];
 			std::vector<validation_error> errors;
 			if (success) {
 				json new_user = new_user_result[data_field];
@@ -5413,7 +5389,10 @@ private:
 				user_name = default_user;
             }
 
-            json all_classes = classes->get_objects(this, R"({"class_name":"sys_class"})"_jobject, false, get_system_permission());
+			json all_classes = classes->select(R"({"class_name":"sys_class"})"_jobject, [](json& _item) -> json {
+                return _item;
+				});
+
 			json result_list = jp.create_array();
 			if (all_classes.array()) {
 				for (auto cls : all_classes) {
@@ -5929,11 +5908,8 @@ private:
 			json class_def;
 
 			class_def = jp.create_object();
-			json class_def_list = jp.create_array();
-            json dummy_children = jp.create_array();
 			_class_to_save->get_json(class_def);
-            class_def_list.push_back(class_def);
-            classes->put_objects(this, dummy_children, class_def_list, get_system_permission());
+            classes->put(class_def);
 			return class_def;
 		}
 
@@ -6362,15 +6338,14 @@ private:
 			if (class_definition.error())
 				throw std::exception("Class Definition Parse Error");
 
-			classes = std::make_shared<class_implementation>();
-			classes->open(&act, class_definition, header.data.classes_location);
+			classes = std::make_shared<xtable>(cache.get(), header.data.classes_location);
 
             std::vector<std::string> check_classes = { "sys_object", "sys_user", "sys_team", "sys_grant", "sys_server", "sys_error", "sys_schema", "sys_dataset" };
 
 			for (auto check_class : check_classes) {
                 std::string class_key = std::format(R"({{"class_name":"{0}"}})", check_class);
                 json key = jp.parse_object(class_key);
-				json test = classes->get_single_object(this, key, false, get_system_permission());
+				json test = classes->get(key);
 				if (test.empty() or test.error()) {
 					system_monitoring_interface::active_mon->log_warning("could not find class '" + check_class + "' after open.", __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_job_stop("open_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -7205,7 +7180,9 @@ private:
 				return result;
 			}
 
-			object_list = classes->get_objects(this, "{}"_jobject, false, get_system_permission());
+			object_list = classes->select(jp.create_object(), [](json& _item)->json {
+				return _item;
+				});
             result_list = jp.create_array();
 
 			// put on the afterburners.  my ai said this was faster...
@@ -7288,7 +7265,7 @@ private:
 
 			if (permission.get_grant != class_grants::grant_none) {
 
-				json class_definition = classes->get_single_object(this, key, false, permission);
+				json class_definition = classes->get(key);
 
 				auto classd = read_lock_class(class_name);
 				if (classd) {
