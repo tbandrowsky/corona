@@ -88,10 +88,15 @@ namespace corona
 		return ((int32_t)fta << 8) | (int32_t)ftb;
 	}
 
-	static field_types allowed_field_type_operations[65536] = { field_types::ft_string };
+	static field_types allowed_field_type_operations[65536] = {};
 
 	void init_field_comparisons()
 	{
+		for (int i = 0; i < sizeof(allowed_field_type_operations) / sizeof(field_types); i++)
+		{
+			allowed_field_type_operations[i] = field_types::ft_string;
+		}
+
 		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_double)] = field_types::ft_double;
 		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_string)] = field_types::ft_double;
 		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_int64)] = field_types::ft_int64;
@@ -776,8 +781,7 @@ namespace corona
 
 		xrecord compj;
 		json jdst = jp.create_object();
-		json jkeys = jp.create_object();
-
+        compj.put_json(&columns2, jsrc);
 		compj.get_json(&columns2, jdst);
 
 		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
@@ -797,7 +801,7 @@ namespace corona
 		xrecord xsrc;
         xsrc.put_json(&columns2, jsrc);
 		xrecord readin = xsrc;
-		readin.get_json(&columns2, jkeys);
+		readin.get_json(&columns2, jdst);
 
 		// and finally, checking our matches after the round trip
 		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
