@@ -6349,7 +6349,7 @@ private:
 				if (test.empty() or test.error()) {
 					system_monitoring_interface::active_mon->log_warning("could not find class '" + check_class + "' after open.", __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_job_stop("open_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-					return 0;
+					abort();
 				}
 			}
 

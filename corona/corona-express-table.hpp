@@ -1161,24 +1161,48 @@ namespace corona
 			return table_header->get_location();
 		}
 
-		bool create_key(xrecord& _dest, int64_t _object_id)
+		template <typename key_type> xrecord create_key(key_type& _key)
 		{
-            auto itr = std::find_if(table_header->key_members.columns.begin(), table_header->key_members.columns.end(), [&_dest, _object_id](auto &col_pair) {
-				if (std::string(col_pair.second.field_name) == object_id_field) {
-                    _dest.add(col_pair.second.field_id, _object_id);
-                    return true;
-                }
-                return false;
-                });
-            return itr != table_header->key_members.columns.end();
+			xrecord temp;
+			if (table_header->key_members.columns.size() != 1)
+				throw std::logic_error("Invalid key type for table");
+
+			auto km = table_header->key_members.columns.begin();
+			temp.add(km->second.field_id, _key);
+			return temp;
+		}
+
+		xrecord create_key_i64(int64_t _key)
+		{
+			xrecord temp;
+			if (table_header->key_members.columns.size() != 1)
+                throw std::logic_error("Invalid key type for table");
+
+			auto km = table_header->key_members.columns.begin();
+			temp.add_int64(km->second.field_id, _key);
+			return temp;
+		}
+
+		virtual json get(std::string _key)
+		{
+			json_parser jp;
+			json jresult;
+			xrecord key = create_key<std::string>(_key);
+			xrecord result = table_header->root->get(key);
+			if (not result.empty()) {
+				jresult = jp.create_object();
+				key.get_json(&table_header->key_members, jresult);
+				result.get_json(&table_header->object_members, jresult);
+				return jresult;
+			}
+			return jresult;
 		}
 
 		virtual json get(int64_t _key)
 		{
 			json_parser jp;
 			json jresult;
-			xrecord key; // make sure its initialized
-			create_key(key, _key);
+			xrecord key = create_key_i64(_key);
 			xrecord result = table_header->root->get(key);
 			if (not result.empty()) {
 				jresult = jp.create_object();
@@ -1233,10 +1257,8 @@ namespace corona
 		virtual void erase(int64_t _id) 
 		{
 			xrecord key;
-			if (create_key(key, _id)) {
-				table_header->root->erase(key);
-				::InterlockedDecrement64(&table_header->count);
-			}
+			key = create_key_i64(_id);
+			table_header->root->erase(key);
 		}
 
 		virtual void erase(json _object) override

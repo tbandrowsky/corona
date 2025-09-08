@@ -320,7 +320,7 @@ namespace corona
 			add_poco<date_time>(_field_id, _d, field_types::ft_datetime);
 		}
 
-		void add(int32_t _field_id, int64_t _d)
+		void add_int64(int32_t _field_id, int64_t _d)
 		{
 			add_poco<int64_t>(_field_id, _d, field_types::ft_int64);
 		}
@@ -394,6 +394,7 @@ namespace corona
 		}
 
 		// end implements xblock storable
+		// 9/8/2025 - you were here....working on the thing.
 
 		void put_json(xtable_columns *_xt, json& _j)
 		{
