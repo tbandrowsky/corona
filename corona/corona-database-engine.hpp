@@ -4381,6 +4381,7 @@ namespace corona
 			activity update_activity;
 			update_activity.db = this;
 			class_definition = jp.parse_object(class_definition_string);
+
 			bool success = classes->create(&update_activity, class_definition);
 
 			auto cxtable = classes->get_xtable(this);

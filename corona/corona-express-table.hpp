@@ -542,12 +542,12 @@ namespace corona
 			return result;
 		}
 
-		virtual std::vector<xrecord> select(xrecord _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+		virtual std::vector<xrecord> select(xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			std::vector<xrecord> result = {};
 			for (auto item : records)
 			{
-				if (item.first == _key) {
+				if (item.first == _key or _key.empty()) {
 					xrecord temp = _process(item.first, item.second);
 					if (not temp.empty())
 					{
@@ -932,32 +932,57 @@ namespace corona
 			return result;
 		}
 
-		virtual std::vector<xrecord> select(xrecord _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+		virtual std::vector<xrecord> select(xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			read_scope_lock lock_me(locker);
 
 			std::vector<xrecord> result = {};
 
-			auto iter = find_xrecord(_key);
-			while (iter != records.end() and iter->first <= _key) 
+			if (_key.empty()) 
 			{
-				std::vector<xrecord> temp;
-				auto& found_block = iter->second;
-				if (found_block.block_type == xblock_types::xb_branch)
+				for (auto& item : records) 
 				{
-					auto branch_block = cache->open_branch_block(found_block);
-					temp = branch_block->select(_key, _process);
-				}
-				else if (found_block.block_type == xblock_types::xb_leaf)
-				{
-					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(_key, _process);
-				}
-				else
-					temp = {};
+					std::vector<xrecord> temp;
+					auto& found_block = item.second;
 
-				result.insert(result.end(), temp.begin(), temp.end());
-				iter++;
+					if (found_block.block_type == xblock_types::xb_branch)
+					{
+						auto branch_block = cache->open_branch_block(found_block);
+						temp = branch_block->select(_key, _process);
+					}
+					else if (found_block.block_type == xblock_types::xb_leaf)
+					{
+						auto leaf_block = cache->open_leaf_block(found_block);
+						temp = leaf_block->select(_key, _process);
+					}
+					else
+						temp = {};
+
+					result.insert(result.end(), temp.begin(), temp.end());
+				}
+			}
+			else {
+				auto iter = find_xrecord(_key);
+				while (iter != records.end() and iter->first <= _key)
+				{
+					std::vector<xrecord> temp;
+					auto& found_block = iter->second;
+					if (found_block.block_type == xblock_types::xb_branch)
+					{
+						auto branch_block = cache->open_branch_block(found_block);
+						temp = branch_block->select(_key, _process);
+					}
+					else if (found_block.block_type == xblock_types::xb_leaf)
+					{
+						auto leaf_block = cache->open_leaf_block(found_block);
+						temp = leaf_block->select(_key, _process);
+					}
+					else
+						temp = {};
+
+					result.insert(result.end(), temp.begin(), temp.end());
+					iter++;
+				}
 			}
 			return result;
 		}
@@ -1023,7 +1048,7 @@ namespace corona
 			return header.block_location;
 		}
 
-		virtual void get_json(json _dest) const
+		virtual void get_json(json& _dest) const
 		{
 			json_parser jp;
 			_dest.put_member_i64("root_type", root_block.block_type);
@@ -1081,7 +1106,7 @@ namespace corona
 			std::string data = temp.to_json_typed();
 			if (data.size() > giga_to_bytes(1))
 				throw std::logic_error("Block too big");
-			*_size = (int32_t)data.size();
+			*_size = (int32_t)data.size() + 1;
 			char* r = new char[data.size() + 10];
 			std::copy(data.c_str(), data.c_str() + data.size() + 1, r);
 			return r;

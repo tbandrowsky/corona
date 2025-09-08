@@ -94,7 +94,7 @@ namespace corona
 			return _src;
 		}
 
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto jv = std::make_shared<json_value>(*this);
 			jv->comparison_index = comparison_index;
@@ -345,7 +345,7 @@ namespace corona
 		{
 			return "$double";
 		}
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const 
 		{
 			auto t = std::make_shared<json_double>();
 			t->value = value;
@@ -421,7 +421,7 @@ namespace corona
 		{
 			return "$datetime";
 		}
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_datetime>();
 			t->value = value;
@@ -503,7 +503,7 @@ namespace corona
 			return "$blob";
 		}
 
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_blob>();
 			t->value = value;
@@ -589,7 +589,7 @@ namespace corona
 			return "$int64";
 		}
 
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_int64>();
 			t->value = value;
@@ -678,7 +678,7 @@ namespace corona
 			return "$reference";
 		}
 
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_reference>();
 			t->value = value;
@@ -759,7 +759,7 @@ namespace corona
 		{
 			return value;
 		}
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_string>();
 			t->value = value;
@@ -860,7 +860,7 @@ namespace corona
 		{
 			elements.clear();
 		}
-		virtual std::shared_ptr<json_value> clone()
+		virtual std::shared_ptr<json_value> clone() const
 		{
 			auto t = std::make_shared<json_array>();
 			for (auto element : elements) {
@@ -987,7 +987,6 @@ namespace corona
 		{
 			return to_json();
 		}
-
 
 		virtual std::shared_ptr<json_value> clone() const
 		{
