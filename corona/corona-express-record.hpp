@@ -514,7 +514,6 @@ namespace corona
 			return temp;
 		}
 
-
         std::strong_ordering operator<=>(const xrecord& _other) const
         {
 			int32_t this_idx = 0;
@@ -535,22 +534,27 @@ namespace corona
 					comparison_count++;
                 }
                 else if (this_field_id < that_field_id) {
-                    this_idx++;
+                    return std::strong_ordering::greater;
                 }
 				else if (this_field_id > that_field_id) {
-					that_idx++;
+					return std::strong_ordering::less;
 				}
 			}
 
-			std::strong_ordering ordering;
+            if (field_data.size() < _other.field_data.size())
+            {
+                return std::strong_ordering::less;
+            }
+            else if (field_data.size() > _other.field_data.size())
+            {
+                return std::strong_ordering::greater;
+            }
+            else
+            {
+                return std::strong_ordering::equal;
+            }
 
-            if (comparison_count == _other.field_data.size() or comparison_count == field_data.size())
-				ordering = std::strong_ordering::equal;
-			else if (_other.field_data.size() > field_data.size())
-				ordering = std::strong_ordering::greater;
-			else 
-				ordering = std::strong_ordering::less;
-			return ordering;
+			throw std::logic_error("incomparable xrecords");
         }
 
 		bool operator ==(const xrecord& _other) const
