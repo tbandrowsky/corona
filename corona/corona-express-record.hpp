@@ -434,8 +434,8 @@ namespace corona
 				case field_types::ft_double:
 					{
 						double f8 = (double)m;
-						add(acol.field_id, f8);
-					}
+						add_poco<double>(acol.field_id, f8, field_types::ft_int64);
+				}
 					break;
 				case field_types::ft_datetime:
 					{
@@ -446,7 +446,7 @@ namespace corona
 				case field_types::ft_int64:
 					{
 						int64_t i8 = (int64_t)m;
-						add(acol.field_id, i8);
+						add_poco<int64_t>(acol.field_id, i8, field_types::ft_int64);
 					}
 					break;
 				}
@@ -506,7 +506,7 @@ namespace corona
 				case field_types::ft_int64:
 				{
 					int64_t t = *((int64_t*)s);
-					_dest.put_member(acol.field_name.c_str(), t);
+					_dest.put_member_i64(acol.field_name.c_str(), t);
 				}
 				break;
 				}

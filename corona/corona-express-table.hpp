@@ -1681,7 +1681,7 @@ namespace corona
 
 		std::shared_ptr<xtable_header> header = std::make_shared<xtable_header>();
 		header->key_members.columns[ 1 ] = { field_types::ft_int64, 1, object_id_field };
-		header->object_members.columns[2] = { field_types::ft_int64, 2, "name" };
+		header->object_members.columns[2] = { field_types::ft_string, 2, "name" };
 		header->object_members.columns[3] = { field_types::ft_double, 3, "age" };
 		header->object_members.columns[4] = { field_types::ft_double, 4, "weight" };
 
@@ -1711,16 +1711,21 @@ namespace corona
 		bool round_trip_success = true;
 		for (int i = 1; i < max_fill_records; i++)
 		{
+			// create a key
 			json key = jp.create_object();
 			key.put_member_i64(object_id_field, i);
+
+			// create an object with the same algorithm
 			json obj = jp.create_object();
 			obj.put_member_i64(object_id_field, i);
 			int age = 10 + i % 50;
 			if (age == 52)
 				count52++;
-			obj.put_member("age", 10 + i % 50);
+			obj.put_member("age", age);
 			obj.put_member("weight", 100 + (i % 4) * 50);
 			obj.set_compare_order(keys);
+
+			// fetch our object and check it.
 			json objd;
 			objd = ptable->get(key);
 			if (objd.empty())
@@ -1736,6 +1741,7 @@ namespace corona
 		}
 		_tests->test({ "round_trip", round_trip_success, __FILE__, __LINE__ });
 
+		bool simple_select = false;
 		json object_key = jp.create_object();
 		object_key.put_member_i64(object_id_field, 42);
 		json select_key_results = ptable->select(object_key, [&object_key](json& _target)-> json {
@@ -1746,6 +1752,8 @@ namespace corona
 			json jx;
 			return jx;
 			});
+        simple_select = select_key_results.array() and select_key_results.size() == 1;
+		_tests->test({ "simple_select", simple_select, __FILE__, __LINE__ });
 
 		object_key = jp.create_object();
 		object_key.put_member("age", 52);
