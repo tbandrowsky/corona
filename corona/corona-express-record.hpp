@@ -450,6 +450,9 @@ namespace corona
 						add_poco<int64_t>(acol.field_id, i8, field_types::ft_int64);
 					}
 					break;
+				default:
+                    throw std::logic_error("unsupported field type");
+                    break;
 				}
 			}
 		}
@@ -510,6 +513,9 @@ namespace corona
 					_dest.put_member_i64(acol.field_name.c_str(), t);
 				}
 				break;
+				default:
+					throw std::logic_error("unsupported field type");
+					break;
 				}
 			}
 		}
