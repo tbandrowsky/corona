@@ -23,14 +23,14 @@ namespace corona
         {
             _j.put_member("field_id", field_id);
             _j.put_member("field_name", (std::string)field_name);
-            _j.put_member("field_type", (int32_t)field_id);
+            _j.put_member("field_type", (int32_t)field_type);
         }
 
         void put_json(const json& _j)
         {
             field_id = (int32_t)_j["field_id"];
             field_name = (std::string)_j["field_name"];
-            field_type = (field_types)((int32_t)_j["field_type"]);
+            field_type = (field_types)(int32_t)_j["field_type"];
         }
 	};
 
@@ -415,28 +415,34 @@ namespace corona
 				switch (acol.field_type)
 				{
 				case field_types::ft_string:
-				{
-					std::string s = (std::string)m;
-					add(acol.field_id, s);
-				}
-				break;
+					{
+						std::string s = (std::string)m;
+						add(acol.field_id, s);
+					}
+					break;
 				case field_types::ft_array:
-				{
-					std::string a = m.to_json_typed();
-					add(acol.field_id, a);
-				}
-				break;
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
 				case field_types::ft_object:
-				{
-					std::string o = m.to_json_typed();
-					add(acol.field_id, o);
-				}
-				break;
+					{
+						std::string o = m.to_json_typed();
+						add(acol.field_id, o);
+					}
+					break;
+				case field_types::ft_bool:
+					{
+						bool b8 = (bool)m;
+						add_poco<bool>(acol.field_id, b8, field_types::ft_bool);
+					}
+					break;
 				case field_types::ft_double:
 					{
 						double f8 = (double)m;
 						add_poco<double>(acol.field_id, f8, field_types::ft_int64);
-				}
+					}
 					break;
 				case field_types::ft_datetime:
 					{
@@ -493,6 +499,12 @@ namespace corona
 					std::string t = s;
 					json result = jp.parse_object(t);
 					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_bool:
+				{
+					bool b = *((bool*)s);
+					_dest.put_member(acol.field_name.c_str(), b);
 				}
 				break;
 				case field_types::ft_double:

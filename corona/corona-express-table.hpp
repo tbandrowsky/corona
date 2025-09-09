@@ -1536,7 +1536,7 @@ namespace corona
 
 	xblock_ref xbranch_block::find_block(const xrecord& key)
 	{
-		xblock_ref found_block;
+		xblock_ref found_block = {};
 		found_block.block_type = xblock_types::xb_none;
 
 		if constexpr (debug_branch) {
