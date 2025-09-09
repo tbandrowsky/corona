@@ -37,6 +37,7 @@ TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
 
 #include <string>
 #include <bit>
+#include <cstdint>
 #include <cstring>
 #include <cstdlib>
 #include <compare>

@@ -123,7 +123,7 @@ namespace corona
 	{
 		xblock_types							type;
 		xblock_types							content_type;
-		int										count;
+		int32_t									count;
 		xblock_location							records[xrecords_per_block];
 
 		xrecord_block_header()
@@ -1122,36 +1122,43 @@ namespace corona
 	class xtable : public xtable_interface
 	{
 
-	public:
-		xblock_cache*							cache;
+		std::string								file_name;
 		std::string								data;
-		file_block*								fb;
 		std::shared_ptr<xtable_header>			table_header;
 		shared_lockable							locker;
+		std::shared_ptr<xblock_cache>			cache;
+		std::shared_ptr<file_block>				fb;
 
-		xtable(xblock_cache* _cache, std::shared_ptr<xtable_header> _header) :
-			fb(_cache->get_fb()),
-			cache(_cache),
+		void save()
+        {
+			table_header->write(fb.get());
+            cache->save();
+        }
+
+	public:
+
+		xtable(std::string _file_name, std::shared_ptr<xtable_header> _header) :
 			table_header(_header)
 		{
-			xrecord_block_header new_header;
-			new_header.content_type = xblock_types::xb_leaf;
-			new_header.type = xblock_types::xb_branch;
+			auto fp = std::make_shared<file>(_file_name, file_open_types::create_always);
+            fb = std::make_shared<file_block>(fp);
+			cache = std::make_shared<xblock_cache>(fb.get(), giga_to_bytes(1));
+			table_header->append(fb.get());
 			table_header->root = cache->create_branch_block(xblock_types::xb_leaf);
 			table_header->root_block = table_header->root->get_reference();
-			table_header->append(fb);
+			table_header->write(fb.get());
+			save();
 		}
 
-		xtable(xblock_cache* _cache, int64_t _location) :
-			fb(_cache->get_fb()),
-			cache(_cache)
-		{
-			if (_location == null_row) {
-				throw std::invalid_argument("Invalid location");
-			}
-			table_header = std::make_shared<xtable_header>();
-			table_header->read(fb, _location);
+		xtable(std::string _file_name)
+		{			
 
+			auto fp = std::make_shared<file>(_file_name, file_open_types::open_existing);
+			fb = std::make_shared<file_block>(fp);
+			cache = std::make_shared<xblock_cache>(fb.get(), giga_to_bytes(1));
+
+			table_header = std::make_shared<xtable_header>();
+			table_header->read(fb.get(), 0);
 			table_header->root = cache->open_branch_block(table_header->root_block);
 		}
 
@@ -1243,39 +1250,61 @@ namespace corona
 			if (table_header->root->is_full()) {
 				table_header->root->split_root(0);
 			}
+			save();
 		}
 
 		virtual void put_array(json _array) override
 		{
+			write_scope_lock lockme(locker);
 			if (_array.array()) {
 				for (auto item : _array) {
-					put(item);
+					xrecord key;
+					key.put_json(&table_header->key_members, item);
+					xrecord data;
+					data.put_json(&table_header->object_members, item);
+					table_header->root->put(0, key, data);
+
+					::InterlockedIncrement64(&table_header->count);
+
+					if (table_header->root->is_full()) {
+						table_header->root->split_root(0);
+					}
 				}
 			}
+			save();
 		}
 
-		virtual void erase(int64_t _id) 
+		virtual void erase(int64_t _id)
 		{
+			write_scope_lock lockme(locker);
 			xrecord key;
 			key = create_key_i64(_id);
 			table_header->root->erase(key);
+			save();
 		}
 
 		virtual void erase(json _object) override
 		{
+			write_scope_lock lockme(locker);
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			::InterlockedDecrement64(&table_header->count);
 			table_header->root->erase(key);
+			save();
 		}
 
 		virtual void erase_array(json _array) override
 		{
+			write_scope_lock lockme(locker);
 			if (_array.array()) {
 				for (auto item : _array) {
-					erase(item);
+					xrecord key;
+					key.put_json(&table_header->key_members, item);
+					::InterlockedDecrement64(&table_header->count);
+					table_header->root->erase(key);
 				}
 			}
+			save();
 		}
 
 		int64_t get_count()
@@ -1301,6 +1330,7 @@ namespace corona
 				_data.get_json(&table_header->object_members, obj);
 				return _process(obj);
 				});
+			save();
 			return result;
 		}
 
@@ -1329,12 +1359,9 @@ namespace corona
 		virtual void clear() override
 		{
 			table_header->root->clear();
+			save();
 		}
 
-		virtual void save()
-		{
-			table_header->write(fb);
-		}
 	};
 
 	std::shared_ptr<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
@@ -1714,30 +1741,26 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_stop("xbranch", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 	}
 
-	void test_xtable(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
+	const int max_fill_records = 5000;
+
+	void test_xtable_write(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app, int64_t *_location)
 	{
 		timer tx;
 		date_time start = date_time::now();
 
-		system_monitoring_interface::active_mon->log_function_start("xtable", "start", start, __FILE__, __LINE__);
-
-		std::shared_ptr<file> fp = _app->open_file_ptr("test.cxdb", file_open_types::create_always);
-		file_block fb(fp);
-
-		xblock_cache cache(&fb, giga_to_bytes(1));
+		system_monitoring_interface::active_mon->log_function_start("xtable write", "start", start, __FILE__, __LINE__);
 
 		std::shared_ptr<xtable_header> header = std::make_shared<xtable_header>();
-		header->key_members.columns[ 1 ] = { field_types::ft_int64, 1, object_id_field };
+		header->key_members.columns[1] = { field_types::ft_int64, 1, object_id_field };
 		header->object_members.columns[2] = { field_types::ft_string, 2, "name" };
 		header->object_members.columns[3] = { field_types::ft_double, 3, "age" };
 		header->object_members.columns[4] = { field_types::ft_double, 4, "weight" };
 
 		std::shared_ptr<xtable> ptable;
-		ptable = std::make_shared<xtable>(&cache, header);
+		ptable = std::make_shared<xtable>("test.coronatbl", header);
+        *_location = ptable->get_location();
 
 		json_parser jp;
-
-		const int max_fill_records = 5000;
 
 		for (int i = 1; i < max_fill_records; i++)
 		{
@@ -1750,12 +1773,24 @@ namespace corona
 
 		_tests->test({ "put_survived", true, __FILE__, __LINE__ });
 
-		cache.save();
-		_tests->test({ "save_survived", true, __FILE__, __LINE__ });
+		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+	}
+
+	void test_xtable_read(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app, int64_t _location)
+	{
+		timer tx;
+		date_time start = date_time::now();
+
+		system_monitoring_interface::active_mon->log_function_start("xtable read", "start", start, __FILE__, __LINE__);
+
+		std::shared_ptr<xtable> ptable;
+		ptable = std::make_shared<xtable>("test.coronatbl");
 
 		int count52 = 0;
-		std::vector<std::string> keys = { object_id_field, "age", "weight"};
+		std::vector<std::string> keys = { object_id_field, "age", "weight" };
 		bool round_trip_success = true;
+		json_parser jp;
+
 		for (int i = 1; i < max_fill_records; i++)
 		{
 			// create a key
@@ -1799,7 +1834,7 @@ namespace corona
 			json jx;
 			return jx;
 			});
-        simple_select = select_key_results.array() and select_key_results.size() == 1;
+		simple_select = select_key_results.array() and select_key_results.size() == 1;
 		_tests->test({ "simple_select", simple_select, __FILE__, __LINE__ });
 
 		object_key = jp.create_object();
@@ -1818,7 +1853,7 @@ namespace corona
 
 		std::map<int, bool> erased_keys;
 		bool erase_success = true;
-		for (int i = 1; i < max_fill_records; i+=10)
+		for (int i = 1; i < max_fill_records; i += 10)
 		{
 			erased_keys.insert_or_assign(i, true);
 			ptable->erase(i);
@@ -1837,8 +1872,6 @@ namespace corona
 			}
 		}
 		_tests->test({ "erase", erase_success, __FILE__, __LINE__ });
-
-		cache.save();
 
 		bool clear_success = true;
 
@@ -1867,6 +1900,20 @@ namespace corona
 
 		json info = ptable->get_info();
 		system_monitoring_interface::active_mon->log_json(info);
+
+		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+	}
+
+
+	void test_xtable(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
+	{
+		timer tx;
+		date_time start = date_time::now();
+
+		system_monitoring_interface::active_mon->log_function_start("xtable", "start", start, __FILE__, __LINE__);
+		int64_t file_location;
+		test_xtable_write(_tests, _app, &file_location);
+		test_xtable_read(_tests, _app, file_location);
 
 		system_monitoring_interface::active_mon->log_function_stop("xtable", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 	}

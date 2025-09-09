@@ -2514,6 +2514,8 @@ namespace corona
 			return *this;
 		}
 
+        std::string get_index_file_name() { return index_implementation::get_index_name() + ".coronaidx"; }
+
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) override
 		{
 			std::shared_ptr<xtable> table;
@@ -2540,7 +2542,7 @@ namespace corona
 			auto table_header = std::make_shared<xtable_header>();
 			table_header->key_members = key_columns;
 			table_header->object_members = object_columns;
-			table = std::make_shared<xtable>(_db->get_cache(), table_header);
+			table = std::make_shared<xtable>(get_index_file_name(), table_header);
 			table_location = table->get_location();
 			return table;
 		}
@@ -2551,7 +2553,7 @@ namespace corona
 
 			if (table_location > null_row)
 			{
-				table = std::make_shared<xtable>(_db->get_cache(), table_location);
+				table = std::make_shared<xtable>(get_index_file_name());
 			}
 			return table;
 		}
@@ -2572,6 +2574,8 @@ namespace corona
 		std::map<std::string, bool> ancestors;
 		std::map<std::string, bool> descendants;
 		std::shared_ptr<sql_integration> sql;
+
+		std::string get_class_filename() { return class_name + ".coronaclass"; }
 
 		void copy_from(const class_interface* _src)
 		{
@@ -2720,7 +2724,7 @@ namespace corona
 				table_header->object_members.columns[column_id] = col;
 				column_id++;
 			}
-			table = std::make_shared<xtable>(_db->get_cache(), table_header);
+			table = std::make_shared<xtable>(get_class_filename(), table_header);
 			table_location = table_header->get_location();
 			system_monitoring_interface::active_mon->log_information(std::format("Created xtable for class {0} at location {1}", class_name, table_location));
 			return table;
@@ -2731,7 +2735,7 @@ namespace corona
 			std::shared_ptr<xtable> table;
 			if (table_location > null_row)
 			{
-				table = std::make_shared<xtable>(_db->get_cache(), table_location);
+				table = std::make_shared<xtable>(get_class_filename());
 			}
 			else {
 //				system_monitoring_interface::active_mon->log_information(std::format("Created xtable for class {0} at location {1}", class_name, table_location));
@@ -2753,7 +2757,7 @@ namespace corona
 
 			if (table_location > null_row)
 			{
-				current_table = std::make_shared<xtable>(_db->get_cache(), table_location);
+				current_table = std::make_shared<xtable>(get_class_filename());
 
 				auto table_header = std::make_shared<xtable_header>();
 				int column_id = 1;
@@ -2771,7 +2775,11 @@ namespace corona
 					column_id++;
 				}
 
-				new_table = std::make_shared<xtable>(_db->get_cache(), table_header);
+				std::string file_name_old = get_class_filename();
+				std::string file_name_new = "new_";
+				file_name_new += get_class_filename();
+
+				new_table = std::make_shared<xtable>(file_name_new, table_header);
 				table_location = new_table->get_location();
 				json_parser jp;
 				json empty = jp.create_object();
@@ -2779,6 +2787,10 @@ namespace corona
 					new_table->put(_src);
 					return 1;
 					});
+
+                DeleteFileA(file_name_old.c_str());
+				MoveFileA(file_name_new.c_str(), file_name_old.c_str());
+
 				table = new_table;
 			}
 			else
@@ -2798,7 +2810,7 @@ namespace corona
 					table_header->object_members.columns[column_id] = col;
 					column_id++;
 				}
-				current_table = std::make_shared<xtable>(_db->get_cache(), table_header);
+				current_table = std::make_shared<xtable>(get_class_filename(), table_header);
 				table_location = table_header->get_location();
 				table = current_table;
 			}
@@ -3568,7 +3580,7 @@ namespace corona
 					ve.class_name = class_name;
 					ve.filename = get_file_name(__FILE__);
 					ve.line_number = __LINE__;
-					ve.message = "base class nnot found";
+					ve.message = "base class not found";
 					_context->errors.push_back(ve);
 					return false;
 				}
@@ -3607,7 +3619,6 @@ namespace corona
 			}
 
 			return true;
-
 		}
 
 		virtual void put_field(std::shared_ptr<field_interface>& _new_field) override
@@ -3840,14 +3851,12 @@ namespace corona
 			if (stb) {
 				stb->put_array(put_list);
 			}
-			tb->save();
 
 			for (auto& iop : index_updates)
 			{
 				auto idx_table = iop.index->get_xtable(_db);
 				idx_table->erase_array(iop.objects_to_delete);
 				idx_table->put_array(iop.objects_to_add);
-				idx_table->save();
 			}
 		}
 
@@ -4006,7 +4015,6 @@ namespace corona
 						}
 					}
 				}
-				backing_table->save();
 			}
 			return obj;
 		}
@@ -4222,7 +4230,7 @@ namespace corona
 			_location can be freed, then do not free it.  Better to keep some old block around than it is
 			to stomp on a good one with a mistake.  */
 
-			file_command_result fcr = read(block_start, &free_block, sizeof(free_block));
+			file_result fcr = read(block_start, &free_block, sizeof(free_block));
 
 			// did we read the block
 			if (fcr.success) {
@@ -4364,7 +4372,7 @@ namespace corona
 			class_data_header->object_members.columns[9] = { field_types::ft_array, 9, "descendants" };
 			class_data_header->object_members.columns[10] = { field_types::ft_object, 9, "sql" };
 
-            classes = std::make_shared<xtable>(cache.get(), class_data_header);
+			classes = std::make_shared<xtable>("classes.coronatbl", class_data_header);
 			header.data.classes_location = classes->get_location();
 
 			created_classes = jp.create_object();
@@ -6338,7 +6346,7 @@ private:
 			if (class_definition.error())
 				throw std::exception("Class Definition Parse Error");
 
-			classes = std::make_shared<xtable>(cache.get(), header.data.classes_location);
+			classes = std::make_shared<xtable>("classes.coronatbl");
 
             std::vector<std::string> check_classes = { "sys_object", "sys_user", "sys_team", "sys_grant", "sys_server", "sys_error", "sys_schema", "sys_dataset" };
 

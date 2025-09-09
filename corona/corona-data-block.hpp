@@ -64,12 +64,12 @@ namespace corona
 				system_monitoring_interface::active_mon->log_block_start("block", "read block", start_time, __FILE__, __LINE__);
 			}
 
-			file_command_result header_result = _file->read(location, &header, sizeof(header));
+			file_result header_result = _file->read(location, &header, sizeof(header));
 
 			if (header_result.success)
 			{
 				char* bytes = before_read(header.data_size);
-				file_command_result data_result = _file->read(header.data_location, bytes, header.data_size);
+				file_result data_result = _file->read(header.data_location, bytes, header.data_size);
 
 				if (data_result.success)
 				{
@@ -110,7 +110,7 @@ namespace corona
 			}
 			char* bytes = before_write(_offset, _size);
 
-			file_command_result data_result = _file->write(header.data_location + _offset, bytes, _size);
+			file_result data_result = _file->write(header.data_location + _offset, bytes, _size);
 
 			if (data_result.success)
 			{
@@ -164,11 +164,11 @@ namespace corona
 				header.data_size = size;
 			}
 
-			file_command_result data_result = _file->write(header.data_location, bytes, size);
+			file_result data_result = _file->write(header.data_location, bytes, size);
 
 			if (data_result.success)
 			{
-				file_command_result header_result = _file->write(header.block_location, &header, sizeof(header));
+				file_result header_result = _file->write(header.block_location, &header, sizeof(header));
 				after_write(bytes);
 				finished_io(bytes);
 				if (ENABLE_JSON_LOGGING) {

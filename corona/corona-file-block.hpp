@@ -139,9 +139,9 @@ namespace corona
 	class file_block_interface
 	{
 	public:
-		virtual file_command_result write(int64_t _location, void* _buffer, int _buffer_length) = 0;
-		virtual file_command_result read(int64_t _location, void* _buffer, int _buffer_length) = 0;
-		virtual file_command_result append(void* _buffer, int _buffer_length) = 0;
+		virtual file_result write(int64_t _location, void* _buffer, int _buffer_length) = 0;
+		virtual file_result read(int64_t _location, void* _buffer, int _buffer_length) = 0;
+		virtual file_result append(void* _buffer, int _buffer_length) = 0;
 
 		virtual relative_ptr_type allocate_space(int64_t _size, int64_t* _actual_size) = 0;
 		virtual void free_space(int64_t _location) = 0;
@@ -209,8 +209,6 @@ namespace corona
 
 			int64_t track_start = new_start;
 
-			io_fence fence;
-
 			if (_feast == buffer_access_type::access_read)
 			{
 				// read and fill the gaps!
@@ -223,7 +221,7 @@ namespace corona
 						int64_t read_start = track_start;
 						int64_t read_length = fb->start - track_start;
 						unsigned char* dest = new_buffer->buff.get_uptr() + read_start - new_buffer->start;
-						fp->read(read_start, dest, read_length, &fence);
+						fp->read(read_start, dest, read_length);
 					}
 					track_start = fb->stop;
 				}
@@ -233,11 +231,9 @@ namespace corona
 					int64_t read_start = track_start;
 					int64_t read_length = new_stop - track_start;
 					unsigned char* dest = new_buffer->buff.get_uptr() + read_start - new_buffer->start;
-					fp->read(read_start, dest, read_length, &fence);
+					fp->read(read_start, dest, read_length);
 				}
 			}
-
-			fence.wait();
 
 			for (auto fb : eaten_buffers)
 			{
@@ -277,11 +273,11 @@ namespace corona
 			return fp.get();
 		}
 
-		virtual file_command_result write(int64_t _location, void* _buffer, int _buffer_length) override
+		virtual file_result write(int64_t _location, void* _buffer, int _buffer_length) override
 		{
 			scope_lock lockme(buffer_lock);
 
-			file_command_result result;
+			file_result result;
 
 			if (_buffer_length < 0)
 				throw std::logic_error("write length < 0");
@@ -318,20 +314,20 @@ namespace corona
 			unsigned char* dest = (unsigned char*)fb->buff.get_ptr() + _location - fb->start;
 			std::copy(src, src + _buffer_length, dest);
 
-			result.buffer = (const char *)_buffer;
+			result.buff = (char *)_buffer;
 			result.bytes_transferred = _buffer_length;
 			result.location = _location;
 			result.success = true;
-			result.result = os_result(0);
+			result.last_error = os_result(0);
 
 			return result;
 		}
 
-		virtual file_command_result read(int64_t _location, void* _buffer, int _buffer_length) override
+		virtual file_result read(int64_t _location, void* _buffer, int _buffer_length) override
 		{
 			scope_lock lockme(buffer_lock);
 
-			file_command_result result;
+			file_result result;
 
 			if (_buffer_length < 0)
 				throw std::logic_error("read length < 0");
@@ -362,11 +358,11 @@ namespace corona
 			unsigned char* dest = (unsigned char*)_buffer;
 			std::copy(src, src + _buffer_length, dest);
 
-			result.buffer = (const char*)_buffer;
+			result.buff = (char*)_buffer;
 			result.bytes_transferred = _buffer_length;
 			result.location = _location;
 			result.success = true;
-			result.result = os_result(0);
+			result.last_error = os_result(0);
 
 			return result;
 		}
@@ -396,7 +392,7 @@ namespace corona
 			if (_bytes_to_add < 0)
 				throw std::logic_error("add < 0");
 
-			file_command_result result;
+			file_result result;
 			int64_t location = -1;
 
 			int64_t buffer_size = append_size;
@@ -425,7 +421,7 @@ namespace corona
 			return location;
 		}
 
-		virtual file_command_result append(void* _buffer, int _buffer_length) override
+		virtual file_result append(void* _buffer, int _buffer_length) override
 		{
 			scope_lock lockme(buffer_lock);
 
@@ -474,8 +470,6 @@ namespace corona
 				}
 			}
 
-			io_fence fence;
-
 			if (dirty_buffers.size() > 0) {
 				int i = 0;
 				while (i < dirty_buffers.size())
@@ -483,17 +477,16 @@ namespace corona
 					auto& trans_buff = dirty_buffers[i];
 					if (trans_buff->dirty_start >= 0 or trans_buff->dirty_stop >= 0) {
 						bytes_written += trans_buff->dirty_stop - trans_buff->dirty_start;
-						get_fp()->write(trans_buff->dirty_start, trans_buff->buff.get_ptr() + trans_buff->dirty_start - trans_buff->start, trans_buff->dirty_stop - trans_buff->dirty_start, &fence);
+						get_fp()->write(trans_buff->dirty_start, trans_buff->buff.get_ptr() + trans_buff->dirty_start - trans_buff->start, trans_buff->dirty_stop - trans_buff->dirty_start);
 					}
 					else {
 						bytes_written += trans_buff->stop - trans_buff->start;
-						get_fp()->write(trans_buff->start, trans_buff->buff.get_ptr(), trans_buff->stop - trans_buff->start, &fence);
+						get_fp()->write(trans_buff->start, trans_buff->buff.get_ptr(), trans_buff->stop - trans_buff->start);
 					}
                     // system_monitoring_interface::active_mon->log_information(std::format("file block commit {0} {1} bytes", i, bytes_written), __FILE__, __LINE__);
 					i++;
 				}
 			}
-			fence.wait();
 			return bytes_written;
 		}
 
