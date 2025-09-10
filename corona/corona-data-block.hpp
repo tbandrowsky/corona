@@ -55,7 +55,7 @@ namespace corona
 
 		virtual void finished_io(char* _bytes) = 0;
 
-		relative_ptr_type read(file_block* _file, relative_ptr_type location)
+		relative_ptr_type read(file_block_interface* _file, relative_ptr_type location)
 		{
 			date_time start_time = date_time::now();
 			timer tx;
@@ -95,7 +95,7 @@ namespace corona
 			return -1i64;
 		}
 
-		relative_ptr_type write_piece(file_block* _file, int _offset, int _size)
+		relative_ptr_type write_piece(file_block_interface* _file, int _offset, int _size)
 		{
 			if (header.block_location < 0)
 			{
@@ -130,7 +130,7 @@ namespace corona
 			return -1i64;
 		}
 
-		relative_ptr_type write(file_block* _file)
+		relative_ptr_type write(file_block_interface* _file)
 		{
 
 			if (header.block_location < 0)
@@ -187,7 +187,7 @@ namespace corona
 			return -1i64;
 		}
 
-		relative_ptr_type append(file_block* _file)
+		relative_ptr_type append(file_block_interface* _file)
 		{
 
 			int32_t size, capacity;
@@ -227,7 +227,7 @@ namespace corona
 			return header.block_location;
 		}
 
-		void erase(file_block* _fb)
+		void erase(file_block_interface* _fb)
 		{
 			_fb->free_space(header.data_location);
 			_fb->free_space(header.block_location);

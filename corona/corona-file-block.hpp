@@ -146,8 +146,7 @@ namespace corona
 		virtual relative_ptr_type allocate_space(int64_t _size, int64_t* _actual_size) = 0;
 		virtual void free_space(int64_t _location) = 0;
 		virtual int64_t add(int _bytes_to_add) = 0;
-		virtual bool is_free_capable() = 0;
-
+		
 		virtual file* get_fp() = 0;
 
 		virtual int64_t commit() = 0; // returns bytes_written
@@ -159,7 +158,7 @@ namespace corona
 	};
 
 	
-	class file_block : public file_block_interface
+	class buffered_file_block : public file_block_interface
 	{
 		std::shared_ptr<file> fp;
 		std::vector<std::shared_ptr<file_buffer>> buffers;
@@ -255,15 +254,15 @@ namespace corona
 
 	public:
 
-		file_block(std::shared_ptr<file> _fp)
+		buffered_file_block(std::shared_ptr<file> _fp)
 		{
 			fp = _fp;
 		}
 
-		file_block(const file_block& _src) = delete;
-		file_block& operator = (const file_block& _src) = delete;
+		buffered_file_block(const buffered_file_block& _src) = delete;
+		buffered_file_block& operator = (const buffered_file_block& _src) = delete;
 
-		virtual ~file_block()
+		virtual ~buffered_file_block()
 		{
 			;
 		}
@@ -432,11 +431,7 @@ namespace corona
 			return fc;
 		}
 
-		virtual bool is_free_capable()
-		{
-			return false;
-		}
-
+		
 		virtual int64_t commit() override
 		{
 			int64_t bytes_written = 0;

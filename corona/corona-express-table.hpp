@@ -160,7 +160,7 @@ namespace corona
 
 		mutable xrecord_block_header						xheader;
 		std::map<xrecord, data_type>						records;
-		file_block		*									fb;
+		file_block_interface								*fb;
 
 		friend class xbranch_block;
 		friend class xleaf_block;
@@ -191,7 +191,7 @@ namespace corona
 
 	public:
 
-		xrecord_block(file_block *_fb, xrecord_block_header& _src)
+		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src)
 		{
 			dirty = true;
 			fb = _fb;
@@ -200,7 +200,7 @@ namespace corona
 			dirty = true;
 		}
 
-		xrecord_block(file_block* _fb, int64_t _location)
+		xrecord_block(file_block_interface* _fb, int64_t _location)
 		{
 			dirty = false;
 			if (_location == null_row) {
@@ -437,21 +437,21 @@ namespace corona
 	{
 		std::map<int64_t, cached_leaf> leaf_blocks;
 		std::map<int64_t, cached_branch> branch_blocks;
-		file_block* fb;
+		file_block_interface* fb;
 		shared_lockable locker;
 		int64_t maximum_memory_bytes;
 		time_t block_lifetime;
 
 	public:
 
-		xblock_cache(file_block *_fb, int64_t _maximum_memory_bytes)
+		xblock_cache(file_block_interface*_fb, int64_t _maximum_memory_bytes)
 		{
 			fb = _fb;
 			maximum_memory_bytes = _maximum_memory_bytes;
 			block_lifetime = 0;
 		}
 
-		file_block* get_fb() const
+		file_block_interface* get_fb() const
 		{
 			return fb;
 		}
@@ -466,7 +466,7 @@ namespace corona
 			return block_lifetime;
 		}
 
-		void save();
+		int64_t save();
 	};
 
 	class xleaf_block : public xrecord_block<xrecord>
@@ -1129,7 +1129,7 @@ namespace corona
 
 	};
 
-	class xtable : public xtable_interface
+	class xtable : public xtable_interface, public file_block_interface
 	{
 
 		std::string								file_name;
@@ -1137,7 +1137,7 @@ namespace corona
 		std::shared_ptr<xtable_header>			table_header;
 		shared_lockable							locker;
 		std::shared_ptr<xblock_cache>			cache;
-		std::shared_ptr<file_block>				fb;
+		std::shared_ptr<file>					fp;
 
 
 	public:
@@ -1145,10 +1145,9 @@ namespace corona
 		xtable(std::string _file_name, std::shared_ptr<xtable_header> _header) :
 			table_header(_header)
 		{
-			auto fp = std::make_shared<file>(_file_name, file_open_types::create_always);
-            fb = std::make_shared<file_block>(fp);
-			cache = std::make_shared<xblock_cache>(fb.get(), giga_to_bytes(1));
-			table_header->append(fb.get());
+			fp = std::make_shared<file>(_file_name, file_open_types::create_always);
+			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
+			table_header->append(this);
 			table_header->root = cache->create_branch_block(xblock_types::xb_leaf);
 			table_header->root_block = table_header->root->get_reference();
 			commit();
@@ -1157,20 +1156,69 @@ namespace corona
 		xtable(std::string _file_name)
 		{			
 
-			auto fp = std::make_shared<file>(_file_name, file_open_types::open_existing);
-			fb = std::make_shared<file_block>(fp);
-			cache = std::make_shared<xblock_cache>(fb.get(), giga_to_bytes(1));
+			fp = std::make_shared<file>(_file_name, file_open_types::open_existing);
+			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 
 			table_header = std::make_shared<xtable_header>();
-			table_header->read(fb.get(), 0);
+			table_header->read(this, 0);
 			table_header->root = cache->open_branch_block(table_header->root_block);
 		}
 
-		void commit()
+		virtual file_result write(int64_t _location, void* _buffer, int _buffer_length) override
 		{
-			table_header->write(fb.get());
-			cache->save();
-			fb->commit();
+            return fp->write(_location, _buffer, _buffer_length);
+		}
+
+		virtual file_result read(int64_t _location, void* _buffer, int _buffer_length) override
+		{
+			return fp->read(_location, _buffer, _buffer_length);
+		}
+
+		virtual file_result append(void* _buffer, int _buffer_length) override
+		{
+			return fp->append(_buffer, _buffer_length);
+		}
+
+		virtual relative_ptr_type allocate_space(int64_t _size, int64_t* _actual_size)  override
+		{
+            *_actual_size = _size;
+			return fp->add(_size);
+		}
+
+		virtual void free_space(int64_t _location) override {
+
+		}
+
+		virtual int64_t add(int _bytes_to_add) override 
+		{
+			return fp->add(_bytes_to_add);
+		}
+
+		virtual file* get_fp() override
+		{
+			return fp.get();
+		}
+
+		virtual int64_t commit() override
+		{
+			table_header->write(this);
+			int64_t bytes_written = cache->save();
+			return bytes_written;
+		}
+
+		virtual int buffer_count() override
+		{
+			return 0;
+		}
+
+		virtual void clear() override
+		{
+			table_header->root->clear();
+		}
+
+		virtual int64_t size() override
+		{
+			return fp->size();
 		}
 
 		relative_ptr_type get_location() override
@@ -1361,10 +1409,6 @@ namespace corona
 			return target;
 		}
 
-		virtual void clear() override
-		{
-			table_header->root->clear();
-		}
 
 	};
 
@@ -1438,7 +1482,7 @@ namespace corona
 		return result;
 	}
 
-	void xblock_cache::save()
+	int64_t xblock_cache::save()
 	{
 		date_time current = date_time::now();
 		int64_t total_memory;
@@ -1449,16 +1493,16 @@ namespace corona
 
 		for (auto& sv : branch_blocks)
 		{
-			sv.second.block->save();
+			total_memory += sv.second.block->save();
 		}
 
 		// then leaves are taken
 
 		for (auto& sv : leaf_blocks)
 		{
-			sv.second.block->save();
-		}
-			
+			total_memory += sv.second.block->save();
+		}			
+		return total_memory;
 	}
 
 	std::map<xrecord, xblock_ref>::iterator xbranch_block::find_xrecord(const xrecord& key)
@@ -1518,7 +1562,7 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_start("xleaf", "start", start, __FILE__, __LINE__);
 
 		std::shared_ptr<file> fp = _app->open_file_ptr("test_leaf.corona", file_open_types::create_always);
-		file_block fb(fp);
+		buffered_file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
 
@@ -1594,7 +1638,7 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_start("xbranch", "start", start, __FILE__, __LINE__);
 
 		std::shared_ptr<file> fp = _app->open_file_ptr("test_branch.corona", file_open_types::create_always);
-		file_block fb(fp);
+		buffered_file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
 
@@ -1700,6 +1744,11 @@ namespace corona
 			obj.put_member("age", 10 + i % 50);
 			obj.put_member("weight", 100 + (i % 4) * 50);
 			ptable->put(obj);
+			json check_obj = ptable->get(i);
+            if (check_obj.empty()) {
+                _tests->test({ "put_failed", false, __FILE__, __LINE__ });
+                return;
+            }
 		}
 
 		_tests->test({ "put_survived", true, __FILE__, __LINE__ });

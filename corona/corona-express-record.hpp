@@ -369,6 +369,8 @@ namespace corona
 				record_count++;
 			}
 
+            *_size = header_size + record_size;
+			*_capacity = *_size;
             char* data = new char[header_size + record_data.size() + 10];	
 			char* cdata = data;
 

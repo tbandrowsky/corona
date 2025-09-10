@@ -158,7 +158,7 @@ namespace corona
 
 	public:
 
-		friend class file_block;
+		friend class buffered_file_block;
 		friend class file_buffer;
 
 		file() = default;
