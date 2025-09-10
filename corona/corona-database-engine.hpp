@@ -4007,6 +4007,7 @@ namespace corona
 	public:
 
 		corona_database_header_data data;
+		bool save_pending = false;
 
 		corona_database_header()
 		{
@@ -4023,9 +4024,12 @@ namespace corona
 
 		void save()
 		{
+			if (save_pending)
+				return;
 			global_job_queue->submit_job( new general_job([this]() {
 				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
 				fp->append(&data, sizeof(data));
+				save_pending = false;
 			}, nullptr));
 		}
 
@@ -4038,6 +4042,7 @@ namespace corona
 		int64_t get_next_object_id()
 		{
             InterlockedIncrement64(&data.object_id);
+			save_pending = true;
 			save();
             return data.object_id;
 		}
