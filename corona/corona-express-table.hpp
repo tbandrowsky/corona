@@ -38,8 +38,6 @@ namespace corona
 
 		xblock_ref()
 		{
-			block_type = xblock_types::xb_none;
-			location = -1;
 		}
 
 		xblock_ref(xblock_types _block_type, relative_ptr_type _location)
@@ -55,6 +53,11 @@ namespace corona
 			location = src->location;
 		}
 
+		xblock_ref(const xblock_ref& _src) = default;
+		xblock_ref(xblock_ref&& _src) = default;
+		xblock_ref& operator = (const xblock_ref& _src) = default;
+		xblock_ref& operator = (xblock_ref&& _src) = default;
+
 		virtual char* before_read(int32_t _size)
 		{
 			char* bytes = (char *)this;
@@ -63,6 +66,7 @@ namespace corona
 
 		virtual void after_read(char* _bytes, int32_t _size)
 		{
+            *this = *(xblock_ref*)_bytes;
 		}
 
 		virtual char* before_write(int32_t* _size, int32_t *_capacity) const 
@@ -129,7 +133,7 @@ namespace corona
 
 		xrecord_block_header()
 		{
-			count = 0;
+			;
 		}
 
 		xrecord_block_header(xrecord_block_header&& _src) = default;
@@ -196,6 +200,7 @@ namespace corona
 			dirty = true;
 			fb = _fb;
 			xheader = _src;
+			xheader.count = 0;
 			save_nl();
 			dirty = true;
 		}
@@ -299,7 +304,6 @@ namespace corona
 		{
 			int32_t offset = xheader.size();
 
-			xheader.count = 0;
 			int i = 0;
 
 			std::vector<std::pair<char*, char*>> temp_records;
@@ -312,11 +316,10 @@ namespace corona
                 char *write_key = r.first.before_write(&rl.key_size, &capacity);
 				offset += rl.key_size;
 				rl.value_offset = offset;
-				char* write_value = r.first.before_write(&rl.value_size, &capacity);
+				char* write_value = r.second.before_write(&rl.value_size, &capacity);
                 offset += rl.value_size;
 				xheader.records[i] = rl;
                 temp_records.push_back(std::make_pair(write_key, write_value));	
-				xheader.count++;
 				i++;
                 if (i >= xrecords_per_block) {
                     throw std::runtime_error("Too many records in block");
@@ -348,9 +351,9 @@ namespace corona
 				i++;
 			}
 
-			std::copy(xheader.data(), xheader.data() + xheader.size(), bytes);
-
 			xrecord_block_header* check_it = (xrecord_block_header*)bytes;
+			*check_it = xheader;
+			check_it->count = records.size();
 
 			return bytes;
 		}
@@ -467,6 +470,12 @@ namespace corona
 		}
 
 		int64_t save();
+		void clear()
+		{
+            write_scope_lock lockit(locker);
+            leaf_blocks.clear();
+            branch_blocks.clear();
+		}
 	};
 
 	class xleaf_block : public xrecord_block<xrecord>
@@ -505,6 +514,7 @@ namespace corona
 			}
 
 			records.insert_or_assign(key, value);
+			xheader.count = records.size();
 		}
 
 		xrecord get(const xrecord& key)
@@ -525,6 +535,7 @@ namespace corona
 
 			dirtied();
 			records.erase(key);
+			xheader.count = records.size();
 		}
 		
 		virtual xfor_each_result for_each(xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
@@ -532,6 +543,8 @@ namespace corona
 			xfor_each_result result;
 			result.is_all = true;
 			result.is_any = false;
+			result.count = 0;
+
 			for (auto& item : records) 
 			{
 				if (item.first == _key) {
@@ -621,12 +634,14 @@ namespace corona
 				}
 				count++;
 			}
+			new_xb->xheader.count = new_xb->records.size();
 
 			for (auto& kv : keys_to_delete)
 			{
 				_block->records.erase(kv);
 			}
-			
+			_block->xheader.count = _block->records.size();
+
 			dirtied();
 
 			return new_xb;
@@ -679,10 +694,14 @@ namespace corona
 				count++;
 			}
 
+			new_xb->xheader.count = new_xb->records.size();
+
 			for (auto& kv : keys_to_delete)
 			{
 				_block->records.erase(kv);
 			}
+
+			_block->xheader.count = _block->records.size();
 
 			return new_xb;
 		}
@@ -754,6 +773,8 @@ namespace corona
 
 			new_child1->save();
 			new_child2->save();
+			new_child1->xheader.count = new_child1->records.size();
+			new_child2->xheader.count = new_child2->records.size();
 
 			xblock_ref child1_ref = new_child1->get_reference();
 			xblock_ref child2_ref = new_child2->get_reference();
@@ -766,6 +787,7 @@ namespace corona
 			records.clear();
 			records.insert_or_assign(child1_key, child1_ref);
 			records.insert_or_assign(child2_key, child2_ref);
+            xheader.count = records.size();
 		}
 
 		virtual void put(int _indent, const xrecord& _key, const xrecord& _value) 
@@ -839,6 +861,7 @@ namespace corona
 				}
 				records.insert_or_assign(_key, new_ref);
 			}
+			xheader.count = records.size();
 		}
 
 		virtual xrecord get(const xrecord& _key)
@@ -879,6 +902,7 @@ namespace corona
 				auto leaf_block = cache->open_leaf_block(found_block);
 				leaf_block->erase(_key);
 			}
+			xheader.count = records.size();
 		}
 
 		virtual void clear()
@@ -902,6 +926,7 @@ namespace corona
 				}
 			}
 			records.clear();
+			xheader.count = records.size();
 		}
 
 		virtual xfor_each_result for_each(xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
@@ -911,6 +936,7 @@ namespace corona
 			xfor_each_result result;
 			result.is_all = false;
 			result.is_any = false;
+			result.count = 0;
 
 			auto iter = find_xrecord(_key);
 			while (iter != records.end() and iter->first <= _key)
@@ -1313,9 +1339,10 @@ namespace corona
 
 		virtual void put_array(json _array) override
 		{
-			write_scope_lock lockme(locker);
 			if (_array.array()) {
 				for (auto item : _array) {
+					write_scope_lock lockme(locker);
+
 					xrecord key;
 					key.put_json(&table_header->key_members, item);
 					xrecord data;
@@ -1669,6 +1696,7 @@ namespace corona
 		auto ref = pbranch->get_reference();
 
 		cache.save();
+		cache.clear();
 
 		pbranch = cache.open_branch_block(ref);
 
