@@ -898,7 +898,7 @@ namespace corona
 		}
 
 		virtual json create_database() = 0;
-		virtual relative_ptr_type open_database(relative_ptr_type _header_location) = 0;
+		virtual relative_ptr_type open_database() = 0;
 
 		virtual void apply_config(json _config) = 0;
 		virtual json apply_schema(json _schema) = 0;
@@ -952,33 +952,7 @@ namespace corona
 		virtual json get_openapi_schema(std::string _user_name) = 0;
 	};
 
-	class corona_db_header_struct
-	{
-	public:
-		int64_t								object_id;
-		iarray<list_block_header, 100>		free_lists;
-
-		corona_db_header_struct() 
-		{
-			object_id = -1;
-		}
-	};
-
 	using class_method_key = std::tuple<std::string, std::string>;
-
-	class corona_db_header : public poco_node<corona_db_header_struct>
-	{
-	public:
-
-		int64_t write_free_list(file_block_interface* _file, int _index)
-		{
-			auto offset = offsetof(corona_db_header_struct, free_lists) + _index * sizeof(list_block_header);
-			auto size = sizeof(list_block_header);
-			auto r = write_piece(_file, offset, size);
-			return r;
-		}
-	};
-
 
 	class field_options_base : public field_options_interface
 	{
@@ -4018,11 +3992,60 @@ namespace corona
 			return definition;
 		}
 	};
+	
+	class corona_database_header_data
+	{
+	public:
+		int64_t object_id;
+	};
+
+	const std::string corona_database_header_file_name = "corona.coronaheader";
+
+	class corona_database_header
+	{
+
+	public:
+
+		corona_database_header_data data;
+
+		corona_database_header()
+		{
+            if (std::filesystem::exists(corona_database_header_file_name)) {
+                auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::open_existing);
+                fp->read(0, &data, sizeof(data));
+            }
+            else
+            {
+                data.object_id = 1;
+                save();
+            }
+		}
+
+		void save()
+		{
+			global_job_queue->submit_job( new general_job([this]() {
+				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
+				fp->append(&data, sizeof(data));
+			}, nullptr));
+		}
+
+		void reset()
+		{
+			data.object_id = 1;
+			save();
+		}
+
+		int64_t get_next_object_id()
+		{
+            InterlockedIncrement64(&data.object_id);
+			save();
+            return data.object_id;
+		}
+
+	};
 
 	class corona_database : public corona_database_interface
 	{
-		corona_db_header header;
-
 		shared_lockable allocation_lock,
 						class_lock,
 						database_lock;
@@ -4038,6 +4061,8 @@ namespace corona
         const std::string auth_general = "auth-general"; // this is the general user, which is used for general operations
         const std::string auth_system = "auth-system"; // this is the system user, which is used for system operations
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
+
+		corona_database_header header;
 		
 		long import_batch_size = 20000;
 		/*
@@ -4066,154 +4091,8 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
-		allocation_index get_allocation_index(int64_t _size)
-		{
-			allocation_index ai = { };
-
-			int small_size = 1024;
-			int top = small_size / 16;
-
-			if (_size < small_size) {
-				int t = _size / 16;
-				if (_size % 16) {
-					t++;
-				}
-				ai.index = t;
-				ai.size = t * 16;
-			}
-			else
-			{
-				int64_t sz = small_size;
-				int idx = top;
-				while (sz < _size) {
-					sz *= 2;
-					idx++;
-				}
-				ai.index = idx;
-				ai.size = sz;
-			}
-
-			if (ai.index >= header.data.free_lists.capacity()) {
-				std::string msg = std::format("{0} bytes is too big to allocate as a block.", _size);
-				system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
-				ai.index = header.data.free_lists.capacity() - 1;
-			}
-			return ai;
-		}
 
 	public:
-
-		virtual relative_ptr_type allocate_space(int64_t _size, int64_t *_actual_size) override
-		{
-			write_scope_lock my_lock(allocation_lock);
-
-			allocation_index ai = get_allocation_index(_size);
-
-			*_actual_size = ai.size;
-
-			auto& list_start = header.data.free_lists[ai.index];
-
-			allocation_block_struct free_block = {};
-
-			// get_allocation index always returns an index such that any block in that index
-			// will have the right size.  so we know the first block is ok.
-			if (list_start.first_block)
-			{
-				read(list_start.first_block, &free_block, sizeof(free_block));
-				// this
-				if (list_start.last_block == list_start.first_block)
-				{
-					list_start.last_block = 0;
-					list_start.first_block = 0;
-				}
-				else
-				{
-					list_start.first_block = free_block.next_block;
-					free_block.next_block = 0;
-				}
-				header.write_free_list(this, ai.index);
-				return free_block.data_location;
-			}
-
-			int64_t total_size = sizeof(allocation_block_struct) + ai.size;
-			int64_t base_space = add(total_size);
-			if (base_space > 0) {
-				free_block.data_location = base_space + sizeof(allocation_block_struct);
-				free_block.next_block = 0;
-				write(base_space, &free_block, sizeof(free_block));
-				return free_block.data_location;
-			}
-
-			return 0;
-		}
-
-
-		virtual void free_space(int64_t _location) override
-		{
-			read_scope_lock my_lock(allocation_lock);
-			relative_ptr_type block_start = _location - sizeof(allocation_block_struct);
-
-			allocation_block_struct free_block = {};
-
-			/* ah, the forgiveness of this can be evil.  Here we say, if we truly cannot verify this
-			_location can be freed, then do not free it.  Better to keep some old block around than it is
-			to stomp on a good one with a mistake.  */
-
-			file_result fcr = read(block_start, &free_block, sizeof(free_block));
-
-			// did we read the block
-			if (fcr.success) {
-
-				// is this actually an allocated space block, and, is it the block we are trying to free
-				if (free_block.data_location == _location) {
-
-					// ok, now let's have a go and see where this is in our allocation index.
-					allocation_index ai = get_allocation_index(free_block.data_capacity);
-
-					// this check says, don't try to free the block if there is a mismatch between its 
-					// allocation size, and the size it says it has.
-					if (free_block.data_capacity == ai.size)
-					{
-						// and now, we can look at the free list, and put ourselves at the 
-						// end of it.  In this way, deletes and reallocates will tend to 
-						// want to reuse the same space so handy for kill and fills.
-						auto& list_start = header.data.free_lists[ai.index];
-
-						// there is a last block, so we are at the end
-						if (list_start.last_block) {
-							relative_ptr_type old_last_block = list_start.last_block;
-							allocation_block_struct last_free;
-							auto fr = read(old_last_block, &last_free, sizeof(last_free));
-							if (fr.success) {
-								list_start.last_block = block_start;
-								last_free.next_block = block_start;
-								free_block.next_block = 0;
-								write(old_last_block, &last_free, sizeof(last_free));
-								write(block_start, &free_block, sizeof(free_block));
-
-								// this basically says, just write out the list header for this index
-								// not the whole header
-								header.write_free_list(this, ai.index);
-							}
-						}
-						else
-						{
-							// the list is empty and we add to it.
-							free_block.next_block = 0;
-							list_start.last_block = free_block.data_location - sizeof(allocation_block_struct);
-							list_start.last_block = free_block.data_location - sizeof(allocation_block_struct);
-
-							// this basically says, now save our block.
-							write(block_start, &free_block, sizeof(free_block));
-
-							// this basically says, just write out the list header for this index
-							// not the whole header
-							header.write_free_list(this, ai.index);
-						}
-					}
-				}
-			}
-		}
 
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name)
 		{
@@ -4271,7 +4150,6 @@ namespace corona
 			timer method_timer;
 
 			json created_classes;
-			relative_ptr_type header_location;
 			json_parser jp;
 
 			date_time start_time = date_time::now();
@@ -4280,9 +4158,9 @@ namespace corona
 			using namespace std::literals;
 
 			system_monitoring_interface::active_mon->log_job_start("create_database", "start", start_time, __FILE__, __LINE__);
+
+			header.reset();
 			
-			header.data.object_id = 1;
-			header_location = header.append(this);
 			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
 			class_data_header->key_members.columns[1] = { field_types::ft_string, 1, "class_name" };
@@ -4300,8 +4178,6 @@ namespace corona
 
 			created_classes = jp.create_object();
 
-			header.write(this);
-	
 			json response =  create_class(R"(
 {	
 	"class_name" : "sys_object",
@@ -5610,9 +5486,8 @@ private:
 		}
 
 		virtual db_object_id_type get_next_object_id() override
-		{
-			InterlockedIncrement64(&header.data.object_id);
-			return header.data.object_id;
+		{			
+			return header.get_next_object_id();
 		}
 
 		thread_safe_map<std::string, std::shared_ptr<class_interface>> class_cache;
@@ -6228,7 +6103,7 @@ private:
 			return temp;
 		}
 
-		virtual relative_ptr_type open_database(relative_ptr_type _header_location)
+		virtual relative_ptr_type open_database()
 		{
 			write_scope_lock my_lock(database_lock);
 			json_parser jp;
@@ -6237,8 +6112,6 @@ private:
 			date_time start_schema = date_time::now();
 			timer tx;
 			system_monitoring_interface::active_mon->log_job_start("open_database", "Open database", start_schema, __FILE__, __LINE__);
-
-			relative_ptr_type header_location =  header.read(this, _header_location);
 
 			activity act;
 			act.db = this;
@@ -6264,7 +6137,7 @@ private:
 
 			system_monitoring_interface::active_mon->log_job_stop("open_database", "Open database", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
-			return header_location;
+			return true;
 		}
 
 		class password_metrics
@@ -7718,8 +7591,6 @@ private:
 						cd->put_objects(this, child_objects, data_list, perms);
 					}
 				}
-
-				header.write(this);
 
 				if (child_objects.size() == 0) {
 					;

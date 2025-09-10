@@ -202,7 +202,7 @@ namespace corona
 				}
 
 
-				local_db->open_database(0);
+				local_db->open_database();
 			}
 
 			json token = get_local_token();

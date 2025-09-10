@@ -150,7 +150,7 @@ namespace corona
 						db_file = app->open_file_ptr(database_filename, file_open_types::open_existing);
 						local_db = std::make_shared<corona_database>(db_file);
 						local_db->apply_config(local_db_config);
-						local_db->open_database(0);
+						local_db->open_database();
 					}
 					catch (std::exception exc)
 					{
