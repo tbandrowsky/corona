@@ -3778,6 +3778,8 @@ namespace corona
 			auto tb = get_xtable(_db);
 
 			tb->put_array(put_list);
+			tb->commit();
+
 			auto stb = get_stable(_db);
 			if (stb) {
 				stb->put_array(put_list);
@@ -3788,6 +3790,7 @@ namespace corona
 				auto idx_table = iop.index->get_xtable(_db);
 				idx_table->erase_array(iop.objects_to_delete);
 				idx_table->put_array(iop.objects_to_add);
+				idx_table->commit();
 			}
 		}
 

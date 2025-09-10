@@ -353,6 +353,8 @@ namespace corona {
 					os_result orx(error);
 					std::string net_acl_command = std::format("netsh http add urlacl url = {} user = \\Everyone", handler_list->url);
                     std::string message = handler_list->url + "\n" + orx.message + "\ntry this at command prompt to resolve:\n" + net_acl_command +"\n";
+                    system_monitoring_interface::active_mon->log_information(message, __FILE__, __LINE__);
+					message = handler_list->url + "\n" + orx.message;
 					throw std::logic_error(message.c_str());
 				}
 			}

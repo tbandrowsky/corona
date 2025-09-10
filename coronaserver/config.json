@@ -13,7 +13,7 @@
     "application_name": "revolution",
     "schema_filename": "revolution_schema.json",
     "database_filename": "revolution_database.cdb",
-    "database_threads": 4,
+    "database_threads": 16,
     "database_recreate": false,
     "sys_user_name": "system",
     "sys_user_password": "systempassword1!",
