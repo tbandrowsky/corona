@@ -886,8 +886,6 @@ namespace corona
 	{
 	protected:
 
-		std::unique_ptr<xblock_cache> cache;
-
 	public:
 		corona_connections connections;
 		std::string onboarding_email;
@@ -897,11 +895,6 @@ namespace corona
 			buffered_file_block(_fb)
 		{
 			
-		}
-
-		xblock_cache* get_cache()
-		{
-			return cache.get();
 		}
 
 		virtual json create_database() = 0;
@@ -963,13 +956,11 @@ namespace corona
 	{
 	public:
 		int64_t								object_id;
-		relative_ptr_type					classes_location;
 		iarray<list_block_header, 100>		free_lists;
 
 		corona_db_header_struct() 
 		{
 			object_id = -1;
-			classes_location = -1;
 		}
 	};
 
@@ -2359,6 +2350,7 @@ namespace corona
 		int64_t index_id;
 		std::string index_name;
 		std::vector<std::string> index_keys;
+		std::shared_ptr<xtable> table;
 
 	public:
 
@@ -2491,7 +2483,6 @@ namespace corona
 
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) override
 		{
-			std::shared_ptr<xtable> table;
 			xtable_columns key_columns, object_columns;
             int column_id = 1;
 			
@@ -2521,8 +2512,8 @@ namespace corona
 
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
-			std::shared_ptr<xtable> table;
-			table = std::make_shared<xtable>(get_index_filename());
+			if (!table)
+				table = std::make_shared<xtable>(get_index_filename());
 			return table;
 		}
 
@@ -2565,6 +2556,7 @@ namespace corona
 			key_columns = _src->key_columns;
 		}
 
+		std::shared_ptr<xtable> table;
 
 	public:
 
@@ -2672,9 +2664,7 @@ namespace corona
 		}
 
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
-		{
-			std::shared_ptr<xtable> table;
-			
+		{		
 			auto table_header = std::make_shared<xtable_header>();
 			int column_id = 1;
 			for (auto &f : fields) {
@@ -2696,8 +2686,9 @@ namespace corona
 
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
-			std::shared_ptr<xtable> table;
-			table = std::make_shared<xtable>(get_class_filename());
+			if (!table) {
+				table = std::make_shared<xtable>(get_class_filename());
+			}
 			return table;
 		}
 
@@ -3256,7 +3247,6 @@ namespace corona
 			json_parser jp;
 
 			put_json(_context->errors, definition);
-
 			
 			if (not std::filesystem::exists(get_class_filename())) {
 				std::string stuff = std::format("Attempt to open {0} but not created", (std::string)definition[class_name_field]);
@@ -4288,13 +4278,8 @@ namespace corona
 
 			system_monitoring_interface::active_mon->log_job_start("create_database", "start", start_time, __FILE__, __LINE__);
 			
-			cache = std::make_unique<xblock_cache>(static_cast<buffered_file_block*>(this), maximum_record_cache_size_bytes);
-
 			header.data.object_id = 1;
 			header_location = header.append(this);
-
-			// now create the classes table.  it too is an xtable and participates properly
-			// in the cache and allocation system.
 			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
 			class_data_header->key_members.columns[1] = { field_types::ft_string, 1, "class_name" };
@@ -4308,7 +4293,7 @@ namespace corona
 			class_data_header->object_members.columns[9] = { field_types::ft_object, 9, "sql" };
 
 			classes = std::make_shared<xtable>("classes.coronatbl", class_data_header);
-			header.data.classes_location = classes->get_location();
+			classes->commit();
 
 			created_classes = jp.create_object();
 
@@ -4823,24 +4808,6 @@ namespace corona
 		}
 
 private:
-
-		const int max_write_threads = 8;
-        HANDLE save_semaphore = CreateSemaphore(NULL, max_write_threads, max_write_threads, NULL);
-
-		virtual void save()
-		{
-			WaitForSingleObject(save_semaphore, INFINITE);
-			try {
-				cache->save();
-				int64_t bytes_written = commit();
-//				system_monitoring_interface::active_mon->log_information(std::format("Database saved, {0} bytes written", bytes_written), __FILE__, __LINE__);
-			} 
-			catch (std::exception exc)
-			{
-
-			}
-            ReleaseSemaphore(save_semaphore, 1, NULL);
-		}
 
 		json create_class(std::string _text)
 		{
@@ -5732,7 +5699,7 @@ private:
 
 		virtual ~corona_database()
 		{
-			save();
+			
 		}
 
 		void apply_config(json _config)
@@ -5779,10 +5746,6 @@ private:
 
 				if (server.has_member(sys_record_cache_field)) {
 					maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];
-					if (cache) {
-						cache->save();
-					}
-					cache = std::make_unique<xblock_cache>(this, maximum_record_cache_size_bytes);
 				}
 			}
 
@@ -5853,6 +5816,7 @@ private:
 			class_def = jp.create_object();
 			_class_to_save->get_json(class_def);
             classes->put(class_def);
+			classes->commit();
 			return class_def;
 		}
 
@@ -6271,7 +6235,6 @@ private:
 			timer tx;
 			system_monitoring_interface::active_mon->log_job_start("open_database", "Open database", start_schema, __FILE__, __LINE__);
 
-			cache = std::make_unique<xblock_cache>(static_cast<buffered_file_block*>(this), maximum_record_cache_size_bytes );
 			relative_ptr_type header_location =  header.read(this, _header_location);
 
 			activity act;
@@ -6555,8 +6518,6 @@ private:
 				response = create_user_response(create_user_request, false, "User not created", create_user_params, jerrors, method_timer.get_elapsed_seconds());
 			}
 
-			save();
-
 			system_monitoring_interface::active_mon->log_function_stop("create_user", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
 			return response;
@@ -6739,8 +6700,6 @@ private:
 
 			system_monitoring_interface::active_mon->log_function_stop("confirm", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
-			save();
-
 			return response;
 		}
 
@@ -6898,8 +6857,6 @@ private:
 
 			system_monitoring_interface::active_mon->log_function_stop("confirm", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
-			save();
-
 			return response;
 		}
 
@@ -6994,8 +6951,6 @@ private:
 				response = create_response(_login_request, false, "Failed", jp.create_object(), errors, method_timer.get_elapsed_seconds());
 			}
 			system_monitoring_interface::active_mon->log_function_stop("login_user", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-
-			save();
 
 			return response;
 		}
@@ -7317,7 +7272,6 @@ private:
 				result = create_response(put_class_request, false, "errors", jclass_definition, pcactivity.errors, method_timer.get_elapsed_seconds());
 			}
 
-			save();
 			system_monitoring_interface::active_mon->log_function_stop(pc_name, pc_stop, tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			return result;
 		}
@@ -7702,7 +7656,6 @@ private:
 				response = create_response(create_object_request, false, "Couldn't find class", create_object_request, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop("create_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
-			save();
 
 			return response;
 			
@@ -7766,7 +7719,7 @@ private:
 				header.write(this);
 
 				if (child_objects.size() == 0) {
-					save();
+					;
 				}
 				else
 				{
@@ -7923,7 +7876,6 @@ private:
 				system_monitoring_interface::active_mon->log_function_stop("delete_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
 
-			save();
 
 			return response;
 		}
@@ -8066,7 +8018,6 @@ private:
 			}
 
 			system_monitoring_interface::active_mon->log_function_stop("copy_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-			save();
 			return response;
 		}
 

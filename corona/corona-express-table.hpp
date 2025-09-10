@@ -1227,6 +1227,7 @@ namespace corona
 
 		virtual int64_t commit() override
 		{
+			write_scope_lock lockme(locker);
 			table_header->write(this);
 			int64_t bytes_written = cache->save();
 			return bytes_written;
@@ -1277,6 +1278,7 @@ namespace corona
 
 		virtual json get(std::string _key)
 		{
+			read_scope_lock lockme(locker);
 			json_parser jp;
 			json jresult;
 			xrecord key = create_key<std::string>(_key);
@@ -1292,6 +1294,7 @@ namespace corona
 
 		virtual json get(int64_t _key)
 		{
+			read_scope_lock lockme(locker);
 			json_parser jp;
 			json jresult;
 			xrecord key = create_key_i64(_key);
@@ -1307,6 +1310,7 @@ namespace corona
 		
 		virtual json get(json _object) override
 		{
+			read_scope_lock lockme(locker);
 			json_parser jp;
 			json jresult;
 			xrecord key;
@@ -1323,6 +1327,7 @@ namespace corona
 
 		virtual void put(json _object) override
 		{
+			write_scope_lock lockme(locker);
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			xrecord data;
@@ -1377,9 +1382,9 @@ namespace corona
 
 		virtual void erase_array(json _array) override
 		{
-			write_scope_lock lockme(locker);
 			if (_array.array()) {
 				for (auto item : _array) {
+					write_scope_lock lockme(locker);
 					xrecord key;
 					key.put_json(&table_header->key_members, item);
 					::InterlockedDecrement64(&table_header->count);
