@@ -349,6 +349,9 @@ namespace corona
 			for (auto i = 0; i < field_count; i++) {
                 field_data.push_back(*pfield_data);
 				record_size += pfield_data->size_bytes;
+				if (record_size > _size) {
+					throw std::logic_error("record size is larger than data size");
+				}
 				pfield_data++;
 			}
             _bytes = (char*)pfield_data;
@@ -356,7 +359,7 @@ namespace corona
 			std::copy(_bytes, _bytes + record_size, std::back_inserter(record_data));
 		}
 
-		virtual char* before_write(int32_t* _size)  const
+		virtual char* before_write(int32_t* _size, int32_t *_capacity)  const
 		{
 			int32_t header_size = sizeof(int32_t) + sizeof(xfield) * field_data.size();
 			int32_t record_size = 0, record_count = 0;
@@ -372,7 +375,7 @@ namespace corona
             int32_t* count = (int32_t*)data;
             *count = record_count;
             cdata += sizeof(int32_t);
-            auto pfield = (xfield*)data;
+            auto pfield = (xfield*)cdata;
 			for (auto& fd : field_data) {
 				*pfield = fd;
 				pfield++;

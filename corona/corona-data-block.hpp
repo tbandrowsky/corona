@@ -38,7 +38,7 @@ namespace corona
 		data_block(const data_block& _src) = default;
 		data_block& operator = (const data_block& _src) = default;
 
-		virtual char* before_write(int32_t* _size)  const = 0;
+		virtual char* before_write(int32_t* _size, int32_t* _capacity)  const = 0;
 		virtual char* before_write(int _offset, int _size)
 		{
 			return nullptr;
@@ -146,17 +146,18 @@ namespace corona
 			}
 
 			int32_t size;
-			char* bytes = before_write(&size);
+			int32_t capacity;
+			char* bytes = before_write(&size, &capacity);
 
-			if (size > header.data_capacity)
+			if (capacity > header.data_capacity)
 			{
 				// the header.data_length is the max size of the block.  Since there's stuff past that in the file, then,
 				// there's not going to be a way we can write this, so we must have another block.
 				_file->free_space(header.data_location);
 				header.data_size = size;
-				header.data_capacity = 0;
+				header.data_capacity = capacity;
 				int64_t actual_size;
-				header.data_location = _file->allocate_space(size, &actual_size);
+				header.data_location = _file->allocate_space(capacity, &actual_size);
 				header.data_capacity = actual_size;
 			}
 			else
@@ -189,9 +190,9 @@ namespace corona
 		relative_ptr_type append(file_block* _file)
 		{
 
-			int32_t size;
+			int32_t size, capacity;
 			char* bytes;
-			bytes = before_write(&size);
+			bytes = before_write(&size, &capacity);
 
 			date_time start_time = date_time::now();
 			timer tx;
@@ -203,7 +204,7 @@ namespace corona
 			int64_t actual_size = 0;
 			header.block_location = _file->allocate_space(sizeof(header), &actual_size);
 			header.data_size = size;
-			header.data_location = _file->allocate_space(header.data_size, &actual_size);
+			header.data_location = _file->allocate_space(capacity, &actual_size);
 			header.data_capacity = actual_size;
 
 			if (header.block_location < 0 or header.data_location < 0)
@@ -269,9 +270,12 @@ namespace corona
 			;
 		}
 
-		virtual char* before_write(int32_t* _size) const override
+		virtual char* before_write(int32_t* _size, int32_t* _capacity) const override
 		{
 			*_size = strlen(data.c_str());
+			for (int k = 1; k < *_size; k *= 2) {
+                *_capacity = k * 2;
+			}
 			return (char*)data.c_str();
 		}
 
@@ -337,14 +341,20 @@ namespace corona
 			}
 		}
 
-		virtual char* before_write(int32_t* _size) const override
+		virtual char* before_write(int32_t* _size, int32_t * _capacity) const override
 		{
 			std::stringstream buff;
 
 			data.serialize(buff);
 			std::string temp = buff.str();
-			char* bytes = new char[temp.size() + 1];
+			char* bytes = new char[temp.size() + 10];
 			std::copy(temp.c_str(), temp.c_str() + temp.size() + 1, bytes);
+
+			for (int k = 1; k < *_size; k *= 2) {
+				*_capacity = k * 2;
+			}
+
+            *_size = (int32_t)temp.size() + 1;
 			return bytes;
 		}
 
@@ -383,9 +393,10 @@ namespace corona
 		}
 
 
-		virtual char* before_write(int32_t* _size) const override
+		virtual char* before_write(int32_t* _size, int32_t *_capacity) const override
 		{
 			*_size = sizeof(data);
+			*_capacity = *_size;
 			char* io_bytes = (char*)&data;
 			return io_bytes;
 		}

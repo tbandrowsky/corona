@@ -25,7 +25,7 @@ namespace corona
 	{
 		{ a.before_read(b) == buff };
 		{ a.after_read(buff, b) };
-		{ a.before_write(length) == buff };
+		{ a.before_write(length, length) == buff };
 		{ a.after_write(buff) };
 	};
 
@@ -65,9 +65,10 @@ namespace corona
 		{
 		}
 
-		virtual char* before_write(int32_t* _size) const
+		virtual char* before_write(int32_t* _size, int32_t *_capacity) const 
 		{
 			*_size = sizeof(xblock_ref);
+            *_capacity = *_size;
 			return (char *)this;
 		}
 
@@ -294,7 +295,7 @@ namespace corona
 			}
 		}
 
-		virtual char* before_write(int32_t* _size) const override
+		virtual char* before_write(int32_t* _size, int32_t *_capacity) const override
 		{
 			int32_t offset = xheader.size();
 
@@ -307,10 +308,11 @@ namespace corona
 			{
 				xblock_location rl = {};
                 rl.key_offset = offset;
-                char *write_key = r.first.before_write(&rl.key_size);
+				int32_t capacity;
+                char *write_key = r.first.before_write(&rl.key_size, &capacity);
 				offset += rl.key_size;
 				rl.value_offset = offset;
-				char* write_value = r.first.before_write(&rl.value_size);
+				char* write_value = r.first.before_write(&rl.value_size, &capacity);
                 offset += rl.value_size;
 				xheader.records[i] = rl;
                 temp_records.push_back(std::make_pair(write_key, write_value));	
@@ -322,6 +324,11 @@ namespace corona
 			}
 
 			*_size = offset;
+			*_capacity = 1;
+            while (*_capacity < *_size)
+            {
+                *_capacity *= 2;
+            }
 
 			char *bytes = new char[offset + 10];
 
@@ -1098,7 +1105,7 @@ namespace corona
 				delete [] _bytes;
 		}
 
-		virtual char* before_write(int32_t* _size) const override
+		virtual char* before_write(int32_t* _size, int32_t *_capacity) const override
 		{
 			json_parser jp;
 			json temp = jp.create_object();
@@ -1107,6 +1114,9 @@ namespace corona
 			if (data.size() > giga_to_bytes(1))
 				throw std::logic_error("Block too big");
 			*_size = (int32_t)data.size() + 1;
+			*_capacity = 1;
+            while (*_capacity < *_size)
+                *_capacity *= 2;
 			char* r = new char[data.size() + 10];
 			std::copy(data.c_str(), data.c_str() + data.size() + 1, r);
 			return r;
@@ -1129,11 +1139,6 @@ namespace corona
 		std::shared_ptr<xblock_cache>			cache;
 		std::shared_ptr<file_block>				fb;
 
-		void save()
-        {
-			table_header->write(fb.get());
-            cache->save();
-        }
 
 	public:
 
@@ -1146,8 +1151,7 @@ namespace corona
 			table_header->append(fb.get());
 			table_header->root = cache->create_branch_block(xblock_types::xb_leaf);
 			table_header->root_block = table_header->root->get_reference();
-			table_header->write(fb.get());
-			save();
+			commit();
 		}
 
 		xtable(std::string _file_name)
@@ -1160,6 +1164,13 @@ namespace corona
 			table_header = std::make_shared<xtable_header>();
 			table_header->read(fb.get(), 0);
 			table_header->root = cache->open_branch_block(table_header->root_block);
+		}
+
+		void commit()
+		{
+			table_header->write(fb.get());
+			cache->save();
+			fb->commit();
 		}
 
 		relative_ptr_type get_location() override
@@ -1250,7 +1261,6 @@ namespace corona
 			if (table_header->root->is_full()) {
 				table_header->root->split_root(0);
 			}
-			save();
 		}
 
 		virtual void put_array(json _array) override
@@ -1271,7 +1281,6 @@ namespace corona
 					}
 				}
 			}
-			save();
 		}
 
 		virtual void erase(int64_t _id)
@@ -1280,7 +1289,6 @@ namespace corona
 			xrecord key;
 			key = create_key_i64(_id);
 			table_header->root->erase(key);
-			save();
 		}
 
 		virtual void erase(json _object) override
@@ -1290,7 +1298,6 @@ namespace corona
 			key.put_json(&table_header->key_members, _object);
 			::InterlockedDecrement64(&table_header->count);
 			table_header->root->erase(key);
-			save();
 		}
 
 		virtual void erase_array(json _array) override
@@ -1304,7 +1311,6 @@ namespace corona
 					table_header->root->erase(key);
 				}
 			}
-			save();
 		}
 
 		int64_t get_count()
@@ -1330,7 +1336,6 @@ namespace corona
 				_data.get_json(&table_header->object_members, obj);
 				return _process(obj);
 				});
-			save();
 			return result;
 		}
 
@@ -1359,7 +1364,6 @@ namespace corona
 		virtual void clear() override
 		{
 			table_header->root->clear();
-			save();
 		}
 
 	};
@@ -1438,95 +1442,23 @@ namespace corona
 	{
 		date_time current = date_time::now();
 		int64_t total_memory;
-		bool block_lifetime_set = false;
 
-		bool test_io = false;
-
-		// save enforces a total_memory policy 
-		// by examining the bytes of blocks as they are saved,
-		// prioritizing to keep more recently used blocks around.
-		// based on this, the maximum block_lifetime is set
-		// as an indicator of quality of service.
-		// when the block_lifetime is less than the time of a user query
-		// that indicates the system is overcapacity, from the perspective of,
-		// you want to have all the concurrent users in memory.
-
-		// branches are taken first, 
-		// as they tend to be more critical path
+		read_scope_lock lockit(locker);
 
 		total_memory = 0;
-		std::vector<cached_branch> branches;
-		std::vector<int64_t> deletes;
-		{
-			read_scope_lock lockit(locker);
 
-			for (auto& sv : branch_blocks)
-			{
-				branches.push_back(sv.second);
-			}
-		}
-
-		std::sort(branches.begin(), branches.end(), [](const cached_branch& _a, const cached_branch& _b) {
-			return _a.last_access > _b.last_access;
-			});
-		for (auto& sv : branches)
+		for (auto& sv : branch_blocks)
 		{
-			total_memory += sv.block->save();
-			if (test_io or total_memory > this->maximum_memory_bytes)
-			{
-				if (not block_lifetime_set) {
-					block_lifetime = current.get_time_t() - sv.get_last_access().get_time_t();
-					block_lifetime_set = true;
-				}
-				deletes.push_back(sv.block->get_reference().location);
-			}
-		}
-
-		{
-			write_scope_lock lockit(locker);
-			for (auto del : deletes)
-			{
-				branch_blocks.erase(del);
-			}
-			deletes.clear();
+			sv.second.block->save();
 		}
 
 		// then leaves are taken
 
-		std::vector<cached_leaf> leaves;
+		for (auto& sv : leaf_blocks)
 		{
-			read_scope_lock lockit(locker);
-
-			for (auto& sv : leaf_blocks)
-			{
-				leaves.push_back(sv.second);
-			}
-			std::sort(leaves.begin(), leaves.end(), [](const cached_leaf& _a, const cached_leaf& _b) {
-				return _a.last_access > _b.last_access;
-				});
+			sv.second.block->save();
 		}
 			
-		for (auto& sv : leaves)
-		{
-			total_memory += sv.block->save();
-			if (test_io or total_memory > this->maximum_memory_bytes)
-			{
-				if (not block_lifetime_set) {
-					block_lifetime = current.get_time_t() - sv.get_last_access().get_time_t();
-					block_lifetime_set = true;
-				}
-				deletes.push_back(sv.block->get_reference().location);
-			}
-		}
-
-		{
-			write_scope_lock lockit(locker);
-
-			for (auto del : deletes)
-			{
-				leaf_blocks.erase(del);
-			}
-		}
 	}
 
 	std::map<xrecord, xblock_ref>::iterator xbranch_block::find_xrecord(const xrecord& key)
@@ -1585,7 +1517,7 @@ namespace corona
 
 		system_monitoring_interface::active_mon->log_function_start("xleaf", "start", start, __FILE__, __LINE__);
 
-		std::shared_ptr<file> fp = _app->open_file_ptr("test.cxdb", file_open_types::create_always);
+		std::shared_ptr<file> fp = _app->open_file_ptr("test_leaf.corona", file_open_types::create_always);
 		file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
@@ -1661,7 +1593,7 @@ namespace corona
 
 		system_monitoring_interface::active_mon->log_function_start("xbranch", "start", start, __FILE__, __LINE__);
 
-		std::shared_ptr<file> fp = _app->open_file_ptr("test.cxdb", file_open_types::create_always);
+		std::shared_ptr<file> fp = _app->open_file_ptr("test_branch.corona", file_open_types::create_always);
 		file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
@@ -1743,7 +1675,7 @@ namespace corona
 
 	const int max_fill_records = 5000;
 
-	void test_xtable_write(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app, int64_t *_location)
+	void test_xtable_write(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
 	{
 		timer tx;
 		date_time start = date_time::now();
@@ -1757,8 +1689,7 @@ namespace corona
 		header->object_members.columns[4] = { field_types::ft_double, 4, "weight" };
 
 		std::shared_ptr<xtable> ptable;
-		ptable = std::make_shared<xtable>("test.coronatbl", header);
-        *_location = ptable->get_location();
+		ptable = std::make_shared<xtable>("test.corona", header);
 
 		json_parser jp;
 
@@ -1772,11 +1703,13 @@ namespace corona
 		}
 
 		_tests->test({ "put_survived", true, __FILE__, __LINE__ });
+		ptable->commit();
+		_tests->test({ "commit_survived", true, __FILE__, __LINE__ });
 
 		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 	}
 
-	void test_xtable_read(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app, int64_t _location)
+	void test_xtable_read(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
 	{
 		timer tx;
 		date_time start = date_time::now();
@@ -1784,7 +1717,7 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_start("xtable read", "start", start, __FILE__, __LINE__);
 
 		std::shared_ptr<xtable> ptable;
-		ptable = std::make_shared<xtable>("test.coronatbl");
+		ptable = std::make_shared<xtable>("test.corona");
 
 		int count52 = 0;
 		std::vector<std::string> keys = { object_id_field, "age", "weight" };
@@ -1911,9 +1844,8 @@ namespace corona
 		date_time start = date_time::now();
 
 		system_monitoring_interface::active_mon->log_function_start("xtable", "start", start, __FILE__, __LINE__);
-		int64_t file_location;
-		test_xtable_write(_tests, _app, &file_location);
-		test_xtable_read(_tests, _app, file_location);
+		test_xtable_write(_tests, _app);
+		test_xtable_read(_tests, _app);
 
 		system_monitoring_interface::active_mon->log_function_stop("xtable", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 	}

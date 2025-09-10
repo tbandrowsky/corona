@@ -442,6 +442,7 @@ namespace corona
 			int64_t bytes_written = 0;
 		
 			std::vector<std::shared_ptr<file_buffer>> dirty_buffers;
+
 			{
 				scope_lock lockme(buffer_lock);
 
@@ -451,22 +452,11 @@ namespace corona
 					append_buffer = nullptr;
 				}
 
-				std::vector<std::shared_ptr<file_buffer>> buffers_to_keep;
-
 				for (auto bf : buffers) {
 					if (bf->is_dirty) {
 						dirty_buffers.push_back(bf);
 						bf->is_dirty = false;
 					}
-					date_time expiration = bf->last_accessed + time_span(5, time_models::seconds);
-					if (expiration >= date_time::now()) {
-						buffers_to_keep.push_back(bf);
-					}
-				}
-
-				buffers.clear();
-				for (auto& bf : buffers_to_keep) {
-					buffers.push_back(bf);
 				}
 			}
 

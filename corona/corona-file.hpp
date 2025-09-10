@@ -130,7 +130,7 @@ namespace corona
 
 			do
 			{
-				hfile = ::CreateFileA(filename.c_str(), (GENERIC_READ | GENERIC_WRITE), 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, nullptr );
+				hfile = ::CreateFileA(filename.c_str(), (GENERIC_READ | GENERIC_WRITE), 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr );
 				if (hfile != INVALID_HANDLE_VALUE) {
 					break;
 				}
