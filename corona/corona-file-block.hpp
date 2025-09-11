@@ -12,7 +12,7 @@ About this File
 This contains a file block, which implements buffers on top.
 
 Notes
-The big todo is whenn commmit happens, all the i/os should be issued 
+The big todo is when commmit happens, all the i/os should be issued 
 in parallel.  The onnly thing really is that you need to hack up the run
 into a run_async or something like that, all the hard i/o completion 
 port stuff is done, but what's needed is to issue all the writes
