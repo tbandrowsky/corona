@@ -547,7 +547,7 @@ namespace corona
 
 			for (auto& item : records) 
 			{
-				if (item.first == _key) {
+				if (item.first.matches(_key) or _key.empty()) {
 					if (_process(item.first, item.second) != null_row)
 					{
 						result.count++;
@@ -567,7 +567,7 @@ namespace corona
 			std::vector<xrecord> result = {};
 			for (auto& item : records)
 			{
-				if (item.first == _key or _key.empty()) {
+				if (item.first.matches(_key) or _key.empty()) {
 					xrecord temp = _process(item.first, item.second);
 					if (not temp.empty())
 					{
@@ -996,7 +996,7 @@ namespace corona
 			}
 			else {
 				auto iter = find_xrecord(_key);
-				while (iter != records.end() and iter->first <= _key)
+				while (iter != records.end() and (iter->first <= _key or iter->first.matches(_key)))
 				{
 					std::vector<xrecord> temp;
 					auto& found_block = iter->second;
@@ -1554,7 +1554,7 @@ namespace corona
 				if constexpr (debug_branch) {
 					std::string key_found_render = range_hit->first.to_string();
 				}
-				if (range_hit->first <= key) {
+				if (range_hit->first <= key or range_hit->first.matches(key)) {
 					return range_hit;
 				}
 				range_hit--;

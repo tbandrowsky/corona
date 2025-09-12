@@ -591,7 +591,6 @@ namespace corona
 			return exact_equal(_other);
 		}
 
-
 		bool exact_equal(const xrecord& _other) const
 		{
 			int32_t this_idx = 0;
@@ -621,7 +620,6 @@ namespace corona
 			return true;
 		}
 
-
 		/// <summary>
 		///  returns true if the union of both records results in the same size record as the larger.
 		/// </summary>
@@ -633,56 +631,58 @@ namespace corona
 			int32_t that_idx = 0;
 			int32_t comparison_count = 0;
 
+			std::map<int, int> common_field_ids;
+
 			if (field_data.size() > _other.field_data.size()) {
-				for (int i = j = 0; i < _other.field_data.size(); j++, i++) {
-                    auto& f0 = _other.field_data[i];
-					while ((j < field_data.size() && (field_data[j].field_id < f0.field_id))
-						j++;
-					if (j < field_data.size()) {
-						auto& f1 = field_data[j];
-						if (f0.field_id != f1.field_id)
-							return false;
-					}
+				for (int i = 0; i < field_data.size(); i++) {
+					auto& f = field_data[i];
+					common_field_ids[f.field_id] = i;
 				}
-				return true;
+				for (int i = 0; i < _other.field_data.size(); i++)
+				{ 
+					auto& fp = _other.field_data[i];
+                    auto it = common_field_ids.find(fp.field_id);
+
+					if (it != std::end(common_field_ids)) {
+                        auto comparison = compare_field(i, it->second, _other);
+                        if (comparison != std::strong_ordering::equal) {
+							return false;
+                        }
+					}
+					return true;
+				}
             }
-			else if (field_data.size() == _other.field_data.size()) {
+            else if (field_data.size() < _other.field_data.size()) {
+                for (int i = 0; i < _other.field_data.size(); i++) {
+                    auto& f = _other.field_data[i];
+                    common_field_ids[f.field_id] = i;
+                }
+                for (int i = 0; i < field_data.size(); i++)
+                {
+                    auto& fp = field_data[i];
+                    auto it = common_field_ids.find(fp.field_id);
+                    if (it != std::end(common_field_ids)) {
+						std::strong_ordering comparison = compare_field(it->second, i, _other);
+                        if (comparison != std::strong_ordering::equal) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+			else  
+			{
 				for (int i = 0; i < _other.field_data.size(); i++) {
 					auto& f0 = _other.field_data[i];
                     auto& f1 = field_data[i];
                     if (f0.field_id != f1.field_id)
                         return false;
+					std::strong_ordering comparison = compare_field(i, i, _other);
+					if (comparison != std::strong_ordering::equal) {
+						return false;
+					}
 				}
 				return true;
-			}
-			else {
-				for (int i = 0; i < _other.field_data.size(); i++) {
-					auto& f0 = _other.field_data[i];
-					auto& f1 = field_data[i];
-					if (f0.field_id != f1.field_id)
-						return false;
-				}
-				return true;
-			}
-
-			while (this_idx < field_data.size() && that_idx < _other.field_data.size())
-			{
-				int32_t this_field_id = field_data[this_idx].field_id;
-				int32_t that_field_id = _other.field_data[that_idx].field_id;
-
-				if (this_field_id == that_field_id) {
-					auto ordering = compare_field(this_idx, that_idx, _other);
-					if (ordering != std::strong_ordering::equal)
-						return false;
-					that_idx++;
-					this_idx++;
-				}
-				else if (this_field_id < that_field_id) {
-					return false;
-				}
-				else if (this_field_id > that_field_id) {
-					that_idx++;
-				}
 			}
 
 			return true;

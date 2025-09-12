@@ -368,12 +368,48 @@
       }
     },
     {
-      "class_name": "intelligence_home",
-      "class_description": "Home object for intelligence teams",
+      "class_name": "policy_home",
+      "class_description": "Home object for policy teams",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "model_search",
+      "class_description": "User search choices for Policy Models",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "model",
+      "class_description": "Model",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "reparations_home",
+      "class_description": "Home object for policy teams",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "case_search",
+      "class_description": "Home object for policy teams",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "case",
+      "class_description": "Home object for policy teams",
       "base_class_name": "sys_object",
       "fields": {
       }
     }
+
   ],
   "users": [
 
@@ -429,10 +465,27 @@
         },
         {
           "class_name": "work_team",
-          "team_name": "Technicians",
-          "team_description": "Revolution Technicians",
+          "team_name": "Policy",
+          "team_description": "Revolution Policy",
           "team_domain": "todd\\.bandrowsky@gmail\\.com",
-          "workflow_classes": [ "developer_home", "individual_search", "candidate_search" ],
+          "workflow_classes": [ "policy_home", "model_search", "model" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": "sys_object",
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Reparations",
+          "team_description": "Reparations Court",
+          "team_domain": "todd\\.bandrowsky@gmail\\.com",
+          "workflow_classes": [ "case_search", "case" ],
           "permissions": [
             {
               "class_name": "sys_grant",
