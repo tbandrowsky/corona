@@ -3923,6 +3923,7 @@ namespace corona
 						}
 					}
 				}
+				_db->commit();
 			}
 			return obj;
 		}
@@ -4008,45 +4009,38 @@ namespace corona
 
 		corona_database_header_data data;
 		bool save_pending = false;
+		std::shared_ptr<file> fp;
 
 		corona_database_header()
 		{
             if (std::filesystem::exists(corona_database_header_file_name)) {
-                auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::open_existing);
+                fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::open_existing);
                 fp->read(0, &data, sizeof(data));
             }
             else
             {
                 data.object_id = 1;
-                save();
+				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
+				fp->append(&data, sizeof(data));
             }
+		}
+
+		int64_t get_next_object_id()
+		{
+            ::InterlockedIncrement64(&data.object_id);
+			return data.object_id;
 		}
 
 		void save()
 		{
-			if (save_pending)
-				return;
-			global_job_queue->submit_job( new general_job([this]() {
-				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
-				fp->append(&data, sizeof(data));
-				save_pending = false;
-			}, nullptr));
+			fp->write(0, &data, sizeof(data));
 		}
 
 		void reset()
 		{
 			data.object_id = 1;
-			save();
+			fp->write(0, &data, sizeof(data));
 		}
-
-		int64_t get_next_object_id()
-		{
-            InterlockedIncrement64(&data.object_id);
-			save_pending = true;
-			save();
-            return data.object_id;
-		}
-
 	};
 
 	class corona_database : public corona_database_interface
@@ -4690,6 +4684,7 @@ namespace corona
 			system_monitoring_interface::active_mon->log_job_stop("create_database", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			return response;
 		}
+
 
 private:
 
@@ -7528,6 +7523,7 @@ private:
 				}
 				int64_t new_id = get_next_object_id();
 				new_object.put_member_i64("object_id", new_id);
+				commit();
 				response = create_response(create_object_request, true, "Object created", new_object, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop("create_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
@@ -7614,7 +7610,15 @@ private:
 			}
 			system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
+			commit();
+
 			return result;
+		}
+
+		virtual int64_t commit()
+		{
+			header.save();
+			return 1;
 		}
 
 		virtual json put_object(json put_object_request)
