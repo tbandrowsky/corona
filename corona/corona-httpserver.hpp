@@ -144,7 +144,13 @@ namespace corona
 
 			if (error == ERROR_IO_PENDING) {
 				success = true;
-			}
+            }
+            else {
+                os_result orx(error);
+                std::string s = std::format("HttpReceiveHttpRequest failed with {} {}", error, orx.message);
+                system_monitoring_interface::active_mon->log_warning(s, __FILE__, __LINE__);
+                success = false;
+            }
 			return success;
 		}
 
@@ -357,6 +363,9 @@ namespace corona {
 					message = handler_list->url + "\n" + orx.message;
 					throw std::logic_error(message.c_str());
 				}
+				else {
+                    system_monitoring_interface::active_mon->log_information(std::format("Listen Url '{}'", handler_list->url), __FILE__, __LINE__);
+				}
 			}
 
 		}
@@ -423,6 +432,9 @@ namespace corona {
 
 			absPath.copy(_request->CookedUrl.pAbsPath, _request->CookedUrl.FullUrlLength);
 			sabsPath = absPath.c_str();
+
+			system_monitoring_interface::active_mon->log_information(std::format("Request {}", sabsPath), __FILE__, __LINE__);
+
 
 			if (_request->CookedUrl.pQueryString) {
 				queryString.copy(_request->CookedUrl.pQueryString, _request->CookedUrl.QueryStringLength);
