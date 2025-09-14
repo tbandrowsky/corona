@@ -144,7 +144,13 @@ namespace corona
 
 			if (error == ERROR_IO_PENDING) {
 				success = true;
-			}
+            }
+            else {
+                os_result orx(error);
+                std::string s = std::format("HttpReceiveHttpRequest failed with {} {}", error, orx.message);
+                system_monitoring_interface::active_mon->log_warning(s, __FILE__, __LINE__);
+                success = false;
+            }
 			return success;
 		}
 
@@ -246,7 +252,35 @@ namespace corona {
 				throw std::logic_error(s);
 			}
 
+
+			// Set the 503 response verbosity to full
+			HTTP_503_RESPONSE_VERBOSITY verbosity = Http503ResponseVerbosityFull;
+
+			retCode = HttpSetRequestQueueProperty(
+				request_queue,
+				HTTP_SERVER_PROPERTY::HttpServer503VerbosityProperty,
+				&verbosity,
+				sizeof(verbosity),
+				NULL, 
+				NULL
+			);
+			if (retCode != NO_ERROR)
+			{
+				os_result last_error;
+
+				std::string s = std::format("HttpSetRequestQueueProperty failed with {} \n", last_error.message);
+				std::cout << s << std::endl;
+				std::cout << "check permissions." << std::endl;
+			}
+
+			session_id = 0;
+
 			retCode = HttpCreateServerSession(HTTPAPI_VERSION_2, &session_id, 0);
+			if (retCode != NO_ERROR)
+			{
+				std::string s = std::format("HttpCreateServerSession failed with {} \n", retCode);
+				throw std::logic_error(s);
+			}
 
 			//
 			// Create a Request Group Handle
@@ -263,6 +297,8 @@ namespace corona {
 				throw std::logic_error(s);
 			}
 
+
+
 			//
 			// Bind the server binding
 			//
@@ -270,7 +306,7 @@ namespace corona {
 
 			serverBinding.Flags.Present = 1;
 			serverBinding.RequestQueueHandle = request_queue;
-
+			
 			retCode = HttpSetUrlGroupProperty(
 				group_id,
 				HTTP_SERVER_PROPERTY::HttpServerBindingProperty,
@@ -357,6 +393,9 @@ namespace corona {
 					message = handler_list->url + "\n" + orx.message;
 					throw std::logic_error(message.c_str());
 				}
+				else {
+                    system_monitoring_interface::active_mon->log_information(std::format("Listen Url '{}'", handler_list->url), __FILE__, __LINE__);
+				}
 			}
 
 		}
@@ -423,6 +462,9 @@ namespace corona {
 
 			absPath.copy(_request->CookedUrl.pAbsPath, _request->CookedUrl.FullUrlLength);
 			sabsPath = absPath.c_str();
+
+			system_monitoring_interface::active_mon->log_information(std::format("Request {}", sabsPath), __FILE__, __LINE__);
+
 
 			if (_request->CookedUrl.pQueryString) {
 				queryString.copy(_request->CookedUrl.pQueryString, _request->CookedUrl.QueryStringLength);

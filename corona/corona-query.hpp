@@ -117,9 +117,11 @@ namespace corona
 					add_error("get_data", _query, msg, __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_warning(msg);
 				}
-
-				j = j.query(query_p);
-				j = j["value"];
+				else 
+				{
+					j = j.query(query_p);
+					j = j["value"];
+				}
 			}
 
 			return j;
