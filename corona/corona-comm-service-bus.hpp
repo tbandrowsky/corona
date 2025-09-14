@@ -192,6 +192,12 @@ namespace corona
 			system_monitoring_interface::active_mon = system_monitoring_interface::global_mon;
 		}
 
+        comm_bus_service() = delete;
+        comm_bus_service(const comm_bus_service&) = delete;
+        comm_bus_service& operator=(const comm_bus_service&) = delete;
+        comm_bus_service(comm_bus_service&&) = delete;
+        comm_bus_service& operator=(comm_bus_service&&) = delete;
+
 		void prove_system()
 		{
 			timer tx;
@@ -481,7 +487,7 @@ namespace corona
 					});
 
 				if (show_listen) {
-					log_information("updated server, and listening on :" + listen_point, __FILE__, __LINE__);
+					log_information("Updated server. Listen recap on :" + listen_point, __FILE__, __LINE__);
 					for (auto ipath : api_paths) {
 						log_information(ipath.path, __FILE__, __LINE__);
 					}
@@ -1030,6 +1036,9 @@ Bind home
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_home);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
+                /**************
+				* Create user
+				*/
 				new_api.request_class_name = "sys_create_user_request";
 				new_api.response_class_name = "sys_create_user_response";
 

@@ -9,7 +9,7 @@
     "AdventureWorks2016": "Driver={ODBC Driver 17 for SQL Server};Server=BANDROWSKY-RIPP\\DEV01;Database=AdventureWorks2016;Trusted_Connection=yes;TrustServerCertificate=yes"
   },
   "Server": {
-    "listen_point": "https://+:443/revolution",
+    "listen_point": "http://localhost:5678/revolution",
     "application_name": "revolution",
     "schema_filename": "revolution_schema.json",
     "database_filename": "revolution_database.cdb",
