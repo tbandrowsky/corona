@@ -252,7 +252,35 @@ namespace corona {
 				throw std::logic_error(s);
 			}
 
+
+			// Set the 503 response verbosity to full
+			HTTP_503_RESPONSE_VERBOSITY verbosity = Http503ResponseVerbosityFull;
+
+			retCode = HttpSetRequestQueueProperty(
+				request_queue,
+				HTTP_SERVER_PROPERTY::HttpServer503VerbosityProperty,
+				&verbosity,
+				sizeof(verbosity),
+				NULL, 
+				NULL
+			);
+			if (retCode != NO_ERROR)
+			{
+				os_result last_error;
+
+				std::string s = std::format("HttpSetRequestQueueProperty failed with {} \n", last_error.message);
+				std::cout << s << std::endl;
+				std::cout << "check permissions." << std::endl;
+			}
+
+			session_id = 0;
+
 			retCode = HttpCreateServerSession(HTTPAPI_VERSION_2, &session_id, 0);
+			if (retCode != NO_ERROR)
+			{
+				std::string s = std::format("HttpCreateServerSession failed with {} \n", retCode);
+				throw std::logic_error(s);
+			}
 
 			//
 			// Create a Request Group Handle
@@ -269,6 +297,8 @@ namespace corona {
 				throw std::logic_error(s);
 			}
 
+
+
 			//
 			// Bind the server binding
 			//
@@ -276,7 +306,7 @@ namespace corona {
 
 			serverBinding.Flags.Present = 1;
 			serverBinding.RequestQueueHandle = request_queue;
-
+			
 			retCode = HttpSetUrlGroupProperty(
 				group_id,
 				HTTP_SERVER_PROPERTY::HttpServerBindingProperty,
