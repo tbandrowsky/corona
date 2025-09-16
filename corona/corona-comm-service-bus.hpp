@@ -116,7 +116,7 @@ namespace corona
 				}
 #endif
 
-				if (database_recreate)
+				if (not std::filesystem::exists("classes.coronatbl") or database_recreate)
 				{
 					run("del *.corona*");
 					try {
