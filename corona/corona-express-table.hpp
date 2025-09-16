@@ -110,8 +110,8 @@ namespace corona
 		virtual json select(json _object, std::function<json(json& _item)> _process) = 0;
 		virtual void clear() = 0;
 		virtual json get_info() = 0;
+		virtual int64_t get_next_object_id() = 0;
 	};
-
 
 
 	static const int xrecords_per_block = 100;
@@ -1075,6 +1075,8 @@ namespace corona
 		std::shared_ptr<xbranch_block> root;
 		xtable_columns key_members, object_members;
 		int64_t count = 0;
+		int64_t next_id = 1;
+		bool    use_object_id = false;
 
 		relative_ptr_type get_location()
 		{
@@ -1093,6 +1095,7 @@ namespace corona
 			object_members.get_json(oms);
 			_dest.share_member("object_members", oms); 
 			_dest.put_member_i64("count", count);
+			_dest.put_member_i64("next_id", next_id);
 		}
 
 		virtual void put_json(json _src)
@@ -1105,6 +1108,12 @@ namespace corona
 			json oms = _src["object_members"];
 			object_members.put_json(oms);
 			count = (int64_t)_src["count"];
+            next_id = (int64_t)_src["next_id"];
+            for (auto m = key_members.columns.begin(); m != key_members.columns.end(); m++) {
+				if (object_id_field == (std::string)m->second.field_name) {
+                    use_object_id = true;
+                }
+            }
 		}
 
 		virtual char* before_read(int32_t _size)  override
@@ -1164,7 +1173,6 @@ namespace corona
 		shared_lockable							locker;
 		std::shared_ptr<xblock_cache>			cache;
 		std::shared_ptr<file>					fp;
-
 
 	public:
 
@@ -1231,6 +1239,12 @@ namespace corona
 			table_header->write(this);
 			int64_t bytes_written = cache->save();
 			return bytes_written;
+		}
+
+		virtual int64_t get_next_object_id() override
+		{
+            InterlockedIncrement64(&table_header->next_id);
+            return table_header->next_id;
 		}
 
 		virtual int buffer_count() override
@@ -1328,6 +1342,14 @@ namespace corona
 		virtual void put(json _object) override
 		{
 			write_scope_lock lockme(locker);
+
+			if (table_header->use_object_id) {
+                if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
+                    int64_t new_id = get_next_object_id();
+                    _object.put_member_i64(object_id_field, new_id);
+                }
+			}
+
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			xrecord data;
@@ -1347,6 +1369,13 @@ namespace corona
 			if (_array.array()) {
 				for (auto item : _array) {
 					write_scope_lock lockme(locker);
+
+					if (table_header->use_object_id) {
+						if (not item.has_member(object_id_field) or (int64_t)item[object_id_field] == 0) {
+							int64_t new_id = get_next_object_id();
+							item.put_member_i64(object_id_field, new_id);
+						}
+					}
 
 					xrecord key;
 					key.put_json(&table_header->key_members, item);

@@ -858,6 +858,8 @@ namespace corona
 
 		virtual json	get_info(corona_database_interface* _db) = 0;
         virtual json	get_openapi_schema(corona_database_interface* _db) = 0;
+
+		virtual int64_t get_next_object_id() = 0;
 	};
 
 	using read_class_sp = read_locked_sp<class_interface>;
@@ -882,7 +884,7 @@ namespace corona
 		virtual void on_frame(json& _commands) = 0;
 	};
 
-	class corona_database_interface : public buffered_file_block
+	class corona_database_interface 
 	{
 	protected:
 
@@ -891,8 +893,7 @@ namespace corona
 		std::string onboarding_email;
 		std::string recovery_email;
 
-		corona_database_interface(std::shared_ptr<file> _fb) :
-			buffered_file_block(_fb)
+		corona_database_interface()
 		{
 			
 		}
@@ -938,9 +939,6 @@ namespace corona
 		virtual json copy_object(json copy_request) = 0;
 		virtual json query(json query_request) = 0;
 
-		// these two are for internal use only
-
-		virtual int64_t get_next_object_id() = 0;
 
 		virtual json select_object(std::string _class_name, int64_t _object_id, class_permissions _permissions) = 0;
 		virtual json select_object(json _key, bool _include_children, class_permissions _permissions) = 0;
@@ -2565,6 +2563,11 @@ namespace corona
 			return *this;
 		}
 
+		virtual int64_t get_next_object_id()
+		{
+            return table->get_next_object_id();
+		}
+
 		virtual bool is_server_only(const std::string& _field_name) override
 		{
 			auto foundit = fields.find(_field_name);
@@ -2597,7 +2600,6 @@ namespace corona
 
 			return all_info;
 		}
-
 
 		virtual std::string get_class_name() const override
 		{
@@ -3523,6 +3525,8 @@ namespace corona
 			return true;
 		}
 
+		
+
 		virtual void put_field(std::shared_ptr<field_interface>& _new_field) override
 		{
 			fields.insert_or_assign(_new_field->get_field_name(), _new_field);
@@ -3901,12 +3905,12 @@ namespace corona
 						}
 						else 
 						{
-							object_id = _db->get_next_object_id();
+							object_id = table->get_next_object_id();
 						}
 					}
 					else
 					{
-						object_id = _db->get_next_object_id();
+						object_id = table->get_next_object_id();
 					}
 
 					ob.put_member_i64(object_id_field, object_id);
@@ -3923,7 +3927,7 @@ namespace corona
 						}
 					}
 				}
-				_db->commit();
+				table->commit();
 			}
 			return obj;
 		}
@@ -4000,49 +4004,6 @@ namespace corona
 		int64_t object_id;
 	};
 
-	const std::string corona_database_header_file_name = "corona.coronaheader";
-
-	class corona_database_header
-	{
-
-	public:
-
-		corona_database_header_data data;
-		bool save_pending = false;
-		std::shared_ptr<file> fp;
-
-		corona_database_header()
-		{
-            if (std::filesystem::exists(corona_database_header_file_name)) {
-                fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::open_existing);
-                fp->read(0, &data, sizeof(data));
-            }
-            else
-            {
-                data.object_id = 1;
-				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
-				fp->append(&data, sizeof(data));
-            }
-		}
-
-		int64_t get_next_object_id()
-		{
-            ::InterlockedIncrement64(&data.object_id);
-			return data.object_id;
-		}
-
-		void save()
-		{
-			fp->write(0, &data, sizeof(data));
-		}
-
-		void reset()
-		{
-			data.object_id = 1;
-			fp->write(0, &data, sizeof(data));
-		}
-	};
-
 	class corona_database : public corona_database_interface
 	{
 		shared_lockable allocation_lock,
@@ -4061,7 +4022,6 @@ namespace corona
         const std::string auth_system = "auth-system"; // this is the system user, which is used for system operations
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
-		corona_database_header header;
 		
 		long import_batch_size = 20000;
 		/*
@@ -4157,9 +4117,7 @@ namespace corona
 			using namespace std::literals;
 
 			system_monitoring_interface::active_mon->log_job_start("create_database", "start", start_time, __FILE__, __LINE__);
-
-			header.reset();
-			
+		
 			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
 			class_data_header->key_members.columns[1] = { field_types::ft_string, 1, "class_name" };
@@ -4648,7 +4606,11 @@ namespace corona
 				system_monitoring_interface::active_mon->log_warning("system classes not saved", __FILE__, __LINE__);
 
 				for (auto mc : missing_classes) {
-					system_monitoring_interface::active_mon->log_information(mc[class_name_field], __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_information(mc, __FILE__, __LINE__);
+				}
+
+				for (auto mc : classes_array) {
+					system_monitoring_interface::active_mon->log_json(mc);
 				}
 
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4697,6 +4659,12 @@ private:
 			json sys_request = create_system_request(jclass_def);
 
 			json response = put_class(sys_request);
+
+			if (response.error() or response.empty() or (bool)response[success_field] == false)
+			{
+				system_monitoring_interface::active_mon->log_warning("Error creating class", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json(response);
+			}
 
 			return response;
 		}
@@ -4757,7 +4725,7 @@ private:
 				}
 				else
 				{
-					object_id = get_next_object_id();
+					object_id = class_data->get_next_object_id();
 					object_definition.put_member_i64(object_id_field, object_id);
 					object_definition.put_member("created", current_date);
 					object_definition.put_member("created_by", _permission.user_name);
@@ -5485,11 +5453,6 @@ private:
 			return grants;
 		}
 
-		virtual db_object_id_type get_next_object_id() override
-		{			
-			return header.get_next_object_id();
-		}
-
 		thread_safe_map<std::string, std::shared_ptr<class_interface>> class_cache;
 
 		int64_t maximum_record_cache_size_bytes = giga_to_bytes(1);
@@ -5569,8 +5532,7 @@ private:
 
 		// constructing and opening a database
 
-		corona_database(std::shared_ptr<file> _database_file) :
-			corona_database_interface(_database_file)
+		corona_database() 
 		{
 			token_life = time_span(1, time_models::hours);	
 		}
@@ -7521,7 +7483,7 @@ private:
 						}
 					}
 				}
-				int64_t new_id = get_next_object_id();
+				int64_t new_id = class_def->get_next_object_id();
 				new_object.put_member_i64("object_id", new_id);
 				commit();
 				response = create_response(create_object_request, true, "Object created", new_object, errors, method_timer.get_elapsed_seconds());
@@ -7617,7 +7579,7 @@ private:
 
 		virtual int64_t commit()
 		{
-			header.save();
+			
 			return 1;
 		}
 
@@ -7862,8 +7824,7 @@ private:
 					else 
 					{
 						new_object = source_object.clone();
-						int64_t new_object_id = get_next_object_id();
-						new_object.put_member_i64(object_id_field, new_object_id);
+						new_object.erase_member(object_id_field);
 					}
 
 					//
@@ -7998,7 +7959,6 @@ private:
 	bool test_database_engine(json& _proof, std::shared_ptr<application> _app)
 	{
 		bool success = true;
-		std::shared_ptr<file> dtest = std::make_shared<file>();
 		using namespace std::literals;
 		date_time st = date_time::now();
 		timer tx;
@@ -8035,7 +7995,7 @@ private:
 		date_time start_schema = date_time::now();
 		system_monitoring_interface::active_mon->log_job_start("test_database_engine", "start", start_schema, __FILE__, __LINE__);
 
-		corona_database db(dtest);
+		corona_database db;
 
 		proof_assertion.put_member("dependencies", dependencies);
 		json db_config = jp.create_object();

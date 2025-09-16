@@ -79,7 +79,6 @@ namespace corona
 
 		std::shared_ptr<corona_database>	local_db;
 		std::shared_ptr<application>		app;
-		std::shared_ptr<file>				db_file;
 		json								abbreviations;
 
 		corona_client						client;
@@ -116,7 +115,8 @@ namespace corona
 
 		comm_app_bus(std::string _application_name,
 			std::string _application_folder_name,
-			std::string _config_filename_base)
+			std::string _config_filename_base,
+			bool create)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
 			timer tx;
@@ -124,6 +124,7 @@ namespace corona
 			json_parser jp;
 
 			log_command_start("comm_app_bus", "startup", t);
+			init_xtables();
 
 			ready_for_polling = false;
 
@@ -164,10 +165,9 @@ namespace corona
 
 			checker.path = std::filesystem::current_path();
 
-			if (not app->file_exists(database_filename))
+			if (create)
 			{
-				db_file = app->open_file_ptr(database_filename, file_open_types::create_always);
-				local_db = std::make_shared<corona_database>(db_file);
+				local_db = std::make_shared<corona_database>();
 
 				if (read_json(database_config_filename, local_db_config) != null_row) {
 					local_db->apply_config(local_db_config);
@@ -186,8 +186,7 @@ namespace corona
 			}
 			else
 			{
-				db_file = app->open_file_ptr(database_filename, file_open_types::open_existing);
-				local_db = std::make_shared<corona_database>(db_file);
+				local_db = std::make_shared<corona_database>();
 
 				if (read_json(database_config_filename, local_db_config) != null_row) {
 					local_db->apply_config(local_db_config);

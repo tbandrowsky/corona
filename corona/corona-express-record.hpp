@@ -12,6 +12,36 @@ namespace corona
 
 	const int packed_field_type_size = 1;
 
+	static field_types allowed_field_type_operations[65536] = {};
+
+	typedef int32_t field_pair_type;
+	field_pair_type make_field_pair(field_types fta, field_types ftb)
+	{
+		return ((int32_t)fta << 8) | (int32_t)ftb;
+	}
+
+	void init_xtables()
+	{
+		for (int i = 0; i < sizeof(allowed_field_type_operations) / sizeof(field_types); i++)
+		{
+			allowed_field_type_operations[i] = field_types::ft_string;
+		}
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_double)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_string)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_int64)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_int64)] = field_types::ft_int64;
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_double)] = field_types::ft_int64;
+		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_string)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_double)] = field_types::ft_double;
+		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_int64)] = field_types::ft_int64;
+
+		allowed_field_type_operations[make_field_pair(field_types::ft_datetime, field_types::ft_datetime)] = field_types::ft_datetime;
+	}
+
+
 	class xcolumn
 	{
 	public:
@@ -81,35 +111,6 @@ namespace corona
 		int32_t                 field_id;
 		field_types	            field_type;
 	};
-
-	typedef int32_t field_pair_type;
-	field_pair_type make_field_pair(field_types fta, field_types ftb)
-	{
-		return ((int32_t)fta << 8) | (int32_t)ftb;
-	}
-
-	static field_types allowed_field_type_operations[65536] = {};
-
-	void init_field_comparisons()
-	{
-		for (int i = 0; i < sizeof(allowed_field_type_operations) / sizeof(field_types); i++)
-		{
-			allowed_field_type_operations[i] = field_types::ft_string;
-		}
-
-		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_double)] = field_types::ft_double;
-		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_string)] = field_types::ft_double;
-		allowed_field_type_operations[make_field_pair(field_types::ft_double, field_types::ft_int64)] = field_types::ft_int64;
-
-		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_int64)] = field_types::ft_int64;
-		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_double)] = field_types::ft_int64;
-		allowed_field_type_operations[make_field_pair(field_types::ft_int64, field_types::ft_string)] = field_types::ft_int64;
-
-		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_double)] = field_types::ft_double;
-		allowed_field_type_operations[make_field_pair(field_types::ft_string, field_types::ft_int64)] = field_types::ft_int64;
-
-		allowed_field_type_operations[make_field_pair(field_types::ft_datetime, field_types::ft_datetime)] = field_types::ft_datetime;
-	}
 
 	struct xrecord
 	{
@@ -327,7 +328,7 @@ namespace corona
 
 		void add(int32_t _field_id, const std::string& _d)
 		{
-			add(_field_id, _d.c_str(), _d.size(), field_types::ft_string);
+			add(_field_id, _d.c_str(), _d.size()+1, field_types::ft_string);
 		}
 
 		virtual char* before_read(int32_t _size)  
@@ -489,7 +490,7 @@ namespace corona
 				{
 				case field_types::ft_string:
 				{
-                    _dest.put_member(acol.field_name.c_str(), std::string(s, field.size_bytes));
+                    _dest.put_member(acol.field_name.c_str(), std::string(s, field.size_bytes - 1));
 				}
 				break;
 				case field_types::ft_array:
@@ -706,8 +707,6 @@ namespace corona
 
 		xrecord comp1, comp2, comp3, test_in, test_out;
 
-		init_field_comparisons();
-
 		json_parser jp;
         json test_obj = jp.create_object();
         json test_inner_obj = jp.create_object();
@@ -874,7 +873,12 @@ namespace corona
         compj.put_json(&columns2, jsrc);
 		compj.get_json(&columns2, jdst);
 
-		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
+		std::string ssrc, sdst;
+
+		ssrc = (std::string)jsrc["Name"];
+		sdst = (std::string)jdst["Name"];
+
+		result = ssrc == sdst;
 		_tests->test({ "rt name", result, __FILE__, __LINE__ });
 
 		result = (double)jsrc["Age"] == (double)jdst["Age"];

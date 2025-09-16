@@ -177,6 +177,25 @@ namespace corona
 			system_monitoring_interface::active_mon->log_information(_msg);
 		}
 
+		bool is_admin() {
+			BOOL isAdmin = FALSE;
+			HANDLE tokenHandle = nullptr;
+
+			// Open the current process token
+			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &tokenHandle)) {
+				TOKEN_ELEVATION elevation;
+				DWORD size;
+
+				// Query the token for elevation information
+				if (GetTokenInformation(tokenHandle, TokenElevation, &elevation, sizeof(elevation), &size)) {
+					isAdmin = elevation.TokenIsElevated;
+				}
+				CloseHandle(tokenHandle);
+			}
+
+			return isAdmin;
+		}
+
 	};
 
 	bool application_tests()
