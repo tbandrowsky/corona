@@ -521,6 +521,8 @@ namespace corona
 	"Version":"1.0"
 }
 )");
+
+            body.put_member("Name", app->application_name);
 			return body;
 		}
 
@@ -937,7 +939,7 @@ namespace corona
 			response.content_type = "application/json";
 			response.response_body = _source.to_buffer();
 			response.content_length = response.response_body.get_size();
-			response.server = "Corona 1.0";
+			response.server = app->application_name;
 			response.system_result = os_result(0);
 			response.headers["Allow"]="POST";
 			response.headers["Access-Control-Allow-Origin"] = "*";

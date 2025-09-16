@@ -12,7 +12,7 @@
 bool RegisterCoronaEventSource(const std::string& svcName, const std::string& exePath);
 
 
-char SVCNAME[] = "Instant Government";
+char SVCNAME[] = "CoronaDb";
 char SVCEVENTDISP[] = "StartServiceCtrlDispatcher";
 
 #pragma comment(lib, "advapi32.lib")
@@ -43,7 +43,7 @@ void corona_console_command()
     std::string command;
 
     do {
-        std::cout << std::endl << "Instant Government >";
+        std::cout << std::endl << "Corona >";
         std::getline(std::cin, command, '\n');
 
         if (not command.empty()) {
@@ -113,7 +113,7 @@ void RunConsole(std::shared_ptr<corona::corona_simulation_interface> _simulation
     if (SetConsoleCtrlHandler(CtrlHandler, TRUE)) {
         try
         {
-            std::cout << "Running Instant Government in console mode. CTRL-C for shell." << std::endl;
+            std::cout << "Running Corona in console mode. CTRL-C for shell." << std::endl;
             std::cout.flush();
             service = std::make_shared<corona::comm_bus_service>(
                 _simulation, 
@@ -246,7 +246,7 @@ VOID WINAPI SvcMain(DWORD dwArgc, LPTSTR* lpszArgv)
 
     // Report initial status to the SCM
 
-    SvcLogInfo("Instant Government Starting", __FILE__, __LINE__);
+    SvcLogInfo("CoronaDb Starting", __FILE__, __LINE__);
 
     ReportSvcStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
 
@@ -302,7 +302,7 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv)
             simulation,
             config_filename,
             [](const std::string& _msg, const char* _file, int _line) {
-                std::string message = std::format("Instant Government error: {0} at {1}:{2}", _msg, _file, _line);
+                std::string message = std::format("Corona Db error: {0} at {1}:{2}", _msg, _file, _line);
                 SvcLogError(message, __FILE__, __LINE__);
             },
             false);
@@ -528,6 +528,14 @@ int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation,
     std::string exePath = szUnquotedPath;
     RegisterCoronaEventSource(SVCNAME, exePath);
 
+    std::map<std::string, int> args;
+
+    for (int i = 0; i < argc; i++)
+    {
+        std::string temp = argv[i];
+        args[argv[i]] = i;
+    }
+
     if (argc <= 1)
     {
 
@@ -576,7 +584,7 @@ int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation,
         CloseServiceHandle(schService);
         CloseServiceHandle(schSCManager);
     }
-    else if (_strcmpi(argv[1], "console") == 0)
+    else if (_strcmpi(argv[1], "console") == 0 or _strcmpi(argv[1], "console") == 0)
     {
         char currentPath[MAX_PATH];
         GetCurrentDirectoryA(sizeof(currentPath), currentPath);
