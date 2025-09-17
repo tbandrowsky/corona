@@ -928,6 +928,7 @@ namespace corona
 		virtual json get_class(json get_class_request) = 0;
 		virtual json put_class(json put_class_request) = 0;
 		virtual json user_home(json user_home_request) = 0;
+		virtual json user_set_team(json user_home_request) = 0;
 
 		virtual json edit_object(json _edit_object_request) = 0;
 		virtual json run_object(json _edit_object_request) = 0;
@@ -4265,7 +4266,7 @@ namespace corona
 	"class_description" : "grants a team can have",
 	"fields" : {
 			"team_id"	  : "int64",
-			"grant_class" : "string",
+			"grant_classes" : "[string]",
 			"get" : {
 				"field_type":"string",
 				"field_name":"get",
@@ -4341,7 +4342,8 @@ namespace corona
 					}	
 				}
 			},
-			"workflow_classes" : "[ string ]"
+			"workflow_classes" : "[ string ]",
+			"allowed_teams" : "[ string ]"
 	},
 	"indexes" : {
         "sys_team_name": {
@@ -4552,6 +4554,11 @@ namespace corona
 			"validation_code" : { 
 				"field_type":"string",
 				"field_name":"validation_code",	
+				"is_server_only": true
+			},
+			"home_team_name" :{ 
+				"field_type":"string",
+				"field_name":"home_team_name",	
 				"is_server_only": true
 			},
 			"team_name" :{ 
@@ -5417,33 +5424,45 @@ private:
 					json jpermissions = jteam["permissions"];
 					if (jpermissions.array()) {
 						for (auto jperm : jpermissions) {
-							std::string jclass = jperm["grant_class"];
-							auto permclass = read_lock_class(jclass);
-							if (permclass->get_descendants().contains(_class_name)) {
-								std::string permission = jperm[class_permission_get];
-								if (permission == "any")
-									grants.get_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.get_grant = class_grants::grant_own;
+							json class_array = jperm["grant_classes"];
+							std::vector<std::string> granted_classes;
+							if (class_array.array())
+							{
+                                for (auto jcls : class_array) {
+                                    granted_classes.push_back((std::string)jcls);
+                                }
+							}
+							else {
+                                granted_classes.push_back((std::string)class_array);
+							}
+							for (std::string& jclass : granted_classes) {
+								auto permclass = read_lock_class(jclass);
+								if (permclass->get_descendants().contains(_class_name)) {
+									std::string permission = jperm[class_permission_get];
+									if (permission == "any")
+										grants.get_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.get_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_put];
-								if (permission == "any")
-									grants.put_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.put_grant = class_grants::grant_own;
+									permission = jperm[class_permission_put];
+									if (permission == "any")
+										grants.put_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.put_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_delete];
-								if (permission == "any")
-									grants.delete_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.delete_grant = class_grants::grant_own;
+									permission = jperm[class_permission_delete];
+									if (permission == "any")
+										grants.delete_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.delete_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_alter];
-								if (permission == "any")
-									grants.alter_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.alter_grant = class_grants::grant_own;
-								break;
+									permission = jperm[class_permission_alter];
+									if (permission == "any")
+										grants.alter_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.alter_grant = class_grants::grant_own;
+									break;
+								}
 							}
 						}
 					}
@@ -6486,6 +6505,7 @@ private:
 				json teams = get_team_by_email(email, sys_perm);
 				for (json team : teams) {
 
+					user.put_member("home_team_name", (std::string)team["home_team_name"]);
 					user.put_member("team_name", (std::string)team["team_name"]);
 					json workflow_objects = jp.create_array();
 					json workflow_classes = team["workflow_classes"];
@@ -6698,6 +6718,66 @@ private:
 			return response;
 		}
 
+		virtual json user_set_team(json _user_set_team_request)
+		{
+			timer method_timer;
+			json_parser jp;
+
+			json result;
+			json result_list;
+
+			date_time start_time = date_time::now();
+			timer tx;
+
+			read_scope_lock my_lock(database_lock);
+			std::vector<validation_error> errors;
+
+			system_monitoring_interface::active_mon->log_function_start("user_set_team", "start", start_time, __FILE__, __LINE__);
+
+			std::string user_name, user_auth;
+
+			if (not check_message(_user_set_team_request, { auth_self }, user_name, user_auth))
+			{
+				result = create_response(_user_set_team_request, false, "User set team denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				return result;
+			}
+
+			bool team_set = false;
+			json user_details = get_user(user_name, get_system_permission());
+			if (user_details.object()) {
+				json jteam = get_team(user_details["team_name"], get_system_permission());
+				if (jteam.object()) {
+					json jallowed_teams = jteam["allowed_teams"];
+					if (auto ata = jallowed_teams.array_impl()) {
+						if (std::any_of(ata->elements.begin(), ata->elements.end(), [&](json _item) {
+							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
+							})) {
+							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
+							put_user(user_details, get_system_permission());
+							team_set = true;
+							user_details = get_user(user_name, get_system_permission());
+						}
+					}
+				}
+			}
+
+			system_monitoring_interface::active_mon->log_function_stop("user_set_team", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+
+			std::vector<validation_error> empty_errors;
+
+			if (team_set) {
+				result = create_response(_user_set_team_request, true, "Ok", user_details, empty_errors, method_timer.get_elapsed_seconds());
+			}
+			else
+			{
+				// clear user details to avoid any kind of leak of info
+				user_details = jp.create_object();
+				result = create_response(_user_set_team_request, false, "False", user_details, empty_errors, method_timer.get_elapsed_seconds());
+			}
+
+			return result;
+
+		}
 
 		// this starts a login attempt
 		virtual json login_user(json _login_request)
@@ -6825,6 +6905,10 @@ private:
 			response = get_object(get_object_request);
 			return response;
 		}
+
+
+
+
 
 		virtual json edit_object(json _edit_object_request) override
 		{

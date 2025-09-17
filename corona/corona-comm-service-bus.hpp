@@ -671,7 +671,6 @@ namespace corona
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
-
 		http_handler_function corona_class_get = [this](http_action_request _request)->void {
 			json parsed_request = parse_request(_request.request);
 			if (parsed_request.error()) {
@@ -760,6 +759,20 @@ namespace corona
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
 			json fn_response = local_db->user_home(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
+		http_handler_function corona_user_set_team = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->user_set_team(parsed_request);
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
@@ -1358,6 +1371,50 @@ Bind passworduser
 })";
 				api_paths.push_back(new_api);
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_password);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+/**************
+Bind select team
+***************/
+
+				new_api.path = "user/set_team/";
+				new_api.verb = "post";
+				new_api.name = "set_team";
+				new_api.description = "Allows a user to switch their team.";
+				new_api.request_class_name = "sys_set_team_request";
+				new_api.response_class_name = "sys_set_team_response";
+				new_api.request_schema = R"({
+  "type": "object"
+  "properties": {
+	"team_name": {
+	  "type": "string",
+	  "description": "Selects new team if you are permitted to do so."
+	}
+  }
+})";
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True, so data should have results in it."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "array",
+	  "description": "Result object or objects."
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_home);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
 /**************
