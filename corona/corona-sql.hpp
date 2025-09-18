@@ -913,6 +913,12 @@ namespace corona
 			execute(stmt);
 		}
 
+		virtual int64_t get_next_object_id() override
+		{
+			abort();
+			return 0; // this has to be the bad thing to do
+		}
+
 	};
 
 	class corona_connections

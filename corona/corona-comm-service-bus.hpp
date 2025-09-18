@@ -27,7 +27,6 @@ namespace corona
 
 		std::shared_ptr<corona_database>	local_db;
 		std::shared_ptr<application>		app;
-		std::shared_ptr<file>				db_file;
 
 		std::shared_ptr<corona_simulation_interface> simulation;
 
@@ -40,7 +39,6 @@ namespace corona
 
 		json local_db_config;
 
-		std::string database_filename;
         bool database_recreate;
 
 		bool ready_for_polling;
@@ -63,6 +61,8 @@ namespace corona
 			system_monitoring_interface::start(); // this will create the global log queue.
 
 			system_monitoring_interface::active_mon = this;
+
+			init_xtables();
 
 			timer tx;
 			date_time t = date_time::now();
@@ -87,15 +87,9 @@ namespace corona
 
 				server_config = local_db_config["Server"];
 
-				database_filename = server_config["database_filename"];
 				database_schema_filename = server_config["schema_filename"];
 				database_threads = (int)server_config["database_threads"];
 				database_recreate = (bool)server_config["database_recreate"];
-
-				if (database_filename.empty() or database_schema_filename.empty())
-				{
-					throw std::logic_error("database file or schema file not specified");
-				}
 
 				database_schema_mon.filename = database_schema_filename;
 
@@ -113,24 +107,25 @@ namespace corona
 					throw std::logic_error("listen_point not specified");
 				}
 
+#if _DEBUG
 				if (not is_service)
 				{
 					log_information("Self test.");
 					prove_system();
 					log_information("Startup user name " + app->get_user_display_name());
 				}
+#endif
 
-				if (database_recreate or not app->file_exists(database_filename))
+				if (not std::filesystem::exists("classes.coronatbl") or database_recreate)
 				{
+					run("del *.corona*");
 					try {
-						db_file = app->open_file_ptr(database_filename, file_open_types::create_always);
-						local_db = std::make_shared<corona_database>(db_file);
+						local_db = std::make_shared<corona_database>();
 						local_db->apply_config(local_db_config);
 					}
 					catch (std::exception exc)
 					{
-                        std::string mxessage = std::format("Could not open database file {0} for create_always: {1}", database_filename, exc.what());
-                        log_warning(mxessage, __FILE__, __LINE__);
+						log_warning("Could not apply database config", __FILE__, __LINE__);
 					}
 
 					json create_database_response = local_db->create_database();
@@ -147,14 +142,13 @@ namespace corona
 				{
 
 					try {
-						db_file = app->open_file_ptr(database_filename, file_open_types::open_existing);
-						local_db = std::make_shared<corona_database>(db_file);
+						local_db = std::make_shared<corona_database>();
 						local_db->apply_config(local_db_config);
 						local_db->open_database();
 					}
 					catch (std::exception exc)
 					{
-						std::string mxessage = std::format("Could not open database file {0} for open_existing: {1}", database_filename, exc.what());
+						std::string mxessage = std::format("Could not apply config {}", exc.what());
 						log_warning(mxessage, __FILE__, __LINE__);
 					}
 
@@ -523,10 +517,12 @@ namespace corona
 			json_parser jp;
 			json body = jp.parse_object(R"(
 {
-	"Name":"Corona Server",
+	"Name":"Revolution Service",
 	"Version":"1.0"
 }
 )");
+
+            body.put_member("Name", app->application_name);
 			return body;
 		}
 
@@ -681,7 +677,6 @@ namespace corona
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
-
 		http_handler_function corona_class_get = [this](http_action_request _request)->void {
 			json parsed_request = parse_request(_request.request);
 			if (parsed_request.error()) {
@@ -770,6 +765,20 @@ namespace corona
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
 			json fn_response = local_db->user_home(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
+		http_handler_function corona_user_set_team = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->user_set_team(parsed_request);
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
@@ -943,7 +952,7 @@ namespace corona
 			response.content_type = "application/json";
 			response.response_body = _source.to_buffer();
 			response.content_length = response.response_body.get_size();
-			response.server = "Corona 1.0";
+			response.server = app->application_name;
 			response.system_result = os_result(0);
 			response.headers["Allow"]="POST";
 			response.headers["Access-Control-Allow-Origin"] = "*";
@@ -970,6 +979,35 @@ namespace corona
 			~api_definition() = default;
 		};
 
+		std::string run(const std::string& _command)
+		{
+			char buffer[4096] = {};
+			std::string result;
+
+#if defined(_WIN32)
+			std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(_command.c_str(), "r"), _pclose);
+#else
+			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(commandLine.c_str(), "r"), pclose);
+#endif
+
+			if (!pipe) {
+				throw std::runtime_error("Failed to run command: " + _command);
+			}
+
+			while (std::fgets(buffer, sizeof(buffer)-10, pipe.get()) != nullptr) {
+				result += buffer;
+			}
+			return result;
+		}
+
+		bool DoesUrlReservationExist(const std::string& url) 
+		{
+			// Command to check URL reservations
+			std::string command = "netsh http show urlacl";
+			std::string result = run(command);
+			return result.find(url) != std::string::npos;
+		}
+
 		std::vector<api_definition> api_paths;
 
 		void bind_web_server(http_server& _server)
@@ -978,6 +1016,17 @@ namespace corona
 			std::string base_path;
 
 			try {
+
+				if (app->is_admin())
+				{
+                    log_warning("Running as admin", __FILE__, __LINE__);
+					if (!DoesUrlReservationExist(root_path)) {
+						log_warning("Url reservation not found.", __FILE__, __LINE__);
+						std::string net_acl_command = std::format("netsh http add urlacl url = {} user = \\Everyone", root_path);
+						std::string result = run(net_acl_command);
+						std::cout << result << std::endl;
+					}
+				}
 
 				base_path = root_path;
 
@@ -1331,6 +1380,50 @@ Bind passworduser
 })";
 				api_paths.push_back(new_api);
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_password);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+/**************
+Bind select team
+***************/
+
+				new_api.path = "user/set_team/";
+				new_api.verb = "post";
+				new_api.name = "set_team";
+				new_api.description = "Allows a user to switch their team.";
+				new_api.request_class_name = "sys_set_team_request";
+				new_api.response_class_name = "sys_set_team_response";
+				new_api.request_schema = R"({
+  "type": "object"
+  "properties": {
+	"team_name": {
+	  "type": "string",
+	  "description": "Selects new team if you are permitted to do so."
+	}
+  }
+})";
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True, so data should have results in it."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "array",
+	  "description": "Result object or objects."
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_home);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
 /**************

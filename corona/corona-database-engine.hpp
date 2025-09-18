@@ -858,6 +858,8 @@ namespace corona
 
 		virtual json	get_info(corona_database_interface* _db) = 0;
         virtual json	get_openapi_schema(corona_database_interface* _db) = 0;
+
+		virtual int64_t get_next_object_id() = 0;
 	};
 
 	using read_class_sp = read_locked_sp<class_interface>;
@@ -882,7 +884,7 @@ namespace corona
 		virtual void on_frame(json& _commands) = 0;
 	};
 
-	class corona_database_interface : public buffered_file_block
+	class corona_database_interface 
 	{
 	protected:
 
@@ -891,8 +893,7 @@ namespace corona
 		std::string onboarding_email;
 		std::string recovery_email;
 
-		corona_database_interface(std::shared_ptr<file> _fb) :
-			buffered_file_block(_fb)
+		corona_database_interface()
 		{
 			
 		}
@@ -927,6 +928,7 @@ namespace corona
 		virtual json get_class(json get_class_request) = 0;
 		virtual json put_class(json put_class_request) = 0;
 		virtual json user_home(json user_home_request) = 0;
+		virtual json user_set_team(json user_home_request) = 0;
 
 		virtual json edit_object(json _edit_object_request) = 0;
 		virtual json run_object(json _edit_object_request) = 0;
@@ -938,9 +940,6 @@ namespace corona
 		virtual json copy_object(json copy_request) = 0;
 		virtual json query(json query_request) = 0;
 
-		// these two are for internal use only
-
-		virtual int64_t get_next_object_id() = 0;
 
 		virtual json select_object(std::string _class_name, int64_t _object_id, class_permissions _permissions) = 0;
 		virtual json select_object(json _key, bool _include_children, class_permissions _permissions) = 0;
@@ -2565,6 +2564,11 @@ namespace corona
 			return *this;
 		}
 
+		virtual int64_t get_next_object_id()
+		{
+            return table->get_next_object_id();
+		}
+
 		virtual bool is_server_only(const std::string& _field_name) override
 		{
 			auto foundit = fields.find(_field_name);
@@ -2597,7 +2601,6 @@ namespace corona
 
 			return all_info;
 		}
-
 
 		virtual std::string get_class_name() const override
 		{
@@ -3523,6 +3526,8 @@ namespace corona
 			return true;
 		}
 
+		
+
 		virtual void put_field(std::shared_ptr<field_interface>& _new_field) override
 		{
 			fields.insert_or_assign(_new_field->get_field_name(), _new_field);
@@ -3901,12 +3906,12 @@ namespace corona
 						}
 						else 
 						{
-							object_id = _db->get_next_object_id();
+							object_id = table->get_next_object_id();
 						}
 					}
 					else
 					{
-						object_id = _db->get_next_object_id();
+						object_id = table->get_next_object_id();
 					}
 
 					ob.put_member_i64(object_id_field, object_id);
@@ -3923,7 +3928,7 @@ namespace corona
 						}
 					}
 				}
-				_db->commit();
+				table->commit();
 			}
 			return obj;
 		}
@@ -4000,49 +4005,6 @@ namespace corona
 		int64_t object_id;
 	};
 
-	const std::string corona_database_header_file_name = "corona.coronaheader";
-
-	class corona_database_header
-	{
-
-	public:
-
-		corona_database_header_data data;
-		bool save_pending = false;
-		std::shared_ptr<file> fp;
-
-		corona_database_header()
-		{
-            if (std::filesystem::exists(corona_database_header_file_name)) {
-                fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::open_existing);
-                fp->read(0, &data, sizeof(data));
-            }
-            else
-            {
-                data.object_id = 1;
-				auto fp = std::make_shared<file>(corona_database_header_file_name, file_open_types::create_always);
-				fp->append(&data, sizeof(data));
-            }
-		}
-
-		int64_t get_next_object_id()
-		{
-            ::InterlockedIncrement64(&data.object_id);
-			return data.object_id;
-		}
-
-		void save()
-		{
-			fp->write(0, &data, sizeof(data));
-		}
-
-		void reset()
-		{
-			data.object_id = 1;
-			fp->write(0, &data, sizeof(data));
-		}
-	};
-
 	class corona_database : public corona_database_interface
 	{
 		shared_lockable allocation_lock,
@@ -4061,7 +4023,6 @@ namespace corona
         const std::string auth_system = "auth-system"; // this is the system user, which is used for system operations
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
-		corona_database_header header;
 		
 		long import_batch_size = 20000;
 		/*
@@ -4157,9 +4118,7 @@ namespace corona
 			using namespace std::literals;
 
 			system_monitoring_interface::active_mon->log_job_start("create_database", "start", start_time, __FILE__, __LINE__);
-
-			header.reset();
-			
+		
 			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
 			class_data_header->key_members.columns[1] = { field_types::ft_string, 1, "class_name" };
@@ -4307,7 +4266,7 @@ namespace corona
 	"class_description" : "grants a team can have",
 	"fields" : {
 			"team_id"	  : "int64",
-			"grant_class" : "string",
+			"grant_classes" : "[string]",
 			"get" : {
 				"field_type":"string",
 				"field_name":"get",
@@ -4383,7 +4342,8 @@ namespace corona
 					}	
 				}
 			},
-			"workflow_classes" : "[ string ]"
+			"workflow_classes" : "[ string ]",
+			"allowed_teams" : "[ string ]"
 	},
 	"indexes" : {
         "sys_team_name": {
@@ -4596,6 +4556,11 @@ namespace corona
 				"field_name":"validation_code",	
 				"is_server_only": true
 			},
+			"home_team_name" :{ 
+				"field_type":"string",
+				"field_name":"home_team_name",	
+				"is_server_only": true
+			},
 			"team_name" :{ 
 				"field_type":"string",
 				"field_name":"team_name",	
@@ -4648,7 +4613,11 @@ namespace corona
 				system_monitoring_interface::active_mon->log_warning("system classes not saved", __FILE__, __LINE__);
 
 				for (auto mc : missing_classes) {
-					system_monitoring_interface::active_mon->log_information(mc[class_name_field], __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_information(mc, __FILE__, __LINE__);
+				}
+
+				for (auto mc : classes_array) {
+					system_monitoring_interface::active_mon->log_json(mc);
 				}
 
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -4697,6 +4666,12 @@ private:
 			json sys_request = create_system_request(jclass_def);
 
 			json response = put_class(sys_request);
+
+			if (response.error() or response.empty() or (bool)response[success_field] == false)
+			{
+				system_monitoring_interface::active_mon->log_warning("Error creating class", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json(response);
+			}
 
 			return response;
 		}
@@ -4757,7 +4732,7 @@ private:
 				}
 				else
 				{
-					object_id = get_next_object_id();
+					object_id = class_data->get_next_object_id();
 					object_definition.put_member_i64(object_id_field, object_id);
 					object_definition.put_member("created", current_date);
 					object_definition.put_member("created_by", _permission.user_name);
@@ -5449,33 +5424,45 @@ private:
 					json jpermissions = jteam["permissions"];
 					if (jpermissions.array()) {
 						for (auto jperm : jpermissions) {
-							std::string jclass = jperm["grant_class"];
-							auto permclass = read_lock_class(jclass);
-							if (permclass->get_descendants().contains(_class_name)) {
-								std::string permission = jperm[class_permission_get];
-								if (permission == "any")
-									grants.get_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.get_grant = class_grants::grant_own;
+							json class_array = jperm["grant_classes"];
+							std::vector<std::string> granted_classes;
+							if (class_array.array())
+							{
+                                for (auto jcls : class_array) {
+                                    granted_classes.push_back((std::string)jcls);
+                                }
+							}
+							else {
+                                granted_classes.push_back((std::string)class_array);
+							}
+							for (std::string& jclass : granted_classes) {
+								auto permclass = read_lock_class(jclass);
+								if (permclass->get_descendants().contains(_class_name)) {
+									std::string permission = jperm[class_permission_get];
+									if (permission == "any")
+										grants.get_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.get_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_put];
-								if (permission == "any")
-									grants.put_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.put_grant = class_grants::grant_own;
+									permission = jperm[class_permission_put];
+									if (permission == "any")
+										grants.put_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.put_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_delete];
-								if (permission == "any")
-									grants.delete_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.delete_grant = class_grants::grant_own;
+									permission = jperm[class_permission_delete];
+									if (permission == "any")
+										grants.delete_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.delete_grant = class_grants::grant_own;
 
-								permission = jperm[class_permission_alter];
-								if (permission == "any")
-									grants.alter_grant = class_grants::grant_any;
-								else if (permission == "own")
-									grants.alter_grant = class_grants::grant_own;
-								break;
+									permission = jperm[class_permission_alter];
+									if (permission == "any")
+										grants.alter_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.alter_grant = class_grants::grant_own;
+									break;
+								}
 							}
 						}
 					}
@@ -5483,11 +5470,6 @@ private:
 			}
 			
 			return grants;
-		}
-
-		virtual db_object_id_type get_next_object_id() override
-		{			
-			return header.get_next_object_id();
 		}
 
 		thread_safe_map<std::string, std::shared_ptr<class_interface>> class_cache;
@@ -5569,8 +5551,7 @@ private:
 
 		// constructing and opening a database
 
-		corona_database(std::shared_ptr<file> _database_file) :
-			corona_database_interface(_database_file)
+		corona_database() 
 		{
 			token_life = time_span(1, time_models::hours);	
 		}
@@ -6524,6 +6505,7 @@ private:
 				json teams = get_team_by_email(email, sys_perm);
 				for (json team : teams) {
 
+					user.put_member("home_team_name", (std::string)team["home_team_name"]);
 					user.put_member("team_name", (std::string)team["team_name"]);
 					json workflow_objects = jp.create_array();
 					json workflow_classes = team["workflow_classes"];
@@ -6736,6 +6718,66 @@ private:
 			return response;
 		}
 
+		virtual json user_set_team(json _user_set_team_request)
+		{
+			timer method_timer;
+			json_parser jp;
+
+			json result;
+			json result_list;
+
+			date_time start_time = date_time::now();
+			timer tx;
+
+			read_scope_lock my_lock(database_lock);
+			std::vector<validation_error> errors;
+
+			system_monitoring_interface::active_mon->log_function_start("user_set_team", "start", start_time, __FILE__, __LINE__);
+
+			std::string user_name, user_auth;
+
+			if (not check_message(_user_set_team_request, { auth_self }, user_name, user_auth))
+			{
+				result = create_response(_user_set_team_request, false, "User set team denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				return result;
+			}
+
+			bool team_set = false;
+			json user_details = get_user(user_name, get_system_permission());
+			if (user_details.object()) {
+				json jteam = get_team(user_details["team_name"], get_system_permission());
+				if (jteam.object()) {
+					json jallowed_teams = jteam["allowed_teams"];
+					if (auto ata = jallowed_teams.array_impl()) {
+						if (std::any_of(ata->elements.begin(), ata->elements.end(), [&](json _item) {
+							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
+							})) {
+							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
+							put_user(user_details, get_system_permission());
+							team_set = true;
+							user_details = get_user(user_name, get_system_permission());
+						}
+					}
+				}
+			}
+
+			system_monitoring_interface::active_mon->log_function_stop("user_set_team", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+
+			std::vector<validation_error> empty_errors;
+
+			if (team_set) {
+				result = create_response(_user_set_team_request, true, "Ok", user_details, empty_errors, method_timer.get_elapsed_seconds());
+			}
+			else
+			{
+				// clear user details to avoid any kind of leak of info
+				user_details = jp.create_object();
+				result = create_response(_user_set_team_request, false, "False", user_details, empty_errors, method_timer.get_elapsed_seconds());
+			}
+
+			return result;
+
+		}
 
 		// this starts a login attempt
 		virtual json login_user(json _login_request)
@@ -6863,6 +6905,10 @@ private:
 			response = get_object(get_object_request);
 			return response;
 		}
+
+
+
+
 
 		virtual json edit_object(json _edit_object_request) override
 		{
@@ -7521,7 +7567,7 @@ private:
 						}
 					}
 				}
-				int64_t new_id = get_next_object_id();
+				int64_t new_id = class_def->get_next_object_id();
 				new_object.put_member_i64("object_id", new_id);
 				commit();
 				response = create_response(create_object_request, true, "Object created", new_object, errors, method_timer.get_elapsed_seconds());
@@ -7617,7 +7663,7 @@ private:
 
 		virtual int64_t commit()
 		{
-			header.save();
+			
 			return 1;
 		}
 
@@ -7862,8 +7908,7 @@ private:
 					else 
 					{
 						new_object = source_object.clone();
-						int64_t new_object_id = get_next_object_id();
-						new_object.put_member_i64(object_id_field, new_object_id);
+						new_object.erase_member(object_id_field);
 					}
 
 					//
@@ -7998,7 +8043,6 @@ private:
 	bool test_database_engine(json& _proof, std::shared_ptr<application> _app)
 	{
 		bool success = true;
-		std::shared_ptr<file> dtest = std::make_shared<file>();
 		using namespace std::literals;
 		date_time st = date_time::now();
 		timer tx;
@@ -8035,7 +8079,7 @@ private:
 		date_time start_schema = date_time::now();
 		system_monitoring_interface::active_mon->log_job_start("test_database_engine", "start", start_schema, __FILE__, __LINE__);
 
-		corona_database db(dtest);
+		corona_database db;
 
 		proof_assertion.put_member("dependencies", dependencies);
 		json db_config = jp.create_object();

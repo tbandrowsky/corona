@@ -619,12 +619,11 @@ namespace corona {
 		return threadCount;
 	}
 
-//	thread_safe_map<int64_t, job*> compute_jobs;
-	//thread_safe_map<HANDLE, std::shared_ptr<job_file_request>> io_jobs;
-
-	// There's actually potential races in each of these but I am thinking I might get away with it in this case.
-	// This might be an appalling belief to have...
-
+	// the io_job mechanism is designed to allow the job queue 
+	// to be split into i/o and compute jobs.  
+	// in the future, we need to tie the threads to keys so
+	// they can be allocated to different needs, 
+	// so this approach will shape that, but it is not the end game.
 	std::atomic<int> pending_io_jobs;
 
 	void job_queue::add_io_job(io_job* _jobMessage)
