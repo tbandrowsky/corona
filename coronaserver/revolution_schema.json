@@ -10,21 +10,23 @@
       "class_name": "note",
       "class_description": "a short note about something",
       "base_class_name": "sys_object",
-      "parents": [ "sys_object" ],
+      "parents": [ "ticket", "appointment" ],
       "fields": {
         "name": "string",
-        "text": "string"
+        "text": "string",
+        "links": "[ string ]"
       }
     },
     {
       "class_name": "ticket",
       "class_description": "a short note about something",
       "base_class_name": "sys_object",
-      "parents": [ "note" ],
       "fields": {
         "name": "string",
+        "description": "string",
         "status": "string",
-        "completion": "string"
+        "completion": "string",
+        "notes": "[ note ]"
       }
     },
     {
@@ -35,12 +37,85 @@
       }
     },
     {
+      "class_name": "policy_ticket",
+      "class_description": "a short note about something",
+      "base_class_name": "ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "justice_ticket",
+      "class_description": "a short note about something",
+      "base_class_name": "ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "permitting_ticket",
+      "class_description": "a short note about something",
+      "base_class_name": "ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "ticket_search",
+      "class_description": "search object for tickets",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "status": "string",
+        "description": "string",
+        "completion": "string",
+        "tickets": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "ticket",
+                "name": "ticket"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "ticket",
+                "condition": {
+                  "class_name": "any",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "status",
+                      "value": "$this.status"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "completion",
+                      "value": "$this.status"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "class_name": "appointment",
       "class_description": "a short note about something",
       "base_class_name": "ticket",
-      "parents": [ "note" ],
+      "parents": [ "work_team" ],
       "fields": {
-        "name": "string",
         "start_time": "date_time",
         "end_time": "date_time",
         "street": "string",
@@ -50,11 +125,68 @@
       }
     },
     {
+      "class_name": "appointment_search",
+      "class_description": "search object for appointments",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "from": "date_time",
+        "to": "date_time",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "appointments": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "appointment",
+                "name": "appointment"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "ticket",
+                "condition": {
+                  "class_name": "any",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "status",
+                      "value": "$this.status"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "completion",
+                      "value": "$this.completion"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
       "class_name": "work_team",
       "class_description": "a team with tickets",
       "base_class_name": "sys_team",
       "fields": {
-        "tickets": "[ ticket ]"
+        "tickets": "[ ticket ]",
+        "appointments": "[ appointment ]"
       }
     },
     {
@@ -83,7 +215,6 @@
       "class_name": "location",
       "class_description": "a place where something is",
       "base_class_name": "property",
-      "parents": [ "inventory" ],
       "fields": {
         "street1": "string",
         "street2": "string",
@@ -389,7 +520,7 @@
       }
     },
     {
-      "class_name": "reparations_home",
+      "class_name": "justice_home",
       "class_description": "Home object for policy teams",
       "base_class_name": "sys_object",
       "fields": {
@@ -408,7 +539,36 @@
       "base_class_name": "sys_object",
       "fields": {
       }
+    },
+    {
+      "class_name": "reparations_case",
+      "class_description": "A reparations case",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "treason_case",
+      "class_description": "A reparations case",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "criminal_case",
+      "class_description": "A reparations case",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "liability_case",
+      "class_description": "A reparations case",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
     }
+
 
   ],
   "users": [
@@ -424,76 +584,120 @@
       "objects": [
         {
           "class_name": "work_team",
-          "team_name": "intelligence_team",
+          "team_name": "Intelligence Team",
           "team_description": "Gathers Information for the Revolution",
-          "team_domain": ".*",
+          "team_domain": "NONE",
           "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "library_search" ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": "individual",
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "none"
+              "grant_class": [ "intelligence_ticket", "individual", "candidate", "committee", "individual", "article" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": "candidate",
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": "committee",
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": "committee",
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "none"
+              "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "library_search" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
             }
           ]
         },
         {
           "class_name": "work_team",
-          "team_name": "Policy",
+          "team_name": "Policy Team",
           "team_description": "Revolution Policy",
-          "team_domain": "todd\\.bandrowsky@gmail\\.com",
-          "workflow_classes": [ "policy_home", "model_search", "model" ],
+          "team_domain": "NONE",
+          "workflow_classes": [ "policy_home", "model_search" ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": "sys_object",
+              "grant_class": [ "policy_ticket","model" ],
               "get": "all",
               "put": "all",
               "delete": "all",
               "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_home", "model_search" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "justice_ticket", "case" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
             }
           ]
         },
         {
           "class_name": "work_team",
-          "team_name": "Reparations",
-          "team_description": "Reparations Court",
-          "team_domain": "todd\\.bandrowsky@gmail\\.com",
-          "workflow_classes": [ "case_search", "case" ],
+          "team_name": "Justice Team",
+          "team_description": "Revolution Court",
+          "team_domain": "NONE",
+          "workflow_classes": [ "case_search" ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": "sys_object",
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_class": [ "case_search", "case" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Technical Team",
+          "team_description": "Revolution Technical",
+          "team_domain": "*.countryvideogames.com",
+          "workflow_classes": [ "case_search", "case" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Justice Team", "Technical Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Home Team",
+          "team_description": "Revolution Customer",
+          "team_domain": "*.*",
+          "workflow_classes": [ "customer_home" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Justice Team", "Home Team"],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
             }
           ]
         }
