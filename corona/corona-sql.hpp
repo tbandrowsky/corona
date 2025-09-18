@@ -919,6 +919,16 @@ namespace corona
 			return 0; // this has to be the bad thing to do
 		}
 
+		virtual int64_t commit() override
+		{
+			return 0;
+		}
+
+		virtual void put(xtable_data_source_interface* _data)
+		{
+
+		}
+
 	};
 
 	class corona_connections

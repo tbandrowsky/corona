@@ -29,6 +29,15 @@ namespace corona
 		{ a.after_write(buff) };
 	};
 
+	class xtable_data_source_interface
+	{
+	public:
+		virtual xrecord& get_key() = 0;
+		virtual xrecord& get_value() = 0;
+		virtual bool data_end() = 0;
+		virtual void next_record() = 0;
+	};
+
 	struct xblock_ref
 	{
 	public:
@@ -104,13 +113,15 @@ namespace corona
 		virtual json get(json _object) = 0;
 		virtual void put(json _object) = 0;
 		virtual void put_array(json _object) = 0;
-		virtual void erase(json _object)= 0;
+		virtual void put(xtable_data_source_interface* _data) = 0;
+		virtual void erase(json _object) = 0;
 		virtual void erase_array(json _object) = 0;
 		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) = 0;
 		virtual json select(json _object, std::function<json(json& _item)> _process) = 0;
 		virtual void clear() = 0;
 		virtual json get_info() = 0;
 		virtual int64_t get_next_object_id() = 0;
+		virtual int64_t commit() = 0;
 	};
 
 
@@ -1174,6 +1185,29 @@ namespace corona
 		std::shared_ptr<xblock_cache>			cache;
 		std::shared_ptr<file>					fp;
 
+		virtual void put_nl(json _object) 
+		{
+			if (table_header->use_object_id) {
+				if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
+					int64_t new_id = get_next_object_id();
+					_object.put_member_i64(object_id_field, new_id);
+				}
+			}
+
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
+			xrecord data;
+			data.put_json(&table_header->object_members, _object);
+
+			table_header->root->put(0, key, data);
+
+			::InterlockedIncrement64(&table_header->count);
+
+			if (table_header->root->is_full()) {
+				table_header->root->split_root(0);
+			}
+		}
+
 	public:
 
 		xtable(std::string _file_name, std::shared_ptr<xtable_header> _header) :
@@ -1343,52 +1377,32 @@ namespace corona
 		{
 			write_scope_lock lockme(locker);
 
-			if (table_header->use_object_id) {
-                if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
-                    int64_t new_id = get_next_object_id();
-                    _object.put_member_i64(object_id_field, new_id);
-                }
-			}
-
-			xrecord key;
-			key.put_json(&table_header->key_members, _object);
-			xrecord data;
-			data.put_json(&table_header->object_members, _object);
-
-			table_header->root->put(0, key, data);
-
-			::InterlockedIncrement64(&table_header->count);
-
-			if (table_header->root->is_full()) {
-				table_header->root->split_root(0);
-			}
+			put_nl(_object);
 		}
 
 		virtual void put_array(json _array) override
 		{
 			if (_array.array()) {
+				write_scope_lock lockme(locker);
 				for (auto item : _array) {
-					write_scope_lock lockme(locker);
-
-					if (table_header->use_object_id) {
-						if (not item.has_member(object_id_field) or (int64_t)item[object_id_field] == 0) {
-							int64_t new_id = get_next_object_id();
-							item.put_member_i64(object_id_field, new_id);
-						}
-					}
-
-					xrecord key;
-					key.put_json(&table_header->key_members, item);
-					xrecord data;
-					data.put_json(&table_header->object_members, item);
-					table_header->root->put(0, key, data);
-
-					::InterlockedIncrement64(&table_header->count);
-
-					if (table_header->root->is_full()) {
-						table_header->root->split_root(0);
-					}
+					put_nl(item);
 				}
+			}
+		}
+
+		virtual void put(xtable_data_source_interface* _data) override
+		{
+			while (not _data->data_end()) {
+				xrecord key = _data->get_key();
+				xrecord value = _data->get_value();
+				table_header->root->put(0, key, value);
+
+				::InterlockedIncrement64(&table_header->count);
+
+				if (table_header->root->is_full()) {
+					table_header->root->split_root(0);
+				}
+				_data->next_record();
 			}
 		}
 

@@ -297,6 +297,40 @@ namespace corona
             return fields;
 		}
 
+		void add_parse(int32_t _field_id, const char* _str, int _size, field_types _field_type)
+		{
+			if (_field_id <= get_last_id())
+				throw std::logic_error("field ids must be added in ascending order");
+
+			switch (_field_type)
+			{
+            case field_types::ft_string:
+                add(_field_id, _str, _size+1, _field_type);
+                break;
+			case field_types::ft_double:
+				{
+					double dvalue = 0;
+					std::from_chars(_str, _str+_size, dvalue);
+					add(_field_id, dvalue);
+				}
+				break;
+			case field_types::ft_datetime:
+				{
+					date_time dtvalue = 0;
+                    dtvalue.parse(_str);
+					add(_field_id, dtvalue);
+				}
+				break;
+			case field_types::ft_int64:
+				{
+					int64_t ivalue = 0;
+					std::from_chars(_str, _str + _size, ivalue);
+					add_int64(_field_id, ivalue);
+				}
+				break;
+			}
+		}
+
         void add(int32_t _field_id, const char* _data, size_t _length, field_types _field_type)
         {
             xfield f;

@@ -2653,8 +2653,10 @@ namespace corona
                 if (f.second->get_field_name() == object_id_field ||
 					f.second->get_field_name() == class_id_field) {
 					table_header->key_members.columns[column_id] = col;
+					key_columns.columns[column_id] = col;
                 }
 				table_header->object_members.columns[column_id] = col;
+				table_columns.columns[column_id] = col; 
 				column_id++;
 			}
 			table = std::make_shared<xtable>(get_class_filename(), table_header);
@@ -2693,8 +2695,10 @@ namespace corona
 					if (f.second->get_field_name() == object_id_field ||
 						f.second->get_field_name() == class_id_field) {
 						table_header->key_members.columns[column_id] = col;
+						key_columns.columns[column_id] = col;
 					}
 					table_header->object_members.columns[column_id] = col;
+					table_columns.columns[column_id] = col;
 					column_id++;
 				}
 
@@ -3998,12 +4002,144 @@ namespace corona
 			return definition;
 		}
 	};
-	
-	class corona_database_header_data
+
+	class xtable_delimited_data_source : public xtable_data_source_interface
 	{
+		char *file_contents;
+		std::map<int, int> table_map;
+		std::map<int, int> key_map;
+		char delimiter, *s;
+		xrecord key, value;
+		class_interface* classy;
+		int64_t count = 0, total_count = 0;
+		timer tx;
+
+		char *parse_line(char *_src)
+		{
+			key.clear();
+			value.clear();
+
+			while (std::isspace(*_src) && *_src)
+				_src++;
+
+			if (not *_src)
+				return nullptr;
+
+			char* field = _src;
+			std::vector<char*> fields;
+
+			while (*_src)
+            {
+				if (*_src == '\n')
+				{
+					while (*_src && *_src < 32) {
+						*_src = 0;
+						_src++;
+					}
+					fields.push_back(field);
+					field = _src;
+					break;
+				}
+                else if (*_src == delimiter || *_src == '\n')
+                {
+					while (*_src && (*_src == delimiter || *_src < 32)) {
+						*_src = 0;
+						_src++;
+					}
+					fields.push_back(field);
+					field = _src;
+                }
+                else
+					_src++;
+            }
+
+			for (auto col : classy->table_columns.columns) {
+				int field_idx = table_map[col.first];
+                if (field_idx >= fields.size()) {
+                    continue;
+                }
+				auto fld = fields[field_idx];
+				value.add_parse(col.second.field_id, fld, strlen(fld) + 1, col.second.field_type);
+			}
+
+			for (auto col : classy->key_columns.columns) {
+				int field_idx = key_map[col.first];
+				if (field_idx >= fields.size()) {
+					continue;
+				}
+				auto fld = fields[field_idx];
+				key.add_parse(col.second.field_id, fld, strlen(fld) + 1, col.second.field_type);
+			}
+			return _src;
+		}
+
 	public:
-		int64_t object_id;
+
+		xtable_delimited_data_source(std::string _filename, class_interface* _class, json& _map, char _delimiter)
+		{
+			classy = _class;
+			file_contents = read_all_cstring(_filename);
+
+            if (!file_contents) {
+				throw std::logic_error("File not found or insuffience memory");
+            }
+			delimiter = _delimiter;
+			s = file_contents;
+
+			auto members = _map.get_members();
+			for (auto& pair : members) {
+				int column_index = strtol(pair.first.c_str(), NULL, 10);
+				std::string column_name = pair.second;
+
+                for (auto col : _class->table_columns.columns) {
+                    if (col.second.field_name == column_name.c_str()) {
+                        table_map.insert_or_assign(col.first, column_index);
+                    }
+                }
+
+				for (auto col : _class->key_columns.columns) {
+					if (col.second.field_name == column_name.c_str()) {
+						key_map.insert_or_assign(col.first, column_index);
+					}
+				}
+			}
+		}
+
+		virtual ~xtable_delimited_data_source()
+		{
+            if (file_contents) {
+                delete [] file_contents;
+            }
+		}
+
+		virtual xrecord &get_key() override
+		{
+			return key;
+		}
+
+		virtual xrecord &get_value() override
+		{
+			return value;
+		}
+
+		virtual bool data_end() override
+		{
+			return s == nullptr;
+		}
+
+		virtual void next_record() override
+		{
+			s = parse_line(s);
+			count++;
+			total_count++;
+            if (!s or (count % 10000 == 0)) {
+                system_monitoring_interface::active_mon->log_information(std::format("{0:.2f} Objects/Sec, {1} Objects", count / tx.get_elapsed_seconds(), total_count), __FILE__, __LINE__);
+				count = 0;
+            }
+		}
+
 	};
+
 
 	class corona_database : public corona_database_interface
 	{
@@ -5900,78 +6036,21 @@ private:
 										date_time file_modified_dt = date_time(file_modified_time);
 										if (file_modified_dt > import_datatime) {
 
+											auto cls = read_lock_class(target_class);
+											if (not cls) {
+												system_monitoring_interface::active_mon->log_warning(std::format("class {} not found.", target_class));
+											}
 											json column_map = import_spec["column_map"];
 
-											FILE* fp = nullptr;
-											int error_code = fopen_s(&fp, filename.c_str(), "rS");
+											try {
+												char delimiter_char = delimiter[0];
 
-											if (fp) {
-												// Buffer to store each line of the file.
-												char line[8182];
-												json datomatic = jp.create_array();
+												xtable_delimited_data_source ds(filename, cls.get(), column_map, delimiter_char);
 
-												// create template object
-												json codata = jp.create_object();
-												codata.put_member(class_name_field, target_class);
-												json cor = create_system_request(codata);
-												json new_object_response = create_object(cor);
+												std::shared_ptr<xtable_interface> xtbl = cls->get_table(this);
+                                                xtbl->put(&ds);
+												xtbl->commit();
 
-												if (new_object_response[success_field]) {
-													json new_object_template = new_object_response[data_field];
-
-													// Read each line from the file and store it in the 'line' buffer.
-													int64_t total_row_count = 0;
-													while (fgets(line, sizeof(line), fp)) {
-														// Print each line to the standard output.
-														json new_object = new_object_template.clone();
-														new_object.erase_member(object_id_field);
-														jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
-														datomatic.push_back(new_object);
-														if (datomatic.size() > import_batch_size) {
-															int batch_size = (int)datomatic.size();
-															total_row_count += datomatic.size();
-															json request(datomatic);
-															json cor = create_system_request(request);
-
-															put_object_sync(cor, [this, total_row_count, batch_size](json& put_result, double _exec_time) {
-																if (put_result[success_field]) {
-																	double x = batch_size / _exec_time;
-																	std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
-																	system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
-																}
-																else
-																{
-																	log_error_array(put_result);
-																}
-																});
-
-															datomatic = jp.create_array();
-														}
-													}
-
-													if (datomatic.size() > 0) {
-														int batch_size = (int)datomatic.size();
-														total_row_count += batch_size;
-														json request(datomatic);
-														json cor = create_system_request(request);
-														put_object_sync(cor, [this, total_row_count, batch_size](json& put_result, double _exec_time) {
-															if (put_result[success_field]) {
-																double x = batch_size / _exec_time;
-																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
-																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
-															}
-															else
-															{
-																log_error_array(put_result);
-															}
-															});
-														datomatic = jp.create_array();
-													}
-
-												}
-
-												// Close the file stream once all lines have been read.
-												fclose(fp);
 												import_spec.put_member("import_datatime", file_modified_dt);
 												new_dataset.share_member("import", import_spec);
 												json dataset_request = create_system_request(new_dataset);
@@ -5985,14 +6064,9 @@ private:
 													system_monitoring_interface::active_mon->log_json<json>(result);
 												}
 											}
-											else {
-												char error_buffer[256] = {};
-												strerror_s(
-													error_buffer,
-													std::size(error_buffer),
-													error_code
-												);
-												std::string msg = std::format("could not open file {0}:{1}", filename, error_buffer);
+											catch(std::exception exc) 
+											{
+												std::string msg = std::format("could not open read {0}:{1}", filename, exc.what());
 												system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 												char directory_name[MAX_PATH] = {};
 												char* result = _getcwd(directory_name, std::size(directory_name));
