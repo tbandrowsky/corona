@@ -764,7 +764,7 @@
     },
     {
       "class_name": "case",
-      "class_description": "Home object for policy teams",
+      "class_description": "A case before the court",
       "base_class_name": "sys_object",
       "fields": {
         "name": "string",
@@ -774,7 +774,7 @@
     },
     {
       "class_name": "case_search",
-      "class_description": "Home object for policy teams",
+      "class_description": "Search screen for the court",
       "base_class_name": "sys_object",
       "fields": {
       }
@@ -1223,7 +1223,7 @@
         "team_name": "Intelligence Team",
         "team_description": "Gathers Information for the Revolution",
         "team_domain": "NONE",
-        "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search"],
+        "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
         "permissions": [
           {
             "class_name": "sys_grant",
@@ -1326,7 +1326,7 @@
         "permissions": [
           {
             "class_name": "sys_grant",
-            "grant_class": [ "case_search", "justice_article", "case" ],
+            "grant_class": [ "justice_ticket", "justice_article", "case" ],
             "get": "all",
             "put": "all",
             "delete": "all",
@@ -1351,9 +1351,42 @@
         ]
       },
       {
-        "class_name": "permit_team",
+        "class_name": "work_team",
         "team_name": "Insurance Team",
         "team_description": "Revolution Insurance",
+        "team_domain": "NONE",
+        "workflow_classes": [ "policy_search", "article_search" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "policy" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_search" ],
+            "get": "own",
+            "put": "own",
+            "delete": "none",
+            "alter": "none"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "permit_team",
+        "team_name": "Permit Team",
+        "team_description": "Revolution Permits",
         "team_domain": "NONE",
         "workflow_classes": [ "permit_search", "article_search" ],
         "permissions": [
@@ -1367,7 +1400,7 @@
           },
           {
             "class_name": "sys_grant",
-            "grant_class": [ "permit_search" ],
+            "grant_class": [ "permit_search", "article_search" ],
             "get": "own",
             "put": "own",
             "delete": "none",
