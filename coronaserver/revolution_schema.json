@@ -19,7 +19,7 @@
     },
     {
       "class_name": "ticket",
-      "class_description": "a short note about something",
+      "class_description": "a work request made to a team",
       "base_class_name": "sys_object",
       "fields": {
         "name": "string",
@@ -30,29 +30,22 @@
       }
     },
     {
-      "class_name": "intelligence_ticket",
-      "class_description": "a short note about something",
-      "base_class_name": "ticket",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "policy_ticket",
-      "class_description": "a short note about something",
-      "base_class_name": "ticket",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "justice_ticket",
-      "class_description": "a short note about something",
+      "class_name": "bank_ticket",
+      "class_description": "a work request for the central bank",
       "base_class_name": "ticket",
       "fields": {
       }
     },
     {
       "class_name": "permitting_ticket",
-      "class_description": "a short note about something",
+      "class_description": "a request for the permit team",
+      "base_class_name": "ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "prayer_ticket",
+      "class_description": "a request for the prayer team",
       "base_class_name": "ticket",
       "fields": {
       }
@@ -112,10 +105,12 @@
     },
     {
       "class_name": "appointment",
-      "class_description": "a short note about something",
-      "base_class_name": "ticket",
+      "class_description": "Public appointments",
+      "base_class_name": "sys_object",
       "parents": [ "work_team" ],
       "fields": {
+        "name": "string",
+        "description": "string",
         "start_time": "date_time",
         "end_time": "date_time",
         "street": "string",
@@ -133,6 +128,7 @@
         "description": "string",
         "from": "date_time",
         "to": "date_time",
+        "street": "string",
         "city": "string",
         "state": "string",
         "zip": "string",
@@ -148,7 +144,7 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "ticket",
+                "stage_input_name": "appointment",
                 "condition": {
                   "class_name": "any",
                   "conditions": [
@@ -164,13 +160,74 @@
                     },
                     {
                       "class_name": "contains",
-                      "valuepath": "status",
-                      "value": "$this.status"
+                      "valuepath": "street",
+                      "value": "$this.street"
                     },
                     {
                       "class_name": "contains",
-                      "valuepath": "completion",
-                      "value": "$this.completion"
+                      "valuepath": "state",
+                      "value": "$this.state"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "city",
+                      "value": "$this.city"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "zip",
+                      "value": "$this.zip"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "article",
+      "class_description": "an article or document",
+      "base_class_name": "sys_object",
+      "parents": [ "work_team" ],
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "article_search",
+      "class_description": "search object for appointments",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "articles": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "article",
+                "name": "article"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "article",
+                "condition": {
+                  "class_name": "any",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
                     }
                   ]
                 }
@@ -186,52 +243,8 @@
       "base_class_name": "sys_team",
       "fields": {
         "tickets": "[ ticket ]",
-        "appointments": "[ appointment ]"
-      }
-    },
-    {
-      "class_name": "property",
-      "base_class_name": "sys_object",
-      "class_description": "a thing owned by a user",
-      "parents": [ "sys_user" ],
-      "fields": {
-        "property_name": "string"
-      }
-    },
-    {
-      "class_name": "building",
-      "class_description": "something built on a spot",
-      "base_class_name": "property",
-      "parents": [ "location" ],
-      "fields": {
-        "latitude": "double",
-        "longitude": "double",
-        "elevation": "double",
-        "building_code": "string",
-        "construction_code": "string"
-      }
-    },
-    {
-      "class_name": "location",
-      "class_description": "a place where something is",
-      "base_class_name": "property",
-      "fields": {
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "string",
-        "country": "string"
-      }
-    },
-    {
-      "class_name": "articles",
-      "class_description": "a place where something is",
-      "base_class_name": "sys_object",
-      "parents": [ "work_team" ],
-      "fields": {
-        "name": "string",
-        "description": "string"
+        "appointments": "[ appointment ]",
+        "articles": "[ article ]"
       }
     },
     {
@@ -499,10 +512,40 @@
       }
     },
     {
-      "class_name": "policy_home",
-      "class_description": "Home object for policy teams",
+      "class_name": "intelligence_ticket",
+      "class_description": "gather information",
+      "base_class_name": "ticket",
+      "fields": {
+        "information_needed": "string",
+        "information_collected": "string"
+      }
+    },
+    {
+      "class_name": "political_intelligence_ticket",
+      "class_description": "gather information",
+      "base_class_name": "intelligence_ticket",
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "city": "string",
+        "state": "string"
+      }
+    },
+    {
+      "class_name": "intelligence_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "intelligence": "string"
+      }
+    },
+    {
+      "class_name": "intelligence_home",
+      "class_description": "Home object for intelligence teams",
       "base_class_name": "sys_object",
       "fields": {
+
       }
     },
     {
@@ -520,21 +563,217 @@
       }
     },
     {
-      "class_name": "justice_home",
+      "class_name": "policy_ticket",
+      "class_description": "using information to formulate suggested policies",
+      "base_class_name": "policy_ticket",
+      "fields": {
+        "responsibility_set": "responsibility_set",
+        "model": "->model"
+      }
+    },
+    {
+      "class_name": "policy_impact_ticket",
+      "class_description": "using information to formulate suggested policies",
+      "base_class_name": "policy_ticket",
+      "fields": {
+        "property_set": "responsibility_set",
+        "model": "->model"
+      }
+    },
+    {
+      "class_name": "policy_question_ticket",
+      "class_description": "using information to formulate suggested policies",
+      "base_class_name": "policy_ticket",
+      "fields": {
+        "property_set": "responsibility_set",
+        "model": "->model"
+      }
+    },
+    {
+      "class_name": "policy_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "policy": "string"
+      }
+    },
+    {
+      "class_name": "policy_home",
       "class_description": "Home object for policy teams",
       "base_class_name": "sys_object",
       "fields": {
       }
     },
     {
-      "class_name": "case_search",
+      "class_name": "colony",
+      "class_description": "A mission to bring a county into the Revolution",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "state": "string",
+        "county": "string"
+      }
+    },
+    {
+      "class_name": "colony_search",
+      "class_description": "Mapping of committees and candidates",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": {
+          "field_type": "string"
+        },
+        "description": {
+          "field_type": "string"
+        },
+        "state": {
+          "field_type": "string",
+          "required": true
+        },
+        "county": {
+          "field_type": "string"
+        },
+        "colonies": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "colony",
+                "name": "colony",
+                "filter": {
+                  "state": "$this.state"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "colony",
+                "condition": {
+                  "class_name": "all",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "state",
+                      "value": "$this.state"
+                    },
+                    {
+                      "class_name": "county",
+                      "valuepath": "county",
+                      "value": "$this.county"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "colony_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "colony_status": "string"
+      }
+    },
+    {
+      "class_name": "justice_ticket",
+      "class_description": "a request for the justice team",
+      "base_class_name": "ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arrest_ticket",
+      "class_description": "a request for the justice team",
+      "base_class_name": "justice_ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "search_ticket",
+      "class_description": "a request for the justice team",
+      "base_class_name": "justice_ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "seize_ticket",
+      "class_description": "a request for the justice team",
+      "base_class_name": "justice_ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "plea_ticket",
+      "class_description": "a request for the justice team",
+      "base_class_name": "justice_ticket",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "adversary",
       "class_description": "Home object for policy teams",
       "base_class_name": "sys_object",
       "fields": {
+        "entity_name": "string",
+        "first_name": "string",
+        "last_name": "string",
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string"
+      }
+    },
+    {
+      "class_name": "representative",
+      "class_description": "Representative",
+      "base_class_name": "adversary",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "plaintiff",
+      "class_description": "Plaintiff",
+      "base_class_name": "adversary",
+      "fields": {
+        "reprentative": "[ representative ]"
+      }
+    },
+    {
+      "class_name": "defendant",
+      "class_description": "Defendant",
+      "base_class_name": "adversary",
+      "fields": {
+        "reprentative": "[ representative ]"
       }
     },
     {
       "class_name": "case",
+      "class_description": "Home object for policy teams",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "plaintiffs": [ "plaintiff" ],
+        "defendants": [ "defendant" ]
+      }
+    },
+    {
+      "class_name": "case_search",
       "class_description": "Home object for policy teams",
       "base_class_name": "sys_object",
       "fields": {
@@ -567,227 +806,722 @@
       "base_class_name": "sys_object",
       "fields": {
       }
-    }
+    },
+    {
+      "class_name": "justice_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "justice_text": "string"
+      }
+    },
+    {
+      "class_name": "justice_home",
+      "class_description": "Home object for policy teams",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
 
+    {
+      "class_name": "responsibility_set",
+      "class_description": "property and people one is responsible for",
+      "base_class_name": "sys_object",
+      "parents": [ "sys_user", "work_team" ],
+      "fields": {
+        "properties": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "responsibility",
+      "base_class_name": "sys_object",
+      "class_description": "a person or a place one is responsible for",
+      "parents": [ "responsibility_set" ],
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "family_member",
+      "base_class_name": "sys_object",
+      "class_description": "a thing owned by a user",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string"
+      }
+    },
+    {
+      "class_name": "tribal_member",
+      "base_class_name": "sys_object",
+      "class_description": "a thing owned by a user",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string"
+      }
+    },
+    {
+      "class_name": "employee_member",
+      "base_class_name": "sys_object",
+      "class_description": "a thing owned by a user",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "midlde_name": "string"
+      }
+    },
+    {
+      "class_name": "location",
+      "class_description": "a place where something is",
+      "base_class_name": "responsibility",
+      "fields": {
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "country": "string",
+        "buildings": "[ building ]"
+      }
+    },
+    {
+      "class_name": "building",
+      "class_description": "something built on a spot",
+      "base_class_name": "responsibility",
+      "parents": [ "location" ],
+      "fields": {
+        "latitude": "double",
+        "longitude": "double",
+        "elevation": "double",
+        "stories": "int32",
+        "year_built": "int32",
+        "square_footage": "int32",
+        "use_type": "string",
+        "construction": "string",
+        "occupancy": "string"
+      }
+    },
+    {
+      "class_name": "insurance_coverage",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "fields": {
+        "reponsibilities": "[ responsibility ]",
+        "risk": "string",
+        "coverage_cost": "double",
+        "deductible": "double",
+        "attachment_point": "double",
+        "limit": "double"
+      }
+    },
+    {
+      "class_name": "insurance_policy",
+      "class_description": "a base insurance policy, quote, or binder.  ",
+      "base_class_name": "sys_object",
+      "fields": {
+        "policy_name": "string",
+        "policy_text": "string",
+        "responsibilities": "[responsibility]",
+        "coverages": "[ insurance_coverage ]"
+      }
+    },
+    {
+      "class_name": "insurance_quote",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurance_binder",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurance_search",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "policies": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "insurance_policy",
+                "name": "insurance_policy"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "insurance_policy",
+                "condition": {
+                  "class_name": "all",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "insurance_ticket",
+      "class_description": "a request for the permit team",
+      "base_class_name": "ticket",
+      "fields": {
+        "property_set": "property_set"
+      }
+    },
+    {
+      "class_name": "insurance_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "insurance_text": "string"
+      }
+    },
+    {
+      "class_name": "insurance_quote_request",
+      "class_description": "a request an insurance policy",
+      "base_class_name": "insurance_ticket",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "insurance_claim",
+      "class_description": "a request for the permit team",
+      "base_class_name": "insurance_ticket",
+      "fields": {
+        "property_set": "property_set"
+      }
+    },
+    {
+      "class_name": "insurance_home",
+      "class_description": "Home object for insurance teams",
+      "base_class_name": "sys_object",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "discharge",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "parents": [ "permit_ticket" ],
+      "fields": {
+        "property_set": "property_set",
+        "discharge_material": "string",
+        "discharge_amount": "string",
+        "discharge_start": "date_time",
+        "discharge_stop": "date_time"
+      }
+    },
+    {
+      "class_name": "permit_ticket",
+      "class_description": "a request for the permit team",
+      "base_class_name": "ticket",
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "environmental_discharge_ticket",
+      "class_description": "a request for the permit team",
+      "base_class_name": "permit_ticket",
+      "fields": {
+        "property_set": "property_set",
+        "discharges": "[ discharge ]"
+      }
+    },
+    {
+      "class_name": "construction_ticket",
+      "class_description": "a request for the permit team",
+      "base_class_name": "permit_ticket",
+      "fields": {
+        "location": "[ location ]"
+      }
+    },
+    {
+      "class_name": "permit",
+      "class_description": "a request for the permit team",
+      "base_class_name": "ticket",
+      "fields": {
+        "permit_ticket": "[ permit_ticket ]",
+        "description": "string",
+        "status": "string"
+      }
+    },
+    {
+      "class_name": "permit_search",
+      "class_description": "Search for Permits",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": {
+          "field_type": "string"
+        },
+        "description": {
+          "field_type": "string"
+        },
+        "status": {
+          "field_type": "string"
+        },
+        "permits": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "permit",
+                "name": "permit"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "permit",
+                "condition": {
+                  "class_name": "all",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "status",
+                      "value": "$this.status"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "permit_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "permit_text": "string"
+      }
+    },
+    {
+      "class_name": "technical",
+      "class_description": "a tech job",
+      "base_class_name": "ticket",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "status": "string"
+      }
+    },
+    {
+      "class_name": "technical_search",
+      "class_description": "Search for Permits",
+      "base_class_name": "sys_object",
+      "fields": {
+        "name": {
+          "field_type": "string"
+        },
+        "description": {
+          "field_type": "string"
+        },
+        "status": {
+          "field_type": "string"
+        },
+        "technicals": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "technical",
+                "name": "97 %"
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "permit",
+                "condition": {
+                  "class_name": "all",
+                  "conditions": [
+                    {
+                      "class_name": "contains",
+                      "valuepath": "name",
+                      "value": "$this.name"
+                    },
+                    {
+                      "class_name": "contains",
+                      "valuepath": "description",
+                      "value": "$this.description"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "technical_article",
+      "class_description": "an article or document",
+      "base_class_name": "article",
+      "parents": [ "work_team" ],
+      "fields": {
+        "technical_text": "string"
+      }
+    }
 
   ],
   "users": [
 
-  ],
+  ], 
   "datasets": [
-    {
-      "dataset_name": "Revolution Teams",
-      "dataset_description": "Teams and their default memberships",
-      "dataset_version": "1.1",
-      "dataset_author": "Todd Bandrowsky",
-      "dataset_source": "This is canonical",
-      "objects": [
-        {
-          "class_name": "work_team",
-          "team_name": "Intelligence Team",
-          "team_description": "Gathers Information for the Revolution",
-          "team_domain": "NONE",
-          "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "library_search" ],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "individual", "candidate", "committee", "individual", "article" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "library_search" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "own"
-            }
-          ]
-        },
-        {
-          "class_name": "work_team",
-          "team_name": "Policy Team",
-          "team_description": "Revolution Policy",
-          "team_domain": "NONE",
-          "workflow_classes": [ "policy_home", "model_search" ],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket","model" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "policy_home", "model_search" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "own"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "justice_ticket", "case" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            }
-          ]
-        },
-        {
-          "class_name": "work_team",
-          "team_name": "Justice Team",
-          "team_description": "Revolution Court",
-          "team_domain": "NONE",
-          "workflow_classes": [ "case_search" ],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "case_search", "case" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "own"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            }
-          ]
-        },
-        {
-          "class_name": "work_team",
-          "team_name": "Technical Team",
-          "team_description": "Revolution Technical",
-          "team_domain": "*.countryvideogames.com",
-          "workflow_classes": [ "case_search", "case" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Justice Team", "Technical Team" ],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            }
-          ]
-        },
-        {
-          "class_name": "work_team",
-          "team_name": "Home Team",
-          "team_description": "Revolution Customer",
-          "team_domain": "*.*",
-          "workflow_classes": [ "customer_home" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Justice Team", "Home Team"],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "dataset_name": "Candidate Master",
-      "dataset_description": "Load Candidates",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cn.csv",
-        "target_class": "candidate",
-        "column_map": {
-          "0": "candidate_id",
-          "1": "full_name",
-          "2": "political_party",
-          "3": "election_year",
-          "10": "street1",
-          "11": "street2",
-          "12": "city",
-          "13": "state",
-          "14": "zip"
-        }
+  {
+    "dataset_name": "Revolution Teams",
+    "dataset_description": "Teams and their default memberships",
+    "dataset_version": "1.1",
+    "dataset_author": "Todd Bandrowsky",
+    "dataset_source": "This is canonical",
+    "objects": [
+      {
+        "class_name": "work_team",
+        "team_name": "Intelligence Team",
+        "team_description": "Gathers Information for the Revolution",
+        "team_domain": "NONE",
+        "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search"],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "own"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "none",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "work_team",
+        "team_name": "Policy Team",
+        "team_description": "Revolution Policy",
+        "team_domain": "NONE",
+        "workflow_classes": [ "policy_home", "model_search", "article_search" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "model", "policy_article" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_home", "model_search", "article_search", "note" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "own"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "none",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "work_team",
+        "team_name": "Colony Team",
+        "team_description": "Revolution Colonization",
+        "team_domain": "NONE",
+        "workflow_classes": [ "colony_home", "colony_search", "article_search" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "colony_ticket", "colony_article" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "colony_home", "colony_search", "article_search", "note" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "own"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "work_team",
+        "team_name": "Justice Team",
+        "team_description": "Revolution Court",
+        "team_domain": "NONE",
+        "workflow_classes": [ "case_search", "article_search" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "case_search", "justice_article", "case" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "case_search", "article_search", "note" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "own"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "permit_team",
+        "team_name": "Insurance Team",
+        "team_description": "Revolution Insurance",
+        "team_domain": "NONE",
+        "workflow_classes": [ "permit_search", "article_search" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "permit_ticket", "permit" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "all"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "permit_search" ],
+            "get": "own",
+            "put": "own",
+            "delete": "none",
+            "alter": "none"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+        ]
+      },
+      {
+        "class_name": "work_team",
+        "team_name": "Technical Team",
+        "team_description": "Revolution Technical",
+        "team_domain": "*.countryvideogames.com",
+        "workflow_classes": [ "technical_search", "article_search" ],
+        "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team", "Technical Team" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "technical_ticket", "technical", "technical_article" ],
+            "get": "all",
+            "put": "all",
+            "delete": "all",
+            "alter": "none"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "technical_search", "article_search", "note" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "own"
+          },
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+
+        ]
+      },
+      {
+        "class_name": "work_team",
+        "team_name": "Home Team",
+        "team_description": "Revolution Customer",
+        "team_domain": "*.*",
+        "workflow_classes": [ "customer_home" ],
+        "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team" ],
+        "permissions": [
+          {
+            "class_name": "sys_grant",
+            "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+            "get": "own",
+            "put": "own",
+            "delete": "own",
+            "alter": "none"
+          }
+        ]
       }
-    },
-    {
-      "dataset_name": "Committee Master",
-      "dataset_description": "Load Committees",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cm.csv",
-        "target_class": "committee",
-        "column_map": {
-          "0": "committee_id",
-          "1": "committee_name",
-          "10": "political_party",
-          "13": "company_name"
-        }
-      }
-    },
-    {
-      "dataset_name": "CommitteeCandidates Master",
-      "dataset_description": "Map Committees and Candidates",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\ccl.csv",
-        "target_class": "committee_candidate",
-        "column_map": {
-          "0": "candidate_id",
-          "3": "committee_id"
-        }
-      }
-    },
-    {
-      "dataset_name": "Individual Master",
-      "dataset_description": "Load Individuals",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\itcont.csv",
-        "target_class": "individual",
-        "column_map": {
-          "0": "committee_id",
-          "7": "full_name",
-          "8": "city",
-          "9": "state",
-          "10": "zip",
-          "11": "employer",
-          "12": "occupation",
-          "13": "transaction_date",
-          "14": "transaction_amount",
-          "19": "memo"
-        }
+    ]
+  },
+  {
+    "dataset_name": "Candidate Master",
+    "dataset_description": "Load Candidates",
+    "dataset_version": "1.0",
+    "dataset_author": "Federal Elections Commission",
+    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "import": {
+      "type": "csv",
+      "delimiter": "|",
+      "filename": "seed_data\\us_elections\\cn.csv",
+      "target_class": "candidate",
+      "column_map": {
+        "0": "candidate_id",
+        "1": "full_name",
+        "2": "political_party",
+        "3": "election_year",
+        "10": "street1",
+        "11": "street2",
+        "12": "city",
+        "13": "state",
+        "14": "zip"
       }
     }
+  },
+  {
+    "dataset_name": "Committee Master",
+    "dataset_description": "Load Committees",
+    "dataset_version": "1.0",
+    "dataset_author": "Federal Elections Commission",
+    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "import": {
+      "type": "csv",
+      "delimiter": "|",
+      "filename": "seed_data\\us_elections\\cm.csv",
+      "target_class": "committee",
+      "column_map": {
+        "0": "committee_id",
+        "1": "committee_name",
+        "10": "political_party",
+        "13": "company_name"
+      }
+    }
+  },
+  {
+    "dataset_name": "CommitteeCandidates Master",
+    "dataset_description": "Map Committees and Candidates",
+    "dataset_version": "1.0",
+    "dataset_author": "Federal Elections Commission",
+    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "import": {
+      "type": "csv",
+      "delimiter": "|",
+      "filename": "seed_data\\us_elections\\ccl.csv",
+      "target_class": "committee_candidate",
+      "column_map": {
+        "0": "candidate_id",
+        "3": "committee_id"
+      }
+    }
+  },
+  {
+    "dataset_name": "Individual Master",
+    "dataset_description": "Load Individuals",
+    "dataset_version": "1.0",
+    "dataset_author": "Federal Elections Commission",
+    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+    "import": {
+      "type": "csv",
+      "delimiter": "|",
+      "filename": "seed_data\\us_elections\\itcont.csv",
+      "target_class": "individual",
+      "column_map": {
+        "0": "committee_id",
+        "7": "full_name",
+        "8": "city",
+        "9": "state",
+        "10": "zip",
+        "11": "employer",
+        "12": "occupation",
+        "13": "transaction_date",
+        "14": "transaction_amount",
+        "19": "memo"
+      }
+    }
+  }
 
-  ]
-}
+] }
