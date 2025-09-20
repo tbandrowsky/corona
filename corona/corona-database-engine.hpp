@@ -5304,7 +5304,7 @@ private:
 					for (int ix = 0; ix < all_teams.size(); ix++) {
 						json team = all_teams.get_element(ix);
 						std::string domains = (std::string)team["team_domain"];
-						if (domains.size() == 0)
+						if (domains.size() == 0 || domains == "NONE")
 							continue;
 						std::regex domain_matcher(domains);
 						if (std::regex_match(_domain, domain_matcher)) {
@@ -6505,7 +6505,7 @@ private:
 				json teams = get_team_by_email(email, sys_perm);
 				for (json team : teams) {
 
-					user.put_member("home_team_name", (std::string)team["home_team_name"]);
+					user.put_member("home_team_name", (std::string)team["team_name"]);
 					user.put_member("team_name", (std::string)team["team_name"]);
 					json workflow_objects = jp.create_array();
 					json workflow_classes = team["workflow_classes"];
