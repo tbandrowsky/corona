@@ -565,7 +565,7 @@
     {
       "class_name": "policy_ticket",
       "class_description": "using information to formulate suggested policies",
-      "base_class_name": "policy_ticket",
+      "base_class_name": "ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
         "model": "->model"
@@ -576,7 +576,7 @@
       "class_description": "using information to formulate suggested policies",
       "base_class_name": "policy_ticket",
       "fields": {
-        "property_set": "responsibility_set",
+        "responsibility_set": "responsibility_set",
         "model": "->model"
       }
     },
@@ -1209,352 +1209,353 @@
   ],
   "users": [
 
-  ], 
+  ],
   "datasets": [
-  {
-    "dataset_name": "Revolution Teams",
-    "dataset_description": "Teams and their default memberships",
-    "dataset_version": "1.1",
-    "dataset_author": "Todd Bandrowsky",
-    "dataset_source": "This is canonical",
-    "objects": [
-      {
-        "class_name": "work_team",
-        "team_name": "Intelligence Team",
-        "team_description": "Gathers Information for the Revolution",
-        "team_domain": "NONE",
-        "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "own"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "none",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Policy Team",
-        "team_description": "Revolution Policy",
-        "team_domain": "NONE",
-        "workflow_classes": [ "policy_home", "model_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "model", "policy_article" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_home", "model_search", "article_search", "note" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "own"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "none",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Colony Team",
-        "team_description": "Revolution Colonization",
-        "team_domain": "NONE",
-        "workflow_classes": [ "colony_home", "colony_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "colony_ticket", "colony_article" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "colony_home", "colony_search", "article_search", "note" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "own"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Justice Team",
-        "team_description": "Revolution Court",
-        "team_domain": "NONE",
-        "workflow_classes": [ "case_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "justice_ticket", "justice_article", "case" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "case_search", "article_search", "note" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "own"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Insurance Team",
-        "team_description": "Revolution Insurance",
-        "team_domain": "NONE",
-        "workflow_classes": [ "policy_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "policy" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_search" ],
-            "get": "own",
-            "put": "own",
-            "delete": "none",
-            "alter": "none"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "permit_team",
-        "team_name": "Permit Team",
-        "team_description": "Revolution Permits",
-        "team_domain": "NONE",
-        "workflow_classes": [ "permit_search", "article_search" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "permit_ticket", "permit" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "all"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "permit_search", "article_search" ],
-            "get": "own",
-            "put": "own",
-            "delete": "none",
-            "alter": "none"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Technical Team",
-        "team_description": "Revolution Technical",
-        "team_domain": "*.countryvideogames.com",
-        "workflow_classes": [ "technical_search", "article_search" ],
-        "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team", "Technical Team" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "technical_ticket", "technical", "technical_article" ],
-            "get": "all",
-            "put": "all",
-            "delete": "all",
-            "alter": "none"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "technical_search", "article_search", "note" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "own"
-          },
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
+    {
+      "dataset_name": "Revolution Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "work_team",
+          "team_name": "Intelligence Team",
+          "team_description": "Gathers Information for the Revolution",
+          "team_domain": "NONE",
+          "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Policy Team",
+          "team_description": "Revolution Policy",
+          "team_domain": "NONE",
+          "workflow_classes": [ "policy_home", "model_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "model", "policy_article" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_home", "model_search", "article_search", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Colony Team",
+          "team_description": "Revolution Colonization",
+          "team_domain": "NONE",
+          "workflow_classes": [ "colony_home", "colony_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "colony_ticket", "colony_article" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "colony_home", "colony_search", "article_search", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Justice Team",
+          "team_description": "Revolution Court",
+          "team_domain": "NONE",
+          "workflow_classes": [ "case_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "justice_ticket", "justice_article", "case" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "case_search", "article_search", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Insurance Team",
+          "team_description": "Revolution Insurance",
+          "team_domain": "NONE",
+          "workflow_classes": [ "policy_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "policy" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_search" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Permit Team",
+          "team_description": "Revolution Permits",
+          "team_domain": "NONE",
+          "workflow_classes": [ "permit_search", "article_search" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "permit_ticket", "permit" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "all"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "permit_search", "article_search" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Technical Team",
+          "team_description": "Revolution Technical",
+          "team_domain": ".*countryvideogames\\.com",
+          "workflow_classes": [ "technical_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team", "Technical Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "technical_ticket", "technical", "technical_article" ],
+              "get": "all",
+              "put": "all",
+              "delete": "all",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "technical_search", "article_search", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
 
-        ]
-      },
-      {
-        "class_name": "work_team",
-        "team_name": "Home Team",
-        "team_description": "Revolution Customer",
-        "team_domain": "*.*",
-        "workflow_classes": [ "customer_home" ],
-        "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team" ],
-        "permissions": [
-          {
-            "class_name": "sys_grant",
-            "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
-            "get": "own",
-            "put": "own",
-            "delete": "own",
-            "alter": "none"
-          }
-        ]
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Home Team",
+          "team_description": "Revolution Customer",
+          "team_domain": ".*",
+          "workflow_classes": [ "customer_home" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset_name": "Candidate Master",
+      "dataset_description": "Load Candidates",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\cn.csv",
+        "target_class": "candidate",
+        "column_map": {
+          "0": "candidate_id",
+          "1": "full_name",
+          "2": "political_party",
+          "3": "election_year",
+          "10": "street1",
+          "11": "street2",
+          "12": "city",
+          "13": "state",
+          "14": "zip"
+        }
       }
-    ]
-  },
-  {
-    "dataset_name": "Candidate Master",
-    "dataset_description": "Load Candidates",
-    "dataset_version": "1.0",
-    "dataset_author": "Federal Elections Commission",
-    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-    "import": {
-      "type": "csv",
-      "delimiter": "|",
-      "filename": "seed_data\\us_elections\\cn.csv",
-      "target_class": "candidate",
-      "column_map": {
-        "0": "candidate_id",
-        "1": "full_name",
-        "2": "political_party",
-        "3": "election_year",
-        "10": "street1",
-        "11": "street2",
-        "12": "city",
-        "13": "state",
-        "14": "zip"
+    },
+    {
+      "dataset_name": "Committee Master",
+      "dataset_description": "Load Committees",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\cm.csv",
+        "target_class": "committee",
+        "column_map": {
+          "0": "committee_id",
+          "1": "committee_name",
+          "10": "political_party",
+          "13": "company_name"
+        }
+      }
+    },
+    {
+      "dataset_name": "CommitteeCandidates Master",
+      "dataset_description": "Map Committees and Candidates",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\ccl.csv",
+        "target_class": "committee_candidate",
+        "column_map": {
+          "0": "candidate_id",
+          "3": "committee_id"
+        }
+      }
+    },
+    {
+      "dataset_name": "Individual Master",
+      "dataset_description": "Load Individuals",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\itcont.csv",
+        "target_class": "individual",
+        "column_map": {
+          "0": "committee_id",
+          "7": "full_name",
+          "8": "city",
+          "9": "state",
+          "10": "zip",
+          "11": "employer",
+          "12": "occupation",
+          "13": "transaction_date",
+          "14": "transaction_amount",
+          "19": "memo"
+        }
       }
     }
-  },
-  {
-    "dataset_name": "Committee Master",
-    "dataset_description": "Load Committees",
-    "dataset_version": "1.0",
-    "dataset_author": "Federal Elections Commission",
-    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-    "import": {
-      "type": "csv",
-      "delimiter": "|",
-      "filename": "seed_data\\us_elections\\cm.csv",
-      "target_class": "committee",
-      "column_map": {
-        "0": "committee_id",
-        "1": "committee_name",
-        "10": "political_party",
-        "13": "company_name"
-      }
-    }
-  },
-  {
-    "dataset_name": "CommitteeCandidates Master",
-    "dataset_description": "Map Committees and Candidates",
-    "dataset_version": "1.0",
-    "dataset_author": "Federal Elections Commission",
-    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-    "import": {
-      "type": "csv",
-      "delimiter": "|",
-      "filename": "seed_data\\us_elections\\ccl.csv",
-      "target_class": "committee_candidate",
-      "column_map": {
-        "0": "candidate_id",
-        "3": "committee_id"
-      }
-    }
-  },
-  {
-    "dataset_name": "Individual Master",
-    "dataset_description": "Load Individuals",
-    "dataset_version": "1.0",
-    "dataset_author": "Federal Elections Commission",
-    "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-    "import": {
-      "type": "csv",
-      "delimiter": "|",
-      "filename": "seed_data\\us_elections\\itcont.csv",
-      "target_class": "individual",
-      "column_map": {
-        "0": "committee_id",
-        "7": "full_name",
-        "8": "city",
-        "9": "state",
-        "10": "zip",
-        "11": "employer",
-        "12": "occupation",
-        "13": "transaction_date",
-        "14": "transaction_amount",
-        "19": "memo"
-      }
-    }
-  }
 
-] }
+  ]
+}
