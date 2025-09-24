@@ -5365,7 +5365,7 @@ private:
 						std::string names = (std::string)team["team_name"];
 						if (names != _team_name)
 							continue;
-                        std::string team_class_name = (std::string)team["team_class_name"];
+                        std::string team_class_name = (std::string)team[class_name_field];
 						auto classd = read_lock_class(team_class_name);
 						if (classd) {
 							json full_team = classd->get_single_object(this, team, true, _permission);
