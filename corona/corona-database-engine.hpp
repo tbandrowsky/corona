@@ -5382,7 +5382,8 @@ private:
                         std::string team_class_name = (std::string)key[class_name_field];
 						auto classd = read_lock_class(team_class_name);
 						if (classd) {
-							json full_team = classd->get_single_object(this, key, true, _permission);
+							json full_teams = classd->get_objects(this, key, true, _permission);
+                            json full_team = full_teams.get_first_element();
 							teams.push_back(full_team);
 						}
 					}
@@ -6587,8 +6588,9 @@ private:
 				}
 
 				put_user(user, sys_perm);
+				user = get_user(user_name, sys_perm);
 
-				response = create_response(user_name, auth_general, true, "Ok", data, errors, method_timer.get_elapsed_seconds());
+				response = create_response(user_name, auth_general, true, "Ok", user, errors, method_timer.get_elapsed_seconds());
 			}
 			else
 			{
