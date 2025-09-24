@@ -852,6 +852,7 @@ namespace corona
 		virtual void	put_objects(corona_database_interface* _db, json& _children, json& _src_objects, class_permissions _grant) = 0;
 		virtual json	get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json	delete_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
+		virtual json    get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 
 		virtual void	run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _target) = 0;
 		virtual void	clear_queries(json& _target) = 0;
@@ -3954,7 +3955,7 @@ namespace corona
 			return obj;
 		}
 
-		virtual json get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
+		virtual json get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) override
 		{
 			json temp = get_objects(_db, _key, _include_children, _grant);
 			return temp.get_first_element();
@@ -5359,11 +5360,17 @@ private:
 				all_teams = all_teams[data_field];
 				if (all_teams.array()) {
 					for (int ix = 0; ix < all_teams.size(); ix++) {
-						json team = all_teams.get_element(ix);
+						json team = all_teams.get_element(ix)
+							.extract({ class_name_field, object_id_field });
 						std::string names = (std::string)team["team_name"];
 						if (names != _team_name)
 							continue;
-						teams.push_back(team);
+                        std::string team_class_name = (std::string)team["team_class_name"];
+						auto classd = read_lock_class(team_class_name);
+						if (classd) {
+							json full_team = classd->get_single_object(this, team, true, _permission);
+							teams.push_back(full_team);
+						}
 					}
 				}
 			}
