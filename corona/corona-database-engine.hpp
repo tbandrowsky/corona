@@ -1648,13 +1648,25 @@ namespace corona
 				if (chumpy.size() >= minimum_length and chumpy.size() <= maximum_length)
 				{
 					if (not match_pattern.empty()) {
-						std::regex rgx(match_pattern);
-						if (std::regex_match(chumpy, rgx)) {
-							is_legit = is_allowed_value(chumpy);
+						try {
+							std::regex rgx(match_pattern);
+							if (std::regex_match(chumpy, rgx)) {
+								is_legit = is_allowed_value(chumpy);
+							}
+							else {
+								is_legit = false;
+							}
 						}
-						else {
-							is_legit = false;
-						}
+                        catch (std::regex_error& e) {
+                            validation_error ve;
+                            ve.class_name = _class_name;
+                            ve.field_name = _field_name;
+                            ve.filename = get_file_name(__FILE__);
+                            ve.line_number = __LINE__;
+                            ve.message = std::format("Invalid regex pattern '{0}'", match_pattern);
+                            _validation_errors.push_back(ve);
+                            return false;
+                        }
 					}
 					else {
 						is_legit = is_allowed_value(chumpy);
@@ -2890,6 +2902,15 @@ namespace corona
 			class_description = _src["class_description"];
 			base_class_name = _src["base_class_name"];
 
+			if (base_class_name == class_name) {
+				validation_error ve;
+				ve.class_name = class_name;
+				ve.filename = get_file_name(__FILE__);
+				ve.line_number = __LINE__;
+				ve.message = "class can't be derived from itself";
+				_errors.push_back(ve);
+			}
+
 			parents.clear();
 			json jparents = _src["parents"];
 
@@ -4075,7 +4096,13 @@ namespace corona
 				if (class_def.array() and class_def.size()>0) {
 					activity get_activity;
 					get_activity.db = this;
-					cdimp->open(&get_activity, class_def.get_first_element(), -1);
+					try {
+						cdimp->open(&get_activity, class_def.get_first_element(), -1);
+					}
+                    catch (std::exception& ex) {
+                        system_monitoring_interface::active_mon->log_warning(std::format("Exception {0} on opening class {1}", ex.what(), _class_name), __FILE__, __LINE__);
+                        return nullptr;
+                    }
 					cd = cdimp;
 					class_cache.insert(_class_name, cd);
 				}
