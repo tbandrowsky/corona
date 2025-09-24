@@ -3367,7 +3367,7 @@ namespace corona
 							temp += '"';
 							break;
 						case '\\':
-							temp += '\\';
+							temp += R"(\)";
 							break;
 						case '/':
 							temp += '/';

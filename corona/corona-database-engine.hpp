@@ -3853,8 +3853,10 @@ namespace corona
 			}
 
 			if (_include_children) {
-				for (auto _src_obj : obj)
+				auto obj_items = obj.array_impl();
+				for (auto item : obj_items->elements)
 				{
+                    json _src_obj(item);
 					for (auto& fpair : fields) {
 						auto& fld = fpair.second;
 						if (fld->get_field_type() == field_types::ft_array)
@@ -5331,12 +5333,24 @@ private:
 				if (all_teams.array()) {
 					for (int ix = 0; ix < all_teams.size(); ix++) {
 						json team = all_teams.get_element(ix);
+						std::string team_name = (std::string)team["team_name"];
 						std::string domains = (std::string)team["team_domain"];
 						if (domains.size() == 0 || domains == "NONE")
 							continue;
-						std::regex domain_matcher(domains);
-						if (std::regex_match(_domain, domain_matcher)) {
-							teams.push_back(team);
+						try {
+							std::regex domain_matcher(domains);
+							if (std::regex_match(_domain, domain_matcher)) {
+								system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+                                json actual_team = get_team(team_name, _permission);
+								teams.push_back(team);
+							}
+							else {
+								system_monitoring_interface::active_mon->log_warning(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+							}
+						}
+						catch (std::exception exc)
+						{
+							system_monitoring_interface::active_mon->log_warning(std::format("Invalid regexp '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name ), __FILE__, __LINE__);
 						}
 					}
 				}
@@ -5360,15 +5374,15 @@ private:
 				all_teams = all_teams[data_field];
 				if (all_teams.array()) {
 					for (int ix = 0; ix < all_teams.size(); ix++) {
-						json team = all_teams.get_element(ix)
-							.extract({ class_name_field, object_id_field });
+						json team = all_teams.get_element(ix);
+						json key = team.extract({ class_name_field, object_id_field });
 						std::string names = (std::string)team["team_name"];
 						if (names != _team_name)
 							continue;
-                        std::string team_class_name = (std::string)team[class_name_field];
+                        std::string team_class_name = (std::string)key[class_name_field];
 						auto classd = read_lock_class(team_class_name);
 						if (classd) {
-							json full_team = classd->get_single_object(this, team, true, _permission);
+							json full_team = classd->get_single_object(this, key, true, _permission);
 							teams.push_back(full_team);
 						}
 					}

@@ -560,6 +560,8 @@
       "class_description": "Model",
       "base_class_name": "sys_object",
       "fields": {
+        "model_name": "string",
+        "model_description": "string"
       }
     },
     {
@@ -568,7 +570,7 @@
       "base_class_name": "ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
-        "model": "->model"
+        "model": "model"
       }
     },
     {
@@ -577,7 +579,7 @@
       "base_class_name": "policy_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
-        "model": "->model"
+        "model": "model"
       }
     },
     {
@@ -586,7 +588,7 @@
       "base_class_name": "policy_ticket",
       "fields": {
         "property_set": "responsibility_set",
-        "model": "->model"
+        "model": "model"
       }
     },
     {
@@ -1028,25 +1030,25 @@
       }
     },
     {
-      "class_name": "discharge",
-      "class_description": "a request for the permit team",
-      "base_class_name": "sys_object",
-      "parents": [ "permit_ticket" ],
-      "fields": {
-        "property_set": "property_set",
-        "discharge_material": "string",
-        "discharge_amount": "string",
-        "discharge_start": "date_time",
-        "discharge_stop": "date_time"
-      }
-    },
-    {
       "class_name": "permit_ticket",
       "class_description": "a request for the permit team",
       "base_class_name": "ticket",
       "fields": {
         "name": "string",
         "description": "string"
+      }
+    },
+    {
+      "class_name": "discharge",
+      "class_description": "a request for the permit team",
+      "base_class_name": "sys_object",
+      "parents": [ "environmental_discharge_ticket" ],
+      "fields": {
+        "property_set": "property_set",
+        "discharge_material": "string",
+        "discharge_amount": "string",
+        "discharge_start": "date_time",
+        "discharge_stop": "date_time"
       }
     },
     {
@@ -1139,6 +1141,13 @@
       }
     },
     {
+      "class_name": "customer_home",
+      "class_description": "Home object for customers",
+      "base_class_name": "sys_object",
+      "fields": {
+      }
+    },
+    {
       "class_name": "technical",
       "class_description": "a tech job",
       "base_class_name": "ticket",
@@ -1203,6 +1212,13 @@
       "parents": [ "work_team" ],
       "fields": {
         "technical_text": "string"
+      }
+    },
+    {
+      "class_name": "technical_home",
+      "class_description": "Home object for techs",
+      "base_class_name": "sys_object",
+      "fields": {
       }
     }
 
