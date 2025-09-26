@@ -1179,6 +1179,7 @@ namespace corona
 		xtable(std::string _file_name, std::shared_ptr<xtable_header> _header) :
 			table_header(_header)
 		{
+			file_name = _file_name;
 			fp = std::make_shared<file>(_file_name, file_open_types::create_always);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 			table_header->append(this);
@@ -1189,7 +1190,7 @@ namespace corona
 
 		xtable(std::string _file_name)
 		{			
-
+			file_name = _file_name;
 			fp = std::make_shared<file>(_file_name, file_open_types::open_existing);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 

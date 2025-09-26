@@ -11,10 +11,10 @@
   "Server": {
     "listen_point": "http://localhost:5678/revolution/",
     "application_name": "revolution",
-    "schema_filename": "revolution_schema.json",
+    "schema_filename": "revolution_test_schema.json",
     "database_filename": "revolution_database.cdb",
     "database_threads": 16,
-    "database_recreate": false,
+    "database_recreate": true,
     "sys_user_name": "system",
     "sys_user_password": "systempassword1!",
     "sys_user_email": "todd.bandrowsky@gmail.com",

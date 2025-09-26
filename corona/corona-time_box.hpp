@@ -33,6 +33,29 @@ namespace corona
 		years = 7
 	};
 
+    std::map<std::string, time_models> string_to_time_model =
+    {
+        {"milliseconds", time_models::milliseconds},
+        {"seconds", time_models::seconds},
+        {"minutes", time_models::minutes},
+        {"hours", time_models::hours},
+        {"days", time_models::days},
+        {"weeks", time_models::weeks},
+        {"months", time_models::months},
+        {"years", time_models::years}
+    };
+
+    std::map<time_models, std::string> time_model_to_string = {
+        {time_models::milliseconds, "milliseconds"},
+        {time_models::seconds, "seconds"},
+        {time_models::minutes, "minutes"},
+        {time_models::hours, "hours"},
+        {time_models::days, "days"},
+        {time_models::weeks, "weeks"},
+        {time_models::months, "months"},
+        {time_models::years, "years"}
+    };
+
 	int64_t time_model_nanos[8] =
 	{
 		10000i64,
@@ -62,6 +85,28 @@ namespace corona
 		{
 			value = _value;
 			units = _units;
+		}
+
+		void get_json(json& _dest)
+		{
+			_dest.put_member("timespan_value", value);
+            auto find_time = time_model_to_string.find(units);
+
+            if (find_time != time_model_to_string.end())
+                _dest.put_member("timespan_units", find_time->second);
+            else
+                _dest.put_member("timespan_units", "seconds");
+		}
+
+		void put_json(json& _src)
+		{
+            value = _src["timespan_value"];
+            std::string units_str = _src["timespan_units"];
+            auto find_time = string_to_time_model.find(units_str);
+            if (find_time != string_to_time_model.end())
+                units = find_time->second;
+            else
+                units = time_models::seconds;
 		}
 	};
 

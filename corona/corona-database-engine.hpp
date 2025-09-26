@@ -15,6 +15,8 @@ This is the core database engine for the corona database server.
 #ifndef CORONA_DATABASE_ENGINE_HPP
 #define CORONA_DATABASE_ENGINE_HPP
 
+const bool debug_teams = false;
+
 /*********************************************** 
 
 Journal
@@ -2663,6 +2665,9 @@ namespace corona
                 col.field_type = f.second->get_field_type();
                 col.field_name = f.first;
 				col.field_id = column_id;
+				if ((f.second->get_bridges() == nullptr) and (f.second->get_field_type() == field_types::ft_array and f.second->get_field_type() == field_types::ft_object)) {
+					continue;
+				}
                 if (f.second->get_field_name() == object_id_field ||
 					f.second->get_field_name() == class_id_field) {
 					table_header->key_members.columns[column_id] = col;
@@ -2801,7 +2806,24 @@ namespace corona
 				return get_xtable(_db);
 		}
 
+		virtual bool any(corona_database_interface* _db) override
+		{
+            auto tbl = get_table(_db);
+            if (tbl.get_count() > 0)
+                return true;
+		}
 
+		virtual bool any_descendants(corona_database_interface* _db) override
+		{
+            for (auto desc : descendants) {
+                auto dclass = _db->read_lock_class(desc.first);
+                if (dclass) {
+                    if (dclass->any(_db))
+                        return true;
+                }
+            }
+            return false; 
+		}
 
 		virtual std::map<std::string, bool>  const& get_descendants() const override
 		{
@@ -3548,8 +3570,6 @@ namespace corona
 			return true;
 		}
 
-		
-
 		virtual void put_field(std::shared_ptr<field_interface>& _new_field) override
 		{
 			fields.insert_or_assign(_new_field->get_field_name(), _new_field);
@@ -4294,8 +4314,8 @@ namespace corona
 	"class_name" : "sys_grant",
 	"base_class_name" : "sys_object",
 	"class_description" : "grants a team can have",
+	"parents" : [ "sys_team" ],
 	"fields" : {
-			"team_id"	  : "int64",
 			"grant_classes" : "[string]",
 			"get" : {
 				"field_type":"string",
@@ -4317,11 +4337,6 @@ namespace corona
 				"field_name":"alter",
 				"enum" : [ "any", "none", "own" ]
 			}
-	},
-	"indexes" : {
-        "sys_grant_team": {
-          "index_keys": [ "team_id" ]
-        }
 	}
 }
 )");
@@ -4343,6 +4358,79 @@ namespace corona
 
 			created_classes.put_member("sys_grant", true);
 
+			response = create_class(R"(
+{
+	"class_name" : "sys_ticket",
+	"base_class_name" : "sys_object",
+	"class_description" : "a work item created by a team",
+	"parents" : [ "sys_team" ],
+	"fields" : {
+			"ticket_name" : "string",
+			"ticket_description" : "string",
+			"create_object_classname" : "string",
+			"created_object_id" : "int64"
+	},
+	"indexes" : {
+        "sys_ticket_created": {
+          "index_keys": [ "created_object_id" ]
+        }
+	}
+}
+)");
+
+			if (not response[success_field]) {
+				system_monitoring_interface::active_mon->log_warning("create_class sys_ticket put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				std::cout << response.to_json() << std::endl;
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_ticket"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_ticket after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_ticket", true);
+
+			response = create_class(R"(
+{
+	"class_name" : "sys_workflow",
+	"base_class_name" : "sys_object",
+	"class_description" : "directives for automatic tickets",
+	"parents" : [ "sys_team" ],
+	"fields" : {
+			"workflow_name" : "string",
+			"workflow_description" : "string",
+			"create_ticket_class" : "string",
+			"required_object_classes" : "string",
+			"ticket_time_created": "datetime",			
+			"ticket_id" : "int64",
+			"timespan_units" : "string",
+			"timespan_value" : "number",
+			"max_open_tickets" :"int32"
+	}
+}
+)");
+
+			if (not response[success_field]) {
+				system_monitoring_interface::active_mon->log_warning("create_class sys_workflow put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				std::cout << response.to_json() << std::endl;
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_workflow"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_workflow", true);
 
 			response = create_class(R"(
 {
@@ -4373,7 +4461,9 @@ namespace corona
 				}
 			},
 			"workflow_classes" : "[ string ]",
-			"allowed_teams" : "[ string ]"
+			"allowed_teams" : "[ string ]",
+			"tickets" : "[ sys_ticket ]",
+			"workflow" : "[ sys_workflow ]"
 	},
 	"indexes" : {
         "sys_team_name": {
@@ -4391,7 +4481,7 @@ namespace corona
 				return result;
 			}
 
-			test = classes->get(R"({"class_name":"sys_grant"})"_jobject);
+			test = classes->get(R"({"class_name":"sys_team"})"_jobject);
 			if (test.empty() or test.error()) {
 				system_monitoring_interface::active_mon->log_warning("could not find class sys_team after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -5307,7 +5397,7 @@ private:
 			if (user.object()) {
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
-                    json team_data = get_team(team_name, _permission);
+                    json team_data = run_team(team_name, _permission);
 					if (team_data.object()) {
 						user.share_member("team", team_data);
 					}
@@ -5384,12 +5474,74 @@ private:
 						if (classd) {
 							json full_teams = classd->get_objects(this, key, true, _permission);
                             json full_team = full_teams.get_first_element();
+                            system_monitoring_interface::active_mon->log_warning(std::format("Found team '{0}'", names), __FILE__, __LINE__);
+							system_monitoring_interface::active_mon->log_json(full_team);
 							teams.push_back(full_team);
 						}
 					}
 				}
 			}
 			return teams.get_first_element();
+		}
+
+		json run_team(std::string _team_name, class_permissions _permission)
+		{
+            json team = get_team(_team_name, _permission);
+			if (team.object()) {
+                int64_t team_id = (int64_t)team[object_id_field];
+                json workflows = team["workflows"];
+                if (workflows.array()) {
+                    for (auto wf : workflows) {
+						int64_t workflow_object_id = (int64_t)wf[object_id_field];
+						std::string workflow_name = (std::string)wf["workflow_name"];
+						std::string workflow_description = (std::string)wf["workflow_description"];
+						std::string create_ticket_class = (std::string)wf["create_ticket_class"];
+
+						std::vector<std::string> required_object_classes = wf["required_object_classes"].to_string_array();
+
+						date_time time_created = (date_time)wf["ticket_time_created"];
+						int64_t ticket_id = (int64_t)wf["ticket_id"];
+						int64_t max_open_tickets = (std::string)wf["max_open_tickets"];
+
+						json jtime_span = wf.extract("timespan_units", "timespan_value");
+						time_span ts;
+						ts.put_json(jtime_span);
+						
+						date_time current_time = date_time::now();
+                        date_time next_run_time = time_created + ts;
+						if (next_run_time < current_time) {							
+                            system_monitoring_interface::active_mon->log_information(std::format("Running workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+
+                            // now, check to see that we have all of our prerequisite objects
+                            bool any_missing = false;
+							for (auto& required_class : required_object_classes)
+							{
+								json class_filter = jp.create_object();
+                                auto classd = read_lock_class(required_class);
+								if (not (classd and classd->any_descendants())) {
+									any_missing = true;
+									break;
+								}
+							}
+
+							// now we can make our ticket
+							if (not any_missing) {
+                                json new_object = jp.create_object();
+								new_object.put_member(class_name_field, create_ticket_class);
+								new_object.put_member("sys_team", team_id);
+								json response = put_object(new_object);
+								if ((bool)response["succeeded"]) {
+                                    new_object = response[data_field];
+                                    ticket_id = (int64_t)new_object[object_id_field];
+                                    wf.put_member_i64("ticket_id", ticket_id);
+									put_object(wf);
+								}
+							}
+						}
+                   }
+                }
+			}
+			return team;
 		}
 
 		json get_schema(std::string schema_name, std::string schema_version, class_permissions _permission)
@@ -5824,6 +5976,13 @@ private:
 						json class_definition = class_array.get_element(i);
 
 						try {
+
+							if (constexpr debug_teams) {
+								if ((std::string)class_definition[base_class_name_field] == "sys_team")
+								{
+									DebugBreak();
+								}
+							}
 
 							json put_class_request = create_system_request(class_definition);
 							json class_result =  put_class(put_class_request);
