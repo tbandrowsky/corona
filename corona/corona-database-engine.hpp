@@ -7040,21 +7040,7 @@ private:
 
 				if (user_name == default_user and default_user.size() > 0) 
 				{					
-					if (workflow.object()) {
-						auto members = workflow.get_members();
-						for (auto member : members) {
-							std::string class_name = member.first;
-							int64_t object_id = (int64_t)member.second;
-							json key = jp.create_object();
-							key.put_member_i64(object_id_field, object_id);
-							key.put_member(class_name_field, class_name);
-							json obj = select_single_object(key, false, sys_perm);
-							navigation_options.share_member(class_name, obj);
-						}
-					}
-
 					json result = user.clone();
-					result.put_member("navigation", navigation_options);
 					result.erase_member("password");
 					result.erase_member("confirmed_code");
 					result.erase_member("validation_code");
@@ -7063,21 +7049,7 @@ private:
 				}
 				else if (confirm)
 				{
-					if (workflow.object()) {
-						auto members = workflow.get_members();
-						for (auto member : members) {
-							std::string class_name = member.first;
-							int64_t object_id = (int64_t)member.second;
-							json key = jp.create_object();
-							key.put_member_i64(object_id_field, object_id);
-							key.put_member(class_name_field, class_name);
-							json obj = select_single_object(key, false, sys_perm);
-							navigation_options.share_member(class_name, obj);
-						}
-					}
-
 					json result = user.clone();
-					result.put_member("navigation", navigation_options);
 					result.erase_member("password");
 					result.erase_member("confirmed_code");
 					result.erase_member("validation_code");
