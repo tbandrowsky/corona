@@ -190,8 +190,10 @@ namespace corona
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
-                            new_class->copy_values.insert_or_assign(class_name, "object_id");
-							cod.child_classes.push_back(new_class);
+							if (not allowed_field_types.contains(class_name)) {
+								new_class->copy_values.insert_or_assign(class_name, "object_id");
+								cod.child_classes.push_back(new_class);
+							}
 							status = parsing_complete;
 						}
 						else
@@ -1020,7 +1022,7 @@ namespace corona
 				_validation_errors.push_back(ve);
 				return false;
 			};
-			return false;
+			return true;
 
 		}
 
@@ -1280,12 +1282,19 @@ namespace corona
 
 		virtual void put_definition(child_object_definition& _cod)
 		{
+			if (_cod.child_classes.size() == 0)
+				return;
+
 			if (_cod.child_classes.size() == 1) 
 			{
 				std::string class_name = _cod.child_classes[0]->class_name;
 				if (class_name == "string")
 				{
 					fundamental_type = field_types::ft_string;
+				}
+				else if (class_name == "int64")
+				{
+					fundamental_type = field_types::ft_int64;
 				}
 				else if (class_name == "number")
 				{
@@ -1340,7 +1349,12 @@ namespace corona
 									ve.field_name = _field_name;
 									ve.filename = get_file_name(__FILE__);
 									ve.line_number = __LINE__;
-									ve.message = "This array does not accept child objects of " + object_class_name;
+									if (object_class_name.empty()) {
+										ve.message = "This array does child objects without a class_name.";
+									}
+									else {
+										ve.message = "This array does not accept child objects of '" + object_class_name + "'";
+									}
 									_validation_errors.push_back(ve);
 									return false;
 								}
@@ -1368,6 +1382,7 @@ namespace corona
 								ve.line_number = __LINE__;
 								ve.message = "Element must be a string.";
 								_validation_errors.push_back(ve);
+								return false;
 							}
 						}
 						else if (fundamental_type == field_types::ft_int64)
@@ -1381,6 +1396,7 @@ namespace corona
 								ve.line_number = __LINE__;
 								ve.message = "Element must be a int64.";
 								_validation_errors.push_back(ve);
+								return false;
 							}
 						}
 						else if (fundamental_type == field_types::ft_double)
@@ -1394,6 +1410,7 @@ namespace corona
 								ve.line_number = __LINE__;
 								ve.message = "Element must be a double.";
 								_validation_errors.push_back(ve);
+								return false;
 							}
 						}
 						else if (fundamental_type == field_types::ft_datetime)
@@ -1407,9 +1424,11 @@ namespace corona
 								ve.line_number = __LINE__;
 								ve.message = "Element must be a datetime.";
 								_validation_errors.push_back(ve);
+								return false;
 							}
 						}
 					}
+					return true;
 				}
 				else 
 				{
@@ -1423,7 +1442,7 @@ namespace corona
 					return false;
 				}
 			}
-			return true;
+			return false;
 		}
 
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
@@ -1558,6 +1577,7 @@ namespace corona
 
 				return is_legit;
 			}
+			return false;
 		}
 
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
@@ -1625,6 +1645,10 @@ namespace corona
 			minimum_length = _src["min_length"];
 			maximum_length = _src["max_length"];
 			match_pattern = _src["match_pattern"];
+			for (auto& c : match_pattern) {
+                if (c == '/') c = '\\';
+			}
+
 			allowed_values.clear();
 			json jallowed_values = _src["enum"];
 			if (jallowed_values.array()) {
@@ -1652,7 +1676,7 @@ namespace corona
 				bool is_legit = true;
 				std::string chumpy = (std::string)_object_to_test;
 
-				if (chumpy.size() >= minimum_length and chumpy.size() <= maximum_length)
+				if (chumpy.size() >= minimum_length and (maximum_length == 0 or chumpy.size() <= maximum_length))
 				{
 					if (not match_pattern.empty()) {
 						try {
@@ -1701,6 +1725,7 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				};
+				return true;
 			}
 			return false;
 
@@ -1777,6 +1802,7 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				};
+				return true;
 			}
 			return false;
 		}
@@ -1866,6 +1892,7 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				};
+				return true;
 			}
 			return false;
 		}
@@ -1933,6 +1960,7 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				};
+				return true;
 			}
 			return false;
 		}
@@ -4595,70 +4623,69 @@ namespace corona
 				"field_name":"first_name",
 				"required" : true,
 				"max_length" : 50,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"
+				"match_pattern": "[a-zA-Z0-9/s]+"
 			},
 			"last_name" : {
 				"field_type":"string",
 				"field_name":"last_name",
 				"required" : true,
 				"max_length" : 50,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"
+				"match_pattern": "[a-zA-Z0-9/s]+"
 			},
 			"user_name" : {
 				"field_type":"string",
 				"field_name":"user_name",
 				"required" : true,
-				"max_length" : 40,
-				"match_pattern": "[a-zA-Z0-9]+"
+				"max_length" : 100
 			},
 			"email" : {
 				"field_type":"string",
 				"field_name":"email",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "(\\\\w+)(\\\\.|_)?(\\\\w*)@(\\\\w+)(\\\\.(\\\\w+))+"	
+				"match_pattern": "(/w+)(/.|_)?(/w*)@(/w+)(/.(/w+))+"	
 			},
 			"mobile" : {
 				"field_type":"string",
 				"field_name":"mobile",
 				"required" : true,
 				"max_length" : 15,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"	
+				"match_pattern": "^(1/s?)?(/d{3}|(/d{3}/))[/s/-]?/d{3}[/s/-]?/d{4}$"	
 			},
 			"street1" : {
 				"field_type":"string",
 				"field_name":"street1",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
 			},
 			"street2" : {
 				"field_type":"string",
 				"field_name":"street2",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
 			},
 			"city" : {
 				"field_type":"string",
 				"field_name":"city",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
 			},
 			"state" : {
 				"field_type":"string",
 				"field_name":"state",
 				"required" : true,
 				"max_length" : 50,
-				"match_pattern": "[a-zA-Z0-9_\\\\-\\\\s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
 			},
 			"zip" : {
 				"field_type":"string",
 				"field_name":"zip",
 				"required" : true,
 				"max_length" : 15,
-				"match_pattern": "^\\\\d{5}(?:[-\\\\s]\\\\d{4})?$"	
+				"match_pattern": "^/d{5}(?:[-/s]/d{4})?$"	
 			},
 			"password" : { 
 				"field_type":"string",
@@ -4882,9 +4909,9 @@ private:
 				// check to make sure that we have all the fields 
 				// for the index
 
-				for (auto &idx : class_data->get_indexes()) {
+				for (auto& idx : class_data->get_indexes()) {
 					std::vector<std::string> missing;
-					std::vector<std::string> &idx_keys = idx->get_index_keys();
+					std::vector<std::string>& idx_keys = idx->get_index_keys();
 					if (not object_definition.has_members(missing, idx_keys))
 					{
 						for (auto& missed : missing) {
@@ -5363,6 +5390,7 @@ private:
 			json items = jp.create_array();
 			items.push_back(_user);
 			classd->put_objects(this, children, items, _permission);
+			
 		}
 
 		void put_error(std::string _system, std::string _message, json& _body, std::string _file, int _line)

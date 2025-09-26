@@ -1267,13 +1267,14 @@
           ],
           "workflow": [
             {
+              "class_name": "sys_workflow",
               "workflow_name": "intelligence_article",
               "workflow_description": "Create article",
               "ticket_class_name": "intelligence_ticket",
               "ticket_create_class_name": "intellligence_article",
               "ticket_name": "Create Article",
               "ticket_description": "Create Intelligence ARticle",
-              "required_object_classes": [  ],
+              "required_object_classes": [],
               "ticket_time_created": "datetime",
               "ticket_id": "int64",
               "timespan_units": "days",
@@ -1317,6 +1318,7 @@
           ],
           "workflow": [
             {
+              "class_name": "sys_workflow",
               "workflow_name": "policy_article",
               "workflow_description": "Create article",
               "ticket_class_name": "policy_ticket",
