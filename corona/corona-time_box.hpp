@@ -87,27 +87,6 @@ namespace corona
 			units = _units;
 		}
 
-		void get_json(json& _dest)
-		{
-			_dest.put_member("timespan_value", value);
-            auto find_time = time_model_to_string.find(units);
-
-            if (find_time != time_model_to_string.end())
-                _dest.put_member("timespan_units", find_time->second);
-            else
-                _dest.put_member("timespan_units", "seconds");
-		}
-
-		void put_json(json& _src)
-		{
-            value = _src["timespan_value"];
-            std::string units_str = _src["timespan_units"];
-            auto find_time = string_to_time_model.find(units_str);
-            if (find_time != string_to_time_model.end())
-                units = find_time->second;
-            else
-                units = time_models::seconds;
-		}
 	};
 
 	class SQL_TIMESTAMP_STRUCT_CORONA {

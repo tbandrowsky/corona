@@ -915,9 +915,20 @@ namespace corona
 
 		virtual int64_t get_next_object_id() override
 		{
+            // this needs to use SQL to get the next identity value, or, actually, the next sequence
+			// if it is available. so some additional plumbing that allows a sequence to be specified
+			// is required
 			abort();
 			return 0; // this has to be the bad thing to do
 		}
+
+		virtual int64_t get_count() override
+		{
+            // this needs to use SQL to get the count of records
+			abort();
+            return 0; // this has to be the bad thing to do
+		}
+
 
 	};
 

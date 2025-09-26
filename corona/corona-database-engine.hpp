@@ -862,6 +862,9 @@ namespace corona
 		virtual json	get_info(corona_database_interface* _db) = 0;
         virtual json	get_openapi_schema(corona_database_interface* _db) = 0;
 
+		virtual bool	any(corona_database_interface* _db) = 0;
+		virtual bool	any_descendants(corona_database_interface* _db) = 0;
+
 		virtual int64_t get_next_object_id() = 0;
 	};
 
@@ -2809,8 +2812,7 @@ namespace corona
 		virtual bool any(corona_database_interface* _db) override
 		{
             auto tbl = get_table(_db);
-            if (tbl.get_count() > 0)
-                return true;
+			return  tbl->get_count() > 0;
 		}
 
 		virtual bool any_descendants(corona_database_interface* _db) override
@@ -4367,12 +4369,13 @@ namespace corona
 	"fields" : {
 			"ticket_name" : "string",
 			"ticket_description" : "string",
-			"create_object_classname" : "string",
+			"create_class_name" : "string",
+			"created_object_class_name" : "string"
 			"created_object_id" : "int64"
 	},
 	"indexes" : {
         "sys_ticket_created": {
-          "index_keys": [ "created_object_id" ]
+          "index_keys": [ "created_object_class_name", "created_object_id" ]
         }
 	}
 }
@@ -4404,8 +4407,11 @@ namespace corona
 	"fields" : {
 			"workflow_name" : "string",
 			"workflow_description" : "string",
-			"create_ticket_class" : "string",
-			"required_object_classes" : "string",
+			"ticket_class_name" : "string",
+			"ticket_create_class_name" : "string",
+			"ticket_name" : "string",
+			"ticket_description" : "string",
+			"required_object_classes" : "[ string ]",
 			"ticket_time_created": "datetime",			
 			"ticket_id" : "int64",
 			"timespan_units" : "string",
@@ -4758,6 +4764,7 @@ namespace corona
 			json new_user_result =  create_user(new_user_request);
 			bool success = (bool)new_user_result[success_field];
 			std::vector<validation_error> errors;
+
 			if (success) {
 				json new_user = new_user_result[data_field];
 				json user_return = create_response(new_user_request, true, "Ok", new_user, errors, method_timer.get_elapsed_seconds());
@@ -5486,6 +5493,8 @@ private:
 
 		json run_team(std::string _team_name, class_permissions _permission)
 		{
+			json_parser jp;
+
             json team = get_team(_team_name, _permission);
 			if (team.object()) {
                 int64_t team_id = (int64_t)team[object_id_field];
@@ -5495,17 +5504,20 @@ private:
 						int64_t workflow_object_id = (int64_t)wf[object_id_field];
 						std::string workflow_name = (std::string)wf["workflow_name"];
 						std::string workflow_description = (std::string)wf["workflow_description"];
-						std::string create_ticket_class = (std::string)wf["create_ticket_class"];
+						std::string ticket_class_name = (std::string)wf["ticket_class_name"];
+						std::string ticket_create_class_name = (std::string)wf["ticket_create_class_name"];
+                        std::string ticket_name = (std::string)wf["ticket_name"];
+                        std::string ticket_description = (std::string)wf["ticket_description"];
 
 						std::vector<std::string> required_object_classes = wf["required_object_classes"].to_string_array();
 
 						date_time time_created = (date_time)wf["ticket_time_created"];
 						int64_t ticket_id = (int64_t)wf["ticket_id"];
-						int64_t max_open_tickets = (std::string)wf["max_open_tickets"];
+						int64_t max_open_tickets = (int64_t)wf["max_open_tickets"];
 
-						json jtime_span = wf.extract("timespan_units", "timespan_value");
+						json jtime_span = wf.extract({ "timespan_units", "timespan_value" });
 						time_span ts;
-						ts.put_json(jtime_span);
+						put_json(ts, jtime_span);
 						
 						date_time current_time = date_time::now();
                         date_time next_run_time = time_created + ts;
@@ -5518,7 +5530,7 @@ private:
 							{
 								json class_filter = jp.create_object();
                                 auto classd = read_lock_class(required_class);
-								if (not (classd and classd->any_descendants())) {
+								if ((not classd) or (classd->any_descendants(this)==false)) {
 									any_missing = true;
 									break;
 								}
@@ -5527,8 +5539,11 @@ private:
 							// now we can make our ticket
 							if (not any_missing) {
                                 json new_object = jp.create_object();
-								new_object.put_member(class_name_field, create_ticket_class);
+								new_object.put_member(class_name_field, ticket_class_name);
 								new_object.put_member("sys_team", team_id);
+                                new_object.put_member("create_class_name", ticket_create_class_name);
+                                new_object.put_member("ticket_name", ticket_name);
+                                new_object.put_member("ticket_description", ticket_description);
 								json response = put_object(new_object);
 								if ((bool)response["succeeded"]) {
                                     new_object = response[data_field];
@@ -5977,7 +5992,8 @@ private:
 
 						try {
 
-							if (constexpr debug_teams) {
+							if constexpr (debug_teams)
+							{
 								if ((std::string)class_definition[base_class_name_field] == "sys_team")
 								{
 									DebugBreak();

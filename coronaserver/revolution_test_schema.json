@@ -10,7 +10,7 @@
       "class_name": "note",
       "class_description": "a short note about something",
       "base_class_name": "sys_object",
-      "parents": [ "ticket", "appointment" ],
+      "parents": [ "work_ticket", "appointment" ],
       "fields": {
         "name": "string",
         "text": "string",
@@ -18,36 +18,11 @@
       }
     },
     {
-      "class_name": "ticket",
+      "class_name": "work_ticket",
       "class_description": "a work request made to a team",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_ticket",
       "fields": {
-        "name": "string",
-        "description": "string",
-        "status": "string",
-        "completion": "string",
         "notes": "[ note ]"
-      }
-    },
-    {
-      "class_name": "bank_ticket",
-      "class_description": "a work request for the central bank",
-      "base_class_name": "ticket",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "permitting_ticket",
-      "class_description": "a request for the permit team",
-      "base_class_name": "ticket",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "prayer_ticket",
-      "class_description": "a request for the prayer team",
-      "base_class_name": "ticket",
-      "fields": {
       }
     },
     {
@@ -55,23 +30,23 @@
       "class_description": "search object for tickets",
       "base_class_name": "sys_object",
       "fields": {
-        "name": "string",
-        "status": "string",
-        "description": "string",
-        "completion": "string",
+        "ticket_name": "string",
+        "ticket_description": "string",
+        "ticket_class": "string",
+        "ticket_object_class": "string",
         "tickets": {
           "field_type": "query",
           "query": {
             "from": [
               {
-                "class_name": "ticket",
-                "name": "ticket"
+                "class_name": "work_ticket",
+                "name": "work_ticket"
               }
             ],
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "ticket",
+                "stage_input_name": "work_ticket",
                 "condition": {
                   "class_name": "any",
                   "conditions": [
@@ -88,11 +63,6 @@
                     {
                       "class_name": "contains",
                       "valuepath": "status",
-                      "value": "$this.status"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "completion",
                       "value": "$this.status"
                     }
                   ]
@@ -197,6 +167,47 @@
       }
     },
     {
+      "class_name": "article_place",
+      "class_description": "an article about a place",
+      "base_class_name": "article",
+      "fields": {
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string"
+      }
+    },
+    {
+      "class_name": "article_district",
+      "class_description": "an article about a district",
+      "base_class_name": "article",
+      "fields": {
+        "district": "string"
+      }
+    },
+    {
+      "class_name": "article_person",
+      "class_description": "an article about a person",
+      "base_class_name": "article",
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string"
+      }
+    },
+    {
+      "class_name": "article_manufacture",
+      "class_description": "an article how to make something",
+      "base_class_name": "article",
+      "fields": {
+        "components": [ "string" ],
+        "steps": [ "string" ]
+      }
+    },
+    {
       "class_name": "article_search",
       "class_description": "search object for appointments",
       "base_class_name": "sys_object",
@@ -242,7 +253,6 @@
       "class_description": "a team with tickets",
       "base_class_name": "sys_team",
       "fields": {
-        "tickets": "[ ticket ]",
         "appointments": "[ appointment ]",
         "articles": "[ article ]"
       }
@@ -514,21 +524,9 @@
     {
       "class_name": "intelligence_ticket",
       "class_description": "gather information",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
-        "information_needed": "string",
-        "information_collected": "string"
-      }
-    },
-    {
-      "class_name": "political_intelligence_ticket",
-      "class_description": "gather information",
-      "base_class_name": "intelligence_ticket",
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "city": "string",
-        "state": "string"
+
       }
     },
     {
@@ -567,7 +565,7 @@
     {
       "class_name": "policy_ticket",
       "class_description": "using information to formulate suggested policies",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
         "model": "model"
@@ -695,7 +693,7 @@
     {
       "class_name": "justice_ticket",
       "class_description": "a request for the justice team",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
       }
     },
@@ -991,7 +989,7 @@
     {
       "class_name": "insurance_ticket",
       "class_description": "a request for the permit team",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
         "property_set": "property_set"
       }
@@ -1032,7 +1030,7 @@
     {
       "class_name": "permit_ticket",
       "class_description": "a request for the permit team",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
         "name": "string",
         "description": "string"
@@ -1071,7 +1069,7 @@
     {
       "class_name": "permit",
       "class_description": "a request for the permit team",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
         "permit_ticket": "[ permit_ticket ]",
         "description": "string",
@@ -1150,7 +1148,7 @@
     {
       "class_name": "technical",
       "class_description": "a tech job",
-      "base_class_name": "ticket",
+      "base_class_name": "work_ticket",
       "fields": {
         "name": "string",
         "description": "string",
@@ -1265,6 +1263,22 @@
               "delete": "none",
               "alter": "none"
             }
+          ],
+          "workflow": [
+            {
+              "workflow_name": "intelligence_article",
+              "workflow_description": "Create article",
+              "ticket_class_name": "intelligence_ticket",
+              "ticket_create_class_name": "intellligence_article",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Intelligence ARticle",
+              "required_object_classes": [  ],
+              "ticket_time_created": "datetime",
+              "ticket_id": "int64",
+              "timespan_units": "days",
+              "timespan_value": 1,
+              "max_open_tickets": 5
+            }
           ]
         },
         {
@@ -1297,6 +1311,22 @@
               "put": "own",
               "delete": "none",
               "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "workflow_name": "policy_article",
+              "workflow_description": "Create article",
+              "ticket_class_name": "policy_ticket",
+              "ticket_create_class_name": "policy_article",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Policy Article",
+              "required_object_classes": [],
+              "ticket_time_created": "datetime",
+              "ticket_id": "int64",
+              "timespan_units": "days",
+              "timespan_value": 1,
+              "max_open_tickets": 5
             }
           ]
         },

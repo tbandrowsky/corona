@@ -25,6 +25,29 @@ For Future Consideration
 
 namespace corona
 {
+
+	void get_json(json& _dest, time_span _src)
+	{
+		_dest.put_member("timespan_value", _src.value);
+		auto find_time = time_model_to_string.find(_src.units);
+
+		if (find_time != time_model_to_string.end())
+			_dest.put_member("timespan_units", find_time->second);
+		else
+			_dest.put_member("timespan_units", std::string("seconds"));
+	}
+
+	void put_json(time_span _dest, json& _src)
+	{
+		_dest.value = _src["timespan_value"];
+		std::string units_str = _src["timespan_units"];
+		auto find_time = string_to_time_model.find(units_str);
+		if (find_time != string_to_time_model.end())
+			_dest.units = find_time->second;
+		else
+			_dest.units = time_models::seconds;
+	}
+
 	void get_json(json& _dest, point& _src)
 	{
 		_dest.put_member("x", _src.x);

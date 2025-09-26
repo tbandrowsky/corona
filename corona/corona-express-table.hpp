@@ -111,6 +111,7 @@ namespace corona
 		virtual void clear() = 0;
 		virtual json get_info() = 0;
 		virtual int64_t get_next_object_id() = 0;
+		virtual int64_t get_count() = 0;
 	};
 
 
@@ -1423,7 +1424,7 @@ namespace corona
 			}
 		}
 
-		int64_t get_count()
+		virtual int64_t get_count() override
 		{
 			return table_header->count;
 		}
