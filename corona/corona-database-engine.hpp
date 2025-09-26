@@ -4370,7 +4370,7 @@ namespace corona
 			"ticket_name" : "string",
 			"ticket_description" : "string",
 			"create_class_name" : "string",
-			"created_object_class_name" : "string"
+			"created_object_class_name" : "string",
 			"created_object_id" : "int64"
 	},
 	"indexes" : {
