@@ -1238,6 +1238,7 @@
           "team_description": "Gathers Information for the Revolution",
           "team_domain": "NONE",
           "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1287,6 +1288,7 @@
           "team_description": "Revolution Policy",
           "team_domain": "NONE",
           "workflow_classes": [ "policy_home", "model_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1336,6 +1338,7 @@
           "team_description": "Revolution Colonization",
           "team_domain": "NONE",
           "workflow_classes": [ "colony_home", "colony_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1369,6 +1372,7 @@
           "team_description": "Revolution Court",
           "team_domain": "NONE",
           "workflow_classes": [ "case_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1402,6 +1406,7 @@
           "team_description": "Revolution Insurance",
           "team_domain": "NONE",
           "workflow_classes": [ "policy_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1435,6 +1440,7 @@
           "team_description": "Revolution Permits",
           "team_domain": "NONE",
           "workflow_classes": [ "permit_search", "article_search" ],
+          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",

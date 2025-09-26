@@ -190,6 +190,7 @@ namespace corona
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
+                            new_class->copy_values.insert_or_assign(class_name, "object_id");
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
 						}
@@ -3045,10 +3046,16 @@ namespace corona
 							else if (cod.is_array)
 							{
 								field->set_field_type(field_types::ft_array);
+								auto options = std::make_shared<array_field_options>();
+								options->put_definition(cod);
+                                field->set_options(options);
 							}
 							else
 							{
 								field->set_field_type(field_types::ft_object);
+								auto options = std::make_shared<object_field_options>();
+								options->put_definition(cod);
+								field->set_options(options);
 							}
 						}
 					}
@@ -4451,21 +4458,7 @@ namespace corona
 				"field_type" : "string",		
 				"format:" : "regexp"
 			},
-			"permissions" : {
-				"field_type" : "array",
-				"field_name" : "permissions",
-				"child_objects" : {
-					"sys_grant" : {
-						"child_class_name" : "sys_grant",
-						"copy_values" : {
-							"object_id" : "team_id"
-						},
-						"construct_values" : {
-							"object_id" : "team_id"
-						}
-					}	
-				}
-			},
+			"permissions" : "[ sys_grant ]",
 			"workflow_classes" : "[ string ]",
 			"allowed_teams" : "[ string ]",
 			"tickets" : "[ sys_ticket ]",
@@ -5363,7 +5356,9 @@ private:
 			json_parser jp;
 
 			write_class_sp classd = write_lock_class("sys_user");
-	
+
+			_user.erase_member("team");
+
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
@@ -5498,7 +5493,7 @@ private:
             json team = get_team(_team_name, _permission);
 			if (team.object()) {
                 int64_t team_id = (int64_t)team[object_id_field];
-                json workflows = team["workflows"];
+                json workflows = team["workflow"];
                 if (workflows.array()) {
                     for (auto wf : workflows) {
 						int64_t workflow_object_id = (int64_t)wf[object_id_field];
@@ -5529,8 +5524,8 @@ private:
 							for (auto& required_class : required_object_classes)
 							{
 								json class_filter = jp.create_object();
-                                auto classd = read_lock_class(required_class);
-								if ((not classd) or (classd->any_descendants(this)==false)) {
+								auto classd = read_lock_class(required_class);
+								if ((not classd) or (classd->any_descendants(this) == false)) {
 									any_missing = true;
 									break;
 								}
@@ -5544,14 +5539,29 @@ private:
                                 new_object.put_member("create_class_name", ticket_create_class_name);
                                 new_object.put_member("ticket_name", ticket_name);
                                 new_object.put_member("ticket_description", ticket_description);
-								json response = put_object(new_object);
-								if ((bool)response["succeeded"]) {
-                                    new_object = response[data_field];
+								json por = create_system_request(new_object);
+								json porresp = put_object(por);
+								if (porresp["success"]) {
+                                    new_object = porresp[data_field];
                                     ticket_id = (int64_t)new_object[object_id_field];
+                                    wf.put_member(class_name_field, (std::string)"sys_workflow");
+									wf.put_member_i64("sys_team", team_id);
                                     wf.put_member_i64("ticket_id", ticket_id);
-									put_object(wf);
+									por = create_system_request(wf);
+									porresp = put_object(por);
+                                    if (not porresp["success"]) {
+                                        system_monitoring_interface::active_mon->log_warning(std::format("Could not update workflow '{0}' for team '{1}' with ticket id '{2}'", workflow_name, _team_name, ticket_id), __FILE__, __LINE__);
+                                        system_monitoring_interface::active_mon->log_json(porresp);
+                                    }
+								}
+								else {
+                                    system_monitoring_interface::active_mon->log_warning(std::format("Could not create ticket for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+                                    system_monitoring_interface::active_mon->log_json(porresp);
 								}
 							}
+						}
+						else {
+							system_monitoring_interface::active_mon->log_information(std::format("Not time for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
 						}
                    }
                 }
@@ -6961,16 +6971,17 @@ private:
 
 			std::string user_name, user_auth;
 
-			if (not check_message(_user_set_team_request, { auth_self }, user_name, user_auth))
+			if (not check_message(_user_set_team_request, { auth_general }, user_name, user_auth))
 			{
 				result = create_response(_user_set_team_request, false, "User set team denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
 				return result;
 			}
 
 			bool team_set = false;
+			std::string ok_message;
 			json user_details = get_user(user_name, get_system_permission());
 			if (user_details.object()) {
-				json jteam = get_team(user_details["team_name"], get_system_permission());
+				json jteam = user_details["team"];
 				if (jteam.object()) {
 					json jallowed_teams = jteam["allowed_teams"];
 					if (auto ata = jallowed_teams.array_impl()) {
@@ -6981,6 +6992,7 @@ private:
 							put_user(user_details, get_system_permission());
 							team_set = true;
 							user_details = get_user(user_name, get_system_permission());
+                            ok_message = "Selected " + (std::string)_user_set_team_request["team_name"];
 						}
 					}
 				}
@@ -6991,7 +7003,7 @@ private:
 			std::vector<validation_error> empty_errors;
 
 			if (team_set) {
-				result = create_response(_user_set_team_request, true, "Ok", user_details, empty_errors, method_timer.get_elapsed_seconds());
+				result = create_response(_user_set_team_request, true, ok_message, user_details, empty_errors, method_timer.get_elapsed_seconds());
 			}
 			else
 			{
