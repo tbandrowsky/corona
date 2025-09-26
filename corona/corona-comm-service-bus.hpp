@@ -1423,7 +1423,7 @@ Bind select team
   }
 })";
 				api_paths.push_back(new_api);
-				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_home);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_user_set_team);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
 /**************
