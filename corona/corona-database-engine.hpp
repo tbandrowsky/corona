@@ -104,12 +104,15 @@ namespace corona
 	public:
 		bool					 is_undefined;
 		bool					 is_array;
+		field_types				 fundamental_type;
+
 		std::vector<std::shared_ptr<child_object_class>> child_classes;
 
 		child_object_definition()
 		{
 			is_undefined = true;
 			is_array = false;
+			fundamental_type = field_types::ft_none;
 		}
 
 		child_object_definition(const child_object_definition& _src) = default;
@@ -176,6 +179,21 @@ namespace corona
 					if (pb.parse_symbol(class_name, _src, &_src)) {
 						_src = pb.eat_white(_src);
 						new_class->class_name = class_name;
+
+						if (cod.child_classes.size() == 0) {
+							auto ft = allowed_field_types.find(class_name);
+							if (ft != std::end(allowed_field_types)) {
+								cod.fundamental_type = ft->second;
+							}
+							else
+							{
+								cod.fundamental_type = field_types::ft_none;
+							}
+						}
+						else {
+							cod.fundamental_type = field_types::ft_none;
+						}
+
 						if (*_src == ':')
 						{
 							_src++;
@@ -190,10 +208,10 @@ namespace corona
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
-							if (not allowed_field_types.contains(class_name)) {
+                            if (cod.fundamental_type == field_types::ft_none) {
 								new_class->copy_values.insert_or_assign(class_name, "object_id");
-								cod.child_classes.push_back(new_class);
 							}
+							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
 						}
 						else
@@ -1146,6 +1164,8 @@ namespace corona
 		{
 			base_constructors.clear();
 			all_constructors.clear();
+			if (_cod.fundamental_type != field_types::ft_none)
+				return;
 			for (auto class_def : _cod.child_classes) {
 				std::shared_ptr<child_bridge_implementation> new_bridge = std::make_shared<child_bridge_implementation>();
 				json_parser jp;
@@ -1153,8 +1173,7 @@ namespace corona
 				for (auto pair : class_def->copy_values)
 				{
 					copy_values.put_member(pair.first, pair.second);
-				}
-				
+				}				
 				new_bridge->put_child_object(class_def->class_name, copy_values);
 				new_bridge->set_class_name(class_def->class_name);
 				base_constructors.insert_or_assign(class_def->class_name, new_bridge);
@@ -1287,48 +1306,7 @@ namespace corona
 
 		virtual void put_definition(child_object_definition& _cod)
 		{
-			fundamental_type = field_types::ft_none;
-
-			if (_cod.child_classes.size() == 0)
-				return;
-
-			if (_cod.child_classes.size() == 1) 
-			{
-				std::string class_name = _cod.child_classes[0]->class_name;
-				if (class_name == "string")
-				{
-					fundamental_type = field_types::ft_string;
-				}
-				else if (class_name == "int64")
-				{
-					fundamental_type = field_types::ft_int64;
-				}
-				else if (class_name == "number")
-				{
-					fundamental_type = field_types::ft_double;
-				}
-				else if (class_name == "datetime")
-				{
-					fundamental_type = field_types::ft_datetime;
-				}
-				else if (class_name == "reference")
-				{
-					fundamental_type = field_types::ft_reference;
-				}
-				else if ((class_name == "float" || class_name == "double"))
-				{
-					fundamental_type = field_types::ft_double;
-				}
-                else if (class_name == "object")
-                {
-                    fundamental_type = field_types::ft_object;
-                }
-                else if (class_name == "array")
-                {
-                    fundamental_type = field_types::ft_array; // ooh, on paper this should work
-                }
-			}
-
+			fundamental_type = _cod.fundamental_type;
 			bridges = std::make_shared<child_bridges>();
 			bridges->put_child_object(_cod);
 		}
@@ -5536,8 +5514,8 @@ private:
 						if (classd) {
 							json full_teams = classd->get_objects(this, key, true, _permission);
                             json full_team = full_teams.get_first_element();
-                            system_monitoring_interface::active_mon->log_warning(std::format("Found team '{0}'", names), __FILE__, __LINE__);
-							system_monitoring_interface::active_mon->log_json(full_team);
+//                          system_monitoring_interface::active_mon->log_warning(std::format("Found team '{0}'", names), __FILE__, __LINE__);
+//							system_monitoring_interface::active_mon->log_json(full_team);
 							teams.push_back(full_team);
 						}
 					}

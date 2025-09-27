@@ -1278,7 +1278,7 @@
               "ticket_time_created": "datetime",
               "ticket_id": "int64",
               "timespan_units": "days",
-              "timespan_value": 1,
+              "timespan_value": 1.0,
               "max_open_tickets": 5
             }
           ]
