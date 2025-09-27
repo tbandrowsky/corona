@@ -734,7 +734,7 @@ namespace corona
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(json& _src) = 0;
 		virtual void copy(json& _dest, json& _src) = 0;
-		virtual json get_field(json& src) = 0;
+		virtual json get_key(json& src) = 0;
 	};
 
 	class child_bridges_interface
@@ -749,6 +749,7 @@ namespace corona
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json get_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
+		virtual json delete_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
 	};
 
 	class field_options_interface
@@ -762,6 +763,7 @@ namespace corona
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json & _object) = 0;
 		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
+		virtual bool is_relational_children() = 0;
 		virtual json get_openapi_schema(corona_database_interface* _db) = 0;
         virtual bool is_required() = 0;
 		virtual bool is_server_only() = 0;
@@ -804,6 +806,13 @@ namespace corona
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
 
         virtual json get_openapi_schema(corona_database_interface* _db) = 0;
+		virtual bool is_relational_children() {
+            if (options) {
+                return options->is_relational_children();
+            }
+			return false;
+		}
+
 	};
 
 	class index_interface
@@ -1066,6 +1075,12 @@ namespace corona
 		{ 
 			return server_only; 
         }
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
 	};
 
 	class child_bridge_implementation : public child_bridge_interface
@@ -1121,7 +1136,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_field(json& _src) override
+		virtual json get_key(json& _src) override
 		{
 			json_parser jp;
 			json key;
@@ -1237,9 +1252,11 @@ namespace corona
 			json_parser jp;
 			json result_array = jp.create_array();
 
+            // TODO.  This needs to get the children if they are of a derived class too.
+
 			for (auto class_name_pair : all_constructors) 
 			{
-				json key = class_name_pair.second->get_field(_parent_object);
+				json key = class_name_pair.second->get_key(_parent_object);
 				read_class_sp classy = _db->read_lock_class(class_name_pair.first);
 				if (classy) {
 					json temp_array = classy->get_objects(_db, key, true, _permissions);
@@ -1253,6 +1270,26 @@ namespace corona
 
 			return result_array;
 		}
+
+		virtual json delete_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) override
+		{
+			json_parser jp;
+			json result_array = jp.create_array();
+
+			// TODO.  This needs to delete the children if they are of a derived class too.
+
+			for (auto class_name_pair : all_constructors)
+			{
+				json key = class_name_pair.second->get_key(_parent_object);
+				read_class_sp classy = _db->read_lock_class(class_name_pair.first);
+				if (classy) {
+					classy->delete_objects(_db, key, true, _permissions);
+				}
+			}
+
+			return result_array;
+		}
+
 
 		virtual bool empty()
 		{
@@ -1444,6 +1481,11 @@ namespace corona
 			return false;
 		}
 
+		virtual bool is_relational_children() override
+		{
+			return fundamental_type == field_types::ft_none;
+		}
+
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
 		{
 			return bridges;
@@ -1494,6 +1536,7 @@ namespace corona
 	{
 	public:
 		std::shared_ptr<child_bridges> bridges;
+		field_types fundamental_type;
 
 		object_field_options() = default;
 		object_field_options(const object_field_options& _src) = default;
@@ -1528,8 +1571,14 @@ namespace corona
 
 		virtual void put_definition(child_object_definition& _cod)
 		{
+			fundamental_type = _cod.fundamental_type;
 			bridges = std::make_shared<child_bridges>();
 			bridges->put_child_object(_cod);
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return fundamental_type == field_types::ft_none;
 		}
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
@@ -1543,40 +1592,104 @@ namespace corona
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
 
-				if (bridges and not bridges->empty())
+
+				json& obj = _object_to_test;
+
+				std::string object_class_name;
+
+				if (fundamental_type == field_types::ft_object || fundamental_type == field_types::ft_array)
 				{
-					std::string object_class_name;
-
-					if (_object_to_test.object()) {
-						object_class_name = _object_to_test[class_name_field];
-
+					return true;
+				}
+				else if (fundamental_type == field_types::ft_string)
+				{
+					bool acceptable = obj.is_string();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a string.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_int64)
+				{
+					bool acceptable = obj.is_int64();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a int64.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_double)
+				{
+					bool acceptable = obj.is_double();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a double.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_datetime)
+				{
+					bool acceptable = obj.is_int64();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a datetime.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (bridges)
+				{
+					if (obj.object()) {
+						object_class_name = obj[class_name_field];
 						auto ctor = bridges->get_bridge(object_class_name);
-						if (not ctor) 
-						{
-							is_legit = false;
+						if (not ctor) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							if (object_class_name.empty()) {
+								ve.message = "This array does child objects without a class_name.";
+							}
+							else {
+								ve.message = "This array does not accept child objects of '" + object_class_name + "'";
+							}
+							_validation_errors.push_back(ve);
+							return false;
 						}
 					}
-					else 
-					{
-						is_legit = false;
+					else {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "elements of this array must be objects.";
+						_validation_errors.push_back(ve);
+						return false;
+
 					}
 				}
-				else
-				{
-					is_legit = true;
-				}
-				if (not is_legit) {
-					validation_error ve;
-					ve.class_name = _class_name;
-					ve.field_name = _field_name;
-					ve.filename = get_file_name(__FILE__);
-					ve.line_number = __LINE__;
-					ve.message = "value must be an object of correct type.";
-					_validation_errors.push_back(ve);
-					return false;
-				};
-
-				return is_legit;
 			}
 			return false;
 		}
@@ -2707,7 +2820,7 @@ namespace corona
                 col.field_type = f.second->get_field_type();
                 col.field_name = f.first;
 				col.field_id = column_id;
-				if ((f.second->get_bridges() == nullptr) and (f.second->get_field_type() == field_types::ft_array and f.second->get_field_type() == field_types::ft_object)) {
+				if (f.second->is_relational_children()) {
 					continue;
 				}
                 if (f.second->get_field_name() == object_id_field ||
@@ -3772,7 +3885,7 @@ namespace corona
 					if (fld->get_field_type() == field_types::ft_array)
 					{
 						json array_field = write_object[fld->get_field_name()];
-						if (array_field.array()) {
+						if (array_field.array() and fld->is_relational_children()) {
 							auto bridges = fld->get_bridges();
 							if (bridges) {
 								for (auto obj : array_field) {
@@ -3791,7 +3904,7 @@ namespace corona
 					else if (fld->get_field_type() == field_types::ft_object)
 					{
 						json obj = write_object[fld->get_field_name()];
-						if (obj.object()) {
+						if (obj.object() and fld->is_relational_children()) {
 							std::string obj_class_name = obj[class_name_field];
 							auto bridges = fld->get_bridges();
 							if (bridges) {
@@ -3926,21 +4039,24 @@ namespace corona
                     json _src_obj(item);
 					for (auto& fpair : fields) {
 						auto& fld = fpair.second;
-						if (fld->get_field_type() == field_types::ft_array)
-						{
-							auto bridges = fld->get_bridges();
-							if (bridges) {
-								json results = bridges->get_children(_db, _src_obj, _grant);
-								_src_obj.share_member(fld->get_field_name(), results);
+
+						if (fld->is_relational_children()) {
+							if (fld->get_field_type() == field_types::ft_array)
+							{
+								auto bridges = fld->get_bridges();
+								if (bridges) {
+									json results = bridges->get_children(_db, _src_obj, _grant);
+									_src_obj.share_member(fld->get_field_name(), results);
+								}
 							}
-						}
-						else if (fld->get_field_type() == field_types::ft_object)
-						{
-							auto bridges = fld->get_bridges();
-							if (bridges) {
-								json results = bridges->get_children(_db, _src_obj, _grant);
-								json first = results.get_first_element();
-								_src_obj.share_member(fld->get_field_name(), first);
+							else if (fld->get_field_type() == field_types::ft_object)
+							{
+								auto bridges = fld->get_bridges();
+								if (bridges) {
+									json results = bridges->get_children(_db, _src_obj, _grant);
+									json first = results.get_first_element();
+									_src_obj.share_member(fld->get_field_name(), first);
+								}
 							}
 						}
 					}
@@ -4037,26 +4153,21 @@ namespace corona
 			json matching_objects = get_objects(_db, _key, _include_children, _permission);
 			auto tb = get_table(_db);
 
-			for (auto _src_obj : matching_objects) {
-
-				for (auto& fpair : fields) {
-					auto& fld = fpair.second;
-					if (fld->get_field_type() == field_types::ft_array)
-					{
-						auto bridges = fld->get_bridges();
-						json results = bridges->get_children(_db, _src_obj, _permission);
-					}
-					else if (fld->get_field_type() == field_types::ft_object)
-					{
-						auto bridges = fld->get_bridges();
-						json results = bridges->get_children(_db, _src_obj, _permission);
-					}
-				}
-
+			for (auto _src_obj : matching_objects) 
+			{
 				if ((_permission.delete_grant == class_grants::grant_any)
 					or (_permission.delete_grant == class_grants::grant_own and (std::string)_src_obj == _permission.user_name))
 				{
 					tb->erase(_src_obj);
+
+					for (auto& fpair : fields) {
+						auto& fld = fpair.second;
+						if (not fld->is_relational_children()) {
+							continue;
+						}
+						auto bridges = fld->get_bridges();
+						bridges->delete_children(_db, _src_obj, _permission);
+					}
 				}
 			}
 			return matching_objects;
@@ -5388,25 +5499,23 @@ private:
 			return result;
 		}
 
-		void put_user(json _user, class_permissions _permission)
+		void put_user(json _user)
 		{
 			json_parser jp;
 
-			write_class_sp classd = write_lock_class("sys_user");
-
 			_user.erase_member("team");
-
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
-			classd->put_objects(this, children, items, _permission);
-			
+			json request = create_system_request(items);
+			put_object(request);			
 		}
 
 		void put_error(std::string _system, std::string _message, json& _body, std::string _file, int _line)
 		{
 			json_parser jp;
 			json error = jp.create_object();
+			error.put_member(class_name_field, "sys_error");
 			error.put_member("system", _system);
 			error.put_member("message", _message);
 			error.put_member("file", _file);
@@ -5749,7 +5858,7 @@ private:
 				user_info.put_member("validation_code", new_code);
 				user_info.put_member("confirmed_code", 0);
 				auto sys_perm = get_system_permission();
-				put_user(user_info, sys_perm);
+				put_user(user_info);
 
 				sendgrid_client sc_client;
 				sc_client.sender_email = sendgrid_sender_email;
@@ -6810,7 +6919,7 @@ private:
 					user.share_member("workflow_objects", workflow_objects);
 				}
 
-				put_user(user, sys_perm);
+				put_user(user);
 				user = get_user(user_name, sys_perm);
 
 				response = create_response(user_name, auth_general, true, "Ok", user, errors, method_timer.get_elapsed_seconds());
@@ -6982,7 +7091,7 @@ private:
 			std::string encrypted_password = crypter.hash(user_password1);
 			user.put_member("password", encrypted_password);
 
-			put_user(user, sys_perm);
+			put_user(user);
 			json jerrors;
 			response = create_user_response(_password_request, true, "Ok", data, jerrors, method_timer.get_elapsed_seconds());
 
@@ -7027,7 +7136,7 @@ private:
 							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
 							})) {
 							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
-							put_user(user_details, get_system_permission());
+							put_user(user_details);
 							team_set = true;
 							user_details = get_user(user_name, get_system_permission());
                             ok_message = "Selected " + (std::string)_user_set_team_request["team_name"];
@@ -7886,11 +7995,7 @@ private:
 					}
 				}
 
-				if (child_objects.size() == 0) {
-					;
-				}
-				else
-				{
+				if (child_objects.size() > 0) {
 					put_object_request.put_member(data_field, child_objects);
 					put_object(put_object_request);
 				}
