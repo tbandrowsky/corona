@@ -1235,6 +1235,11 @@ namespace corona
 			return result_array;
 		}
 
+		virtual bool empty()
+		{
+			return all_constructors.size() == 0;
+		}
+
 	};
 
 	/// <summary>
@@ -1282,6 +1287,8 @@ namespace corona
 
 		virtual void put_definition(child_object_definition& _cod)
 		{
+			fundamental_type = field_types::ft_none;
+
 			if (_cod.child_classes.size() == 0)
 				return;
 
@@ -1312,7 +1319,16 @@ namespace corona
 				{
 					fundamental_type = field_types::ft_double;
 				}
+                else if (class_name == "object")
+                {
+                    fundamental_type = field_types::ft_object;
+                }
+                else if (class_name == "array")
+                {
+                    fundamental_type = field_types::ft_array; // ooh, on paper this should work
+                }
 			}
+
 			bridges = std::make_shared<child_bridges>();
 			bridges->put_child_object(_cod);
 		}
@@ -1338,38 +1354,10 @@ namespace corona
 					for (auto obj : _object_to_test)
 					{
 						std::string object_class_name;
-						if (bridges)
-						{
-							if (obj.object()) {
-								object_class_name = obj[class_name_field];
-								auto ctor = bridges->get_bridge(object_class_name);
-								if (not ctor) {
-									validation_error ve;
-									ve.class_name = _class_name;
-									ve.field_name = _field_name;
-									ve.filename = get_file_name(__FILE__);
-									ve.line_number = __LINE__;
-									if (object_class_name.empty()) {
-										ve.message = "This array does child objects without a class_name.";
-									}
-									else {
-										ve.message = "This array does not accept child objects of '" + object_class_name + "'";
-									}
-									_validation_errors.push_back(ve);
-									return false;
-								}
-							}
-							else {
-								validation_error ve;
-								ve.class_name = _class_name;
-								ve.field_name = _field_name;
-								ve.filename = get_file_name(__FILE__);
-								ve.line_number = __LINE__;
-								ve.message = "elements of this array must be objects.";
-								_validation_errors.push_back(ve);
-								return false;
 
-							}
+						if (fundamental_type == field_types::ft_object || fundamental_type == field_types::ft_array)
+						{
+							return true;
 						}
 						else if (fundamental_type == field_types::ft_string) 
 						{
@@ -1425,6 +1413,39 @@ namespace corona
 								ve.message = "Element must be a datetime.";
 								_validation_errors.push_back(ve);
 								return false;
+							}
+						}
+						else if (bridges)
+						{
+							if (obj.object()) {
+								object_class_name = obj[class_name_field];
+								auto ctor = bridges->get_bridge(object_class_name);
+								if (not ctor) {
+									validation_error ve;
+									ve.class_name = _class_name;
+									ve.field_name = _field_name;
+									ve.filename = get_file_name(__FILE__);
+									ve.line_number = __LINE__;
+									if (object_class_name.empty()) {
+										ve.message = "This array does child objects without a class_name.";
+									}
+									else {
+										ve.message = "This array does not accept child objects of '" + object_class_name + "'";
+									}
+									_validation_errors.push_back(ve);
+									return false;
+								}
+							}
+							else {
+								validation_error ve;
+								ve.class_name = _class_name;
+								ve.field_name = _field_name;
+								ve.filename = get_file_name(__FILE__);
+								ve.line_number = __LINE__;
+								ve.message = "elements of this array must be objects.";
+								_validation_errors.push_back(ve);
+								return false;
+
 							}
 						}
 					}
@@ -1544,7 +1565,7 @@ namespace corona
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
 
-				if (bridges)
+				if (bridges and not bridges->empty())
 				{
 					std::string object_class_name;
 
@@ -1552,12 +1573,14 @@ namespace corona
 						object_class_name = _object_to_test[class_name_field];
 
 						auto ctor = bridges->get_bridge(object_class_name);
-						if (not ctor) {
+						if (not ctor) 
+						{
 							is_legit = false;
 						}
 					}
-					else {
-							is_legit = false;
+					else 
+					{
+						is_legit = false;
 					}
 				}
 				else
@@ -1784,7 +1807,11 @@ namespace corona
 				bool is_legit = true;
 				int64_t chumpy = (int64_t)_object_to_test;
 
-				if (chumpy >= min_value and chumpy <= max_value)
+				if (min_value == 0 and max_value == 0)
+				{
+					is_legit = true;
+				}
+				else if (chumpy >= min_value and chumpy <= max_value)
 				{
 					is_legit = true;
 				}
@@ -1941,8 +1968,13 @@ namespace corona
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
 				scalar_type chumpy = (scalar_type)_object_to_test;
+				scalar_type zero = {};
 
-				if (chumpy >= min_value and chumpy <= max_value)
+				if (min_value == zero and max_value == zero)
+				{
+					is_legit = true;
+				}
+				else if (chumpy >= min_value and chumpy <= max_value)
 				{
 					is_legit = true;
 				}
@@ -4571,7 +4603,7 @@ namespace corona
 			"schema_name" : "string",
 			"schema_description" : "string",
 			"schema_version" : "string",
-			"schema_authors" : "array",
+			"schema_authors" : "string",
 			"classes" : "array",
 			"users" : "array",
 			"datasets" : {
