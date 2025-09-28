@@ -4508,6 +4508,11 @@ namespace corona
 				"field_type":"string",
 				"field_name":"alter",
 				"enum" : [ "any", "none", "own" ]
+			},
+			"derive" : {
+				"field_type":"string",
+				"field_name":"derive",
+				"enum" : [ "any", "none", "own" ]
 			}
 	}
 }
@@ -4586,7 +4591,7 @@ namespace corona
 			"ticket_id" : "int64",
 			"timespan_units" : "string",
 			"timespan_value" : "number",
-			"max_open_tickets" :"int32"
+			"max_open_tickets" :"number"
 	}
 }
 )");
@@ -4657,8 +4662,8 @@ namespace corona
 	"class_name" : "sys_dataset",
 	"base_class_name" : "sys_object",
 	"class_description" : "Database script changes",
+	"parents" : [ "sys_schema" ],
 	"fields" : {
-			"schema_id" : "int64",
 			"dataset_name" : "string",
 			"dataset_description" : "string",
 			"dataset_version" : "string",
@@ -4670,9 +4675,6 @@ namespace corona
 			"import" : "object"
 	},
 	"indexes" : {
-        "sys_dataset_schema_id": {
-          "index_keys": [ "schema_id" ]
-        },
 		"sys_dataset_dataset_name": {
 		  "index_keys": [ "dataset_name", "dataset_version" ]
 		}	
@@ -4707,23 +4709,9 @@ namespace corona
 			"schema_description" : "string",
 			"schema_version" : "string",
 			"schema_authors" : "string",
-			"classes" : "array",
-			"users" : "array",
-			"datasets" : {
-				"field_type" : "array",
-				"field_name" : "datasets",
-				"child_objects" : {
-					"sys_dataset" : {
-						"child_class_name" : "sys_dataset",
-						"copy_values" : {
-							"object_id" : "schema_id"
-						},
-						"construct_values" : {
-							"object_id" : "schema_id"
-						}
-					}	
-				}
-			}
+			"classes" : "[object]",
+			"users" : "[object]",
+			"datasets" : [ "sys_dataset" ]
 		}
 	}
 }
@@ -6230,7 +6218,7 @@ private:
 
 						json new_dataset = dataset_array.get_element(i);
 						new_dataset.put_member(class_name_field, "sys_dataset"sv);
-						new_dataset.put_member_i64("schema_id", (int64_t)jschema[object_id_field]);
+						new_dataset.put_member_i64("sys_schema", (int64_t)jschema[object_id_field]);
 						std::string dataset_name = new_dataset["dataset_name"];
 						std::string dataset_version = new_dataset["dataset_version"];
 
@@ -6248,7 +6236,7 @@ private:
 
 							if (new_dataset.has_member("import"))
 							{
-								new_dataset.put_member_i64("schema_id", (int64_t)jschema[object_id_field]);
+								new_dataset.put_member_i64("sys_schema", (int64_t)jschema[object_id_field]);
 								json import_spec = new_dataset["import"];
 								std::vector<std::string> missing;
 
@@ -6376,7 +6364,7 @@ private:
 												}
 												else {
 													system_monitoring_interface::active_mon->log_warning(result[message_field], __FILE__, __LINE__);
-													system_monitoring_interface::active_mon->log_json<json>(result);
+
 												}
 											}
 											else {

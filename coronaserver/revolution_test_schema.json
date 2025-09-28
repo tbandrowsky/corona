@@ -1352,7 +1352,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "colony_home", "colony_search", "article_search", "note" ],
+              "grant_classes": [ "colony_home", "colony_search", "article_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1360,7 +1360,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1386,15 +1386,15 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "case_search", "article_search", "note" ],
+              "grant_classes": [ "case_search", "article_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
-              "alter": "own"
+              "alter": "none"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1450,11 +1450,11 @@
               "get": "any",
               "put": "any",
               "delete": "any",
-              "alter": "all"
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "permit_search", "article_search" ],
+              "grant_classes": [ "permit_search", "article_search" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1462,7 +1462,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1480,23 +1480,24 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "technical_ticket", "technical", "technical_article" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "none"
+              "grant_classes": [ "technical_ticket", "technical", "technical_article" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "technical_search", "article_search", "note" ],
+              "grant_classes": [ "technical_search", "article_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
-              "alter": "own"
+              "alter": "none"
             },
             {
+
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1515,7 +1516,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+              "grant_classes": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
               "get": "own",
               "put": "own",
               "delete": "own",
