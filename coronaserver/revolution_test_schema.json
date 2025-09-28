@@ -1242,15 +1242,15 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_classes": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
+              "grant_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1258,7 +1258,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
+              "grant_classes": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1293,15 +1293,15 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "model", "policy_article" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_classes": [ "policy_ticket", "model", "policy_article" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_home", "model_search", "article_search", "note" ],
+              "grant_classes": [ "policy_home", "model_search", "article_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1309,7 +1309,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
+              "grant_classes": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1344,11 +1344,11 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "colony_ticket", "colony_article" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_classes": [ "colony_ticket", "colony_article" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
@@ -1378,11 +1378,11 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "justice_ticket", "justice_article", "case" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_classes": [ "justice_ticket", "justice_article", "case" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
@@ -1412,15 +1412,15 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "policy" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
-              "alter": "all"
+              "grant_classes": [ "policy_ticket", "policy" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_search" ],
+              "grant_classes": [ "policy_search" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1428,7 +1428,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_class": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1446,10 +1446,10 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_class": [ "permit_ticket", "permit" ],
-              "get": "all",
-              "put": "all",
-              "delete": "all",
+              "grant_classes": [ "permit_ticket", "permit" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
               "alter": "all"
             },
             {

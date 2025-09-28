@@ -105,7 +105,6 @@ namespace corona
 		bool					 is_undefined;
 		bool					 is_array;
 		field_types				 fundamental_type;
-
 		std::vector<std::shared_ptr<child_object_class>> child_classes;
 
 		child_object_definition()
@@ -125,7 +124,7 @@ namespace corona
 		/// </summary>
 		/// <param name="_src">A pointer to a null-terminated C string containing the definition to parse.</param>
 		/// <returns>A child_object_definition structure populated with parsed class names, field mappings, and array status. If parsing fails or the input is empty, returns a default-initialized child_object_definition.</returns>
-		static child_object_definition parse_definition(const char* _src)
+		static child_object_definition parse_definition(const char* _src, std::string _default_target_field)
 		{
 			parser_base pb;
 			child_object_definition cod;
@@ -209,7 +208,7 @@ namespace corona
 						else if (*_src == 0 || *_src == ']')
 						{
                             if (cod.fundamental_type == field_types::ft_none) {
-								new_class->copy_values.insert_or_assign(class_name, "object_id");
+								new_class->copy_values.insert_or_assign(_default_target_field, "object_id");
 							}
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
@@ -374,17 +373,17 @@ namespace corona
 		bool result;
 
 		const char *case1 = "class1";
-		cd = child_object_definition::parse_definition(case1);
-		result = not cd.is_undefined and cd.child_classes.size() == 1 and cd.child_classes[0]->class_name == case1 and cd.child_classes[0]->copy_values.size()==0;
+		cd = child_object_definition::parse_definition(case1, "XOXO");
+		result = not cd.is_undefined and cd.child_classes.size() == 1 and cd.child_classes[0]->class_name == case1 and cd.child_classes[0]->copy_values.size()==1 and cd.child_classes[0]->copy_values.contains("XOXO");
 		_tests->test({ std::format("child object {0}", case1), result , __FILE__, __LINE__ });
 
 		const char* case2 = "class1:target";
-		cd = child_object_definition::parse_definition(case2);
+		cd = child_object_definition::parse_definition(case2, "XOXO");
 		result = not cd.is_undefined and cd.child_classes.size() == 1 and cd.child_classes[0]->class_name == "class1" and cd.child_classes[0]->copy_values.contains("target");
 		_tests->test({ std::format("child object {0}", case1), result , __FILE__, __LINE__ });
 
 		const char* case3 = "class1:target = src";
-		cd = child_object_definition::parse_definition(case3);
+		cd = child_object_definition::parse_definition(case3, "XOXO");
 		result = not cd.is_undefined and cd.child_classes.size() == 1 
 			and cd.child_classes[0]->class_name == "class1"
 			and cd.child_classes[0]->copy_values.contains("target")
@@ -392,7 +391,7 @@ namespace corona
 		_tests->test({ std::format("child object {0}", case3), result , __FILE__, __LINE__ });
 
 		const char *case4 = "class1:target1;class2:target2 = src2;";
-		cd = child_object_definition::parse_definition(case4);
+		cd = child_object_definition::parse_definition(case4, "XOXO");
 		result = not cd.is_undefined and cd.child_classes.size() == 2
 			and cd.child_classes[0]->class_name == "class1"
 			and cd.child_classes[1]->class_name == "class2"
@@ -403,12 +402,12 @@ namespace corona
 		_tests->test({ std::format("child object {0}", case4), result , __FILE__, __LINE__ });
 
 		const char* acase1 = "[ class1 ]";
-		cd = child_object_definition::parse_definition(case1);
-		result = not cd.is_undefined and cd.child_classes.size() == 1 and cd.child_classes[0]->class_name == "class1" and cd.child_classes[0]->copy_values.size() == 0;
+		cd = child_object_definition::parse_definition(case1, "XOXO");
+		result = not cd.is_undefined and cd.child_classes.size() == 1 and cd.child_classes[0]->class_name == "class1" and cd.child_classes[0]->copy_values.size() == 1 and cd.child_classes[0]->copy_values.contains("XOXO");
 		_tests->test({ std::format("child object {0}", case1), result , __FILE__, __LINE__ });
 
 		const char* acase2 = "[ class2:target ]";
-		cd = child_object_definition::parse_definition(acase2);
+		cd = child_object_definition::parse_definition(acase2, "XOXO");
 		result = not cd.is_undefined 
 			and cd.child_classes.size() == 1 
 			and cd.child_classes[0]->class_name == "class2" 
@@ -416,7 +415,7 @@ namespace corona
 		_tests->test({ std::format("child object {0}", acase2), result , __FILE__, __LINE__ });
 
 		const char* acase3 = "[ class2:target = src ]";
-		cd = child_object_definition::parse_definition(acase3);
+		cd = child_object_definition::parse_definition(acase3, "XOXO");
 		result = not cd.is_undefined and cd.child_classes.size() == 1
 			and cd.child_classes[0]->class_name == "class2"
 			and cd.child_classes[0]->copy_values.contains("target")
@@ -424,7 +423,7 @@ namespace corona
 		_tests->test({ std::format("child object {0}", acase3), result , __FILE__, __LINE__ });
 
 		const char* acase4 = "[ class1:target1;class2:target2 = src2 ]";
-		cd = child_object_definition::parse_definition(acase4);
+		cd = child_object_definition::parse_definition(acase4, "XOXO");
 		result = not cd.is_undefined and cd.child_classes.size() == 2
 			and cd.child_classes[0]->class_name == "class1"
 			and cd.child_classes[1]->class_name == "class2"
@@ -435,7 +434,7 @@ namespace corona
 		_tests->test({ std::format("child object {0}", acase4), result , __FILE__, __LINE__ });
 
 		const char* acase5 = "[ class2:target ]";
-		cd = child_object_definition::parse_definition(acase5);
+		cd = child_object_definition::parse_definition(acase5, "XOXO");
 		result = not cd.is_undefined
 			and cd.child_classes.size() == 1
 			and cd.child_classes[0]->class_name == "class2"
@@ -443,7 +442,7 @@ namespace corona
 		_tests->test({ std::format("child object {0}", acase5), result , __FILE__, __LINE__ });
 
 		const char* acase6 = "[ class2:target = src ]";
-		cd = child_object_definition::parse_definition(acase6);
+		cd = child_object_definition::parse_definition(acase6, "XOXO");
 		result = not cd.is_undefined 
 			and cd.child_classes.size() == 1 
 			and cd.child_classes[0]->class_name == "class2" 
@@ -769,6 +768,14 @@ namespace corona
 		virtual bool is_server_only() = 0;
 	};
 
+	class class_interface_base
+	{
+	public:
+		virtual ~class_interface_base() {
+			;
+		}
+	};
+
 	class field_interface {
 	protected:
 		std::string field_name;
@@ -781,7 +788,7 @@ namespace corona
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual void get_json(json& _dest) = 0;
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
+		virtual void put_json(std::vector<validation_error>& _errors, json& _src, class_interface_base*_owner) = 0;
 
 		virtual std::string get_field_name()
 		{
@@ -833,7 +840,7 @@ namespace corona
 
 	class activity;
 
-	class class_interface : public shared_lockable
+	class class_interface : public shared_lockable, public class_interface_base
 	{
 	protected:
 	public:
@@ -1252,7 +1259,7 @@ namespace corona
 			json_parser jp;
 			json result_array = jp.create_array();
 
-            // TODO.  This needs to get the children if they are of a derived class too.
+            // This needs to get the children if they are of a derived class too.
 
 			for (auto class_name_pair : all_constructors) 
 			{
@@ -2388,8 +2395,10 @@ namespace corona
 			}
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src)
+		virtual void put_json(std::vector<validation_error>& _errors, json& _src, class_interface_base* _classdb)
 		{
+
+            class_interface* _classd = dynamic_cast<class_interface*>(_classdb);
 
 			std::string s = _src["field_type"];
 			auto aft = allowed_field_types.find(s);
@@ -2454,7 +2463,7 @@ namespace corona
 				}
 				else {
 
-					child_object_definition cod = child_object_definition::parse_definition(s.c_str());
+					child_object_definition cod = child_object_definition::parse_definition(s.c_str(), _classd->get_class_name());
 
 					if (not cod.is_undefined)
 					{
@@ -3181,7 +3190,7 @@ namespace corona
 
 					if (jfield.second.object()) 
 					{
-						field->put_json(_errors, jfield.second);
+						field->put_json(_errors, jfield.second, this);
 					}
 					else if (jfield.second.is_string()) 
 					{
@@ -3191,7 +3200,7 @@ namespace corona
 						}
 						else {
 							auto parse_temp = (std::string)jfield.second;
-							cod = child_object_definition::parse_definition(parse_temp.c_str());
+							cod = child_object_definition::parse_definition(parse_temp.c_str(), get_class_name());
 							if (cod.is_undefined)
 							{
 								rd = reference_definition::parse_definition(parse_temp.c_str());
@@ -4949,11 +4958,10 @@ private:
 			return response;
 		}
 
-		json check_single_object(date_time &current_date, read_class_sp& class_data, json& _object_definition, const class_permissions& _permission)
+		json check_single_object(date_time &current_date, read_class_sp& class_data, json& _object_definition, const class_permissions& _permission, std::vector<validation_error>& validation_errors)
 		{
 			json_parser jp;
 			using namespace std::literals;
-			std::vector<validation_error> validation_errors;
 
 			json object_definition = _object_definition.clone();
 
@@ -5187,7 +5195,7 @@ private:
 
 				for (auto item_definition : class_object_list)
 				{
-					json result = check_single_object(current_date, class_data, item_definition, permission);
+					json result = check_single_object(current_date, class_data, item_definition, permission, validation_errors);
 					result_list.push_back(result);
 
 					if (not result[success_field]) 
@@ -5586,7 +5594,7 @@ private:
 							if (std::regex_match(_domain, domain_matcher)) {
 								system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
                                 json actual_team = get_team(team_name, _permission);
-								teams.push_back(team);
+								teams.push_back(actual_team);
 							}
 							else {
 								system_monitoring_interface::active_mon->log_warning(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
@@ -8010,6 +8018,10 @@ private:
 			else
 			{
 				result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+                for (auto err : errors) {
+					std::string msg = std::format("{0}.{1}: {2} @({3},{4})", err.class_name, err.field_name, err.message, err.filename, err.line_number);
+                    system_monitoring_interface::active_mon->log_warning(msg);
+                }
 			}
 			system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
