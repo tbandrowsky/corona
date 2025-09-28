@@ -1258,14 +1258,19 @@ namespace corona
 			{
 				json key = class_name_pair.second->get_key(_parent_object);
 				read_class_sp classy = _db->read_lock_class(class_name_pair.first);
-				if (classy) {
-					json temp_array = classy->get_objects(_db, key, true, _permissions);
-					if (temp_array.array()) {
-						for (auto obj : temp_array) {
-							result_array.push_back(obj);
-						}
-					}
-				}
+                auto& derived_classes = classy->get_descendants();
+
+                for (auto derived_class : derived_classes) {
+                    read_class_sp dclassy = _db->read_lock_class(derived_class.first);
+                    if (dclassy) {
+                        json temp_array = dclassy->get_objects(_db, key, true, _permissions);
+                        if (temp_array.array()) {
+                            for (auto obj : temp_array) {
+                                result_array.push_back(obj);
+                            }
+                        }
+                    }
+                }
 			}
 
 			return result_array;
@@ -5515,7 +5520,7 @@ private:
 		{
 			json_parser jp;
 			json error = jp.create_object();
-			error.put_member(class_name_field, "sys_error");
+			error.put_member(class_name_field, std::string("sys_error"));
 			error.put_member("system", _system);
 			error.put_member("message", _message);
 			error.put_member("file", _file);
