@@ -4267,6 +4267,13 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
+		void log_errors(std::vector<validation_error>& _errors)
+		{
+			for (auto err : _errors) {
+				std::string msg = std::format("{0}.{1}: {2} @({3},{4})", err.class_name, err.field_name, err.message, err.filename, err.line_number);
+				system_monitoring_interface::active_mon->log_warning(msg);
+			}
+		}
 
 	public:
 
@@ -4915,7 +4922,7 @@ namespace corona
 			}
 			else {
 				system_monitoring_interface::active_mon->log_warning("system user create failed", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json(new_user_result);
+				log_errors(errors);
 				json temp = jp.create_object();
 				response = create_response(new_user_request, false, "Database user create failed.", temp, errors, method_timer.get_elapsed_seconds());
 			}
@@ -6401,7 +6408,6 @@ private:
 										json create_result = put_object(put_object_request);
 										if (not create_result[success_field]) {
 											system_monitoring_interface::active_mon->log_warning(create_result[message_field]);
-											system_monitoring_interface::active_mon->log_json<json>(create_result);
 										}
 										else {
                                             json result = create_result[data_field];
@@ -6432,7 +6438,6 @@ private:
 							json save_script_result = put_object(put_script_request);
 							if (not save_script_result[success_field]) {
 								system_monitoring_interface::active_mon->log_warning(save_script_result[message_field]);
-								system_monitoring_interface::active_mon->log_json<json>(save_script_result);
 							}
 							else
 								system_monitoring_interface::active_mon->log_information(save_script_result[message_field]);
@@ -6456,7 +6461,6 @@ private:
 			else 
 			{
 				system_monitoring_interface::active_mon->log_warning(put_schema_result[message_field], __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json<json>(put_schema_result);
 			}
 
 			system_monitoring_interface::active_mon->log_job_stop("apply_schema", "schema applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -8006,10 +8010,7 @@ private:
 			else
 			{
 				result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
-                for (auto err : errors) {
-					std::string msg = std::format("{0}.{1}: {2} @({3},{4})", err.class_name, err.field_name, err.message, err.filename, err.line_number);
-                    system_monitoring_interface::active_mon->log_warning(msg);
-                }
+				log_errors(errors);
 			}
 			system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 

@@ -214,12 +214,12 @@
     <CopyFileToFolders Include="onboarding_email_template.html">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="revolution_schema.json">
+    <CopyFileToFolders Include="revolution_old_schema.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="naughty_monsters.json" />
-    <None Include="revolution_test_schema.json" />
+    <None Include="revolution_schema.json" />
     <None Include="sqlintegrationschema.json" />
     <None Include="table_test_schema.json" />
   </ItemGroup>

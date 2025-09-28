@@ -11,7 +11,7 @@
   "Server": {
     "listen_point": "http://localhost:5678/revolution/",
     "application_name": "revolution",
-    "schema_filename": "revolution_test_schema.json",
+    "schema_filename": "revolution_schema.json",
     "database_filename": "revolution_database.cdb",
     "database_threads": 4,
     "database_recreate": true,
