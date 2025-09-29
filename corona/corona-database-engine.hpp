@@ -4835,18 +4835,15 @@ namespace corona
 			"home_team_name" :{ 
 				"field_type":"string",
 				"field_name":"home_team_name",	
-				"is_server_only": true
+				"is_server_only": false
 			},
 			"team_name" :{ 
 				"field_type":"string",
 				"field_name":"team_name",	
-				"is_server_only": true
+				"is_server_only": false
 			},
-			"workflow_objects" : { 
-				"field_type":"object",
-				"field_name":"workflow_objects",	
-				"is_server_only": true
-			}
+			"workflow_objects" : "[object]"
+        }
 	}
 }
 )");
