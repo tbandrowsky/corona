@@ -1372,8 +1372,6 @@ namespace corona
 			if (not object())
 				return 0;
 
-			bool flippo;
-
 			for (int i = 0; i < 3; i++)
 			{
 				auto ikey = _keys[i];
@@ -1409,9 +1407,9 @@ namespace corona
 					{
 						std::string temps = (std::string)m;
 						int sz = temps.size();
-						for (int i = 0; i < 2; i++) {
-							if (i < sz) {
-								temp += temps[i];
+						for (int j = 0; j < 2; j++) {
+							if (j < sz) {
+								temp += temps[j];
 							}
 							temp *= 256;
 						}
@@ -2933,9 +2931,9 @@ namespace corona
 					auto element = get_element(i);
 					auto new_element = _transform("", i, element);
 					if (new_element.array()) {
-						for (int i = 0; i < new_element.size(); i++) {
-							json j = new_element.get_element(i);
-							result_item.append_element( j);
+						for (int j = 0; j < new_element.size(); j++) {
+							json jx = new_element.get_element(j);
+							result_item.append_element( jx);
 						}
 					}
 					else if (not new_element.empty())
@@ -2952,12 +2950,12 @@ namespace corona
 				{
 					auto new_member = _transform(member.first, 0, member.second);
 					if (new_member.object()) {
-						auto members = new_member.get_members();
-						for (auto member : members) {
-							if (not result_item.has_member(member.first)) {
-								result_item.put_member_array(member.first);
+						auto xmembers = new_member.get_members();
+						for (auto xmember : xmembers) {
+							if (not result_item.has_member(xmember.first)) {
+								result_item.put_member_array(xmember.first);
 							}
-							result_item[member.first].append_element(member.second);
+							result_item[xmember.first].append_element(xmember.second);
 						}
 					}
 					else

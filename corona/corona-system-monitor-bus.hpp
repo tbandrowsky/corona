@@ -551,7 +551,6 @@ namespace corona
 		virtual void log_function_start(std::string _function_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
 			const char* cmessage = _message.c_str();
-			const char* ccommand = _function_name.c_str();
 			const char* cfilename = get_file_name(_file);
 
 
@@ -567,7 +566,7 @@ namespace corona
 			xout << Logfunction;
 			xout << std::format("{0:<20}{1:<45}{2:<10}{3:<25}",
 				_function_name,
-				trim(_message, 45),
+				trim(cmessage, 45),
 				GetCurrentThreadId(),
 				_request_time.format("%D %H:%M start")
 			);
@@ -619,7 +618,7 @@ namespace corona
 				GetCurrentThreadId(),
 				std::format("{0} secs", _elapsed_seconds)
 			);
-			file_line(_file, _line);
+			file_line(cfilename, _line);
 			xout << Normal;
 			xout << std::endl;
 			}

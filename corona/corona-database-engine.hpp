@@ -82,11 +82,13 @@ namespace corona
 	/// </summary>
 	const std::string class_grant_any = "any"; // any object can be modified by someone on the team
 	const std::string class_grant_own = "own"; // only objects you own can be modified if you are on the team
+	const std::string class_grant_team = "team"; // only objects owned by your team
 
 	enum class_grants {
 		grant_none = 0,
 		grant_any = 1,
-		grant_own = 2
+		grant_own = 2,
+		grant_team = 3
 	};
 
 	class child_object_class
@@ -456,6 +458,7 @@ namespace corona
 	class class_permissions {
 	public:
 		std::string		user_name;
+        std::string     team_name;
 		class_grants	put_grant;
 		class_grants	get_grant;
 		class_grants	delete_grant;
@@ -2863,7 +2866,7 @@ namespace corona
 		/// <returns>A shared pointer to the current xtable after alteration.</returns>
 		virtual std::shared_ptr<xtable> alter_xtable(corona_database_interface* _db) override
 		{
-			std::shared_ptr<xtable> current_table, new_table, table;
+			std::shared_ptr<xtable> current_table, new_table;
 
 			if (std::filesystem::exists(get_class_filename()))
 			{
@@ -3227,7 +3230,6 @@ namespace corona
 					else if (jfield.second.array())
 					{
 						field->set_field_type(field_types::ft_array);
-						child_object_definition cod;
 						cod.is_array = true;
 						for (auto jfield_grant : jfield.second) {
 							if (jfield_grant.is_string())
@@ -3600,15 +3602,15 @@ namespace corona
 				else 
 				{
 					auto class_data = get_table(_context->db);
-					auto table = new_index.second->create_xtable(_context->db, fields);
+					auto idx_table = new_index.second->create_xtable(_context->db, fields);
 
 					auto& keys = new_index.second->get_index_keys();
 					date_time dt = date_time::now();
 					timer tx;
 					system_monitoring_interface::active_mon->log_job_section_start("index", new_index.first, dt, __FILE__, __LINE__);
 					json empty_key = jp.create_object();
-					class_data->for_each(empty_key, [table](json& _item) -> relative_ptr_type {
-						table->put(_item);
+					class_data->for_each(empty_key, [idx_table](json& _item) -> relative_ptr_type {
+						idx_table->put(_item);
 						return 1;
 						});
 					system_monitoring_interface::active_mon->log_job_section_stop("index:", new_index.first, tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -3622,7 +3624,7 @@ namespace corona
 			{
 				auto desc_class = _context->get_class(descendant.first);
 				if (desc_class) {
-					json_parser jp;
+
 					json descendant_json = jp.create_object();
 
 					desc_class->update_ancestors().insert_or_assign(class_name, true);
@@ -3820,7 +3822,12 @@ namespace corona
 					if ((std::string)result["created_by"] != _grant.user_name) {
 						result = jp.create_object();
 					}
-				}
+                }
+                else if (_grant.get_grant == class_grants::grant_team) {
+					if ((std::string)result["team"] != _grant.team_name) {
+						result = jp.create_object();
+					}
+                }
 			}
 			else 
 			{
@@ -3891,7 +3898,14 @@ namespace corona
 					if (_grant.user_name == owner) {
 						use_write_object = true;
 					}
-				}
+                }
+                else if (_grant.put_grant == class_grants::grant_team)
+                {
+                    std::string team = (std::string)write_object["team"];
+                    if (_grant.team_name == team) {
+                        use_write_object = true;
+                    }
+                }
 
 				auto these_fields = get_fields();
 
@@ -4029,19 +4043,23 @@ namespace corona
 				else
 				{
 					auto class_data = get_table(_db);
-					obj = class_data->select(_key, [&_key, &_grant](json& _j)
+                    obj = class_data->select(_key, [&_key, &_grant](json& _j)-> json
 						{
 							json result;
-							if (_key.compare(_j) == 0 
-								and (_grant.get_grant == class_grants::grant_any 
-									or (_grant.get_grant == class_grants::grant_own 
+							if (_key.compare(_j) == 0
+								and (_grant.get_grant == class_grants::grant_any
+									or (_grant.get_grant == class_grants::grant_own
 										and (std::string)_j["created_by"] == _grant.user_name
 										)
 									)
-								)
-							result = _j;
+								or (_grant.get_grant == class_grants::grant_team
+									and (std::string)_j["team"] == _grant.team_name
+									)
+							)
+							{
+								result = _j;
+							}
 							return result;
-
 						});
 				}
 			}
@@ -4375,7 +4393,8 @@ namespace corona
 			"created" : "datetime",
 			"created_by" : "string",
 			"updated": "datetime",
- 			"updated_by" :"string" 
+ 			"updated_by" :"string",
+			"team" : "string" 
 	}
 }
 )");
@@ -4634,7 +4653,7 @@ namespace corona
 				"format:" : "regexp"
 			},
 			"permissions" : "[ sys_grant ]",
-			"workflow_classes" : "[ string ]",
+			"inventory_classes" : "[ string ]",
 			"allowed_teams" : "[ string ]",
 			"tickets" : "[ sys_ticket ]",
 			"workflow" : "[ sys_workflow ]"
@@ -4741,6 +4760,35 @@ namespace corona
 				return result;
 			}
 
+			response = create_class(R"(
+{	
+	"base_class_name" : "sys_object",
+	"class_name" : "sys_user_object",
+	"class_description" : "A user object",
+	"parents": [ "sys_user", "sys_user_object" ],
+	"fields" : {			
+			"object_name" : "string"
+			"children" : "[sys_user_object]"
+        }
+	}
+}
+)");
+
+			if (not response[success_field]) {
+				system_monitoring_interface::active_mon->log_warning("create_class sys_user_object put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_user_object"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_user_object after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+
+				return result;
+			}
+			created_classes.put_member("sys_user_object", true);
 
 			response =  create_class(R"(
 {	
@@ -4842,7 +4890,7 @@ namespace corona
 				"field_name":"team_name",	
 				"is_server_only": false
 			},
-			"workflow_objects" : "[object]"
+			"inventory" : "[sys_user_object]"
         }
 	}
 }
@@ -5758,6 +5806,7 @@ private:
 		{
 			class_permissions grants;
 			grants.user_name = default_user;
+            grants.team_name = "systemonlyfans";
 			grants.alter_grant = class_grants::grant_any;
 			grants.put_grant = class_grants::grant_any;
 			grants.get_grant = class_grants::grant_any;
@@ -5797,6 +5846,7 @@ private:
 			if (not user.empty()) 
 			{			
 				std::string team_name = (std::string)user["team_name"];
+                grants.team_name = team_name;
 				json jteam = get_team(team_name, sys_perm);
 				if (jteam.object()) {
 					json jpermissions = jteam["permissions"];
@@ -6890,35 +6940,35 @@ private:
 
 					user.put_member("home_team_name", (std::string)team["team_name"]);
 					user.put_member("team_name", (std::string)team["team_name"]);
-					json workflow_objects = jp.create_array();
-					json workflow_classes = team["workflow_classes"];
-					workflow_objects = user["workflow_objects"];
-					if (not workflow_objects.object())
+					json user_inventory = jp.create_array();
+					json user_inventory_classes = team["inventory_classes"];
+					user_inventory = user["inventory"];
+					if (not user_inventory.array())
 					{
-						workflow_objects = jp.create_object();
+						user_inventory = jp.create_array();
 					}
+					std::map<std::string, bool> existing_classes;
+                    for (auto inv_item : user_inventory) {
+                        std::string class_name = (std::string)inv_item;
+                        existing_classes[class_name] = true;
+                    }
 					// workflow classes lets you create editable objects for a user
 					// whose methods are search
-					if (workflow_classes.array()) {
-						for (auto wf_class : workflow_classes) {
+					if (user_inventory_classes.array()) {
+						for (auto wf_class : user_inventory_classes) {
 							std::string class_name = (std::string)wf_class;
-							if (workflow_objects.has_member(class_name)) {
+							if (existing_classes.contains(class_name))
 								continue;
-							}
 							json create_req = jp.create_object();
 							create_req.put_member(class_name_field, class_name);
 							json sys_create_req = create_system_request(create_req);
 							json result = create_object(sys_create_req);
 							if (result[success_field]) {
-								json new_object = result[data_field];
-								int64_t object_id = new_object[object_id_field];
-								json sys_create_req = create_system_request(new_object);
-								workflow_objects.put_member_i64(class_name, object_id);
-								put_object_nl(sys_create_req);
+								user_inventory.push_back(result[data_field]);
 							}
 						}
 					}
-					user.share_member("workflow_objects", workflow_objects);
+					user.share_member("inventory", user_inventory);
 				}
 
 				put_user(user);
@@ -7196,7 +7246,7 @@ private:
 			{
 				bool confirm = (bool)user["confirmed_code"];
 
-				json workflow = user["workflow_objects"];
+				json workflow = user["user_inventory"];
 				json navigation_options = jp.create_object();
 
 				if (user_name == default_user and default_user.size() > 0) 
