@@ -49,8 +49,6 @@ namespace corona
 
     public:
 
-        json_parser jp;
-
         Lexer(const std::string& text) : text(text), pos(0), current_char(text[pos]) {}
 
         Token get_next_token() {

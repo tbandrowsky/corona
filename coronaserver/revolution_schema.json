@@ -28,7 +28,7 @@
     {
       "class_name": "ticket_search",
       "class_description": "search object for tickets",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "ticket_name": "string",
         "ticket_description": "string",
@@ -92,7 +92,7 @@
     {
       "class_name": "appointment_search",
       "class_description": "search object for appointments",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": "string",
         "description": "string",
@@ -210,7 +210,7 @@
     {
       "class_name": "article_search",
       "class_description": "search object for appointments",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": "string",
         "description": "string",
@@ -315,7 +315,7 @@
     {
       "class_name": "candidate_search",
       "class_description": "search object for candidates",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "full_name": "string",
         "state": "string",
@@ -385,7 +385,7 @@
     {
       "class_name": "committee_search",
       "class_description": "search object for committees",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "committee_name": "string",
         "political_party": "string",
@@ -468,7 +468,7 @@
     {
       "class_name": "individual_search",
       "class_description": "Mapping of committees and candidates",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "full_name": {
           "field_type": "string",
@@ -549,7 +549,7 @@
     {
       "class_name": "model_search",
       "class_description": "User search choices for Policy Models",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
       }
     },
@@ -585,7 +585,7 @@
       "class_description": "using information to formulate suggested policies",
       "base_class_name": "policy_ticket",
       "fields": {
-        "property_set": "responsibility_set",
+        "responsibility_set": "responsibility_set",
         "model": "model"
       }
     },
@@ -619,7 +619,7 @@
     {
       "class_name": "colony_search",
       "class_description": "Mapping of committees and candidates",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": {
           "field_type": "string"
@@ -775,7 +775,7 @@
     {
       "class_name": "case_search",
       "class_description": "Search screen for the court",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
       }
     },
@@ -826,9 +826,8 @@
 
     {
       "class_name": "responsibility_set",
-      "class_description": "property and people one is responsible for",
-      "base_class_name": "sys_object",
-      "parents": [ "sys_user", "work_team" ],
+      "class_description": "Property and people one is responsible for",
+      "base_class_name": "sys_user_object",
       "fields": {
         "properties": "[ responsibility ]"
       }
@@ -948,7 +947,7 @@
     {
       "class_name": "insurance_search",
       "class_description": "a request for the permit team",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": "string",
         "description": "string",
@@ -991,7 +990,7 @@
       "class_description": "a request for the permit team",
       "base_class_name": "work_ticket",
       "fields": {
-        "property_set": "property_set"
+        "responsibility_set": "responsibility_set"
       }
     },
     {
@@ -1016,7 +1015,7 @@
       "class_description": "a request for the permit team",
       "base_class_name": "insurance_ticket",
       "fields": {
-        "property_set": "property_set"
+        "responsibility_set": "responsibility_set"
       }
     },
     {
@@ -1042,7 +1041,7 @@
       "base_class_name": "sys_object",
       "parents": [ "environmental_discharge_ticket" ],
       "fields": {
-        "property_set": "property_set",
+        "responsibility_set": "responsibility_set",
         "discharge_material": "string",
         "discharge_amount": "string",
         "discharge_start": "date_time",
@@ -1054,7 +1053,7 @@
       "class_description": "a request for the permit team",
       "base_class_name": "permit_ticket",
       "fields": {
-        "property_set": "property_set",
+        "responsibility_set": "responsibility_set",
         "discharges": "[ discharge ]"
       }
     },
@@ -1079,7 +1078,7 @@
     {
       "class_name": "permit_search",
       "class_description": "Search for Permits",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": {
           "field_type": "string"
@@ -1158,7 +1157,7 @@
     {
       "class_name": "technical_search",
       "class_description": "Search for Permits",
-      "base_class_name": "sys_object",
+      "base_class_name": "sys_user_object",
       "fields": {
         "name": {
           "field_type": "string"
@@ -1237,7 +1236,7 @@
           "team_name": "Intelligence Team",
           "team_description": "Gathers Information for the Revolution",
           "team_domain": "NONE",
-          "workflow_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
+          "user_inventory_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team" ],
           "permissions": [
             {
@@ -1262,6 +1261,14 @@
               "get": "own",
               "put": "own",
               "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
               "alter": "none"
             }
           ],
@@ -1288,7 +1295,7 @@
           "team_name": "Policy Team",
           "team_description": "Revolution Policy",
           "team_domain": "NONE",
-          "workflow_classes": [ "policy_home", "model_search", "article_search" ],
+          "user_inventory_classes": [ "policy_home", "model_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
@@ -1313,6 +1320,14 @@
               "get": "own",
               "put": "own",
               "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
               "alter": "none"
             }
           ],
@@ -1339,7 +1354,7 @@
           "team_name": "Colony Team",
           "team_description": "Revolution Colonization",
           "team_domain": "NONE",
-          "workflow_classes": [ "colony_home", "colony_search", "article_search" ],
+          "user_inventory_classes": [ "colony_home", "colony_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
@@ -1365,6 +1380,14 @@
               "put": "own",
               "delete": "own",
               "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
             }
           ]
         },
@@ -1373,7 +1396,7 @@
           "team_name": "Justice Team",
           "team_description": "Revolution Court",
           "team_domain": "NONE",
-          "workflow_classes": [ "case_search", "article_search" ],
+          "user_inventory_classes": [ "case_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
@@ -1399,6 +1422,14 @@
               "put": "own",
               "delete": "own",
               "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
             }
           ]
         },
@@ -1407,7 +1438,7 @@
           "team_name": "Insurance Team",
           "team_description": "Revolution Insurance",
           "team_domain": "NONE",
-          "workflow_classes": [ "policy_search", "article_search" ],
+          "user_inventory_classes": [ "responsibility_set", "policy_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
@@ -1433,6 +1464,14 @@
               "put": "own",
               "delete": "own",
               "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
             }
           ]
         },
@@ -1441,7 +1480,7 @@
           "team_name": "Permit Team",
           "team_description": "Revolution Permits",
           "team_domain": "NONE",
-          "workflow_classes": [ "permit_search", "article_search" ],
+          "user_inventory_classes": [ "permit_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
           "permissions": [
             {
@@ -1462,6 +1501,14 @@
             },
             {
               "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
               "grant_classes": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
@@ -1475,7 +1522,7 @@
           "team_name": "Technical Team",
           "team_description": "Revolution Technical",
           "team_domain": ".*countryvideogames\\.com",
-          "workflow_classes": [ "technical_search", "article_search" ],
+          "user_inventory_classes": [ "technical_search", "article_search" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team", "Technical Team" ],
           "permissions": [
             {
@@ -1511,7 +1558,7 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "workflow_classes": [ "customer_home" ],
+          "user_inventory_classes": [ "customer_home", "responsibility_set" ],
           "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team" ],
           "permissions": [
             {
@@ -1521,95 +1568,18 @@
               "put": "own",
               "delete": "own",
               "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "responsibility_set", "responsibility", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
             }
           ]
         }
       ]
-    },
-    {
-      "dataset_name": "Candidate Master",
-      "dataset_description": "Load Candidates",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cn.csv",
-        "target_class": "candidate",
-        "column_map": {
-          "0": "candidate_id",
-          "1": "full_name",
-          "2": "political_party",
-          "3": "election_year",
-          "10": "street1",
-          "11": "street2",
-          "12": "city",
-          "13": "state",
-          "14": "zip"
-        }
-      }
-    },
-    {
-      "dataset_name": "Committee Master",
-      "dataset_description": "Load Committees",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cm.csv",
-        "target_class": "committee",
-        "column_map": {
-          "0": "committee_id",
-          "1": "committee_name",
-          "10": "political_party",
-          "13": "company_name"
-        }
-      }
-    },
-    {
-      "dataset_name": "CommitteeCandidates Master",
-      "dataset_description": "Map Committees and Candidates",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\ccl.csv",
-        "target_class": "committee_candidate",
-        "column_map": {
-          "0": "candidate_id",
-          "3": "committee_id"
-        }
-      }
-    },
-    {
-      "dataset_name": "Individual Master",
-      "dataset_description": "Load Individuals",
-      "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
-      "import": {
-        "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\itcont.csv",
-        "target_class": "individual",
-        "column_map": {
-          "0": "committee_id",
-          "7": "full_name",
-          "8": "city",
-          "9": "state",
-          "10": "zip",
-          "11": "employer",
-          "12": "occupation",
-          "13": "transaction_date",
-          "14": "transaction_amount",
-          "19": "memo"
-        }
-      }
     }
 
   ]

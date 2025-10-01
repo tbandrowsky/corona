@@ -183,7 +183,6 @@ namespace corona {
 
 		virtual box_block* reserve(corona_size_t length)
 		{
-			relative_ptr_type placement;
 			auto ac = allocate(1, length);
 			return ac;
 		}

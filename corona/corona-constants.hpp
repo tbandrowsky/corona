@@ -774,20 +774,20 @@ namespace corona
 
 		if (major < 10)
 		{
-			cp.str[0] = major + '0';
+			cp.str[0] = (char)major + '0';
 		}
 		else
 		{
-			cp.str[0] = (major - 10) + 'A';
+			cp.str[0] = ((char)major - (char)10) + 'A';
 		}
 
 		if (minor < 10)
 		{
-			cp.str[1] = minor + '0';
+			cp.str[1] = (char)minor + '0';
 		}
 		else
 		{
-			cp.str[1] = (minor - 10) + 'A';
+			cp.str[1] = ((char)minor - 10) + 'A';
 		}
 		cp.str[2] = 0;
 
@@ -914,7 +914,7 @@ namespace corona
 
 			while (index_lists < _hex_string.size())
 			{
-				unsigned char t = corona::toInt2(_hex_string, index_lists);
+				unsigned char t = (char)corona::toInt2(_hex_string, index_lists);
 				bytes.push_back(t);
 				index_lists += 2;
 				byte_count++;
@@ -932,7 +932,7 @@ namespace corona
 
 			while (index_lists < _hex_string.size() and byte_count < buffer_size)
 			{
-				unsigned char t = corona::toInt2(_hex_string, index_lists);
+				unsigned char t = (char)corona::toInt2(_hex_string, index_lists);
 				buffer_bytes[byte_count] = t;
 				index_lists += 2;
 				byte_count++;
@@ -966,7 +966,7 @@ namespace corona
 		void randomize()
 		{
 			for (int i = 0; i < buffer_size; i++) {
-				buffer_bytes[i] = rand();
+				buffer_bytes[i] = (char)rand();
 			}
 		}
 
