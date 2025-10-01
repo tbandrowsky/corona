@@ -3906,7 +3906,7 @@ namespace corona
 									std::string obj_class_name = obj[class_name_field];
 									auto bridge = bridges->get_bridge(obj_class_name);
 									if (bridge) {
-										bridge->copy(obj, _src_obj);
+										bridge->copy(obj, write_object);
 									}
 									_child_objects.push_back(obj);
 								}
@@ -4240,7 +4240,7 @@ namespace corona
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
 		
-		long import_batch_size = 20000;
+		long import_batch_size = 10000;
 		/*
 		* authorizations in tokens, methods and progressions
 		* 
@@ -4834,19 +4834,13 @@ namespace corona
 			},
 			"home_team_name" :{ 
 				"field_type":"string",
-				"field_name":"home_team_name",	
-				"is_server_only": true
+				"field_name":"home_team_name"
 			},
 			"team_name" :{ 
 				"field_type":"string",
-				"field_name":"team_name",	
-				"is_server_only": true
+				"field_name":"team_name"
 			},
-			"workflow_objects" : { 
-				"field_type":"object",
-				"field_name":"workflow_objects",	
-				"is_server_only": true
-			}
+			"workflow_objects" : "[object]"
 	}
 }
 )");
@@ -5658,6 +5652,10 @@ private:
 						std::string ticket_create_class_name = (std::string)wf["ticket_create_class_name"];
                         std::string ticket_name = (std::string)wf["ticket_name"];
                         std::string ticket_description = (std::string)wf["ticket_description"];
+
+						if (workflow_name.empty() or ticket_class_name.empty()) {
+							continue;
+						}
 
 						std::vector<std::string> required_object_classes = wf["required_object_classes"].to_string_array();
 
@@ -7953,69 +7951,77 @@ private:
 			json object_definition;
 			json result;
 
-			date_time start_time = date_time::now();
-			timer tx;
-			std::vector<validation_error> errors;
+			try {
 
-			system_monitoring_interface::active_mon->log_function_start("put_object", "start", start_time, __FILE__, __LINE__);
+				date_time start_time = date_time::now();
+				timer tx;
+				std::vector<validation_error> errors;
 
-			object_definition = put_object_request[data_field];
-			std::string user_name;
-	
-            std::string authority = auth_general;
-            std::string token_authority = auth_general;
+				system_monitoring_interface::active_mon->log_function_start("put_object", "start", start_time, __FILE__, __LINE__);
 
-			if (not check_message(put_object_request, { authority }, user_name, token_authority))
-			{
-				result = create_response(put_object_request, false, "Put object denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("put_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				return result;
-			}
+				object_definition = put_object_request[data_field];
+				std::string user_name;
 
-			result = check_object(object_definition, user_name, errors, token_authority);
+				std::string authority = auth_general;
+				std::string token_authority = auth_general;
 
-			json grouped_by_class_name = result[data_field];
-
-			if (result[success_field])
-			{
-				auto classes_and_data = grouped_by_class_name.get_members();
-
-				json child_objects = jp.create_array();
-
-				for (auto class_pair : classes_and_data)
+				if (not check_message(put_object_request, { authority }, user_name, token_authority))
 				{
-					auto cd = read_lock_class(class_pair.first);
-					if (cd) {
+					result = create_response(put_object_request, false, "Put object denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+					system_monitoring_interface::active_mon->log_function_stop("put_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					return result;
+				}
 
-						// now that we have our class, we can go ahead and open the storage for it
+				result = check_object(object_definition, user_name, errors, token_authority);
 
-						json data_list = jp.create_array();
-						for (const auto& item : class_pair.second) {
-							data_list.push_back(item[data_field]);
+				json grouped_by_class_name = result[data_field];
+
+				if (result[success_field])
+				{
+					auto classes_and_data = grouped_by_class_name.get_members();
+
+					json child_objects = jp.create_array();
+
+					for (auto class_pair : classes_and_data)
+					{
+						auto cd = read_lock_class(class_pair.first);
+						if (cd) {
+
+							// now that we have our class, we can go ahead and open the storage for it
+
+							json data_list = jp.create_array();
+							for (const auto& item : class_pair.second) {
+								data_list.push_back(item[data_field]);
+							}
+
+							auto perms = get_class_permission(user_name, class_pair.first);
+
+							cd->put_objects(this, child_objects, data_list, perms);
 						}
-
-						auto perms = get_class_permission(user_name, class_pair.first);
-
-						cd->put_objects(this, child_objects, data_list, perms);
 					}
-				}
 
-				if (child_objects.size() > 0) {
-					put_object_request.put_member(data_field, child_objects);
-					put_object(put_object_request);
-				}
+					if (child_objects.size() > 0) {
+						put_object_request.put_member(data_field, child_objects);
+						put_object(put_object_request);
+					}
 
-				result = create_response(put_object_request, true, "Object(s) created", grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					result = create_response(put_object_request, true, "Object(s) created", grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+				}
+				else
+				{
+					result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					log_errors(errors);
+				}
+				system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+
+				commit();
 			}
-			else
+			catch (std::exception exc)
 			{
-				result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
-				log_errors(errors);
+                result = jp.create_object();
+                result.put_member(success_field, false);
+                result.put_member(message_field, "Exception: " + (std::string)exc.what());
 			}
-			system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-
-			commit();
-
 			return result;
 		}
 
