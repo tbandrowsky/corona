@@ -116,9 +116,15 @@ namespace corona
 				}
 #endif
 
-				if (not std::filesystem::exists("classes.coronatbl") or database_recreate)
+				if (database_recreate) 
 				{
-					run("del *.corona*");
+					run("del *.coronatbl");
+					run("del *.coronaclass");
+					run("del *.coronaindex");
+				}
+
+				if (not std::filesystem::exists("classes.coronatbl"))
+				{
 					try {
 						local_db = std::make_shared<corona_database>();
 						local_db->apply_config(local_db_config);

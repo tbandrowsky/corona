@@ -1200,6 +1200,11 @@ namespace corona
 			table_header->root = cache->open_branch_block(table_header->root_block);
 		}
 
+		std::shared_ptr<xtable_header>			get_table_header()
+        {
+            return table_header;
+        }
+
 		virtual file_result write(int64_t _location, void* _buffer, int _buffer_length) override
 		{
             return fp->write(_location, _buffer, _buffer_length);

@@ -109,21 +109,19 @@ namespace corona
 				add_error("get_data", _query, msg, __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_warning(msg);
 			}
+			else if (not froms.has_member(query_si))
+			{
+				std::string msg = std::format("{0}({1}) query data source not found", _query, query_si);
+				add_error("get_data", _query, msg, __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_warning(msg);
+			}
 			else 
 			{
 				j = froms[query_si];
-				if (j.empty()) {
-					std::string msg = std::format("{0}({1}) query data source not found", _query, query_si);
-					add_error("get_data", _query, msg, __FILE__, __LINE__);
-					system_monitoring_interface::active_mon->log_warning(msg);
-				}
-				else 
-				{
-					j = j.query(query_p);
-					j = j["value"];
-				}
+				j = j.query(query_p);
+				j = j["value"];
 			}
-
+	
 			return j;
 		}
 

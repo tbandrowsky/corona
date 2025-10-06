@@ -4555,6 +4555,9 @@ namespace corona
 
 	json json::query(std::string_view _path)
 	{
+        if (_path.empty())
+            return *this;
+
 		json_parser jp;
 		json result = jp.create_object();
 		std::vector<std::string_view> items = split(_path, '.');

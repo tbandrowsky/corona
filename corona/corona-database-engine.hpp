@@ -847,12 +847,14 @@ namespace corona
 	{
 	protected:
 	public:
-		xtable_columns									table_columns;
-		xtable_columns									key_columns;
 
 		virtual bool is_server_only(const std::string& _field_name) = 0;
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
+
+		virtual bool ready() {
+			return false;
+		}
 
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
@@ -1263,6 +1265,7 @@ namespace corona
 			json result_array = jp.create_array();
 
             // This needs to get the children if they are of a derived class too.
+            std::map<std::string, bool> read_classes;
 
 			for (auto class_name_pair : all_constructors) 
 			{
@@ -1271,8 +1274,12 @@ namespace corona
                 auto& derived_classes = classy->get_descendants();
 
                 for (auto derived_class : derived_classes) {
+                    if (read_classes.find(derived_class.first) != read_classes.end()) {
+                        continue;
+                    }
                     read_class_sp dclassy = _db->read_lock_class(derived_class.first);
                     if (dclassy) {
+                        read_classes[derived_class.first] = true;
                         json temp_array = dclassy->get_objects(_db, key, true, _permissions);
                         if (temp_array.array()) {
                             for (auto obj : temp_array) {
@@ -2041,6 +2048,82 @@ namespace corona
 
 	};
 
+	class datetime_field_options : public field_options_base
+	{
+	public:
+		date_time min_value;
+		date_time max_value;
+
+		datetime_field_options() = default;
+		datetime_field_options(const datetime_field_options& _src) = default;
+		datetime_field_options(datetime_field_options&& _src) = default;
+		datetime_field_options& operator = (const datetime_field_options& _src) = default;
+		datetime_field_options& operator = (datetime_field_options&& _src) = default;
+		virtual ~datetime_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+			_dest.put_member("min_value", min_value);
+			_dest.put_member("max_value", max_value);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+			min_value = (date_time)_src["min_value"];
+			max_value = (date_time)_src["max_value"];
+		}
+
+		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+				date_time chumpy = (date_time)_object_to_test;
+				date_time zero(0);
+
+				if (min_value == zero and max_value == zero)
+				{
+					is_legit = true;
+				}
+				else if (chumpy >= min_value and chumpy <= max_value)
+				{
+					is_legit = true;
+				}
+				else
+				{
+					is_legit = false;
+				}
+				if (not is_legit) {
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "datetime out of range";
+					_validation_errors.push_back(ve);
+					return false;
+				};
+				return true;
+			}
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("datetime"));
+
+			schema.put_member("minimum", min_value);
+			schema.put_member("maximum", max_value);
+
+			return schema;
+		}
+
+
+	};
+
 	template <typename scalar_type> 
 	class general_field_options : public field_options_base
 	{
@@ -2442,7 +2525,7 @@ namespace corona
 			}
 			else if (field_type == field_types::ft_datetime)
 			{
-				options = std::make_shared<general_field_options<date_time>>();
+				options = std::make_shared<datetime_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_query)
@@ -2712,11 +2795,10 @@ namespace corona
 			}
 			ancestors = _src->get_ancestors();
 			descendants = _src->get_descendants();			
-			table_columns = _src->table_columns;
-			key_columns = _src->key_columns;
 		}
 
 		std::shared_ptr<xtable> table;
+		std::shared_ptr<sql_table> stable;
 
 	public:
 
@@ -2827,6 +2909,11 @@ namespace corona
 			return parents;
 		}
 
+		virtual bool ready() override 
+		{
+			return table.get() != nullptr;
+		}
+
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
 		{		
 			auto table_header = std::make_shared<xtable_header>();
@@ -2870,10 +2957,9 @@ namespace corona
 
 			if (std::filesystem::exists(get_class_filename()))
 			{
-				current_table = std::make_shared<xtable>(get_class_filename());
-
 				auto table_header = std::make_shared<xtable_header>();
 				int column_id = 1;
+
 				for (auto& f : fields) {
 
 					xcolumn col;
@@ -2887,6 +2973,18 @@ namespace corona
 					table_header->object_members.columns[column_id] = col;
 					column_id++;
 				}
+
+				std::string field_check_current;
+                for (auto& existing_col : table->get_table_header()->object_members.columns) {
+					field_check_current += std::string(existing_col.second.field_name.c_str()) + "." + field_type_names[existing_col.second.field_type] + ";";
+                }
+				std::string field_check_new;
+				for (auto& new_col : table->get_table_header()->object_members.columns) {
+					field_check_new += std::string(new_col.second.field_name.c_str()) + "." + field_type_names[new_col.second.field_type] + ";";
+				}
+
+				if (field_check_current == field_check_new)
+					return table;
 
 				std::string file_name_old = get_class_filename();
 				std::string file_name_new = "new_";
@@ -2948,13 +3046,18 @@ namespace corona
 				return nullptr;
 
 			std::string connection = _db->connections.get_connection(sql->connection_name);
-			auto stable = std::make_shared<sql_table>(sql, connection);
+
+			stable = std::make_shared<sql_table>(sql, connection);
+			table = create_xtable(_db);
+			table->commit();
+			table = nullptr;
+			table = std::make_shared<xtable>(get_class_filename());
 
 			// we're going to make our xtable anyway so we can slap our object id 
 			// on top of a sql server primary key
 			// but we don't do this all the time, because we'd like to keep the data around.
 
-			auto xtable = get_xtable(_db);
+			table = get_xtable(_db);
 			return stable;
 		}
 
@@ -2962,10 +3065,15 @@ namespace corona
 		{
 			if (sql)
 			{
-				return create_stable(_db);
+				stable = create_stable(_db);
 			}
-			else
-				return create_xtable(_db);
+			else {
+				table = create_xtable(_db);
+				table->commit();
+				table = nullptr;
+				table = std::make_shared<xtable>(get_class_filename());
+			}
+			return table;
 		}
 
 		virtual std::shared_ptr<xtable_interface> get_table(corona_database_interface* _db) override
@@ -3467,7 +3575,6 @@ namespace corona
 		virtual bool update(activity* _context, json _changed_class) override
 		{
 			class_implementation changed_class;
-			bool alter_table = false;
 			json_parser jp;
 
 			changed_class.put_json(_context->errors, _changed_class);
@@ -3513,7 +3620,7 @@ namespace corona
 			if (not base_class_name.empty()) {
 
 				auto base_class = _context->db->read_get_class(base_class_name);
-				if (base_class) {
+				if (base_class and base_class->ready()) {
 
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
@@ -3655,6 +3762,8 @@ namespace corona
 				}
 			}
 
+            alter_xtable(_context->db);
+
 			return true;
 		}
 
@@ -3687,7 +3796,7 @@ namespace corona
 			if (not base_class_name.empty()) {
 
 				auto base_class = _context->db->read_get_class(base_class_name);
-				if (base_class) {
+				if (base_class and base_class->ready()) {
 
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
@@ -3705,7 +3814,7 @@ namespace corona
 					ve.class_name = class_name;
 					ve.filename = get_file_name(__FILE__);
 					ve.line_number = __LINE__;
-					ve.message = "base class not found";
+					ve.message = "base class not found or not created";
 					_context->errors.push_back(ve);
 					return false;
 				}
@@ -4024,6 +4133,7 @@ namespace corona
 				if (index_table)
 				{
 					json temp;
+					json temp_result = jp.create_array();
 
  					temp = index_table->select(_key, [](json& _item) -> json {
 						return _item;
@@ -4036,9 +4146,9 @@ namespace corona
                         int64_t object_id = (int64_t)obi[object_id_field];	
                         json bojdetail = _db->select_object(class_name, object_id, _grant);
                         json detail = bojdetail.get_first_element();
-						temp.push_back(detail);
+						temp_result.push_back(detail);
 					}
-					obj = temp;
+					obj = temp_result;
 				}
 				else
 				{
@@ -4518,27 +4628,27 @@ namespace corona
 			"get" : {
 				"field_type":"string",
 				"field_name":"get",
-				"enum" : [ "any", "none", "own" ]
+				"enum" : [ "any", "none", "own", "team" ]
 			},
 			"put" : {
 				"field_type":"string",
 				"field_name":"put",
-				"enum" : [ "any", "none", "own" ]
+				"enum" : [ "any", "none", "own", "team" ]
 			},
 			"delete" : {
 				"field_type":"string",
 				"field_name":"delete",
-				"enum" : [ "any", "none", "own" ]
+				"enum" : [ "any", "none", "own", "team" ]
 			},
 			"alter" : {
 				"field_type":"string",
 				"field_name":"alter",
-				"enum" : [ "any", "none", "own" ]
+				"enum" : [ "any", "none", "own", "team" ]
 			},
 			"derive" : {
 				"field_type":"string",
 				"field_name":"derive",
-				"enum" : [ "any", "none", "own" ]
+				"enum" : [ "any", "none", "own", "team" ]
 			}
 	}
 }
@@ -4656,7 +4766,8 @@ namespace corona
 			"inventory_classes" : "[ string ]",
 			"allowed_teams" : "[ string ]",
 			"tickets" : "[ sys_ticket ]",
-			"workflow" : "[ sys_workflow ]"
+			"workflow" : "[ sys_workflow ]",
+			"items" : "[ sys_item ]"
 	},
 	"indexes" : {
         "sys_team_name": {
@@ -4763,32 +4874,31 @@ namespace corona
 			response = create_class(R"(
 {	
 	"base_class_name" : "sys_object",
-	"class_name" : "sys_user_object",
+	"class_name" : "sys_item",
 	"class_description" : "A user object",
-	"parents": [ "sys_user", "sys_user_object" ],
+	"parents": [ "sys_user", "sys_item", "sys_team" ],
 	"fields" : {			
 			"object_name" : "string"
-			"children" : "[sys_user_object]"
         }
 	}
 }
 )");
 
 			if (not response[success_field]) {
-				system_monitoring_interface::active_mon->log_warning("create_class sys_user_object put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_warning("create_class sys_item put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return result;
 			}
 
-			test = classes->get(R"({"class_name":"sys_user_object"})"_jobject);
+			test = classes->get(R"({"class_name":"sys_item"})"_jobject);
 			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_user_object after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_item after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
 				return result;
 			}
-			created_classes.put_member("sys_user_object", true);
+			created_classes.put_member("sys_item", true);
 
 			response =  create_class(R"(
 {	
@@ -4888,7 +4998,7 @@ namespace corona
 				"field_type":"string",
 				"field_name":"team_name"
 			},
-			"inventory" : "[sys_user_object]"
+			"inventory" : "[sys_item]"
         }
 	}
 }
@@ -4969,6 +5079,9 @@ namespace corona
 				json temp = jp.create_object();
 				response = create_response(new_user_request, false, "Database user create failed.", temp, errors, method_timer.get_elapsed_seconds());
 			}
+			classes->commit();
+			classes = nullptr;
+			classes = std::make_shared<xtable>("classes.coronatbl");
 
 			system_monitoring_interface::active_mon->log_job_stop("create_database", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			return response;
@@ -5187,7 +5300,7 @@ private:
 					response.put_member(message_field, "empty class name"sv);
 					return response;
 				}
-				write_class_sp cd = write_lock_class(class_pair.first);
+				auto cd = read_lock_class(class_pair.first);
 
 				if (cd) {
 					auto permission = get_class_permission(_user_name, class_pair.first);
@@ -5691,6 +5804,30 @@ private:
             json team = get_team(_team_name, _permission);
 			if (team.object()) {
                 int64_t team_id = (int64_t)team[object_id_field];
+
+                json permissions = team["permissions"];
+				if (permissions.array()) {
+					for (auto grant : permissions) {
+						json granted_all = jp.create_object();
+						auto class_list = grant["grant_classes"];
+						if (class_list.array()) {
+                            for (auto cls : class_list) {
+                                std::string class_name = (std::string)cls;
+                                auto classd = read_lock_class(class_name);
+								json descendants = jp.create_array();
+								if (classd) {
+									auto desc = classd->get_descendants();
+									for (auto d : desc) {
+										descendants.push_back(d.first);
+									}
+								}
+								granted_all.put_member(cls, descendants);
+							}
+						}
+                        grant.put_member("all_granted_classes", granted_all);
+					}
+				}
+
                 json workflows = team["workflow"];
                 if (workflows.array()) {
                     for (auto wf : workflows) {
@@ -5865,9 +6002,10 @@ private:
 							else {
                                 granted_classes.push_back((std::string)class_array);
 							}
+							bool granted = false;
 							for (std::string& jclass : granted_classes) {
 								auto permclass = read_lock_class(jclass);
-								if (permclass->get_descendants().contains(_class_name)) {
+								if (permclass && permclass->get_descendants().contains(_class_name)) {
 									std::string permission = jperm[class_permission_get];
 									if (permission == "any")
 										grants.get_grant = class_grants::grant_any;
@@ -5891,8 +6029,11 @@ private:
 										grants.alter_grant = class_grants::grant_any;
 									else if (permission == "own")
 										grants.alter_grant = class_grants::grant_own;
+
+									granted = true;
 									break;
 								}
+								system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);					
 							}
 						}
 					}
@@ -6632,7 +6773,8 @@ private:
 			if (auto obj_impl = object_to_scrub.object_impl()) {
 				std::string class_name = object_to_scrub[class_name_field];
 				auto rsp = read_lock_class(class_name);
-				for (auto& member : obj_impl->members)
+                auto member_set = object_to_scrub.get_members();
+				for (auto member : member_set)
 				{
 					if (rsp and not rsp->is_server_only(member.first)) {
 						obj_impl->members.erase(member.first);
@@ -6951,8 +7093,12 @@ private:
 					}
 					std::map<std::string, bool> existing_classes;
                     for (auto inv_item : user_inventory) {
-                        std::string class_name = (std::string)inv_item;
-                        existing_classes[class_name] = true;
+                        std::string class_name = (std::string)inv_item[class_name_field];
+						auto classd = read_lock_class(class_name);
+						auto descs = classd->get_descendants();
+						for (auto desc : descs) {
+							existing_classes[desc.first] = true;
+						}
                     }
 					// workflow classes lets you create editable objects for a user
 					// whose methods are search
@@ -7248,7 +7394,7 @@ private:
 			{
 				bool confirm = (bool)user["confirmed_code"];
 
-				json workflow = user["user_inventory"];
+				json workflow = user["inventory"];
 				json navigation_options = jp.create_object();
 
 				if (user_name == default_user and default_user.size() > 0) 
@@ -7601,6 +7747,7 @@ private:
 			}
 			else 
 			{
+                log_errors(pcactivity.errors);
 				result = create_response(put_class_request, false, "errors", jclass_definition, pcactivity.errors, method_timer.get_elapsed_seconds());
 			}
 
@@ -7909,12 +8056,31 @@ private:
 
 			auto permission =  get_class_permission(user_name, class_name);
 			if (permission.put_grant == class_grants::grant_none) {
+				validation_error ve;
+				ve.message = "put access denied";
+				ve.class_name = class_name;
+				ve.field_name = "n/a";
+				ve.filename = __FILE__;
+				ve.line_number = __LINE__;
+				errors.push_back(ve);
 				json result = create_response(create_object_request, false, "create_object denied", data, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop("create_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return result;
 			}
 
 			auto class_def = read_lock_class(class_name);
+			if (not class_def->ready()) {
+				validation_error ve;
+                ve.message = "class not ready or failed definition (check base as well)";
+                ve.class_name = class_name;
+                ve.field_name = "n/a";
+                ve.filename = __FILE__;
+                ve.line_number = __LINE__;
+				errors.push_back(ve);
+				json result = create_response(create_object_request, false, "create_object failed", data, errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("create_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
 
 			if (class_def) {
 

@@ -149,7 +149,11 @@ namespace corona
 				{
 					last_result = osr;
 					std::string temp = filename + ":" + osr.message;
-					throw std::logic_error(temp.c_str());
+					std::string current = std::filesystem::current_path().string();
+                    if (current.ends_with('\\') == false)
+                        current += "\\";
+					current += temp;
+					throw std::logic_error(current);
 				}
 			}
 			last_result = os_result(0);
