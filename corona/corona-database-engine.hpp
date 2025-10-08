@@ -5168,6 +5168,7 @@ private:
 					object_definition.put_member_i64(object_id_field, object_id);
 					object_definition.put_member("created", current_date);
 					object_definition.put_member("created_by", _permission.user_name);
+					object_definition.put_member("team", _permission.team_name);
 				}
 
 				// if the user was a stooser and saved the query results with the object,
@@ -5468,9 +5469,7 @@ private:
 			std::string token_string = token.to_json_typed();
 			std::string base64_token_string = base64_encode(token_string);
 
-			if (_success) {
-				payload.put_member(token_field, base64_token_string);
-			}
+			payload.put_member(token_field, base64_token_string);
 			payload.put_member(success_field, _success);
 			payload.put_member(message_field, _message);
 			payload.share_member(data_field, _data);
@@ -5884,6 +5883,7 @@ private:
                                     new_object = porresp[data_field];
                                     ticket_id = (int64_t)new_object[object_id_field];
                                     wf.put_member(class_name_field, (std::string)"sys_workflow");
+									wf.put_member("ticket_time_created", date_time::now());
 									wf.put_member_i64("sys_team", team_id);
                                     wf.put_member_i64("ticket_id", ticket_id);
 									por = create_system_request(wf);
@@ -6005,35 +6005,42 @@ private:
 							bool granted = false;
 							for (std::string& jclass : granted_classes) {
 								auto permclass = read_lock_class(jclass);
-								if (permclass && permclass->get_descendants().contains(_class_name)) {
-									std::string permission = jperm[class_permission_get];
-									if (permission == "any")
-										grants.get_grant = class_grants::grant_any;
-									else if (permission == "own")
-										grants.get_grant = class_grants::grant_own;
+								if (permclass) {
+									if (permclass->get_descendants().contains(_class_name)) {
+										std::string permission = jperm[class_permission_get];
+										if (permission == "any")
+											grants.get_grant = class_grants::grant_any;
+										else if (permission == "own")
+											grants.get_grant = class_grants::grant_own;
 
-									permission = jperm[class_permission_put];
-									if (permission == "any")
-										grants.put_grant = class_grants::grant_any;
-									else if (permission == "own")
-										grants.put_grant = class_grants::grant_own;
+										permission = jperm[class_permission_put];
+										if (permission == "any")
+											grants.put_grant = class_grants::grant_any;
+										else if (permission == "own")
+											grants.put_grant = class_grants::grant_own;
 
-									permission = jperm[class_permission_delete];
-									if (permission == "any")
-										grants.delete_grant = class_grants::grant_any;
-									else if (permission == "own")
-										grants.delete_grant = class_grants::grant_own;
+										permission = jperm[class_permission_delete];
+										if (permission == "any")
+											grants.delete_grant = class_grants::grant_any;
+										else if (permission == "own")
+											grants.delete_grant = class_grants::grant_own;
 
-									permission = jperm[class_permission_alter];
-									if (permission == "any")
-										grants.alter_grant = class_grants::grant_any;
-									else if (permission == "own")
-										grants.alter_grant = class_grants::grant_own;
+										permission = jperm[class_permission_alter];
+										if (permission == "any")
+											grants.alter_grant = class_grants::grant_any;
+										else if (permission == "own")
+											grants.alter_grant = class_grants::grant_own;
 
-									granted = true;
-									break;
+										granted = true;
+										break;
+									}
+									else {
+										system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not granted permission", jclass, team_name), __FILE__, __LINE__);
+									}
 								}
-								system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);					
+								else {
+									system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);
+								}
 							}
 						}
 					}
@@ -7027,6 +7034,42 @@ private:
 			return response;
 		}
 
+		virtual void apply_user_team(json user)
+		{
+			json_parser jp;
+            json team = get_team(user["team_name"], get_system_permission());
+			if (team.empty())
+				return;
+
+			json user_inventory = user["inventory"];
+			json user_inventory_classes = team["inventory_classes"];
+			if (not user_inventory.array())
+			{
+				user_inventory = jp.create_array();
+			}
+			std::map<std::string, bool> existing_classes;
+			for (auto inv_item : user_inventory) {
+				std::string class_name = (std::string)inv_item[class_name_field];
+				existing_classes[class_name] = true;
+			}
+			// workflow classes lets you create editable objects for a user
+			// whose methods are search
+			if (user_inventory_classes.array()) {
+				for (auto wf_class : user_inventory_classes) {
+					std::string class_name = (std::string)wf_class;
+					if (existing_classes.contains(class_name))
+						continue;
+					json create_req = jp.create_object();
+					create_req.put_member(class_name_field, class_name);
+					json sys_create_req = create_system_request(create_req);
+					json result = create_object(sys_create_req);
+					if (result[success_field]) {
+						user_inventory.push_back(result[data_field]);
+					}
+				}
+			}
+			user.share_member("inventory", user_inventory);
+		}
 
 		// this allows a user to login
 		virtual json user_confirm_user_code(json _confirm_request)
@@ -7080,45 +7123,12 @@ private:
 				user.put_member("confirmed_code", 1);
 				std::string email = user[user_email_field];
 				json teams = get_team_by_email(email, sys_perm);
-				for (json team : teams) {
-
+				for (json team : teams) 
+				{
 					user.put_member("home_team_name", (std::string)team["team_name"]);
-					user.put_member("team_name", (std::string)team["team_name"]);
-					json user_inventory = jp.create_array();
-					json user_inventory_classes = team["inventory_classes"];
-					user_inventory = user["inventory"];
-					if (not user_inventory.array())
-					{
-						user_inventory = jp.create_array();
-					}
-					std::map<std::string, bool> existing_classes;
-                    for (auto inv_item : user_inventory) {
-                        std::string class_name = (std::string)inv_item[class_name_field];
-						auto classd = read_lock_class(class_name);
-						auto descs = classd->get_descendants();
-						for (auto desc : descs) {
-							existing_classes[desc.first] = true;
-						}
-                    }
-					// workflow classes lets you create editable objects for a user
-					// whose methods are search
-					if (user_inventory_classes.array()) {
-						for (auto wf_class : user_inventory_classes) {
-							std::string class_name = (std::string)wf_class;
-							if (existing_classes.contains(class_name))
-								continue;
-							json create_req = jp.create_object();
-							create_req.put_member(class_name_field, class_name);
-							json sys_create_req = create_system_request(create_req);
-							json result = create_object(sys_create_req);
-							if (result[success_field]) {
-								user_inventory.push_back(result[data_field]);
-							}
-						}
-					}
-					user.share_member("inventory", user_inventory);
+					user.put_member("team_name", (std::string)team["team_name"]);					
 				}
-
+				apply_user_team(user);
 				put_user(user);
 				user = get_user(user_name, sys_perm);
 
@@ -7336,6 +7346,7 @@ private:
 							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
 							})) {
 							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
+							apply_user_team(user_details);
 							put_user(user_details);
 							team_set = true;
 							user_details = get_user(user_name, get_system_permission());
@@ -7504,11 +7515,11 @@ private:
 				return result;
 			}
 
-			auto edit_class = write_lock_class(class_name);
+			auto edit_class = read_lock_class(class_name);
 			if (edit_class) 
 			{
 				edit_class->init_validation(this, perms);
-				json jedit_object = select_single_object(key, include_children, perms);
+				json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
 				if (not jedit_object.empty() and include_children) 
 				{
 					std::string token = _edit_object_request[token_field];
@@ -8069,20 +8080,21 @@ private:
 			}
 
 			auto class_def = read_lock_class(class_name);
-			if (not class_def->ready()) {
-				validation_error ve;
-                ve.message = "class not ready or failed definition (check base as well)";
-                ve.class_name = class_name;
-                ve.field_name = "n/a";
-                ve.filename = __FILE__;
-                ve.line_number = __LINE__;
-				errors.push_back(ve);
-				json result = create_response(create_object_request, false, "create_object failed", data, errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("create_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				return result;
-			}
 
 			if (class_def) {
+
+				if (not class_def->ready()) {
+					validation_error ve;
+					ve.message = "class not ready or failed definition (check base as well)";
+					ve.class_name = class_name;
+					ve.field_name = "n/a";
+					ve.filename = __FILE__;
+					ve.line_number = __LINE__;
+					errors.push_back(ve);
+					json result = create_response(create_object_request, false, "create_object failed", data, errors, method_timer.get_elapsed_seconds());
+					system_monitoring_interface::active_mon->log_function_stop("create_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					return result;
+				}
 
 				json new_object = jp.create_object();
 				new_object.put_member(class_name_field, class_name);

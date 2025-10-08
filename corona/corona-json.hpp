@@ -1125,7 +1125,7 @@ namespace corona
 			return field_types::ft_none;
 		}
 
-		json query(std::string_view _path);
+		json query(std::string _path);
 
 		json clone()
 		{
@@ -4553,18 +4553,19 @@ namespace corona
 		return start;
 	}
 
-	json json::query(std::string_view _path)
+	json json::query(std::string _path)
 	{
-        if (_path.empty())
-            return *this;
-
 		json_parser jp;
 		json result = jp.create_object();
-		std::vector<std::string_view> items = split(_path, '.');
-		json start = *this;
-
 		result.put_member("path", _path);
 		result.put_member("value", *this);
+
+		if (_path.empty()) {
+			return result;
+		}
+
+		std::vector<std::string> items = split(_path, '.');
+		json start = *this;
 
 		for (auto item : items)
 		{
@@ -4591,12 +4592,12 @@ namespace corona
 					result.put_member("value", start);
 				}
 				else {
-					std::vector<std::string_view> item_ops = split(item, '-');
+					std::vector<std::string> item_ops = split(item, '-');
 					if (item_ops.size() < 2) {
 						return result;
 					}
-					std::string_view &operation = item_ops[0];
-					std::string_view &member_name = item_ops[1];
+					std::string &operation = item_ops[0];
+					std::string &member_name = item_ops[1];
 					if (item == "last")
 					{
 						int index_lists = start.size() - 1;

@@ -895,7 +895,7 @@ namespace corona
 				_request.send_response(500, "Parse error", parsed_request);
 			}
 			std::string token = get_token(_request);
-			parsed_request.put_member("Token", token);
+			parsed_request.put_member(token_field, token);
 			local_db->scrub_object(parsed_request);
 			json fn_response = local_db->edit_object(parsed_request);
 			http_response response = create_response(200, fn_response);
@@ -909,7 +909,7 @@ namespace corona
 				_request.send_response(500, "Parse error", parsed_request);
 			}
 			std::string token = get_token(_request);
-			parsed_request.put_member("Token", token);
+			parsed_request.put_member(token_field, token);
 			local_db->scrub_object(parsed_request);
 			json fn_response = local_db->run_object(parsed_request);
 			http_response response = create_response(200, fn_response);

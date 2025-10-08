@@ -23,12 +23,26 @@ For Future Consideration
 
 namespace corona
 {
+	class source_item
+	{
+	public:
+		std::string name;
+        json		data;
+
+		source_item() 
+		{
+			json_parser jp;
+            name = "";
+            data = jp.create_array();
+		}
+	};
 
 	class query_context_base
 	{
 		json froms;
+		std::map<std::string, std::shared_ptr<source_item>> sources;
 		std::vector<validation_error> errors;
-
+		 
 	public:
 
 		bool froms_preloaded = false;
@@ -58,6 +72,7 @@ namespace corona
 			}
 
 			froms = _src["froms"];
+			sources.clear();
 		}
 
 		void add_error(const std::string& _class_name, const std::string& _field_name, const std::string& _message, const std::string& _file, int _line_number)
@@ -109,7 +124,7 @@ namespace corona
 				add_error("get_data", _query, msg, __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_warning(msg);
 			}
-			else if (not froms.has_member(query_si))
+			else if (not sources.contains(query_si))
 			{
 				std::string msg = std::format("{0}({1}) query data source not found", _query, query_si);
 				add_error("get_data", _query, msg, __FILE__, __LINE__);
@@ -117,7 +132,7 @@ namespace corona
 			}
 			else 
 			{
-				j = froms[query_si];
+				j = sources[query_si]->data;
 				j = j.query(query_p);
 				j = j["value"];
 			}
@@ -127,22 +142,17 @@ namespace corona
 
 		virtual void set_data_source(std::string _name, json _data)
 		{
-			if (froms.empty()) {
-				json_parser jp;
-				froms = jp.create_object();
-			}
-			froms.put_member(_name, _data);
+			std::shared_ptr<source_item> new_si = std::make_shared<source_item>();
+			new_si->name = _name;
+            new_si->data = _data;
+            sources[_name] = new_si;
 		}
 
 		virtual void fill_data_sources(std::function<json(std::string _name)> _filler)
 		{
-			if (froms.object()) {
-				auto frms = froms.get_members();
-				for (auto frm : frms) {
-					json j = _filler(frm.first);
-					froms.put_member(frm.first, j);
-				}
-			}
+            for (auto pair : sources) {
+                pair.second->data = _filler(pair.first);
+            }
 		}
 	};
 
@@ -926,6 +936,8 @@ namespace corona
 
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
+			if (conditions.size() == 0)
+				return true;
 			return std::any_of(conditions.begin(), conditions.end(), [_qcb, _src](std::shared_ptr<query_condition>& _condition) -> bool
 				{
 					return _condition->accepts(_qcb, _src);

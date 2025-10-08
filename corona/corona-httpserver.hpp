@@ -460,61 +460,48 @@ namespace corona {
 			std::string sQueryString;
 			std::string sabsPath;
 
-			absPath.copy(_request->CookedUrl.pAbsPath, _request->CookedUrl.FullUrlLength);
-			sabsPath = absPath.c_str();
+			try {
 
-			system_monitoring_interface::active_mon->log_information(std::format("Request {}", sabsPath), __FILE__, __LINE__);
+				absPath.copy(_request->CookedUrl.pAbsPath, _request->CookedUrl.FullUrlLength);
+				sabsPath = absPath.c_str();
 
+				system_monitoring_interface::active_mon->log_information(std::format("Request {}", sabsPath), __FILE__, __LINE__);
 
-			if (_request->CookedUrl.pQueryString) {
-				queryString.copy(_request->CookedUrl.pQueryString, _request->CookedUrl.QueryStringLength);
-				sQueryString = queryString.c_str();
-			}
+				if (_request->CookedUrl.pQueryString) {
+					queryString.copy(_request->CookedUrl.pQueryString, _request->CookedUrl.QueryStringLength);
+					sQueryString = queryString.c_str();
+				}
 
-			if (sabsPath.starts_with("/")) {
-                sabsPath = sabsPath.substr(1); // remove leading slash
-			}
+				if (sabsPath.starts_with("/")) {
+					sabsPath = sabsPath.substr(1); // remove leading slash
+				}
 
-			if (not sabsPath.ends_with("/")) {
-                sabsPath += "/"; // ensure trailing slash
-            }
+				if (not sabsPath.ends_with("/")) {
+					sabsPath += "/"; // ensure trailing slash
+				}
 
-			std::string authorization = get_header_string(_request, HTTP_HEADER_ID::HttpHeaderAuthorization);
-			std::string content_type = get_header_string(_request, HTTP_HEADER_ID::HttpHeaderContentType);
+				std::string authorization = get_header_string(_request, HTTP_HEADER_ID::HttpHeaderAuthorization);
+				std::string content_type = get_header_string(_request, HTTP_HEADER_ID::HttpHeaderContentType);
 
-			auto key = std::tie(sabsPath, _request->Verb);
+				auto key = std::tie(sabsPath, _request->Verb);
 
-			http_request request = {};
+				http_request request = {};
 
-			request.path = sabsPath;
+				request.path = sabsPath;
 
-			buffer_assembler body_builder;
+				buffer_assembler body_builder;
 
-			if (_request->EntityChunkCount)
-			{
-				read_body(body_builder, _request);
-			}
-
-			if (_request->Flags & HTTP_REQUEST_FLAG_MORE_ENTITY_BODY_EXISTS)
-			{
-				buffer buff(1 << 20);
-				DWORD bytes_returned;
-
-				DWORD receive_result = HttpReceiveRequestEntityBody(
-					request_queue,
-					_request->RequestId,
-					0,
-					buff.get_ptr(),
-					buff.get_size(),
-					&bytes_returned,
-					nullptr
-				);
-
-				while (receive_result == NO_ERROR)
+				if (_request->EntityChunkCount)
 				{
-                    body_builder.append(buff);
+					read_body(body_builder, _request);
+				}
 
-					receive_result = HttpReceiveRequestEntityBody(
+				if (_request->Flags & HTTP_REQUEST_FLAG_MORE_ENTITY_BODY_EXISTS)
+				{
+					buffer buff(1 << 20);
+					DWORD bytes_returned;
+
+					DWORD receive_result = HttpReceiveRequestEntityBody(
 						request_queue,
 						_request->RequestId,
 						0,
@@ -523,51 +510,70 @@ namespace corona {
 						&bytes_returned,
 						nullptr
 					);
-				}
-			}
 
-			request.body = body_builder.consolidate();
-
-			bool unhandled = true;
-
-			try 
-			{
-
-				if (_request->UrlContext) {
-                    date_time thetime = date_time::now();
-					timer tx;
-					system_monitoring_interface::active_mon->log_command_start(sabsPath, "start", thetime, __FILE__, __LINE__);
-
-                    auto foundit = api_handlers.find(sabsPath);
-					if (foundit != api_handlers.end())
+					while (receive_result == NO_ERROR)
 					{
-						for (auto handler : foundit->second->functions)
+						body_builder.append(buff);
+
+						receive_result = HttpReceiveRequestEntityBody(
+							request_queue,
+							_request->RequestId,
+							0,
+							buff.get_ptr(),
+							buff.get_size(),
+							&bytes_returned,
+							nullptr
+						);
+					}
+				}
+
+				request.body = body_builder.consolidate();
+
+				bool unhandled = true;
+
+				try
+				{
+
+					if (_request->UrlContext) {
+						date_time thetime = date_time::now();
+						timer tx;
+						system_monitoring_interface::active_mon->log_command_start(sabsPath, "start", thetime, __FILE__, __LINE__);
+
+						auto foundit = api_handlers.find(sabsPath);
+						if (foundit != api_handlers.end())
 						{
-							if (handler.method == _request->Verb)
+							for (auto handler : foundit->second->functions)
 							{
-								http_action_request harhar;
-								harhar.request_id = _request->RequestId;
-								harhar.request = request;
-								harhar.authorization = authorization;
-								harhar.server = this;
-								handler.func(harhar);
-								unhandled = false;
+								if (handler.method == _request->Verb)
+								{
+									http_action_request harhar;
+									harhar.request_id = _request->RequestId;
+									harhar.request = request;
+									harhar.authorization = authorization;
+									harhar.server = this;
+									handler.func(harhar);
+									unhandled = false;
+								}
 							}
 						}
-					}
-					system_monitoring_interface::active_mon->log_command_stop(sabsPath, "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_command_stop(sabsPath, "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
+					}
+				}
+				catch (std::exception exc)
+				{
+					send_response(_request->RequestId, 500, "Server error, something blew up.", "text/plain", exc.what());
+				}
+
+				if (unhandled)
+				{
+					send_response(_request->RequestId, 404, "I looked, but, didn't find anything. Probably should stop by the store and grab another.", "text/plain", "Well, that was a bust.");
+					std::cout << "HTTP Unhandled request:" << request.http_method << " " << request.path << std::endl;
 				}
 			}
-			catch (std::exception exc)
-			{
-				send_response(_request->RequestId, 500, "Server error, something blew up.", "text/plain", exc.what());
-			}
-			
-			if (unhandled)
-			{
-				send_response(_request->RequestId, 404, "I looked, but, didn't find anything. Probably should stop by the store and grab another.", "text/plain", "Well, that was a bust.");
-				std::cout << "HTTP Unhandled request:" << request.http_method << " " << request.path << std::endl;
+            catch (std::exception exc)
+            {
+                send_response(_request->RequestId, 500, "Server error, something blew up.", "text/plain", exc.what());
 			}
 		}
 
