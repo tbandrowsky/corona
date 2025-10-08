@@ -7103,13 +7103,9 @@ private:
 			return response;
 		}
 
-		virtual void apply_user_team(json user)
+		virtual void apply_user_team(json& user, json& team)
 		{
 			json_parser jp;
-            json team = get_team(user["team_name"], get_system_permission());
-			if (team.empty())
-				return;
-
 			json user_inventory = user["inventory"];
 			json user_inventory_classes = team["inventory_classes"];
 			if (not user_inventory.array())
@@ -7138,6 +7134,18 @@ private:
 				}
 			}
 			user.share_member("inventory", user_inventory);
+		}
+
+		virtual void apply_user_team(json user)
+		{
+			json_parser jp;
+            json team = get_team(user["team_name"], get_system_permission());
+			if (not team.empty())
+				apply_user_team(user, team);
+
+			team = get_team(user["home_team_name"], get_system_permission());
+			if (not team.empty())
+				apply_user_team(user, team);
 		}
 
 		// this allows a user to login
