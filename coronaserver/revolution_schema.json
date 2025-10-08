@@ -209,7 +209,7 @@
     },
     {
       "class_name": "article_search",
-      "class_description": "search object for appointments",
+      "class_description": "search object for articles",
       "base_class_name": "sys_item",
       "fields": {
         "name": "string",
@@ -539,16 +539,8 @@
       }
     },
     {
-      "class_name": "intelligence_home",
-      "class_description": "Home object for intelligence teams",
-      "base_class_name": "sys_item",
-      "fields": {
-
-      }
-    },
-    {
       "class_name": "model_search",
-      "class_description": "User search choices for Policy Models",
+      "class_description": "User search choices for Models",
       "base_class_name": "sys_item",
       "fields": {
       }
@@ -563,7 +555,7 @@
       }
     },
     {
-      "class_name": "policy_ticket",
+      "class_name": "model_ticket",
       "class_description": "using information to formulate suggested policies",
       "base_class_name": "work_ticket",
       "fields": {
@@ -572,37 +564,30 @@
       }
     },
     {
-      "class_name": "policy_impact_ticket",
+      "class_name": "model_impact_ticket",
       "class_description": "using information to formulate suggested policies",
-      "base_class_name": "policy_ticket",
+      "base_class_name": "model_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
         "model": "model"
       }
     },
     {
-      "class_name": "policy_question_ticket",
+      "class_name": "model_question_ticket",
       "class_description": "using information to formulate suggested policies",
-      "base_class_name": "policy_ticket",
+      "base_class_name": "model_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
         "model": "model"
       }
     },
     {
-      "class_name": "policy_article",
+      "class_name": "model_article",
       "class_description": "an article or document",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
         "policy": "string"
-      }
-    },
-    {
-      "class_name": "policy_home",
-      "class_description": "Home object for policy teams",
-      "base_class_name": "sys_item",
-      "fields": {
       }
     },
     {
@@ -727,7 +712,7 @@
     },
     {
       "class_name": "adversary",
-      "class_description": "Home object for policy teams",
+      "class_description": "A participant in a litigation",
       "base_class_name": "sys_object",
       "fields": {
         "entity_name": "string",
@@ -816,14 +801,6 @@
         "justice_text": "string"
       }
     },
-    {
-      "class_name": "justice_home",
-      "class_description": "Home object for policy teams",
-      "base_class_name": "sys_item",
-      "fields": {
-      }
-    },
-
     {
       "class_name": "responsibility_set",
       "class_description": "Property and people one is responsible for",
@@ -933,19 +910,19 @@
     {
       "class_name": "insurance_quote",
       "class_description": "a request for the permit team",
-      "base_class_name": "sys_object",
+      "base_class_name": "insurance_policy",
       "fields": {
       }
     },
     {
       "class_name": "insurance_binder",
       "class_description": "a request for the permit team",
-      "base_class_name": "sys_object",
+      "base_class_name": "insurance_policy",
       "fields": {
       }
     },
     {
-      "class_name": "insurance_search",
+      "class_name": "insurance_policy_search",
       "class_description": "a request for the permit team",
       "base_class_name": "sys_item",
       "fields": {
@@ -1019,14 +996,6 @@
       }
     },
     {
-      "class_name": "insurance_home",
-      "class_description": "Home object for insurance teams",
-      "base_class_name": "sys_item",
-      "fields": {
-
-      }
-    },
-    {
       "class_name": "permit_ticket",
       "class_description": "a request for the permit team",
       "base_class_name": "work_ticket",
@@ -1068,7 +1037,7 @@
     {
       "class_name": "permit",
       "class_description": "a request for the permit team",
-      "base_class_name": "work_ticket",
+      "base_class_name": "article",
       "fields": {
         "permit_ticket": "[ permit_ticket ]",
         "description": "string",
@@ -1138,14 +1107,7 @@
       }
     },
     {
-      "class_name": "customer_home",
-      "class_description": "Home object for customers",
-      "base_class_name": "sys_item",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "technical",
+      "class_name": "technical_ticket",
       "class_description": "a tech job",
       "base_class_name": "work_ticket",
       "fields": {
@@ -1155,8 +1117,18 @@
       }
     },
     {
+      "class_name": "create_class_ticket",
+      "class_description": "a tech job",
+      "base_class_name": "technical_ticket",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "status": "string"
+      }
+    },
+    {
       "class_name": "technical_search",
-      "class_description": "Search for Permits",
+      "class_description": "Search for Technical tickets",
       "base_class_name": "sys_item",
       "fields": {
         "name": {
@@ -1173,16 +1145,16 @@
           "query": {
             "from": [
               {
-                "class_name": "technical",
-                "name": "97 %"
+                "class_name": "technical_ticket",
+                "name": "technical_ticket"
               }
             ],
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "permit",
+                "stage_input_name": "technical_ticket",
                 "condition": {
-                  "class_name": "all",
+                  "class_name": "any",
                   "conditions": [
                     {
                       "class_name": "contains",
@@ -1210,13 +1182,6 @@
       "fields": {
         "technical_text": "string"
       }
-    },
-    {
-      "class_name": "technical_home",
-      "class_description": "Home object for techs",
-      "base_class_name": "sys_item",
-      "fields": {
-      }
     }
 
   ],
@@ -1236,8 +1201,8 @@
           "team_name": "Intelligence Team",
           "team_description": "Gathers Information for the Revolution",
           "team_domain": "NONE",
-          "inventory_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team" ],
+          "inventory_classes": [ "individual_search", "candidate_search", "comittee_search" ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1249,7 +1214,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_home", "individual_search", "candidate_search", "comittee_search", "note" ],
+              "grant_classes": [ "individual_search", "candidate_search", "comittee_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1257,7 +1222,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "colony_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "colony_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1292,15 +1257,15 @@
         },
         {
           "class_name": "work_team",
-          "team_name": "Policy Team",
+          "team_name": "Model Team",
           "team_description": "Revolution Policy",
           "team_domain": "NONE",
-          "inventory_classes": [ "policy_home", "model_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
+          "inventory_classes": [ "model_search" ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "model", "policy_article" ],
+              "grant_classes": [ "model_ticket", "model", "model_article" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1308,7 +1273,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_home", "model_search", "article_search", "note" ],
+              "grant_classes": [ "model_search", "article_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1334,10 +1299,10 @@
           "workflow": [
             {
               "class_name": "sys_workflow",
-              "workflow_name": "policy_article",
+              "workflow_name": "model_article",
               "workflow_description": "Create article",
-              "ticket_class_name": "policy_ticket",
-              "ticket_create_class_name": "policy_article",
+              "ticket_class_name": "model_ticket",
+              "ticket_create_class_name": "model_article",
               "ticket_name": "Create Article",
               "ticket_description": "Create Policy Article",
               "required_object_classes": [],
@@ -1354,8 +1319,8 @@
           "team_name": "Colony Team",
           "team_description": "Revolution Colonization",
           "team_domain": "NONE",
-          "inventory_classes": [ "colony_home", "colony_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
+          "inventory_classes": [ "colony_search" ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1367,7 +1332,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "colony_home", "colony_search", "article_search", "note" ],
+              "grant_classes": [ "colony_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1375,7 +1340,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1396,12 +1361,12 @@
           "team_name": "Justice Team",
           "team_description": "Revolution Court",
           "team_domain": "NONE",
-          "inventory_classes": [ "case_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
+          "inventory_classes": [ "case_search" ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "justice_ticket", "justice_article", "case" ],
+              "grant_classes": [ "justice_ticket", "justice_article", "case", "adversary" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1409,7 +1374,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "case_search", "article_search", "note" ],
+              "grant_classes": [ "case_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1417,7 +1382,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "intelligence_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1438,12 +1403,12 @@
           "team_name": "Insurance Team",
           "team_description": "Revolution Insurance",
           "team_domain": "NONE",
-          "inventory_classes": [ "responsibility_set", "policy_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
+          "inventory_classes": [ "insurance_policy_search" ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "policy" ],
+              "grant_classes": [ "insurance_policy", "insurance_coverage", "insurance_ticket" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1451,7 +1416,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_search" ],
+              "grant_classes": [ "insurance_policy_search" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1459,7 +1424,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1480,12 +1445,14 @@
           "team_name": "Permit Team",
           "team_description": "Revolution Permits",
           "team_domain": "NONE",
-          "inventory_classes": [ "permit_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Permit Team" ],
+          "inventory_classes": [
+            "permit_search"
+          ],
+          "allowed_teams": [  ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "permit_ticket", "permit" ],
+              "grant_classes": [ "permit_ticket", "permit", "discharge" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1509,7 +1476,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1522,8 +1489,13 @@
           "team_name": "Technical Team",
           "team_description": "Revolution Technical",
           "team_domain": ".*countryvideogames\\.com",
-          "inventory_classes": [ "technical_search", "article_search" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team", "Technical Team" ],
+          "inventory_classes": [
+            "appointment_search",
+            "article_search",
+            "ticket_search",
+            "technical_ticket_search"
+          ],
+          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team"  ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1535,22 +1507,20 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "technical_search", "article_search", "note" ],
+              "grant_classes": [ "technical_search", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
               "alter": "none"
             },
             {
-
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "policy_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "intelligence_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
               "alter": "none"
             }
-
           ]
         },
         {
@@ -1558,12 +1528,12 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "inventory_classes": [ "customer_home", "responsibility_set" ],
-          "allowed_teams": [ "Intelligence Team", "Policy Team", "Colony Team", "Justice Team", "Insurance Team", "Permit Team" ],
+          "inventory_classes": [ "appointment_search", "article_search", "ticket_search" ],
+          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "policy_ticket", "justice_ticket", "case" ],
+              "grant_classes": [ "ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",

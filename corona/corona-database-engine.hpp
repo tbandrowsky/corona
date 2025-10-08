@@ -83,12 +83,14 @@ namespace corona
 	const std::string class_grant_any = "any"; // any object can be modified by someone on the team
 	const std::string class_grant_own = "own"; // only objects you own can be modified if you are on the team
 	const std::string class_grant_team = "team"; // only objects owned by your team
+	const std::string class_grant_teamorown = "teamorown"; // only objects owned by your team
 
 	enum class_grants {
 		grant_none = 0,
 		grant_any = 1,
 		grant_own = 2,
-		grant_team = 3
+		grant_team = 4,
+		grant_teamorown = 6,
 	};
 
 	class child_object_class
@@ -463,7 +465,17 @@ namespace corona
 		class_grants	get_grant;
 		class_grants	delete_grant;
 		class_grants	alter_grant;
+		class_permissions operator|(const class_permissions& _other) const
+		{
+			class_permissions cp;
+			cp.put_grant = (class_grants)((int)put_grant | (int)_other.put_grant);
+			cp.get_grant = (class_grants)((int)get_grant | (int)_other.get_grant);
+			cp.delete_grant = (class_grants)((int)delete_grant | (int)_other.delete_grant);
+			cp.alter_grant = (class_grants)((int)alter_grant | (int)_other.alter_grant);
+			return cp;
+		}
 	};
+
 
 	class corona_database_interface;
 	
@@ -3937,6 +3949,11 @@ namespace corona
 						result = jp.create_object();
 					}
                 }
+				else if (_grant.get_grant == class_grants::grant_teamorown) {
+					if (((std::string)result["team"] != _grant.team_name) || (std::string)result["created_by"] != _grant.user_name) {
+						result = jp.create_object();
+					}
+				}
 			}
 			else 
 			{
@@ -4012,6 +4029,14 @@ namespace corona
                 {
                     std::string team = (std::string)write_object["team"];
                     if (_grant.team_name == team) {
+                        use_write_object = true;
+                    }
+                }
+                else if (_grant.put_grant == class_grants::grant_teamorown)
+                {
+                    std::string owner = (std::string)write_object["created_by"];
+                    std::string team = (std::string)write_object["team"];
+                    if (_grant.user_name == owner or _grant.team_name == team) {
                         use_write_object = true;
                     }
                 }
@@ -4158,11 +4183,11 @@ namespace corona
 							json result;
 							if (_key.compare(_j) == 0
 								and (_grant.get_grant == class_grants::grant_any
-									or (_grant.get_grant == class_grants::grant_own
+									or (_grant.get_grant == class_grants::grant_own || _grant.get_grant == class_grants::grant_teamorown
 										and (std::string)_j["created_by"] == _grant.user_name
 										)
 									)
-								or (_grant.get_grant == class_grants::grant_team
+								or (_grant.get_grant == class_grants::grant_team || _grant.get_grant == class_grants::grant_teamorown
 									and (std::string)_j["team"] == _grant.team_name
 									)
 							)
@@ -4298,8 +4323,9 @@ namespace corona
 			for (auto _src_obj : matching_objects) 
 			{
 				if ((_permission.delete_grant == class_grants::grant_any)
-					or (_permission.delete_grant == class_grants::grant_own and (std::string)_src_obj == _permission.user_name))
-				{
+					or ((_permission.delete_grant == class_grants::grant_own || _permission.delete_grant == class_grants::grant_teamorown) and (std::string)_src_obj["created_by"] == _permission.user_name)
+					or ((_permission.delete_grant == class_grants::grant_team || _permission.delete_grant == class_grants::grant_teamorown) and (std::string)_src_obj["team"] == _permission.team_name))
+					{
 					tb->erase(_src_obj);
 
 					for (auto& fpair : fields) {
@@ -4628,27 +4654,27 @@ namespace corona
 			"get" : {
 				"field_type":"string",
 				"field_name":"get",
-				"enum" : [ "any", "none", "own", "team" ]
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"put" : {
 				"field_type":"string",
 				"field_name":"put",
-				"enum" : [ "any", "none", "own", "team" ]
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"delete" : {
 				"field_type":"string",
 				"field_name":"delete",
-				"enum" : [ "any", "none", "own", "team" ]
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"alter" : {
 				"field_type":"string",
 				"field_name":"alter",
-				"enum" : [ "any", "none", "own", "team" ]
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"derive" : {
 				"field_type":"string",
 				"field_name":"derive",
-				"enum" : [ "any", "none", "own", "team" ]
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			}
 	}
 }
@@ -5667,6 +5693,7 @@ private:
 			json_parser jp;
 
 			_user.erase_member("team");
+			_user.erase_member("home_team");
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
@@ -5712,6 +5739,13 @@ private:
                     json team_data = run_team(team_name, _permission);
 					if (team_data.object()) {
 						user.share_member("team", team_data);
+					}
+				}
+				team_name = user["home_team_name"];
+				if (not team_name.empty()) {
+					json team_data = run_team(team_name, _permission);
+					if (team_data.object()) {
+						user.share_member("home_team", team_data);
 					}
 				}
 			}
@@ -5960,6 +5994,90 @@ private:
 			return get_class_permission(_perm.user_name, _class_name);
 		}
 
+		virtual class_permissions get_team_permissions(std::string user_name, std::string team_name, std::string _class_name)
+		{
+
+			bool granted;
+			auto sys_perm = get_system_permission();
+			json jteam = get_team(team_name, sys_perm);
+
+			class_permissions grants;
+
+			grants.user_name = user_name;
+			grants.alter_grant = class_grants::grant_none;
+			grants.put_grant = class_grants::grant_none;
+			grants.get_grant = class_grants::grant_none;
+			grants.delete_grant = class_grants::grant_none;
+
+			if (jteam.object()) {
+				json jpermissions = jteam["permissions"];
+				if (jpermissions.array()) {
+					for (auto jperm : jpermissions) {
+						json class_array = jperm["grant_classes"];
+						std::vector<std::string> granted_classes;
+						if (class_array.array())
+						{
+							for (auto jcls : class_array) {
+								granted_classes.push_back((std::string)jcls);
+							}
+						}
+						else {
+							granted_classes.push_back((std::string)class_array);
+						}
+						bool granted = false;
+						for (std::string& jclass : granted_classes) {
+							auto permclass = read_lock_class(jclass);
+							if (permclass) {
+								if (permclass->get_descendants().contains(_class_name)) {
+									std::string permission = jperm[class_permission_get];
+									if (permission == "any")
+										grants.get_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.get_grant = class_grants::grant_own;
+									else if (permission == "teamorown")
+										grants.get_grant = class_grants::grant_teamorown;
+
+									permission = jperm[class_permission_put];
+									if (permission == "any")
+										grants.put_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.put_grant = class_grants::grant_own;
+									else if (permission == "teamorown")
+										grants.put_grant = class_grants::grant_teamorown;
+
+									permission = jperm[class_permission_delete];
+									if (permission == "any")
+										grants.delete_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.delete_grant = class_grants::grant_own;
+									else if (permission == "teamorown")
+										grants.delete_grant = class_grants::grant_teamorown;
+
+									permission = jperm[class_permission_alter];
+									if (permission == "any")
+										grants.alter_grant = class_grants::grant_any;
+									else if (permission == "own")
+										grants.alter_grant = class_grants::grant_own;
+									else if (permission == "teamorown")
+										grants.alter_grant = class_grants::grant_teamorown;
+
+									granted = true;
+									break;
+								}
+								else {
+									system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not granted permission", jclass, team_name), __FILE__, __LINE__);
+								}
+							}
+							else {
+								system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);
+							}
+						}
+					}
+				}
+			}
+			return grants;
+		}
+
 		virtual class_permissions get_class_permission(
 			std::string _user_name,
 			std::string _class_name) override
@@ -5979,74 +6097,25 @@ private:
 				grants = get_system_permission();
 				return grants;
 			}
+
 			auto sys_perm = get_system_permission();
 			json user =  get_user(_user_name, sys_perm);
 
 			if (not user.empty()) 
 			{			
-				std::string team_name = (std::string)user["team_name"];
-                grants.team_name = team_name;
-				json jteam = get_team(team_name, sys_perm);
-				if (jteam.object()) {
-					json jpermissions = jteam["permissions"];
-					if (jpermissions.array()) {
-						for (auto jperm : jpermissions) {
-							json class_array = jperm["grant_classes"];
-							std::vector<std::string> granted_classes;
-							if (class_array.array())
-							{
-                                for (auto jcls : class_array) {
-                                    granted_classes.push_back((std::string)jcls);
-                                }
-							}
-							else {
-                                granted_classes.push_back((std::string)class_array);
-							}
-							bool granted = false;
-							for (std::string& jclass : granted_classes) {
-								auto permclass = read_lock_class(jclass);
-								if (permclass) {
-									if (permclass->get_descendants().contains(_class_name)) {
-										std::string permission = jperm[class_permission_get];
-										if (permission == "any")
-											grants.get_grant = class_grants::grant_any;
-										else if (permission == "own")
-											grants.get_grant = class_grants::grant_own;
+				auto home_grants = grants;
+				std::string team_name = (std::string)user["home_team_name"];
+				home_grants.team_name = team_name;
+				home_grants = get_team_permissions(_user_name, team_name, _class_name);
 
-										permission = jperm[class_permission_put];
-										if (permission == "any")
-											grants.put_grant = class_grants::grant_any;
-										else if (permission == "own")
-											grants.put_grant = class_grants::grant_own;
+				auto team_grants = grants;
+				team_name = (std::string)user["team_name"];
+				team_grants.team_name = team_name;
+				team_grants = get_team_permissions(_user_name, team_name, _class_name);
 
-										permission = jperm[class_permission_delete];
-										if (permission == "any")
-											grants.delete_grant = class_grants::grant_any;
-										else if (permission == "own")
-											grants.delete_grant = class_grants::grant_own;
-
-										permission = jperm[class_permission_alter];
-										if (permission == "any")
-											grants.alter_grant = class_grants::grant_any;
-										else if (permission == "own")
-											grants.alter_grant = class_grants::grant_own;
-
-										granted = true;
-										break;
-									}
-									else {
-										system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not granted permission", jclass, team_name), __FILE__, __LINE__);
-									}
-								}
-								else {
-									system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);
-								}
-							}
-						}
-					}
-				}
+				grants = home_grants | team_grants;
 			}
-			
+
 			return grants;
 		}
 
@@ -7338,7 +7407,7 @@ private:
 			std::string ok_message;
 			json user_details = get_user(user_name, get_system_permission());
 			if (user_details.object()) {
-				json jteam = user_details["team"];
+				json jteam = user_details["home_team"];
 				if (jteam.object()) {
 					json jallowed_teams = jteam["allowed_teams"];
 					if (auto ata = jallowed_teams.array_impl()) {
