@@ -880,6 +880,8 @@ namespace corona
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
 		virtual std::string								get_base_class_name()  const = 0;
+        virtual std::string                             get_grid_row_template() const = 0;
+		virtual std::string                             get_grid_column_template() const = 0;
 		virtual std::map<std::string, bool>  const&		get_descendants()  const = 0;
 		virtual std::map<std::string, bool>  const&		get_ancestors()  const = 0;
 		virtual std::map<std::string, bool>  &			update_descendants() = 0;
@@ -1009,7 +1011,6 @@ namespace corona
 		virtual json copy_object(json copy_request) = 0;
 		virtual json query(json query_request) = 0;
 
-
 		virtual json select_object(std::string _class_name, int64_t _object_id, class_permissions _permissions) = 0;
 		virtual json select_object(json _key, bool _include_children, class_permissions _permissions) = 0;
 		virtual json select_single_object(json _key, bool _include_children, class_permissions _permissions) = 0;
@@ -1030,6 +1031,8 @@ namespace corona
 		std::string input_mask;
 		std::string label;
 		std::string description;
+		std::string grid_row;
+		std::string grid_column;
 		bool		server_only;
 
 		field_options_base() = default;
@@ -1047,6 +1050,8 @@ namespace corona
 			_dest.put_member("server_only", server_only);
 			_dest.put_member("label", label);
 			_dest.put_member("description", description);
+			_dest.put_member("grid_row", grid_row);
+			_dest.put_member("grid_column", grid_column);
 		}
 
 		virtual void put_json(json& _src)
@@ -1057,6 +1062,8 @@ namespace corona
             input_mask = (std::string)_src["input_mask"];	
             label = (std::string)_src["label"]; 
 			description = (std::string)_src["description"];
+			grid_row = (std::string)_src["grid_row"];
+			grid_column = (std::string)_src["grid_column"];
 		}
 
 		virtual void init_validation() override
@@ -2797,6 +2804,8 @@ namespace corona
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
+		std::string grid_row_template;
+		std::string grid_column_template;
 		std::vector<std::string> parents;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
 		std::map<std::string, std::shared_ptr<index_interface>> indexes;
@@ -2821,7 +2830,9 @@ namespace corona
 				indexes.insert_or_assign(idx->get_index_name(), idx);
 			}
 			ancestors = _src->get_ancestors();
-			descendants = _src->get_descendants();			
+			descendants = _src->get_descendants();		
+            grid_row_template = _src->get_grid_row_template();
+            grid_column_template = _src->get_grid_column_template();
 		}
 
 		std::shared_ptr<xtable> table;
@@ -2929,6 +2940,16 @@ namespace corona
 		{
 			base_class_name = _base_class_name;
 			return *this;
+		}
+
+		virtual std::string get_grid_row_template() const override
+		{
+			return grid_row_template;
+		}
+
+		virtual std::string get_grid_column_template() const override
+		{
+			return grid_column_template;
 		}
 
 		virtual std::vector<std::string> get_parents() const override
@@ -3397,6 +3418,9 @@ namespace corona
 
 					if (field->get_field_type() != field_types::ft_none) 
 					{
+                        if (field->get_field_class().empty()) {
+                            field->set_field_class(class_name);
+                        }	
 						fields.insert_or_assign(field->get_field_name(), field);
 					}
 					else {

@@ -31,7 +31,7 @@ namespace corona {
 		if (length > 0)
 		{
 			FILE* fp = nullptr;
-			int err_no = fopen_s(&fp, _filename.c_str(), "r");
+			fopen_s(&fp, _filename.c_str(), "r");
 			if (fp != nullptr) {
 				char* buffer = new char[length + 1];
 				size_t l = fread(buffer, 1, length, fp);
