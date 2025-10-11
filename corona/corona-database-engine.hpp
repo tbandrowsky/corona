@@ -7665,13 +7665,18 @@ private:
 			{
 
                 jedit_object = edit_class->get_single_object(this, key, true, perms);
+
 				std::vector<std::string> all_ancestors;
+				json jancestors = jp.create_object();
 				all_ancestors.push_back(class_name);
                 auto ancestors = edit_class->get_ancestors();
 				for (auto edit_class_name : all_ancestors)
 				{
+					jancestors.push_back(edit_class_name);
 					all_ancestors.push_back(edit_class_name);
 				}
+
+				result.share_member("class_order", jancestors);
 
 				json jclasses = jp.create_object();
 
@@ -7688,7 +7693,7 @@ private:
 						}
 						json jedit_class = jp.create_object();
 						local_edit_class->get_json(jedit_class);
-						jclasses.share_member(edit_class_name, jedit_object);
+						jclasses.share_member(edit_class_name, jedit_class);
 					}
 				}
 
