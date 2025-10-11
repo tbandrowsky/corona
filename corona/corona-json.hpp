@@ -3992,8 +3992,9 @@ namespace corona
 					else if (parse_object_state == parse_object_states::parsing_value)
 					{
 						_src = eat_white(_src);
-						std::shared_ptr<json_value> member_value;
-						if (parse_value(member_value, _src, &_src)) {
+                        std::shared_ptr<json_value> member_value;
+						bool result = parse_value(member_value, _src, &_src);
+						if (result && member_value) {
 							parse_object_state = parse_object_states::parsing_comma;
 							member_value->comparison_index = ++comparison_index;
 							_object->members[member_name] = member_value;
@@ -4001,7 +4002,7 @@ namespace corona
 						else
 						{
 							error("parse_value", std::format("Invalid value for \"{0}\".", member_name));
-							return false;
+							return result;
 						}
 					}
 					else if (parse_object_state == parse_object_states::parsing_comma)

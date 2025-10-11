@@ -5694,6 +5694,8 @@ private:
 
 			_user.erase_member("team");
 			_user.erase_member("home_team");
+			_user.erase_member("allowed_teams");
+			_user.erase_member("create_options");
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
@@ -5734,11 +5736,21 @@ private:
 
 			json user = users.get_first_element();
 			if (user.object()) {
+
+				std::map<std::string, bool> allowed_teams;
+
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
                     json team_data = run_team(team_name, _permission);
 					if (team_data.object()) {
 						user.share_member("team", team_data);
+						json jallowed_teams = team_data["allowed_teams"];
+						if (jallowed_teams.array()) {
+							for (json jteam_name : jallowed_teams) {
+								std::string atm = (std::string)jteam_name;
+								allowed_teams[atm] = true;
+							}
+						}
 					}
 				}
 				team_name = user["home_team_name"];
@@ -5746,8 +5758,20 @@ private:
 					json team_data = run_team(team_name, _permission);
 					if (team_data.object()) {
 						user.share_member("home_team", team_data);
+						json jallowed_teams = team_data["allowed_teams"];
+						if (jallowed_teams.array()) {
+							for (json jteam_name : jallowed_teams) {
+								std::string atm = (std::string)jteam_name;
+								allowed_teams[atm] = true;
+							}
+						}
 					}
 				}
+				json allowed_array = jp.create_array();
+				for (auto& ats : allowed_teams) {
+					allowed_array.push_back(ats.first);
+				}
+				user.share_member("allowed_teams", allowed_array);
 			}
 
 			return user;
@@ -6114,6 +6138,8 @@ private:
 				team_grants = get_team_permissions(_user_name, team_name, _class_name);
 
 				grants = home_grants | team_grants;
+				grants.team_name = team_name;
+				grants.user_name = _user_name;
 			}
 
 			return grants;
@@ -7106,6 +7132,7 @@ private:
 		virtual void apply_user_team(json& user, json& team)
 		{
 			json_parser jp;
+			std::string user_name = user["user_name"];
 			json user_inventory = user["inventory"];
 			json user_inventory_classes = team["inventory_classes"];
 			if (not user_inventory.array())
@@ -7129,7 +7156,9 @@ private:
 					json sys_create_req = create_system_request(create_req);
 					json result = create_object(sys_create_req);
 					if (result[success_field]) {
-						user_inventory.push_back(result[data_field]);
+						json obj = result[data_field];
+						obj.put_member("created_by", user_name);
+						user_inventory.push_back(obj);
 					}
 				}
 			}
@@ -7423,7 +7452,6 @@ private:
 							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
 							})) {
 							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
-							apply_user_team(user_details);
 							put_user(user_details);
 							team_set = true;
 							user_details = get_user(user_name, get_system_permission());
@@ -7438,6 +7466,7 @@ private:
 			std::vector<validation_error> empty_errors;
 
 			if (team_set) {
+				apply_user_team(user_details);
 				result = create_response(_user_set_team_request, true, ok_message, user_details, empty_errors, method_timer.get_elapsed_seconds());
 			}
 			else
@@ -7584,6 +7613,7 @@ private:
 			std::string class_name = key[class_name_field];
 
 			class_permissions perms = get_class_permission(user_name, class_name);
+			class_permissions sys_perms = get_system_permission();
 
 			if (perms.get_grant == class_grants::grant_none)
 			{
@@ -7604,6 +7634,9 @@ private:
 				}
 				json jedit_class = jp.create_object();
 				edit_class->get_json(jedit_class);
+
+				json user = get_user(user_name, sys_perms);
+
 				result = jp.create_object();
 				result.share_member("class", jedit_class);
 				result.share_member("object", jedit_object);

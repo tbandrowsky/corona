@@ -8,7 +8,7 @@
   "classes": [
     {
       "class_name": "note",
-      "class_description": "a short note about something",
+      "class_description": "A note about something",
       "base_class_name": "sys_object",
       "parents": [ "work_ticket", "appointment" ],
       "fields": {
@@ -19,7 +19,7 @@
     },
     {
       "class_name": "work_ticket",
-      "class_description": "a work request made to a team",
+      "class_description": "A work request made to a team",
       "base_class_name": "sys_ticket",
       "fields": {
         "notes": "[ note ]"
