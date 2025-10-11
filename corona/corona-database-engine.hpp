@@ -795,6 +795,7 @@ namespace corona
 	protected:
 		std::string field_name;
 		field_types field_type;
+		std::string field_class;
 		std::shared_ptr<field_options_interface> options;
 
 	public:
@@ -809,8 +810,16 @@ namespace corona
 		{
 			return field_name;
 		}
-
-		virtual field_types get_field_type() 
+		virtual std::string get_field_class()
+		{
+			return field_class;
+		}
+		virtual std::string set_field_class(const std::string& _field_class)
+		{
+			field_class = _field_class;
+			return field_class;
+		}
+		virtual field_types get_field_type()
 		{
 			return field_type;
 		}
@@ -1019,6 +1028,8 @@ namespace corona
 		bool		required;
 		std::string format;
 		std::string input_mask;
+		std::string label;
+		std::string description;
 		bool		server_only;
 
 		field_options_base() = default;
@@ -1034,6 +1045,8 @@ namespace corona
 			_dest.put_member("format", format);
 			_dest.put_member("input_mask", input_mask);
 			_dest.put_member("server_only", server_only);
+			_dest.put_member("label", label);
+			_dest.put_member("description", description);
 		}
 
 		virtual void put_json(json& _src)
@@ -1042,6 +1055,8 @@ namespace corona
             server_only = (bool)_src["server_only"];
 			format = (std::string)_src["format"];
             input_mask = (std::string)_src["input_mask"];	
+            label = (std::string)_src["label"]; 
+			description = (std::string)_src["description"];
 		}
 
 		virtual void init_validation() override
