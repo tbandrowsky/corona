@@ -2509,6 +2509,7 @@ namespace corona
 
 			_dest.put_member("field_name", field_name);
 			_dest.put_member("field_type", field_type_names[field_type]);
+			_dest.put_member("field_class", get_field_class());
 
 			if (options) {
 				options->get_json(_dest);
@@ -2526,6 +2527,7 @@ namespace corona
 				field_type = aft->second;
 			}
 			field_name = _src["field_name"];
+			field_class = _src["field_class"];
 
 			if (field_type == field_types::ft_object)
 			{
@@ -7618,10 +7620,6 @@ private:
 			return response;
 		}
 
-
-
-
-
 		virtual json edit_object(json _edit_object_request) override
 		{
 			timer method_timer;
@@ -7664,21 +7662,38 @@ private:
 			auto edit_class = read_lock_class(class_name);
 			if (edit_class) 
 			{
-				edit_class->init_validation(this, perms);
-				json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
-				if (not jedit_object.empty() and include_children) 
+				std::vector<std::string> classes;
+				classes.push_back(class_name);
+                auto ancestors = edit_class->get_ancestors();
+				for (auto edit_class_name : ancestors)
 				{
-					std::string token = _edit_object_request[token_field];
-					edit_class->run_queries(this, token, class_name, jedit_object);
+					classes.push_back(edit_class_name);
 				}
-				json jedit_class = jp.create_object();
-				edit_class->get_json(jedit_class);
+
+				json jclasses = jp.create_object();
+
+				for (auto edit_class_name : classes) 
+				{
+					auto local_edit_class = read_lock_class(edit_class_name);
+					if (local_edit_class) {
+						local_edit_class->init_validation(this, perms); // this might be a bad idea
+						json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
+						if (not jedit_object.empty() and include_children)
+						{
+							std::string token = _edit_object_request[token_field];
+							local_edit_class->run_queries(this, token, class_name, jedit_object);
+						}
+						json jedit_class = jp.create_object();
+						local_edit_class->get_json(jedit_class);
+						jclasses.share_member(edit_class_name, jedit_object);
+					}
+				}
 
 				json user = get_user(user_name, sys_perms);
 
 				result = jp.create_object();
-				result.share_member("class", jedit_class);
 				result.share_member("object", jedit_object);
+				result.share_member("classes", jclasses);
 			}
 			else 
 			{
