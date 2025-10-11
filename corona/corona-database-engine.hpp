@@ -7625,6 +7625,7 @@ private:
 			timer method_timer;
 			json_parser jp;
 			json result;
+			json jedit_object;
 
 			read_scope_lock my_lock(database_lock);
 
@@ -7662,17 +7663,19 @@ private:
 			auto edit_class = read_lock_class(class_name);
 			if (edit_class) 
 			{
-				std::vector<std::string> classes;
-				classes.push_back(class_name);
+
+                jedit_object = edit_class->get_single_object(this, key, true, perms);
+				std::vector<std::string> all_ancestors;
+				all_ancestors.push_back(class_name);
                 auto ancestors = edit_class->get_ancestors();
-				for (auto edit_class_name : ancestors)
+				for (auto edit_class_name : all_ancestors)
 				{
-					classes.push_back(edit_class_name);
+					all_ancestors.push_back(edit_class_name);
 				}
 
 				json jclasses = jp.create_object();
 
-				for (auto edit_class_name : classes) 
+				for (auto edit_class_name : all_ancestors)
 				{
 					auto local_edit_class = read_lock_class(edit_class_name);
 					if (local_edit_class) {
