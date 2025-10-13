@@ -81,8 +81,8 @@
       "fields": {
         "name": "string",
         "description": "string",
-        "start_time": "date_time",
-        "end_time": "date_time",
+        "start_time": "datetime",
+        "end_time": "datetime",
         "street": "string",
         "city": "string",
         "state": "string",
@@ -96,8 +96,8 @@
       "fields": {
         "name": "string",
         "description": "string",
-        "from": "date_time",
-        "to": "date_time",
+        "from": "datetime",
+        "to": "datetime",
         "street": "string",
         "city": "string",
         "state": "string",
@@ -1013,8 +1013,8 @@
         "responsibility_set": "responsibility_set",
         "discharge_material": "string",
         "discharge_amount": "string",
-        "discharge_start": "date_time",
-        "discharge_stop": "date_time"
+        "discharge_start": "datetime",
+        "discharge_stop": "datetime"
       }
     },
     {
@@ -1533,7 +1533,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "ticket" ],
+              "grant_classes": [ "sys_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",

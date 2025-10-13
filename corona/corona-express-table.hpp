@@ -102,7 +102,7 @@ namespace corona
 
 		virtual relative_ptr_type get_location() = 0;
 		virtual json get(json _object) = 0;
-		virtual void put(json _object) = 0;
+		virtual bool put(json _object) = 0;
 		virtual void put_array(json _object) = 0;
 		virtual void erase(json _object)= 0;
 		virtual void erase_array(json _object) = 0;
@@ -499,12 +499,12 @@ namespace corona
 			;
 		}
 
-		void put(int _indent, const xrecord& key, const xrecord& value)
+		bool put(int _indent, const xrecord& key, const xrecord& value)
 		{
 			write_scope_lock lockit(locker);
 
 			if (records.size() >= xrecords_per_block)
-				return;
+				return false;
 
 			dirtied();
 
@@ -514,8 +514,10 @@ namespace corona
 				system_monitoring_interface::active_mon->log_information(message, __FILE__, __LINE__);
 			}
 
-			records.insert_or_assign(key, value);
+			bool added = !records.contains(key);
+			records[key] = value;
 			xheader.count = records.size();
+			return added;
 		}
 
 		xrecord get(const xrecord& key)
@@ -791,8 +793,9 @@ namespace corona
             xheader.count = records.size();
 		}
 
-		virtual void put(int _indent, const xrecord& _key, const xrecord& _value) 
+		virtual bool put(int _indent, const xrecord& _key, const xrecord& _value) 
 		{
+			bool added = false;
 			write_scope_lock lock_me(locker);
 
 			if constexpr (debug_xblock) {
@@ -809,7 +812,7 @@ namespace corona
 			{
 				auto branch_block = cache->open_branch_block(found_block);
 				auto old_key = branch_block->get_start_key();
-				branch_block->put(_indent, _key, _value);
+				added = branch_block->put(_indent, _key, _value);
 				if (branch_block->is_full()) {
 					auto new_branch = split_branch(branch_block, _indent);
 					auto new_branch_key = new_branch->get_start_key();
@@ -826,7 +829,7 @@ namespace corona
 			{
 				auto leaf_block = cache->open_leaf_block(found_block);
 				auto old_key = leaf_block->get_start_key();
-				leaf_block->put(_indent, _key, _value);
+				added = leaf_block->put(_indent, _key, _value);
 				if (leaf_block->is_full()) {
 					auto new_leaf = split_leaf(leaf_block, _indent);
 					auto new_leaf_key = new_leaf->get_start_key();
@@ -851,18 +854,19 @@ namespace corona
 				if (xheader.content_type == xblock_types::xb_leaf)
 				{
 					auto new_leaf = cache->create_leaf_block();
-					new_leaf->put(_indent + 1, _key, _value);
+					added = new_leaf->put(_indent + 1, _key, _value);
 					new_ref = new_leaf->get_reference();
 				}
 				else if (xheader.content_type == xblock_types::xb_branch)
 				{
 					auto new_branch = cache->create_branch_block(xblock_types::xb_branch);
-					new_branch->put(_indent + 1, _key, _value);
+					added = new_branch->put(_indent + 1, _key, _value);
 					new_ref = new_branch->get_reference();
 				}
 				records.insert_or_assign(_key, new_ref);
 			}
 			xheader.count = records.size();
+			return added;
 		}
 
 		virtual xrecord get(const xrecord& _key)
@@ -1346,7 +1350,7 @@ namespace corona
 			return jresult;
 		}
 
-		virtual void put(json _object) override
+		virtual bool put(json _object) override
 		{
 			write_scope_lock lockme(locker);
 
@@ -1362,39 +1366,31 @@ namespace corona
 			xrecord data;
 			data.put_json(&table_header->object_members, _object);
 
-			table_header->root->put(0, key, data);
+			bool new_record = table_header->root->put(0, key, data);
 
-			::InterlockedIncrement64(&table_header->count);
+			if (new_record) {
+				table_header->count++;
+			}
 
 			if (table_header->root->is_full()) {
 				table_header->root->split_root(0);
 			}
+
+            if (file_name.find("case_search") != std::string::npos) {
+                system_monitoring_interface::active_mon->log_information(std::format("put {0}, {1} rows", file_name, table_header->count), __FILE__, __LINE__);
+            }
+
+			table_header->write(this);
+			cache->save();
+
+			return new_record;
 		}
 
 		virtual void put_array(json _array) override
 		{
 			if (_array.array()) {
 				for (auto item : _array) {
-					write_scope_lock lockme(locker);
-
-					if (table_header->use_object_id) {
-						if (not item.has_member(object_id_field) or (int64_t)item[object_id_field] == 0) {
-							int64_t new_id = get_next_object_id();
-							item.put_member_i64(object_id_field, new_id);
-						}
-					}
-
-					xrecord key;
-					key.put_json(&table_header->key_members, item);
-					xrecord data;
-					data.put_json(&table_header->object_members, item);
-					table_header->root->put(0, key, data);
-
-					::InterlockedIncrement64(&table_header->count);
-
-					if (table_header->root->is_full()) {
-						table_header->root->split_root(0);
-					}
+					put(item);
 				}
 			}
 		}
@@ -1476,7 +1472,6 @@ namespace corona
 				});
 			return target;
 		}
-
 
 	};
 

@@ -819,13 +819,13 @@ namespace corona
 			return results;
 		}
 
-		virtual void put(json values) override
+		virtual bool put(json values) override
 		{
 			sql_statement stmt;
 
 			stmt = statement_gen->put_statement(values, sql);
 			execute(stmt);
-
+			return true;
 		}
 
 		virtual void put_array(json values) override

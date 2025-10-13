@@ -243,6 +243,11 @@ namespace corona
 			return data.get() != nullptr;
 		}
 
+		void reset()
+		{
+			data.reset();
+		}
+
 	};
 
 	template <write_lockable_type T>

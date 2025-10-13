@@ -880,8 +880,8 @@ namespace corona
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
 		virtual std::string								get_base_class_name()  const = 0;
-        virtual std::string                             get_grid_row_template() const = 0;
-		virtual std::string                             get_grid_column_template() const = 0;
+        virtual std::string                             get_grid_template_rows() const = 0;
+		virtual std::string                             get_grid_template_columns() const = 0;
 		virtual std::map<std::string, bool>  const&		get_descendants()  const = 0;
 		virtual std::map<std::string, bool>  const&		get_ancestors()  const = 0;
 		virtual std::map<std::string, bool>  &			update_descendants() = 0;
@@ -1498,10 +1498,10 @@ namespace corona
 									ve.filename = get_file_name(__FILE__);
 									ve.line_number = __LINE__;
 									if (object_class_name.empty()) {
-										ve.message = "This array does child objects without a class_name.";
+										ve.message = "child objects missing class_name.";
 									}
 									else {
-										ve.message = "This array does not accept child objects of '" + object_class_name + "'";
+										ve.message = "invalid child object class '" + object_class_name + "'";
 									}
 									_validation_errors.push_back(ve);
 									return false;
@@ -1725,10 +1725,10 @@ namespace corona
 							ve.filename = get_file_name(__FILE__);
 							ve.line_number = __LINE__;
 							if (object_class_name.empty()) {
-								ve.message = "This array does child objects without a class_name.";
+								ve.message = "Array has child objects without a class_name.";
 							}
 							else {
-								ve.message = "This array does not accept child objects of '" + object_class_name + "'";
+								ve.message = "Array does not accept child objects of '" + object_class_name + "'";
 							}
 							_validation_errors.push_back(ve);
 							return false;
@@ -2806,8 +2806,8 @@ namespace corona
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
-		std::string grid_row_template;
-		std::string grid_column_template;
+		std::string grid_template_rows;
+		std::string grid_template_columns;
 		std::vector<std::string> parents;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
 		std::map<std::string, std::shared_ptr<index_interface>> indexes;
@@ -2833,8 +2833,8 @@ namespace corona
 			}
 			ancestors = _src->get_ancestors();
 			descendants = _src->get_descendants();		
-            grid_row_template = _src->get_grid_row_template();
-            grid_column_template = _src->get_grid_column_template();
+            grid_template_rows = _src->get_grid_template_rows();
+            grid_template_columns = _src->get_grid_template_columns();
 		}
 
 		std::shared_ptr<xtable> table;
@@ -2944,14 +2944,14 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::string get_grid_row_template() const override
+		virtual std::string get_grid_template_rows() const override
 		{
-			return grid_row_template;
+			return grid_template_rows;
 		}
 
-		virtual std::string get_grid_column_template() const override
+		virtual std::string get_grid_template_columns() const override
 		{
-			return grid_column_template;
+			return grid_template_columns;
 		}
 
 		virtual std::vector<std::string> get_parents() const override
@@ -3193,7 +3193,9 @@ namespace corona
 			_dest.put_member(class_name_field, class_name);
 			_dest.put_member("class_description", class_description);
 			_dest.put_member("base_class_name", base_class_name);
-			
+			_dest.put_member("grid_template_rows", grid_template_rows);
+			_dest.put_member("grid_template_columns", grid_template_columns);
+
 			json ja = jp.create_array();
 			for (auto p : parents)
 			{
@@ -3253,6 +3255,8 @@ namespace corona
 			class_name = _src[class_name_field];
 			class_description = _src["class_description"];
 			base_class_name = _src["base_class_name"];
+			grid_template_rows = _src["grid_template_rows"];
+			grid_template_columns = _src["grid_template_columns"];
 
 			if (base_class_name == class_name) {
 				validation_error ve;
@@ -7661,47 +7665,41 @@ private:
 			}
 
 			auto edit_class = read_lock_class(class_name);
-			if (edit_class) 
-			{
+			json user = get_user(user_name, sys_perms);
 
-                jedit_object = edit_class->get_single_object(this, key, true, perms);
+			if (edit_class) {
 
-				std::vector<std::string> all_ancestors;
-				json jancestors = jp.create_object();
-				all_ancestors.push_back(class_name);
-                auto ancestors = edit_class->get_ancestors();
-				for (auto edit_class_name : all_ancestors)
-				{
-					jancestors.push_back(edit_class_name);
-					all_ancestors.push_back(edit_class_name);
-				}
-
-				result.share_member("class_order", jancestors);
-
+				jedit_object = edit_class->get_single_object(this, key, true, perms);
+				result = jp.create_object();
+				result.share_member("object", jedit_object);
+				bool attempted = false;
 				json jclasses = jp.create_object();
 
-				for (auto edit_class_name : all_ancestors)
+				while (edit_class)
 				{
-					auto local_edit_class = read_lock_class(edit_class_name);
-					if (local_edit_class) {
-						local_edit_class->init_validation(this, perms); // this might be a bad idea
-						json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
-						if (not jedit_object.empty() and include_children)
-						{
-							std::string token = _edit_object_request[token_field];
-							local_edit_class->run_queries(this, token, class_name, jedit_object);
-						}
-						json jedit_class = jp.create_object();
-						local_edit_class->get_json(jedit_class);
-						jclasses.share_member(edit_class_name, jedit_class);
+					auto current_class_name = edit_class->get_class_name();
+					edit_class->init_validation(this, perms); // this might be a bad idea
+					json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
+					if (not jedit_object.empty() and include_children)
+					{
+						std::string token = _edit_object_request[token_field];
+						edit_class->run_queries(this, token, class_name, jedit_object);
+					}
+					json jedit_class = jp.create_object();
+					edit_class->get_json(jedit_class);
+					jclasses.share_member(current_class_name, jedit_class);
+                    std::string edit_class_base = edit_class->get_base_class_name();
+					if (edit_class_base.empty()) {
+						edit_class.reset();
+					}
+					else 
+					{
+                        edit_class = read_lock_class(edit_class_base);
 					}
 				}
 
-				json user = get_user(user_name, sys_perms);
-
-				result = jp.create_object();
-				result.share_member("object", jedit_object);
 				result.share_member("classes", jclasses);
+
 			}
 			else 
 			{
@@ -8403,7 +8401,7 @@ private:
 
 					if (child_objects.size() > 0) {
 						put_object_request.put_member(data_field, child_objects);
-						put_object(put_object_request);
+						result = put_object(put_object_request);
 					}
 
 					result = create_response(put_object_request, true, "Object(s) created", grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
