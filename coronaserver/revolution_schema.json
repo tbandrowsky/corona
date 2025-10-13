@@ -8,7 +8,7 @@
   "classes": [
     {
       "class_name": "note",
-      "class_description": "A note about something",
+      "class_description": "Note",
       "base_class_name": "sys_object",
       "parents": [ "work_ticket", "appointment" ],
       "fields": {
@@ -19,7 +19,7 @@
     },
     {
       "class_name": "work_ticket",
-      "class_description": "A work request made to a team",
+      "class_description": "Work Ticket",
       "base_class_name": "sys_ticket",
       "fields": {
         "notes": "[ note ]"
@@ -27,7 +27,7 @@
     },
     {
       "class_name": "ticket_search",
-      "class_description": "search object for tickets",
+      "class_description": "Ticket Search",
       "base_class_name": "sys_item",
       "fields": {
         "ticket_name": "string",
@@ -75,7 +75,7 @@
     },
     {
       "class_name": "appointment",
-      "class_description": "Public appointments",
+      "class_description": "Appointments",
       "base_class_name": "sys_object",
       "parents": [ "work_team" ],
       "fields": {
@@ -91,7 +91,7 @@
     },
     {
       "class_name": "appointment_search",
-      "class_description": "search object for appointments",
+      "class_description": "Appointment Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": "string",
@@ -158,7 +158,7 @@
     },
     {
       "class_name": "article",
-      "class_description": "an article or document",
+      "class_description": "Article",
       "base_class_name": "sys_object",
       "parents": [ "work_team" ],
       "fields": {
@@ -168,7 +168,7 @@
     },
     {
       "class_name": "article_place",
-      "class_description": "an article about a place",
+      "class_description": "Article about a Place",
       "base_class_name": "article",
       "fields": {
         "street": "string",
@@ -179,7 +179,7 @@
     },
     {
       "class_name": "article_district",
-      "class_description": "an article about a district",
+      "class_description": "Article about a District",
       "base_class_name": "article",
       "fields": {
         "district": "string"
@@ -187,7 +187,7 @@
     },
     {
       "class_name": "article_person",
-      "class_description": "an article about a person",
+      "class_description": "Article about a Person",
       "base_class_name": "article",
       "fields": {
         "first_name": "string",
@@ -200,7 +200,7 @@
     },
     {
       "class_name": "article_manufacture",
-      "class_description": "an article how to make something",
+      "class_description": "How-To Article",
       "base_class_name": "article",
       "fields": {
         "components": [ "string" ],
@@ -209,7 +209,7 @@
     },
     {
       "class_name": "article_search",
-      "class_description": "search object for articles",
+      "class_description": "Article Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": "string",
@@ -250,7 +250,7 @@
     },
     {
       "class_name": "work_team",
-      "class_description": "a team with tickets",
+      "class_description": "Work Team",
       "base_class_name": "sys_team",
       "fields": {
         "appointments": "[ appointment ]",
@@ -259,7 +259,7 @@
     },
     {
       "class_name": "candidate",
-      "class_description": "Candidates running for public office",
+      "class_description": "Candidates",
       "base_class_name": "sys_object",
       "fields": {
         "candidate_id": "string",
@@ -314,7 +314,7 @@
     },
     {
       "class_name": "candidate_search",
-      "class_description": "search object for candidates",
+      "class_description": "Candidate Search",
       "base_class_name": "sys_item",
       "fields": {
         "full_name": "string",
@@ -367,7 +367,7 @@
     },
     {
       "class_name": "committee",
-      "class_description": "Political groups that accept money from the public to support candidates",
+      "class_description": "Committee",
       "base_class_name": "sys_object",
       "fields": {
         "committee_id": "string",
@@ -384,7 +384,7 @@
     },
     {
       "class_name": "committee_search",
-      "class_description": "search object for committees",
+      "class_description": "Committee Search",
       "base_class_name": "sys_item",
       "fields": {
         "committee_name": "string",
@@ -429,7 +429,7 @@
     },
     {
       "class_name": "committee_candidate",
-      "class_description": "Mapping of committees and candidates",
+      "class_description": "Candidate Committee Map",
       "base_class_name": "sys_object",
       "fields": {
         "committee_id": "string",
@@ -450,7 +450,7 @@
     },
     {
       "class_name": "individual",
-      "class_description": "Mapping of committees and candidates",
+      "class_description": "Individual Donor",
       "base_class_name": "sys_object",
       "fields": {
         "committee_id": "string",
@@ -467,7 +467,7 @@
     },
     {
       "class_name": "individual_search",
-      "class_description": "Mapping of committees and candidates",
+      "class_description": "Individual Search",
       "base_class_name": "sys_item",
       "fields": {
         "full_name": {
@@ -523,7 +523,7 @@
     },
     {
       "class_name": "intelligence_ticket",
-      "class_description": "gather information",
+      "class_description": "Intelligence Ticket",
       "base_class_name": "work_ticket",
       "fields": {
 
@@ -531,7 +531,7 @@
     },
     {
       "class_name": "intelligence_article",
-      "class_description": "an article or document",
+      "class_description": "Intelligence Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -540,7 +540,7 @@
     },
     {
       "class_name": "model_search",
-      "class_description": "User search choices for Models",
+      "class_description": "Model Search",
       "base_class_name": "sys_item",
       "fields": {
       }
@@ -556,7 +556,7 @@
     },
     {
       "class_name": "model_ticket",
-      "class_description": "using information to formulate suggested policies",
+      "class_description": "Model Ticket",
       "base_class_name": "work_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
@@ -564,26 +564,8 @@
       }
     },
     {
-      "class_name": "model_impact_ticket",
-      "class_description": "using information to formulate suggested policies",
-      "base_class_name": "model_ticket",
-      "fields": {
-        "responsibility_set": "responsibility_set",
-        "model": "model"
-      }
-    },
-    {
-      "class_name": "model_question_ticket",
-      "class_description": "using information to formulate suggested policies",
-      "base_class_name": "model_ticket",
-      "fields": {
-        "responsibility_set": "responsibility_set",
-        "model": "model"
-      }
-    },
-    {
       "class_name": "model_article",
-      "class_description": "an article or document",
+      "class_description": "Model Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -592,7 +574,7 @@
     },
     {
       "class_name": "colony",
-      "class_description": "A mission to bring a county into the Revolution",
+      "class_description": "Colony",
       "base_class_name": "sys_object",
       "fields": {
         "name": "string",
@@ -603,7 +585,7 @@
     },
     {
       "class_name": "colony_search",
-      "class_description": "Mapping of committees and candidates",
+      "class_description": "Colony Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": {
@@ -668,7 +650,7 @@
     },
     {
       "class_name": "colony_article",
-      "class_description": "an article or document",
+      "class_description": "Colony Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -677,42 +659,42 @@
     },
     {
       "class_name": "justice_ticket",
-      "class_description": "a request for the justice team",
+      "class_description": "Justice Ticket",
       "base_class_name": "work_ticket",
       "fields": {
       }
     },
     {
       "class_name": "arrest_ticket",
-      "class_description": "a request for the justice team",
+      "class_description": "Arrest Ticket",
       "base_class_name": "justice_ticket",
       "fields": {
       }
     },
     {
       "class_name": "search_ticket",
-      "class_description": "a request for the justice team",
+      "class_description": "Search Ticket",
       "base_class_name": "justice_ticket",
       "fields": {
       }
     },
     {
       "class_name": "seize_ticket",
-      "class_description": "a request for the justice team",
+      "class_description": "Seize Ticket",
       "base_class_name": "justice_ticket",
       "fields": {
       }
     },
     {
       "class_name": "plea_ticket",
-      "class_description": "a request for the justice team",
+      "class_description": "Plea Ticket",
       "base_class_name": "justice_ticket",
       "fields": {
       }
     },
     {
       "class_name": "adversary",
-      "class_description": "A participant in a litigation",
+      "class_description": "Adversary",
       "base_class_name": "sys_object",
       "fields": {
         "entity_name": "string",
@@ -749,7 +731,7 @@
     },
     {
       "class_name": "case",
-      "class_description": "A case before the court",
+      "class_description": "Court Case",
       "base_class_name": "sys_object",
       "fields": {
         "name": "string",
@@ -759,42 +741,42 @@
     },
     {
       "class_name": "case_search",
-      "class_description": "Search screen for the court",
+      "class_description": "Case Search",
       "base_class_name": "sys_item",
       "fields": {
       }
     },
     {
       "class_name": "reparations_case",
-      "class_description": "A reparations case",
+      "class_description": "Reparations Case",
       "base_class_name": "sys_object",
       "fields": {
       }
     },
     {
       "class_name": "treason_case",
-      "class_description": "A reparations case",
+      "class_description": "Treason Case",
       "base_class_name": "sys_object",
       "fields": {
       }
     },
     {
       "class_name": "criminal_case",
-      "class_description": "A reparations case",
+      "class_description": "Criminal Case",
       "base_class_name": "sys_object",
       "fields": {
       }
     },
     {
       "class_name": "liability_case",
-      "class_description": "A reparations case",
+      "class_description": "Liability Case",
       "base_class_name": "sys_object",
       "fields": {
       }
     },
     {
       "class_name": "justice_article",
-      "class_description": "an article or document",
+      "class_description": "Justice Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -803,7 +785,7 @@
     },
     {
       "class_name": "responsibility_set",
-      "class_description": "Property and people one is responsible for",
+      "class_description": "Property and People",
       "base_class_name": "sys_item",
       "fields": {
         "properties": "[ responsibility ]"
@@ -812,7 +794,7 @@
     {
       "class_name": "responsibility",
       "base_class_name": "sys_object",
-      "class_description": "a person or a place one is responsible for",
+      "class_description": "A Property or a Person",
       "parents": [ "responsibility_set" ],
       "fields": {
         "name": "string",
@@ -822,7 +804,40 @@
     {
       "class_name": "family_member",
       "base_class_name": "sys_object",
-      "class_description": "a thing owned by a user",
+      "class_description": "Family Member",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string"
+      }
+    },
+    {
+      "class_name": "family_child",
+      "base_class_name": "family_member",
+      "class_description": "A Child",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string"
+      }
+    },
+    {
+      "class_name": "family_spouse",
+      "base_class_name": "family_member",
+      "class_description": "A Spouse",
+      "parents": [ "responsibility" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string"
+      }
+    },
+    {
+      "class_name": "family_me",
+      "base_class_name": "family_member",
+      "class_description": "Self",
       "parents": [ "responsibility" ],
       "fields": {
         "first_name": "string",
@@ -833,7 +848,7 @@
     {
       "class_name": "tribal_member",
       "base_class_name": "sys_object",
-      "class_description": "a thing owned by a user",
+      "class_description": "Tribal Member",
       "parents": [ "responsibility" ],
       "fields": {
         "first_name": "string",
@@ -844,7 +859,7 @@
     {
       "class_name": "employee_member",
       "base_class_name": "sys_object",
-      "class_description": "a thing owned by a user",
+      "class_description": "Employee",
       "parents": [ "responsibility" ],
       "fields": {
         "first_name": "string",
@@ -854,7 +869,7 @@
     },
     {
       "class_name": "location",
-      "class_description": "a place where something is",
+      "class_description": "Location",
       "base_class_name": "responsibility",
       "fields": {
         "street1": "string",
@@ -868,7 +883,7 @@
     },
     {
       "class_name": "building",
-      "class_description": "something built on a spot",
+      "class_description": "Building",
       "base_class_name": "responsibility",
       "parents": [ "location" ],
       "fields": {
@@ -885,7 +900,7 @@
     },
     {
       "class_name": "insurance_coverage",
-      "class_description": "a request for the permit team",
+      "class_description": "Insurance Coverage",
       "base_class_name": "sys_object",
       "fields": {
         "reponsibilities": "[ responsibility ]",
@@ -898,7 +913,7 @@
     },
     {
       "class_name": "insurance_policy",
-      "class_description": "a base insurance policy, quote, or binder.  ",
+      "class_description": "Insurance Policy",
       "base_class_name": "sys_object",
       "fields": {
         "policy_name": "string",
@@ -909,21 +924,21 @@
     },
     {
       "class_name": "insurance_quote",
-      "class_description": "a request for the permit team",
+      "class_description": "Insurance Quote",
       "base_class_name": "insurance_policy",
       "fields": {
       }
     },
     {
       "class_name": "insurance_binder",
-      "class_description": "a request for the permit team",
+      "class_description": "Insurance Binder",
       "base_class_name": "insurance_policy",
       "fields": {
       }
     },
     {
       "class_name": "insurance_policy_search",
-      "class_description": "a request for the permit team",
+      "class_description": "Policy Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": "string",
@@ -964,7 +979,7 @@
     },
     {
       "class_name": "insurance_ticket",
-      "class_description": "a request for the permit team",
+      "class_description": "Insurance Ticket",
       "base_class_name": "work_ticket",
       "fields": {
         "responsibility_set": "responsibility_set"
@@ -972,7 +987,7 @@
     },
     {
       "class_name": "insurance_article",
-      "class_description": "an article or document",
+      "class_description": "Insurance Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -981,7 +996,7 @@
     },
     {
       "class_name": "insurance_quote_request",
-      "class_description": "a request an insurance policy",
+      "class_description": "Insurance Quote",
       "base_class_name": "insurance_ticket",
       "fields": {
 
@@ -989,7 +1004,7 @@
     },
     {
       "class_name": "insurance_claim",
-      "class_description": "a request for the permit team",
+      "class_description": "Insurance Claim",
       "base_class_name": "insurance_ticket",
       "fields": {
         "responsibility_set": "responsibility_set"
@@ -997,7 +1012,7 @@
     },
     {
       "class_name": "permit_ticket",
-      "class_description": "a request for the permit team",
+      "class_description": "Permit Ticket",
       "base_class_name": "work_ticket",
       "fields": {
         "name": "string",
@@ -1006,7 +1021,7 @@
     },
     {
       "class_name": "discharge",
-      "class_description": "a request for the permit team",
+      "class_description": "Discharge",
       "base_class_name": "sys_object",
       "parents": [ "environmental_discharge_ticket" ],
       "fields": {
@@ -1019,7 +1034,7 @@
     },
     {
       "class_name": "environmental_discharge_ticket",
-      "class_description": "a request for the permit team",
+      "class_description": "Discharge Ticket",
       "base_class_name": "permit_ticket",
       "fields": {
         "responsibility_set": "responsibility_set",
@@ -1028,7 +1043,7 @@
     },
     {
       "class_name": "construction_ticket",
-      "class_description": "a request for the permit team",
+      "class_description": "Construction Ticket",
       "base_class_name": "permit_ticket",
       "fields": {
         "location": "[ location ]"
@@ -1036,7 +1051,7 @@
     },
     {
       "class_name": "permit",
-      "class_description": "a request for the permit team",
+      "class_description": "Permit",
       "base_class_name": "article",
       "fields": {
         "permit_ticket": "[ permit_ticket ]",
@@ -1046,7 +1061,7 @@
     },
     {
       "class_name": "permit_search",
-      "class_description": "Search for Permits",
+      "class_description": "Permit Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": {
@@ -1099,7 +1114,7 @@
     },
     {
       "class_name": "permit_article",
-      "class_description": "an article or document",
+      "class_description": "Permit Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -1108,7 +1123,7 @@
     },
     {
       "class_name": "technical_ticket",
-      "class_description": "a tech job",
+      "class_description": "Tech Ticket",
       "base_class_name": "work_ticket",
       "fields": {
         "name": "string",
@@ -1118,7 +1133,7 @@
     },
     {
       "class_name": "create_class_ticket",
-      "class_description": "a tech job",
+      "class_description": "Modify Class Ticket",
       "base_class_name": "technical_ticket",
       "fields": {
         "name": "string",
@@ -1128,7 +1143,7 @@
     },
     {
       "class_name": "technical_search",
-      "class_description": "Search for Technical tickets",
+      "class_description": "Tech Ticket Search",
       "base_class_name": "sys_item",
       "fields": {
         "name": {
@@ -1176,7 +1191,7 @@
     },
     {
       "class_name": "technical_article",
-      "class_description": "an article or document",
+      "class_description": "Tech Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
       "fields": {
@@ -1495,7 +1510,7 @@
             "ticket_search",
             "technical_ticket_search"
           ],
-          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team"  ],
+          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team"   ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1529,7 +1544,7 @@
           "team_description": "Revolution Customer",
           "team_domain": ".*",
           "inventory_classes": [ "appointment_search", "article_search", "ticket_search" ],
-          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
+          "allowed_teams": [ "Home Team", "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",

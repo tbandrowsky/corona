@@ -4567,7 +4567,7 @@ namespace corona
 			json response =  create_class(R"(
 {	
 	"class_name" : "sys_object",
-	"class_description" : "Base of all objects",
+	"class_description" : "Object",
 	"fields" : {			
 			"object_id" : "int64",
 			"class_name" : "string",
@@ -4599,7 +4599,7 @@ namespace corona
 			response = create_class(R"(
 {	
 	"class_name" : "sys_error",
-	"class_description" : "Base of all errors",
+	"class_description" : "Error",
 	"base_class_name" : "sys_object",
 	"fields" : {			
 			"system" : "string",
@@ -4631,7 +4631,7 @@ namespace corona
 			response = create_class(R"(
 {	
 	"class_name" : "sys_server",
-	"class_description" : "all corona servers known by this one",
+	"class_description" : "Servers",
 	"base_class_name" : "sys_object",
 	"fields" : {
 			"server_name" : "string",
@@ -4663,7 +4663,7 @@ namespace corona
 			response = create_class(R"(
 {	
 	"class_name" : "sys_command",
-	"class_description" : "Base of all commands",
+	"class_description" : "Command",
 	"base_class_name" : "sys_object",
 	"fields" : {
 	}
@@ -4692,7 +4692,7 @@ namespace corona
 {
 	"class_name" : "sys_grant",
 	"base_class_name" : "sys_object",
-	"class_description" : "grants a team can have",
+	"class_description" : "Grant",
 	"parents" : [ "sys_team" ],
 	"fields" : {
 			"grant_classes" : "[string]",
@@ -4746,7 +4746,7 @@ namespace corona
 {
 	"class_name" : "sys_ticket",
 	"base_class_name" : "sys_object",
-	"class_description" : "a work item created by a team",
+	"class_description" : "Ticket",
 	"parents" : [ "sys_team" ],
 	"fields" : {
 			"ticket_name" : "string",
@@ -4784,7 +4784,7 @@ namespace corona
 {
 	"class_name" : "sys_workflow",
 	"base_class_name" : "sys_object",
-	"class_description" : "directives for automatic tickets",
+	"class_description" : "Workflow",
 	"parents" : [ "sys_team" ],
 	"fields" : {
 			"workflow_name" : "string",
@@ -4824,7 +4824,7 @@ namespace corona
 {
 	"class_name" : "sys_team",
 	"base_class_name" : "sys_object",
-	"class_description" : "Teams a user can belong to",
+	"class_description" : "Team",
 	"fields" : {
 			"team_name" : "string",
 			"team_description" : "string",
@@ -4869,7 +4869,7 @@ namespace corona
 {
 	"class_name" : "sys_dataset",
 	"base_class_name" : "sys_object",
-	"class_description" : "Database script changes",
+	"class_description" : "DataSet",
 	"parents" : [ "sys_schema" ],
 	"fields" : {
 			"dataset_name" : "string",
@@ -4911,7 +4911,7 @@ namespace corona
 {
 	"class_name" : "sys_schema",
 	"base_class_name" : "sys_object",
-	"class_description" : "Database script changes",
+	"class_description" : "Schema",
 	"fields" : {		
 			"schema_name" : "string",
 			"schema_description" : "string",
@@ -4946,7 +4946,7 @@ namespace corona
 {	
 	"base_class_name" : "sys_object",
 	"class_name" : "sys_item",
-	"class_description" : "A user object",
+	"class_description" : "Item",
 	"parents": [ "sys_user", "sys_item", "sys_team" ],
 	"fields" : {			
 			"object_name" : "string"
@@ -4975,7 +4975,7 @@ namespace corona
 {	
 	"base_class_name" : "sys_object",
 	"class_name" : "sys_user",
-	"class_description" : "A user",
+	"class_description" : "User",
 	"fields" : {			
 			"first_name" : {
 				"field_type":"string",
@@ -7497,9 +7497,7 @@ private:
 							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
 							})) {
 							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
-							put_user(user_details);
 							team_set = true;
-							user_details = get_user(user_name, get_system_permission());
                             ok_message = "Selected " + (std::string)_user_set_team_request["team_name"];
 						}
 					}
@@ -7512,6 +7510,8 @@ private:
 
 			if (team_set) {
 				apply_user_team(user_details);
+				put_user(user_details);
+                user_details = get_user(user_name, get_system_permission());
 				result = create_response(_user_set_team_request, true, ok_message, user_details, empty_errors, method_timer.get_elapsed_seconds());
 			}
 			else

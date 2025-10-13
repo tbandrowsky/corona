@@ -1376,7 +1376,7 @@ namespace corona
 				table_header->root->split_root(0);
 			}
 
-            if (file_name.find("case_search") != std::string::npos) {
+            if (file_name.find("search") != std::string::npos) {
                 system_monitoring_interface::active_mon->log_information(std::format("put {0}, {1} rows", file_name, table_header->count), __FILE__, __LINE__);
             }
 
