@@ -11,9 +11,13 @@
       "class_description": "Note",
       "base_class_name": "sys_object",
       "parents": [ "work_ticket", "appointment" ],
+      "class_color": "#e1cab2",
       "fields": {
         "name": "string",
-        "text": "string",
+        "text": {
+          "field_type": "string",
+          "display": "markdown"
+        },
         "links": "[ string ]"
       }
     },
@@ -21,6 +25,7 @@
       "class_name": "work_ticket",
       "class_description": "Work Ticket",
       "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "notes": "[ note ]"
       }
@@ -29,11 +34,20 @@
       "class_name": "ticket_search",
       "class_description": "Ticket Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
-        "ticket_name": "string",
-        "ticket_description": "string",
-        "ticket_class": "string",
-        "ticket_object_class": "string",
+        "text": {
+          "field_type": "string",
+          "label": "Search Text"
+        },
+        "start_date": {
+          "field_type": "datetime",
+          "label": "From Date"
+        },
+        "stop_date": {
+          "field_type": "datetime",
+          "label": "To Date"
+        },
         "tickets": {
           "field_type": "query",
           "query": {
@@ -53,17 +67,22 @@
                     {
                       "class_name": "contains",
                       "valuepath": "name",
-                      "value": "$this.name"
+                      "value": "$this.text"
                     },
                     {
                       "class_name": "contains",
                       "valuepath": "description",
-                      "value": "$this.description"
+                      "value": "$this.text"
                     },
                     {
-                      "class_name": "contains",
-                      "valuepath": "status",
-                      "value": "$this.status"
+                      "class_name": "gte",
+                      "valuepath": "created",
+                      "value": "$this.start_date"
+                    },
+                    {
+                      "class_name": "lte",
+                      "valuepath": "created",
+                      "value": "$this.stop_date"
                     }
                   ]
                 }
@@ -78,6 +97,7 @@
       "class_description": "Appointments",
       "base_class_name": "sys_object",
       "parents": [ "work_team" ],
+      "class_color": "#33212A",
       "fields": {
         "name": "string",
         "description": "string",
@@ -93,16 +113,21 @@
       "class_name": "appointment_search",
       "class_description": "Appointment Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
-        "name": "string",
-        "description": "string",
-        "from": "datetime",
-        "to": "datetime",
-        "street": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "string",
-        "appointments": {
+        "text": {
+          "field_type": "string",
+          "label": "Search Text"
+        },
+        "start_date": {
+          "field_type": "datetime",
+          "label": "From Date"
+        },
+        "stop_date": {
+          "field_type": "datetime",
+          "label": "To Date"
+        },
+        "tickets": {
           "field_type": "query",
           "query": {
             "from": [
@@ -121,32 +146,22 @@
                     {
                       "class_name": "contains",
                       "valuepath": "name",
-                      "value": "$this.name"
+                      "value": "$this.text"
                     },
                     {
                       "class_name": "contains",
                       "valuepath": "description",
-                      "value": "$this.description"
+                      "value": "$this.text"
                     },
                     {
-                      "class_name": "contains",
-                      "valuepath": "street",
-                      "value": "$this.street"
+                      "class_name": "gte",
+                      "valuepath": "created",
+                      "value": "$this.start_date"
                     },
                     {
-                      "class_name": "contains",
-                      "valuepath": "state",
-                      "value": "$this.state"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "city",
-                      "value": "$this.city"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "zip",
-                      "value": "$this.zip"
+                      "class_name": "lte",
+                      "valuepath": "created",
+                      "value": "$this.stop_date"
                     }
                   ]
                 }
@@ -160,6 +175,7 @@
       "class_name": "article",
       "class_description": "Article",
       "base_class_name": "sys_object",
+      "class_color": "#4e7a69",
       "parents": [ "work_team" ],
       "fields": {
         "name": "string",
@@ -211,11 +227,23 @@
       "class_name": "article_search",
       "class_description": "Article Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
-        "name": "string",
-        "description": "string",
+        "text": {
+          "field_type": "string",
+          "label": "Search Text"
+        },
+        "start_date": {
+          "field_type": "datetime",
+          "label": "From Date"
+        },
+        "stop_date": {
+          "field_type": "datetime",
+          "label": "To Date"
+        },
         "articles": {
           "field_type": "query",
+          "label": "Articles",
           "query": {
             "from": [
               {
@@ -233,12 +261,22 @@
                     {
                       "class_name": "contains",
                       "valuepath": "name",
-                      "value": "$this.name"
+                      "value": "$this.text"
                     },
                     {
                       "class_name": "contains",
                       "valuepath": "description",
-                      "value": "$this.description"
+                      "value": "$this.text"
+                    },
+                    {
+                      "class_name": "gte",
+                      "valuepath": "created",
+                      "value": "$this.start_date"
+                    },
+                    {
+                      "class_name": "lte",
+                      "valuepath": "created",
+                      "value": "$this.stop_date"
                     }
                   ]
                 }
@@ -261,6 +299,7 @@
       "class_name": "candidate",
       "class_description": "Candidates",
       "base_class_name": "sys_object",
+      "class_color": "#af9d66",
       "fields": {
         "candidate_id": "string",
         "full_name": "string",
@@ -316,6 +355,7 @@
       "class_name": "candidate_search",
       "class_description": "Candidate Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
         "full_name": "string",
         "state": "string",
@@ -369,6 +409,8 @@
       "class_name": "committee",
       "class_description": "Committee",
       "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+
       "fields": {
         "committee_id": "string",
         "committee_name": "string",
@@ -386,20 +428,20 @@
       "class_name": "committee_search",
       "class_description": "Committee Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
-        "committee_name": "string",
-        "political_party": "string",
-        "committees": {
+        "text": {
+          "field_type": "string",
+          "label": "Search Text"
+        },
+        "articles": {
           "field_type": "query",
+          "label": "Committees",
           "query": {
             "from": [
               {
                 "class_name": "committee",
-                "name": "committee",
-                "filter": {
-                  "committee_name": "$this.committee_name",
-                  "political_party": "$this.political_party"
-                }
+                "name": "committee"
               }
             ],
             "stages": [
@@ -407,17 +449,12 @@
                 "class_name": "filter",
                 "stage_input_name": "committee",
                 "condition": {
-                  "class_name": "all",
+                  "class_name": "any",
                   "conditions": [
                     {
                       "class_name": "contains",
                       "valuepath": "committee_name",
-                      "value": "$this.committee_name"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "political_party",
-                      "value": "$this.political_party"
+                      "value": "$this.text"
                     }
                   ]
                 }
@@ -431,6 +468,7 @@
       "class_name": "committee_candidate",
       "class_description": "Candidate Committee Map",
       "base_class_name": "sys_object",
+      "class_color": "#af9d66",
       "fields": {
         "committee_id": "string",
         "candidate_id": "string"
@@ -452,6 +490,8 @@
       "class_name": "individual",
       "class_description": "Individual Donor",
       "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+
       "fields": {
         "committee_id": "string",
         "full_name": "string",
@@ -469,18 +509,22 @@
       "class_name": "individual_search",
       "class_description": "Individual Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
         "full_name": {
           "field_type": "string",
-          "required": true
+          "required": true,
+          "label": "Full Name"
         },
         "city": {
           "field_type": "string",
-          "required": true
+          "required": true,
+          "label": "City"
         },
         "state": {
           "field_type": "string",
-          "required": true
+          "required": true,
+          "label": "State"
         },
         "employer": "string",
         "occupation": "string",
@@ -525,6 +569,7 @@
       "class_name": "intelligence_ticket",
       "class_description": "Intelligence Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
 
       }
@@ -534,6 +579,7 @@
       "class_description": "Intelligence Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "intelligence": "string"
       }
@@ -542,6 +588,7 @@
       "class_name": "model_search",
       "class_description": "Model Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
       }
     },
@@ -558,6 +605,7 @@
       "class_name": "model_ticket",
       "class_description": "Model Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "responsibility_set": "responsibility_set",
         "model": "model"
@@ -568,6 +616,7 @@
       "class_description": "Model Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "policy": "string"
       }
@@ -587,6 +636,7 @@
       "class_name": "colony_search",
       "class_description": "Colony Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
         "name": {
           "field_type": "string"
@@ -653,6 +703,7 @@
       "class_description": "Colony Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "colony_status": "string"
       }
@@ -661,6 +712,7 @@
       "class_name": "justice_ticket",
       "class_description": "Justice Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
       }
     },
@@ -668,6 +720,7 @@
       "class_name": "arrest_ticket",
       "class_description": "Arrest Ticket",
       "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
       "fields": {
       }
     },
@@ -675,6 +728,7 @@
       "class_name": "search_ticket",
       "class_description": "Search Ticket",
       "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
       "fields": {
       }
     },
@@ -682,6 +736,7 @@
       "class_name": "seize_ticket",
       "class_description": "Seize Ticket",
       "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
       "fields": {
       }
     },
@@ -689,6 +744,7 @@
       "class_name": "plea_ticket",
       "class_description": "Plea Ticket",
       "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
       "fields": {
       }
     },
@@ -743,6 +799,7 @@
       "class_name": "case_search",
       "class_description": "Case Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
       }
     },
@@ -779,6 +836,7 @@
       "class_description": "Justice Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "justice_text": "string"
       }
@@ -940,6 +998,7 @@
       "class_name": "insurance_policy_search",
       "class_description": "Policy Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
       "fields": {
         "name": "string",
         "description": "string",
@@ -981,6 +1040,7 @@
       "class_name": "insurance_ticket",
       "class_description": "Insurance Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "responsibility_set": "responsibility_set"
       }
@@ -990,6 +1050,7 @@
       "class_description": "Insurance Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "insurance_text": "string"
       }
@@ -998,6 +1059,7 @@
       "class_name": "insurance_quote_request",
       "class_description": "Insurance Quote",
       "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
       "fields": {
 
       }
@@ -1006,6 +1068,7 @@
       "class_name": "insurance_claim",
       "class_description": "Insurance Claim",
       "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "responsibility_set": "responsibility_set"
       }
@@ -1014,6 +1077,7 @@
       "class_name": "permit_ticket",
       "class_description": "Permit Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "name": "string",
         "description": "string"
@@ -1036,6 +1100,7 @@
       "class_name": "environmental_discharge_ticket",
       "class_description": "Discharge Ticket",
       "base_class_name": "permit_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "responsibility_set": "responsibility_set",
         "discharges": "[ discharge ]"
@@ -1045,6 +1110,7 @@
       "class_name": "construction_ticket",
       "class_description": "Construction Ticket",
       "base_class_name": "permit_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "location": "[ location ]"
       }
@@ -1063,6 +1129,8 @@
       "class_name": "permit_search",
       "class_description": "Permit Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
+
       "fields": {
         "name": {
           "field_type": "string"
@@ -1117,6 +1185,7 @@
       "class_description": "Permit Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "permit_text": "string"
       }
@@ -1125,6 +1194,7 @@
       "class_name": "technical_ticket",
       "class_description": "Tech Ticket",
       "base_class_name": "work_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "name": "string",
         "description": "string",
@@ -1135,6 +1205,7 @@
       "class_name": "create_class_ticket",
       "class_description": "Modify Class Ticket",
       "base_class_name": "technical_ticket",
+      "class_color": "#4f7959",
       "fields": {
         "name": "string",
         "description": "string",
@@ -1145,15 +1216,12 @@
       "class_name": "technical_search",
       "class_description": "Tech Ticket Search",
       "base_class_name": "sys_item",
+      "class_color": "#8f7243",
+
       "fields": {
-        "name": {
-          "field_type": "string"
-        },
-        "description": {
-          "field_type": "string"
-        },
-        "status": {
-          "field_type": "string"
+        "text": {
+          "field_type": "string",
+          "label": "Text"
         },
         "technicals": {
           "field_type": "query",
@@ -1194,6 +1262,7 @@
       "class_description": "Tech Article",
       "base_class_name": "article",
       "parents": [ "work_team" ],
+      "class_color": "#4e7a69",
       "fields": {
         "technical_text": "string"
       }
@@ -1507,8 +1576,7 @@
           "inventory_classes": [
             "appointment_search",
             "article_search",
-            "ticket_search",
-            "technical_ticket_search"
+            "ticket_search"
           ],
           "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team"   ],
           "permissions": [
@@ -1522,7 +1590,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "technical_search", "note" ],
+              "grant_classes": [ "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
