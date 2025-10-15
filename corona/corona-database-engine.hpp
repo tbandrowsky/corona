@@ -1392,6 +1392,9 @@ namespace corona
 				bridges->get_json(jctors);
 				_dest.share_member("child_objects", jctors);
 			}
+			if (field_type_names.contains(fundamental_type)) {
+				_dest.put_member("fundamental_type", field_type_names[fundamental_type]);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1399,7 +1402,10 @@ namespace corona
 			field_options_base::put_json(_src);
 
 			json jctors = _src["child_objects"];
-			json fte = _src["fundamental_type"];
+			std::string fte = _src["fundamental_type"];
+			if (allowed_field_types.contains(fte)) {
+				fundamental_type = allowed_field_types[fte];
+			}
 
 			bridges = std::make_shared<child_bridges>();
 			if (jctors.object()) {
@@ -4022,6 +4028,8 @@ namespace corona
 						result = jp.create_object();
 					}
 				}
+
+				result.put_member("class_color", class_color);
 			}
 			else 
 			{
@@ -4059,6 +4067,7 @@ namespace corona
 
 			for (auto _src_obj : _src_list)
 			{
+
 				int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
 
 				bool exists = false;
@@ -4079,6 +4088,8 @@ namespace corona
 					// was there, but the user did not have permissions to change it.
 					continue;
 				}
+
+				write_object.erase_member("class_color");
 
 				bool use_write_object = false;
 
@@ -4268,7 +4279,7 @@ namespace corona
 			}
 
 			if (_include_children) {
-				auto obj_items = obj.array_impl();
+                auto obj_items = obj.array_impl();
 				for (auto item : obj_items->elements)
 				{
                     json _src_obj(item);
@@ -4372,6 +4383,12 @@ namespace corona
 				}
 				table->commit();
 			}
+
+			for (auto ob : obj)
+			{
+				ob.put_member("class_color", class_color);
+			}
+
 			return obj;
 		}
 
@@ -4596,7 +4613,7 @@ namespace corona
 	"grid_template_columns": "1fr 1fr",
 	"fields" : {			
 			"object_id" : { 
-				"field_type:"int64",
+				"field_type":"int64",
 				"read_only": true,	
 				"label": "Object Id",	
 				"grid_row": "1",		
@@ -4703,7 +4720,7 @@ namespace corona
 				"grid_column":"1"				
 			},
 			"line": {
-				"field_type":"int32",
+				"field_type":"number",
 				"read_only": true,
 				"label": "Source Line #",
 				"grid_row":"4",
@@ -4858,7 +4875,8 @@ namespace corona
 				"field_name":"derive",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown"	
-			}
+			},
+			"class_colors": "object"
 	}
 }
 )");
@@ -4899,16 +4917,10 @@ namespace corona
 			"status_description" : {
 				"field_type":"string",
 				"label": "Status Description",
-				"display": "markdown"	
-				"grid_row":"2",
-				"grid_column":"1"
+				"display": "markdown",	
+				"grid_row": "2",
+				"grid_column": "1"
 			},
-			"modified_object" : "->sys_object"
-	},
-	"indexes" : {
-        "sys_ticket_created": {
-          "index_keys": [ "created_object_class_name", "created_object_id" ]
-        }
 	}
 }
 )");
@@ -4950,7 +4962,7 @@ namespace corona
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Name",
-				"display": "markdown"	
+				"display": "markdown",	
 				"grid_row": "2",
 				"grid_column":"1"
 			},
@@ -4998,46 +5010,53 @@ namespace corona
 				"grid_row": "2",
 				"grid_column":"1"
 			},
-			"workflow_schedule_days" : {
+			"workflow_schedule_type" : {
 				"field_type":"string",
-				"label": "Days to Run",
-				"display": "Days",
+				"display": "dropdown",
 				"grid_row": "3",
 				"grid_column":"1",
+				"enum" : [ "Week", "Month" ],
+			},
+			"workflow_schedule_days" : {
+				"field_type":"array",
+				"fundamental_type":"number",
+				"label": "Days to Run",
+				"display": "days",
+				"grid_row": "3",
+				"grid_column":"2",
 			},
 			"workflow_schedule_hour" : {
 				"field_type":"number",
 				"label": "Hour to run",
-				"display": "dropdown",
+				"display": "hour",
 				"min_value" : 0,
 				"max_value" : 23,
 				"grid_row": "3",
-				"grid_column":"2",
+				"grid_column":"3",
 			},
 			"ticket_class_name" : {
 				"field_type":"string",
 				"label": "Create Ticket",
-				"display": "dropdown:sys_ticket"	
+				"display": "dropdown:sys_ticket",	
 				"grid_row": "4",
 				"grid_column":"1"
 			},
 			"ticket_name" : {
 				"field_type":"string",
 				"label": "Ticket Name",
-				"display": "string"	
 				"grid_row": "5",
 				"grid_column":"1"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Description",
-				"display": "markdown"	
+				"display": "markdown",
 				"grid_row": "6",
 				"grid_column":"1"
 			},
 			"last_ran" : {
-				"field_type":"datetime",
-				"label": "Last Executed",
+				"field_type":"number",
+				"label": "Last Run Day",
 				"grid_row": "7",
 				"grid_column":"1"
 			},
@@ -5278,7 +5297,7 @@ namespace corona
 				"format":"tel",
 				"required" : true,
 				"max_length" : 15,
-				"match_pattern": "^(1/s?)?(/d{3}|(/d{3}/))[/s/-]?/d{3}[/s/-]?/d{4}$"	
+				"match_pattern": "^(1/s?)?(/d{3}|(/d{3}/))[/s/-]?/d{3}[/s/-]?/d{4}$",	
 				"grid_row": "3",
 				"grid_column": "1"
 			},
@@ -5299,7 +5318,7 @@ namespace corona
 				"required" : true,
 				"label": "Street Address 2",
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
 				"grid_row": "5",
 				"grid_column": "1"
 			},
@@ -5309,7 +5328,7 @@ namespace corona
 				"required" : true,
 				"label": "City",
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
 				"grid_row": "6",
 				"grid_column": "1"
 			},
@@ -5319,7 +5338,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 50,
 				"label": "State",
-				"match_pattern": "[a-zA-Z0-9_/-/s]+"	
+				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
 				"grid_row": "6",
 				"grid_column": "2"
 			},
@@ -5328,7 +5347,7 @@ namespace corona
 				"field_name":"zip",
 				"required" : true,
 				"max_length" : 15,
-				"match_pattern": "^/d{5}(?:[-/s]/d{4})?$"	
+				"match_pattern": "^/d{5}(?:[-/s]/d{4})?$",
 				"label": "Zip",
 				"grid_row": "6",
 				"grid_column": "3"
@@ -5481,6 +5500,8 @@ private:
 
 			json result = jp.create_object();
 
+			object_definition.erase_member("class_color");
+
 			if (not object_definition.object())
 			{
 				json warning = jp.create_object();
@@ -5517,6 +5538,7 @@ private:
 					auto existing_object = class_data->get_object(this, object_id, _permission, exists);
 
 					if (existing_object.object()) {
+						existing_object.erase_member("class_color");
 						existing_object.merge(object_definition);
 						object_definition = existing_object;
 					}
@@ -5625,7 +5647,7 @@ private:
 			json_parser jp;
 			date_time current_date = date_time::now();
 			using namespace std::literals;
-			json response; 
+			json response; 			
 
 			response = jp.create_object();
 
@@ -6033,6 +6055,7 @@ private:
 			_user.erase_member("home_team");
 			_user.erase_member("allowed_teams");
 			_user.erase_member("create_options");
+			_user.erase_member("class_color");
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
@@ -6196,109 +6219,135 @@ private:
 			json_parser jp;
 
             json team = get_team(_team_name, _permission);
-			if (team.object()) {
-                int64_t team_id = (int64_t)team[object_id_field];
+			if (team.object()) 
+			{
+				int64_t team_id = (int64_t)team[object_id_field];
 
-                json permissions = team["permissions"];
-				if (permissions.array()) {
-					for (auto grant : permissions) {
+				json permissions = team["permissions"];
+
+				json class_colors = jp.create_object();
+				if (permissions.array()) 
+				{
+					for (auto grant : permissions) 
+					{
 						json granted_all = jp.create_object();
 						auto class_list = grant["grant_classes"];
-						if (class_list.array()) {
-                            for (auto cls : class_list) {
-                                std::string class_name = (std::string)cls;
-                                auto classd = read_lock_class(class_name);
+						if (class_list.array()) 
+						{
+							for (auto cls : class_list) 
+							{
+								std::string class_name = (std::string)cls;
+								auto classd = read_lock_class(class_name);
 								json descendants = jp.create_array();
-								if (classd) {
+								if (classd) 								
+								{
+									class_colors.put_member(class_name, classd->get_class_color());
 									auto desc = classd->get_descendants();
-									for (auto d : desc) {
+									for (auto d : desc) 
+									{
 										descendants.push_back(d.first);
 									}
 								}
 								granted_all.put_member(cls, descendants);
 							}
 						}
-                        grant.put_member("all_granted_classes", granted_all);
+						grant.put_member("all_granted_classes", granted_all);
+						grant.put_member("class_colors", class_colors);
 					}
 				}
 
-                json workflows = team["workflow"];
-                if (workflows.array()) {
-                    for (auto wf : workflows) {
+				json workflows = team["workflow"];
+				if (workflows.array()) 
+				{
+					for (auto wf : workflows) 
+					{
+						// read the ticket job
 						int64_t workflow_object_id = (int64_t)wf[object_id_field];
 						std::string workflow_name = (std::string)wf["workflow_name"];
 						std::string workflow_description = (std::string)wf["workflow_description"];
-						std::string ticket_class_name = (std::string)wf["ticket_class_name"];
-						std::string ticket_create_class_name = (std::string)wf["ticket_create_class_name"];
-                        std::string ticket_name = (std::string)wf["ticket_name"];
-                        std::string ticket_description = (std::string)wf["ticket_description"];
 
-						if (workflow_name.empty() or ticket_class_name.empty()) {
-							continue;
-						}
+						std::string workflow_schedule_type = (std::string)wf["workflow_schedule_type"];
+						json workflow_schedule_days = wf["workflow_schedule_days"];
+						int hour = (int64_t)wf["workflow_schedule_hour"];
 
-						std::vector<std::string> required_object_classes = wf["required_object_classes"].to_string_array();
+						SYSTEMTIME system_time;
+						::GetSystemTime(&system_time);
 
-						date_time time_created = (date_time)wf["ticket_time_created"];
-						int64_t ticket_id = (int64_t)wf["ticket_id"];
-						int64_t max_open_tickets = (int64_t)wf["max_open_tickets"];
+						bool matched_set = false;
+						int matched_day = 0;
 
-						json jtime_span = wf.extract({ "timespan_units", "timespan_value" });
-						time_span ts;
-						put_json(ts, jtime_span);
-						
-						date_time current_time = date_time::now();
-                        date_time next_run_time = time_created + ts;
-						if (next_run_time < current_time) {							
-                            system_monitoring_interface::active_mon->log_information(std::format("Running workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-
-                            // now, check to see that we have all of our prerequisite objects
-                            bool any_missing = false;
-							for (auto& required_class : required_object_classes)
-							{
-								json class_filter = jp.create_object();
-								auto classd = read_lock_class(required_class);
-								if ((not classd) or (classd->any_descendants(this) == false)) {
-									any_missing = true;
+						if (workflow_schedule_type == "Month") {
+							for (auto day : workflow_schedule_days) {
+								int d = (int64_t)day;
+								if (d == system_time.wDay) {
+									matched_day = d;
+									matched_set = true;
 									break;
 								}
 							}
-
-							// now we can make our ticket
-							if (not any_missing) {
-                                json new_object = jp.create_object();
-								new_object.put_member(class_name_field, ticket_class_name);
-								new_object.put_member("sys_team", team_id);
-                                new_object.put_member("create_class_name", ticket_create_class_name);
-                                new_object.put_member("ticket_name", ticket_name);
-                                new_object.put_member("ticket_description", ticket_description);
-								json por = create_system_request(new_object);
-								json porresp = put_object(por);
-								if (porresp["success"]) {
-                                    new_object = porresp[data_field];
-                                    ticket_id = (int64_t)new_object[object_id_field];
-                                    wf.put_member(class_name_field, (std::string)"sys_workflow");
-									wf.put_member("ticket_time_created", date_time::now());
-									wf.put_member_i64("sys_team", team_id);
-                                    wf.put_member_i64("ticket_id", ticket_id);
-									por = create_system_request(wf);
-									porresp = put_object(por);
-                                    if (not porresp["success"]) {
-                                        system_monitoring_interface::active_mon->log_warning(std::format("Could not update workflow '{0}' for team '{1}' with ticket id '{2}'", workflow_name, _team_name, ticket_id), __FILE__, __LINE__);
-                                        system_monitoring_interface::active_mon->log_json(porresp);
-                                    }
-								}
-								else {
-                                    system_monitoring_interface::active_mon->log_warning(std::format("Could not create ticket for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-                                    system_monitoring_interface::active_mon->log_json(porresp);
+						}
+						else if (workflow_schedule_type == "Week") 
+						{
+							for (auto day : workflow_schedule_days) 
+							{
+								int d = (int64_t)day;
+								if (d == system_time.wDayOfWeek)
+								{
+									matched_day = d;
+									matched_set = true;
+									break;
 								}
 							}
 						}
-						else {
-							system_monitoring_interface::active_mon->log_information(std::format("Not time for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+
+						double last_ran = (double)wf["last_ran"];
+
+						if (matched_set && (system_time.wHour >= hour && last_ran < matched_day)) 
+						{
+							wf.put_member("last_ran", (double)system_time.wDay);
 						}
-                   }
-                }
+						else
+						{
+							system_monitoring_interface::active_mon->log_information(std::format("Not scheduled time for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+							continue;
+						}
+
+						std::string ticket_class_name = (std::string)wf["ticket_class_name"];
+						std::string ticket_name = (std::string)wf["ticket_name"];
+						std::string ticket_description = (std::string)wf["ticket_description"];
+
+						if (workflow_name.empty() or ticket_class_name.empty()) 
+						{
+							continue;
+						}
+						system_monitoring_interface::active_mon->log_information(std::format("Running workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+
+						json new_object = jp.create_object();
+						new_object.put_member(class_name_field, ticket_class_name);
+						new_object.put_member("sys_team", team_id);
+						new_object.put_member("ticket_name", ticket_name);
+						new_object.put_member("ticket_description", ticket_description);
+						json por = create_system_request(new_object);
+						json porresp = put_object(por);
+						if (porresp["success"]) 
+						{
+							new_object = porresp[data_field];
+							wf.put_member("last_result", (std::string)porresp["message"]);
+							por = create_system_request(wf);
+							porresp = put_object(por);
+							if (not porresp["success"]) 
+							{
+								system_monitoring_interface::active_mon->log_warning(std::format("Could not update workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+								system_monitoring_interface::active_mon->log_json(porresp);
+							}
+						}
+						else 
+						{
+							system_monitoring_interface::active_mon->log_warning(std::format("Could not create ticket for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+							system_monitoring_interface::active_mon->log_json(porresp);
+						}
+					}
+				}
 			}
 			return team;
 		}
@@ -7949,15 +7998,8 @@ private:
 			class_permissions perms = get_class_permission(user_name, class_name);
 			class_permissions sys_perms = get_system_permission();
 
-			if (perms.get_grant == class_grants::grant_none)
-			{
-				result = create_response(_edit_object_request, false, "edit_object denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("edit_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				return result;
-			}
-
-			auto edit_class = read_lock_class(class_name);
 			json user = get_user(user_name, sys_perms);
+			auto edit_class = read_lock_class(class_name);
 
 			if (edit_class) {
 
@@ -7996,7 +8038,7 @@ private:
 			else 
 			{
 				system_monitoring_interface::active_mon->log_function_stop("edit_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				return create_response(_edit_object_request, false, "Invalid class.", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				return create_response(_edit_object_request, false, "Invalid class:" + class_name, jp.create_object(), errors, method_timer.get_elapsed_seconds());
 			}
 
 			system_monitoring_interface::active_mon->log_function_stop("edit_object", "success", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -8652,6 +8694,15 @@ private:
 
 				object_definition = put_object_request[data_field];
 				std::string user_name;
+
+				if (object_definition.object()) {
+					object_definition.erase_member("class_color");
+				}
+				else if (object_definition.array()) {
+					object_definition.for_each_element([](json& _item) {
+						_item.erase_member("class_color");
+						});
+				}
 
 				std::string authority = auth_general;
 				std::string token_authority = auth_general;

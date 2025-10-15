@@ -290,6 +290,7 @@
       "class_name": "work_team",
       "class_description": "Work Team",
       "base_class_name": "sys_team",
+      "class_color": "#bcbcbc",
       "fields": {
         "appointments": "[ appointment ]",
         "articles": "[ article ]"
@@ -1326,16 +1327,12 @@
               "class_name": "sys_workflow",
               "workflow_name": "intelligence_article",
               "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
               "ticket_class_name": "intelligence_ticket",
-              "ticket_create_class_name": "intellligence_article",
               "ticket_name": "Create Article",
-              "ticket_description": "Create Intelligence ARticle",
-              "required_object_classes": [],
-              "ticket_time_created": "datetime",
-              "ticket_id": "int64",
-              "timespan_units": "days",
-              "timespan_value": 1.0,
-              "max_open_tickets": 5
+              "ticket_description": "Create Intelligence ARticle"
             }
           ]
         },
@@ -1385,16 +1382,12 @@
               "class_name": "sys_workflow",
               "workflow_name": "model_article",
               "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
               "ticket_class_name": "model_ticket",
-              "ticket_create_class_name": "model_article",
               "ticket_name": "Create Article",
-              "ticket_description": "Create Policy Article",
-              "required_object_classes": [],
-              "ticket_time_created": "datetime",
-              "ticket_id": "int64",
-              "timespan_units": "days",
-              "timespan_value": 1,
-              "max_open_tickets": 5
+              "ticket_description": "Create Policy Article"
             }
           ]
         },
@@ -1446,7 +1439,7 @@
           "team_description": "Revolution Court",
           "team_domain": "NONE",
           "inventory_classes": [ "case_search" ],
-          "allowed_teams": [  ],
+          "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1480,7 +1473,21 @@
               "delete": "team",
               "alter": "none"
             }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "justice_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "justice_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Justice Article"
+            }
           ]
+
         },
         {
           "class_name": "work_team",
@@ -1488,7 +1495,7 @@
           "team_description": "Revolution Insurance",
           "team_domain": "NONE",
           "inventory_classes": [ "insurance_policy_search" ],
-          "allowed_teams": [  ],
+          "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1522,7 +1529,21 @@
               "delete": "team",
               "alter": "none"
             }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "insurance_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "insurance_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Insurance Article"
+            }
           ]
+
         },
         {
           "class_name": "work_team",
@@ -1532,7 +1553,7 @@
           "inventory_classes": [
             "permit_search"
           ],
-          "allowed_teams": [  ],
+          "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1566,6 +1587,19 @@
               "delete": "own",
               "alter": "none"
             }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "model_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "permit_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Permit Article"
+            }
           ]
         },
         {
@@ -1578,7 +1612,7 @@
             "article_search",
             "ticket_search"
           ],
-          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team"   ],
+          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1603,6 +1637,19 @@
               "put": "own",
               "delete": "own",
               "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "model_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "technical_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Technical Article"
             }
           ]
         },
