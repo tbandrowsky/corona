@@ -670,6 +670,17 @@ namespace corona
 			_request.send_response(200, "Ok", fn_response);
 			};
 
+		http_handler_function corona_login_sso = [this](http_action_request _request)-> void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+			}
+			auto fn_response = local_db->login_user_sso(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
 
 		http_handler_function corona_classes_get = [this](http_action_request _request)->void {
 			json parsed_request = parse_request(_request.request);
@@ -729,7 +740,7 @@ namespace corona
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
-			json fn_response = local_db->send_user_confirm_code(parsed_request);
+			json fn_response = local_db->user_send_code(parsed_request);
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
@@ -742,7 +753,7 @@ namespace corona
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
-			json fn_response = local_db->user_confirm_user_code(parsed_request);
+			json fn_response = local_db->user_confirm_code(parsed_request);
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
 			};
@@ -1232,6 +1243,62 @@ Bind loginuser
 				new_api.response_class_name = "sys_login_user_response";
 				api_paths.push_back(new_api);
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_login);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+/**************
+Bind loginusersso
+***************/
+
+				new_api.path = "login/loginusersso/";
+				new_api.verb = "post";
+				new_api.name = "login_user";
+				new_api.description = "Attempt to access the system.";
+				new_api.request_schema = R"({
+  "type": "object",
+  "properties": {
+	"user_name": {
+	  "type": "string",
+	  "description": "The user name of the new user."
+	},
+	"email": {
+	  "type": "string",
+	  "description": "The user name of the new user.",
+	  "format": "email"
+	},
+    "sso_token": {
+	  "type": "string",
+	  "description": "SSO Token from identity provider."
+	},
+	"provider": {
+	  "type": "string",
+	  "description": "Identity provider."
+	}
+})";
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True if the user was obtained successfully."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "object",
+	  "description": "Result object or objects."
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				new_api.request_class_name = "sys_login_user_request";
+				new_api.response_class_name = "sys_login_user_response";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_login_sso);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
 /**************
