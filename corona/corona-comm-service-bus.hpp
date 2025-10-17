@@ -907,7 +907,7 @@ namespace corona
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
-			local_db->scrub_object(parsed_request);
+//			local_db->scrub_object(parsed_request);
 			json fn_response = local_db->edit_object(parsed_request);
 			http_response response = create_response(200, fn_response);
 			_request.send_response(200, "Ok", fn_response);
