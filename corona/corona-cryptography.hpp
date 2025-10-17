@@ -161,6 +161,7 @@ namespace corona
 			return signature;
 		}
 
+
 		std::string encrypt(json& _src, std::string _pass_phrase, std::string _iv)
 		{
 
@@ -243,6 +244,123 @@ namespace corona
 						0,
 						cipher_text_buffer.get_uptr(),
 						cipher_text_buffer.get_size(),
+						&cipher_text_size,
+						BCRYPT_BLOCK_PADDING))
+					{
+						os_result osr;
+						std::cout << osr << std::endl;
+						goto cleanup;
+					}
+
+					cipher_text = cipher_text_buffer.to_hex(cipher_text_size);
+				}
+			}
+
+
+		cleanup:
+
+			if (key)
+			{
+				BCryptDestroyKey(key);
+				key = nullptr;
+			}
+
+			if (algorithm)
+			{
+				BCryptCloseAlgorithmProvider(algorithm, 0);
+				algorithm = nullptr;
+			}
+
+			return cipher_text;
+		}
+
+		std::string encrypt(std::string plain_text, json &_jkey)
+		{
+
+			scope_lock mylock(crypto_lock);
+
+			std::string cipher_text;
+
+			BCRYPT_ALG_HANDLE algorithm = {};
+			BCRYPT_KEY_HANDLE key = {};
+
+			NTSTATUS status;
+
+			status = BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_RSA_SIGN_ALGORITHM, 0, 0);
+
+			if (algorithm)
+			{
+				std::string modulus = _jkey["n"];
+				std::string exponent = _jkey["e"];
+
+				std::string _modulus = base64_decode(modulus);
+				std::string _exponent = base64_decode(exponent);
+
+				buffer buff( sizeof(BCRYPT_RSAKEY_BLOB) + _modulus.size() + _exponent.size() );
+
+				// Allocate memory for the public key structure (e.g., RSA_CSP_PUBLICKEYBLOB)
+				BCRYPT_RSAKEY_BLOB *publicKeyBlob = (BCRYPT_RSAKEY_BLOB *)buff.get_ptr();
+
+				*publicKeyBlob = {};
+                publicKeyBlob->Magic = BCRYPT_RSAPUBLIC_MAGIC;
+				publicKeyBlob->cbModulus = _modulus.size();
+				publicKeyBlob->cbPublicExp = _exponent.size();
+				publicKeyBlob->BitLength = ( publicKeyBlob->cbModulus + publicKeyBlob->cbPublicExp ) * 8;
+				std::copy(_exponent.begin(), _exponent.end(), (char*)buff.get_ptr() + sizeof(BCRYPT_RSAKEY_BLOB));
+                std::copy(_modulus.begin(), _modulus.end(), (char*)buff.get_ptr() + sizeof(BCRYPT_RSAKEY_BLOB) + _exponent.size());
+
+				if (status = BCryptImportKeyPair(
+					algorithm,
+					nullptr,
+					BCRYPT_RSAPUBLIC_BLOB,
+					&key,
+					buff.get_uptr(),
+                    sizeof(BCRYPT_RSAKEY_BLOB) + _exponent.size() + _modulus.size(),
+					0
+				)) {
+                    os_result osr;
+                    std::cout << osr << std::endl;
+                    goto cleanup;
+				}
+
+				if (key)
+				{
+					DWORD cipher_text_size = {};
+
+					if (status = BCryptEncrypt(
+						key,
+						(PUCHAR)plain_text.c_str(),
+						plain_text.size(),
+						nullptr,
+						nullptr,
+						0,
+						nullptr,
+						0,
+						&cipher_text_size,
+						BCRYPT_PAD_PKCS1))
+					{
+						os_result osr;
+						std::cout << osr << std::endl;
+						goto cleanup;
+					}
+
+					/*
+
+					iv_buffer.get_uptr(),
+											iv_buffer.get_size(),
+					*/
+
+					buffer cipher_text_buffer(cipher_text_size);
+
+					if (status = BCryptEncrypt(
+						key,
+						(PUCHAR)plain_text.c_str(),
+						plain_text.size(),
+						nullptr,
+						nullptr,
+						0,
+						nullptr,
+						0,
 						&cipher_text_size,
 						BCRYPT_BLOCK_PADDING))
 					{

@@ -5382,10 +5382,9 @@ namespace corona
 				"field_name":"team_name",
 				"read_only" : true
 			},
-			"sso_profile_url" :{ 
+			"picture" :{ 
 				"field_type":"string",
-				"field_name":"sso_profile_url",
-				"read_only" : true
+				"field_name":"picture"
 			},
 			"inventory" : "[sys_item]"
         }
@@ -7314,23 +7313,39 @@ private:
 				system_monitoring_interface::active_mon->log_warning("Google auth keys", __FILE__, __LINE__);
 				if (google_response.response.response_body.is_safe_string()) 
 				{
-					system_monitoring_interface::active_mon->log_warning(sg_response.response.response_body.get_ptr(), __FILE__, __LINE__);
+					char* body = google_response.response.response_body.get_ptr();
+					system_monitoring_interface::active_mon->log_warning(body, __FILE__, __LINE__);
+					google_keys = jp.parse_object(body);
 				}
 				else 
 				{
 					system_monitoring_interface::active_mon->log_warning("Response body is not a string", __FILE__, __LINE__);
 				}
-				if (params.response.buffer.is_safe_string()) {
-					char* body = params.response.buffer.get_ptr();
-					google_keys = jp.parse_object(body);
-				}
 			}
 
-			std::string decoded = base64_decode(parts[1]);
+			if (google_keys.array()) {
+				std::string header = base64_decode(parts[0]);
+				json jheader = jp.parse_object(header);
 
-			json payload = jp.parse_object(decoded);
+				std::string payload = base64_decode(parts[1]);
+				json jpayload = jp.parse_object(payload);
 
-			return payload;
+				std::string kid = jheader["kid"];
+				json public_key;
+                for (auto key : google_keys) {
+					std::string jkid = key["kid"];
+                    if (jkid == kid) {
+                        public_key = key;
+                        break;
+                    }
+                }
+                std::string plain_text = parts[0] + "." + parts[1];
+				std::string cipher_text = crypter.encrypt(plain_text, public_key);
+				std::string cipher64 = base64_encode(cipher_text);
+				result = jpayload;
+			}
+
+			return result;
 		}
 
 		virtual json login_user_sso(json _sso_user_request) override
@@ -7345,48 +7360,97 @@ private:
 			timer tx;
 
 			system_monitoring_interface::active_mon->log_function_start("login_user_sso", "start", start_time, __FILE__, __LINE__);
-
+			
 			json data = _sso_user_request[data_field];
-
+            std::string access_code = data["code"];
 			std::string user_name = data[user_name_field];
 			std::string user_email = data[user_email_field];
-            std::string id_token = data["id_token"];
 
-			json token_data = check_jwt_token(id_token);
+			if (access_code.empty())
 			{
 				std::vector<validation_error> errors;
 				validation_error err;
 				err.class_name = "sys_user";
-				err.field_name = "id_token";
+				err.field_name = "access_code";
 				err.filename = get_file_name(__FILE__);
 				err.line_number = __LINE__;
-				err.message = "Invalid id_token (sso integration botched)";
+				err.message = "Invalid access_code (sso integration botched)";
 				errors.push_back(err);				
-				response = create_user_response(_sso_user_request, false, "id_token is required to validate.", data, errors, method_timer.get_elapsed_seconds());
+				response = create_user_response(_sso_user_request, false, "access_code is required to validate.", data, errors, method_timer.get_elapsed_seconds());
 				return response;
 			}
 
-			if (user_name.empty() and not user_email.empty()) {
-				user_name = user_email;
-			}
-			else if (not user_name.empty() and user_email.empty()) {
-				user_email = user_name;
-			}
-			else if (user_name.empty() and user_email.empty()) {
+			std::string client_secret = connections.get_connection("googleclientsecret");
+			std::string client_id = connections.get_connection("googleclientid");
+
+			/*
+			POST /token HTTP/1.1
+Host: oauth2.googleapis.com
+Content-Type: application/x-www-form-urlencoded
+
+code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7&
+client_id=your_client_id&
+client_secret=your_client_secret&
+redirect_uri=https%3A//oauth2.example.com/code&
+grant_type=authorization_code
+			*/
+
+			json jpost_body = jp.create_object();
+            jpost_body.put_member("code", access_code);
+			jpost_body.put_member("client_id", client_id);
+			jpost_body.put_member("client_secret", client_secret);
+			jpost_body.put_member("redirect_uri", std::string("postmessage"));
+			jpost_body.put_member("grant_type", std::string("authorization_code"));
+
+			http_client google_api;
+			http_params google_response1 = google_api.post("oauth2.googleapis.com", 443, "token", jpost_body);
+
+			if (not google_response1.response.response_body.is_safe_string())
+			{
 				std::vector<validation_error> errors;
 				validation_error err;
 				err.class_name = "sys_user";
-				err.field_name = user_name_field;
+				err.field_name = "access_token";
 				err.filename = get_file_name(__FILE__);
 				err.line_number = __LINE__;
-				err.message = "email/username is required";
-				errors.push_back(err);
-				err.field_name = user_email_field;
+				err.message = "Could not convert Google code to token";
 				errors.push_back(err);
 				system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				response = create_user_response(_sso_user_request, false, "An email is required.", data, errors, method_timer.get_elapsed_seconds());
+				response = create_user_response(_sso_user_request, false, "could not convert google code.", data, errors, method_timer.get_elapsed_seconds());
 				return response;
 			}
+
+			json token_body = jp.parse_object(google_response1.response.response_body.get_ptr());
+            std::string access_token = token_body["access_token"];
+
+            std::string header = std::format("Authorization: Bearer {}\n", access_token);
+
+			http_params google_response = google_api.get("www.googleapis.com", 443, "/oauth2/v3/userinfo", header.c_str());
+			system_monitoring_interface::active_mon->log_warning("Google auth keys", __FILE__, __LINE__);
+
+            if (not google_response.response.response_body.is_safe_string())
+			{
+                std::vector<validation_error> errors;
+                validation_error err;
+                err.class_name = "sys_user";
+                err.field_name = "access_token";
+                err.filename = get_file_name(__FILE__);
+                err.line_number = __LINE__;
+                err.message = "Google didn't like the sign on";
+                errors.push_back(err);
+                system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+                response = create_user_response(_sso_user_request, false, "access_token is invalid.", data, errors, method_timer.get_elapsed_seconds());
+                return response;
+			}
+
+            json user_body = jp.parse_object(google_response.response.response_body.get_ptr());
+
+            user_name = user_body["email"];
+            user_email = user_body["email"];
+
+            std::string user_first = user_body["given_name"];
+            std::string user_last = user_body["family_name"];
+            std::string user_picture = user_body["picture"];
 
 			data.put_member(user_name_field, user_name);
 			data.put_member(user_email_field, user_email);
@@ -7401,22 +7465,25 @@ private:
 				user_password1 = get_random_code() + get_random_code() + get_random_code();
 				std::string hashed_pw = crypter.hash(user_password1);
 
-				json create_user_params = jp.create_object();
-				create_user_params.put_member(class_name_field, std::string("sys_user"));
-				create_user_params.put_member(user_name_field, user_name);
-				create_user_params.put_member(user_email_field, user_email);
-				create_user_params.put_member(user_password_field, hashed_pw);
-				create_user_params.copy_member(user_first_name_field, data);
-				create_user_params.copy_member(user_last_name_field, data);
-				create_user_params.copy_member(user_email_field, data);
-				create_user_params.copy_member(user_mobile_field, data);
-				create_user_params.copy_member(user_street1_field, data);
-				create_user_params.copy_member(user_street2_field, data);
-				create_user_params.copy_member(user_state_field, data);
-				create_user_params.copy_member(user_zip_field, data);
-				create_user_params.put_member("confirmed_code", 1);
+				existing_user = jp.create_object();
+				existing_user.put_member(class_name_field, std::string("sys_user"));
+				existing_user.put_member(user_name_field, user_name);
+				existing_user.put_member(user_email_field, user_email);
+				existing_user.put_member(user_password_field, hashed_pw);
+				existing_user.put_member(user_first_name_field, user_first);
+				existing_user.put_member(user_last_name_field, user_last);
+				existing_user.put_member("picture", user_picture);
+				existing_user.put_member("confirmed_code", 1);
+				json teams = get_team_by_email(user_email, sys_perm);
+				for (json team : teams)
+				{
+					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
+					existing_user.put_member("team_name", (std::string)team["team_name"]);
+				}
 
-				json create_object_request = create_system_request(create_user_params);
+				apply_user_team(existing_user);
+
+				json create_object_request = create_system_request(existing_user);
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
@@ -7428,22 +7495,22 @@ private:
 					std::string message = user_result[message_field];
 					system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_json(user_result);
-					response = create_user_response(_sso_user_request, false, "User not created", create_user_params, jerrors, method_timer.get_elapsed_seconds());
+					response = create_user_response(_sso_user_request, false, "User not created", existing_user, jerrors, method_timer.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 					return response;
 				}
 			}
-
-			std::string email = existing_user[user_email_field];
-			json teams = get_team_by_email(email, sys_perm);
-			for (json team : teams)
-			{
-				existing_user.put_member("home_team_name", (std::string)team["team_name"]);
-				existing_user.put_member("team_name", (std::string)team["team_name"]);
+			else {
+				json teams = get_team_by_email(user_email, sys_perm);
+				for (json team : teams)
+				{
+					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
+					existing_user.put_member("team_name", (std::string)team["team_name"]);
+				}
+				apply_user_team(existing_user);
+				put_user(existing_user);
+				existing_user = get_user(user_name, sys_perm);
 			}
-			apply_user_team(existing_user);
-			put_user(existing_user);
-			existing_user = get_user(user_name, sys_perm);
 
 			response = create_response(user_name, auth_general, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
 			system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -8904,7 +8971,7 @@ private:
 								data_list.push_back(item[data_field]);
 							}
 
-							auto perms = get_class_permission(user_name, class_pair.first);
+							auto perms = get_system_permission();
 
 							cd->put_objects(this, child_objects, data_list, perms);
 						}

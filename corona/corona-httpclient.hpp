@@ -474,7 +474,28 @@ namespace corona
             run(params);
             return params;
         }
-	};
+
+        http_params post_form(const char* _host, int _port, const char* _url, const char *_body)
+        {
+            http_params params;
+
+            params.request.host = _host;
+            params.request.http_method = "POST";
+            params.request.port = _port;
+
+            params.request.path = _url;
+            params.request.headers = "application/x-www-form-urlencoded\r\n";
+            params.request.allowed_types = {
+                "application/json",
+                "text/plain"
+            };
+            std::string body_string = _body;
+            params.request.body = buffer(body_string.c_str());
+
+            run(params);
+            return params;
+        }
+};
 }
 
 #endif

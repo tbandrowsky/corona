@@ -6,7 +6,9 @@
     "UserConfirmationTitle": "Your Revolution Enlistment"
   },
   "Connections": {
-    "AdventureWorks2016": "Driver={ODBC Driver 17 for SQL Server};Server=BANDROWSKY-RIPP\\DEV01;Database=AdventureWorks2016;Trusted_Connection=yes;TrustServerCertificate=yes"
+    "AdventureWorks2016": "Driver={ODBC Driver 17 for SQL Server};Server=BANDROWSKY-RIPP\\DEV01;Database=AdventureWorks2016;Trusted_Connection=yes;TrustServerCertificate=yes",
+    "SendGrid": "CONNECTION_SENDGRID",
+    "GoogleClientSecret": "CONNECTION_GOOGLECLIENTSECRET"
   },
   "Server": {
     "listen_point": "http://localhost:5678/revolution/",
