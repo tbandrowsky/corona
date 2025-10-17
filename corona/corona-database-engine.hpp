@@ -2826,7 +2826,7 @@ namespace corona
 		std::string base_class_name;
 		std::string grid_template_rows;
 		std::string grid_template_columns;
-		std::string display:
+		std::string display;
 		std::string class_color;
 		std::vector<std::string> parents;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
@@ -2980,6 +2980,11 @@ namespace corona
         {
             return class_color;
         }
+
+		virtual std::string get_class_display() const override
+		{
+			return display;
+		}
 
 		virtual std::vector<std::string> get_parents() const override
 		{
@@ -4616,7 +4621,7 @@ namespace corona
 	"class_name" : "sys_object",
 	"class_description" : "Object",
 	"class_color": "#bcbcbc",
-    "grid_template_rows": "60px 60px 60px 60px",
+    "grid_template_rows": "60px 60px 60px 60px 60px",
 	"grid_template_columns": "1fr 1fr",
     "display":"optional",
 	"fields" : {			
@@ -4624,49 +4629,49 @@ namespace corona
 				"field_type":"int64",
 				"read_only": true,	
 				"label": "Object Id",	
-				"grid_row": "1",		
+				"grid_row": "2",		
 				"grid_column": "2"		
 			},
 			"class_name" : { 
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Class",	
-				"grid_row": "1",		
+				"grid_row": "2",		
 				"grid_column": "1"		
 			},
 			"created" : {
 				"field_type":"datetime",
 				"read_only": true,	
 				"label": "Created",	
-				"grid_row": "2",		
+				"grid_row": "3",		
 				"grid_column": "1"		
 			},
 			"created_by" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Created By",	
-				"grid_row": "2",		
+				"grid_row": "3",		
 				"grid_column": "2"		
 			},
 			"updated": {
 				"field_type":"datetime",
 				"read_only": true,	
 				"label": "Updated",	
-				"grid_row": "3",		
+				"grid_row": "4",		
 				"grid_column": "1"		
 			},
  			"updated_by" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Updated By",	
-				"grid_row": "3",		
+				"grid_row": "4",		
 				"grid_column": "2"		
 			},
 			"team" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Team",	
-				"grid_row": "4",		
+				"grid_row": "5",		
 				"grid_column": "1"		
 			}
 	}
@@ -4703,21 +4708,21 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "System Origin",
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1"
 			},
 			"message" :{
 				"field_type":"string",
 				"read_only": true,
 				"label": "Message",
-				"grid_row":"2",
+				"grid_row":"3",
 				"grid_column":"1"
 			},
 			"body": {
 				"field_type":"string",
 				"read_only": true,
 				"label": "Details",
-				"grid_row":"3",
+				"grid_row":"4",
 				"grid_column":"1",
 				"display": "json"	
 			},
@@ -4725,14 +4730,14 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Source File",
-				"grid_row":"4",
+				"grid_row":"5",
 				"grid_column":"1"				
 			},
 			"line": {
 				"field_type":"number",
 				"read_only": true,
 				"label": "Source Line #",
-				"grid_row":"4",
+				"grid_row":"5",
 				"grid_column":"2"
 			},
 	}
@@ -4762,7 +4767,7 @@ namespace corona
 	"class_description" : "Servers",
 	"base_class_name" : "sys_object",
 	"class_color": "#bcbcbc",
-    "grid_template_rows": "60px 120px 60px 60px",
+    "grid_template_rows": "60px 60px 120px 60px 60px",
 	"grid_template_columns": "1fr 1fr",
     "display":"default",
 	"fields" : {
@@ -4770,14 +4775,14 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Server Name",
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1"
 			},
 			"server_description" : {
 				"field_type":"string",
 				"read_only": true,
 				"label": "Description",
-				"grid_row":"2",
+				"grid_row":"3",
 				"grid_column":"1",
 				"display":"markdown"
 			},
@@ -4785,7 +4790,7 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Url",
-				"grid_row":"3",
+				"grid_row":"4",
 				"grid_column":"1",
 				"display": "url"	
 			},
@@ -4793,7 +4798,7 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Version",
-				"grid_row":"4",
+				"grid_row":"5",
 				"grid_column":"1"
 			}
 	}
@@ -4864,7 +4869,7 @@ namespace corona
 				"field_name":"get",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown",
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1"
 			},
 			"put" : {
@@ -4872,7 +4877,7 @@ namespace corona
 				"field_name":"put",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown",	
-				"grid_row":"1",
+				"grid_row":"3",
 				"grid_column":"2"
 			},
 			"delete" : {
@@ -4880,7 +4885,7 @@ namespace corona
 				"field_name":"delete",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown",
-				"grid_row":"1",
+				"grid_row":"4",
 				"grid_column":"3"
 			},
 			"alter" : {
@@ -4888,7 +4893,7 @@ namespace corona
 				"field_name":"alter",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown",
-				"grid_row":"2",
+				"grid_row":"5",
 				"grid_column":"1"
 			},
 			"derive" : {
@@ -4896,7 +4901,7 @@ namespace corona
 				"field_name":"derive",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
 				"display" : "dropdown",
-				"grid_row":"2",
+				"grid_row":"6",
 				"grid_column":"2"
 			},
 			"class_colors": "object"
@@ -4935,14 +4940,14 @@ namespace corona
 			"status_name" :{
 				"field_type":"string",
 				"label": "Status Name",
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1"
 			},
 			"status_description" : {
 				"field_type":"string",
 				"label": "Status Description",
 				"display": "markdown",	
-				"grid_row": "2",
+				"grid_row": "3",
 				"grid_column": "1"
 			},
 	}
@@ -4974,21 +4979,21 @@ namespace corona
 	"parents" : [ "sys_team" ],
 	"class_color": "#bcbcbc",
 	"display":"default",
-	"grid_template_rows": "60px 120px",
+	"grid_template_rows": "60px 60px 60px",
 	"grid_template_columns": "1fr 1fr",
 	"fields" : {
 			"ticket_name" :{
 				"field_type":"string",
 				"label": "Ticket Name",
 				"display": "url",
-				"grid_row": "1",
+				"grid_row": "2",
 				"grid_column":"1"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Name",
 				"display": "markdown",	
-				"grid_row": "2",
+				"grid_row": "3",
 				"grid_column":"1"
 			},
 			"history" : "[sys_status]"
@@ -5027,19 +5032,19 @@ namespace corona
 			"workflow_name" : {
 				"field_type":"string",
 				"label": "Workflow Name",
-				"grid_row": "1",
+				"grid_row": "2",
 				"grid_column":"1"
 			},
 			"workflow_description" : {
 				"field_type":"string",
 				"label": "Workflow Description",
-				"grid_row": "2",
+				"grid_row": "3",
 				"grid_column":"1"
 			},
 			"workflow_schedule_type" : {
 				"field_type":"string",
 				"display": "dropdown",
-				"grid_row": "3",
+				"grid_row": "4",
 				"grid_column":"1",
 				"enum" : [ "Week", "Month" ],
 			},
@@ -5048,7 +5053,7 @@ namespace corona
 				"fundamental_type":"number",
 				"label": "Days to Run",
 				"display": "days",
-				"grid_row": "3",
+				"grid_row": "4",
 				"grid_column":"2",
 			},
 			"workflow_schedule_hour" : {
@@ -5057,39 +5062,39 @@ namespace corona
 				"display": "hour",
 				"min_value" : 0,
 				"max_value" : 23,
-				"grid_row": "3",
+				"grid_row": "4",
 				"grid_column":"3",
 			},
 			"ticket_class_name" : {
 				"field_type":"string",
 				"label": "Create Ticket",
 				"display": "dropdown:sys_ticket",	
-				"grid_row": "4",
+				"grid_row": "5",
 				"grid_column":"1"
 			},
 			"ticket_name" : {
 				"field_type":"string",
 				"label": "Ticket Name",
-				"grid_row": "5",
+				"grid_row": "6",
 				"grid_column":"1"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Description",
 				"display": "markdown",
-				"grid_row": "6",
+				"grid_row": "7",
 				"grid_column":"1"
 			},
 			"last_ran" : {
 				"field_type":"number",
 				"label": "Last Run Day",
-				"grid_row": "7",
+				"grid_row": "8",
 				"grid_column":"1"
 			},
 			"last_result" : {
 				"field_type":"string",
 				"label": "Result",
-				"grid_row": "7",
+				"grid_row": "8",
 				"grid_column":"2"
 			}
 	}
@@ -5126,14 +5131,14 @@ namespace corona
 			"team_name" :  {
 				"field_name:" : "team_name",
 				"field_type" : "string",
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1",
 				"label":"Team Name"
 			},
 			"team_description" :  {
 				"field_name:" : "team_description",
 				"field_type" : "string",		
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"2",
 				"label":"Team Description"
 			},
@@ -5141,8 +5146,8 @@ namespace corona
 				"field_name:" : "team_domain",
 				"field_type" : "string",		
 				"format:" : "regexp",
-				"grid_row":"1",
-				"grid_column":"3"
+				"grid_row":"3",
+				"grid_column":"3",
 				"label":"Team Domain"
 			},
 			"permissions" : "[ sys_grant ]",
@@ -5190,49 +5195,49 @@ namespace corona
 			"dataset_name" : {
 				"field_name:" : "dataset_name",
 				"field_type" : "string",		
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1",
 				"label":"Name"
 			},
 			"dataset_description" : {
 				"field_name:" : "dataset_description",
 				"field_type" : "string",		
-				"grid_row":"2",
+				"grid_row":"3",
 				"grid_column":"1",
 				"label":"Description"
 			},
 			"dataset_version" : {
 				"field_name:" : "dataset_version",
 				"field_type" : "string",		
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"2",
 				"label":"Version"
 			},
 			"dataset_author" : {
 				"field_name:" : "dataset_author",
 				"field_type" : "string",		
-				"grid_row":"3",
+				"grid_row":"4",
 				"grid_column":"1",
-				"label":"Author(s)"
+				"label":"Authors"
 			},
 			"dataset_source" : {
 				"field_name:" : "dataset_source",
 				"field_type" : "string",		
-				"grid_row":"3",
+				"grid_row":"4",
 				"grid_column":"2",
 				"label":"Source"
 			},
 			"completed" : {
 				"field_name:" : "completed",
 				"field_type" : "datetime",		
-				"grid_row":"4",
+				"grid_row":"5",
 				"grid_column":"1",
 				"label":"Completed"
 			},
 			"run_on_change": {
 				"field_name:" : "run_on_change",
 				"field_type" : "string",		
-				"grid_row":"4",
+				"grid_row":"5",
 				"grid_column":"2",
 				"label":"Run On Change"
 			},	
@@ -5276,30 +5281,30 @@ namespace corona
 			"schema_name" : {
 				"field_name:" : "schema_name",
 				"field_type" : "string",		
-				"grid_row":"1",
+				"grid_row":"2",
 				"grid_column":"1",
 				"label":"Name"
 			},
 			"schema_description" : {
 				"field_name:" : "schema_description",
 				"field_type" : "string",		
-				"grid_row":"2",
+				"grid_row":"3",
 				"grid_column":"1",
 				"label":"Description"
 			},
 			"schema_version" : {
 				"field_name:" : "schema_version",
 				"field_type" : "string",		
-				"grid_row":"1",
+				"grid_row":"3",
 				"grid_column":"2",
 				"label":"Version"
 			},
 			"schema_authors" : {
 				"field_name:" : "schema_author",
 				"field_type" : "string",		
-				"grid_row":"3",
+				"grid_row":"4",
 				"grid_column":"1",
-				"label":"Author(s)"
+				"label":"Authors"
 			},
 			"classes" : "[object]",
 			"users" : "[object]",
@@ -5373,7 +5378,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 50,
 				"match_pattern": "[a-zA-Z0-9/s]+",
-				"grid_row": "1",
+				"grid_row": "2",
 				"grid_column":"1"
 			},
 			"last_name" : {
@@ -5383,7 +5388,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 50,
 				"match_pattern": "[a-zA-Z0-9/s]+",
-				"grid_row": "1",
+				"grid_row": "2",
 				"grid_column":"2"
 			},
 			"user_name" : {
@@ -5392,7 +5397,7 @@ namespace corona
 				"label": "User Name",	
 				"required" : true,
 				"max_length" : 100,
-				"grid_row": "2",
+				"grid_row": "3",
 				"grid_column":"1"
 			},
 			"email" : {
@@ -5402,7 +5407,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 100,
 				"match_pattern": "(/w+)(/.|_)?(/w*)@(/w+)(/.(/w+))+",
-				"grid_row": "2",
+				"grid_row": "3",
 				"grid_column": "2"
 			},
 			"mobile" : {
@@ -5413,7 +5418,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 15,
 				"match_pattern": "^(1/s?)?(/d{3}|(/d{3}/))[/s/-]?/d{3}[/s/-]?/d{4}$",	
-				"grid_row": "3",
+				"grid_row": "4",
 				"grid_column": "1"
 			},
 			"street1" : {
@@ -5424,7 +5429,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 100,
 				"match_pattern": "[a-zA-Z0-9_/-/s]+",
-				"grid_row": "4",
+				"grid_row": "5",
 				"grid_column": "1"
 			},
 			"street2" : {
@@ -5434,7 +5439,7 @@ namespace corona
 				"label": "Street Address 2",
 				"max_length" : 100,
 				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "5",
+				"grid_row": "6",
 				"grid_column": "1"
 			},
 			"city" : {
@@ -5444,7 +5449,7 @@ namespace corona
 				"label": "City",
 				"max_length" : 100,
 				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "6",
+				"grid_row": "7",
 				"grid_column": "1"
 			},
 			"state" : {
@@ -5454,7 +5459,7 @@ namespace corona
 				"max_length" : 50,
 				"label": "State",
 				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "6",
+				"grid_row": "8",
 				"grid_column": "2"
 			},
 			"zip" : {
@@ -5464,7 +5469,7 @@ namespace corona
 				"max_length" : 15,
 				"match_pattern": "^/d{5}(?:[-/s]/d{4})?$",
 				"label": "Zip",
-				"grid_row": "6",
+				"grid_row": "9",
 				"grid_column": "3"
 			},
 			"password" : { 
