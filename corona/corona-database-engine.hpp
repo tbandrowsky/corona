@@ -4275,18 +4275,18 @@ namespace corona
                     obj = class_data->select(_key, [&_key, &_grant](json& _j)-> json
 						{
 							json result;
-							if (_key.compare(_j) == 0
-								and (_grant.get_grant == class_grants::grant_any
-									or (_grant.get_grant == class_grants::grant_own || _grant.get_grant == class_grants::grant_teamorown
-										and (std::string)_j["created_by"] == _grant.user_name
-										)
-									)
-								or (_grant.get_grant == class_grants::grant_team || _grant.get_grant == class_grants::grant_teamorown
-									and (std::string)_j["team"] == _grant.team_name
-									)
-							)
-							{
-								result = _j;
+							if (_key.compare(_j) == 0) {
+								if (_grant.get_grant & class_grants::grant_any) {
+									result = _j;
+                                }		
+								else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
+
+									result = _j;
+								}
+								else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
+
+									result = _j;
+								}
 							}
 							return result;
 						});
@@ -6231,7 +6231,7 @@ private:
 			if (user.object()) {
 
 				std::map<std::string, bool> allowed_teams;
-				json jallowed_teams = jp.create_array();
+				json jall_allowed_teams = jp.create_array();
 
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
@@ -6243,7 +6243,7 @@ private:
 							for (json jteam_name : jallowed_teams) {
 								std::string atm = (std::string)jteam_name;
 								allowed_teams[atm] = true;
-								jallowed_teams.push_back(atm);
+								jall_allowed_teams.push_back(atm);
 							}
 						}
 					}
@@ -6259,13 +6259,13 @@ private:
 								std::string atm = (std::string)jteam_name;
 								if (not allowed_teams.contains(atm)) {
 									allowed_teams[atm] = true;
-									jallowed_teams.push_back(atm);
+									jall_allowed_teams.push_back(atm);
 								}
 							}
 						}
 					}
 				}
-				user.share_member("allowed_teams", jallowed_teams);
+				user.share_member("allowed_teams", jall_allowed_teams);
 			}
 
 			return user;
@@ -8312,20 +8312,25 @@ grant_type=authorization_code
 				return response;
 			}
 
-			json data = _run_object_request[data_field];
 			json result = put_object(_run_object_request);
 			if (result.error())
 			{
 				system_monitoring_interface::active_mon->log_function_stop("run_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return result;
 			}
-			json key = jp.create_object();
-			key.copy_member(class_name_field, data);
-			key.copy_member(object_id_field, data);
-			json get_object_request = create_request(user_name, auth_general, key);
-			get_object_request.put_member("include_children", true);
-			response = get_object(get_object_request);
-			return response;
+
+			json edit_request_data = _run_object_request[data_field];
+			std::string class_name = edit_request_data[class_name_field];
+			int64_t object_id = edit_request_data[class_name_field];
+			json edit_request = create_get_request(user_name, user_auth, class_name, object_id);
+			
+			result = edit_object(edit_request);
+			if (result.error())
+			{
+				system_monitoring_interface::active_mon->log_function_stop("run_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+			return result;
 		}
 
 		virtual json edit_object(json _edit_object_request) override
@@ -8373,8 +8378,7 @@ grant_type=authorization_code
 					json create_object_body = jp.create_object();
 					json create_object_data = jp.create_object();
 					create_object_data.put_member(class_name_field, class_name);
-					create_object_body.put_member(data_field, create_object_data);					
-					json create_object_request = create_system_request(create_object_body);
+					json create_object_request = create_system_request(create_object_data);
 					json result = create_object(create_object_request);
 					jedit_object = result[data_field];
 				}
@@ -8618,7 +8622,7 @@ grant_type=authorization_code
 				user_name,
 				class_name);
 
-			if (permission.put_grant != class_grants::grant_any) {
+			if (permission.alter_grant == class_grants::grant_none) {
 				result = create_response(put_class_request, false, "put_class denied", jclass_definition, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop(pc_name, pc_failed, tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
@@ -8698,9 +8702,15 @@ grant_type=authorization_code
 
 					if (objects.array()) {
 						for (auto obj : objects) {
-							if (permission.get_grant == class_grants::grant_any or
-								(permission.get_grant == class_grants::grant_own 
-									and (std::string)obj["created_by"] == _user_name)) {
+							if (permission.get_grant & class_grants::grant_any) {
+								object_list.push_back(obj);
+							}
+							else if ((permission.get_grant & class_grants::grant_own) && (std::string)obj["created_by"] == permission.user_name) {
+
+								object_list.push_back(obj);
+							}
+							else if ((permission.get_grant & class_grants::grant_team) && (std::string)obj["team"] == permission.team_name) {
+
 								object_list.push_back(obj);
 							}
 						}
@@ -9486,6 +9496,32 @@ grant_type=authorization_code
 
 			payload.put_member(token_field, base64_token_string);
 			payload.share_member(data_field, _data);
+
+			return payload;
+		}
+
+
+		json create_get_request(std::string _user_name, std::string _authorization, std::string _class_name, int64_t _object_id)
+		{
+			json_parser jp;
+
+			json payload;
+			payload = jp.create_object();
+
+			json token = jp.create_object();
+			token.put_member(user_name_field, _user_name);
+			token.put_member(authorization_field, _authorization);
+			date_time expiration = date_time::utc_now() + this->token_life;
+			token.put_member(token_expires_field, expiration);
+			std::string cipher_text = crypter.encrypt(token, get_pass_phrase(), get_iv());
+			token.put_member(signature_field, cipher_text);
+
+			std::string token_string = token.to_json_typed();
+			std::string base64_token_string = base64_encode(token_string);
+
+			payload.put_member(token_field, base64_token_string);
+			payload.put_member(class_name_field, _class_name);
+			payload.put_member_i64(object_id_field, _object_id);
 
 			return payload;
 		}
