@@ -6231,6 +6231,7 @@ private:
 			if (user.object()) {
 
 				std::map<std::string, bool> allowed_teams;
+				json jallowed_teams = jp.create_array();
 
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
@@ -6242,6 +6243,7 @@ private:
 							for (json jteam_name : jallowed_teams) {
 								std::string atm = (std::string)jteam_name;
 								allowed_teams[atm] = true;
+								jallowed_teams.push_back(atm);
 							}
 						}
 					}
@@ -6255,16 +6257,15 @@ private:
 						if (jallowed_teams.array()) {
 							for (json jteam_name : jallowed_teams) {
 								std::string atm = (std::string)jteam_name;
-								allowed_teams[atm] = true;
+								if (not allowed_teams.contains(atm)) {
+									allowed_teams[atm] = true;
+									jallowed_teams.push_back(atm);
+								}
 							}
 						}
 					}
 				}
-				json allowed_array = jp.create_array();
-				for (auto& ats : allowed_teams) {
-					allowed_array.push_back(ats.first);
-				}
-				user.share_member("allowed_teams", allowed_array);
+				user.share_member("allowed_teams", jallowed_teams);
 			}
 
 			return user;
