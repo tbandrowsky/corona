@@ -93,7 +93,7 @@ namespace corona
 		grant_any = 1,
 		grant_own = 2,
 		grant_team = 4,
-		grant_teamorown = 6,
+		grant_teamorown = 6
 	};
 
 	class child_object_class
@@ -4023,7 +4023,11 @@ namespace corona
 			if (result.object())
 			{
 				_exists = true;
-				if (_grant.get_grant == class_grants::grant_own)
+                if (_grant.get_grant & class_grants::grant_any)
+                {
+                    // all good
+                }
+                else if (_grant.get_grant == class_grants::grant_own)
 				{
 					if ((std::string)result["created_by"] != _grant.user_name) {
 						result = jp.create_object();
@@ -5666,6 +5670,11 @@ private:
 						existing_object.merge(object_definition);
 						object_definition = existing_object;
 					}
+					else 
+					{
+						object_definition.put_member("created", current_date);
+						object_definition.put_member("created_by", _permission.user_name);
+					}
 
 					object_definition.put_member("updated", current_date);
 					object_definition.put_member("updated_by", _permission.user_name);
@@ -6539,8 +6548,8 @@ private:
 
 			grants.user_name = user_name;
 			grants.alter_grant = class_grants::grant_none;
-			grants.put_grant = class_grants::grant_none;
-			grants.get_grant = class_grants::grant_none;
+			grants.put_grant = class_grants::grant_own;
+			grants.get_grant = class_grants::grant_own;
 			grants.delete_grant = class_grants::grant_none;
 
 			if (jteam.object()) {
@@ -6621,8 +6630,8 @@ private:
 
 			grants.user_name = _user_name;
 			grants.alter_grant = class_grants::grant_none;
-			grants.put_grant = class_grants::grant_none;
-			grants.get_grant = class_grants::grant_none;
+			grants.put_grant = class_grants::grant_own;
+			grants.get_grant = class_grants::grant_own;
 			grants.delete_grant = class_grants::grant_none;
 
 			// extract the user key from the token and get the user object
@@ -6647,7 +6656,7 @@ private:
 				team_grants.team_name = team_name;
 				team_grants = get_team_permissions(_user_name, team_name, _class_name);
 
-				grants = home_grants | team_grants;
+				grants = home_grants | team_grants | grants;
 				grants.team_name = team_name;
 				grants.user_name = _user_name;
 			}
