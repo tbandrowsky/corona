@@ -53,7 +53,8 @@ namespace corona
 		virtual char* before_read(int32_t _size) = 0;
 		virtual void after_read(char* _bytes, int32_t _size) = 0;
 
-		virtual void finished_io(char* _bytes) = 0;
+		virtual void finished_read(char* _bytes) = 0;
+		virtual void finished_write(char* _bytes) = 0;
 
 		relative_ptr_type read(file_block_interface* _file, relative_ptr_type location)
 		{
@@ -74,7 +75,7 @@ namespace corona
 				if (data_result.success)
 				{
 					after_read(bytes, header.data_size);
-					finished_io(bytes);
+					finished_read(bytes);
 					if (ENABLE_JSON_LOGGING) {
 						system_monitoring_interface::active_mon->log_block_stop("block", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 					}
@@ -82,7 +83,7 @@ namespace corona
 				}
 				else
 				{
-					finished_io(bytes);
+					finished_read(bytes);
 					if (ENABLE_JSON_LOGGING) {
 						system_monitoring_interface::active_mon->log_function_stop("block", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 					}
@@ -115,14 +116,14 @@ namespace corona
 			if (data_result.success)
 			{
 				after_write(bytes);
-				finished_io(bytes);
+				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
 					system_monitoring_interface::active_mon->log_block_stop("block", "write complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
 				return data_result.location;
 			}
 			else {
-				finished_io(bytes);
+				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
 					system_monitoring_interface::active_mon->log_block_stop("block", "write failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
@@ -171,7 +172,7 @@ namespace corona
 			{
 				file_result header_result = _file->write(header.block_location, &header, sizeof(header));
 				after_write(bytes);
-				finished_io(bytes);
+				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
 					system_monitoring_interface::active_mon->log_block_stop("block", "write complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
@@ -179,7 +180,7 @@ namespace corona
 			}
 			else
 			{
-				finished_io(bytes);
+				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
 					system_monitoring_interface::active_mon->log_block_stop("block", "write failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
@@ -218,7 +219,7 @@ namespace corona
 			}
 
 			after_write(bytes);
-			finished_io(bytes);
+			finished_write(bytes);
 
 			if (not (hdr_status.success and data_status.success)) {
 				return -1;
@@ -269,6 +270,10 @@ namespace corona
 		{
 			;
 		}
+		virtual void finished_read(char* _bytes) override
+		{
+			;
+		}
 
 		virtual char* before_write(int32_t* _size, int32_t* _capacity) const override
 		{
@@ -284,7 +289,7 @@ namespace corona
 			;
 		}
 
-		virtual void finished_io(char* _bytes) override
+		virtual void finished_write(char* _bytes) override
 		{
 			;
 		}
@@ -333,12 +338,8 @@ namespace corona
 			}
 		}
 
-		virtual void finished_io(char* _bytes) override
+		virtual void finished_read(char* _bytes) override
 		{
-			if (_bytes)
-			{
-				delete[] _bytes;
-			}
 		}
 
 		virtual char* before_write(int32_t* _size, int32_t * _capacity) const override
@@ -361,6 +362,11 @@ namespace corona
 		virtual void after_write(char* _t) override
 		{
 
+		}
+
+		virtual void finished_write(char* _bytes) override
+		{
+			if (_bytes) delete [] _bytes;
 		}
 
 	};
@@ -393,6 +399,11 @@ namespace corona
 		}
 
 
+		virtual void finished_read(char* _bytes)  override
+		{
+
+		}
+
 		virtual char* before_write(int32_t* _size, int32_t *_capacity) const override
 		{
 			*_size = sizeof(data);
@@ -411,7 +422,7 @@ namespace corona
 			;
 		}
 
-		virtual void finished_io(char* _bytes)  override
+		virtual void finished_write(char* _bytes)  override
 		{
 
 		}

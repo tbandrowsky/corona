@@ -69,6 +69,13 @@ namespace corona
             *this = *(xblock_ref*)_bytes;
 		}
 
+		virtual void finished_read(char* _bytes)
+		{
+			if (_bytes) {
+				delete[] _bytes;
+			}
+		}
+
 		virtual char* before_write(int32_t* _size, int32_t *_capacity) const 
 		{
 			*_size = sizeof(xblock_ref);
@@ -81,7 +88,7 @@ namespace corona
 
 		}
 
-		virtual void finished_io(char* _bytes)
+		virtual void finished_write(char* _bytes)
 		{
 		}
 
@@ -190,6 +197,9 @@ namespace corona
 			else
 			{
 				append(fb);
+                if (data_block::header.block_location < 0) {
+                    throw std::runtime_error("Failed to append block");
+                }
 			}
 			dirty = false;
 		}
@@ -198,7 +208,6 @@ namespace corona
 
 		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src)
 		{
-			dirty = true;
 			fb = _fb;
 			xheader = _src;
 			xheader.count = 0;
@@ -301,6 +310,13 @@ namespace corona
 			}
 		}
 
+        virtual void finished_read(char* _bytes) override
+        {
+            if (_bytes)
+                delete[] _bytes;
+        }
+
+
 		virtual char* before_write(int32_t* _size, int32_t *_capacity) const override
 		{
 			int32_t offset = xheader.size();
@@ -364,7 +380,7 @@ namespace corona
 
 		}
 
-		virtual void finished_io(char* _bytes) override
+		virtual void finished_write(char* _bytes) override
 		{
 			if (_bytes)
 				delete[] _bytes;
@@ -382,6 +398,11 @@ namespace corona
 		cached_block()
 		{
 			access();
+		}
+
+		virtual ~cached_block()
+		{
+			block = nullptr;
 		}
 
 		cached_block(const cached_block& _src)
@@ -483,18 +504,14 @@ namespace corona
 	{
 	public:
 
-		xblock_cache* cache;
-
 		xleaf_block(xblock_cache *_cache, xrecord_block_header& _header) : 
-			xrecord_block(_cache->get_fb(), _header),
-			cache(_cache)
+			xrecord_block(_cache->get_fb(), _header)
 		{
 			
 		}
 
 		xleaf_block(xblock_cache* _cache, xblock_ref _ref) : 
-			xrecord_block(_cache->get_fb(), _ref.location),
-			cache(_cache)
+			xrecord_block(_cache->get_fb(), _ref.location)
 		{
 			;
 		}
@@ -503,10 +520,10 @@ namespace corona
 		{
 			write_scope_lock lockit(locker);
 
+			dirtied();
+
 			if (records.size() >= xrecords_per_block)
 				return false;
-
-			dirtied();
 
 			if constexpr (debug_xblock) {
 				std::string indent(_indent * 4, ' ');
@@ -604,130 +621,24 @@ namespace corona
 		xblock_ref find_block(const xrecord& key);
 		std::map<xrecord, xblock_ref>::iterator find_xrecord(const xrecord& key);
 
-		virtual std::shared_ptr<xbranch_block> split_branch(std::shared_ptr<xbranch_block> _block, int _indent)
-		{
-
-			/************************************************
-
-			split into children from this:
-
-			Block A - Full [ 0........n ]
-
-			to this
-
-			Block A - [ 0...1/2n ]        Block B - [ 1/2n...n ]
-
-			***********************************************/
-
-
-			auto new_xb = cache->create_branch_block(_block->xheader.content_type);
-
-			int64_t rsz = _block->records.size() / 2;
-
-			// time to split the block
-			std::vector<xrecord> keys_to_delete;
-
-			int64_t count = 0;
-
-			for (auto& kv : _block->records)
-			{
-				if (count > rsz) {
-					keys_to_delete.push_back(kv.first);
-					new_xb->records.insert_or_assign(kv.first, kv.second);
-				}
-				count++;
-			}
-			new_xb->xheader.count = new_xb->records.size();
-
-			for (auto& kv : keys_to_delete)
-			{
-				_block->records.erase(kv);
-			}
-			_block->xheader.count = _block->records.size();
-
-			dirtied();
-
-			return new_xb;
-		}
-
-
-		virtual std::shared_ptr<xleaf_block> split_leaf(std::shared_ptr<xleaf_block> _block, int _indent)
-		{
-
-			/************************************************
-
-			split into children from this:
-
-			Block A - Full [ 0........n ]
-
-			to this
-
-			Block A - [ 0...1/2n ]        Block B - [ 1/2n...n ]
-
-			***********************************************/
-
-			// As I might say in Cleveland, I should rename this to soiled, because
-			// were going to soil ourselves in this one as its about to get real.
-			// As a characterization of the data work here, it is, 
-			// although the algorithm is simple.  If this block is full,
-			// we add another one split it into two.  Much will change in all both blocks.		
-
-			dirtied();
-
-			// in this case, createing a new block always makes it dirty,
-			// so we have ourselves and this block both covered. We dirtied ourselves
-			// up above with the dirtied calls, and new blocks are created always 
-			// marked dirty from the start.
-
-			auto new_xb = cache->create_leaf_block();
-
-			int64_t rsz = _block->records.size() / 2;
-
-			// time to split the block
-			std::vector<xrecord> keys_to_delete;
-
-			int64_t count = 0;
-
-			for (auto& kv : _block->records)
-			{
-				if (count > rsz) {
-					keys_to_delete.push_back(kv.first);
-					new_xb->put(_indent, kv.first, kv.second);
-				}
-				count++;
-			}
-
-			new_xb->xheader.count = new_xb->records.size();
-
-			for (auto& kv : keys_to_delete)
-			{
-				_block->records.erase(kv);
-			}
-
-			_block->xheader.count = _block->records.size();
-
-			return new_xb;
-		}
-
-		xblock_cache* cache;
+		static std::shared_ptr<xbranch_block> split_branch(xblock_cache* cache, std::shared_ptr<xbranch_block> _block, int _indent);
+		static std::shared_ptr<xleaf_block> split_leaf(xblock_cache* cache, std::shared_ptr<xleaf_block> _block, int _indent);
 
 	public:
 
 		xbranch_block(xblock_cache *_cache, xrecord_block_header& _header) :
-			xrecord_block(_cache->get_fb(), _header),
-			cache(_cache)
+			xrecord_block(_cache->get_fb(), _header)
 		{
 			;
 		}
 
 		xbranch_block(xblock_cache *_cache, xblock_ref _ref) : 
-			xrecord_block(_cache->get_fb(), _ref.location),
-			cache(_cache)
+			xrecord_block(_cache->get_fb(), _ref.location)
 		{
 			;
 		}
 
-		void split_root(int _indent)
+		void split_root(xblock_cache* cache, int _indent)
 		{
 			write_scope_lock lock_me(locker);
 			/************************************************
@@ -793,7 +704,7 @@ namespace corona
             xheader.count = records.size();
 		}
 
-		virtual bool put(int _indent, const xrecord& _key, const xrecord& _value) 
+		virtual bool put(xblock_cache* cache, int _indent, const xrecord& _key, const xrecord& _value)
 		{
 			bool added = false;
 			write_scope_lock lock_me(locker);
@@ -812,9 +723,9 @@ namespace corona
 			{
 				auto branch_block = cache->open_branch_block(found_block);
 				auto old_key = branch_block->get_start_key();
-				added = branch_block->put(_indent, _key, _value);
+				added = branch_block->put(cache, _indent, _key, _value);
 				if (branch_block->is_full()) {
-					auto new_branch = split_branch(branch_block, _indent);
+					auto new_branch = split_branch(cache, branch_block, _indent);
 					auto new_branch_key = new_branch->get_start_key();
 					auto new_branch_ref = new_branch->get_reference();
 					records.insert_or_assign(new_branch_key, new_branch_ref);
@@ -831,7 +742,7 @@ namespace corona
 				auto old_key = leaf_block->get_start_key();
 				added = leaf_block->put(_indent, _key, _value);
 				if (leaf_block->is_full()) {
-					auto new_leaf = split_leaf(leaf_block, _indent);
+					auto new_leaf = split_leaf(cache, leaf_block, _indent);
 					auto new_leaf_key = new_leaf->get_start_key();
 					auto new_leaf_ref = new_leaf->get_reference();
 					if constexpr (debug_branch) {
@@ -854,13 +765,13 @@ namespace corona
 				if (xheader.content_type == xblock_types::xb_leaf)
 				{
 					auto new_leaf = cache->create_leaf_block();
-					added = new_leaf->put(_indent + 1, _key, _value);
+					added = new_leaf->put( _indent + 1, _key, _value);
 					new_ref = new_leaf->get_reference();
 				}
 				else if (xheader.content_type == xblock_types::xb_branch)
 				{
 					auto new_branch = cache->create_branch_block(xblock_types::xb_branch);
-					added = new_branch->put(_indent + 1, _key, _value);
+					added = new_branch->put(cache, _indent + 1, _key, _value);
 					new_ref = new_branch->get_reference();
 				}
 				records.insert_or_assign(_key, new_ref);
@@ -869,7 +780,7 @@ namespace corona
 			return added;
 		}
 
-		virtual xrecord get(const xrecord& _key)
+		virtual xrecord get(xblock_cache* cache, const xrecord& _key)
 		{
 			read_scope_lock lock_me(locker);
 
@@ -879,17 +790,17 @@ namespace corona
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
 				auto branch_block = cache->open_branch_block(found_block);
-				result = branch_block->get(_key);
+				result = branch_block->get(cache, _key);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
 				auto leaf_block = cache->open_leaf_block(found_block);
-				result = leaf_block->get(_key);
+				result = leaf_block->get( _key);
 			}
 			return result;
 		}
 
-		virtual void erase(const xrecord& _key)
+		virtual void erase(xblock_cache* cache, const xrecord& _key)
 		{
 			write_scope_lock lock_me(locker);
 
@@ -900,7 +811,7 @@ namespace corona
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
 				auto branch_block = cache->open_branch_block(found_block);
-				branch_block->erase(_key);
+				branch_block->erase(cache, _key);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
@@ -910,7 +821,7 @@ namespace corona
 			xheader.count = records.size();
 		}
 
-		virtual void clear()
+		virtual void clear(xblock_cache* cache)
 		{
 			write_scope_lock lock_me(locker);
 			dirtied();
@@ -920,7 +831,7 @@ namespace corona
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block);
-					branch_block->clear();
+					branch_block->clear(cache);
 					branch_block->release();
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
@@ -934,7 +845,7 @@ namespace corona
 			xheader.count = records.size();
 		}
 
-		virtual xfor_each_result for_each(xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
+		virtual xfor_each_result for_each(xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			read_scope_lock lock_me(locker);
 
@@ -951,12 +862,12 @@ namespace corona
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block);
-					temp = branch_block->for_each(_key, _process);
+					temp = branch_block->for_each(cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->for_each(_key, _process);
+					temp = leaf_block->for_each( _key, _process);
 				}
 				else
 					temp = {};
@@ -970,7 +881,7 @@ namespace corona
 			return result;
 		}
 
-		virtual std::vector<xrecord> select(xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+		virtual std::vector<xrecord> select(xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			read_scope_lock lock_me(locker);
 
@@ -986,7 +897,7 @@ namespace corona
 					if (found_block.block_type == xblock_types::xb_branch)
 					{
 						auto branch_block = cache->open_branch_block(found_block);
-						temp = branch_block->select(_key, _process);
+						temp = branch_block->select(cache, _key, _process);
 					}
 					else if (found_block.block_type == xblock_types::xb_leaf)
 					{
@@ -1008,12 +919,12 @@ namespace corona
 					if (found_block.block_type == xblock_types::xb_branch)
 					{
 						auto branch_block = cache->open_branch_block(found_block);
-						temp = branch_block->select(_key, _process);
+						temp = branch_block->select(cache, _key, _process);
 					}
 					else if (found_block.block_type == xblock_types::xb_leaf)
 					{
 						auto leaf_block = cache->open_leaf_block(found_block);
-						temp = leaf_block->select(_key, _process);
+						temp = leaf_block->select( _key, _process);
 					}
 					else
 						temp = {};
@@ -1025,7 +936,7 @@ namespace corona
 			return result;
 		}
 
-		json get_info()
+		json get_info(xblock_cache* cache)
 		{
 			read_scope_lock lockit(locker);
 			using namespace std::literals;
@@ -1059,7 +970,7 @@ namespace corona
 				else if (r.second.block_type == xblock_types::xb_branch)
 				{
 					auto block = cache->open_branch_block(r.second);
-					json info = block->get_info();
+					json info = block->get_info(cache);
 					children.push_back(info);
 				}
 			}
@@ -1139,7 +1050,7 @@ namespace corona
 			}
 		}
 
-		virtual void finished_io(char* _bytes) override
+		virtual void finished_read(char* _bytes) override
 		{
 			if (_bytes)
 				delete [] _bytes;
@@ -1167,6 +1078,13 @@ namespace corona
 
 		}
 
+
+		virtual void finished_write(char* _bytes) override
+		{
+			if (_bytes)
+				delete[] _bytes;
+		}
+
 	};
 
 	class xtable : public xtable_interface, public file_block_interface
@@ -1178,6 +1096,16 @@ namespace corona
 		shared_lockable							locker;
 		std::shared_ptr<xblock_cache>			cache;
 		std::shared_ptr<file>					fp;
+
+		int64_t commit_nl() 
+		{
+			table_header->write(this);
+			table_header->root->save();
+
+			int64_t bytes_written = cache->save();
+			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
+			return bytes_written;
+		}
 
 	public:
 
@@ -1191,6 +1119,7 @@ namespace corona
 			table_header->root = cache->create_branch_block(xblock_types::xb_leaf);
 			table_header->root_block = table_header->root->get_reference();
 			commit();
+			system_monitoring_interface::global_mon->log_information(std::format("create table {0}", file_name), __FILE__, __LINE__);
 		}
 
 		xtable(std::string _file_name)
@@ -1202,6 +1131,45 @@ namespace corona
 			table_header = std::make_shared<xtable_header>();
 			table_header->read(this, 0);
 			table_header->root = cache->open_branch_block(table_header->root_block);
+			system_monitoring_interface::global_mon->log_information(std::format("open table {0}", file_name), __FILE__, __LINE__);
+		}
+
+		virtual ~xtable()
+		{
+            commit();            
+			system_monitoring_interface::global_mon->log_information(std::format("Closing table {0}", file_name), __FILE__, __LINE__);
+		}
+
+		bool put_impl(json& _object)
+		{
+			if (table_header->use_object_id) {
+				if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
+					int64_t new_id = get_next_object_id();
+					_object.put_member_i64(object_id_field, new_id);
+				}
+			}
+
+			xrecord key;
+			key.put_json(&table_header->key_members, _object);
+			xrecord data;
+			data.put_json(&table_header->object_members, _object);
+
+			bool new_record = table_header->root->put(cache.get(), 0, key, data);
+
+			if (new_record) {
+				table_header->count++;
+			}
+
+			if (table_header->root->is_full()) {
+				table_header->root->split_root(cache.get(), 0);
+			}
+
+			if (file_name.find("search") != std::string::npos) {
+				system_monitoring_interface::active_mon->log_information(std::format("put {0}, {1} rows", file_name, table_header->count), __FILE__, __LINE__);
+			}
+
+			return new_record;
+
 		}
 
 		std::shared_ptr<xtable_header>			get_table_header()
@@ -1247,8 +1215,7 @@ namespace corona
 		virtual int64_t commit() override
 		{
 			write_scope_lock lockme(locker);
-			table_header->write(this);
-			int64_t bytes_written = cache->save();
+			int64_t bytes_written = commit_nl();
 			return bytes_written;
 		}
 
@@ -1265,7 +1232,7 @@ namespace corona
 
 		virtual void clear() override
 		{
-			table_header->root->clear();
+			table_header->root->clear(cache.get());
 		}
 
 		virtual int64_t size() override
@@ -1307,7 +1274,7 @@ namespace corona
 			json_parser jp;
 			json jresult;
 			xrecord key = create_key<std::string>(_key);
-			xrecord result = table_header->root->get(key);
+			xrecord result = table_header->root->get(cache.get(), key);
 			if (not result.empty()) {
 				jresult = jp.create_object();
 				key.get_json(&table_header->key_members, jresult);
@@ -1323,7 +1290,7 @@ namespace corona
 			json_parser jp;
 			json jresult;
 			xrecord key = create_key_i64(_key);
-			xrecord result = table_header->root->get(key);
+			xrecord result = table_header->root->get(cache.get(), key);
 			if (not result.empty()) {
 				jresult = jp.create_object();
 				key.get_json(&table_header->key_members, jresult );
@@ -1340,7 +1307,7 @@ namespace corona
 			json jresult;
 			xrecord key;
             key.put_json(&table_header->key_members, _object);
-			xrecord result = table_header->root->get(key);
+			xrecord result = table_header->root->get(cache.get(), key);
 			if (not result.empty()) {
 				jresult = jp.create_object();
 				key.get_json(&table_header->key_members, jresult);
@@ -1354,44 +1321,22 @@ namespace corona
 		{
 			write_scope_lock lockme(locker);
 
-			if (table_header->use_object_id) {
-                if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
-                    int64_t new_id = get_next_object_id();
-                    _object.put_member_i64(object_id_field, new_id);
-                }
-			}
+			bool new_record = put_impl(_object);
 
-			xrecord key;
-			key.put_json(&table_header->key_members, _object);
-			xrecord data;
-			data.put_json(&table_header->object_members, _object);
-
-			bool new_record = table_header->root->put(0, key, data);
-
-			if (new_record) {
-				table_header->count++;
-			}
-
-			if (table_header->root->is_full()) {
-				table_header->root->split_root(0);
-			}
-
-            if (file_name.find("search") != std::string::npos) {
-                system_monitoring_interface::active_mon->log_information(std::format("put {0}, {1} rows", file_name, table_header->count), __FILE__, __LINE__);
-            }
-
-			table_header->write(this);
-			cache->save();
+			commit_nl();
 
 			return new_record;
 		}
 
 		virtual void put_array(json _array) override
 		{
+			write_scope_lock lockme(locker);
+
 			if (_array.array()) {
 				for (auto item : _array) {
-					put(item);
+					put_impl(item);
 				}
+				commit_nl();
 			}
 		}
 
@@ -1400,7 +1345,8 @@ namespace corona
 			write_scope_lock lockme(locker);
 			xrecord key;
 			key = create_key_i64(_id);
-			table_header->root->erase(key);
+			table_header->root->erase(cache.get(), key);
+			commit_nl();
 		}
 
 		virtual void erase(json _object) override
@@ -1409,7 +1355,8 @@ namespace corona
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			::InterlockedDecrement64(&table_header->count);
-			table_header->root->erase(key);
+			table_header->root->erase(cache.get(), key);
+			commit_nl();
 		}
 
 		virtual void erase_array(json _array) override
@@ -1420,9 +1367,10 @@ namespace corona
 					xrecord key;
 					key.put_json(&table_header->key_members, item);
 					::InterlockedDecrement64(&table_header->count);
-					table_header->root->erase(key);
+					table_header->root->erase(cache.get(), key);
 				}
 			}
+			commit_nl();
 		}
 
 		virtual int64_t get_count() override
@@ -1432,7 +1380,7 @@ namespace corona
 		
 		json get_info()
 		{
-			return table_header->root->get_info();
+			return table_header->root->get_info(cache.get());
 		}
 
 		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) override
@@ -1441,13 +1389,14 @@ namespace corona
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			xfor_each_result result;
-			result = table_header->root->for_each(key, [_process, this](const xrecord& _key, const xrecord& _data)->relative_ptr_type {
+			result = table_header->root->for_each(cache.get(), key, [_process, this](const xrecord& _key, const xrecord& _data)->relative_ptr_type {
 				json_parser jp;
 				json obj = jp.create_object();
 				_key.get_json(&table_header->key_members, obj);
 				_data.get_json(&table_header->object_members, obj);
 				return _process(obj);
 				});
+			commit_nl();
 			return result;
 		}
 
@@ -1457,7 +1406,7 @@ namespace corona
 			key.put_json(&table_header->key_members, _object);
 			json_parser jp;
 			json target = jp.create_array();
-			table_header->root->select(key, [_process, this, &target](const xrecord& _key, const xrecord& _data)->xrecord {
+			table_header->root->select(cache.get(), key, [_process, this, &target](const xrecord& _key, const xrecord& _data)->xrecord {
 				json_parser jp;
 				json obj = jp.create_object();
 				xrecord empty;
@@ -1470,6 +1419,7 @@ namespace corona
 				}
 				return empty;
 				});
+			commit_nl();
 			return target;
 		}
 
@@ -1557,6 +1507,7 @@ namespace corona
 		for (auto& sv : branch_blocks)
 		{
 			total_memory += sv.second.block->save();
+
 		}
 
 		// then leaves are taken
@@ -1565,6 +1516,10 @@ namespace corona
 		{
 			total_memory += sv.second.block->save();
 		}			
+
+		branch_blocks.clear();
+		leaf_blocks.clear();
+
 		return total_memory;
 	}
 
@@ -1615,6 +1570,109 @@ namespace corona
 			found_block = find_iter->second;
 
 		return found_block;
+	}
+
+	std::shared_ptr<xbranch_block> xbranch_block::split_branch(xblock_cache* cache, std::shared_ptr<xbranch_block> _block, int _indent)
+	{
+
+		/************************************************
+
+		split into children from this:
+
+		Block A - Full [ 0........n ]
+
+		to this
+
+		Block A - [ 0...1/2n ]        Block B - [ 1/2n...n ]
+
+		***********************************************/
+
+
+		auto new_xb = cache->create_branch_block(_block->xheader.content_type);
+
+		int64_t rsz = _block->records.size() / 2;
+
+		// time to split the block
+		std::vector<xrecord> keys_to_delete;
+
+		int64_t count = 0;
+
+		for (auto& kv : _block->records)
+		{
+			if (count > rsz) {
+				keys_to_delete.push_back(kv.first);
+				new_xb->records.insert_or_assign(kv.first, kv.second);
+			}
+			count++;
+		}
+		new_xb->xheader.count = new_xb->records.size();
+
+		for (auto& kv : keys_to_delete)
+		{
+			_block->records.erase(kv);
+		}
+		_block->xheader.count = _block->records.size();
+		_block->dirtied();
+
+		return new_xb;
+	}
+
+
+	std::shared_ptr<xleaf_block> xbranch_block::split_leaf(xblock_cache* cache, std::shared_ptr<xleaf_block> _block, int _indent)
+	{
+
+		/************************************************
+
+		split into children from this:
+
+		Block A - Full [ 0........n ]
+
+		to this
+
+		Block A - [ 0...1/2n ]        Block B - [ 1/2n...n ]
+
+		***********************************************/
+
+		// As I might say in Cleveland, I should rename this to soiled, because
+		// were going to soil ourselves in this one as its about to get real.
+		// As a characterization of the data work here, it is, 
+		// although the algorithm is simple.  If this block is full,
+		// we add another one split it into two.  Much will change in all both blocks.		
+
+		// in this case, createing a new block always makes it dirty,
+		// so we have ourselves and this block both covered. We dirtied ourselves
+		// up above with the dirtied calls, and new blocks are created always 
+		// marked dirty from the start.
+
+		auto new_xb = cache->create_leaf_block();
+
+		int64_t rsz = _block->records.size() / 2;
+
+		// time to split the block
+		std::vector<xrecord> keys_to_delete;
+
+		int64_t count = 0;
+
+		for (auto& kv : _block->records)
+		{
+			if (count > rsz) {
+				keys_to_delete.push_back(kv.first);
+				new_xb->put(_indent, kv.first, kv.second);
+			}
+			count++;
+		}
+
+		new_xb->xheader.count = new_xb->records.size();
+
+		for (auto& kv : keys_to_delete)
+		{
+			_block->records.erase(kv);
+		}
+
+		_block->xheader.count = _block->records.size();
+		_block->dirtied();
+
+		return new_xb;
 	}
 
 	void test_xleaf(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
@@ -1718,14 +1776,14 @@ namespace corona
 			key.add(1, i);
 			value.add(2, 10 + i % 50);
 			value.add(3, 100 + (i % 4) * 50);
-			pbranch->put(0, key, value);
-			xrecord valueread = pbranch->get(key);
+			pbranch->put(&cache, 0, key, value);
+			xrecord valueread = pbranch->get(&cache, key);
 			if (not valueread.exact_equal(value)) {
 				simple_put = false;
 				break;
 			}
 			if (pbranch->is_full()) {
-				pbranch->split_root(0);
+				pbranch->split_root(&cache, 0);
 			}
 		}
 
@@ -1736,10 +1794,10 @@ namespace corona
 
 		pbranch = cache.open_branch_block(ref);
 
-		json saved_info = pbranch->get_info();
+		json saved_info = pbranch->get_info(&cache);
 		_tests->test({ "put_survived", simple_put, __FILE__, __LINE__ });
 
-		json loaded_info = pbranch->get_info();
+		json loaded_info = pbranch->get_info(&cache);
 
 		_tests->test({ "read_survived", true, __FILE__, __LINE__ });
 
@@ -1758,7 +1816,7 @@ namespace corona
 			key.add(1, i);
 			value.add(2, 10 + i % 50);
 			value.add(3, 100 + (i % 4) * 50);
-			valueread = pbranch->get(key);
+			valueread = pbranch->get(&cache, key);
 
 			if constexpr (debug_xblock) {
 				std::string message;

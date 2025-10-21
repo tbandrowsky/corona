@@ -107,14 +107,14 @@ namespace corona
 					throw std::logic_error("listen_point not specified");
 				}
 
-#if _DEBUG
+//#if _DEBUG
 				if (not is_service)
 				{
 					log_information("Self test.");
 					prove_system();
 					log_information("Startup user name " + app->get_user_display_name());
 				}
-#endif
+//#endif
 
 				if (database_recreate) 
 				{
