@@ -70,9 +70,6 @@ namespace corona
 
 		virtual void finished_read(char* _bytes)
 		{
-			if (_bytes) {
-				delete[] _bytes;
-			}
 		}
 
 		virtual char* before_write(int32_t* _size, int32_t *_capacity) const 
@@ -87,7 +84,7 @@ namespace corona
 
 		}
 
-		virtual void finished_write(char* _bytes)
+		virtual void finished_write(char* _bytes) const
 		{
 		}
 
@@ -309,7 +306,7 @@ namespace corona
 			}
 		}
 
-        virtual void finished_read(char* _bytes) override
+        virtual void finished_read(char* _bytes) const override
         {
             if (_bytes)
                 delete[] _bytes;
@@ -365,6 +362,9 @@ namespace corona
 				char* vdest = bytes + rl.value_offset;
 				std::copy(vsrc, vsrc + rl.value_size, vdest);
 				i++;
+
+				r.first.finished_write(pair.first);
+				r.second.finished_write(pair.second);
 			}
 
 			xrecord_block_header* check_it = (xrecord_block_header*)bytes;
@@ -379,7 +379,7 @@ namespace corona
 
 		}
 
-		virtual void finished_write(char* _bytes) override
+		virtual void finished_write(char* _bytes)  const override
 		{
 			if (_bytes)
 				delete[] _bytes;
@@ -671,7 +671,7 @@ namespace corona
 			}
 		}
 
-		virtual void finished_read(char* _bytes) override
+		virtual void finished_read(char* _bytes) const override
 		{
 			if (_bytes)
 				delete [] _bytes;
@@ -700,7 +700,7 @@ namespace corona
 		}
 
 
-		virtual void finished_write(char* _bytes) override
+		virtual void finished_write(char* _bytes) const override
 		{
 			if (_bytes)
 				delete[] _bytes;

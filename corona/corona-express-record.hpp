@@ -399,7 +399,7 @@ namespace corona
 
 		}
 
-		virtual void finished_write(char* _bytes) 
+		virtual void finished_write(char* _bytes)  const
 		{
 			if (_bytes)
 				delete[] _bytes;

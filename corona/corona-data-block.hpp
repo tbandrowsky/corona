@@ -39,22 +39,17 @@ namespace corona
 		data_block& operator = (const data_block& _src) = default;
 
 		virtual char* before_write(int32_t* _size, int32_t* _capacity)  const = 0;
-		virtual char* before_write(int _offset, int _size)
-		{
-			return nullptr;
-		}
 
 		virtual void after_write(char* _buff)
 		{
 			;
 		}
 
-
 		virtual char* before_read(int32_t _size) = 0;
 		virtual void after_read(char* _bytes, int32_t _size) = 0;
 
-		virtual void finished_read(char* _bytes) = 0;
-		virtual void finished_write(char* _bytes) = 0;
+		virtual void finished_read(char* _bytes)  const  = 0;
+		virtual void finished_write(char* _bytes) const = 0;
 
 		relative_ptr_type read(file_block_interface* _file, relative_ptr_type location)
 		{
@@ -92,41 +87,6 @@ namespace corona
 
 			if (ENABLE_JSON_LOGGING) {
 				system_monitoring_interface::active_mon->log_block_stop("block", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-			}
-			return -1i64;
-		}
-
-		relative_ptr_type write_piece(file_block_interface* _file, int _offset, int _size)
-		{
-			if (header.block_location < 0)
-			{
-				throw std::invalid_argument("cannot append a partial write of a block");
-			}
-
-			date_time start_time = date_time::now();
-			timer tx;
-
-			if (ENABLE_JSON_LOGGING) {
-				system_monitoring_interface::active_mon->log_block_start("block", "write piece", start_time, __FILE__, __LINE__);
-			}
-			char* bytes = before_write(_offset, _size);
-
-			file_result data_result = _file->write(header.data_location + _offset, bytes, _size);
-
-			if (data_result.success)
-			{
-				after_write(bytes);
-				finished_write(bytes);
-				if (ENABLE_JSON_LOGGING) {
-					system_monitoring_interface::active_mon->log_block_stop("block", "write complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				}
-				return data_result.location;
-			}
-			else {
-				finished_write(bytes);
-				if (ENABLE_JSON_LOGGING) {
-					system_monitoring_interface::active_mon->log_block_stop("block", "write failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-				}
 			}
 			return -1i64;
 		}
@@ -270,7 +230,7 @@ namespace corona
 		{
 			;
 		}
-		virtual void finished_read(char* _bytes) override
+		virtual void finished_read(char* _bytes) const override
 		{
 			;
 		}
@@ -289,7 +249,7 @@ namespace corona
 			;
 		}
 
-		virtual void finished_write(char* _bytes) override
+		virtual void finished_write(char* _bytes) const override
 		{
 			;
 		}
@@ -338,7 +298,7 @@ namespace corona
 			}
 		}
 
-		virtual void finished_read(char* _bytes) override
+		virtual void finished_read(char* _bytes) const override
 		{
 		}
 
@@ -364,7 +324,7 @@ namespace corona
 
 		}
 
-		virtual void finished_write(char* _bytes) override
+		virtual void finished_write(char* _bytes) const override
 		{
 			if (_bytes) delete [] _bytes;
 		}
@@ -399,7 +359,7 @@ namespace corona
 		}
 
 
-		virtual void finished_read(char* _bytes)  override
+		virtual void finished_read(char* _bytes)  const override
 		{
 
 		}
@@ -412,17 +372,12 @@ namespace corona
 			return io_bytes;
 		}
 
-		virtual char* before_write(int _offset, int _size)
-		{
-			return (char*)(&data) + _offset;
-		}
-
 		virtual void after_write(char* _bytes) override
 		{
 			;
 		}
 
-		virtual void finished_write(char* _bytes)  override
+		virtual void finished_write(char* _bytes)  const override
 		{
 
 		}
