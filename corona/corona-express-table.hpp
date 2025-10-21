@@ -557,7 +557,7 @@ namespace corona
 
 	public:
 
-		xblock_cache(file_block_interface* _fb, int64_t _maximum_memory_bytes)
+		xblock_cache(file_block_interface* _fb, int64_t _maximum_memory_bytes = 0)
 		{
 			fb = _fb;
 			maximum_memory_bytes = _maximum_memory_bytes;
@@ -1364,17 +1364,21 @@ namespace corona
 
 		xblock_ref found_block = find_block(_key);
 
+		xblock_cache temp_cache(cache->get_fb());
+
 		if (found_block.block_type == xblock_types::xb_branch)
 		{
-			auto branch_block = cache->open_branch_block(found_block, false);
-			branch_block->erase(cache, _key);
+			auto branch_block = temp_cache.open_branch_block(found_block, false);
+			branch_block->erase(&temp_cache, _key);
 		}
 		else if (found_block.block_type == xblock_types::xb_leaf)
 		{
-			auto leaf_block = cache->open_leaf_block(found_block);
+			auto leaf_block = temp_cache.open_leaf_block(found_block);
 			leaf_block->erase(_key);
 		}
 		xheader.count = records.size();
+
+		temp_cache.save();
 	}
 
 	void xbranch_block::clear(xblock_cache* cache)
@@ -1410,6 +1414,8 @@ namespace corona
 		result.is_any = false;
 		result.count = 0;
 
+		xblock_cache temp_cache(cache->get_fb());
+
 		auto iter = find_xrecord(_key);
 		while (iter != records.end() and iter->first <= _key)
 		{
@@ -1417,12 +1423,12 @@ namespace corona
 			auto& found_block = iter->second;
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
-				auto branch_block = cache->open_branch_block(found_block, false);
-				temp = branch_block->for_each(cache, _key, _process);
+				auto branch_block = temp_cache.open_branch_block(found_block, false);
+				temp = branch_block->for_each(&temp_cache, _key, _process);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
-				auto leaf_block = cache->open_leaf_block(found_block);
+				auto leaf_block = temp_cache.open_leaf_block(found_block);
 				temp = leaf_block->for_each(_key, _process);
 			}
 			else
@@ -1443,6 +1449,8 @@ namespace corona
 
 		std::vector<xrecord> result = {};
 
+		xblock_cache temp_cache(cache->get_fb());
+
 		if (_key.empty())
 		{
 			for (auto& item : records)
@@ -1452,12 +1460,12 @@ namespace corona
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(cache, _key, _process);
+					auto branch_block = temp_cache.open_branch_block(found_block, false);
+					temp = branch_block->select(&temp_cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
-					auto leaf_block = cache->open_leaf_block(found_block);
+					auto leaf_block = temp_cache.open_leaf_block(found_block);
 					temp = leaf_block->select(_key, _process);
 				}
 				else
@@ -1474,12 +1482,12 @@ namespace corona
 				auto& found_block = iter->second;
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(cache, _key, _process);
+					auto branch_block = temp_cache.open_branch_block(found_block, false);
+					temp = branch_block->select(&temp_cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
-					auto leaf_block = cache->open_leaf_block(found_block);
+					auto leaf_block = temp_cache.open_leaf_block(found_block);
 					temp = leaf_block->select(_key, _process);
 				}
 				else
