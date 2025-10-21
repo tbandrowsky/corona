@@ -514,14 +514,16 @@ namespace corona
 
 	public:
 
-		xbranch_block(file_block_interface* _file, xrecord_block_header& _header) :
-			xrecord_block(_file, _header)
+		bool retain;
+
+		xbranch_block(file_block_interface* _file, xrecord_block_header& _header, bool _retain) :
+			xrecord_block(_file, _header), retain(_retain)
 		{
 			;
 		}
 
-		xbranch_block(file_block_interface* _file, xblock_ref _ref) :
-			xrecord_block(_file, _ref.location)
+		xbranch_block(file_block_interface* _file, xblock_ref _ref, bool _retain) :
+			xrecord_block(_file, _ref.location), retain(_retain)
 		{
 			;
 		}
@@ -564,7 +566,7 @@ namespace corona
 
 		virtual ~xblock_cache()
 		{
-			clear();
+			empty();
 		}
 
 		file_block_interface* get_fb() const
@@ -573,9 +575,9 @@ namespace corona
 		}
 
 		xleaf_block* create_leaf_block();
-		xbranch_block* create_branch_block(xblock_types _content_type);
+		xbranch_block* create_branch_block(xblock_types _content_type, bool _retain);
 		xleaf_block* open_leaf_block(xblock_ref& _header);
-		xbranch_block* open_branch_block(xblock_ref& _header);
+		xbranch_block* open_branch_block(xblock_ref& _header, bool _retain);
 
 		time_t get_block_lifetime()
 		{
@@ -584,7 +586,7 @@ namespace corona
 
 		int64_t save();
 
-		void clear()
+		void empty()
 		{
 			write_scope_lock lockit(locker);
 
@@ -594,11 +596,22 @@ namespace corona
 
 			leaf_blocks.clear();
 
-			for (auto& bb : branch_blocks) {
-				delete bb.second;
-			}
+            std::vector<std::pair<int64_t, xbranch_block*>> branch_block_list;
 
+			for (auto& bb : branch_blocks) {
+                if (bb.second->retain) {
+                    branch_block_list.push_back(bb);
+                }
+				else {
+					delete bb.second;
+					bb.second = nullptr;
+				}
+			}
 			branch_blocks.clear();
+
+            for (auto& bb : branch_block_list) {
+                branch_blocks.insert(bb);
+            }
 		}
 	};
 
@@ -724,8 +737,7 @@ namespace corona
 			table_header->root->save();
 
 			int64_t bytes_written = cache->save();
-			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
-			table_header->root = cache->open_branch_block(table_header->root_block);
+			cache->empty();
 			return bytes_written;
 		}
 
@@ -738,9 +750,12 @@ namespace corona
 			fp = std::make_shared<file>(_file_name, file_open_types::create_always);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 			table_header->append(this);
-			table_header->root = cache->create_branch_block(xblock_types::xb_leaf);
+			table_header->root = cache->create_branch_block(xblock_types::xb_leaf, true);
 			table_header->root_block = table_header->root->get_reference();
-			commit();
+			table_header->write(this);
+			table_header->root->save();
+
+			int64_t bytes_written = cache->save();
 			system_monitoring_interface::global_mon->log_information(std::format("create table {0}", file_name), __FILE__, __LINE__);
 		}
 
@@ -752,7 +767,7 @@ namespace corona
 
 			table_header = std::make_shared<xtable_header>();
 			table_header->read(this, 0);
-			table_header->root = cache->open_branch_block(table_header->root_block);
+			table_header->root = cache->open_branch_block(table_header->root_block, true);
 			system_monitoring_interface::global_mon->log_information(std::format("open table {0}", file_name), __FILE__, __LINE__);
 		}
 
@@ -1064,7 +1079,7 @@ namespace corona
 		return new_block;
 	}
 
-	xbranch_block *xblock_cache::open_branch_block(xblock_ref& _ref)
+	xbranch_block *xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
 		{
 			read_scope_lock lockit(locker);
@@ -1073,7 +1088,7 @@ namespace corona
 				return foundit->second;
 			}
 		}
-		auto new_block = new xbranch_block(fb, _ref);
+		auto new_block = new xbranch_block(fb, _ref, _retain);
 		{
 			write_scope_lock lockit(locker);
 			branch_blocks.insert_or_assign(_ref.location, new_block);
@@ -1094,7 +1109,7 @@ namespace corona
 		return result;
 	}
 
-	xbranch_block *xblock_cache::create_branch_block(xblock_types _content_type)
+	xbranch_block *xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
 	{
 		write_scope_lock lockit(locker);
 		xrecord_block_header header;
@@ -1102,7 +1117,7 @@ namespace corona
 		header.type = xblock_types::xb_branch;
 		header.content_type = _content_type;
 
-		auto result = new xbranch_block(fb, header);
+		auto result = new xbranch_block(fb, header, _retain);
 		branch_blocks.insert_or_assign(result->get_reference().location, result);
 		return result;
 	}
@@ -1119,7 +1134,6 @@ namespace corona
 		for (auto& sv : branch_blocks)
 		{
 			total_memory += sv.second->save();
-
 		}
 
 		for (auto& sv : leaf_blocks)
@@ -1206,8 +1220,8 @@ namespace corona
 
 		// newly created blocks are always created dirty, as like
 		// think about it, why would you create a block and not use it...
-		auto new_child1 = cache->create_branch_block(xheader.content_type);
-		auto new_child2 = cache->create_branch_block(xheader.content_type);
+		auto new_child1 = cache->create_branch_block(xheader.content_type, false);
+		auto new_child2 = cache->create_branch_block(xheader.content_type, false);
 
 		xheader.content_type = xblock_types::xb_branch;
 
@@ -1263,7 +1277,7 @@ namespace corona
 
 		if (found_block.block_type == xblock_types::xb_branch)
 		{
-			auto branch_block = cache->open_branch_block(found_block);
+			auto branch_block = cache->open_branch_block(found_block, false);
 			auto old_key = branch_block->get_start_key();
 			added = branch_block->put(cache, _indent, _key, _value);
 			if (branch_block->is_full()) {
@@ -1312,7 +1326,7 @@ namespace corona
 			}
 			else if (xheader.content_type == xblock_types::xb_branch)
 			{
-				auto new_branch = cache->create_branch_block(xblock_types::xb_branch);
+				auto new_branch = cache->create_branch_block(xblock_types::xb_branch, false);
 				added = new_branch->put(cache, _indent + 1, _key, _value);
 				new_ref = new_branch->get_reference();
 			}
@@ -1331,7 +1345,7 @@ namespace corona
 
 		if (found_block.block_type == xblock_types::xb_branch)
 		{
-			auto branch_block = cache->open_branch_block(found_block);
+			auto branch_block = cache->open_branch_block(found_block, false);
 			result = branch_block->get(cache, _key);
 		}
 		else if (found_block.block_type == xblock_types::xb_leaf)
@@ -1352,7 +1366,7 @@ namespace corona
 
 		if (found_block.block_type == xblock_types::xb_branch)
 		{
-			auto branch_block = cache->open_branch_block(found_block);
+			auto branch_block = cache->open_branch_block(found_block, false);
 			branch_block->erase(cache, _key);
 		}
 		else if (found_block.block_type == xblock_types::xb_leaf)
@@ -1372,7 +1386,7 @@ namespace corona
 			auto found_block = item.second;
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
-				auto branch_block = cache->open_branch_block(found_block);
+				auto branch_block = cache->open_branch_block(found_block, false);
 				branch_block->clear(cache);
 				branch_block->release();
 			}
@@ -1403,7 +1417,7 @@ namespace corona
 			auto& found_block = iter->second;
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
-				auto branch_block = cache->open_branch_block(found_block);
+				auto branch_block = cache->open_branch_block(found_block, false);
 				temp = branch_block->for_each(cache, _key, _process);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
@@ -1438,7 +1452,7 @@ namespace corona
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = cache->open_branch_block(found_block);
+					auto branch_block = cache->open_branch_block(found_block, false);
 					temp = branch_block->select(cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
@@ -1460,7 +1474,7 @@ namespace corona
 				auto& found_block = iter->second;
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = cache->open_branch_block(found_block);
+					auto branch_block = cache->open_branch_block(found_block, false);
 					temp = branch_block->select(cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
@@ -1511,7 +1525,7 @@ namespace corona
 			}
 			else if (r.second.block_type == xblock_types::xb_branch)
 			{
-				auto block = cache->open_branch_block(r.second);
+				auto block = cache->open_branch_block(r.second, false);
 				json info = block->get_info(cache);
 				children.push_back(info);
 			}
@@ -1538,7 +1552,7 @@ namespace corona
 		***********************************************/
 
 
-		auto new_xb = cache->create_branch_block(_block->xheader.content_type);
+		auto new_xb = cache->create_branch_block(_block->xheader.content_type, false);
 
 		int64_t rsz = _block->records.size() / 2;
 
@@ -1713,7 +1727,7 @@ namespace corona
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
 
-		auto pbranch = cache.create_branch_block(xblock_types::xb_leaf);
+		auto pbranch = cache.create_branch_block(xblock_types::xb_leaf, false);
 
 		json_parser jp;
 
@@ -1740,9 +1754,9 @@ namespace corona
 		auto ref = pbranch->get_reference();
 
 		cache.save();
-		cache.clear();
+		cache.empty();
 
-		pbranch = cache.open_branch_block(ref);
+		pbranch = cache.open_branch_block(ref, false);
 
 		json saved_info = pbranch->get_info(&cache);
 		_tests->test({ "put_survived", simple_put, __FILE__, __LINE__ });

@@ -172,8 +172,8 @@ namespace corona
 
 			plain_text = _src.to_json_typed();
 
-			BCRYPT_ALG_HANDLE algorithm = {};
-			BCRYPT_KEY_HANDLE key = {};
+			BCRYPT_ALG_HANDLE algorithm = NULL;
+			BCRYPT_KEY_HANDLE key = NULL;
 
 			NTSTATUS status;
 
