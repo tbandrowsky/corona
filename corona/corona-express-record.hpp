@@ -360,6 +360,12 @@ namespace corona
 			std::copy(_bytes, _bytes + record_size, std::back_inserter(record_data));
 		}
 
+		virtual void finished_read(char* _bytes)
+		{
+			if (_bytes)
+				delete[] _bytes;
+		}
+
 		virtual char* before_write(int32_t* _size, int32_t *_capacity)  const
 		{
 			int32_t header_size = sizeof(int32_t) + sizeof(xfield) * field_data.size();
@@ -393,7 +399,7 @@ namespace corona
 
 		}
 
-		virtual void finished_io(char* _bytes) 
+		virtual void finished_write(char* _bytes) 
 		{
 			if (_bytes)
 				delete[] _bytes;

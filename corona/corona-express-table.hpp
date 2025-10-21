@@ -9,9 +9,6 @@ const bool debug_branch = false;
 
 namespace corona
 {
-	class xleaf_block;
-	class xbranch_block;
-
 	enum xblock_types
 	{
 		xb_none = 0,
@@ -388,80 +385,11 @@ namespace corona
 
 	};
 
-	template <typename xblock_type>
-	class cached_block
-	{
-	public:
-		std::shared_ptr<xblock_type> block;
-		date_time					 last_access;
-
-		cached_block()
-		{
-			access();
-		}
-
-		virtual ~cached_block()
-		{
-			block = nullptr;
-		}
-
-		cached_block(const cached_block& _src)
-		{
-			block = _src.block;
-			last_access = _src.last_access;
-		}
-
-		cached_block& operator = (const cached_block& _src)
-		{
-			block = _src.block;
-			last_access = _src.last_access;
-			return *this;
-		}
-
-		cached_block(cached_block&& _src)
-		{
-			std::swap(block,_src.block);
-			std::swap(last_access,_src.last_access);
-		}
-
-		cached_block& operator = (cached_block&& _src)
-		{
-			std::swap(block, _src.block);
-			std::swap(last_access, _src.last_access);
-			return *this;
-		}
-
-		void access()
-		{
-			last_access = date_time::now();
-		}
-
-		date_time get_last_access()
-		{
-			return last_access;
-		}
-
-		bool operator < (const cached_block& _other) // descending order for sort
-		{
-			return last_access > _other.last_access;
-		}
-
-	};
-
-	class cached_leaf : public cached_block<xleaf_block>
-	{
-		;
-	};
-
-	class cached_branch : public cached_block<xbranch_block>
-	{
-		;
-	};
 
 	class xblock_cache
 	{
-		std::map<int64_t, cached_leaf> leaf_blocks;
-		std::map<int64_t, cached_branch> branch_blocks;
+		std::map<int64_t, xleaf_block> leaf_blocks;
+		std::map<int64_t, xbranch_block> branch_blocks;
 		file_block_interface* fb;
 		shared_lockable locker;
 		int64_t maximum_memory_bytes;
@@ -476,15 +404,20 @@ namespace corona
 			block_lifetime = 0;
 		}
 
+		virtual ~xblock_cache()
+		{
+			clear();
+		}
+
 		file_block_interface* get_fb() const
 		{
 			return fb;
 		}
 
-		std::shared_ptr<xleaf_block> create_leaf_block();
-		std::shared_ptr<xbranch_block> create_branch_block(xblock_types _content_type);
-		std::shared_ptr<xleaf_block> open_leaf_block(xblock_ref& _header);
-		std::shared_ptr<xbranch_block> open_branch_block(xblock_ref& _header);
+		xleaf_block *create_leaf_block();
+		xbranch_block *create_branch_block(xblock_types _content_type);
+		xleaf_block* open_leaf_block(xblock_ref& _header);
+		xbranch_block *open_branch_block(xblock_ref& _header);
 
 		time_t get_block_lifetime()
 		{
@@ -492,11 +425,18 @@ namespace corona
 		}
 
 		int64_t save();
+
 		void clear()
 		{
             write_scope_lock lockit(locker);
-            leaf_blocks.clear();
-            branch_blocks.clear();
+
+			for (auto& lb : leaf_blocks) {
+				delete lb.second;
+			}
+
+			for (auto& bb : branch_blocks) {
+				delete bb.second;
+			}
 		}
 	};
 
@@ -1425,7 +1365,7 @@ namespace corona
 
 	};
 
-	std::shared_ptr<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
+	xleaf_block *xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
 		{
 			read_scope_lock lockit(locker);
@@ -1435,17 +1375,15 @@ namespace corona
 				return foundit->second.block;
 			}
 		}
-		auto new_block = std::make_shared<xleaf_block>(this, _ref);
-		cached_leaf cl;
-		cl.block = new_block;
+		auto new_block = new xleaf_block(this, _ref);
 		{
 			write_scope_lock lockit(locker);
-			leaf_blocks.insert_or_assign(_ref.location, cl);
+			leaf_blocks.insert_or_assign(_ref.location, new_block);
 		}
 		return new_block;
 	}
 
-	std::shared_ptr<xbranch_block> xblock_cache::open_branch_block(xblock_ref& _ref)
+	xbranch_block *xblock_cache::open_branch_block(xblock_ref& _ref)
 	{
 		{
 			read_scope_lock lockit(locker);
@@ -1455,17 +1393,15 @@ namespace corona
 				return foundit->second.block;
 			}
 		}
-		auto new_block = std::make_shared<xbranch_block>(this, _ref);
-		cached_branch cb;
-		cb.block = new_block;
+		auto new_block = new xbranch_block(this, _ref);
 		{
 			write_scope_lock lockit(locker);
-			branch_blocks.insert_or_assign(_ref.location, cb);
+			branch_blocks.insert_or_assign(_ref.location, new_block);
 		}
 		return new_block;
 	}
 
-	std::shared_ptr<xleaf_block> xblock_cache::create_leaf_block()
+	xleaf_block *xblock_cache::create_leaf_block()
 	{
 		write_scope_lock lockit(locker);
 		xrecord_block_header header;
@@ -1473,14 +1409,12 @@ namespace corona
 		header.type = xblock_types::xb_leaf;
 		header.content_type = xblock_types::xb_record;
 
-		auto result = std::make_shared<xleaf_block>(this, header);
-		cached_leaf cl;
-		cl.block = result;
-		leaf_blocks.insert_or_assign(result->get_reference().location, cl);
+		auto result = new xleaf_block(this, header);
+		leaf_blocks.insert_or_assign(result->get_reference().location, result);
 		return result;
 	}
 
-	std::shared_ptr<xbranch_block> xblock_cache::create_branch_block(xblock_types _content_type)
+	xbranch_block *xblock_cache::create_branch_block(xblock_types _content_type)
 	{
 		write_scope_lock lockit(locker);
 		xrecord_block_header header;
@@ -1488,10 +1422,8 @@ namespace corona
 		header.type = xblock_types::xb_branch;
 		header.content_type = _content_type;
 
-		auto result = std::make_shared<xbranch_block>(this, header);
-		cached_branch cb;
-		cb.block = result;
-		branch_blocks.insert_or_assign(result->get_reference().location, cb);
+		auto result = new xbranch_block(this, header);
+		branch_blocks.insert_or_assign(result->get_reference().location, result);
 		return result;
 	}
 
@@ -1510,15 +1442,10 @@ namespace corona
 
 		}
 
-		// then leaves are taken
-
 		for (auto& sv : leaf_blocks)
 		{
 			total_memory += sv.second.block->save();
 		}			
-
-		branch_blocks.clear();
-		leaf_blocks.clear();
 
 		return total_memory;
 	}
