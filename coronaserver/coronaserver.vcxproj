@@ -200,6 +200,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <None Include="corona-readme.md" />
     <None Include="corona.postman_collection.json" />
     <CopyFileToFolders Include="CoronaApplicationServer.docx">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>

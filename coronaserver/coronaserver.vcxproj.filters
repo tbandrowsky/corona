@@ -33,6 +33,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="account_recovery_email_template.html" />
     <CopyFileToFolders Include="onboarding_email_template.html" />
+    <CopyFileToFolders Include="revolution_old_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="corona.postman_collection.json" />
@@ -43,7 +44,7 @@
     <None Include="sqlintegrationschema.json" />
     <None Include="table_test_schema.json" />
     <None Include="naughty_monsters.json" />
-    <None Include="revolution_test_schema.json" />
+    <None Include="corona-readme.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coronaserver.hpp">
