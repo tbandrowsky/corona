@@ -1,6 +1,6 @@
 # coronaserver Overview
 
-`coronaserver` is a C++14-based server application built on the CORONA framework. It provides a high-performance, low-code database engine for Windows, supporting dynamic schemas, user/team management, and secure data operations.
+`coronaserver` is a C++20-based server application built on the CORONA framework. It provides a high-performance, low-code database engine for Windows, supporting dynamic schemas, user/team management, and secure data operations.
 
 ## Key Features
 
