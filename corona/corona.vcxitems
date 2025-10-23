@@ -99,6 +99,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-system-monitor-bus.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-table.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-test.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-text-tokenizer.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-textstyles.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-threadsafe-map.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-time_box.hpp" />

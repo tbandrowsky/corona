@@ -901,6 +901,10 @@ namespace corona
 		virtual std::shared_ptr<sql_table>				create_stable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<sql_table>				get_stable(corona_database_interface* _db) = 0;
 
+		// creates a full_text_index 
+		virtual std::shared_ptr<xtable>					create_full_text_index(corona_database_interface* _db) = 0;
+		virtual std::shared_ptr<xtable>					get_full_text_index(corona_database_interface* _db) = 0;
+
         // creates a no-sql table with multiple optional indexes
 		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
@@ -2836,6 +2840,7 @@ namespace corona
 		std::shared_ptr<sql_integration> sql;
 
 		std::string get_class_filename() { return class_name + ".coronaclass"; }
+		std::string get_text_index_filename() { return class_name + ".coronatextindex"; }
 
 		void copy_from(const class_interface* _src)
 		{
@@ -2860,6 +2865,7 @@ namespace corona
 		}
 
 		std::shared_ptr<xtable> table;
+		std::shared_ptr<xtable> full_text_index;
 		std::shared_ptr<sql_table> stable;
 
 	public:
@@ -3017,6 +3023,7 @@ namespace corona
 				column_id++;
 			}
 			table = std::make_shared<xtable>(get_class_filename(), table_header);
+			full_text_index = create_full_text_index(_db);
 			return table;
 		}
 
@@ -3024,8 +3031,40 @@ namespace corona
 		{
 			if (!table) {
 				table = std::make_shared<xtable>(get_class_filename());
+				full_text_index = get_full_text_index(_db);
 			}
+
 			return table;
+		}
+
+		virtual std::shared_ptr<xtable> create_full_text_index(corona_database_interface* _db) override
+		{
+			auto table_header = std::make_shared<xtable_header>();
+			int column_id = 1;
+
+			// here, fill out the full text index definition
+			xtable_columns index_definition;
+
+			xcolumn col;
+			col.field_type = field_types::ft_string;
+			col.field_name = "text";
+			col.field_id = 1;
+            table_header->key_members.columns[1] = col;
+			col.field_type = field_types::ft_int64;
+			col.field_name = "object_id";
+			col.field_id = 2;
+			table_header->key_members.columns[2] = col;
+
+			full_text_index = std::make_shared<xtable>(get_text_index_filename(), table_header);
+			return full_text_index;
+		}
+
+		virtual std::shared_ptr<xtable> get_full_text_index(corona_database_interface* _db) override
+		{
+			if (!full_text_index) {
+				full_text_index = std::make_shared<xtable>(get_text_index_filename());
+			}
+			return full_text_index;
 		}
 
 		/// <summary>
@@ -4216,6 +4255,40 @@ namespace corona
 
 			tb->put_array(put_list);
 
+			auto ftb = get_full_text_index(_db);
+            if (ftb) {
+
+				json full_text_array = jp.create_array();
+				text_tokenizer ctt;
+
+				for (auto item : put_list) {
+
+                    int64_t object_id = (int64_t)item[object_id_field];
+
+					auto item_fields = item.get_members();
+
+                    for (auto& item_field : item_fields) 
+					{
+                        auto& fld = item_field.second;
+
+						if (fld->get_field_type()  == field_types::ft_string) {
+
+							auto terms = ctt.tokenize(fld->to_string());
+
+							std::string word;
+							for (auto word : terms) {
+								json full_text_ref = jp.create_object();
+								full_text_ref.put_member("text", word);
+								full_text_ref.put_member_i64("object_id", object_id);
+								full_text_array.push_back(full_text_ref);
+							}
+						}
+                    }
+				}
+
+                ftb->put_array(full_text_array);
+            }
+
 			auto stb = get_stable(_db);
 			if (stb) {
 				stb->put_array(put_list);
@@ -4238,7 +4311,32 @@ namespace corona
 			json obj;
 			obj = jp.create_array();
 
-			if (_key.has_member(object_id_field)) {
+			if (_key.has_member("full_text"))
+			{
+                auto ftb = get_full_text_index(_db);
+				if (ftb) {
+					text_tokenizer ctt;
+					std::string full_text = _key["full_text"];
+                    auto terms = ctt.tokenize(full_text);
+                    std::set<int64_t> found_object_ids, join_result;
+					for (auto word : terms) {
+						std::set<int64_t> base_object_ids;
+						json ft_key = jp.create_object();
+                        ft_key.put_member("text", word);
+                        json ft_results = ftb->select(ft_key, [&base_object_ids, &_db, &jp, &class_name, &_grant](json& _item) -> json {
+                            int64_t object_id = (int64_t)_item["object_id"];
+							base_object_ids.insert(object_id);
+							json temp;
+                            return temp;
+                            });
+						// Merge set1 and set2 into result
+						std::merge(set1.begin(), set1.end(), set2.begin(), set2.end(),
+							std::inserter(result, result.begin()));
+                        found_object_ids = std::merge(found_object_ids, base_object_ids);
+					}
+				}
+			}
+			else if (_key.has_member(object_id_field)) {
 				int64_t object_id = (int64_t)_key[object_id_field];
 				bool exists;
 				json temp = get_object(_db, object_id, _grant, exists);

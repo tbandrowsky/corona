@@ -24,6 +24,7 @@
      - `Server`: Default user, password, email, team, API info, email templates.
      - `SendGrid`: API key, sender info, email titles.
      - `Connections`: Database and external service connection strings.
+     - NOTE - You can use environment variables for sensitive data, see manual
 
 2. **Apply Schema**
    - Place your schema file (e.g., `revolution_schema.json`) in the deployment directory.

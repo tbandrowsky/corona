@@ -64,6 +64,7 @@ TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
 #include <numeric>
 #include <thread>
 #include <regex>
+#include <set>
 #include <queue>
 #include <ranges>
 #include <semaphore>
@@ -124,6 +125,7 @@ namespace corona {
 
 #include "corona-messages.hpp"
 #include "corona-http-messages.hpp"
+#include "corona-text-tokenizer.hpp"
 
 // generalized json representation used as lingua fraca throughout the bus
 
