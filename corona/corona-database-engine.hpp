@@ -4330,9 +4330,16 @@ namespace corona
                             return temp;
                             });
 						// Merge set1 and set2 into result
-						std::merge(set1.begin(), set1.end(), set2.begin(), set2.end(),
-							std::inserter(result, result.begin()));
-                        found_object_ids = std::merge(found_object_ids, base_object_ids);
+						std::merge(found_object_ids.begin(), found_object_ids.end(), base_object_ids.begin(), base_object_ids.end(),
+							std::inserter(join_result, join_result.begin()));
+						found_object_ids = join_result;
+					}
+					for (auto ids : found_object_ids) {
+                        bool exists;
+                        json temp = get_object(_db, ids, _grant, exists);
+                        if (temp.object()) {
+                            obj.push_back(temp);
+                        }
 					}
 				}
 			}
