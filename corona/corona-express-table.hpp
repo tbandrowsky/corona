@@ -1086,37 +1086,31 @@ namespace corona
 
 	xleaf_block *xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
-		{
-			read_scope_lock lockit(locker);
-			auto foundit = leaf_blocks.find(_ref.location);
-			if (foundit != std::end(leaf_blocks)) {
-				foundit->second->accessed();
-				return foundit->second;
-			}
+		write_scope_lock lockit(locker);
+
+		auto foundit = leaf_blocks.find(_ref.location);
+		if (foundit != std::end(leaf_blocks)) {
+			foundit->second->accessed();
+			return foundit->second;
 		}
+
 		auto new_block = new xleaf_block(fb, _ref);
-		{
-			write_scope_lock lockit(locker);
-			leaf_blocks.insert_or_assign(_ref.location, new_block);
-		}
+		leaf_blocks.insert_or_assign(_ref.location, new_block);
+
 		return new_block;
 	}
 
 	xbranch_block *xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
-		{
-			read_scope_lock lockit(locker);
-			auto foundit = branch_blocks.find(_ref.location);
-			if (foundit != std::end(branch_blocks)) {
-				foundit->second->accessed();
-				return foundit->second;
-			}
+
+		write_scope_lock lockit(locker);
+		auto foundit = branch_blocks.find(_ref.location);
+		if (foundit != std::end(branch_blocks)) {
+			foundit->second->accessed();
+			return foundit->second;
 		}
 		auto new_block = new xbranch_block(fb, _ref, _retain);
-		{
-			write_scope_lock lockit(locker);
-			branch_blocks.insert_or_assign(_ref.location, new_block);
-		}
+		branch_blocks.insert_or_assign(_ref.location, new_block);
 		return new_block;
 	}
 
@@ -1151,19 +1145,36 @@ namespace corona
 		date_time current = date_time::now();
 		int64_t total_memory;
 
-		read_scope_lock lockit(locker);
+		write_scope_lock lockit(locker);
 
 		total_memory = 0;
+		std::vector<HANDLE> wait_handles;
 
 		for (auto& sv : branch_blocks)
 		{
-			total_memory += sv.second->save();
+			auto ptr = sv.second;
+            HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
+			global_job_queue->submit_job([this, &ptr, &total_memory]() {
+                int64_t used_memory = ptr->save();
+                ::InterlockedAdd64(&total_memory, used_memory);
+				}, ready);
+            wait_handles.push_back(ready);
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
-			total_memory += sv.second->save();
-		}			
+			auto ptr = sv.second;
+			HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
+			global_job_queue->submit_job([this, &ptr, &total_memory]() {
+				int64_t used_memory = ptr->save();
+				::InterlockedAdd64(&total_memory, used_memory);
+				}, ready);
+			wait_handles.push_back(ready);
+		}
+
+		for (auto handle : wait_handles) {
+			WaitForSingleObject(handle, INFINITE);
+		}
 
 		return total_memory;
 	}
