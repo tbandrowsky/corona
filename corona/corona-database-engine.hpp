@@ -4267,6 +4267,8 @@ namespace corona
 
 					auto item_fields = item.get_members();
 
+					std::set<std::string> record_words;
+
                     for (auto& item_field : item_fields) 
 					{
                         auto& fld = item_field.second;
@@ -4277,6 +4279,9 @@ namespace corona
 
 							std::string word;
 							for (auto word : terms) {
+								if (record_words.contains(word))
+									continue;
+								record_words.insert(word);
 								json full_text_ref = jp.create_object();
 								full_text_ref.put_member("text", word);
 								full_text_ref.put_member_i64("object_id", object_id);
@@ -4323,7 +4328,7 @@ namespace corona
 						std::set<int64_t> base_object_ids;
 						json ft_key = jp.create_object();
                         ft_key.put_member("text", word);
-                        json ft_results = ftb->select(ft_key, [&base_object_ids, &_db, &jp, &class_name, &_grant](json& _item) -> json {
+                        json ft_results = ftb->select(ft_key, [&base_object_ids](json& _item) -> json {
                             int64_t object_id = (int64_t)_item["object_id"];
 							base_object_ids.insert(object_id);
 							json temp;

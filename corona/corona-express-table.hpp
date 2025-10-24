@@ -118,7 +118,7 @@ namespace corona
 	};
 
 
-	static const int xrecords_per_block = 100;
+	static const int xrecords_per_block = 200;
 
 	struct xblock_location
 	{
@@ -133,7 +133,7 @@ namespace corona
 		xblock_types							type;
 		xblock_types							content_type;
 		int32_t									count;
-		xblock_location							records[xrecords_per_block];
+		xblock_location							records[xrecords_per_block+1];
 
 		xrecord_block_header()
 		{
@@ -200,6 +200,8 @@ namespace corona
 			dirty = false;
 		}
 
+		time_t last_access;
+
 	public:
 
 		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src)
@@ -209,6 +211,7 @@ namespace corona
 			xheader.count = 0;
 			save_nl();
 			dirty = true;
+            last_access = time(nullptr);
 		}
 
 		xrecord_block(file_block_interface* _fb, int64_t _location)
@@ -219,6 +222,17 @@ namespace corona
 			}
 			fb = _fb;
 			read(fb, _location);
+			last_access = time(nullptr);
+		}
+
+		void accessed()
+		{
+            last_access = time(nullptr);
+		}
+
+		time_t age()
+		{
+            return time(nullptr) - last_access;
 		}
 
 		virtual ~xrecord_block()
@@ -590,16 +604,28 @@ namespace corona
 		{
 			write_scope_lock lockit(locker);
 
-			for (auto& lb : leaf_blocks) {
-				delete lb.second;
+			std::vector<std::pair<int64_t, xleaf_block*>> leaf_block_list;
+
+            for (auto& lb : leaf_blocks) {
+                if (lb.second->age() < 5) {
+                    leaf_block_list.push_back(lb);
+                }
+                else {
+                    delete lb.second;
+                    lb.second = nullptr;
+                }
 			}
 
 			leaf_blocks.clear();
 
+            for (auto& lb : leaf_block_list) {
+                leaf_blocks.insert(lb);
+            }
+
             std::vector<std::pair<int64_t, xbranch_block*>> branch_block_list;
 
 			for (auto& bb : branch_blocks) {
-                if (bb.second->retain) {
+                if (bb.second->retain or bb.second->age() < 5) {
                     branch_block_list.push_back(bb);
                 }
 				else {
@@ -799,10 +825,6 @@ namespace corona
 
 			if (table_header->root->is_full()) {
 				table_header->root->split_root(cache.get(), 0);
-			}
-
-			if (file_name.find("search") != std::string::npos) {
-				system_monitoring_interface::active_mon->log_information(std::format("put {0}, {1} rows", file_name, table_header->count), __FILE__, __LINE__);
 			}
 
 			return new_record;
@@ -1068,6 +1090,7 @@ namespace corona
 			read_scope_lock lockit(locker);
 			auto foundit = leaf_blocks.find(_ref.location);
 			if (foundit != std::end(leaf_blocks)) {
+				foundit->second->accessed();
 				return foundit->second;
 			}
 		}
@@ -1085,6 +1108,7 @@ namespace corona
 			read_scope_lock lockit(locker);
 			auto foundit = branch_blocks.find(_ref.location);
 			if (foundit != std::end(branch_blocks)) {
+				foundit->second->accessed();
 				return foundit->second;
 			}
 		}
@@ -1502,7 +1526,6 @@ namespace corona
 
 	json xbranch_block::get_info(xblock_cache* cache)
 	{
-		read_scope_lock lockit(locker);
 		using namespace std::literals;
 
 		json_parser jp;
