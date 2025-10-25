@@ -311,13 +311,13 @@ namespace corona {
 		job_notify jobNotify;
 		timer tx;
 
-		if (notification_handle) {
-			jobNotify.setSignal(notification_handle);
-		}
-
 		if (function_to_run)
 		{
 			function_to_run();
+		}
+
+		if (notification_handle) {
+			jobNotify.setSignal(notification_handle);
 		}
 
 		jobNotify.shouldDelete = true;

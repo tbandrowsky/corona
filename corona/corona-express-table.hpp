@@ -562,10 +562,10 @@ namespace corona
 
 	class xblock_cache
 	{
+		CRITICAL_SECTION cs;
 		std::map<int64_t, xleaf_block *> leaf_blocks;
 		std::map<int64_t, xbranch_block *> branch_blocks;
 		file_block_interface* fb;
-		shared_lockable locker;
 		int64_t maximum_memory_bytes;
 		time_t block_lifetime;
 
@@ -576,6 +576,7 @@ namespace corona
 			fb = _fb;
 			maximum_memory_bytes = _maximum_memory_bytes;
 			block_lifetime = 0;
+			::InitializeCriticalSection(&cs);
 		}
 
 		virtual ~xblock_cache()
@@ -602,7 +603,7 @@ namespace corona
 
 		void empty()
 		{
-			write_scope_lock lockit(locker);
+			::EnterCriticalSection(&cs);
 
 			std::vector<std::pair<int64_t, xleaf_block*>> leaf_block_list;
 
@@ -638,6 +639,8 @@ namespace corona
             for (auto& bb : branch_block_list) {
                 branch_blocks.insert(bb);
             }
+
+			::LeaveCriticalSection(&cs);
 		}
 	};
 
@@ -1086,37 +1089,42 @@ namespace corona
 
 	xleaf_block *xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
-		write_scope_lock lockit(locker);
+		::EnterCriticalSection(&cs);
 
 		auto foundit = leaf_blocks.find(_ref.location);
 		if (foundit != std::end(leaf_blocks)) {
 			foundit->second->accessed();
+			::LeaveCriticalSection(&cs);
 			return foundit->second;
 		}
 
 		auto new_block = new xleaf_block(fb, _ref);
 		leaf_blocks.insert_or_assign(_ref.location, new_block);
+		::LeaveCriticalSection(&cs);
 
 		return new_block;
 	}
 
 	xbranch_block *xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
+		::EnterCriticalSection(&cs);
 
-		write_scope_lock lockit(locker);
 		auto foundit = branch_blocks.find(_ref.location);
 		if (foundit != std::end(branch_blocks)) {
 			foundit->second->accessed();
+			::LeaveCriticalSection(&cs);
 			return foundit->second;
 		}
 		auto new_block = new xbranch_block(fb, _ref, _retain);
 		branch_blocks.insert_or_assign(_ref.location, new_block);
+
+		::LeaveCriticalSection(&cs);
 		return new_block;
 	}
 
 	xleaf_block *xblock_cache::create_leaf_block()
 	{
-		write_scope_lock lockit(locker);
+		::EnterCriticalSection(&cs);
 		xrecord_block_header header;
 
 		header.type = xblock_types::xb_leaf;
@@ -1124,12 +1132,13 @@ namespace corona
 
 		auto result = new xleaf_block(fb, header);
 		leaf_blocks.insert_or_assign(result->get_reference().location, result);
+		::LeaveCriticalSection(&cs);
 		return result;
 	}
 
 	xbranch_block *xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
 	{
-		write_scope_lock lockit(locker);
+		::EnterCriticalSection(&cs);
 		xrecord_block_header header;
 
 		header.type = xblock_types::xb_branch;
@@ -1137,6 +1146,7 @@ namespace corona
 
 		auto result = new xbranch_block(fb, header, _retain);
 		branch_blocks.insert_or_assign(result->get_reference().location, result);
+		::LeaveCriticalSection(&cs);
 		return result;
 	}
 
@@ -1145,7 +1155,7 @@ namespace corona
 		date_time current = date_time::now();
 		int64_t total_memory;
 
-		write_scope_lock lockit(locker);
+		::EnterCriticalSection(&cs);
 
 		total_memory = 0;
 		std::vector<HANDLE> wait_handles;
@@ -1154,7 +1164,7 @@ namespace corona
 		{
 			auto ptr = sv.second;
             HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
-			global_job_queue->submit_job([this, &ptr, &total_memory]() {
+			global_job_queue->submit_job([this, ptr, &total_memory]() {
                 int64_t used_memory = ptr->save();
                 ::InterlockedAdd64(&total_memory, used_memory);
 				}, ready);
@@ -1165,7 +1175,7 @@ namespace corona
 		{
 			auto ptr = sv.second;
 			HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
-			global_job_queue->submit_job([this, &ptr, &total_memory]() {
+			global_job_queue->submit_job([this, ptr, &total_memory]() {
 				int64_t used_memory = ptr->save();
 				::InterlockedAdd64(&total_memory, used_memory);
 				}, ready);
@@ -1174,7 +1184,12 @@ namespace corona
 
 		for (auto handle : wait_handles) {
 			WaitForSingleObject(handle, INFINITE);
+			CloseHandle(handle);
 		}
+
+		wait_handles.clear();
+
+		::LeaveCriticalSection(&cs);
 
 		return total_memory;
 	}
@@ -1449,7 +1464,7 @@ namespace corona
 		result.is_any = false;
 		result.count = 0;
 
-		xblock_cache temp_cache(cache->get_fb());
+//		xblock_cache temp_cache(cache->get_fb());
 
 		auto iter = find_xrecord(_key);
 		while (iter != records.end() and iter->first <= _key)
@@ -1458,12 +1473,12 @@ namespace corona
 			auto& found_block = iter->second;
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
-				auto branch_block = temp_cache.open_branch_block(found_block, false);
-				temp = branch_block->for_each(&temp_cache, _key, _process);
+				auto branch_block = cache->open_branch_block(found_block, false);
+				temp = branch_block->for_each(cache, _key, _process);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
-				auto leaf_block = temp_cache.open_leaf_block(found_block);
+				auto leaf_block = cache->open_leaf_block(found_block);
 				temp = leaf_block->for_each(_key, _process);
 			}
 			else
@@ -1484,8 +1499,6 @@ namespace corona
 
 		std::vector<xrecord> result = {};
 
-		xblock_cache temp_cache(cache->get_fb());
-
 		if (_key.empty())
 		{
 			for (auto& item : records)
@@ -1495,12 +1508,12 @@ namespace corona
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = temp_cache.open_branch_block(found_block, false);
-					temp = branch_block->select(&temp_cache, _key, _process);
+					auto branch_block = cache->open_branch_block(found_block, false);
+					temp = branch_block->select(cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
-					auto leaf_block = temp_cache.open_leaf_block(found_block);
+					auto leaf_block = cache->open_leaf_block(found_block);
 					temp = leaf_block->select(_key, _process);
 				}
 				else
@@ -1517,12 +1530,12 @@ namespace corona
 				auto& found_block = iter->second;
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
-					auto branch_block = temp_cache.open_branch_block(found_block, false);
-					temp = branch_block->select(&temp_cache, _key, _process);
+					auto branch_block = cache->open_branch_block(found_block, false);
+					temp = branch_block->select(cache, _key, _process);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
-					auto leaf_block = temp_cache.open_leaf_block(found_block);
+					auto leaf_block = cache->open_leaf_block(found_block);
 					temp = leaf_block->select(_key, _process);
 				}
 				else
