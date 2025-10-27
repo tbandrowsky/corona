@@ -164,7 +164,7 @@ namespace corona
 		bool dirty;
 	protected:
 
-		shared_lockable locker;
+        friend class xblock_cache;
 
 		mutable xrecord_block_header						xheader;
 		std::map<xrecord, data_type>						records;
@@ -241,8 +241,6 @@ namespace corona
 
 		xblock_ref get_reference()
 		{
-			read_scope_lock lockit(locker);
-
 			xblock_ref ref;
 			ref.block_type = xheader.type;
 			ref.location = data_block::header.block_location;
@@ -256,14 +254,11 @@ namespace corona
 
 		xrecord get_start_key()
 		{
-			read_scope_lock lockit(locker);
-
 			return get_start_key_nl();
 		}
 
 		virtual void release()
 		{
-			write_scope_lock lockit(locker);
 			dirty = true;
 			data_block::erase(fb);
 		}
@@ -271,28 +266,23 @@ namespace corona
 
 		bool is_full()
 		{
-			read_scope_lock lockit(locker);
 			int s = records.size() + 1;
 			return s >= xrecords_per_block;
 		}
 
 		bool is_empty()
 		{
-			read_scope_lock lockit(locker);
-
 			return records.size() == 0;
 		}
 
 		virtual void clear()
 		{
-			write_scope_lock lockit(locker);
 			dirty = true;
 			records.clear();
 		}
 
 		int64_t save()
 		{
-			write_scope_lock lockit(locker);
 			if (dirty) {
 				save_nl();
 			}
@@ -307,7 +297,6 @@ namespace corona
 
             HANDLE hwait = CreateEvent(nullptr, TRUE, FALSE, nullptr);
             global_job_queue->submit_job([this]() {
-                write_scope_lock lockit(locker);
                 if (dirty) {
                     save_nl();
                 }
@@ -422,7 +411,7 @@ namespace corona
 	{
 	public:
 
-		xleaf_block(file_block_interface *_file, xrecord_block_header& _header) : 
+		xleaf_block(file_block_interface *_file, xrecord_block_header& _header, bool _retain) : 
 			xrecord_block(_file, _header)
 		{
 			
@@ -436,8 +425,6 @@ namespace corona
 
 		bool put(int _indent, const xrecord& key, const xrecord& value)
 		{
-			write_scope_lock lockit(locker);
-
 			dirtied();
 
 			if (records.size() >= xrecords_per_block)
@@ -457,8 +444,6 @@ namespace corona
 
 		xrecord get(const xrecord& key)
 		{
-			read_scope_lock lockit(locker);
-
 			xrecord temp;
 			auto ri = records.find(key);
 			if (ri != records.end()) {
@@ -469,8 +454,6 @@ namespace corona
 
 		void erase(const xrecord& key)
 		{
-			write_scope_lock lockit(locker);
-
 			dirtied();
 			records.erase(key);
 			xheader.count = records.size();
@@ -645,63 +628,31 @@ namespace corona
 			hlocked = CreateMutex(nullptr, FALSE, nullptr);
 		}
 
-		xblock_leaseable(const xblock_leaseable& _src)
+		xblock_leaseable(const xblock_leaseable& _src) = delete;
+		xblock_leaseable(xblock_leaseable&& _src) = delete;
+		xblock_leaseable& operator =(const xblock_leaseable& _src) = delete;
+		xblock_leaseable& operator = (xblock_leaseable&& _src) = delete;
+
+		bool empty()
 		{
-			block = _src.block;
-			hlocked = CreateMutex(nullptr, FALSE, nullptr);
+			return block == nullptr;
 		}
 
-		xblock_leaseable(xblock_leaseable&& _src)
-		{
-			block = nullptr;
-			hlocked = nullptr;
-			std::swap(block, _src.block);
-			std::swap(hlocked, _src.hlocked);
-		}
-
-		xblock_leaseable& operator =(const xblock_leaseable& _src)
-		{
-			block = _src.block;
-			hlocked = CreateMutex(nullptr, FALSE, nullptr);
-			return *this;
-		}
-
-		xblock_leaseable& operator = (xblock_leaseable&& _src)
-		{
-			std::swap(block, _src.block);
-			std::swap(hlocked, _src.hlocked);
-			return *this;
-		}
-
-		xblock_leaseable(block_type *_block)
+		void open(block_type *_block)
 		{
 			block = _block;
-			hlocked = CreateMutex(nullptr, FALSE, nullptr);
 		}
 
-		~xblock_leaseable()
-		{
-			release();
-		}
-
-		void release()
+		void close()
 		{
 			if (block)
 				delete block;
 			block = nullptr;
-			if (hlocked)
-				CloseHandle(hlocked);
-			hlocked = nullptr;
-		}
-
-		void forget()
-		{
-			block = nullptr;
-			hlocked = nullptr;
 		}
 
         xblock_lease<block_type> lease()
         {
+			block->accessed();
             return xblock_lease<block_type>(block, hlocked);
         }
 
@@ -709,6 +660,14 @@ namespace corona
 		{
 			return block;
 		}
+
+		~xblock_leaseable()
+		{
+			if (hlocked)
+				CloseHandle(hlocked);
+			hlocked = nullptr;
+		}
+
 	};
 
 	class xblock_cache
@@ -752,41 +711,24 @@ namespace corona
 
 		void empty()
 		{
-
-			std::vector<std::pair<int64_t, xblock_leaseable<xleaf_block>>> leaf_block_list;
-
             for (auto& lb : leaf_blocks) {
-                if (lb.second->age() < 5) {
-                    leaf_block_list.push_back(lb);
-					lb.second.forget();
+                if (lb.second->age() > 5) {
+                    lb.second.close();
                 }
 			}
-			leaf_blocks.clear();
-
-            for (auto& lb : leaf_block_list) {
-                leaf_blocks.insert(lb);
-            }
-
-            std::vector<std::pair<int64_t, xblock_leaseable<xbranch_block>>> branch_block_list;
-
+			
 			for (auto& bb : branch_blocks) {
                 if (bb.second->retain or bb.second->age() < 5) {
-                    branch_block_list.push_back(bb);
-					bb.second.forget();
-                }
-			}
-			branch_blocks.clear();
-
-            for (auto& bb : branch_block_list) {
-                branch_blocks.insert(bb);
-            }
-
+					if (bb.second->age() > 5) {
+						bb.second.close();
+					}
+				}
+			}			
 		}
 
-		xblock_lease<xbranch_block> split_branch(xblock_cache* cache, xblock_lease<xbranch_block>& _block, int _indent);
-		xblock_lease<xleaf_block> split_leaf(xblock_cache* cache, xblock_lease<xleaf_block>& _block, int _indent);
-		void split_root(xblock_cache* cache, int _indent);
-
+		xblock_lease<xbranch_block> split_branch(xblock_lease<xbranch_block>& _block, int _indent);
+		xblock_lease<xleaf_block> split_leaf(xblock_lease<xleaf_block>& _block, int _indent);
+		void split_root(xblock_lease<xbranch_block>& _block, int _indent);
 	};
 
 	class xtable_header : public data_block
@@ -973,7 +915,7 @@ namespace corona
 			}
 
 			if (root->is_full()) {
-				root->split_root(cache.get(), 0);
+				cache->split_root(root, 0);
 			}
 
 			return new_record;
@@ -1247,13 +1189,14 @@ namespace corona
 	{
 		auto foundit = leaf_blocks.find(_ref.location);
 		if (foundit != std::end(leaf_blocks)) {
-			foundit->second->accessed();
-			return foundit->second.lease();
+			if (not foundit->second.empty()) {
+				return foundit->second.lease();
+			}
 		}
 
 		auto new_block = new xleaf_block(fb, _ref);
-		xblock_leaseable<xleaf_block> block(new_block);
-		leaf_blocks.insert_or_assign(_ref.location, new_block);
+		auto loc = new_block->get_reference().location;
+		leaf_blocks[loc].open(new_block);
 
 		return open_leaf_block(_ref);
 	}
@@ -1262,12 +1205,14 @@ namespace corona
 	{
 		auto foundit = branch_blocks.find(_ref.location);
 		if (foundit != std::end(branch_blocks)) {
-			foundit->second->accessed();
-			return foundit->second.lease();
+			if (not foundit->second.empty()) {
+				return foundit->second.lease();
+			}
 		}
+
 		auto new_block = new xbranch_block(fb, _ref, _retain);
-		xblock_leaseable<xbranch_block> block(new_block);
-		branch_blocks.insert_or_assign(_ref.location, block);
+		auto loc = new_block->get_reference().location;
+		branch_blocks[loc].open(new_block);
 
 		return open_branch_block(_ref, _retain);
 	}
@@ -1279,11 +1224,11 @@ namespace corona
 		header.type = xblock_types::xb_leaf;
 		header.content_type = xblock_types::xb_record;
 
-		auto new_block = new xleaf_block(fb, header);
-		xblock_leaseable<xleaf_block> block(new_block);
+		auto new_block = new xleaf_block(fb, header, false);
 		auto loc = new_block->get_reference().location;
-		leaf_blocks.insert_or_assign(loc, block);
-		return leaf_blocks[loc].lease();
+        leaf_blocks[loc].open(new_block);
+		auto temp = leaf_blocks[loc].lease();
+		return temp;
 	}
 
 	xblock_lease<xbranch_block> xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
@@ -1294,10 +1239,10 @@ namespace corona
 		header.content_type = _content_type;
 
 		auto new_block = new xbranch_block(fb, header, _retain);
-		xblock_leaseable<xbranch_block> block(new_block);
 		auto loc = new_block->get_reference().location;
-		branch_blocks.insert_or_assign(loc, block);
-		return branch_blocks[loc].lease();
+		branch_blocks[loc].open(new_block);
+		auto temp = branch_blocks[loc].lease();
+		return temp;
 	}
 
 	int64_t xblock_cache::save()
@@ -1311,15 +1256,13 @@ namespace corona
 
 		for (auto& sv : branch_blocks)
 		{
-			auto& ptr = sv.second;
-            HANDLE ready = ptr->save_async(&total_memory);
+            HANDLE ready = sv.second->save_async(&total_memory);
             wait_handles.push_back(ready);
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
-			auto ptr = sv.second;
-			HANDLE ready = ptr->save_async(&total_memory);
+			HANDLE ready = sv.second->save_async(&total_memory);
 			wait_handles.push_back(ready);
 		}
 
@@ -1383,76 +1326,10 @@ namespace corona
 	}
 
 
-	void xblock_cache::split_root(xblock_cache* cache, int _indent)
-	{
-		write_scope_lock lock_me(locker);
-		/************************************************
-
-		split into children from this:
-
-		Block A - Full [ 0........n ]
-
-		to this
-
-			  Block A - [ Block B, Block C ]
-					//                  \\
-				   //                    \\
-		Block B - [ 0...3/4n ]        Block C - [ 3/4n...n ]
-
-		***********************************************/
-
-		// may as well rename this to soiled for some laughes,
-		// and following along with that bit, I can safely put on my 
-		// programming redneck and say we know this is about to get 
-		// dirty so lets just get this done.
-		dirtied();
-
-		// newly created blocks are always created dirty, as like
-		// think about it, why would you create a block and not use it...
-		auto new_child1 = cache->create_branch_block(xheader.content_type, false);
-		auto new_child2 = cache->create_branch_block(xheader.content_type, false);
-
-		xheader.content_type = xblock_types::xb_branch;
-
-		int64_t rsz = records.size() / 2i64;
-		int64_t count = 0;
-
-		for (auto r : records)
-		{
-			if (count < rsz)
-			{
-				new_child1->records.insert_or_assign(r.first, r.second);
-			}
-			else
-			{
-				new_child2->records.insert_or_assign(r.first, r.second);
-			}
-			count++;
-		}
-
-		new_child1->save();
-		new_child2->save();
-		new_child1->xheader.count = new_child1->records.size();
-		new_child2->xheader.count = new_child2->records.size();
-
-		xblock_ref child1_ref = new_child1->get_reference();
-		xblock_ref child2_ref = new_child2->get_reference();
-
-		// we find the keys for the new children so that we can insert
-		// then right things into our map
-		xrecord child1_key = new_child1->get_start_key_nl();
-		xrecord child2_key = new_child2->get_start_key_nl();
-
-		records.clear();
-		records.insert_or_assign(child1_key, child1_ref);
-		records.insert_or_assign(child2_key, child2_ref);
-		xheader.count = records.size();
-	}
 
 	bool xbranch_block::put(xblock_cache* cache, int _indent, const xrecord& _key, const xrecord& _value)
 	{
 		bool added = false;
-		write_scope_lock lock_me(locker);
 
 		if constexpr (debug_xblock) {
 			std::string indent(_indent * 4, ' ');
@@ -1470,7 +1347,7 @@ namespace corona
 			auto old_key = branch_block->get_start_key();
 			added = branch_block->put(cache, _indent, _key, _value);
 			if (branch_block->is_full()) {
-				auto new_branch = cache->split_branch(cache, branch_block, _indent);
+				auto new_branch = cache->split_branch(branch_block, _indent);
 				auto new_branch_key = new_branch->get_start_key();
 				auto new_branch_ref = new_branch->get_reference();
 				records.insert_or_assign(new_branch_key, new_branch_ref);
@@ -1487,7 +1364,7 @@ namespace corona
 			auto old_key = leaf_block->get_start_key();
 			added = leaf_block->put(_indent, _key, _value);
 			if (leaf_block->is_full()) {
-				auto new_leaf = cache->split_leaf(cache, leaf_block, _indent);
+				auto new_leaf = cache->split_leaf(leaf_block, _indent);
 				auto new_leaf_key = new_leaf->get_start_key();
 				auto new_leaf_ref = new_leaf->get_reference();
 				if constexpr (debug_branch) {
@@ -1527,8 +1404,6 @@ namespace corona
 
 	xrecord xbranch_block::get(xblock_cache* cache, const xrecord& _key)
 	{
-		read_scope_lock lock_me(locker);
-
 		xrecord result;
 		xblock_ref found_block = find_block(_key);
 
@@ -1547,8 +1422,6 @@ namespace corona
 
 	void xbranch_block::erase(xblock_cache* cache, const xrecord& _key)
 	{
-		write_scope_lock lock_me(locker);
-
 		dirtied();
 
 		xblock_ref found_block = find_block(_key);
@@ -1572,7 +1445,6 @@ namespace corona
 
 	void xbranch_block::clear(xblock_cache* cache)
 	{
-		write_scope_lock lock_me(locker);
 		dirtied();
 
 		for (auto item : records) {
@@ -1596,8 +1468,6 @@ namespace corona
 
 	xfor_each_result xbranch_block::for_each(xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 	{
-		read_scope_lock lock_me(locker);
-
 		xfor_each_result result;
 		result.is_all = false;
 		result.is_any = false;
@@ -1634,8 +1504,6 @@ namespace corona
 
 	std::vector<xrecord> xbranch_block::select(xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 	{
-		read_scope_lock lock_me(locker);
-
 		std::vector<xrecord> result = {};
 
 		if (_key.empty())
@@ -1729,8 +1597,72 @@ namespace corona
 		return result;
 	}
 
+	void xblock_cache::split_root(xblock_lease<xbranch_block>& _root, int _indent)
+	{
+		/************************************************
 
-	xblock_lease<xbranch_block> xblock_cache::split_branch(xblock_cache* cache, xbranch_block* _block, int _indent)
+		split into children from this:
+
+		Block A - Full [ 0........n ]
+
+		to this
+
+			  Block A - [ Block B, Block C ]
+					//                  \\
+				   //                    \\
+		Block B - [ 0...3/4n ]        Block C - [ 3/4n...n ]
+
+		***********************************************/
+
+		// may as well rename this to soiled for some laughes,
+		// and following along with that bit, I can safely put on my 
+		// programming redneck and say we know this is about to get 
+		// dirty so lets just get this done.
+		_root->dirtied();
+
+		// newly created blocks are always created dirty, as like
+		// think about it, why would you create a block and not use it...
+		auto new_child1 = create_branch_block(_root->xheader.content_type, false);
+		auto new_child2 = create_branch_block(_root->xheader.content_type, false);
+
+		_root->xheader.content_type = xblock_types::xb_branch;
+
+		int64_t rsz = _root->records.size() / 2i64;
+		int64_t count = 0;
+
+		for (auto r : _root->records)
+		{
+			if (count < rsz)
+			{
+				new_child1->records.insert_or_assign(r.first, r.second);
+			}
+			else
+			{
+				new_child2->records.insert_or_assign(r.first, r.second);
+			}
+			count++;
+		}
+
+		new_child1->save();
+		new_child2->save();
+		new_child1->xheader.count = new_child1->records.size();
+		new_child2->xheader.count = new_child2->records.size();
+
+		xblock_ref child1_ref = new_child1->get_reference();
+		xblock_ref child2_ref = new_child2->get_reference();
+
+		// we find the keys for the new children so that we can insert
+		// then right things into our map
+		xrecord child1_key = new_child1->get_start_key_nl();
+		xrecord child2_key = new_child2->get_start_key_nl();
+
+		_root->records.clear();
+		_root->records.insert_or_assign(child1_key, child1_ref);
+		_root->records.insert_or_assign(child2_key, child2_ref);
+		_root->xheader.count = _root->records.size();
+	}
+
+	xblock_lease<xbranch_block> xblock_cache::split_branch(xblock_lease<xbranch_block>& _block, int _indent)
 	{
 
 		/************************************************
@@ -1746,7 +1678,7 @@ namespace corona
 		***********************************************/
 
 
-		auto new_xb = cache->create_branch_block(_block->xheader.content_type, false);
+		auto new_xb = create_branch_block(_block->xheader.content_type, false);
 
 		int64_t rsz = _block->records.size() / 2;
 
@@ -1776,7 +1708,7 @@ namespace corona
 	}
 
 
-	xblock_lease<xbranch_block> xblock_cache::split_leaf(xblock_cache* cache, xleaf_block *_block, int _indent)
+	xblock_lease<xleaf_block> xblock_cache::split_leaf(xblock_lease<xleaf_block>& _block, int _indent)
 	{
 
 		/************************************************
@@ -1791,18 +1723,7 @@ namespace corona
 
 		***********************************************/
 
-		// As I might say in Cleveland, I should rename this to soiled, because
-		// were going to soil ourselves in this one as its about to get real.
-		// As a characterization of the data work here, it is, 
-		// although the algorithm is simple.  If this block is full,
-		// we add another one split it into two.  Much will change in all both blocks.		
-
-		// in this case, createing a new block always makes it dirty,
-		// so we have ourselves and this block both covered. We dirtied ourselves
-		// up above with the dirtied calls, and new blocks are created always 
-		// marked dirty from the start.
-
-		auto new_xb = cache->create_leaf_block();
+		auto new_xb = create_leaf_block();
 
 		int64_t rsz = _block->records.size() / 2;
 
@@ -1941,7 +1862,7 @@ namespace corona
 				break;
 			}
 			if (pbranch->is_full()) {
-				pbranch->split_root(&cache, 0);
+				cache.split_root(pbranch, 0);
 			}
 		}
 
