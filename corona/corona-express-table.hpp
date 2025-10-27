@@ -299,6 +299,22 @@ namespace corona
 			return size();
 		}
 
+		HANDLE save_async(int64_t *_size)
+		{
+			if (_size) {
+				InterlockedAdd64(_size, size());
+			}
+
+            HANDLE hwait = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+            global_job_queue->submit_job([this]() {
+                write_scope_lock lockit(locker);
+                if (dirty) {
+                    save_nl();
+                }
+                }, hwait);
+			return hwait;
+		}
+
 	protected:
 
 		virtual char* before_read(int32_t _size)  override
@@ -523,9 +539,6 @@ namespace corona
 		xblock_ref find_block(const xrecord& key);
 		std::map<xrecord, xblock_ref>::iterator find_xrecord(const xrecord& key);
 
-		static xbranch_block *split_branch(xblock_cache* cache, xbranch_block *_block, int _indent);
-		static xleaf_block *split_leaf(xblock_cache* cache, xleaf_block* _block, int _indent);
-
 	public:
 
 		bool retain;
@@ -541,8 +554,6 @@ namespace corona
 		{
 			;
 		}
-
-		void split_root(xblock_cache* cache, int _indent);
 
 		virtual bool put(xblock_cache* cache, int _indent, const xrecord& _key, const xrecord& _value);
 
@@ -662,6 +673,12 @@ namespace corona
 			return *this;
 		}
 
+		xblock_leaseable(block_type *_block)
+		{
+			block = _block;
+			hlocked = CreateMutex(nullptr, FALSE, nullptr);
+		}
+
 		~xblock_leaseable()
 		{
 			release();
@@ -744,7 +761,6 @@ namespace corona
 					lb.second.forget();
                 }
 			}
-
 			leaf_blocks.clear();
 
             for (auto& lb : leaf_block_list) {
@@ -766,8 +782,12 @@ namespace corona
             }
 
 		}
-	};
 
+		xblock_lease<xbranch_block> split_branch(xblock_cache* cache, xblock_lease<xbranch_block>& _block, int _indent);
+		xblock_lease<xleaf_block> split_leaf(xblock_cache* cache, xblock_lease<xleaf_block>& _block, int _indent);
+		void split_root(xblock_cache* cache, int _indent);
+
+	};
 
 	class xtable_header : public data_block
 	{
@@ -1228,7 +1248,7 @@ namespace corona
 		auto foundit = leaf_blocks.find(_ref.location);
 		if (foundit != std::end(leaf_blocks)) {
 			foundit->second->accessed();
-			return foundit->second;
+			return foundit->second.lease();
 		}
 
 		auto new_block = new xleaf_block(fb, _ref);
@@ -1243,7 +1263,7 @@ namespace corona
 		auto foundit = branch_blocks.find(_ref.location);
 		if (foundit != std::end(branch_blocks)) {
 			foundit->second->accessed();
-			return foundit->second->lease();
+			return foundit->second.lease();
 		}
 		auto new_block = new xbranch_block(fb, _ref, _retain);
 		xblock_leaseable<xbranch_block> block(new_block);
@@ -1259,10 +1279,11 @@ namespace corona
 		header.type = xblock_types::xb_leaf;
 		header.content_type = xblock_types::xb_record;
 
-		auto result = new xleaf_block(fb, header);
+		auto new_block = new xleaf_block(fb, header);
 		xblock_leaseable<xleaf_block> block(new_block);
-		leaf_blocks.insert_or_assign(result->get_reference().location, block);
-		return leaf_blocks[result->get_reference().location]->lease();
+		auto loc = new_block->get_reference().location;
+		leaf_blocks.insert_or_assign(loc, block);
+		return leaf_blocks[loc].lease();
 	}
 
 	xblock_lease<xbranch_block> xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
@@ -1272,10 +1293,11 @@ namespace corona
 		header.type = xblock_types::xb_branch;
 		header.content_type = _content_type;
 
-		auto result = new xbranch_block(fb, header, _retain);
+		auto new_block = new xbranch_block(fb, header, _retain);
 		xblock_leaseable<xbranch_block> block(new_block);
-		branch_blocks.insert_or_assign(result->get_reference().location, block);
-		return branch_blocks[result->get_reference().location]->lease();
+		auto loc = new_block->get_reference().location;
+		branch_blocks.insert_or_assign(loc, block);
+		return branch_blocks[loc].lease();
 	}
 
 	int64_t xblock_cache::save()
@@ -1289,23 +1311,15 @@ namespace corona
 
 		for (auto& sv : branch_blocks)
 		{
-			auto ptr = sv.second;
-            HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
-			global_job_queue->submit_job([this, ptr, &total_memory]() {
-                int64_t used_memory = ptr->save();
-                ::InterlockedAdd64(&total_memory, used_memory);
-				}, ready);
+			auto& ptr = sv.second;
+            HANDLE ready = ptr->save_async(&total_memory);
             wait_handles.push_back(ready);
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
 			auto ptr = sv.second;
-			HANDLE ready = CreateMutex(nullptr, FALSE, nullptr);
-			global_job_queue->submit_job([this, ptr, &total_memory]() {
-				int64_t used_memory = ptr->save();
-				::InterlockedAdd64(&total_memory, used_memory);
-				}, ready);
+			HANDLE ready = ptr->save_async(&total_memory);
 			wait_handles.push_back(ready);
 		}
 
@@ -1369,7 +1383,7 @@ namespace corona
 	}
 
 
-	void xbranch_block::split_root(xblock_cache* cache, int _indent)
+	void xblock_cache::split_root(xblock_cache* cache, int _indent)
 	{
 		write_scope_lock lock_me(locker);
 		/************************************************
@@ -1456,7 +1470,7 @@ namespace corona
 			auto old_key = branch_block->get_start_key();
 			added = branch_block->put(cache, _indent, _key, _value);
 			if (branch_block->is_full()) {
-				auto new_branch = split_branch(cache, branch_block, _indent);
+				auto new_branch = cache->split_branch(cache, branch_block, _indent);
 				auto new_branch_key = new_branch->get_start_key();
 				auto new_branch_ref = new_branch->get_reference();
 				records.insert_or_assign(new_branch_key, new_branch_ref);
@@ -1473,7 +1487,7 @@ namespace corona
 			auto old_key = leaf_block->get_start_key();
 			added = leaf_block->put(_indent, _key, _value);
 			if (leaf_block->is_full()) {
-				auto new_leaf = split_leaf(cache, leaf_block, _indent);
+				auto new_leaf = cache->split_leaf(cache, leaf_block, _indent);
 				auto new_leaf_key = new_leaf->get_start_key();
 				auto new_leaf_ref = new_leaf->get_reference();
 				if constexpr (debug_branch) {
@@ -1716,7 +1730,7 @@ namespace corona
 	}
 
 
-	xbranch_block *xbranch_block::split_branch(xblock_cache* cache, xbranch_block *_block, int _indent)
+	xblock_lease<xbranch_block> xblock_cache::split_branch(xblock_cache* cache, xbranch_block* _block, int _indent)
 	{
 
 		/************************************************
@@ -1762,7 +1776,7 @@ namespace corona
 	}
 
 
-	xleaf_block *xbranch_block::split_leaf(xblock_cache* cache, xleaf_block *_block, int _indent)
+	xblock_lease<xbranch_block> xblock_cache::split_leaf(xblock_cache* cache, xleaf_block *_block, int _indent)
 	{
 
 		/************************************************
