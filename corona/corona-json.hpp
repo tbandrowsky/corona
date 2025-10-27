@@ -2739,6 +2739,20 @@ namespace corona
 			return *this;
 		}
 
+		json sort(std::vector<std::string> keys)
+		{
+			if (not array_impl()) {
+				throw std::logic_error("Not an array");
+			}
+			auto array_stuff = array_impl();
+			std::sort(array_stuff->elements.begin(), array_stuff->elements.end(), [](std::shared_ptr<json_value>& a, std::shared_ptr<json_value>& b)->bool 
+			{
+					json ax(a), bx(b);
+					return ax.compare(bx) < 0;
+			});
+			return *this;
+		}
+
 		json for_each_element(std::function<void(json& _item)> _transform)
 		{
 			if (not array_impl()) {

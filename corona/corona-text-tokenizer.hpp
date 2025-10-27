@@ -42,7 +42,7 @@ namespace corona
 
     private:
         int min_word_length = 2;
-        std::set<std::string> stop_words = { "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by" };
+        std::set<std::string> stop_words = { "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "junior", "jr", "senior", "sr"};
 
         std::string normalize_word(const std::string& word) {
             std::string normalized = word;

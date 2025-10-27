@@ -819,7 +819,7 @@ namespace corona
 			return results;
 		}
 
-		virtual bool put(json values) override
+		virtual bool put(json& values) override
 		{
 			sql_statement stmt;
 
@@ -828,7 +828,7 @@ namespace corona
 			return true;
 		}
 
-		virtual void put_array(json values) override
+		virtual void put_array(json& values) override
 		{
 			for (auto obj : values) {
 				put(obj);

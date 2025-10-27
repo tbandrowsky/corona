@@ -11,6 +11,8 @@ namespace corona
 {
 	class xblock_cache;
 
+	const int block_age_seconds = 2;
+
 	enum xblock_types
 	{
 		xb_none = 0,
@@ -105,8 +107,8 @@ namespace corona
 
 		virtual relative_ptr_type get_location() = 0;
 		virtual json get(json _object) = 0;
-		virtual bool put(json _object) = 0;
-		virtual void put_array(json _object) = 0;
+		virtual bool put(json& _object) = 0;
+		virtual void put_array(json& _object) = 0;
 		virtual void erase(json _object)= 0;
 		virtual void erase_array(json _object) = 0;
 		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) = 0;
@@ -162,6 +164,8 @@ namespace corona
 	class xrecord_block : protected data_block
 	{
 		bool dirty;
+		bool retain;
+
 	protected:
 
         friend class xblock_cache;
@@ -172,7 +176,7 @@ namespace corona
 
 		friend class xbranch_block;
 		friend class xleaf_block;
-
+		
 		virtual xrecord get_start_key_nl()
 		{
 			xrecord key;
@@ -184,7 +188,7 @@ namespace corona
 			return key;
 		}
 
-
+	
 		void save_nl()
 		{
 			if (data_block::header.block_location >= 0) {
@@ -204,30 +208,37 @@ namespace corona
 
 	public:
 
-		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src)
+		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src, bool _retain)
 		{
 			fb = _fb;
 			xheader = _src;
 			xheader.count = 0;
 			save_nl();
 			dirty = true;
+			retain = _retain;
             last_access = time(nullptr);
 		}
 
-		xrecord_block(file_block_interface* _fb, int64_t _location)
+		xrecord_block(file_block_interface* _fb, int64_t _location, bool _retain)
 		{
-			dirty = false;
 			if (_location == null_row) {
 				throw std::invalid_argument("Invalid location");
 			}
 			fb = _fb;
+			retain = _retain;
 			read(fb, _location);
 			last_access = time(nullptr);
+			dirty = false;
 		}
 
 		void accessed()
 		{
             last_access = time(nullptr);
+		}
+
+		bool get_retain()
+		{
+			return retain;
 		}
 
 		time_t age()
@@ -412,13 +423,13 @@ namespace corona
 	public:
 
 		xleaf_block(file_block_interface *_file, xrecord_block_header& _header, bool _retain) : 
-			xrecord_block(_file, _header)
+			xrecord_block(_file, _header, _retain)
 		{
 			
 		}
 
-		xleaf_block(file_block_interface* _file, xblock_ref _ref) :
-			xrecord_block(_file, _ref.location)
+		xleaf_block(file_block_interface* _file, xblock_ref _ref, bool _retain) :
+			xrecord_block(_file, _ref.location, _retain)
 		{
 			;
 		}
@@ -524,16 +535,14 @@ namespace corona
 
 	public:
 
-		bool retain;
-
 		xbranch_block(file_block_interface* _file, xrecord_block_header& _header, bool _retain) :
-			xrecord_block(_file, _header), retain(_retain)
+			xrecord_block(_file, _header, _retain)
 		{
 			;
 		}
 
 		xbranch_block(file_block_interface* _file, xblock_ref _ref, bool _retain) :
-			xrecord_block(_file, _ref.location), retain(_retain)
+			xrecord_block(_file, _ref.location, _retain)
 		{
 			;
 		}
@@ -650,6 +659,17 @@ namespace corona
 			block = nullptr;
 		}
 
+		void check()
+		{
+			if (block) {
+				block->save();
+				if (block->age() > block_age_seconds and block->get_retain() == false) {
+                    delete block;
+                    block = nullptr;
+				}
+			}
+		}
+
         xblock_lease<block_type> lease()
         {
 			block->accessed();
@@ -677,6 +697,7 @@ namespace corona
 		file_block_interface* fb;
 		int64_t maximum_memory_bytes;
 		time_t block_lifetime;
+        std::mutex cache_lock;
 
 	public:
 
@@ -689,7 +710,7 @@ namespace corona
 
 		virtual ~xblock_cache()
 		{
-			empty();
+			clear();
 		}
 
 		file_block_interface* get_fb() const
@@ -708,23 +729,7 @@ namespace corona
 		}
 
 		int64_t save();
-
-		void empty()
-		{
-            for (auto& lb : leaf_blocks) {
-                if (lb.second->age() > 5) {
-                    lb.second.close();
-                }
-			}
-			
-			for (auto& bb : branch_blocks) {
-                if (bb.second->retain or bb.second->age() < 5) {
-					if (bb.second->age() > 5) {
-						bb.second.close();
-					}
-				}
-			}			
-		}
+		void clear();
 
 		xblock_lease<xbranch_block> split_branch(xblock_lease<xbranch_block>& _block, int _indent);
 		xblock_lease<xleaf_block> split_leaf(xblock_lease<xleaf_block>& _block, int _indent);
@@ -850,7 +855,6 @@ namespace corona
 			auto root = cache->open_branch_block(table_header->root_block, true);
 			root->save();
 			int64_t bytes_written = cache->save();
-			cache->empty();
 			return bytes_written;
 		}
 
@@ -1071,7 +1075,7 @@ namespace corona
 			return jresult;
 		}
 
-		virtual bool put(json _object) override
+		virtual bool put(json& _object) override
 		{
 			write_scope_lock lockme(locker);
 
@@ -1082,7 +1086,7 @@ namespace corona
 			return new_record;
 		}
 
-		virtual void put_array(json _array) override
+		virtual void put_array(json& _array) override
 		{
 			write_scope_lock lockme(locker);
 
@@ -1187,6 +1191,8 @@ namespace corona
 
 	xblock_lease<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
 		auto foundit = leaf_blocks.find(_ref.location);
 		if (foundit != std::end(leaf_blocks)) {
 			if (not foundit->second.empty()) {
@@ -1194,15 +1200,17 @@ namespace corona
 			}
 		}
 
-		auto new_block = new xleaf_block(fb, _ref);
+		auto new_block = new xleaf_block(fb, _ref, false);
 		auto loc = new_block->get_reference().location;
 		leaf_blocks[loc].open(new_block);
 
-		return open_leaf_block(_ref);
+		return leaf_blocks[loc].lease();
 	}
 
 	xblock_lease<xbranch_block> xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
 		auto foundit = branch_blocks.find(_ref.location);
 		if (foundit != std::end(branch_blocks)) {
 			if (not foundit->second.empty()) {
@@ -1214,11 +1222,13 @@ namespace corona
 		auto loc = new_block->get_reference().location;
 		branch_blocks[loc].open(new_block);
 
-		return open_branch_block(_ref, _retain);
+		return branch_blocks[loc].lease();
 	}
 
 	xblock_lease<xleaf_block> xblock_cache::create_leaf_block()
 	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
 		xrecord_block_header header;
 
 		header.type = xblock_types::xb_leaf;
@@ -1233,6 +1243,8 @@ namespace corona
 
 	xblock_lease<xbranch_block> xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
 	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
 		xrecord_block_header header;
 
 		header.type = xblock_types::xb_branch;
@@ -1247,33 +1259,38 @@ namespace corona
 
 	int64_t xblock_cache::save()
 	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
 		date_time current = date_time::now();
 		int64_t total_memory;
 
-
 		total_memory = 0;
-		std::vector<HANDLE> wait_handles;
+
+		std::vector<runnable> tasks;
 
 		for (auto& sv : branch_blocks)
 		{
-            HANDLE ready = sv.second->save_async(&total_memory);
-            wait_handles.push_back(ready);
+			if (not sv.second.empty()) {
+                sv.second.check();
+			}
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
-			HANDLE ready = sv.second->save_async(&total_memory);
-			wait_handles.push_back(ready);
+			if (not sv.second.empty()) {
+				sv.second.check();
+			}
 		}
-
-		for (auto handle : wait_handles) {
-			WaitForSingleObject(handle, INFINITE);
-			CloseHandle(handle);
-		}
-
-		wait_handles.clear();
 
 		return total_memory;
+	}
+
+	void xblock_cache::clear()
+	{
+		std::lock_guard<std::mutex> lockme(cache_lock);
+
+		leaf_blocks.clear();
+		branch_blocks.clear();
 	}
 
 	std::map<xrecord, xblock_ref>::iterator xbranch_block::find_xrecord(const xrecord& key)
@@ -1869,7 +1886,6 @@ namespace corona
 		auto ref = pbranch->get_reference();
 
 		cache.save();
-		cache.empty();
 
 		pbranch = cache.open_branch_block(ref, false);
 

@@ -177,6 +177,7 @@ namespace corona {
 		bool listen_job(io_job *_jobMessage);
 		void submit_job(job* _jobMessage);
 		void submit_job(runnable _function, HANDLE handle);
+		void submit_jobs(std::vector<runnable> _items);
 		void shutDown();
 		void kill();
 		bool run_next_job();
@@ -503,6 +504,29 @@ namespace corona {
 		
         add_io_job(_jobMessage);
 		return _jobMessage->queued(this);
+	}
+
+	void job_queue::submit_jobs(std::vector<runnable> _items)
+	{
+		std::vector<HANDLE> handles;
+		
+		for (auto& item : _items) {
+			LONG result;
+            HANDLE handle = CreateEvent(nullptr, false, false, nullptr);
+            handles.push_back(handle);
+			general_job* _job_message = new general_job(item, handle);
+			if (_job_message->queued(this)) {
+				job_id++;
+				_job_message->job_id = job_id;
+				compute_jobs.insert(job_id, _job_message);
+				result = PostQueuedCompletionStatus(ioCompPort, job_id, completion_key_compute, nullptr);
+			}
+		}
+
+		for (auto handle : handles) {
+            WaitForSingleObject(handle, INFINITE);
+            CloseHandle(handle);
+		}
 	}
 
 	void job_queue::post_ui_message(UINT msg, WPARAM wparam, LPARAM lparam)

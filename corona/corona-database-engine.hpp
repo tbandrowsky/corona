@@ -62,6 +62,8 @@ namespace corona
 			"grid_template_rows":"string",
 			"grid_template_columns":"string",
 			"base_class_name":"string",	
+			"parents":"[ string ]",
+			"full_text":"[ string ]",
 			"ancestors":"[ string ]",
 			"descendants":"[ string ]",
 			"fields" : "object",
@@ -892,6 +894,7 @@ namespace corona
 		virtual std::map<std::string, bool>  &			update_descendants() = 0;
 		virtual std::map<std::string, bool>  &			update_ancestors() = 0;
 		virtual std::vector<std::string>				get_parents() const = 0;
+		virtual std::vector<std::string>				get_full_text_fields() const = 0;
 
 		// creates whatever table representation
 		virtual std::shared_ptr<xtable_interface>		create_table(corona_database_interface* _db) = 0;
@@ -2833,6 +2836,7 @@ namespace corona
 		std::string display;
 		std::string class_color;
 		std::vector<std::string> parents;
+		std::vector<std::string> full_text_fields;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
 		std::map<std::string, std::shared_ptr<index_interface>> indexes;
 		std::map<std::string, bool> ancestors;
@@ -2848,6 +2852,8 @@ namespace corona
 			class_description = _src->get_class_description();
 			base_class_name = _src->get_base_class_name();
 			parents = _src->get_parents();
+            full_text_fields = _src->get_full_text_fields();
+
 			auto new_fields = _src->get_fields();
 			for (auto fld : new_fields) {
 				fields.insert_or_assign(fld->get_field_name(), fld);
@@ -2997,33 +3003,44 @@ namespace corona
 			return parents;
 		}
 
+		virtual std::vector<std::string> get_full_text_fields() const override
+		{
+			return full_text_fields;
+		}
+
 		virtual bool ready() override 
 		{
 			return table.get() != nullptr;
 		}
 
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
-		{		
+		{
 			auto table_header = std::make_shared<xtable_header>();
 			int column_id = 1;
-			for (auto &f : fields) {
-			
+			for (auto& f : fields) {
+
 				xcolumn col;
-                col.field_type = f.second->get_field_type();
-                col.field_name = f.first;
+				col.field_type = f.second->get_field_type();
+				col.field_name = f.first;
 				col.field_id = column_id;
 				if (f.second->is_relational_children()) {
 					continue;
 				}
-                if (f.second->get_field_name() == object_id_field ||
+				if (f.second->get_field_name() == object_id_field ||
 					f.second->get_field_name() == class_id_field) {
 					table_header->key_members.columns[column_id] = col;
-                }
+				}
 				table_header->object_members.columns[column_id] = col;
 				column_id++;
 			}
 			table = std::make_shared<xtable>(get_class_filename(), table_header);
-			full_text_index = create_full_text_index(_db);
+			if (full_text_fields.size() > 0) {
+				full_text_index = create_full_text_index(_db);
+			}
+			else 
+			{
+				full_text_index = nullptr;
+			}
 			return table;
 		}
 
@@ -3061,8 +3078,10 @@ namespace corona
 
 		virtual std::shared_ptr<xtable> get_full_text_index(corona_database_interface* _db) override
 		{
-			if (!full_text_index) {
-				full_text_index = std::make_shared<xtable>(get_text_index_filename());
+			if (full_text_fields.size() > 0) {
+				if (!full_text_index) {
+					full_text_index = std::make_shared<xtable>(get_text_index_filename());
+				}
 			}
 			return full_text_index;
 		}
@@ -3276,6 +3295,13 @@ namespace corona
 			}
 			_dest.share_member("parents", ja);
 
+			ja = jp.create_array();
+			for (auto p : full_text_fields)
+			{
+				ja.push_back(p);
+			}
+			_dest.share_member("full_text", ja);
+
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
 				for (auto field : fields) {
@@ -3354,6 +3380,21 @@ namespace corona
 			{
 				for (auto jparent : jparents) {
 					parents.push_back((std::string)(jparent));
+				}
+			}
+
+			full_text_fields.clear();
+			json jfulltext = _src["full_text"];
+
+			if (jfulltext.is_string())
+			{
+				std::string jparento = (std::string)jparents;
+				full_text_fields.push_back(jparento);
+			}
+			else if (jfulltext.array())
+			{
+				for (auto jparent : jfulltext) {
+					full_text_fields.push_back((std::string)(jparent));
 				}
 			}
 
@@ -4250,61 +4291,79 @@ namespace corona
 				}
 
 			}
-			
-			auto tb = get_xtable(_db);
 
-			tb->put_array(put_list);
+			runnable table_run = [this, _db, &put_list] {
+				auto tb = get_xtable(_db);
+				tb->put_array(put_list);
+			};
+		
+			runnable ft_index_run = [this, _db, &put_list] {
+				auto ftb = get_full_text_index(_db);
+				if (ftb) {
+					json_parser jp;
+					json full_text_array = jp.create_array();
+					text_tokenizer ctt;
 
-			auto ftb = get_full_text_index(_db);
-            if (ftb) {
+					for (auto item : put_list) {
 
-				json full_text_array = jp.create_array();
-				text_tokenizer ctt;
+						int64_t object_id = (int64_t)item[object_id_field];
 
-				for (auto item : put_list) {
+						std::set<std::string> record_words;
 
-                    int64_t object_id = (int64_t)item[object_id_field];
+						for (auto& item_field : full_text_fields)
+						{
+							auto fld = item.get_member(item_field);
 
-					auto item_fields = item.get_members();
+							if (fld.get_field_type() == field_types::ft_string) {
 
-					std::set<std::string> record_words;
+								std::string temp = (std::string)fld;
+								auto terms = ctt.tokenize(temp);
 
-                    for (auto& item_field : item_fields) 
-					{
-                        auto& fld = item_field.second;
-
-						if (fld->get_field_type()  == field_types::ft_string) {
-
-							auto terms = ctt.tokenize(fld->to_string());
-
-							std::string word;
-							for (auto word : terms) {
-								if (record_words.contains(word))
-									continue;
-								record_words.insert(word);
-								json full_text_ref = jp.create_object();
-								full_text_ref.put_member("text", word);
-								full_text_ref.put_member_i64("object_id", object_id);
-								full_text_array.push_back(full_text_ref);
+								std::string word;
+								for (auto& word : terms) {
+									if (word.empty() or record_words.contains(word))
+										continue;
+									record_words.insert(word);
+									json full_text_ref = jp.create_object();
+									full_text_ref.put_member("text", word);
+									full_text_ref.put_member_i64("object_id", object_id);
+									full_text_array.push_back(full_text_ref);
+								}
 							}
 						}
-                    }
+					}
+
+					ftb->put_array(full_text_array);
 				}
 
-                ftb->put_array(full_text_array);
-            }
+			};
 
-			auto stb = get_stable(_db);
-			if (stb) {
-				stb->put_array(put_list);
-			}
+			std::vector<runnable> runnables;
+
+			runnables.push_back(table_run);
+			runnables.push_back(ft_index_run);
+
+			runnable sql_run = [this, _db, &put_list] {
+				auto stb = get_stable(_db);
+				if (stb) {
+					stb->put_array(put_list);
+				}
+			};
+			runnables.push_back(sql_run);
 
 			for (auto& iop : index_updates)
 			{
-				auto idx_table = iop.index->get_xtable(_db);
-				idx_table->erase_array(iop.objects_to_delete);
-				idx_table->put_array(iop.objects_to_add);
+				runnable index_run = [this, _db, &iop] {
+					auto idx_table = iop.index->get_xtable(_db);
+					idx_table->erase_array(iop.objects_to_delete);
+					idx_table->put_array(iop.objects_to_add);
+				};
+
+				runnables.push_back(index_run);
 			}
+
+			global_job_queue->submit_jobs(runnables);
+
 		}
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
@@ -5092,6 +5151,7 @@ namespace corona
 	"display":"default",
 	"grid_template_rows": "60px 60px 60px",
 	"grid_template_columns": "1fr 1fr",
+	"full_text" : [ "ticket_name", "ticket_description" ],
 	"fields" : {
 			"ticket_name" :{
 				"field_type":"string",
@@ -8926,6 +8986,9 @@ grant_type=authorization_code
 							auto members = class_filter.get_members();
 							for (auto member : members)
 							{
+								if (member.first == "full_text")
+									continue;
+
 								auto fld = filter_class->get_field(member.first);
 								if (not fld) {
 									context.add_error(filter_source_name, member.first, "Invalid field for filter", __FILE__, __LINE__);

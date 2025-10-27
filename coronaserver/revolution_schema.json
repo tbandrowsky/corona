@@ -12,6 +12,7 @@
       "base_class_name": "sys_object",
       "parents": [ "work_ticket", "appointment" ],
       "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
       "fields": {
         "name": "string",
         "text": {
@@ -36,7 +37,7 @@
       "base_class_name": "sys_item",
       "class_color": "#8f7243",
       "fields": {
-        "text": {
+        "full_text": {
           "field_type": "string",
           "label": "Search Text"
         },
@@ -54,7 +55,10 @@
             "from": [
               {
                 "class_name": "work_ticket",
-                "name": "work_ticket"
+                "name": "work_ticket",
+                "filter": {
+                  "full_text": "$this.full_text"
+                }
               }
             ],
             "stages": [
@@ -64,16 +68,6 @@
                 "condition": {
                   "class_name": "any",
                   "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.text"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.text"
-                    },
                     {
                       "class_name": "gte",
                       "valuepath": "created",
@@ -98,6 +92,7 @@
       "base_class_name": "sys_object",
       "parents": [ "work_team" ],
       "class_color": "#33212A",
+      "full_text": [ "name", "description", "street", "city", "zip", "state" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -115,7 +110,7 @@
       "base_class_name": "sys_item",
       "class_color": "#8f7243",
       "fields": {
-        "text": {
+        "full_text": {
           "field_type": "string",
           "label": "Search Text"
         },
@@ -127,13 +122,16 @@
           "field_type": "datetime",
           "label": "To Date"
         },
-        "tickets": {
+        "appointments": {
           "field_type": "query",
           "query": {
             "from": [
               {
                 "class_name": "appointment",
-                "name": "appointment"
+                "name": "appointment",
+                "filter": {
+                  "full_text": "$this.full_text"
+                }
               }
             ],
             "stages": [
@@ -143,16 +141,6 @@
                 "condition": {
                   "class_name": "any",
                   "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.text"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.text"
-                    },
                     {
                       "class_name": "gte",
                       "valuepath": "created",
@@ -177,9 +165,11 @@
       "base_class_name": "sys_object",
       "class_color": "#4e7a69",
       "parents": [ "work_team" ],
+      "full_text" :  [ "name", "description", "contents" ],
       "fields": {
         "name": "string",
-        "description": "string"
+        "description": "string",
+        "contents" :  "string"
       }
     },
     {
@@ -301,6 +291,7 @@
       "class_description": "Candidates",
       "base_class_name": "sys_object",
       "class_color": "#af9d66",
+      "full_text": [ "full_name", "political_party", "city", "state", "street1", "street2", "zip" ],
       "fields": {
         "candidate_id": "string",
         "full_name": "string",
@@ -358,7 +349,7 @@
       "base_class_name": "sys_item",
       "class_color": "#8f7243",
       "fields": {
-        "full_name": "string",
+        "searc": "string",
         "state": "string",
         "city": "string",
         "political_party": "string",
@@ -411,7 +402,7 @@
       "class_description": "Committee",
       "base_class_name": "sys_object",
       "class_color": "#af9d66",
-
+      "full_text": [ "committee_name", "political_party" ],
       "fields": {
         "committee_id": "string",
         "committee_name": "string",
@@ -442,7 +433,10 @@
             "from": [
               {
                 "class_name": "committee",
-                "name": "committee"
+                "name": "committee",
+                "filter": {
+                  "full_text" :  "$this.text"
+                }
               }
             ],
             "stages": [
@@ -492,7 +486,7 @@
       "class_description": "Individual Donor",
       "base_class_name": "sys_object",
       "class_color": "#af9d66",
-
+      "full_text": [ "full_name", "employer", "occupation", "memo" ],
       "fields": {
         "committee_id": "string",
         "full_name": "string",
@@ -503,7 +497,29 @@
         "occupation": "string",
         "transaction_date": "datetime",
         "transaction_amount": "double",
-        "memo": "string"
+        "memo": "string",
+        "committee": {
+          "field_type": "query",
+          "label": "Committee",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee",
+                "name": "committee",
+                "filter": {
+                  "full_text": "$this.committee_id"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "committee"
+              }
+            ]
+          }
+        }
+
       }
     },
     {
@@ -512,26 +528,11 @@
       "base_class_name": "sys_item",
       "class_color": "#8f7243",
       "fields": {
-        "full_name": {
+        "full_text": {
           "field_type": "string",
           "required": true,
-          "label": "Full Name"
+          "label": "Text"
         },
-        "city": {
-          "field_type": "string",
-          "required": true,
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "required": true,
-          "label": "State"
-        },
-        "employer": "string",
-        "occupation": "string",
-        "transaction_date": "datetime",
-        "transaction_amount": "double",
-        "memo": "string",
         "individuals": {
           "field_type": "query",
           "query": {
@@ -540,27 +541,11 @@
                 "class_name": "individual",
                 "name": "individual",
                 "filter": {
-                  "city": "$this.city",
-                  "state": "$this.state",
-                  "zip": "$this.zip"
+                  "full_text": "$this.full_text"
                 }
               }
             ],
             "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "individual",
-                "condition": {
-                  "class_name": "all",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "full_name",
-                      "value": "$this.full_name"
-                    }
-                  ]
-                }
-              }
             ]
           }
         }
@@ -1658,7 +1643,7 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "inventory_classes": [ "appointment_search", "article_search", "ticket_search" ],
+          "inventory_classes": [ "responsibility_set","appointment_search", "article_search", "ticket_search" ],
           "allowed_teams": [ "Home Team", "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
