@@ -1077,44 +1077,50 @@ namespace corona
 			value_base = _value;
 		}
 
-		std::shared_ptr<json_double> double_impl() const {
-			return std::dynamic_pointer_cast<json_double>(value_base);
+		json_double *double_impl() const {
+			return dynamic_cast<json_double *>(value_base.get());
 		}
 
-		std::shared_ptr<json_string> string_impl() const {
-			return std::dynamic_pointer_cast<json_string>(value_base);
+		json_string *string_impl() const {
+			return dynamic_cast<json_string *>(value_base.get());
 		}
 
-		auto value_impl() const {
-			return value_base;
+		// I will regret this
+		std::shared_ptr<json_value> value()
+		{
+            return value_base;
 		}
 
-		std::shared_ptr<json_array> array_impl() const {
-			return std::dynamic_pointer_cast<json_array>(value_base);
+		json_value *value_impl() const {
+			return value_base.get();
 		}
 
-		std::shared_ptr<json_object> object_impl()   const {
-			return std::dynamic_pointer_cast<json_object>(value_base);
+		json_array *array_impl() const {
+			return dynamic_cast<json_array *>(value_base.get());
 		}
 
-		std::shared_ptr<json_int64> int64_impl() const {
-			return std::dynamic_pointer_cast<json_int64>(value_base);
+		json_object *object_impl()   const {
+			return dynamic_cast<json_object *>(value_base.get());
 		}
 
-		std::shared_ptr<json_reference> reference_impl() const {
-			return std::dynamic_pointer_cast<json_reference>(value_base);
+		json_int64 *int64_impl() const {
+			return dynamic_cast<json_int64 *>(value_base.get());
 		}
 
-		std::shared_ptr<json_datetime> datetime_impl()  const {
-			return std::dynamic_pointer_cast<json_datetime>(value_base);
+		json_reference *reference_impl() const {
+			return dynamic_cast<json_reference *>(value_base.get());
 		}
 
-		std::shared_ptr<json_blob> blob_impl() const {
-			return std::dynamic_pointer_cast<json_blob>(value_base);
+		json_datetime *datetime_impl()  const {
+			return dynamic_cast<json_datetime *>(value_base.get());
 		}
 
-		std::shared_ptr<json_function> function_impl() const {
-			return std::dynamic_pointer_cast<json_function>(value_base);
+		json_blob *blob_impl() const {
+			return dynamic_cast<json_blob *>(value_base.get());
+		}
+
+		json_function *function_impl() const {
+			return dynamic_cast<json_function *>(value_base.get());
 		}
 
 		virtual field_types get_field_type()
@@ -2134,7 +2140,7 @@ namespace corona
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
 			}
-			std::shared_ptr<json_object> existing_object = _object.object_impl();
+			auto existing_object = _object.object_impl();
 			if (existing_object) {
 				auto new_object = existing_object->clone();
 				object_impl()->members[_key] = new_object;
@@ -2172,7 +2178,7 @@ namespace corona
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
 			}
-			std::shared_ptr<json_array> existing_array = _array.array_impl();
+			auto existing_array = _array.array_impl();
 
 			if (existing_array) {
 				auto new_array = existing_array->clone();
@@ -2203,7 +2209,7 @@ namespace corona
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
 			}
-			std::shared_ptr<json_function> existing_object = _object.function_impl();
+			auto existing_object = _object.function_impl();
 			auto new_object = existing_object->clone();
 			object_impl()->members[_key] = new_object;
 			return *this;
@@ -2528,7 +2534,7 @@ namespace corona
 			if (not array_impl()) {
 				throw std::logic_error("Not an array");
 			}
-			std::shared_ptr<json_array> existing_array = _array.array_impl();
+			auto existing_array = _array.array_impl();
 			auto new_array = existing_array->clone();
 
 			if (_index < 0 or _index >= array_impl()->elements.size())
@@ -2547,7 +2553,7 @@ namespace corona
 			if (not array_impl()) {
 				throw std::logic_error("Not an array");
 			}
-			std::shared_ptr<json_object> existing_object = _object.object_impl();
+			auto existing_object = _object.object_impl();
 			auto new_object = existing_object->clone();
 
 			if (_index < 0 or _index >= array_impl()->elements.size()) {

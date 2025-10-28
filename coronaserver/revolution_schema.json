@@ -486,7 +486,7 @@
       "class_description": "Individual Donor",
       "base_class_name": "sys_object",
       "class_color": "#af9d66",
-      "full_text": [ "full_name", "employer", "occupation", "memo" ],
+      "full_text": [ "full_name", "employer", "occupation", "memo", "city", "zip" ],
       "fields": {
         "committee_id": "string",
         "full_name": "string",
@@ -519,7 +519,6 @@
             ]
           }
         }
-
       }
     },
     {

@@ -709,7 +709,7 @@ namespace corona
 			{
 				for (auto item : _src_array) {
 					int64_t object_id = item.get_member(object_id_field);
-					csi->second->data.insert_or_assign(object_id, item.object_impl());
+					csi->second->data.insert_or_assign(object_id, std::dynamic_pointer_cast<json_object>(item.value()));
 				}
 
 				std::string parent_source = _class_filter["parent_source"];
@@ -2418,7 +2418,7 @@ namespace corona
 				new_from.put_member(class_name_field, _classname);
 				new_from.put_member("name", "this"sv);
 				auto arr = froms.array_impl();
-				arr->elements.insert(arr->elements.begin(), new_from.object_impl());
+				arr->elements.insert(arr->elements.begin(), new_from.value());
 			}
 			this_query_body.put_member(token_field, _token);
 			json query_results, query_data_results;
@@ -4257,7 +4257,7 @@ namespace corona
 				}
 
 				if (use_write_object) {
-					put_list.array_impl()->elements.push_back(write_object.object_impl());
+					put_list.array_impl()->elements.push_back(write_object.value());
 				}
 
 				if (index_updates.size() > 0)
@@ -4324,16 +4324,15 @@ namespace corona
 									if (word.empty() or record_words.contains(word))
 										continue;
 									record_words.insert(word);
-									json full_text_ref = jp.create_object();
-									full_text_ref.put_member("text", word);
-									full_text_ref.put_member_i64("object_id", object_id);
-									full_text_array.push_back(full_text_ref);
+									xrecord key, value;
+									key.add(1, word);
+                                    key.add_int64(2, object_id);
+									ftb->put_direct(key, value);
 								}
 							}
 						}
 					}
-
-					ftb->put_array(full_text_array);
+					ftb->commit();
 				}
 
 			};
@@ -8624,7 +8623,7 @@ grant_type=authorization_code
 			// put on the afterburners.  my ai said this was faster...
 			if (object_list.array()) {
 				for (auto& item : object_list.array_impl()->elements) {
-                    std::shared_ptr<json_object> jo = dynamic_pointer_cast<json_object>(item);	
+                    std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);	
 					if (jo) {
 						std::string class_name = jo->members[class_name_field]->to_string();
 						auto permission = get_class_permission(user_name, class_name);

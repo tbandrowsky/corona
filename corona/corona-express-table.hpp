@@ -577,31 +577,48 @@ namespace corona
             hlocked = nullptr;
 		}
 
-		xblock_lease(const xblock_lease& _src)
+		xblock_lease(xblock_lease& _src)
 		{
 			block = _src.block;
+			_src.block = nullptr;
 			hlocked = _src.block;
+			_src.hlocked = nullptr;
+			WaitForSingleObject(hlocked, INFINITE);
 		}
 
 		xblock_lease(xblock_lease&& _src)
 		{
-			block = nullptr;
-			hlocked = nullptr;
-			std::swap(block, _src.block);
-			std::swap(hlocked, _src.hlocked);
+			block = _src.block;
+            _src.block = nullptr;		
+			hlocked = _src.hlocked;
+			_src.hlocked = nullptr;
+			WaitForSingleObject(hlocked, INFINITE);
 		}
 
-		xblock_lease& operator =(const xblock_lease& _src)
+		void check()
+		{
+			if (block) {
+				block->save();
+			}
+		}
+
+		xblock_lease& operator =(xblock_lease& _src)
 		{
 			block = _src.block;
-			hlocked = _src.mutex;
+			_src.block = nullptr;
+			hlocked = _src.hlocked;
+			_src.hlocked = nullptr;
+			WaitForSingleObject(hlocked, INFINITE);
 			return *this;
 		}
 
 		xblock_lease& operator = (xblock_lease&& _src)
 		{
-			std::swap(block, _src.block);
-			std::swap(hlocked, _src.hlocked);
+			block = _src.block;
+			_src.block = nullptr;
+			hlocked = _src.hlocked;
+			_src.hlocked = nullptr;
+			WaitForSingleObject(hlocked, INFINITE);
 			return *this;
 		}
 
@@ -661,13 +678,14 @@ namespace corona
 
 		void check()
 		{
+			WaitForSingleObject(hlocked, INFINITE);
 			if (block) {
-				block->save();
 				if (block->age() > block_age_seconds and block->get_retain() == false) {
                     delete block;
                     block = nullptr;
 				}
 			}
+			ReleaseMutex(hlocked);
 		}
 
         xblock_lease<block_type> lease()
@@ -897,6 +915,22 @@ namespace corona
 			system_monitoring_interface::global_mon->log_information(std::format("Closing table {0}", file_name), __FILE__, __LINE__);
 		}
 
+		bool put_direct(xrecord& key, xrecord &data)
+		{
+			auto root = cache->open_branch_block(table_header->root_block, true);
+			bool new_record = root->put(cache.get(), 0, key, data);
+
+			if (new_record) {
+				table_header->count++;
+			}
+
+			if (root->is_full()) {
+				cache->split_root(root, 0);
+			}
+
+			return new_record;
+		}
+
 		bool put_impl(json& _object)
 		{
 			if (table_header->use_object_id) {
@@ -911,19 +945,8 @@ namespace corona
 			xrecord data;
 			data.put_json(&table_header->object_members, _object);
 
-			auto root = cache->open_branch_block(table_header->root_block, true);
-			bool new_record = root->put(cache.get(), 0, key, data);
-
-			if (new_record) {
-				table_header->count++;
-			}
-
-			if (root->is_full()) {
-				cache->split_root(root, 0);
-			}
-
+			auto new_record = put_direct(key, data);
 			return new_record;
-
 		}
 
 		std::shared_ptr<xtable_header>			get_table_header()
@@ -1257,6 +1280,51 @@ namespace corona
 		return temp;
 	}
 
+	class xblock_save_job : public job
+	{
+	public:
+		xblock_cache* cache;
+		xblock_lease<xbranch_block> branch_lease;
+		xblock_lease<xleaf_block> leaf_lease;
+		HANDLE notification_handle;
+		double execution_time_seconds;
+
+		xblock_save_job(HANDLE _notification_handle, xblock_lease<xbranch_block> _src)
+		{
+            notification_handle = _notification_handle;
+			branch_lease = _src;
+		}
+
+		xblock_save_job(HANDLE _notification_handle, xblock_lease<xleaf_block> _src)
+		{
+			notification_handle = _notification_handle;
+			leaf_lease = _src;
+		}
+
+		virtual bool queued(job_queue* _callingQueue) override {
+			return true;
+		}
+
+		virtual ~xblock_save_job()
+		{
+		}
+
+		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		{
+			job_notify jn;
+
+            branch_lease.check();
+			leaf_lease.check();
+
+			jn.setSignal(notification_handle);
+			jn.shouldDelete = true;
+
+			return jn;
+		}
+
+		friend class job_queue;
+	};
+
 	int64_t xblock_cache::save()
 	{
 		std::lock_guard<std::mutex> lockme(cache_lock);
@@ -1266,20 +1334,37 @@ namespace corona
 
 		total_memory = 0;
 
-		std::vector<runnable> tasks;
+		std::vector<HANDLE> tasks;
 
 		for (auto& sv : branch_blocks)
 		{
-			if (not sv.second.empty()) {
-                sv.second.check();
-			}
+            HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+            xblock_save_job* job = new xblock_save_job(handle, sv.second.lease());
+            tasks.push_back(handle);
+            global_job_queue->submit_job(job);
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
-			if (not sv.second.empty()) {
-				sv.second.check();
-			}
+			HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			xblock_save_job* job = new xblock_save_job(handle, sv.second.lease());
+			tasks.push_back(handle);
+			global_job_queue->submit_job(job);
+		}
+
+		for (auto handle : tasks) 		
+		{
+            WaitForSingleObject(handle, INFINITE);
+		}
+
+		for (auto& sv : branch_blocks)
+		{
+			sv.second.check();
+		}
+
+		for (auto& sv : leaf_blocks)
+		{
+			sv.second.check();
 		}
 
 		return total_memory;
