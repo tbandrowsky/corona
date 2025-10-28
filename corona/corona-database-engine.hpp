@@ -4361,7 +4361,8 @@ namespace corona
 				runnables.push_back(index_run);
 			}
 
-			global_job_queue->submit_jobs(runnables);
+            // now run them all
+			global_job_queue->run_jobs(runnables);
 
 		}
 
