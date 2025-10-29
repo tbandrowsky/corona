@@ -279,6 +279,7 @@ namespace corona
 
 		void dirtied()
 		{
+            last_access = time(nullptr);
 			dirty = true;
 		}
 
@@ -673,7 +674,6 @@ namespace corona
         xblock_lease<block_type> lease()
         {
 			lease_lock.lock();
-			block->accessed();
 			use_count++;
             return xblock_lease<block_type>(block);
         }
@@ -1126,6 +1126,7 @@ namespace corona
 					put_impl(item);
 				}
 				commit_nl();
+				cache->clear();
 			}
 		}
 
