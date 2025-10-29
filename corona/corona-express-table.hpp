@@ -12,7 +12,7 @@ namespace corona
 {
 	class xblock_cache;
 
-	const int block_age_seconds = 2;
+	const int block_age_seconds = 1;
 
 	enum xblock_types
 	{
@@ -1423,7 +1423,7 @@ namespace corona
             cache->close_block_nl(lease);
 
 			jn.setSignal(notification_handle);
-			jn.shouldDelete = true;
+			jn.shouldDelete = false;
 
 			return jn;
 		}
@@ -1445,31 +1445,50 @@ namespace corona
 		int branch_count = 0;
 		int leaf_count = 0;
 
+		std::vector<xblock_save_job<xbranch_block> *> branch_jobs;
+		std::vector<xblock_save_job<xleaf_block> *> leaf_jobs;
+
 		for (auto& sv : branch_blocks)
 		{
 			if (not sv.second->empty()) {
-				if (sv.second->get_use_count() > 0) {
-					DebugBreak();
+				if (sv.second->get_use_count() == 0) {
+					HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+					xblock_save_job<xbranch_block>* job = new xblock_save_job<xbranch_block>(this, handle, sv.second);
+					if (job) {
+						tasks.push_back(handle);
+						global_job_queue->submit_job(job);
+						branch_jobs.push_back(job);
+						branch_count++;
+					}
+					else {
+						system_monitoring_interface::active_mon->log_warning("Out of memory.");
+					}
 				}
-				HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-				xblock_save_job<xbranch_block>* job = new xblock_save_job<xbranch_block>(this, handle, sv.second);
-				tasks.push_back(handle);
-				global_job_queue->submit_job(job);
-				branch_count++;
+				else {
+					system_monitoring_interface::active_mon->log_warning("Branch handle in use, skipped, indicates code problem.");
+				}
 			}
 		}
 
 		for (auto& sv : leaf_blocks)
 		{
 			if (not sv.second->empty()) {
-				if (sv.second->get_use_count() > 0) {
-					DebugBreak();
+				if (sv.second->get_use_count() == 0) {
+					HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+					xblock_save_job<xleaf_block>* job = new xblock_save_job<xleaf_block>(this, handle, sv.second);
+					if (job) {
+						tasks.push_back(handle);
+						global_job_queue->submit_job(job);
+						leaf_jobs.push_back(job);
+						leaf_count++;
+					}
+					else {
+						system_monitoring_interface::active_mon->log_warning("Out of memory.");
+					}
 				}
-				leaf_count++;
-				HANDLE handle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-				xblock_save_job<xleaf_block>* job = new xblock_save_job<xleaf_block>(this, handle, sv.second);
-				tasks.push_back(handle);
-				global_job_queue->submit_job(job);
+				else {
+					system_monitoring_interface::active_mon->log_warning("Branch handle in use, skipped, indicates code problem.");
+				}
 			}
 		}
 
@@ -1478,9 +1497,18 @@ namespace corona
             WaitForSingleObject(handle, INFINITE);
 		}
 
+		// clean up the jobs
+        for (auto job : branch_jobs)
+        {
+            delete job;
+        }
 
-		// now make sure everything is saved
+		for (auto job : leaf_jobs)
+		{
+			delete job;
+		}
 
+		// now clean up
 		for (auto& sv : branch_blocks)
 		{
 			sv.second->check();

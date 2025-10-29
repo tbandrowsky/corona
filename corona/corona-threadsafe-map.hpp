@@ -46,6 +46,11 @@ public:
         return data.size();
     }
 
+    bool contains(const K& key) const {
+        scope_lock lock(locker);
+        return data.contains(key);
+    }
+
     void clear() {
         scope_lock lock(locker);
         data.clear();

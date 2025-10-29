@@ -480,8 +480,8 @@ namespace corona {
 		if (_jobMessage->queued(this)) {
 			job_id++;
 			_jobMessage->job_id = job_id;
-			compute_jobs.insert(job_id, _jobMessage);
-			result = PostQueuedCompletionStatus(ioCompPort, job_id, completion_key_compute, nullptr);
+			compute_jobs.insert(_jobMessage->job_id, _jobMessage);
+			result = PostQueuedCompletionStatus(ioCompPort, _jobMessage->job_id, completion_key_compute, nullptr);
 		}
 	}
 
@@ -490,10 +490,12 @@ namespace corona {
 		LONG result;
 		general_job* _job_message = new general_job(_function, handle);
 		if (_job_message->queued(this)) {
-			job_id++;
-			_job_message->job_id = job_id;
-			compute_jobs.insert(job_id, _job_message);
-			result = PostQueuedCompletionStatus(ioCompPort, job_id, completion_key_compute, nullptr);
+			do {
+				job_id++;
+				_job_message->job_id = job_id;
+			} while (compute_jobs.contains(_job_message->job_id));
+			compute_jobs.insert(_job_message->job_id, _job_message);
+			result = PostQueuedCompletionStatus(ioCompPort, _job_message->job_id, completion_key_compute, nullptr);
 		}
 	}
 
@@ -515,14 +517,18 @@ namespace corona {
             HANDLE handle = CreateEvent(nullptr, false, false, nullptr);
 			general_job* _job_message = new general_job(item, handle);
 			if (_job_message->queued(this)) {
-				job_id++;
-				_job_message->job_id = job_id;
+				do {
+					job_id++;
+					_job_message->job_id = job_id;
+                } 
+				while (compute_jobs.contains(job_id));
 				compute_jobs.insert(job_id, _job_message);
 				result = PostQueuedCompletionStatus(ioCompPort, job_id, completion_key_compute, nullptr);
 				handles.push_back(handle);
 			}
 			else 
 			{
+				delete _job_message;
 				CloseHandle(handle);
 			}
 		}
