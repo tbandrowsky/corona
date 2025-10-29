@@ -1734,7 +1734,7 @@
       "import": {
         "type": "csv",
         "delimiter": "|",
-        "filename": "seed_data\\us_elections\\itcont.csv",
+        "filename": "seed_data\\us_elections\\itcont.csvxx",
         "target_class": "individual",
         "column_map": {
           "0": "committee_id",

@@ -737,7 +737,8 @@ namespace corona
 								{
 									auto sjv = std::dynamic_pointer_cast<json_string>(jv);
 									auto sjd = std::make_shared<json_string>();
-									sjd->value = trim(sjv->value, null_ind);
+									std::string temp = trim(sjv->get_value(), null_ind);
+									sjd->set_value(temp.c_str());
 									obj.object_impl()->members[key] = sjd;
 								}
 								else {

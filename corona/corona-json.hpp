@@ -29,7 +29,6 @@ namespace corona
 
 		json_value()
 		{
-			;
 		}
 		virtual ~json_value()
 		{
@@ -216,7 +215,8 @@ namespace corona
 				value = 0.0;
 				return;
 			}
-			value = std::strtod(_src.data(), nullptr);
+			std::string temp(_src);
+			value = std::strtod(temp.c_str(), nullptr);
 		}
 		virtual std::string format(std::string _format) const
 		{
@@ -709,16 +709,35 @@ namespace corona
 
 	class json_string : public json_value
 	{
+		std::shared_ptr<std::string> value;
+
 	public:
-		std::string value;
+
+
+		json_string() {
+			value = nullptr;
+		}
+		virtual ~json_string() {
+
+		}
+
+        virtual std::string get_value() const
+        {
+			return *value;
+        }
+
+		virtual void set_value(const char *_src) 
+		{
+			value = std::make_shared<std::string>(_src);
+		}
 
 		virtual std::string to_key() const
 		{
-			return value;
+			return *value;
 		}
 		virtual std::string to_json() const
 		{
-            std::string temp = + "\"" + escape_json_string(value) + "\"";
+            std::string temp = + "\"" + escape_json_string(*value) + "\"";
 			return temp;
 		}
 		virtual std::string to_json_typed() const
@@ -734,16 +753,17 @@ namespace corona
 
 		virtual std::string to_string() const
 		{
-			return value;
+			return *value;
 		}
 		virtual void from_string(const std::string_view& _src)
 		{
-			value = _src;
+			std::string temp(_src);
+			set_value(temp.c_str());
 		}
 
 		virtual bool is_empty() const
 		{
-			return value.empty();
+			return !value or (*value).empty();
 		}
 
 		virtual field_types get_field_type() const
@@ -757,7 +777,7 @@ namespace corona
 		}
 		virtual std::string format(std::string _format) const
 		{
-			return value;
+			return *value;
 		}
 		virtual std::shared_ptr<json_value> clone() const
 		{
@@ -769,21 +789,21 @@ namespace corona
 
 		virtual int64_t to_int64() const
 		{
-			return std::strtoll(value.c_str(), nullptr, 10);
+			return std::strtoll((*value).c_str(), nullptr, 10);
 		}
 		virtual date_time to_datetime() const
 		{
 			date_time dt;
-			dt.parse(value);
+			dt.parse(*value);
 			return dt;
 		}
 		virtual bool to_bool() const
 		{
-			return not value.empty();
+			return value && !((*value).empty());
 		}
 		virtual double to_double() const
 		{
-			return std::strtod(value.c_str(), nullptr);
+			return std::strtod((*value).c_str(), nullptr);
 		}
 
 	};
@@ -1520,9 +1540,9 @@ namespace corona
 			return double_impl()->value;
 		}
 
-		std::string& get_string()  const
+		std::string get_string()  const
 		{
-			return string_impl()->value;
+			return string_impl()->get_value();
 		}
 
 		operator int() const
@@ -1718,12 +1738,12 @@ namespace corona
 			if (array_impl()) {
 				if (_src.array()) {
 					for (json item : _src) {
-						array_impl()->elements.push_back(item.value_base->clone());
+						array_impl()->elements.push_back(item.value_base);
 					}
 				}
 				else
 				{
-					array_impl()->elements.push_back(_src.value_base->clone());
+					array_impl()->elements.push_back(_src.value_base);
 				}
 			}
 		}
@@ -1906,7 +1926,7 @@ namespace corona
 		{
 			std::string tail;
 			json jv = json(std::make_shared<json_string>());
-			jv.string_impl()->value = _value;
+			jv.string_impl()->set_value( _value.c_str() );
 			json obj = make_path(_key, tail, jv);
 			return obj;
 		}
@@ -2053,7 +2073,8 @@ namespace corona
 				throw std::logic_error("Not an object");
 			}
 			auto new_member = std::make_shared<json_string>();
-			new_member->value = _value;
+			std::string temp(_value);
+			new_member->set_value( temp.c_str() );
 			object_impl()->members[_key] = new_member;
 			return *this;
 		}
@@ -2071,7 +2092,7 @@ namespace corona
 				throw std::logic_error("Not an object");
 			}
 			auto new_member = std::make_shared<json_string>();
-			new_member->value = _value;
+			new_member->set_value(_value.c_str() );
 			object_impl()->members[_key] = new_member;
 			return *this;
 		}
@@ -2142,8 +2163,8 @@ namespace corona
 			}
 			auto existing_object = _object.object_impl();
 			if (existing_object) {
-				auto new_object = existing_object->clone();
-				object_impl()->members[_key] = new_object;
+//				auto new_object = existing_object->clone();
+				object_impl()->members[_key] = _object.value_base;
 			}
 			else 
 			{
@@ -2181,8 +2202,8 @@ namespace corona
 			auto existing_array = _array.array_impl();
 
 			if (existing_array) {
-				auto new_array = existing_array->clone();
-				object_impl()->members[_key] = new_array;
+//				auto new_array = existing_array->clone();
+				object_impl()->members[_key] = _array.value_base;
 			}
 			else 
 			{
@@ -2210,8 +2231,8 @@ namespace corona
 				throw std::logic_error("Not an object");
 			}
 			auto existing_object = _object.function_impl();
-			auto new_object = existing_object->clone();
-			object_impl()->members[_key] = new_object;
+//			auto new_object = existing_object->clone();
+			object_impl()->members[_key] = _object.value_base;
 			return *this;
 		}
 
@@ -2440,7 +2461,7 @@ namespace corona
 				throw std::logic_error("Not an array");
 			}
 			auto new_member = std::make_shared<json_string>();
-			new_member->value = _value;
+			new_member->set_value( _value.c_str() );
 
 			if (_index < 0 or _index >= array_impl()->elements.size()) {
 				array_impl()->elements.push_back(new_member);
@@ -2535,15 +2556,15 @@ namespace corona
 				throw std::logic_error("Not an array");
 			}
 			auto existing_array = _array.array_impl();
-			auto new_array = existing_array->clone();
+//			auto new_array = existing_array->clone();
 
 			if (_index < 0 or _index >= array_impl()->elements.size())
 			{
-				array_impl()->elements.push_back(new_array);
+				array_impl()->elements.push_back(_array.value_base);
 			}
 			else 
 			{
-				array_impl()->elements[_index] = new_array;
+				array_impl()->elements[_index] = _array.value_base;
 			}
 			return *this;
 		}
@@ -2554,14 +2575,14 @@ namespace corona
 				throw std::logic_error("Not an array");
 			}
 			auto existing_object = _object.object_impl();
-			auto new_object = existing_object->clone();
+//			auto new_object = existing_object->clone();
 
 			if (_index < 0 or _index >= array_impl()->elements.size()) {
-				array_impl()->elements.push_back(new_object);
+				array_impl()->elements.push_back(_object.value_base);
 			}
 			else 
 			{
-				array_impl()->elements[_index] = new_object;
+				array_impl()->elements[_index] = _object.value_base;
 			}
 			return *this;
 		}
@@ -2645,10 +2666,10 @@ namespace corona
 			{
 				auto vsource = std::dynamic_pointer_cast<json_string>(source_value);
 				auto vdest = std::dynamic_pointer_cast<json_string>(dest_value);
-				if (vsource->value < vdest->value) {
+				if (vsource->get_value() < vdest->get_value()) {
 					comparison_result = -1;
 				}
-				else if (vsource->value > vdest->value) {
+				else if (vsource->get_value() > vdest->get_value()) {
 					comparison_result = 1;
 				}
 			}
@@ -2838,8 +2859,8 @@ namespace corona
 				for (auto m : members)
 				{
 					if (_where_clause(m.second)) {
-						json j = m.second.clone();
-						result_item.put_member(m.first, j);
+	//					json j = m.second.clone();
+						result_item.put_member(m.first, m.second);
 					}
 				}
 			}
@@ -2850,8 +2871,8 @@ namespace corona
 				{
 					auto element = get_element(i);
 					if (_where_clause(element)) {
-						json jnew = element->clone();
-						result_item.put_element(-1, jnew);
+//						json jnew = element->clone();
+						result_item.put_element(-1, element);
 					}
 				}
 			}
@@ -3015,7 +3036,7 @@ namespace corona
 						std::shared_ptr<json_string> js = std::dynamic_pointer_cast<json_string>(member.second);
 						if (js)
 						{
-							auto ifound = abbrev->members.find(js->value);
+							auto ifound = abbrev->members.find(js->get_value());
 							if (ifound != std::end(abbrev->members)) {
 								member.second = ifound->second;
 							}
@@ -3592,7 +3613,7 @@ namespace corona
 		json from_string(std::string _d)
 		{
 			std::shared_ptr<json_string> dd = std::make_shared<json_string>();
-			dd->value = _d;
+			dd->set_value(_d.c_str());
 			json result(dd);
 			return result;
 		}
@@ -3844,7 +3865,7 @@ namespace corona
 					if (parse_string(new_string_value, _src, &new_src))
 					{
 						auto js = std::make_shared<json_string>();
-						js->value = new_string_value;
+						js->set_value( new_string_value.c_str() );
 						_value = js;
 						*_modified = new_src;
 						return result;
@@ -3882,7 +3903,7 @@ namespace corona
 			if (parse_string(new_string_value, _src, &new_src))
 			{
 				auto js = std::make_shared<json_string>();
-				js->value = new_string_value;
+				js->set_value(new_string_value.c_str());
 				_value = js;
 			}
 			else if (parse_number(new_number_value, _src, &new_src))

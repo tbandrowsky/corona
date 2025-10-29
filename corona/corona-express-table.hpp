@@ -654,8 +654,9 @@ namespace corona
 			block = _block;
 		}
 
-		void check()
+		bool check()
 		{
+			bool keep = true;
 			lease_lock.lock();
 			if (block and 
 				!block->is_dirty() and 				
@@ -665,8 +666,10 @@ namespace corona
 			{
                 delete block;
                 block = nullptr;
+				keep = false;
 			}
 			lease_lock.unlock();
+			return keep;
 		}
 
 		int get_use_count() const { return use_count; }
@@ -1476,16 +1479,25 @@ namespace corona
 			}
 		}
 
-		for (auto& sv : branch_blocks)
-		{
-			sv.second->check();
-		}
+        for (auto bi = branch_blocks.begin(); bi != branch_blocks.end(); )
+        {
+            if (bi->second->check() == false) {
+                bi = branch_blocks.erase(bi);
+            }
+            else {
+                bi++;
+            }
+        }
 
-		for (auto& sv : leaf_blocks)
+		for (auto bi = leaf_blocks.begin(); bi != leaf_blocks.end(); )
 		{
-			sv.second->check();
+			if (bi->second->check() == false) {
+				bi = leaf_blocks.erase(bi);
+			}
+			else {
+				bi++;
+			}
 		}
-
 
 		return total_memory;
 	}
