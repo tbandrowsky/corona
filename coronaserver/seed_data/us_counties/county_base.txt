@@ -1,4 +1,3 @@
-FIPS Code	State	County
 1001	AL	Autauga County
 1003	AL	Baldwin County
 1005	AL	Barbour County
@@ -3167,7 +3166,7 @@ FIPS Code	State	County
 72005	PR	Aguadilla Municipio
 72007	PR	Aguas Buenas Municipio
 72009	PR	Aibonito Municipio
-72011	PR	A±asco Municipio
+72011	PR	A?asco Municipio
 72013	PR	Arecibo Municipio
 72015	PR	Arroyo Municipio
 72017	PR	Barceloneta Municipio
@@ -3178,7 +3177,7 @@ FIPS Code	State	County
 72027	PR	Camuy Municipio
 72029	PR	Can?vanas Municipio
 72031	PR	Carolina Municipio
-72033	PR	Cata±o Municipio
+72033	PR	Cata?o Municipio
 72035	PR	Cayey Municipio
 72037	PR	Ceiba Municipio
 72039	PR	Ciales Municipio
@@ -3190,7 +3189,7 @@ FIPS Code	State	County
 72051	PR	Dorado Municipio
 72053	PR	Fajardo Municipio
 72054	PR	Florida Municipio
-72055	PR	Guﬂnica Municipio
+72055	PR	Gu?nica Municipio
 72057	PR	Guayama Municipio
 72059	PR	Guayanilla Municipio
 72061	PR	Guaynabo Municipio
@@ -3218,17 +3217,17 @@ FIPS Code	State	County
 72105	PR	Naranjito Municipio
 72107	PR	Orocovis Municipio
 72109	PR	Patillas Municipio
-72111	PR	Pe±uelas Municipio
+72111	PR	Pe?uelas Municipio
 72113	PR	Ponce Municipio
 72115	PR	Quebradillas Municipio
 72117	PR	Rinc?n Municipio
 72119	PR	R?o Grande Municipio
 72121	PR	Sabana Grande Municipio
 72123	PR	Salinas Municipio
-72125	PR	San Germﬂn Municipio
+72125	PR	San Germ?n Municipio
 72127	PR	San Juan Municipio
 72129	PR	San Lorenzo Municipio
-72131	PR	San Sebastiﬂn Municipio
+72131	PR	San Sebasti?n Municipio
 72133	PR	Santa Isabel Municipio
 72135	PR	Toa Alta Municipio
 72137	PR	Toa Baja Municipio

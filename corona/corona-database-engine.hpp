@@ -6038,6 +6038,7 @@ private:
 					if (not result[success_field]) 
 					{
 						all_objects_good = false;
+						break;
 					}
 				}
 
@@ -6049,7 +6050,7 @@ private:
 			}
 
 			response.put_member(success_field, all_objects_good);
-			response.put_member(message_field, "Objects processed"sv);
+			response.put_member(message_field, all_objects_good ? "Objects processed"sv : "Object errors"sv);
 			response.share_member(data_field, classes_group);
 			return response;
 		}
@@ -7327,14 +7328,15 @@ private:
 														// Print each line to the standard output.
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
-														jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
 
 														if (pivot_object.empty()) 
 														{
+															jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
 															datomatic.push_back(new_object);
 														}
 														else 
 														{
+															jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
 															std::string attribute_field_name = new_object[pivot_attribute_field_name];
 															std::string attribute_value = new_object[pivot_value_field_name];
                                                             json pivot_keys = new_object.extract(pivot_object_field_names);
