@@ -3803,6 +3803,8 @@ namespace corona
 					ancestors.insert_or_assign(base_class_name, true);
 					base_class->update_descendants().insert_or_assign(class_name, true);
 					descendants.insert_or_assign(class_name, true);
+					std::vector<std::string> base_fields = base_class->get_full_text_fields();
+					full_text_fields.insert(full_text_fields.end(), base_fields.begin(), base_fields.end());
 
 					for (auto temp_field : base_class->get_fields())
 					{
@@ -3979,7 +3981,8 @@ namespace corona
 					ancestors.insert_or_assign(base_class_name, true);
 					base_class->update_descendants().insert_or_assign(class_name, true);
 					descendants.insert_or_assign(class_name, true);
-
+                    std::vector<std::string> base_fields = base_class->get_full_text_fields();
+                    full_text_fields.insert(full_text_fields.end(), base_fields.begin(), base_fields.end());
 					for (auto temp_field : base_class->get_fields())
 					{
 						fields.insert_or_assign(temp_field->get_field_name(), temp_field);
@@ -7310,7 +7313,7 @@ private:
 
 											if (fp) {
 												// Buffer to store each line of the file.
-												char line[8182];
+												char line[32768];
 												json datomatic = jp.create_array();
 
 												// create template object

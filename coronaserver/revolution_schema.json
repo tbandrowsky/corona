@@ -761,7 +761,7 @@
         "area_codes": "string",
         "latitude": "number",
         "longitude": "number",
-        "world_region": "nstring",
+        "world_region": "string",
         "country": "string",
         "decommissioned": "string",
         "estimated_population": "number",
@@ -845,6 +845,7 @@
       "class_description": "Population",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "full_text": [ "fips_code", "state", "county" ],
       "fields": {
         "fips_code": "string",
         "state": "string",
@@ -1815,7 +1816,7 @@
       "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
       "import": {
         "type": "csv",
-        "delimiter": "tab",
+        "delimiter": "|",
         "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
         "target_class": "county_hsra",
         "column_map": {
