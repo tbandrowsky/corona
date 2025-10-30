@@ -1097,6 +1097,11 @@ namespace corona
 			value_base = _value;
 		}
 
+		void clear()
+		{
+            value_base = nullptr;
+		}
+
 		json_double *double_impl() const {
 			return dynamic_cast<json_double *>(value_base.get());
 		}
@@ -1463,7 +1468,6 @@ namespace corona
 		}
 
 		json make_path(std::string_view _path, std::string& _name, json _value);
-
 
 		bool is_int64() const
 		{

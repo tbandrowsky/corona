@@ -7258,6 +7258,35 @@ private:
 										system_monitoring_interface::active_mon->log_warning("filename and delimiter can't be blank.");
 									}
 
+									json pivot = import_spec["pivot"];
+									json pivot_object;
+									std::vector<std::string> pivot_object_field_names;
+									std::string pivot_attribute_field_name;
+									std::string pivot_value_field_name;
+
+									if (pivot) 
+									{
+										pivot_attribute_field_name = import_spec["attribute_field"];
+										pivot_value_field_name = import_spec["value_field"];
+
+										if (pivot_attribute_field_name.empty() or pivot_value_field_name.empty())
+										{
+                                            system_monitoring_interface::active_mon->log_warning("pivot import attribute_field and value_field must be strings.");
+											pivot.clear();
+                                            continue;
+										}
+
+										pivot_object_field_names = import_spec["object_fields"].to_string_array();
+                                        if (pivot_object_field_names.size() == 0)
+                                        {
+                                            system_monitoring_interface::active_mon->log_warning("pivot import object_fields must be [ string, .. ].");
+                                            pivot.clear();
+                                            continue;
+                                        }
+
+										pivot_object = jp.create_object();
+									}
+
 									if (std::filesystem::exists(filename))
 									{
 
@@ -7285,7 +7314,7 @@ private:
 												json new_object_response = create_object(cor);
 
 												if (new_object_response[success_field]) {
-													json new_object_template = new_object_response[data_field];
+													json new_object_template = new_object_response[data_field];												
 
 													// Read each line from the file and store it in the 'line' buffer.
 													int64_t total_row_count = 0;
@@ -7294,7 +7323,26 @@ private:
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
 														jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
-														datomatic.push_back(new_object);
+
+														if (pivot_object.empty()) 
+														{
+															datomatic.push_back(new_object);
+														}
+														else 
+														{
+															std::string attribute_field_name = new_object[pivot_attribute_field_name];
+															std::string attribute_value = new_object[pivot_value_field_name];
+                                                            json pivot_keys = new_object.extract(pivot_object_field_names);
+
+															if (pivot_keys.compare(pivot_object) != 0) 
+															{
+																datomatic.push_back(pivot_object);
+																pivot_object = pivot_keys;
+															}
+
+                                                            pivot_object.put_member(attribute_field_name, attribute_value);
+														}
+
 														if (datomatic.size() > import_batch_size) {
 															int batch_size = (int)datomatic.size();
 															total_row_count += datomatic.size();
