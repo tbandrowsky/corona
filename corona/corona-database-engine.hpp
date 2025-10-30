@@ -7256,6 +7256,11 @@ private:
 									std::string delimiter = import_spec["delimiter"];
 									if (filename.empty() or delimiter.empty()) {
 										system_monitoring_interface::active_mon->log_warning("filename and delimiter can't be blank.");
+										continue;
+									}
+
+									if (delimiter == "tab") {
+										delimiter = "\t";
 									}
 
 									json pivot = import_spec["pivot"];

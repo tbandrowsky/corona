@@ -7,10 +7,183 @@
   ],
   "classes": [
     {
-      "class_name": "note",
-      "class_description": "Note",
+      "class_name": "work_object",
       "base_class_name": "sys_object",
-      "parents": [ "work_ticket", "appointment" ],
+      "class_description": "Object with Stories",
+      "fields": {
+        "stories": "[ story ]",
+        "tickets": "[ work_ticket ]"
+      }
+    },
+    {
+      "class_name": "responsibility",
+      "base_class_name": "work_object",
+      "class_description": "Responsability",
+      "parents": [ "insurance_coverage", "work_team", "model_ticket", "justice_ticket", "policy_base", "insurance_coverage", "insurance_claim_request", "insurance_claim_response" ],
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "responsibility",
+      "class_description": "Responsibility Person",
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "middle_name": "string",
+        "mission": "string",
+        "email": "string",
+        "phone": "string"
+      }
+    },
+    {
+      "class_name": "family_member",
+      "base_class_name": "person",
+      "class_description": "Family Member",
+      "fields": {
+        "birthday": "datetime"
+      }
+    },
+    {
+      "class_name": "family_child",
+      "base_class_name": "family_member",
+      "class_description": "Child",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "family_spouse",
+      "base_class_name": "family_member",
+      "class_description": "Spouse",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "family_me",
+      "base_class_name": "family_member",
+      "class_description": "Self",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "tribal_member",
+      "base_class_name": "person",
+      "class_description": "Tribal Member",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "employee_member",
+      "base_class_name": "person",
+      "class_description": "Employee",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "location",
+      "class_description": "Location",
+      "base_class_name": "responsibility",
+      "parents": [ "discharge", "construction_ticket" ],
+      "fields": {
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "country": "string",
+        "buildings": "[ building ]"
+      }
+    },
+    {
+      "class_name": "building",
+      "class_description": "Building",
+      "base_class_name": "work_object",
+      "parents": [ "location" ],
+      "fields": {
+        "latitude": "double",
+        "longitude": "double",
+        "elevation": "double",
+        "stories": "int32",
+        "year_built": "int32",
+        "square_footage": "int32",
+        "use_type": "string",
+        "construction": "string",
+        "occupancy": "string"
+      }
+    },
+    {
+      "class_name": "property",
+      "class_description": "Property",
+      "base_class_name": "responsibility",
+      "fields": {
+        "manufacturer": "string",
+        "value": "number"
+      }
+    },
+    {
+      "class_name": "work_ticket",
+      "class_description": "Work Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "parents": [ "work_object", "story" ],
+      "fields": {
+        "comments": "[ comment ]"
+      }
+    },
+    {
+      "class_name": "objective",
+      "class_description": "Objective",
+      "base_class_name": "work_object",
+      "parents": [ "plan" ],
+      "class_color": "#33212A",
+      "full_text": [ "name", "description", "street1", "street2", "city", "zip", "state" ],
+      "fields": {
+        "start_time": "datetime",
+        "hours": "number",
+        "goal": "string",
+        "description": "string",
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "zip"
+      }
+    },
+    {
+      "class_name": "plan",
+      "class_description": "Plan",
+      "base_class_name": "work_object",
+      "parents": [ "work_team" ],
+      "class_color": "#33212A",
+      "full_text": [ "mission", "task" ],
+      "fields": {
+        "mission": "string",
+        "task": "string"
+      }
+    },
+    {
+      "class_name": "story",
+      "class_description": "Base Story",
+      "base_class_name": "sys_object",
+      "class_color": "#4e7a69",
+      "parents": [ "work_team" ],
+      "full_text": [ "name", "description", "contents", "authors" ],
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "authors": "[ string ]",
+        "contents": "string",
+        "copywrite": "string",
+        "url": "string"
+      }
+    },
+    {
+      "class_name": "comment",
+      "class_description": "Comment",
+      "base_class_name": "sys_object",
+      "parents": [ "sys_ticket", "story" ],
       "class_color": "#e1cab2",
       "full_text": [ "name", "text" ],
       "fields": {
@@ -23,190 +196,72 @@
       }
     },
     {
-      "class_name": "work_ticket",
-      "class_description": "Work Ticket",
-      "base_class_name": "sys_ticket",
-      "class_color": "#4f7959",
-      "fields": {
-        "notes": "[ note ]"
-      }
-    },
-    {
-      "class_name": "ticket_search",
-      "class_description": "Ticket Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "full_text": {
-          "field_type": "string",
-          "label": "Search Text"
-        },
-        "start_date": {
-          "field_type": "datetime",
-          "label": "From Date"
-        },
-        "stop_date": {
-          "field_type": "datetime",
-          "label": "To Date"
-        },
-        "tickets": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "work_ticket",
-                "name": "work_ticket",
-                "filter": {
-                  "full_text": "$this.full_text"
-                }
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "work_ticket",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "gte",
-                      "valuepath": "created",
-                      "value": "$this.start_date"
-                    },
-                    {
-                      "class_name": "lte",
-                      "valuepath": "created",
-                      "value": "$this.stop_date"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "appointment",
-      "class_description": "Appointments",
-      "base_class_name": "sys_object",
-      "parents": [ "work_team" ],
-      "class_color": "#33212A",
-      "full_text": [ "name", "description", "street", "city", "zip", "state" ],
-      "fields": {
-        "name": "string",
-        "description": "string",
-        "start_time": "datetime",
-        "end_time": "datetime",
-        "street": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "zip"
-      }
-    },
-    {
-      "class_name": "appointment_search",
-      "class_description": "Appointment Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "full_text": {
-          "field_type": "string",
-          "label": "Search Text"
-        },
-        "start_date": {
-          "field_type": "datetime",
-          "label": "From Date"
-        },
-        "stop_date": {
-          "field_type": "datetime",
-          "label": "To Date"
-        },
-        "appointments": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "appointment",
-                "name": "appointment",
-                "filter": {
-                  "full_text": "$this.full_text"
-                }
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "appointment",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "gte",
-                      "valuepath": "created",
-                      "value": "$this.start_date"
-                    },
-                    {
-                      "class_name": "lte",
-                      "valuepath": "created",
-                      "value": "$this.stop_date"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "article",
-      "class_description": "Article",
+      "class_name": "story",
+      "class_description": "Product Story",
       "base_class_name": "sys_object",
       "class_color": "#4e7a69",
-      "parents": [ "work_team" ],
-      "full_text" :  [ "name", "description", "contents" ],
+      "parents": [ "work_object" ],
+      "full_text": [ "manufacturer", "purchased_from", "comments" ],
       "fields": {
-        "name": "string",
-        "description": "string",
-        "contents" :  "string"
+        "manufacturer": "string",
+        "purchased_from": "string",
+        "comments": "[ comment ]",
+        "tickets": "[ sys_ticket ]"
       }
     },
     {
-      "class_name": "article_place",
-      "class_description": "Article about a Place",
-      "base_class_name": "article",
+      "class_name": "story_place",
+      "class_description": "Place Story",
+      "base_class_name": "story",
+      "full_text": [ "street1", "street2", "city", "state" ],
       "fields": {
-        "street": "string",
+        "street1": "string",
+        "street2": "string",
         "city": "string",
         "state": "string",
         "zip": "string"
       }
     },
     {
-      "class_name": "article_district",
-      "class_description": "Article about a District",
-      "base_class_name": "article",
-      "fields": {
-        "district": "string"
-      }
-    },
-    {
-      "class_name": "article_person",
-      "class_description": "Article about a Person",
-      "base_class_name": "article",
+      "class_name": "story_person",
+      "class_description": "Character Story",
+      "base_class_name": "story",
+      "full_text": [ "first_name", "last_name", "description", "titles" ],
       "fields": {
         "first_name": "string",
         "last_name": "string",
-        "street": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "string"
+        "titles": "[ string ]",
+        "nick_names": "[ string ]",
+        "description": "string"
       }
     },
     {
-      "class_name": "article_manufacture",
+      "class_name": "story_event",
+      "class_description": "Event Story",
+      "base_class_name": "article",
+      "fields": {
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "latitude": "double",
+        "longitude": "double",
+        "event_date": "datetime"
+      }
+    },
+    {
+      "class_name": "story_howto",
       "class_description": "How-To Article",
+      "base_class_name": "story",
+      "fields": {
+        "components": [ "string" ],
+        "steps": [ "string" ]
+      }
+    },
+    {
+      "class_name": "story_recipe",
+      "class_description": "Recipe",
       "base_class_name": "article",
       "fields": {
         "components": [ "string" ],
@@ -214,66 +269,48 @@
       }
     },
     {
-      "class_name": "article_search",
-      "class_description": "Article Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
+      "class_name": "story_music",
+      "class_description": "Music Story",
+      "base_class_name": "story",
       "fields": {
-        "text": {
-          "field_type": "string",
-          "label": "Search Text"
-        },
-        "start_date": {
-          "field_type": "datetime",
-          "label": "From Date"
-        },
-        "stop_date": {
-          "field_type": "datetime",
-          "label": "To Date"
-        },
-        "articles": {
-          "field_type": "query",
-          "label": "Articles",
-          "query": {
-            "from": [
-              {
-                "class_name": "article",
-                "name": "article"
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "article",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.text"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.text"
-                    },
-                    {
-                      "class_name": "gte",
-                      "valuepath": "created",
-                      "value": "$this.start_date"
-                    },
-                    {
-                      "class_name": "lte",
-                      "valuepath": "created",
-                      "value": "$this.stop_date"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
+        "musicians": [ "string" ]
+      }
+    },
+    {
+      "class_name": "story_health",
+      "class_description": "Health Story",
+      "base_class_name": "story",
+      "fields": {
+        "benefits": "string",
+        "side_effects": "string"
+      }
+    },
+    {
+      "class_name": "story_medicine",
+      "class_description": "Health Story",
+      "base_class_name": "story",
+      "fields": {
+        "medicines": [ "string" ],
+        "surgeries": [ "string" ]
+      }
+    },
+    {
+      "class_name": "story_link",
+      "class_description": "Link",
+      "base_class_name": "story",
+      "fields": {
+        "url": "string",
+        "oath2_providers": [ "string" ]
+      }
+    },
+    {
+      "class_name": "story_resources",
+      "class_description": "Resource",
+      "base_class_name": "story",
+      "fields": {
+        "street1": "string",
+        "street2": "string",
+        "steps": [ "string" ]
       }
     },
     {
@@ -282,14 +319,14 @@
       "base_class_name": "sys_team",
       "class_color": "#bcbcbc",
       "fields": {
-        "appointments": "[ appointment ]",
+        "plans": "[ plan ]",
         "articles": "[ article ]"
       }
     },
     {
       "class_name": "candidate",
       "class_description": "Candidates",
-      "base_class_name": "sys_object",
+      "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "full_name", "political_party", "city", "state", "street1", "street2", "zip" ],
       "fields": {
@@ -344,63 +381,9 @@
       }
     },
     {
-      "class_name": "candidate_search",
-      "class_description": "Candidate Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "searc": "string",
-        "state": "string",
-        "city": "string",
-        "political_party": "string",
-        "candidates": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "candidate",
-                "name": "candidate"
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "candidate",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "full_name",
-                      "value": "$this.full_name"
-                    },
-                    {
-                      "class_name": "eq",
-                      "valuepath": "state",
-                      "value": "$this.state"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "city",
-                      "value": "$this.city"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "political_party",
-                      "value": "$this.political_party"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
       "class_name": "committee",
       "class_description": "Committee",
-      "base_class_name": "sys_object",
+      "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "committee_name", "political_party" ],
       "fields": {
@@ -413,49 +396,6 @@
           "index_keys": [
             "committee_id"
           ]
-        }
-      }
-    },
-    {
-      "class_name": "committee_search",
-      "class_description": "Committee Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "text": {
-          "field_type": "string",
-          "label": "Search Text"
-        },
-        "articles": {
-          "field_type": "query",
-          "label": "Committees",
-          "query": {
-            "from": [
-              {
-                "class_name": "committee",
-                "name": "committee",
-                "filter": {
-                  "full_text" :  "$this.text"
-                }
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "committee",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "committee_name",
-                      "value": "$this.text"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
         }
       }
     },
@@ -482,9 +422,9 @@
       }
     },
     {
-      "class_name": "individual",
-      "class_description": "Individual Donor",
-      "base_class_name": "sys_object",
+      "class_name": "donor",
+      "class_description": "Political Donor",
+      "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "full_name", "employer", "occupation", "memo", "city", "zip" ],
       "fields": {
@@ -522,189 +462,613 @@
       }
     },
     {
-      "class_name": "individual_search",
-      "class_description": "Individual Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "full_text": {
-          "field_type": "string",
-          "required": true,
-          "label": "Text"
-        },
-        "individuals": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "individual",
-                "name": "individual",
-                "filter": {
-                  "full_text": "$this.full_text"
-                }
-              }
-            ],
-            "stages": [
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "intelligence_ticket",
-      "class_description": "Intelligence Ticket",
-      "base_class_name": "work_ticket",
+      "class_name": "county_ticket",
+      "class_description": "County Ticket",
+      "base_class_name": "sys_ticket",
       "class_color": "#4f7959",
       "fields": {
 
       }
     },
     {
-      "class_name": "intelligence_article",
-      "class_description": "Intelligence Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
+      "class_name": "county_demographics",
+      "class_description": "Demographics",
+      "base_class_name": "work_object",
       "class_color": "#4e7a69",
       "fields": {
-        "intelligence": "string"
-      }
-    },
-    {
-      "class_name": "model_search",
-      "class_description": "Model Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "model",
-      "class_description": "Model",
-      "base_class_name": "sys_object",
-      "fields": {
-        "model_name": "string",
-        "model_description": "string"
-      }
-    },
-    {
-      "class_name": "model_ticket",
-      "class_description": "Model Ticket",
-      "base_class_name": "work_ticket",
-      "class_color": "#4f7959",
-      "fields": {
-        "responsibility_set": "responsibility_set",
-        "model": "model"
-      }
-    },
-    {
-      "class_name": "model_article",
-      "class_description": "Model Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
-      "class_color": "#4e7a69",
-      "fields": {
-        "policy": "string"
-      }
-    },
-    {
-      "class_name": "colony",
-      "class_description": "Colony",
-      "base_class_name": "sys_object",
-      "fields": {
-        "name": "string",
-        "description": "string",
+        "county": "string",
         "state": "string",
-        "county": "string"
+        "percent_65_and_older": "number",
+        "percent_under_18_years": "number",
+        "percent_under_5_years": "number",
+        "bachelor's_degree_or_higher": "number",
+        "high_school_or_higher": "number",
+        "nonemployer_establishments": "number",
+        "american_indian_and_alaska_native_alone": "number",
+        "asian_alone": "number",
+        "black_alone": "number",
+        "hispanic_or_latino": "number",
+        "native_hawaiian_and_other_pacific_islander_alone": "number",
+        "two_or_more_races": "number",
+        "white_alone": "number",
+        "white_not_hispanic_or_latino": "number",
+        "homeownership_rate": "number",
+        "households": "number",
+        "housing_units": "number",
+        "median_value_of_owner-occupied_units": "number",
+        "persons_per_household": "number",
+        "median_houseold_income": "number",
+        "per_capita_income": "number",
+        "foreign_born": "number",
+        "land_area": "number",
+        "language_other_than_english_at_home": "number",
+        "living_in_same_house_for_year": "number",
+        "manufacturers_shipments": "number",
+        "mean_travel_time_to_work": "number",
+        "percent_female": "number",
+        "veterans": "number",
+        "2020_population": "number",
+        "2010_population": "number",
+        "population_per_square_mile": "number",
+        "accommodation_and_food_services_sales": "number",
+        "retail_sales": "number",
+        "firms_total": "number",
+        "firms_women-owned": "number",
+        "firms_men-owned": "number",
+        "firms_minority-owned": "number",
+        "firms_nonminority-owned": "number",
+        "firms_veteran-owned": "number",
+        "firms_nonveteran-owned": "number"
+      },
+      "indexes": {
+        "county_demographics_county_state_idx": {
+          "index_keys": [
+            "county",
+            "state"
+          ]
+        }
       }
     },
     {
-      "class_name": "colony_search",
-      "class_description": "Colony Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
+      "class_name": "county_education",
+      "class_description": "Education",
+      "base_class_name": "work_object",
+      "class_color": "#4e7a69",
       "fields": {
-        "name": {
-          "field_type": "string"
-        },
-        "description": {
-          "field_type": "string"
-        },
-        "state": {
-          "field_type": "string",
-          "required": true
-        },
-        "county": {
-          "field_type": "string"
-        },
-        "colonies": {
+        "fips_code": "string",
+        "state": "string",
+        "county": "string",
+        "2013_urban_influence_code": "number",
+        "2024_urban_influence_code": "number",
+        "2013_rural_urban_continuum_code": "number",
+        "2023_rural_urban_continuum_code": "number",
+        "less_than_a_high_school_diploma_1970": "number",
+        "high_school_diploma_only_1970": "number",
+        "some_college_1970": "number",
+        "four_years_of_college_or_higher_1970": "number",
+        "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
+        "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
+        "percent_of_adults_completing_some_college_1970": "number",
+        "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
+        "less_than_a_high_school_diploma_1980": "number",
+        "high_school_diploma_only_1980": "number",
+        "some_college_1980": "number",
+        "four_years_of_college_or_higher_1980": "number",
+        "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
+        "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
+        "percent_of_adults_completing_some_college_1980": "number",
+        "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
+        "less_than_high_school_graduate_1990": "number",
+        "high_school_graduate_1990": "number",
+        "some_college_or_associate_degree_1990": "number",
+        "bachelor's_degree_or_higher_1990": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
+        "less_than_high_school_graduate_2000": "number",
+        "high_school_graduate_2000": "number",
+        "some_college_or_associate_degree_2000": "number",
+        "bachelors_degree_or_higher_2000": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
+        "percent_of_adults_who_are_high_school_graduates_2000": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
+        "less_than_high_school_graduate_2012": "number",
+        "high_school_graduate_2012": "number",
+        "some_college_or_associate_degree_2012": "number",
+        "bachelor's_degree_or_higher_2012": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
+        "less_than_high_school_graduate_2023": "number",
+        "high_school_graduate_2023": "number",
+        "some_college_or_associate_degree_2023": "number",
+        "bachelor's_degree_or_higher_2023": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
+        "percent_of_adults_who_are_high_school_graduates_2023": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
+      },
+      "indexes": {
+        "county_education_county_state_idx": {
+          "index_keys": [
+            "county",
+            "state"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "county_population",
+      "class_description": "Population",
+      "base_class_name": "work_object",
+      "class_color": "#4e7a69",
+      "fields": {
+        "fips_code": "string",
+        "state": "string",
+        "county": "string",
+        "births_2020": "number",
+        "births_2021": "number",
+        "births_2022": "number",
+        "births_2023": "number",
+        "census_2020_pop": "number",
+        "deaths_2020": "number",
+        "deaths_2021": "number",
+        "deaths_2022": "number",
+        "deaths_2023": "number",
+        "domestic_mig_2020": "number",
+        "domestic_mig_2021": "number",
+        "domestic_mig_2022": "number",
+        "domestic_mig_2023": "number",
+        "economic_typology_2015": "number",
+        "estimates_base_2020": "number",
+        "gq_estimates_2020": "number",
+        "gq_estimates_2021": "number",
+        "gq_estimates_2022": "number",
+        "gq_estimates_2023": "number",
+        "gq_estimates_base_2020": "number",
+        "international_mig_2020": "number",
+        "international_mig_2021": "number",
+        "international_mig_2022": "number",
+        "international_mig_2023": "number",
+        "n_pop_chg_2020": "number",
+        "n_pop_chg_2021": "number",
+        "n_pop_chg_2022": "number",
+        "n_pop_chg_2023": "number",
+        "natural_chg_2020": "number",
+        "natural_chg_2021": "number",
+        "natural_chg_2022": "number",
+        "natural_chg_2023": "number",
+        "net_mig_2020": "number",
+        "net_mig_2021": "number",
+        "net_mig_2022": "number",
+        "net_mig_2023": "number",
+        "pop_estimate_2020": "number",
+        "pop_estimate_2021": "number",
+        "pop_estimate_2022": "number",
+        "pop_estimate_2023": "number",
+        "r_birth_2021": "number",
+        "r_birth_2022": "number",
+        "r_birth_2023": "number",
+        "r_death_2021": "number",
+        "r_death_2022": "number",
+        "r_death_2023": "number",
+        "r_domestic_mig_2021": "number",
+        "r_domestic_mig_2022": "number",
+        "r_domestic_mig_2023": "number",
+        "r_international_mig_2021": "number",
+        "r_international_mig_2022": "number",
+        "r_international_mig_2023": "number",
+        "r_natural_chg_2021": "number",
+        "r_natural_chg_2022": "number",
+        "r_natural_chg_2023": "number",
+        "r_net_mig_2021": "number",
+        "r_net_mig_2022": "number",
+        "r_net_mig_2023": "number",
+        "residual_2020": "number",
+        "residual_2021": "number",
+        "residual_2022": "number",
+        "residual_2023": "number",
+        "rural_urban_continuum_code_2013": "number",
+        "rural_urban_continuum_code_2023": "number",
+        "urban_influence_2013": "number"
+
+      },
+      "indexes": {
+        "county_population_county_state_idx": {
+          "index_keys": [
+            "county",
+            "state"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "county_hsra",
+      "class_description": "HSRA Grants",
+      "base_class_name": "work_object",
+      "class_color": "#4e7a69",
+      "fields": {
+        "state": "string",
+        "county": "string",
+        "award_year": "number",
+        "financial_assistance": "number",
+        "grantee_address": "number",
+        "grantee_city": "number",
+        "grantee_county_description": "number",
+        "grantee_name": "number",
+        "grantee_region_code": "number",
+        "hrsa_region": "number",
+        "state_name": "number",
+        "grantee_zip_code": "number",
+        "grant_activity_code": "number",
+        "grant_number": "number",
+        "grant_serial_number": "number",
+        "project_period_start_date": "number",
+        "project_period_start_date_text_string": "number",
+        "grant_project_period_end_date": "number",
+        "grant_project_period_end_date_text": "number",
+        "hrsa_program_area_code": "number",
+        "hrsa_program_area_name": "number",
+        "complete_county_name": "number",
+        "grant_program_name": "number",
+        "congressional_district_name": "number",
+        "congressional_district_number": "number",
+        "hhs_region_number": "number",
+        "us_congressional_representative_name": "number",
+        "state_and_county_federal_information_processing_standard_code": "number",
+        "state_fips_code": "number",
+        "us_mexico_border_100_kilometer_indicator": "number",
+        "us_mexico_border_county_indicator": "number",
+        "name_of_us_senator_number_one": "number",
+        "name_of_us_senator_number_two": "number",
+        "uniform_data_system_grant_program_description": "number",
+        "abstract": "number",
+        "grantee_type_description": "number",
+        "duns_number": "number",
+        "unique_entity_identifier": "number",
+        "ccn": "number",
+        "geocoding_artifact_address_primary_x_coordinate": "number",
+        "geocoding_artifact_address_primary_y_coordinate": "number",
+        "data_warehouse_record_create_date": "number",
+        "data_warehouse_record_create_date_text": "number"
+      },
+      "indexes": {
+        "county_hsra_county_state_idx": {
+          "index_keys": [
+            "county",
+            "state"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "zip_code",
+      "class_description": "Zip Codes",
+      "base_class_name": "work_object",
+      "class_color": "#4e7a69",
+      "fields": {
+        "zip": "string",
+        "type": "string",
+        "primary_city": "string",
+        "acceptable_cities": "string",
+        "unacceptable_cities": "string",
+        "state": "string",
+        "county": "string",
+        "timezone": "string",
+        "area_codes": "string",
+        "latitude": "number",
+        "longitude": "number",
+        "world_region": "nstring",
+        "country": "string",
+        "decommissioned": "string",
+        "estimated_population": "number",
+        "notes": "string",
+        "candidates": {
           "field_type": "query",
           "query": {
             "from": [
               {
-                "class_name": "colony",
-                "name": "colony",
+                "class_name": "candidate",
+                "name": "candidate",
                 "filter": {
-                  "state": "$this.state"
+                  "zip": "$this.zip"
                 }
               }
             ],
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "colony",
-                "condition": {
-                  "class_name": "all",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.name"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.description"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "state",
-                      "value": "$this.state"
-                    },
-                    {
-                      "class_name": "county",
-                      "valuepath": "county",
-                      "value": "$this.county"
-                    }
-                  ]
+                "stage_input_name": "candidate"
+              }
+            ]
+          }
+        },
+        "committees": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee",
+                "name": "committee",
+                "filter": {
+                  "zip": "$this.zip"
                 }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "committee"
+              }
+            ]
+          }
+        },
+        "donors": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "donor",
+                "name": "donor",
+                "filter": {
+                  "zip": "$this.zip"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "donor"
               }
             ]
           }
         }
+      },
+      "indexes": {
+        "zip_code_zip": {
+          "index_keys": [
+            "zip"
+          ]
+        },
+        "zip_code_county": {
+          "index_keys": [
+            "state","county","zip"
+          ]
+        }
       }
     },
     {
-      "class_name": "colony_article",
-      "class_description": "Colony Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
+      "class_name": "county",
+      "class_description": "Population",
+      "base_class_name": "work_object",
       "class_color": "#4e7a69",
       "fields": {
-        "colony_status": "string"
+        "fips_code": "string",
+        "state": "string",
+        "county": "string",
+        "demographics": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "county_demographics",
+                "name": "county_demographics",
+                "filter": {
+                  "state": "$this.state",
+                  "county": "$this.county"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "county_demographics"
+              }
+            ]
+          }
+        },
+        "education": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "county_education",
+                "name": "county_education",
+                "filter": {
+                  "state": "$this.state",
+                  "county": "$this.county"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "county_education"
+              }
+            ]
+          }
+        },
+        "population": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "county_population",
+                "name": "county_population",
+                "filter": {
+                  "state": "$this.state",
+                  "county": "$this.county"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "county_population"
+              }
+            ]
+          }
+        },
+        "hsra": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "county_hsra",
+                "name": "county_hsra",
+                "filter": {
+                  "state": "$this.state",
+                  "county": "$this.county"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "county_hsra"
+              }
+            ]
+          }
+        },
+        "zip_codes": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "zip_code",
+                "name": "zip_code",
+                "filter": {
+                  "state": "$this.state",
+                  "county": "$this.county"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "stage_input_name": "zip_code"
+              }
+            ]
+          }
+        }
+      },
+      "indexes": {
+        "county_county_state_idx": {
+          "index_keys": [
+            "county",
+            "state"
+          ]
+        }
       }
     },
     {
-      "class_name": "justice_ticket",
-      "class_description": "Justice Ticket",
-      "base_class_name": "work_ticket",
+      "class_name": "model",
+      "class_description": "Model",
+      "base_class_name": "work_object",
+      "parents": [ "model_ticket", "policy_base", "insurance_response" ],
+      "fields": {
+        "model_name": "string",
+        "model_description": "string",
+        "model_accepts": "string",
+        "model_code": "string"
+      }
+    },
+    {
+      "class_name": "model_ticket",
+      "class_description": "Model Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "model": "model",
+        "responsibility": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "model_request_ticket",
+      "class_description": "Model Request",
+      "base_class_name": "model_ticket",
       "class_color": "#4f7959",
       "fields": {
       }
     },
     {
+      "class_name": "model_response_ticket",
+      "class_description": "Model Response",
+      "base_class_name": "model_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "results": "object"
+      }
+    },
+    {
+      "class_name": "justice_ticket",
+      "class_description": "Justice Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "order": "string",
+        "target": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "court_order",
+      "class_description": "An order from the court",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_plea",
+      "class_description": "A plea to the court",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_motion",
+      "class_description": "A plea to the court about a case",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_motion_evidence",
+      "class_description": "A plea to the court about a case",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "evidence": "string",
+        "evident_link": "string"
+      }
+    },
+    {
+      "class_name": "court_motion_plaintiff",
+      "class_description": "Add plaintiff",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "role": "string"
+      }
+    },
+    {
+      "class_name": "court_motion_defendant",
+      "class_description": "Add defendant",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "role": "string"
+      }
+    },
+    {
       "class_name": "arrest_ticket",
       "class_description": "Arrest Ticket",
-      "base_class_name": "justice_ticket",
+      "base_class_name": "court_order",
       "class_color": "#4f7959",
       "fields": {
       }
@@ -712,31 +1076,25 @@
     {
       "class_name": "search_ticket",
       "class_description": "Search Ticket",
-      "base_class_name": "justice_ticket",
+      "base_class_name": "court_order",
       "class_color": "#4f7959",
       "fields": {
+
       }
     },
     {
       "class_name": "seize_ticket",
       "class_description": "Seize Ticket",
-      "base_class_name": "justice_ticket",
+      "base_class_name": "court_order",
       "class_color": "#4f7959",
       "fields": {
-      }
-    },
-    {
-      "class_name": "plea_ticket",
-      "class_description": "Plea Ticket",
-      "base_class_name": "justice_ticket",
-      "class_color": "#4f7959",
-      "fields": {
+
       }
     },
     {
       "class_name": "adversary",
       "class_description": "Adversary",
-      "base_class_name": "sys_object",
+      "base_class_name": "work_object",
       "fields": {
         "entity_name": "string",
         "first_name": "string",
@@ -748,18 +1106,10 @@
       }
     },
     {
-      "class_name": "representative",
-      "class_description": "Representative",
-      "base_class_name": "adversary",
-      "fields": {
-      }
-    },
-    {
       "class_name": "plaintiff",
       "class_description": "Plaintiff",
       "base_class_name": "adversary",
       "fields": {
-        "reprentative": "[ representative ]"
       }
     },
     {
@@ -767,13 +1117,12 @@
       "class_description": "Defendant",
       "base_class_name": "adversary",
       "fields": {
-        "reprentative": "[ representative ]"
       }
     },
     {
       "class_name": "case",
       "class_description": "Court Case",
-      "base_class_name": "sys_object",
+      "base_class_name": "work_object",
       "fields": {
         "name": "string",
         "plaintiffs": [ "plaintiff" ],
@@ -781,287 +1130,161 @@
       }
     },
     {
-      "class_name": "case_search",
-      "class_description": "Case Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-      }
-    },
-    {
       "class_name": "reparations_case",
       "class_description": "Reparations Case",
-      "base_class_name": "sys_object",
+      "base_class_name": "case",
       "fields": {
       }
     },
     {
       "class_name": "treason_case",
       "class_description": "Treason Case",
-      "base_class_name": "sys_object",
+      "base_class_name": "case",
       "fields": {
       }
     },
     {
       "class_name": "criminal_case",
       "class_description": "Criminal Case",
-      "base_class_name": "sys_object",
+      "base_class_name": "case",
       "fields": {
       }
     },
     {
       "class_name": "liability_case",
       "class_description": "Liability Case",
-      "base_class_name": "sys_object",
+      "base_class_name": "case",
       "fields": {
-      }
-    },
-    {
-      "class_name": "justice_article",
-      "class_description": "Justice Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
-      "class_color": "#4e7a69",
-      "fields": {
-        "justice_text": "string"
-      }
-    },
-    {
-      "class_name": "responsibility_set",
-      "class_description": "Property and People",
-      "base_class_name": "sys_item",
-      "fields": {
-        "properties": "[ responsibility ]"
-      }
-    },
-    {
-      "class_name": "responsibility",
-      "base_class_name": "sys_object",
-      "class_description": "A Property or a Person",
-      "parents": [ "responsibility_set" ],
-      "fields": {
-        "name": "string",
-        "description": "string"
-      }
-    },
-    {
-      "class_name": "family_member",
-      "base_class_name": "sys_object",
-      "class_description": "Family Member",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "middle_name": "string"
-      }
-    },
-    {
-      "class_name": "family_child",
-      "base_class_name": "family_member",
-      "class_description": "A Child",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "middle_name": "string"
-      }
-    },
-    {
-      "class_name": "family_spouse",
-      "base_class_name": "family_member",
-      "class_description": "A Spouse",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "middle_name": "string"
-      }
-    },
-    {
-      "class_name": "family_me",
-      "base_class_name": "family_member",
-      "class_description": "Self",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "middle_name": "string"
-      }
-    },
-    {
-      "class_name": "tribal_member",
-      "base_class_name": "sys_object",
-      "class_description": "Tribal Member",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "middle_name": "string"
-      }
-    },
-    {
-      "class_name": "employee_member",
-      "base_class_name": "sys_object",
-      "class_description": "Employee",
-      "parents": [ "responsibility" ],
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "midlde_name": "string"
-      }
-    },
-    {
-      "class_name": "location",
-      "class_description": "Location",
-      "base_class_name": "responsibility",
-      "fields": {
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "string",
-        "country": "string",
-        "buildings": "[ building ]"
-      }
-    },
-    {
-      "class_name": "building",
-      "class_description": "Building",
-      "base_class_name": "responsibility",
-      "parents": [ "location" ],
-      "fields": {
-        "latitude": "double",
-        "longitude": "double",
-        "elevation": "double",
-        "stories": "int32",
-        "year_built": "int32",
-        "square_footage": "int32",
-        "use_type": "string",
-        "construction": "string",
-        "occupancy": "string"
       }
     },
     {
       "class_name": "insurance_coverage",
       "class_description": "Insurance Coverage",
-      "base_class_name": "sys_object",
+      "base_class_name": "work_object",
       "fields": {
         "reponsibilities": "[ responsibility ]",
         "risk": "string",
         "coverage_cost": "double",
         "deductible": "double",
         "attachment_point": "double",
-        "limit": "double"
+        "limit": "double",
+        "blanket": "double"
       }
     },
     {
-      "class_name": "insurance_policy",
-      "class_description": "Insurance Policy",
-      "base_class_name": "sys_object",
+      "class_name": "policy_base",
+      "class_description": "Base Policy",
+      "base_class_name": "work_object",
       "fields": {
         "policy_name": "string",
         "policy_text": "string",
-        "responsibilities": "[responsibility]",
-        "coverages": "[ insurance_coverage ]"
+        "responsibilities": "[ responsibility ]",
+        "coverages": "[ insurance_coverage ]",
+        "models": "[ model ]"
       }
     },
     {
-      "class_name": "insurance_quote",
-      "class_description": "Insurance Quote",
-      "base_class_name": "insurance_policy",
+      "class_name": "policy_quote",
+      "class_description": "Insurance Proposal",
+      "base_class_name": "policy_base",
       "fields": {
       }
     },
     {
-      "class_name": "insurance_binder",
-      "class_description": "Insurance Binder",
-      "base_class_name": "insurance_policy",
+      "class_name": "policy_in_force",
+      "class_description": "Policy In Force",
+      "base_class_name": "policy_base",
       "fields": {
-      }
-    },
-    {
-      "class_name": "insurance_policy_search",
-      "class_description": "Policy Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-      "fields": {
-        "name": "string",
-        "description": "string",
-        "policies": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "insurance_policy",
-                "name": "insurance_policy"
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "insurance_policy",
-                "condition": {
-                  "class_name": "all",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.name"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.description"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
       }
     },
     {
       "class_name": "insurance_ticket",
       "class_description": "Insurance Ticket",
-      "base_class_name": "work_ticket",
+      "base_class_name": "sys_ticket",
       "class_color": "#4f7959",
       "fields": {
-        "responsibility_set": "responsibility_set"
+        "responsibilities": "[ responsibility ]"
       }
     },
     {
-      "class_name": "insurance_article",
-      "class_description": "Insurance Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
-      "class_color": "#4e7a69",
+      "class_name": "insurance_request",
+      "class_description": "Insurance Request",
+      "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
       "fields": {
-        "insurance_text": "string"
+      }
+    },
+    {
+      "class_name": "insurance_response",
+      "class_description": "Insurance Response",
+      "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "responsibilities": "[ responsibility ]"
       }
     },
     {
       "class_name": "insurance_quote_request",
-      "class_description": "Insurance Quote",
-      "base_class_name": "insurance_ticket",
+      "class_description": "Quote Request",
+      "base_class_name": "insurance_request",
       "class_color": "#4f7959",
       "fields": {
 
       }
     },
     {
-      "class_name": "insurance_claim",
-      "class_description": "Insurance Claim",
-      "base_class_name": "insurance_ticket",
+      "class_name": "insurance_quote_response",
+      "class_description": "Quote Request",
+      "base_class_name": "insurance_response",
       "class_color": "#4f7959",
       "fields": {
-        "responsibility_set": "responsibility_set"
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_quote_accept",
+      "class_description": "Quote Accept",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "models": "[ model ]",
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_quote_reject",
+      "class_description": "Quote Change",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "models": "[ model ]",
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_claim_request",
+      "class_description": "Claim Request",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "policy": "policy_in_force",
+        "responsibility": "[responsibility]"
+      }
+    },
+    {
+      "class_name": "insurance_claim_response",
+      "class_description": "Claim Response",
+      "base_class_name": "insurance_order",
+      "class_color": "#4f7959",
+      "fields": {
+        "policy": "policy_in_force",
+        "responsibility": "[responsibility]"
       }
     },
     {
       "class_name": "permit_ticket",
       "class_description": "Permit Ticket",
-      "base_class_name": "work_ticket",
+      "base_class_name": "sys_ticket",
       "class_color": "#4f7959",
       "fields": {
         "name": "string",
@@ -1074,7 +1297,7 @@
       "base_class_name": "sys_object",
       "parents": [ "environmental_discharge_ticket" ],
       "fields": {
-        "responsibility_set": "responsibility_set",
+        "location": "location",
         "discharge_material": "string",
         "discharge_amount": "string",
         "discharge_start": "datetime",
@@ -1103,82 +1326,15 @@
     {
       "class_name": "permit",
       "class_description": "Permit",
-      "base_class_name": "article",
+      "base_class_name": "story",
       "fields": {
-        "permit_ticket": "[ permit_ticket ]",
-        "description": "string",
         "status": "string"
-      }
-    },
-    {
-      "class_name": "permit_search",
-      "class_description": "Permit Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-
-      "fields": {
-        "name": {
-          "field_type": "string"
-        },
-        "description": {
-          "field_type": "string"
-        },
-        "status": {
-          "field_type": "string"
-        },
-        "permits": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "permit",
-                "name": "permit"
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "permit",
-                "condition": {
-                  "class_name": "all",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.name"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.description"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "status",
-                      "value": "$this.status"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "permit_article",
-      "class_description": "Permit Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
-      "class_color": "#4e7a69",
-      "fields": {
-        "permit_text": "string"
       }
     },
     {
       "class_name": "technical_ticket",
       "class_description": "Tech Ticket",
-      "base_class_name": "work_ticket",
+      "base_class_name": "sys_ticket",
       "class_color": "#4f7959",
       "fields": {
         "name": "string",
@@ -1196,63 +1352,7 @@
         "description": "string",
         "status": "string"
       }
-    },
-    {
-      "class_name": "technical_search",
-      "class_description": "Tech Ticket Search",
-      "base_class_name": "sys_item",
-      "class_color": "#8f7243",
-
-      "fields": {
-        "text": {
-          "field_type": "string",
-          "label": "Text"
-        },
-        "technicals": {
-          "field_type": "query",
-          "query": {
-            "from": [
-              {
-                "class_name": "technical_ticket",
-                "name": "technical_ticket"
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "filter",
-                "stage_input_name": "technical_ticket",
-                "condition": {
-                  "class_name": "any",
-                  "conditions": [
-                    {
-                      "class_name": "contains",
-                      "valuepath": "name",
-                      "value": "$this.name"
-                    },
-                    {
-                      "class_name": "contains",
-                      "valuepath": "description",
-                      "value": "$this.description"
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "technical_article",
-      "class_description": "Tech Article",
-      "base_class_name": "article",
-      "parents": [ "work_team" ],
-      "class_color": "#4e7a69",
-      "fields": {
-        "technical_text": "string"
-      }
     }
-
   ],
   "users": [
 
@@ -1267,15 +1367,15 @@
       "objects": [
         {
           "class_name": "work_team",
-          "team_name": "Intelligence Team",
-          "team_description": "Gathers Information for the Revolution",
+          "team_name": "County Team",
+          "team_description": "Manages county resources",
           "team_domain": "NONE",
-          "inventory_classes": [ "individual_search", "candidate_search", "comittee_search" ],
+          "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "intelligence_article", "individual", "candidate", "committee" ],
+              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county", "county_education", "county_hrsa_grants", "county_population" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1283,15 +1383,15 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "individual_search", "candidate_search", "comittee_search", "note" ],
-              "get": "own",
+              "grant_classes": [ "note", "story" ],
+              "get": "team",
               "put": "own",
               "delete": "own",
               "alter": "own"
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "model_ticket", "colony_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1309,28 +1409,28 @@
           "workflow": [
             {
               "class_name": "sys_workflow",
-              "workflow_name": "intelligence_article",
-              "workflow_description": "Create article",
+              "workflow_name": "county_story_workflow",
+              "workflow_description": "Create story",
               "workflow_schedule_type": "Week",
               "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
               "workflow_schedule_hour": 1,
-              "ticket_class_name": "intelligence_ticket",
-              "ticket_name": "Create Article",
-              "ticket_description": "Create Intelligence ARticle"
+              "ticket_class_name": "county_ticket",
+              "ticket_name": "Create Story",
+              "ticket_description": "Create Story"
             }
           ]
         },
         {
           "class_name": "work_team",
           "team_name": "Model Team",
-          "team_description": "Revolution Policy",
+          "team_description": "Analysis Team",
           "team_domain": "NONE",
           "inventory_classes": [ "model_search" ],
           "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "model_ticket", "model", "model_article" ],
+              "grant_classes": [ "model_ticket", "model" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1346,7 +1446,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "justice_ticket", "colony_ticket" ],
+              "grant_classes": [ "county_ticket", "justice_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "none",
@@ -1377,48 +1477,6 @@
         },
         {
           "class_name": "work_team",
-          "team_name": "Colony Team",
-          "team_description": "Revolution Colonization",
-          "team_domain": "NONE",
-          "inventory_classes": [ "colony_search" ],
-          "allowed_teams": [],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "colony_ticket", "colony_article" ],
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "any"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "colony_search", "note" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "own"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "model_ticket", "justice_ticket", "permit_ticket", "technical_ticket" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "reponsibility_set", "reponsibility" ],
-              "get": "team",
-              "put": "team",
-              "delete": "team",
-              "alter": "none"
-            }
-          ]
-        },
-        {
-          "class_name": "work_team",
           "team_name": "Justice Team",
           "team_description": "Revolution Court",
           "team_domain": "NONE",
@@ -1427,7 +1485,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "justice_ticket", "justice_article", "case", "adversary" ],
+              "grant_classes": [ "justice_ticket", "case", "adversary" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1443,7 +1501,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "county_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1459,17 +1517,6 @@
             }
           ],
           "workflow": [
-            {
-              "class_name": "sys_workflow",
-              "workflow_name": "justice_article",
-              "workflow_description": "Create article",
-              "workflow_schedule_type": "Week",
-              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
-              "workflow_schedule_hour": 1,
-              "ticket_class_name": "justice_ticket",
-              "ticket_name": "Create Article",
-              "ticket_description": "Create Justice Article"
-            }
           ]
 
         },
@@ -1478,12 +1525,12 @@
           "team_name": "Insurance Team",
           "team_description": "Revolution Insurance",
           "team_domain": "NONE",
-          "inventory_classes": [ "insurance_policy_search" ],
+          "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "insurance_policy", "insurance_coverage", "insurance_ticket" ],
+              "grant_classes": [ "policy_base", "insurance_coverage", "insurance_ticket" ],
               "get": "any",
               "put": "any",
               "delete": "any",
@@ -1491,15 +1538,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "insurance_policy_search" ],
-              "get": "own",
-              "put": "own",
-              "delete": "none",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "permit_ticket", "technical_ticket", "court_ticket", "responsibility" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1507,7 +1546,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "grant_classes": [ "reponsibility" ],
               "get": "team",
               "put": "team",
               "delete": "team",
@@ -1534,9 +1573,7 @@
           "team_name": "Permit Team",
           "team_description": "Revolution Permits",
           "team_domain": "NONE",
-          "inventory_classes": [
-            "permit_search"
-          ],
+          "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [
             {
@@ -1549,15 +1586,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "permit_search", "article_search" ],
-              "get": "own",
-              "put": "own",
-              "delete": "none",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "grant_classes": [ "reponsibility" ],
               "get": "team",
               "put": "team",
               "delete": "team",
@@ -1596,31 +1625,15 @@
             "article_search",
             "ticket_search"
           ],
-          "allowed_teams": [ "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team" ],
+          "allowed_teams": [ "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "technical_ticket", "technical", "technical_article" ],
+              "grant_classes": [ "sys_object" ],
               "get": "any",
               "put": "any",
               "delete": "any",
               "alter": "any"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "note" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "intelligence_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
             }
           ],
           "workflow": [
@@ -1642,8 +1655,8 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "inventory_classes": [ "responsibility_set","appointment_search", "article_search", "ticket_search" ],
-          "allowed_teams": [ "Home Team", "Intelligence Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
+          "inventory_classes": [ "responsibility_set", "appointment_search", "article_search", "ticket_search" ],
+          "allowed_teams": [ "Home Team", "County Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
@@ -1655,7 +1668,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "responsibility_set", "responsibility", "note" ],
+              "grant_classes": [ "responsibility", "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1726,93 +1739,239 @@
       }
     },
     {
-      "dataset_name": "Individual Master",
-      "dataset_description": "Load Individuals",
+      "dataset_name": "County Education",
+      "dataset_description": "County Education Demographics",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
+        "target_class": "county_education",
+        "column_map": {
+          "0": "fips_code",
+          "1": "state",
+          "2": "county",
+          "3": "2013_urban_influence_code",
+          "4": "2024_urban_influence_code",
+          "5": "2013_rural_urban_continuum_code",
+          "6": "2023_rural_urban_continuum_code",
+          "7": "less_than_a_high_school_diploma_1970",
+          "8": "high_school_diploma_only_1970",
+          "9": "some_college_1970",
+          "10": "four_years_of_college_or_higher_1970",
+          "11": "percent_of_adults_with_less_than_a_high_school_diploma_1970",
+          "12": "percent_of_adults_with_a_high_school_diploma_only_1970",
+          "13": "percent_of_adults_completing_some_college_1970",
+          "14": "percent_of_adults_completing_four_years_of_college_or_higher_1970",
+          "15": "less_than_a_high_school_diploma_1980",
+          "16": "high_school_diploma_only_1980",
+          "17": "some_college_1980",
+          "18": "four_years_of_college_or_higher_1980",
+          "19": "percent_of_adults_with_less_than_a_high_school_diploma_1980",
+          "20": "percent_of_adults_with_a_high_school_diploma_only_1980",
+          "21": "percent_of_adults_completing_some_college_1980",
+          "22": "percent_of_adults_completing_four_years_of_college_or_higher_1980",
+          "23": "less_than_high_school_graduate_1990",
+          "24": "high_school_graduate_1990",
+          "25": "some_college_or_associate_degree_1990",
+          "26": "bachelor's_degree_or_higher_1990",
+          "27": "percent_of_adults_who_are_not_high_school_graduates_1990",
+          "28": "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990",
+          "29": "percent_of_adults_completing_some_college_or_associate_degree_1990",
+          "30": "percent_of_adults_with_a_bachelors_degree_or_higher_1990",
+          "31": "less_than_high_school_graduate_2000",
+          "32": "high_school_graduate_2000",
+          "33": "some_college_or_associate_degree_2000",
+          "34": "bachelors_degree_or_higher_2000",
+          "35": "percent_of_adults_who_are_not_high_school_graduates_2000",
+          "36": "percent_of_adults_who_are_high_school_graduates_2000",
+          "37": "percent_of_adults_completing_some_college_or_associate_degree_2000",
+          "38": "percent_of_adults_with_a_bachelors_degree_or_higher_2000",
+          "39": "less_than_high_school_graduate_2012",
+          "40": "high_school_graduate_2012",
+          "41": "some_college_or_associate_degree_2012",
+          "42": "bachelor's_degree_or_higher_2012",
+          "43": "percent_of_adults_who_are_not_high_school_graduates_2012",
+          "44": "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012",
+          "45": "percent_of_adults_completing_some_college_or_associate_degree_2012",
+          "46": "percent_of_adults_with_a_bachelors_degree_or_higher_2012",
+          "47": "less_than_high_school_graduate_2023",
+          "48": "high_school_graduate_2023",
+          "49": "some_college_or_associate_degree_2023",
+          "50": "bachelor's_degree_or_higher_2023",
+          "51": "percent_of_adults_who_are_not_high_school_graduates_2023",
+          "52": "percent_of_adults_who_are_high_school_graduates_2023",
+          "53": "percent_of_adults_completing_some_college_or_associate_degree_2023",
+          "54": "percent_of_adults_with_a_bachelors_degree_or_higher_2023"
+        }
+      }
+    },
+    {
+      "dataset_name": "County HRSA Grants",
+      "dataset_description": "Load HRSA Grants",
       "dataset_version": "1.0",
       "dataset_author": "Federal Elections Commission",
       "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
       "import": {
         "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\itcont.csvxx",
-        "target_class": "individual",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
+        "target_class": "donor",
         "column_map": {
-          "0": "committee_id",
-          "7": "full_name",
-          "8": "city",
+          "0": "award_year",
+          "1": "financial_assistance",
+          "2": "grantee_address",
+          "3": "grantee_city",
+          "4": "grantee_county_description",
+          "5": "county",
+          "6": "grantee_name",
+          "7": "grantee_region_code",
+          "8": "hrsa_region",
           "9": "state",
-          "10": "zip",
-          "11": "employer",
-          "12": "occupation",
-          "13": "transaction_date",
-          "14": "transaction_amount",
-          "19": "memo"
+          "10": "state_name",
+          "11": "grantee_zip_code",
+          "12": "grant_activity_code",
+          "13": "grant_number",
+          "14": "grant_serial_number",
+          "15": "project_period_start_date",
+          "16": "project_period_start_date_text_string",
+          "17": "grant_project_period_end_date",
+          "18": "grant_project_period_end_date_text",
+          "19": "hrsa_program_area_code",
+          "20": "hrsa_program_area_name",
+          "21": "complete_county_name",
+          "22": "grant_program_name",
+          "23": "congressional_district_name",
+          "24": "congressional_district_number",
+          "25": "hhs_region_number",
+          "26": "us_congressional_representative_name",
+          "27": "state_and_county_federal_information_processing_standard_code",
+          "28": "state_fips_code",
+          "29": "us_mexico_border_100_kilometer_indicator",
+          "30": "us_mexico_border_county_indicator",
+          "31": "name_of_us_senator_number_one",
+          "32": "name_of_us_senator_number_two",
+          "33": "uniform_data_system_grant_program_description",
+          "34": "abstract",
+          "35": "grantee_type_description",
+          "36": "duns_number",
+          "37": "unique_entity_identifier",
+          "38": "ccn",
+          "39": "geocoding_artifact_address_primary_x_coordinate",
+          "40": "geocoding_artifact_address_primary_y_coordinate",
+          "41": "data_warehouse_record_create_date",
+          "42": "data_warehouse_record_create_date_text"
         }
       }
     },
     {
-      "dataset_name": "Candidate Master",
-      "dataset_description": "Load Candidates",
+      "dataset_name": "County Demographics",
+      "dataset_description": "County Population Demographics",
       "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "dataset_author": "US CENSUS",
       "import": {
         "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cn.csv",
-        "target_class": "candidate",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_demographics.txt",
+        "target_class": "county_education",
         "column_map": {
-          "0": "candidate_id",
-          "1": "full_name",
-          "2": "political_party",
-          "3": "election_year",
-          "10": "street1",
-          "11": "street2",
-          "12": "city",
-          "13": "state",
-          "14": "zip"
+          "0": "county",
+          "1": "state",
+          "2": "percent_65_and_older",
+          "3": "percent_under_18_years",
+          "4": "percent_under_5_years",
+          "5": "bachelor's_degree_or_higher",
+          "6": "high_school_or_higher",
+          "7": "nonemployer_establishments",
+          "8": "american_indian_and_alaska_native_alone",
+          "9": "asian_alone",
+          "10": "black_alone",
+          "11": "hispanic_or_latino",
+          "12": "native_hawaiian_and_other_pacific_islander_alone",
+          "13": "two_or_more_races",
+          "14": "white_alone",
+          "15": "white_not_hispanic_or_latino",
+          "16": "homeownership_rate",
+          "17": "households",
+          "18": "housing_units",
+          "19": "median_value_of_owner-occupied_units",
+          "20": "persons_per_household",
+          "21": "median_houseold_income",
+          "22": "per_capita_income",
+          "23": "foreign_born",
+          "24": "land_area",
+          "25": "language_other_than_english_at_home",
+          "26": "living_in_same_house_for_year",
+          "27": "manufacturers_shipments",
+          "28": "mean_travel_time_to_work",
+          "29": "percent_female",
+          "30": "veterans",
+          "31": "2020_population",
+          "32": "2010_population",
+          "33": "population_per_square_mile",
+          "34": "accommodation_and_food_services_sales",
+          "35": "retail_sales",
+          "36": "firms_total",
+          "37": "firms_women-owned",
+          "38": "firms_men-owned",
+          "39": "firms_minority-owned",
+          "40": "firms_nonminority-owned",
+          "41": "firms_veteran-owned",
+          "42": "firms_nonveteran-owned"
         }
       }
     },
     {
-      "dataset_name": "Committee Master",
-      "dataset_description": "Load Committees",
+      "dataset_name": "County Base",
+      "dataset_description": "County",
       "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "dataset_author": "US CENSUS",
       "import": {
         "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cm.csv",
-        "target_class": "committee",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_base.txt",
+        "target_class": "county",
         "column_map": {
-          "0": "committee_id",
-          "1": "committee_name",
-          "10": "political_party",
-          "13": "company_name"
+          "0": "fips_code",
+          "1": "state",
+          "2": "county"
         }
       }
     },
     {
-      "dataset_name": "CommitteeCandidates Master",
-      "dataset_description": "Map Committees and Candidates",
+      "dataset_name": "County Zip",
+      "dataset_description": "County",
       "dataset_version": "1.0",
-      "dataset_author": "Federal Elections Commission",
-      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "dataset_author": "US CENSUS",
       "import": {
         "type": "csv",
-        "delimiter": "|",
-        "filename": "seed_data\\us_elections\\ccl.csv",
-        "target_class": "committee_candidate",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\zip_code.txt",
+        "target_class": "zip_code",
         "column_map": {
-          "0": "candidate_id",
-          "3": "committee_id"
+          "0": "zip",
+          "1": "type",
+          "2": "primary_city",
+          "3": "acceptable_cities",
+          "4": "unacceptable_cities",
+          "5": "state",
+          "6": "county",
+          "7": "timezone",
+          "8": "area_codes",
+          "9": "latitude",
+          "10": "longitude",
+          "11": "world_region",
+          "12": "country",
+          "13": "decommissioned",
+          "14": "estimated_population",
+          "15": "notes"
         }
       }
     },
     {
-      "dataset_name": "Individual Master",
-      "dataset_description": "Load Individuals",
+      "dataset_name": "Donor Master",
+      "dataset_description": "Load Donors",
       "dataset_version": "1.0",
       "dataset_author": "Federal Elections Commission",
       "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
@@ -1820,7 +1979,7 @@
         "type": "csv",
         "delimiter": "|",
         "filename": "seed_data\\us_elections\\itcont.csv",
-        "target_class": "individual",
+        "target_class": "donor",
         "column_map": {
           "0": "committee_id",
           "7": "full_name",
@@ -1835,7 +1994,5 @@
         }
       }
     }
-
-
   ]
 }
