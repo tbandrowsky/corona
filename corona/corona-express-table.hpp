@@ -12,8 +12,7 @@ namespace corona
 {
 	class xblock_cache;
 
-	const int block_age_seconds = 1;
-
+	const int block_age_seconds = 3;
 	enum xblock_types
 	{
 		xb_none = 0,
@@ -89,6 +88,27 @@ namespace corona
 
 		virtual void finished_write(char* _bytes) const
 		{
+		}
+
+        bool operator < (const xblock_ref& _src) const
+        {
+            return std::tie(block_type,location)< std::tie(_src.block_type, _src.location);
+        }
+		bool operator <= (const xblock_ref& _src) const
+		{
+			return std::tie(block_type, location) <= std::tie(_src.block_type, _src.location);
+		}
+		bool operator == (const xblock_ref& _src) const
+		{
+			return std::tie(block_type, location) == std::tie(_src.block_type, _src.location);
+		}
+		bool operator >= (const xblock_ref& _src) const
+		{
+			return std::tie(block_type, location) >= std::tie(_src.block_type, _src.location);
+		}
+		bool operator > (const xblock_ref& _src) const
+		{
+			return std::tie(block_type, location) > std::tie(_src.block_type, _src.location);
 		}
 
 	};
@@ -206,10 +226,10 @@ namespace corona
 			last_save = time(nullptr);
 		}
 
+	public:
+
 		time_t last_access;
 		time_t last_save;
-
-	public:
 
 		xrecord_block(file_block_interface *_fb, xrecord_block_header& _src, bool _retain)
 		{
@@ -257,16 +277,6 @@ namespace corona
 		bool get_retain() const
 		{
 			return retain;
-		}
-
-		time_t access_seconds() const
-		{
-            return time(nullptr) - last_access;
-		}
-
-		time_t saved_seconds() const
-		{
-			return time(nullptr) - last_save;
 		}
 
 		xblock_ref get_reference()
@@ -568,6 +578,8 @@ namespace corona
 			;
 		}
 
+		virtual bool identify(xblock_cache* cache, std::map<xblock_ref, std::vector<std::pair<xrecord,xrecord>>>& _items, const xrecord& _key, const xrecord& _value);
+
 		virtual bool put(xblock_cache* cache, int _indent, const xrecord& _key, const xrecord& _value);
 
 		virtual xrecord get(xblock_cache* cache, const xrecord& _key);
@@ -654,19 +666,23 @@ namespace corona
 			block = _block;
 		}
 
-		bool check()
+		bool check(time_t current)
 		{
 			bool keep = true;
 			lease_lock.lock();
 			if (block and 
 				!block->is_dirty() and 				
 				use_count == 0 and 
-				block->access_seconds() > block_age_seconds and 
 				block->get_retain() == false) 
 			{
-                delete block;
-                block = nullptr;
-				keep = false;
+				time_t tmla = block->last_access;
+				int64_t diff = current - tmla;
+				if (diff >= block_age_seconds) {
+					keep = false;
+					delete block;
+					block = nullptr;
+					keep = false;
+				}
 			}
 			lease_lock.unlock();
 			return keep;
@@ -1124,13 +1140,55 @@ namespace corona
 		{
 			write_scope_lock lockme(locker);
 
+			json_parser jp;
+            json spares = jp.create_array();
+
 			if (_array.array()) {
+				auto root = cache->open_branch_block(table_header->root_block, true);
+				std::map<xblock_ref, std::vector<std::pair<xrecord, xrecord>>> items;
 				for (auto item : _array) {
-					put_impl(item);
+
+					if (table_header->use_object_id) {
+						if (not item.has_member(object_id_field) or (int64_t)item[object_id_field] == 0) {
+							int64_t new_id = get_next_object_id();
+							item.put_member_i64(object_id_field, new_id);
+						}
+					}
+
+					xrecord key;
+					key.put_json(&table_header->key_members, item);
+					xrecord data;
+					data.put_json(&table_header->object_members, item);
+
+                    if (!root->identify(cache.get(), items, key, data)) {
+                        spares.push_back(item);
+                    }
 				}
-				commit_nl();
-				cache->clear();
+				cache->close_block(root);
+
+                for (auto& it : items) {
+					auto root = cache->open_branch_block(table_header->root_block, true);
+					for (auto& rec : it.second) {
+                        bool added = root->put(cache.get(), 0, rec.first, rec.second);
+                        if (added) {
+                            ::InterlockedIncrement64(&table_header->count);
+                        }
+                    }
+                    if (root->is_full()) {
+                        cache->split_root(root, 0);
+                    }
+					cache->close_block(root);
+					cache->save();
+				}
+
+                for (auto item : spares) {
+                    put_impl(item);
+                }
+
+				cache->save();
+
 			}
+
 		}
 
 		virtual void erase(int64_t _id)
@@ -1479,25 +1537,29 @@ namespace corona
 			}
 		}
 
-        for (auto bi = branch_blocks.begin(); bi != branch_blocks.end(); )
+
+		time_t current_time = time(nullptr);
+
+		std::map<int64_t, std::shared_ptr<xblock_leaseable<xleaf_block>>> new_leaf_blocks;
+		std::map<int64_t, std::shared_ptr<xblock_leaseable<xbranch_block>>> new_branch_blocks;
+
+        for (auto bi = branch_blocks.begin(); bi != branch_blocks.end(); bi++)
         {
-            if (bi->second->check() == false) {
-                bi = branch_blocks.erase(bi);
-            }
-            else {
-                bi++;
+            if (bi->second->check(current_time)) {
+                new_branch_blocks[bi->first] = bi->second;
             }
         }
 
-		for (auto bi = leaf_blocks.begin(); bi != leaf_blocks.end(); )
+		branch_blocks = std::move(new_branch_blocks);
+
+		for (auto bi = leaf_blocks.begin(); bi != leaf_blocks.end(); bi++)
 		{
-			if (bi->second->check() == false) {
-				bi = leaf_blocks.erase(bi);
-			}
-			else {
-				bi++;
+			if (bi->second->check(current_time) == false) {
+				new_leaf_blocks[bi->first] = bi->second;
 			}
 		}
+
+		leaf_blocks = std::move(new_leaf_blocks);
 
 		return total_memory;
 	}
@@ -1557,6 +1619,23 @@ namespace corona
 			found_block = find_iter->second;
 
 		return found_block;
+	}
+
+	bool xbranch_block::identify(xblock_cache * cache, std::map<xblock_ref, std::vector<std::pair<xrecord, xrecord>>>&_items, const xrecord & _key, const xrecord & _value)
+	{
+		bool identified = false;
+
+		xblock_ref found_block = find_block(_key);
+        if ((found_block.block_type == xblock_types::xb_branch) or (found_block.block_type == xblock_types::xb_leaf))
+        {
+			if (!_items.contains(found_block)) {
+                _items[found_block] = std::vector<std::pair<xrecord, xrecord>>();
+			}
+            auto& item_list = _items[found_block];
+            item_list.push_back(std::make_pair(_key, _value));
+			identified = true;
+        }
+		return identified;
 	}
 
 	bool xbranch_block::put(xblock_cache* cache, int _indent, const xrecord& _key, const xrecord& _value)

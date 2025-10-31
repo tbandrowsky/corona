@@ -61,6 +61,10 @@ namespace corona
 			"class_color":"string",
 			"grid_template_rows":"string",
 			"grid_template_columns":"string",
+			"class_author": "string",
+			"class_version": "string",
+			"card_title": "string",
+			"card_fields": "[ string ]",
 			"base_class_name":"string",	
 			"parents":"[ string ]",
 			"full_text":"[ string ]",
@@ -4449,20 +4453,37 @@ namespace corona
 					std::string full_text = _key["full_text"];
                     auto terms = ctt.tokenize(full_text);
                     std::set<int64_t> found_object_ids, join_result;
+
+					bool first_word = true;
+
 					for (auto word : terms) {
 						std::set<int64_t> base_object_ids;
 						json ft_key = jp.create_object();
                         ft_key.put_member("text", word);
+
                         json ft_results = ftb->select(ft_key, [&base_object_ids](json& _item) -> json {
                             int64_t object_id = (int64_t)_item["object_id"];
 							base_object_ids.insert(object_id);
 							json temp;
                             return temp;
                             });
-						// Merge set1 and set2 into result
-						std::merge(found_object_ids.begin(), found_object_ids.end(), base_object_ids.begin(), base_object_ids.end(),
-							std::inserter(join_result, join_result.begin()));
-						found_object_ids = join_result;
+
+						if (first_word) {
+
+                            found_object_ids = std::move(base_object_ids);
+                            first_word = false;
+						} 
+						else 
+						{
+
+							for (auto base_id : base_object_ids) {
+								if (found_object_ids.contains(base_id)) {
+									join_result.insert(base_id);
+								}
+							}
+
+							found_object_ids = std::move(join_result);
+						}
 					}
 					for (auto ids : found_object_ids) {
                         bool exists;
@@ -8628,9 +8649,9 @@ grant_type=authorization_code
 
 			json edit_request_data = _run_object_request[data_field];
 			std::string class_name = edit_request_data[class_name_field];
-			int64_t object_id = edit_request_data[class_name_field];
+			int64_t object_id = (int64_t)edit_request_data[object_id_field];
 			json edit_request = create_get_request(user_name, user_auth, class_name, object_id);
-			
+            edit_request.put_member("include_children", true);
 			result = edit_object(edit_request);
 			if (result.error())
 			{
@@ -8841,10 +8862,12 @@ grant_type=authorization_code
 
 			if (permission.get_grant != class_grants::grant_none) {
 
-				json class_definition = classes->get(key);
 
 				auto classd = read_lock_class(class_name);
 				if (classd) {
+					json class_definition = jp.create_object();
+					classd->get_json(class_definition);
+
 					json class_info = classd->get_info(this);
 
 					result = jp.create_object();

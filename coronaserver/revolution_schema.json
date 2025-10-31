@@ -506,7 +506,7 @@
       "full_text": [ "committee_name", "political_party" ],
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "card_title": "commitee_name",
+      "card_title": "committee_name",
       "card_fields": [ "political_party", "committee_id" ],
       "fields": {
         "committee_id": "string",
@@ -734,9 +734,7 @@
           "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
           "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
         },
-        "indexes",
-        :,
-        {
+        "indexes":{
           "county_education_county_state_idx": {
             "index_keys": [
               "county",
@@ -1571,7 +1569,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county", "county_education", "county_hrsa_grants", "county_population" ],
+              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county", "county_education", "county_hrsa_grants", "county_population", "county_demographics" ],
               "get": "any",
               "put": "any",
               "delete": "any",
