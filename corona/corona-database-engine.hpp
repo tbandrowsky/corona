@@ -889,6 +889,10 @@ namespace corona
 		virtual std::string                             get_grid_template_columns() const = 0;
 		virtual std::string                             get_class_color() const = 0;
 		virtual std::string                             get_class_display () const = 0;
+		virtual std::string                             get_class_author() const = 0;
+		virtual std::string                             get_class_version() const = 0;
+		virtual std::vector<std::string>				get_card_fields() const = 0;
+		virtual std::string                             get_card_title() const = 0;
 		virtual std::map<std::string, bool>  const&		get_descendants()  const = 0;
 		virtual std::map<std::string, bool>  const&		get_ancestors()  const = 0;
 		virtual std::map<std::string, bool>  &			update_descendants() = 0;
@@ -2834,6 +2838,8 @@ namespace corona
 		std::string grid_template_rows;
 		std::string grid_template_columns;
 		std::string display;
+		std::string card_title;
+		std::vector<std::string> card_fields;
 		std::string class_color;
 		std::vector<std::string> parents;
 		std::vector<std::string> full_text_fields;
@@ -2842,6 +2848,8 @@ namespace corona
 		std::map<std::string, bool> ancestors;
 		std::map<std::string, bool> descendants;
 		std::shared_ptr<sql_integration> sql;
+		std::string class_author;
+		std::string class_version;
 
 		std::string get_class_filename() { return class_name + ".coronaclass"; }
 		std::string get_text_index_filename() { return class_name + ".coronatextindex"; }
@@ -2868,6 +2876,10 @@ namespace corona
             grid_template_columns = _src->get_grid_template_columns();
 			class_color = _src->get_class_color();
 			display = _src->get_class_display();
+			class_author = _src->get_class_author();
+			class_version = _src->get_class_version();
+			card_title = _src->get_card_title();
+			card_fields = _src->get_card_fields();
 		}
 
 		std::shared_ptr<xtable> table;
@@ -3006,6 +3018,26 @@ namespace corona
 		virtual std::vector<std::string> get_full_text_fields() const override
 		{
 			return full_text_fields;
+		}
+
+		virtual std::string get_class_author() const override
+		{
+			return class_author;
+		}
+
+		virtual std::string get_class_version() const override
+		{
+			return class_version;
+		}
+
+		virtual std::string get_card_title() const override
+		{
+			return card_title;
+		}
+
+		virtual std::vector<std::string> get_card_fields() const override
+		{
+			return card_fields;
 		}
 
 		virtual bool ready() override 
@@ -3287,6 +3319,9 @@ namespace corona
 			_dest.put_member("grid_template_columns", grid_template_columns);
 			_dest.put_member("class_color", class_color);
 			_dest.put_member("display", display);
+			_dest.put_member("class_version", class_version);
+			_dest.put_member("class_author", class_author);
+			_dest.put_member("card_title", card_title);
 
 			json ja = jp.create_array();
 			for (auto p : parents)
@@ -3301,6 +3336,13 @@ namespace corona
 				ja.push_back(p);
 			}
 			_dest.share_member("full_text", ja);
+
+			ja = jp.create_array();
+			for (auto p : card_fields)
+			{
+				ja.push_back(p);
+			}
+			_dest.share_member("card_fields", ja);
 
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
@@ -3358,6 +3400,9 @@ namespace corona
 			grid_template_columns = _src["grid_template_columns"];
 			class_color = _src["class_color"];
 			display = _src["display"];
+			card_title = _src["card_title"];
+			class_author = _src["class_author"];
+			class_version = _src["class_version"];
 
 			if (base_class_name == class_name) {
 				validation_error ve;
@@ -3397,6 +3442,24 @@ namespace corona
 					full_text_fields.push_back((std::string)(jparent));
 				}
 			}
+
+			card_fields.clear();
+			json jcard_fields = _src["card_fields"];
+
+			if (jcard_fields.is_string())
+			{
+				std::string jparento = (std::string)jparents;
+				card_fields.push_back(jparento);
+			}
+			else if (jcard_fields.array())
+			{
+				for (auto jparent : jcard_fields) {
+					card_fields.push_back((std::string)(jparent));
+				}
+			}
+
+			class_author = _src["class_author"];
+			class_version = _src["class_version"];
 
 			jtable_fields = _src["table_fields"];
 
@@ -7148,17 +7211,36 @@ private:
 								}
 							}
 
+							std::string new_class_name = class_definition["class_name"];
+							std::string new_class_author = class_definition["class_author"];
+							std::string new_class_version = class_definition["class_version"];
+
+                            auto existing_class = read_lock_class(new_class_name);
+
+							if (existing_class) {
+                                if (existing_class->get_class_version() == new_class_version and
+                                    existing_class->get_class_author() == new_class_author)
+                                {
+                                    system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " up to date", txc.get_elapsed_seconds(), __FILE__, __LINE__);
+                                    continue;
+                                }
+							}
+
 							json put_class_request = create_system_request(class_definition);
 							json class_result =  put_class(put_class_request);
 
 							if (class_result.error()) 
 							{
 								system_monitoring_interface::active_mon->log_warning(class_result, __FILE__, __LINE__);
+								continue;
 							}
+
+							system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " complete", txc.get_elapsed_seconds(), __FILE__, __LINE__);
 						}
 						catch (std::exception exc)
 						{
 							system_monitoring_interface::active_mon->log_exception(exc);
+							continue;
 						}
 					}
 				}

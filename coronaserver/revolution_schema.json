@@ -20,6 +20,12 @@
       "base_class_name": "work_object",
       "class_description": "Responsability",
       "parents": [ "insurance_coverage", "work_team", "model_ticket", "justice_ticket", "policy_base", "insurance_coverage", "insurance_claim_request", "insurance_claim_response" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "name", "description" ],
+      "card_title": "name",
+      "card_fields": [ "description" ],
       "fields": {
         "name": "string",
         "description": "string"
@@ -29,6 +35,12 @@
       "class_name": "person",
       "base_class_name": "responsibility",
       "class_description": "Responsibility Person",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
         "first_name": "string",
         "last_name": "string",
@@ -42,6 +54,12 @@
       "class_name": "family_member",
       "base_class_name": "person",
       "class_description": "Family Member",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
         "birthday": "datetime"
       }
@@ -50,6 +68,12 @@
       "class_name": "family_child",
       "base_class_name": "family_member",
       "class_description": "Child",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
       }
     },
@@ -57,6 +81,12 @@
       "class_name": "family_spouse",
       "base_class_name": "family_member",
       "class_description": "Spouse",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
       }
     },
@@ -64,6 +94,12 @@
       "class_name": "family_me",
       "base_class_name": "family_member",
       "class_description": "Self",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
       }
     },
@@ -71,6 +107,12 @@
       "class_name": "tribal_member",
       "base_class_name": "person",
       "class_description": "Tribal Member",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
       }
     },
@@ -78,6 +120,12 @@
       "class_name": "employee_member",
       "base_class_name": "person",
       "class_description": "Employee",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "first_name", "last_name", "mission" ],
+      "card_title": "last_name",
+      "card_fields": [ "first_name", "email", "phone" ],
       "fields": {
       }
     },
@@ -86,6 +134,12 @@
       "class_description": "Location",
       "base_class_name": "responsibility",
       "parents": [ "discharge", "construction_ticket" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "street1", "street2", "city", "state", "zip" ],
+      "card_title": "street1",
+      "card_fields": [ "street2", "city", "state" ],
       "fields": {
         "street1": "string",
         "street2": "string",
@@ -137,8 +191,12 @@
       "class_description": "Objective",
       "base_class_name": "work_object",
       "parents": [ "plan" ],
-      "class_color": "#33212A",
-      "full_text": [ "name", "description", "street1", "street2", "city", "zip", "state" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "street1", "street2", "city", "state", "zip", "description" ],
+      "card_title": "goal",
+      "card_fields": [ "street", "city", "state", "start_time" ],
       "fields": {
         "start_time": "datetime",
         "hours": "number",
@@ -156,8 +214,12 @@
       "class_description": "Plan",
       "base_class_name": "work_object",
       "parents": [ "work_team" ],
-      "class_color": "#33212A",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbc4c",
       "full_text": [ "mission", "task" ],
+      "card_title": "mission",
+      "card_fields": [ "task" ],
       "fields": {
         "mission": "string",
         "task": "string"
@@ -169,7 +231,11 @@
       "base_class_name": "sys_object",
       "class_color": "#4e7a69",
       "parents": [ "work_team" ],
-      "full_text": [ "name", "description", "contents", "authors" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "authors", "contents" ],
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -196,12 +262,16 @@
       }
     },
     {
-      "class_name": "story",
+      "class_name": "story_product",
       "class_description": "Product Story",
       "base_class_name": "sys_object",
       "class_color": "#4e7a69",
       "parents": [ "work_object" ],
       "full_text": [ "manufacturer", "purchased_from", "comments" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors", "manufacturers" ],
       "fields": {
         "manufacturer": "string",
         "purchased_from": "string",
@@ -214,6 +284,10 @@
       "class_description": "Place Story",
       "base_class_name": "story",
       "full_text": [ "street1", "street2", "city", "state" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors", "city" ],
       "fields": {
         "street1": "string",
         "street2": "string",
@@ -227,6 +301,10 @@
       "class_description": "Character Story",
       "base_class_name": "story",
       "full_text": [ "first_name", "last_name", "description", "titles" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors", "last_name" ],
       "fields": {
         "first_name": "string",
         "last_name": "string",
@@ -239,6 +317,10 @@
       "class_name": "story_event",
       "class_description": "Event Story",
       "base_class_name": "article",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors", "city", "event_date" ],
       "fields": {
         "street1": "string",
         "street2": "string",
@@ -254,6 +336,10 @@
       "class_name": "story_howto",
       "class_description": "How-To Article",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors"],
       "fields": {
         "components": [ "string" ],
         "steps": [ "string" ]
@@ -263,6 +349,10 @@
       "class_name": "story_recipe",
       "class_description": "Recipe",
       "base_class_name": "article",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "components": [ "string" ],
         "steps": [ "string" ]
@@ -272,6 +362,10 @@
       "class_name": "story_music",
       "class_description": "Music Story",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "musicians": [ "string" ]
       }
@@ -280,6 +374,10 @@
       "class_name": "story_health",
       "class_description": "Health Story",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "benefits": "string",
         "side_effects": "string"
@@ -289,6 +387,10 @@
       "class_name": "story_medicine",
       "class_description": "Health Story",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "medicines": [ "string" ],
         "surgeries": [ "string" ]
@@ -298,6 +400,10 @@
       "class_name": "story_link",
       "class_description": "Link",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "url": "string",
         "oath2_providers": [ "string" ]
@@ -307,6 +413,10 @@
       "class_name": "story_resources",
       "class_description": "Resource",
       "base_class_name": "story",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "street1": "string",
         "street2": "string",
@@ -318,6 +428,10 @@
       "class_description": "Work Team",
       "base_class_name": "sys_team",
       "class_color": "#bcbcbc",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "name",
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "plans": "[ plan ]",
         "articles": "[ article ]"
@@ -329,6 +443,10 @@
       "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "full_name", "political_party", "city", "state", "street1", "street2", "zip" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "full_name",
+      "card_fields": [ "political_party", "city", "state" ],
       "fields": {
         "candidate_id": "string",
         "full_name": "string",
@@ -386,6 +504,10 @@
       "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "committee_name", "political_party" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "commitee_name",
+      "card_fields": [ "political_party", "committee_id" ],
       "fields": {
         "committee_id": "string",
         "committee_name": "string",
@@ -404,6 +526,10 @@
       "class_description": "Candidate Committee Map",
       "base_class_name": "sys_object",
       "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "commitee_id",
+      "card_fields": [ "candidate_id" ],
       "fields": {
         "committee_id": "string",
         "candidate_id": "string"
@@ -427,6 +553,10 @@
       "base_class_name": "work_object",
       "class_color": "#af9d66",
       "full_text": [ "full_name", "employer", "occupation", "memo", "city", "zip" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "full_name",
+      "card_fields": [ "city", "committee_id", "transaction_date", "transaction_aount" ],
       "fields": {
         "committee_id": "string",
         "full_name": "string",
@@ -475,6 +605,10 @@
       "class_description": "Demographics",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "county",
+      "card_fields": [ "state", "2020_population", "households", "per_capita_income" ],
       "fields": {
         "county": "string",
         "state": "string",
@@ -534,77 +668,97 @@
       "class_description": "Education",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "county",
+      "card_fields": [
+        "state",
+        "less_than_high_school_graduate_2023",
+        "high_school_graduate_2023",
+        "bachelor's_degree_or_higher_2023"
+      ],
       "fields": {
-        "fips_code": "string",
-        "state": "string",
-        "county": "string",
-        "2013_urban_influence_code": "number",
-        "2024_urban_influence_code": "number",
-        "2013_rural_urban_continuum_code": "number",
-        "2023_rural_urban_continuum_code": "number",
-        "less_than_a_high_school_diploma_1970": "number",
-        "high_school_diploma_only_1970": "number",
-        "some_college_1970": "number",
-        "four_years_of_college_or_higher_1970": "number",
-        "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
-        "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
-        "percent_of_adults_completing_some_college_1970": "number",
-        "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
-        "less_than_a_high_school_diploma_1980": "number",
-        "high_school_diploma_only_1980": "number",
-        "some_college_1980": "number",
-        "four_years_of_college_or_higher_1980": "number",
-        "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
-        "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
-        "percent_of_adults_completing_some_college_1980": "number",
-        "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
-        "less_than_high_school_graduate_1990": "number",
-        "high_school_graduate_1990": "number",
-        "some_college_or_associate_degree_1990": "number",
-        "bachelor's_degree_or_higher_1990": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
-        "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
-        "less_than_high_school_graduate_2000": "number",
-        "high_school_graduate_2000": "number",
-        "some_college_or_associate_degree_2000": "number",
-        "bachelors_degree_or_higher_2000": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
-        "percent_of_adults_who_are_high_school_graduates_2000": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
-        "less_than_high_school_graduate_2012": "number",
-        "high_school_graduate_2012": "number",
-        "some_college_or_associate_degree_2012": "number",
-        "bachelor's_degree_or_higher_2012": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
-        "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
-        "less_than_high_school_graduate_2023": "number",
-        "high_school_graduate_2023": "number",
-        "some_college_or_associate_degree_2023": "number",
-        "bachelor's_degree_or_higher_2023": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
-        "percent_of_adults_who_are_high_school_graduates_2023": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
-      },
-      "indexes": {
-        "county_education_county_state_idx": {
-          "index_keys": [
-            "county",
-            "state"
-          ]
+          "fips_code": "string",
+          "state": "string",
+          "county": "string",
+          "2013_urban_influence_code": "number",
+          "2024_urban_influence_code": "number",
+          "2013_rural_urban_continuum_code": "number",
+          "2023_rural_urban_continuum_code": "number",
+          "less_than_a_high_school_diploma_1970": "number",
+          "high_school_diploma_only_1970": "number",
+          "some_college_1970": "number",
+          "four_years_of_college_or_higher_1970": "number",
+          "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
+          "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
+          "percent_of_adults_completing_some_college_1970": "number",
+          "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
+          "less_than_a_high_school_diploma_1980": "number",
+          "high_school_diploma_only_1980": "number",
+          "some_college_1980": "number",
+          "four_years_of_college_or_higher_1980": "number",
+          "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
+          "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
+          "percent_of_adults_completing_some_college_1980": "number",
+          "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
+          "less_than_high_school_graduate_1990": "number",
+          "high_school_graduate_1990": "number",
+          "some_college_or_associate_degree_1990": "number",
+          "bachelor's_degree_or_higher_1990": "number",
+          "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
+          "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
+          "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
+          "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
+          "less_than_high_school_graduate_2000": "number",
+          "high_school_graduate_2000": "number",
+          "some_college_or_associate_degree_2000": "number",
+          "bachelors_degree_or_higher_2000": "number",
+          "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
+          "percent_of_adults_who_are_high_school_graduates_2000": "number",
+          "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
+          "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
+          "less_than_high_school_graduate_2012": "number",
+          "high_school_graduate_2012": "number",
+          "some_college_or_associate_degree_2012": "number",
+          "bachelor's_degree_or_higher_2012": "number",
+          "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
+          "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
+          "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
+          "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
+          "less_than_high_school_graduate_2023": "number",
+          "high_school_graduate_2023": "number",
+          "some_college_or_associate_degree_2023": "number",
+          "bachelor's_degree_or_higher_2023": "number",
+          "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
+          "percent_of_adults_who_are_high_school_graduates_2023": "number",
+          "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
+          "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
+        },
+        "indexes",
+        :,
+        {
+          "county_education_county_state_idx": {
+            "index_keys": [
+              "county",
+              "state"
+            ]
+          }
         }
-      }
     },
     {
       "class_name": "county_population",
       "class_description": "Population",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "county",
+      "card_fields": [
+        "state",
+        "births_2023",
+        "deaths_2023",
+        "census_2020_pop"
+      ],
       "fields": {
         "fips_code": "string",
         "state": "string",
@@ -690,6 +844,14 @@
       "class_description": "HSRA Grants",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "county",
+      "card_fields": [
+        "state_name",
+        "grantee_name",
+        "financial_assistance"
+      ],
       "fields": {
         "state": "string",
         "county": "string",
@@ -749,6 +911,14 @@
       "class_description": "Zip Codes",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "zip",
+      "card_fields": [
+        "county",
+        "state",
+        "estimated_population"
+      ],
       "fields": {
         "zip": "string",
         "type": "string",
@@ -835,7 +1005,9 @@
         },
         "zip_code_county": {
           "index_keys": [
-            "state","county","zip"
+            "state",
+            "county",
+            "zip"
           ]
         }
       }
@@ -846,6 +1018,13 @@
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
       "full_text": [ "fips_code", "state", "county" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "county",
+      "card_fields": [
+        "state",
+        "fips"
+      ],
       "fields": {
         "fips_code": "string",
         "state": "string",
@@ -970,6 +1149,15 @@
       "class_description": "Model",
       "base_class_name": "work_object",
       "parents": [ "model_ticket", "policy_base", "insurance_response" ],
+      "full_text": [ "model_name", "model_description", "model_accepts", "model_code" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "model_name",
+      "card_fields": [
+        "model_description",
+        "model_accepts"
+      ],
+
       "fields": {
         "model_name": "string",
         "model_description": "string",
@@ -982,6 +1170,13 @@
       "class_description": "Model Ticket",
       "base_class_name": "sys_ticket",
       "class_color": "#4f7959",
+      "full_text": [ "model_description" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "ticket_name",
+      "card_fields": [
+        "ticket_description"
+      ],
       "fields": {
         "model": "model",
         "responsibility": "[ responsibility ]"
@@ -1502,7 +1697,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "county_ticket", "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "county_ticket", "model_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1595,7 +1790,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "model_ticket", "colony_ticket", "permit_ticket", "technical_ticket" ],
+              "grant_classes": [ "model_ticket", "permit_ticket", "technical_ticket" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1657,7 +1852,7 @@
           "team_description": "Revolution Customer",
           "team_domain": ".*",
           "inventory_classes": [ "responsibility_set", "appointment_search", "article_search", "ticket_search" ],
-          "allowed_teams": [ "Home Team", "County Team", "Model Team", "Colony Team", "Justice Team", "Permit Team", "Insurance Team" ],
+          "allowed_teams": [ "Home Team", "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
               "class_name": "sys_grant",
