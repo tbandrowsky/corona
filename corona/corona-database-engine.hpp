@@ -1005,6 +1005,8 @@ namespace corona
 			const class_permissions& _src,
 			std::string _class_name) = 0;
 
+		virtual void log_errors(std::vector<validation_error>& _errors) = 0;
+
 		virtual std::shared_ptr<class_interface> read_get_class(const std::string& _class_name) = 0;
 		virtual std::shared_ptr<class_interface> put_class_impl(activity* _activity, json& _class_definition) = 0;
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name) = 0;
@@ -2436,6 +2438,14 @@ namespace corona
 			}
 			else 
 			{
+				std::vector<validation_error> ves;
+				validation_error ve;
+				json errors = query_results["data"];
+				for (auto err : errors) {
+					ve.put_json(err);
+					ves.push_back(ve);
+				}
+				_db->log_errors(ves);
 				query_data_results = jp.create_array();
 			}
 			return query_data_results;
@@ -3744,7 +3754,7 @@ namespace corona
 				auto query_field = fldpair.second;
 				if (query_field->get_field_type() == field_types::ft_query) {
 					json objects = query_field->run_queries(_db, _token, _classname, _target);
-					_target.share_member(query_field->get_field_name(), objects);
+					_target.put_member(query_field->get_field_name(), objects);
 				}
 			}
 		}
@@ -4775,15 +4785,16 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
-		void log_errors(std::vector<validation_error>& _errors)
+
+	public:
+
+		virtual void log_errors(std::vector<validation_error>& _errors) override
 		{
 			for (auto err : _errors) {
 				std::string msg = std::format("{0}.{1}: {2} @({3},{4})", err.class_name, err.field_name, err.message, err.filename, err.line_number);
 				system_monitoring_interface::active_mon->log_warning(msg);
 			}
 		}
-
-	public:
 
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name)
 		{
@@ -8711,20 +8722,21 @@ grant_type=authorization_code
 					jedit_object = result[data_field];
 				}
 				result = jp.create_object();
-				result.share_member("object", jedit_object);
 				bool attempted = false;
 				json jclasses = jp.create_object();
+
+				if (not jedit_object.empty() and include_children)
+				{
+					std::string token = _edit_object_request[token_field];
+					edit_class->run_queries(this, token, class_name, jedit_object);
+				}
+
+				result.share_member("object", jedit_object);
 
 				while (edit_class)
 				{
 					auto current_class_name = edit_class->get_class_name();
 					edit_class->init_validation(this, perms); // this might be a bad idea
-					json jedit_object = edit_class->get_single_object(this, key, include_children, perms);
-					if (not jedit_object.empty() and include_children)
-					{
-						std::string token = _edit_object_request[token_field];
-						edit_class->run_queries(this, token, class_name, jedit_object);
-					}
 					json jedit_class = jp.create_object();
 					edit_class->get_json(jedit_class);
 					jclasses.share_member(current_class_name, jedit_class);
@@ -8737,7 +8749,6 @@ grant_type=authorization_code
                         edit_class = read_lock_class(edit_class_base);
 					}
 				}
-
 				result.share_member("classes", jclasses);
 
 			}

@@ -479,7 +479,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "committee"
+                "input": "committee",
+                "name": "committee"
               }
             ]
           }
@@ -511,7 +512,36 @@
       "fields": {
         "committee_id": "string",
         "committee_name": "string",
-        "political_party": "string"
+        "political_party": "string",
+        "candidates": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee_candidate",
+                "name": "committee_candidate",
+                "filter": {
+                  "committee_id": "$this.committee_id"
+                }
+              },
+              {
+                "class_name": "candidate",
+                "name": "candidate",
+                "filter": {
+                  "candidate_id": "candidate_candidate.candidate_id"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "input": "candidate",
+                "name": "candidate"
+              }
+            ]
+          }
+        }
+
       },
       "indexes": {
         "committee_committee_id_idx": {
@@ -584,7 +614,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "committee"
+                "input": "committee",
+                "name": "committee"
               }
             ]
           }
@@ -949,7 +980,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "candidate"
+                "input": "candidate",
+                "name": "candidate"
               }
             ]
           }
@@ -969,7 +1001,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "committee"
+                "input": "committee",
+                "name": "committee"
               }
             ]
           }
@@ -989,7 +1022,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "donor"
+                "input": "donor",
+                "name": "donor"
               }
             ]
           }
@@ -1043,7 +1077,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "county_demographics"
+                "input": "county_demographics",
+                "name": "county_demographics"
               }
             ]
           }
@@ -1064,7 +1099,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "county_education"
+                "input": "county_education",
+                "name": "county_education"
               }
             ]
           }
@@ -1085,7 +1121,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "county_population"
+                "input": "county_population",
+                "name": "county_population"
               }
             ]
           }
@@ -1106,7 +1143,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "county_hsra"
+                "input": "county_hsra",
+                "name": "county_hsra"
               }
             ]
           }
@@ -1127,7 +1165,8 @@
             "stages": [
               {
                 "class_name": "filter",
-                "stage_input_name": "zip_code"
+                "name": "zip_code",
+                "input": "zip_code"
               }
             ]
           }
@@ -1265,15 +1304,6 @@
       "base_class_name": "court_order",
       "class_color": "#4f7959",
       "fields": {
-      }
-    },
-    {
-      "class_name": "search_ticket",
-      "class_description": "Search Ticket",
-      "base_class_name": "court_order",
-      "class_color": "#4f7959",
-      "fields": {
-
       }
     },
     {
@@ -1619,7 +1649,7 @@
           "team_name": "Model Team",
           "team_description": "Analysis Team",
           "team_domain": "NONE",
-          "inventory_classes": [ "model_search" ],
+          "inventory_classes": [  ],
           "allowed_teams": [],
           "permissions": [
             {
@@ -1632,7 +1662,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "model_search", "article_search", "note" ],
+              "grant_classes": [  "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1674,7 +1704,7 @@
           "team_name": "Justice Team",
           "team_description": "Revolution Court",
           "team_domain": "NONE",
-          "inventory_classes": [ "case_search" ],
+          "inventory_classes": [  ],
           "allowed_teams": [],
           "permissions": [
             {
@@ -1687,7 +1717,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "case_search", "note" ],
+              "grant_classes": [  "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1815,9 +1845,6 @@
           "team_description": "Revolution Technical",
           "team_domain": ".*countryvideogames\\.com",
           "inventory_classes": [
-            "appointment_search",
-            "article_search",
-            "ticket_search"
           ],
           "allowed_teams": [ "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team" ],
           "permissions": [
@@ -1849,7 +1876,7 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "inventory_classes": [ "responsibility_set", "appointment_search", "article_search", "ticket_search" ],
+          "inventory_classes": [  ],
           "allowed_teams": [ "Home Team", "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
