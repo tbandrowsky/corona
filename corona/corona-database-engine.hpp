@@ -474,6 +474,7 @@ namespace corona
 		class_grants	get_grant;
 		class_grants	delete_grant;
 		class_grants	alter_grant;
+
 		class_permissions operator|(const class_permissions& _other) const
 		{
 			class_permissions cp;
@@ -484,7 +485,6 @@ namespace corona
 			return cp;
 		}
 	};
-
 
 	class corona_database_interface;
 	
