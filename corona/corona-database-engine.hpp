@@ -3754,7 +3754,8 @@ namespace corona
 				auto query_field = fldpair.second;
 				if (query_field->get_field_type() == field_types::ft_query) {
 					json objects = query_field->run_queries(_db, _token, _classname, _target);
-					_target.put_member(query_field->get_field_name(), objects);
+					std::string target_field_name = query_field->get_field_name();
+					_target.put_member(target_field_name, objects);
 				}
 			}
 		}
@@ -4007,7 +4008,8 @@ namespace corona
 
 					_context->db->save_class(desc_class);
 				}
-				else {
+				else 
+				{
 					validation_error ve;
 					ve.class_name = descendant.first;
 					ve.filename = get_file_name(__FILE__);

@@ -1078,7 +1078,7 @@
               {
                 "class_name": "filter",
                 "input": "county_demographics",
-                "name": "county_demographics"
+                "name": "demographics"
               }
             ]
           }
@@ -1100,7 +1100,7 @@
               {
                 "class_name": "filter",
                 "input": "county_education",
-                "name": "county_education"
+                "name": "education"
               }
             ]
           }
@@ -1122,7 +1122,7 @@
               {
                 "class_name": "filter",
                 "input": "county_population",
-                "name": "county_population"
+                "name": "population"
               }
             ]
           }
@@ -1144,7 +1144,7 @@
               {
                 "class_name": "filter",
                 "input": "county_hsra",
-                "name": "county_hsra"
+                "name": "hsra"
               }
             ]
           }
@@ -1165,7 +1165,7 @@
             "stages": [
               {
                 "class_name": "filter",
-                "name": "zip_code",
+                "name": "zip_codes",
                 "input": "zip_code"
               }
             ]
