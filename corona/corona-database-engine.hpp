@@ -8748,7 +8748,8 @@ grant_type=authorization_code
 				if (not jedit_object.empty() and include_children)
 				{
 					std::string token = _edit_object_request[token_field];
-					jclasses = edit_class->run_queries(this, token, class_name, jedit_object);
+					auto jchild_classes = edit_class->run_queries(this, token, class_name, jedit_object);
+					result.share_member("child_classes", jchild_classes);
 				}
 
 				result.share_member("object", jedit_object);
