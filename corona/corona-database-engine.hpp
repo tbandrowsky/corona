@@ -941,7 +941,7 @@ namespace corona
 		virtual json	delete_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json    get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 
-		virtual void	run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _target) = 0;
+		virtual json	run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _target) = 0;
 		virtual void	clear_queries(json& _target) = 0;
 
 		virtual json	get_info(corona_database_interface* _db) = 0;
@@ -2424,7 +2424,8 @@ namespace corona
 			json froms = this_query_body["from"];
 			if (froms.array()) {
 				json new_from = jp.create_object();
-				new_from.put_member(data_field, _object);
+				json thisobj = _object.clone();
+				new_from.put_member(data_field, thisobj);
 				new_from.put_member(class_name_field, _classname);
 				new_from.put_member("name", "this"sv);
 				auto arr = froms.array_impl();
@@ -3748,16 +3749,33 @@ namespace corona
 			}
 		}
 
-		virtual void run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _target) override
+		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _target) override
 		{
+			json_parser jp;
+			json classes = jp.create_object();
 			for (auto fldpair : fields) {
 				auto query_field = fldpair.second;
 				if (query_field->get_field_type() == field_types::ft_query) {
 					json objects = query_field->run_queries(_db, _token, _classname, _target);
 					std::string target_field_name = query_field->get_field_name();
 					_target.put_member(target_field_name, objects);
+					for (auto obj : objects) 
+					{
+						std::string class_name = obj[class_name_field];
+						if (not class_name.empty()) {
+							if (!classes.has_member(class_name)) {
+								auto classd = _db->read_lock_class(class_name);
+								json classdef = jp.create_object();
+								if (classd) {									
+									classd->get_json(classdef);
+								}
+								classes.put_member(class_name, classdef);
+							}
+						}
+					}
 				}
 			}
+			return classes;
 		}
 
 		virtual std::shared_ptr<xtable> find_index(corona_database_interface* _db, json& _object)  const
@@ -8730,7 +8748,7 @@ grant_type=authorization_code
 				if (not jedit_object.empty() and include_children)
 				{
 					std::string token = _edit_object_request[token_field];
-					edit_class->run_queries(this, token, class_name, jedit_object);
+					jclasses = edit_class->run_queries(this, token, class_name, jedit_object);
 				}
 
 				result.share_member("object", jedit_object);
