@@ -528,7 +528,7 @@
                 "class_name": "candidate",
                 "name": "candidate",
                 "filter": {
-                  "candidate_id": "candidate_candidate.candidate_id"
+                  "candidate_id": "committee_candidate.candidate_id"
                 }
               }
             ],
@@ -598,7 +598,7 @@
         "transaction_date": "datetime",
         "transaction_amount": "double",
         "memo": "string",
-        "committee": {
+        "committees": {
           "field_type": "query",
           "label": "Committee",
           "query": {
@@ -607,7 +607,7 @@
                 "class_name": "committee",
                 "name": "committee",
                 "filter": {
-                  "full_text": "$this.committee_id"
+                  "committee_id": "$this.committee_id"
                 }
               }
             ],
@@ -615,7 +615,35 @@
               {
                 "class_name": "filter",
                 "input": "committee",
-                "name": "committee"
+                "name": "committees"
+              }
+            ]
+          }
+        },
+        "candidates": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee_candidate",
+                "name": "committee_candidate",
+                "filter": {
+                  "committee_id": "$this.committee_id"
+                }
+              },
+              {
+                "class_name": "candidate",
+                "name": "candidate",
+                "filter": {
+                  "candidate_id": "committee_candidate.candidate_id"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "filter",
+                "input": "candidate",
+                "name": "candidates"
               }
             ]
           }
@@ -642,7 +670,7 @@
       "card_fields": [ "state", "2020_population", "households", "per_capita_income" ],
       "grid_template_rows": "60px auto",
       "grid_template_columns": "300px 300px 300px 300px",
-
+      "full_text": [ "state", "county" ],
       "fields": {
         "county": {
           "field_type": "string",
@@ -924,71 +952,72 @@
         "high_school_graduate_2023",
         "bachelor's_degree_or_higher_2023"
       ],
+      "full_text": [ "state", "county" ],
       "fields": {
-          "fips_code": "string",
-          "state": "string",
-          "county": "string",
-          "2013_urban_influence_code": "number",
-          "2024_urban_influence_code": "number",
-          "2013_rural_urban_continuum_code": "number",
-          "2023_rural_urban_continuum_code": "number",
-          "less_than_a_high_school_diploma_1970": "number",
-          "high_school_diploma_only_1970": "number",
-          "some_college_1970": "number",
-          "four_years_of_college_or_higher_1970": "number",
-          "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
-          "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
-          "percent_of_adults_completing_some_college_1970": "number",
-          "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
-          "less_than_a_high_school_diploma_1980": "number",
-          "high_school_diploma_only_1980": "number",
-          "some_college_1980": "number",
-          "four_years_of_college_or_higher_1980": "number",
-          "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
-          "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
-          "percent_of_adults_completing_some_college_1980": "number",
-          "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
-          "less_than_high_school_graduate_1990": "number",
-          "high_school_graduate_1990": "number",
-          "some_college_or_associate_degree_1990": "number",
-          "bachelor's_degree_or_higher_1990": "number",
-          "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
-          "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
-          "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
-          "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
-          "less_than_high_school_graduate_2000": "number",
-          "high_school_graduate_2000": "number",
-          "some_college_or_associate_degree_2000": "number",
-          "bachelors_degree_or_higher_2000": "number",
-          "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
-          "percent_of_adults_who_are_high_school_graduates_2000": "number",
-          "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
-          "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
-          "less_than_high_school_graduate_2012": "number",
-          "high_school_graduate_2012": "number",
-          "some_college_or_associate_degree_2012": "number",
-          "bachelor's_degree_or_higher_2012": "number",
-          "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
-          "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
-          "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
-          "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
-          "less_than_high_school_graduate_2023": "number",
-          "high_school_graduate_2023": "number",
-          "some_college_or_associate_degree_2023": "number",
-          "bachelor's_degree_or_higher_2023": "number",
-          "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
-          "percent_of_adults_who_are_high_school_graduates_2023": "number",
-          "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
-          "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
-        },
-        "indexes":{
-          "county_education_county_state_idx": {
-            "index_keys": [
-              "state",
-              "county"
-            ]
-          }
+        "fips_code": "string",
+        "state": "string",
+        "county": "string",
+        "2013_urban_influence_code": "number",
+        "2024_urban_influence_code": "number",
+        "2013_rural_urban_continuum_code": "number",
+        "2023_rural_urban_continuum_code": "number",
+        "less_than_a_high_school_diploma_1970": "number",
+        "high_school_diploma_only_1970": "number",
+        "some_college_1970": "number",
+        "four_years_of_college_or_higher_1970": "number",
+        "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
+        "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
+        "percent_of_adults_completing_some_college_1970": "number",
+        "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
+        "less_than_a_high_school_diploma_1980": "number",
+        "high_school_diploma_only_1980": "number",
+        "some_college_1980": "number",
+        "four_years_of_college_or_higher_1980": "number",
+        "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
+        "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
+        "percent_of_adults_completing_some_college_1980": "number",
+        "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
+        "less_than_high_school_graduate_1990": "number",
+        "high_school_graduate_1990": "number",
+        "some_college_or_associate_degree_1990": "number",
+        "bachelor's_degree_or_higher_1990": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
+        "less_than_high_school_graduate_2000": "number",
+        "high_school_graduate_2000": "number",
+        "some_college_or_associate_degree_2000": "number",
+        "bachelors_degree_or_higher_2000": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
+        "percent_of_adults_who_are_high_school_graduates_2000": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
+        "less_than_high_school_graduate_2012": "number",
+        "high_school_graduate_2012": "number",
+        "some_college_or_associate_degree_2012": "number",
+        "bachelor's_degree_or_higher_2012": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
+        "less_than_high_school_graduate_2023": "number",
+        "high_school_graduate_2023": "number",
+        "some_college_or_associate_degree_2023": "number",
+        "bachelor's_degree_or_higher_2023": "number",
+        "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
+        "percent_of_adults_who_are_high_school_graduates_2023": "number",
+        "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
+      },
+      "indexes": {
+        "county_education_county_state_idx": {
+          "index_keys": [
+            "state",
+            "county"
+          ]
         }
+      }
     },
     {
       "class_name": "county_population",
@@ -998,6 +1027,7 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "county",
+      "full_text": [ "state", "county" ],
       "card_fields": [
         "state",
         "births_2023",
@@ -1092,6 +1122,7 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "county",
+      "full_text": [ "grantee_city", "state", "county", "grantee_name", "grant_program_name", "abstract" ],
       "card_fields": [
         "state_name",
         "grantee_name",
@@ -1814,7 +1845,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county", "county_education", "county_hrsa_grants", "county_population", "county_demographics" ],
+              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county", "county_education", "county_hsra", "county_population", "county_demographics", "zip_code" ],
               "get": "any",
               "put": "any",
               "delete": "any",

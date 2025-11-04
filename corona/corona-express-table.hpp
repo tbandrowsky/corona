@@ -725,7 +725,7 @@ namespace corona
 		file_block_interface* fb;
 		int64_t maximum_memory_bytes;
 		time_t block_lifetime;
-        std::mutex cache_lock;
+		shared_lockable cache_lock;
 
 	public:
 
@@ -1291,7 +1291,7 @@ namespace corona
 
 	xblock_lease<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		auto foundit = leaf_blocks.find(_ref.location);
 		if (foundit != std::end(leaf_blocks)) {
@@ -1323,7 +1323,7 @@ namespace corona
 
 	xblock_lease<xbranch_block> xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		auto foundit = branch_blocks.find(_ref.location);
 		if (foundit != std::end(branch_blocks)) {
@@ -1388,19 +1388,19 @@ namespace corona
 
 	void xblock_cache::close_block(xblock_lease<xbranch_block>& _block)
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		read_scope_lock lockme(cache_lock);
 		close_block_nl(_block);
 	}
 
 	void xblock_cache::close_block(xblock_lease<xleaf_block>& _block)
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		read_scope_lock lockme(cache_lock);
 		close_block_nl(_block);
 	}
 
 	xblock_lease<xleaf_block> xblock_cache::create_leaf_block()
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		xrecord_block_header header;
 
@@ -1427,7 +1427,7 @@ namespace corona
 
 	xblock_lease<xbranch_block> xblock_cache::create_branch_block(xblock_types _content_type, bool _retain)
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		xrecord_block_header header;
 
@@ -1495,7 +1495,7 @@ namespace corona
 
 	int64_t xblock_cache::save()
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		date_time current = date_time::now();
 		int64_t total_memory;
@@ -1566,7 +1566,7 @@ namespace corona
 
 	void xblock_cache::clear()
 	{
-		std::lock_guard<std::mutex> lockme(cache_lock);
+		write_scope_lock lockme(cache_lock);
 
 		leaf_blocks.clear();
 		branch_blocks.clear();

@@ -4776,6 +4776,7 @@ namespace corona
 		std::string message;
 		std::string filename;
 		int			line_number;
+		std::string comments;
 
 		validation_error() = default;
 		validation_error(const validation_error& _src) = default;
@@ -4799,6 +4800,7 @@ namespace corona
 			_dest.put_member(message_field, message);
 			_dest.put_member("filename", filename);
 			_dest.put_member("line_number", line_number);
+			_dest.put_member("comments", line_number);
 		}
 
 		virtual void put_json(json& _src)
@@ -4808,6 +4810,7 @@ namespace corona
 			message = _src[message_field];
 			filename = _src["filename"];
 			line_number = _src["line_number"];
+			comments = _src["comments"];
 		}
 	};
 

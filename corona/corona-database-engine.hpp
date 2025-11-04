@@ -3408,9 +3408,39 @@ namespace corona
 
 			json jfields, jindexes, jancestors, jdescendants, jtable_fields;
 
+			std::string temp_class_name = _src[class_name_field];
+			std::string temp_base_class_name = _src["base_class_name"];
+
+
+			if (temp_class_name.empty()) {
+				validation_error ve;
+				ve.class_name = class_name;
+				ve.filename = get_file_name(__FILE__);
+				ve.line_number = __LINE__;
+				ve.message = "Missing class definition";
+				_errors.push_back(ve);
+
+				system_monitoring_interface::active_mon->log_warning("Malformed class", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json(_src);
+				return;
+			}
+
+			if (temp_base_class_name == temp_class_name) {
+				validation_error ve;
+				ve.class_name = class_name;
+				ve.filename = get_file_name(__FILE__);
+				ve.line_number = __LINE__;
+				ve.message = "class can't be derived from itself";
+				_errors.push_back(ve);
+
+				system_monitoring_interface::active_mon->log_warning("Malformed class", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json(_src);
+				return;
+			}
+
 			class_name = _src[class_name_field];
-			class_description = _src["class_description"];
 			base_class_name = _src["base_class_name"];
+			class_description = _src["class_description"];
 			grid_template_rows = _src["grid_template_rows"];
 			grid_template_columns = _src["grid_template_columns"];
 			class_color = _src["class_color"];
@@ -3419,14 +3449,6 @@ namespace corona
 			class_author = _src["class_author"];
 			class_version = _src["class_version"];
 
-			if (base_class_name == class_name) {
-				validation_error ve;
-				ve.class_name = class_name;
-				ve.filename = get_file_name(__FILE__);
-				ve.line_number = __LINE__;
-				ve.message = "class can't be derived from itself";
-				_errors.push_back(ve);
-			}
 
 			parents.clear();
 			json jparents = _src["parents"];
