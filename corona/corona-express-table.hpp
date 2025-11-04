@@ -501,18 +501,23 @@ namespace corona
 			xheader.count = records.size();
 		}
 		
-		virtual xfor_each_result for_each(xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
+		virtual xfor_each_result for_each(int _max_rows, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			xfor_each_result result;
 			result.is_all = true;
 			result.is_any = false;
 			result.count = 0;
+			int nrows = 0;
 
 			for (auto& item : records) 
 			{
 				if (item.first.matches(_key) or _key.empty()) {
 					if (_process(item.first, item.second) != null_row)
 					{
+						nrows++;
+						if (nrows == _max_rows && _max_rows) {
+							return result;
+						}
 						result.count++;
 						result.is_any = true;
 					}
@@ -525,15 +530,20 @@ namespace corona
 			return result;
 		}
 
-		virtual std::vector<xrecord> select(xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+		virtual std::vector<xrecord> select(int _max_rows, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			std::vector<xrecord> result = {};
+			int nrows = 0;
 			for (auto& item : records)
 			{
 				if (item.first.matches(_key) or _key.empty()) {
 					xrecord temp = _process(item.first, item.second);
 					if (not temp.empty())
 					{
+						nrows++;
+						if (nrows == _max_rows && _max_rows) {
+							return result;
+						}
 						result.push_back(temp);
 					}
 				}
@@ -588,9 +598,9 @@ namespace corona
 
 		virtual void clear(xblock_cache* cache);
 		
-		virtual xfor_each_result for_each(xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process);
+		virtual xfor_each_result for_each(int _max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process);
 
-		virtual std::vector<xrecord> select(xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process);
+		virtual std::vector<xrecord> select(int _max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process);
 
 		json get_info(xblock_cache* cache);
 
@@ -1386,16 +1396,44 @@ namespace corona
 		}
 	}
 
-	void xblock_cache::close_block(xblock_lease<xbranch_block>& _block)
-	{
-		read_scope_lock lockme(cache_lock);
-		close_block_nl(_block);
-	}
-
 	void xblock_cache::close_block(xblock_lease<xleaf_block>& _block)
 	{
-		read_scope_lock lockme(cache_lock);
-		close_block_nl(_block);
+		if (_block.block) {
+			auto loc = _block.block->get_reference().location;
+			std::map<int64_t, std::shared_ptr<xblock_leaseable<xleaf_block>>>::iterator foundit;
+			{
+				read_scope_lock lockboy(cache_lock);
+				foundit = leaf_blocks.find(loc);
+			}
+			if (foundit != std::end(leaf_blocks)) {
+				foundit->second->lease_end(_block);
+			}
+			else
+			{
+				system_monitoring_interface::active_mon->log_warning("Closing branch block not found", __FILE__, __LINE__);
+				abort();
+			}
+		}
+	}
+
+	void xblock_cache::close_block(xblock_lease<xbranch_block>& _block)
+	{
+		if (_block.block) {
+			auto loc = _block.block->get_reference().location;
+			std::map<int64_t, std::shared_ptr<xblock_leaseable<xbranch_block>>>::iterator foundit;
+			{
+				read_scope_lock lockboy(cache_lock);
+				foundit = branch_blocks.find(loc);
+			}
+			if (foundit != std::end(branch_blocks)) {
+				foundit->second->lease_end(_block);
+			}
+			else
+			{
+				system_monitoring_interface::active_mon->log_warning("Closing leaf block not found", __FILE__, __LINE__);
+				abort();
+			}
+		}
 	}
 
 	xblock_lease<xleaf_block> xblock_cache::create_leaf_block()
@@ -1788,12 +1826,13 @@ namespace corona
 		xheader.count = records.size();
 	}
 
-	xfor_each_result xbranch_block::for_each(xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
+	xfor_each_result xbranch_block::for_each(int _max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 	{
 		xfor_each_result result;
 		result.is_all = false;
 		result.is_any = false;
 		result.count = 0;
+		int nrows;
 
 		auto iter = find_xrecord(_key);
 		while (iter != records.end() and iter->first <= _key)
@@ -1815,6 +1854,14 @@ namespace corona
 			else
 				temp = {};
 
+            nrows += temp.count;
+            if (nrows > _max_rows)
+            {
+				if (temp.is_any)
+					result.is_any = true;
+				result.is_all = false;
+                return result;
+            }
 			result.count += temp.count;
 			if (temp.is_any)
 				result.is_any = true;
@@ -1824,9 +1871,12 @@ namespace corona
 		return result;
 	}
 
-	std::vector<xrecord> xbranch_block::select(xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+	std::vector<xrecord> xbranch_block::select(int _max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 	{
 		std::vector<xrecord> result = {};
+
+		int nrows = 0;
+
 
 		if (_key.empty())
 		{
@@ -1834,23 +1884,28 @@ namespace corona
 			{
 				std::vector<xrecord> temp;
 				auto& found_block = item.second;
+                int current_max_rows = _max_rows - nrows;
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(cache, _key, _process);
+					temp = branch_block->select(current_max_rows, cache, _key, _process);
 					cache->close_block(branch_block);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(_key, _process);
+					temp = leaf_block->select(current_max_rows, _key, _process);
 					cache->close_block(leaf_block);
 				}
 				else
 					temp = {};
 
 				result.insert(result.end(), temp.begin(), temp.end());
+				nrows += std::distance(temp.end(),temp.begin());
+                if (nrows >= _max_rows) {
+                    break;
+                }
 			}
 		}
 		else {

@@ -4488,6 +4488,8 @@ namespace corona
 
 		}
 
+		int maximum_filter_records = 500;
+
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
 		{
 			// Now, if there is an index set specified, let's go see if we can find one and use it 
