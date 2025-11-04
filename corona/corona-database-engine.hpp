@@ -1812,6 +1812,8 @@ namespace corona
 
 	};
 
+	int max_query_result_rows = 10000;
+
 	class string_field_options : public field_options_base
 	{
 	public:
@@ -3180,7 +3182,7 @@ namespace corona
 				new_table = std::make_shared<xtable>(file_name_new, table_header);
 				json_parser jp;
 				json empty = jp.create_object();
-				current_table->for_each(empty, [new_table](json& _src)->relative_ptr_type {
+				current_table->for_each(nullptr, empty, [new_table](json& _src)->relative_ptr_type {
 					new_table->put(_src);
 					return 1;
 					});
@@ -4013,7 +4015,7 @@ namespace corona
 					timer tx;
 					system_monitoring_interface::active_mon->log_job_section_start("index", new_index.first, dt, __FILE__, __LINE__);
 					json empty_key = jp.create_object();
-					class_data->for_each(empty_key, [idx_table](json& _item) -> relative_ptr_type {
+					class_data->for_each(nullptr, empty_key, [idx_table](json& _item) -> relative_ptr_type {
 						idx_table->put(_item);
 						return 1;
 						});
@@ -4488,8 +4490,6 @@ namespace corona
 
 		}
 
-		int maximum_filter_records = 500;
-
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
 		{
 			// Now, if there is an index set specified, let's go see if we can find one and use it 
@@ -4515,7 +4515,7 @@ namespace corona
 						json ft_key = jp.create_object();
                         ft_key.put_member("text", word);
 
-                        json ft_results = ftb->select(ft_key, [&base_object_ids](json& _item) -> json {
+                        json ft_results = ftb->select(&max_query_result_rows, ft_key, [&base_object_ids](json& _item) -> json {
                             int64_t object_id = (int64_t)_item["object_id"];
 							base_object_ids.insert(object_id);
 							json temp;
@@ -4562,7 +4562,7 @@ namespace corona
 					json temp;
 					json temp_result = jp.create_array();
 
- 					temp = index_table->select(_key, [](json& _item) -> json {
+ 					temp = index_table->select(&max_query_result_rows, _key, [](json& _item) -> json {
 						return _item;
 					});
 
@@ -4580,7 +4580,7 @@ namespace corona
 				else
 				{
 					auto class_data = get_table(_db);
-                    obj = class_data->select(_key, [&_key, &_grant](json& _j)-> json
+                    obj = class_data->select(&max_query_result_rows, _key, [&_key, &_grant](json& _j)-> json
 						{
 							json result;
 							if (_key.compare(_j) == 0) {
@@ -4653,7 +4653,7 @@ namespace corona
 
 					if (index_table)
 					{
-						ob_found = index_table->select(key, [this, &backing_table](json& _item) -> json {
+						ob_found = index_table->select(&max_query_result_rows, key, [this, &backing_table](json& _item) -> json {
 							int64_t object_id = (int64_t)_item[object_id_field];
 							auto objfound = backing_table->get(object_id);
 							return objfound;
@@ -4661,7 +4661,7 @@ namespace corona
 					}
 					else
 					{
-						ob_found = backing_table->select(key, [&key](json& _j)
+						ob_found = backing_table->select(&max_query_result_rows, key, [&key](json& _j)
 							{
 								json result;
 								if (key.compare(_j) == 0)
@@ -4851,7 +4851,7 @@ namespace corona
 				std::shared_ptr<class_implementation> cdimp = std::make_shared<class_implementation>();
 				json key = jp.create_object();
 				key.put_member(class_name_field, _class_name);
-				json class_def = classes->select(key, [&key](json& _target)-> json {
+				json class_def = classes->select(nullptr, key, [&key](json& _target)-> json {
 					if (key.compare(_target) == 0) {
 						return _target;
 					}
@@ -6412,7 +6412,7 @@ private:
 				user_name = default_user;
             }
 
-			json all_classes = classes->select(R"({"class_name":"sys_class"})"_jobject, [](json& _item) -> json {
+			json all_classes = classes->select(nullptr, R"({"class_name":"sys_class"})"_jobject, [](json& _item) -> json {
                 return _item;
 				});
 
@@ -7182,27 +7182,32 @@ private:
 			return class_def;
 		}
 
-		void log_error_array(json put_result)
+		void log_error_array(json& put_result)
 		{
 			auto result_items = put_result[data_field];
-			result_items.for_each_member([](const std::string& _member_name, json _member) {
-				if (_member.array()) {
-					_member.for_each_element([](json& _item) {
-						if (not _item[success_field]) {
-							std::string msg = std::format("{0}:", (std::string)_item[message_field]);
-							system_monitoring_interface::active_mon->log_warning(msg);
-							if (_item.has_member("errors"))
-							{
-								json errors = _item["errors"];
-								errors.for_each_element([](json& _msg) {
-									std::string msg = std::format("{0}.{1} {2}", (std::string)_msg[class_name_field], (std::string)_msg["field_name"], (std::string)_msg[message_field]);
-									system_monitoring_interface::active_mon->log_information(msg);
-									});
+			if (result_items.object()) {
+				result_items.for_each_member([](const std::string& _member_name, json _member) {
+					if (_member.array()) {
+						_member.for_each_element([](json& _item) {
+							if (not _item[success_field]) {
+								std::string msg = std::format("{0}:", (std::string)_item[message_field]);
+								system_monitoring_interface::active_mon->log_warning(msg);
+								if (_item.has_member("errors"))
+								{
+									json errors = _item["errors"];
+									errors.for_each_element([](json& _msg) {
+										std::string msg = std::format("{0}.{1} {2}", (std::string)_msg[class_name_field], (std::string)_msg["field_name"], (std::string)_msg[message_field]);
+										system_monitoring_interface::active_mon->log_information(msg);
+										});
+								}
 							}
-						}
-						});
-				}
-				});
+							});
+					}
+					});
+			}
+			else {
+                system_monitoring_interface::active_mon->log_warning("No result items found in put_result", __FILE__, __LINE__);
+			}
 		}
 
 		virtual json apply_schema(json _schema)
@@ -7430,11 +7435,13 @@ private:
 									std::vector<std::string> pivot_object_field_names;
 									std::string pivot_attribute_field_name;
 									std::string pivot_value_field_name;
+									bool pivot_lower_case = true;
 
 									if (pivot) 
 									{
-										pivot_attribute_field_name = import_spec["attribute_field"];
-										pivot_value_field_name = import_spec["value_field"];
+										pivot_attribute_field_name = pivot["attribute_field"];
+										pivot_value_field_name = pivot["value_field"];
+                                        pivot_lower_case = (bool)pivot["lower_case_attribute"];
 
 										if (pivot_attribute_field_name.empty() or pivot_value_field_name.empty())
 										{
@@ -7443,7 +7450,7 @@ private:
                                             continue;
 										}
 
-										pivot_object_field_names = import_spec["object_fields"].to_string_array();
+										pivot_object_field_names = pivot["object_fields"].to_string_array();
                                         if (pivot_object_field_names.size() == 0)
                                         {
                                             system_monitoring_interface::active_mon->log_warning("pivot import object_fields must be [ string, .. ].");
@@ -7460,7 +7467,7 @@ private:
 										auto file_modified = std::filesystem::last_write_time(filename);
 										const auto system_file_modified = std::chrono::clock_cast<std::chrono::system_clock>(file_modified);
 										const auto file_modified_time = std::chrono::system_clock::to_time_t(system_file_modified);
-
+                                        bool pivot_object_ready = false;
 										date_time file_modified_dt = date_time(file_modified_time);
 										if (file_modified_dt > import_datatime) {
 
@@ -7490,25 +7497,38 @@ private:
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
 
-														if (pivot_object.empty()) 
+														if (pivot.empty()) 
 														{
-															jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
+															json extra = jp.create_object();
+															jp.parse_delimited_string(new_object, column_map, line, delimiter, extra);
 															datomatic.push_back(new_object);
-														}
-														else 
+														}                                                        
+														else
 														{
-															jp.parse_delimited_string(new_object, column_map, line, delimiter[0]);
-															std::string attribute_field_name = new_object[pivot_attribute_field_name];
-															std::string attribute_value = new_object[pivot_value_field_name];
-                                                            json pivot_keys = new_object.extract(pivot_object_field_names);
+															json extra = jp.create_object();
+															jp.parse_delimited_string(new_object, column_map, line, delimiter, extra);
 
-															if (pivot_keys.compare(pivot_object) != 0) 
+															json pivot_keys = new_object.extract(pivot_object_field_names);
+
+															if (!pivot_object_ready) {
+																pivot_object = pivot_keys.clone();
+																pivot_object_ready = true;
+																pivot_object.put_member(class_name_field, target_class);
+															}
+															else if (pivot_keys.compare(pivot_object) != 0)
 															{
 																datomatic.push_back(pivot_object);
-																pivot_object = pivot_keys;
+																pivot_object = pivot_keys.clone();
+																pivot_object.put_member(class_name_field, target_class);
 															}
 
-                                                            pivot_object.put_member(attribute_field_name, attribute_value);
+															std::string attribute_field_name = extra[pivot_attribute_field_name];
+															std::string attribute_value = extra[pivot_value_field_name];
+															if (pivot_lower_case) {
+																std::transform(attribute_field_name.begin(), attribute_field_name.end(), attribute_field_name.begin(),
+																	[](unsigned char c) { return std::tolower(c); });
+															}
+															pivot_object.put_member(attribute_field_name, attribute_value);
 														}
 
 														if (datomatic.size() > import_batch_size) {
@@ -8833,7 +8853,7 @@ grant_type=authorization_code
 				return result;
 			}
 
-			object_list = classes->select(jp.create_object(), [](json& _item)->json {
+			object_list = classes->select(nullptr, jp.create_object(), [](json& _item)->json {
 				return _item;
 				});
             result_list = jp.create_array();

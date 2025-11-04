@@ -132,8 +132,8 @@ namespace corona
 		virtual void put_array(json& _object) = 0;
 		virtual void erase(json _object)= 0;
 		virtual void erase_array(json _object) = 0;
-		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) = 0;
-		virtual json select(json _object, std::function<json(json& _item)> _process) = 0;
+		virtual xfor_each_result for_each(int *_max_rows, json _object, std::function<relative_ptr_type(json& _item)> _process) = 0;
+		virtual json select(int *_max_rows, json _object, std::function<json(json& _item)> _process) = 0;
 		virtual void clear() = 0;
 		virtual json get_info() = 0;
 		virtual int64_t get_next_object_id() = 0;
@@ -501,7 +501,7 @@ namespace corona
 			xheader.count = records.size();
 		}
 		
-		virtual xfor_each_result for_each(int _max_rows, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
+		virtual xfor_each_result for_each(int *_max_rows, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			xfor_each_result result;
 			result.is_all = true;
@@ -515,8 +515,10 @@ namespace corona
 					if (_process(item.first, item.second) != null_row)
 					{
 						nrows++;
-						if (nrows == _max_rows && _max_rows) {
-							return result;
+						if (_max_rows) {
+							if (nrows == *_max_rows) {
+								return result;
+							}
 						}
 						result.count++;
 						result.is_any = true;
@@ -530,7 +532,7 @@ namespace corona
 			return result;
 		}
 
-		virtual std::vector<xrecord> select(int _max_rows, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+		virtual std::vector<xrecord> select(int *_max_rows, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 		{
 			std::vector<xrecord> result = {};
 			int nrows = 0;
@@ -540,9 +542,10 @@ namespace corona
 					xrecord temp = _process(item.first, item.second);
 					if (not temp.empty())
 					{
-						nrows++;
-						if (nrows == _max_rows && _max_rows) {
-							return result;
+						if (_max_rows) {
+							if (nrows == *_max_rows) {
+								return result;
+							}
 						}
 						result.push_back(temp);
 					}
@@ -598,9 +601,9 @@ namespace corona
 
 		virtual void clear(xblock_cache* cache);
 		
-		virtual xfor_each_result for_each(int _max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process);
+		virtual xfor_each_result for_each(int *_max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process);
 
-		virtual std::vector<xrecord> select(int _max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process);
+		virtual std::vector<xrecord> select(int *_max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process);
 
 		json get_info(xblock_cache* cache);
 
@@ -1253,14 +1256,14 @@ namespace corona
 			return jinfo;
 		}
 
-		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) override
+		virtual xfor_each_result for_each(int *_max_rows, json _object, std::function<relative_ptr_type(json& _item)> _process) override
 		{
 			
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			xfor_each_result result;
 			auto root = cache->open_branch_block(table_header->root_block, true);
-			result = root->for_each(cache.get(), key, [_process, this](const xrecord& _key, const xrecord& _data)->relative_ptr_type {
+			result = root->for_each(_max_rows, cache.get(), key, [_process, this](const xrecord& _key, const xrecord& _data)->relative_ptr_type {
 				json_parser jp;
 				json obj = jp.create_object();
 				_key.get_json(&table_header->key_members, obj);
@@ -1272,14 +1275,14 @@ namespace corona
 			return result;
 		}
 
-		virtual json select(json _object, std::function<json(json& _item)> _process) override
+		virtual json select(int *_max_rows, json _object, std::function<json(json& _item)> _process) override
 		{
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
 			json_parser jp;
 			json target = jp.create_array();
 			auto root = cache->open_branch_block(table_header->root_block, true);
-			root->select(cache.get(), key, [_process, this, &target](const xrecord& _key, const xrecord& _data)->xrecord {
+			root->select(_max_rows, cache.get(), key, [_process, this, &target](const xrecord& _key, const xrecord& _data)->xrecord {
 				json_parser jp;
 				json obj = jp.create_object();
 				xrecord empty;
@@ -1826,57 +1829,73 @@ namespace corona
 		xheader.count = records.size();
 	}
 
-	xfor_each_result xbranch_block::for_each(int _max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
+	xfor_each_result xbranch_block::for_each(int *_max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 	{
 		xfor_each_result result;
 		result.is_all = false;
 		result.is_any = false;
 		result.count = 0;
-		int nrows;
+
+		int child_max_rows;
+		int* pchild_max_rows = nullptr;
+
+		if (_max_rows) {
+            pchild_max_rows = &child_max_rows;
+		}
 
 		auto iter = find_xrecord(_key);
 		while (iter != records.end() and iter->first <= _key)
 		{
 			xfor_each_result temp;
 			auto& found_block = iter->second;
+
+			if (_max_rows) {
+				int child_max_rows = *_max_rows - result.count;
+				if (child_max_rows < 0) {
+					child_max_rows = 0;
+				}
+			}
+
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
 				auto branch_block = cache->open_branch_block(found_block, false);
-				temp = branch_block->for_each(cache, _key, _process);
+				temp = branch_block->for_each(pchild_max_rows, cache, _key, _process);
 				cache->close_block(branch_block);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
 				auto leaf_block = cache->open_leaf_block(found_block);
-				temp = leaf_block->for_each(_key, _process);
+				temp = leaf_block->for_each(pchild_max_rows, _key, _process);
 				cache->close_block(leaf_block);
 			}
 			else
 				temp = {};
 
-            nrows += temp.count;
-            if (nrows > _max_rows)
-            {
-				if (temp.is_any)
-					result.is_any = true;
-				result.is_all = false;
-                return result;
-            }
 			result.count += temp.count;
 			if (temp.is_any)
 				result.is_any = true;
+			if (_max_rows && result.count > *_max_rows)
+            {
+				result.is_all = false;
+                return result;
+            }
 			if (not temp.is_all)
 				result.is_all = false;
 		}
 		return result;
 	}
 
-	std::vector<xrecord> xbranch_block::select(int _max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
+	std::vector<xrecord> xbranch_block::select(int *_max_rows, xblock_cache* cache, xrecord& _key, std::function<xrecord(const xrecord& _key, const xrecord& _value)> _process)
 	{
 		std::vector<xrecord> result = {};
 
 		int nrows = 0;
+		int child_max_rows;
+		int* pchild_max_rows = nullptr;
 
+		if (_max_rows) {
+			pchild_max_rows = &child_max_rows;
+		}
 
 		if (_key.empty())
 		{
@@ -1884,18 +1903,23 @@ namespace corona
 			{
 				std::vector<xrecord> temp;
 				auto& found_block = item.second;
-                int current_max_rows = _max_rows - nrows;
+				if (_max_rows) {
+					int child_max_rows = *_max_rows - nrows;
+					if (child_max_rows < 0) {
+						child_max_rows = 0;
+					}
+				}
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(current_max_rows, cache, _key, _process);
+					temp = branch_block->select(pchild_max_rows, cache, _key, _process);
 					cache->close_block(branch_block);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(current_max_rows, _key, _process);
+					temp = leaf_block->select(pchild_max_rows, _key, _process);
 					cache->close_block(leaf_block);
 				}
 				else
@@ -1903,7 +1927,7 @@ namespace corona
 
 				result.insert(result.end(), temp.begin(), temp.end());
 				nrows += std::distance(temp.end(),temp.begin());
-                if (nrows >= _max_rows) {
+                if (_max_rows && nrows >= *_max_rows) {
                     break;
                 }
 			}
@@ -1912,24 +1936,36 @@ namespace corona
 			auto iter = find_xrecord(_key);
 			while (iter != records.end() and (iter->first <= _key or iter->first.matches(_key)))
 			{
+
+				if (_max_rows) {
+					int child_max_rows = *_max_rows - nrows;
+					if (child_max_rows < 0) {
+						child_max_rows = 0;
+					}
+				}
+
 				std::vector<xrecord> temp;
 				auto& found_block = iter->second;
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(cache, _key, _process);
+					temp = branch_block->select(pchild_max_rows, cache, _key, _process);
 					cache->close_block(branch_block);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(_key, _process);
+					temp = leaf_block->select(pchild_max_rows, _key, _process);
 					cache->close_block(leaf_block);
 				}
 				else
 					temp = {};
 
 				result.insert(result.end(), temp.begin(), temp.end());
+				nrows += std::distance(temp.end(), temp.begin());
+				if (_max_rows && nrows >= *_max_rows) {
+					break;
+				}
 				iter++;
 			}
 		}
@@ -2398,7 +2434,7 @@ namespace corona
 		bool simple_select = false;
 		json object_key = jp.create_object();
 		object_key.put_member_i64(object_id_field, 42);
-		json select_key_results = ptable->select(object_key, [&object_key](json& _target)-> json {
+		json select_key_results = ptable->select(nullptr, object_key, [&object_key](json& _target)-> json {
 			if (object_key.compare(_target) == 0) {
 				return _target;
 			}
@@ -2411,7 +2447,7 @@ namespace corona
 
 		object_key = jp.create_object();
 		object_key.put_member("age", 52);
-		json select_match_results = ptable->select(object_key, [&object_key](json& _target)-> json {
+		json select_match_results = ptable->select(nullptr, object_key, [&object_key](json& _target)-> json {
 			if (object_key.compare(_target) == 0) {
 				return _target;
 			}

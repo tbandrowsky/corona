@@ -1292,7 +1292,7 @@
     },
     {
       "class_name": "county",
-      "class_description": "Population",
+      "class_description": "Demographics",
       "base_class_name": "work_object",
       "class_color": "#4e7a69",
       "full_text": [ "fips_code", "state", "county" ],
@@ -1895,7 +1895,7 @@
           "team_name": "Model Team",
           "team_description": "Analysis Team",
           "team_domain": "NONE",
-          "inventory_classes": [  ],
+          "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [
             {
@@ -1908,7 +1908,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [  "note" ],
+              "grant_classes": [ "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -1950,7 +1950,7 @@
           "team_name": "Justice Team",
           "team_description": "Revolution Court",
           "team_domain": "NONE",
-          "inventory_classes": [  ],
+          "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [
             {
@@ -1963,7 +1963,7 @@
             },
             {
               "class_name": "sys_grant",
-              "grant_classes": [  "note" ],
+              "grant_classes": [ "note" ],
               "get": "own",
               "put": "own",
               "delete": "own",
@@ -2122,7 +2122,7 @@
           "team_name": "Home Team",
           "team_description": "Revolution Customer",
           "team_domain": ".*",
-          "inventory_classes": [  ],
+          "inventory_classes": [],
           "allowed_teams": [ "Home Team", "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team" ],
           "permissions": [
             {
@@ -2282,7 +2282,7 @@
       "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
       "import": {
         "type": "csv",
-        "delimiter": "|",
+        "delimiter": "tab",
         "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
         "target_class": "county_hsra",
         "column_map": {
@@ -2290,45 +2290,44 @@
           "1": "financial_assistance",
           "2": "grantee_address",
           "3": "grantee_city",
-          "4": "grantee_county_description",
-          "5": "county",
-          "6": "grantee_name",
-          "7": "grantee_region_code",
-          "8": "hrsa_region",
-          "9": "state",
-          "10": "state_name",
-          "11": "grantee_zip_code",
-          "12": "grant_activity_code",
-          "13": "grant_number",
-          "14": "grant_serial_number",
-          "15": "project_period_start_date",
-          "16": "project_period_start_date_text_string",
-          "17": "grant_project_period_end_date",
-          "18": "grant_project_period_end_date_text",
-          "19": "hrsa_program_area_code",
-          "20": "hrsa_program_area_name",
-          "21": "complete_county_name",
-          "22": "grant_program_name",
-          "23": "congressional_district_name",
-          "24": "congressional_district_number",
-          "25": "hhs_region_number",
-          "26": "us_congressional_representative_name",
-          "27": "state_and_county_federal_information_processing_standard_code",
-          "28": "state_fips_code",
-          "29": "us_mexico_border_100_kilometer_indicator",
-          "30": "us_mexico_border_county_indicator",
-          "31": "name_of_us_senator_number_one",
-          "32": "name_of_us_senator_number_two",
-          "33": "uniform_data_system_grant_program_description",
-          "34": "abstract",
-          "35": "grantee_type_description",
-          "36": "duns_number",
-          "37": "unique_entity_identifier",
-          "38": "ccn",
-          "39": "geocoding_artifact_address_primary_x_coordinate",
-          "40": "geocoding_artifact_address_primary_y_coordinate",
-          "41": "data_warehouse_record_create_date",
-          "42": "data_warehouse_record_create_date_text"
+          "4": "county",
+          "5": "grantee_name",
+          "6": "grantee_region_code",
+          "7": "hrsa_region",
+          "8": "state",
+          "9": "state_name",
+          "10": "grantee_zip_code",
+          "11": "grant_activity_code",
+          "12": "grant_number",
+          "13": "grant_serial_number",
+          "14": "project_period_start_date",
+          "15": "project_period_start_date_text_string",
+          "16": "grant_project_period_end_date",
+          "17": "grant_project_period_end_date_text",
+          "18": "hrsa_program_area_code",
+          "19": "hrsa_program_area_name",
+          "20": "complete_county_name",
+          "21": "grant_program_name",
+          "22": "congressional_district_name",
+          "23": "congressional_district_number",
+          "24": "hhs_region_number",
+          "25": "us_congressional_representative_name",
+          "26": "state_and_county_federal_information_processing_standard_code",
+          "27": "state_fips_code",
+          "28": "us_mexico_border_100_kilometer_indicator",
+          "29": "us_mexico_border_county_indicator",
+          "30": "name_of_us_senator_number_one",
+          "31": "name_of_us_senator_number_two",
+          "32": "uniform_data_system_grant_program_description",
+          "33": "abstract",
+          "34": "grantee_type_description",
+          "35": "duns_number",
+          "36": "unique_entity_identifier",
+          "37": "ccn",
+          "38": "geocoding_artifact_address_primary_x_coordinate",
+          "39": "geocoding_artifact_address_primary_y_coordinate",
+          "40": "data_warehouse_record_create_date",
+          "41": "data_warehouse_record_create_date_text"
         }
       }
     },
@@ -2386,6 +2385,31 @@
           "40": "firms_nonminority-owned",
           "41": "firms_veteran-owned",
           "42": "firms_nonveteran-owned"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Population",
+      "dataset_description": "County Population",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_population.txt",
+        "target_class": "county_population",
+        "pivot": {
+          "attribute_field": "attribute",
+          "value_field": "value",
+          "object_fields": [ "fips_code", "county", "state" ],
+          "lower_case_attribute": true
+        },
+        "column_map": {
+          "0": "fips_code",
+          "2": "county",
+          "1": "state",
+          "3": "attribute",
+          "4": "value"
         }
       }
     },

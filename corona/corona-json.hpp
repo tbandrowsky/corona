@@ -1630,6 +1630,7 @@ namespace corona
 		}
 
 
+
 		bool contains_text(std::string _text);
 
 
@@ -3779,7 +3780,7 @@ namespace corona
 
 	public:
 
-		bool parse_delimited_string(json _dest_template, json& _column_map, const std::string& _src, char _delimiter)
+		bool parse_delimited_string(json& _dest_template, json& _column_map, const std::string& _src, std::string& _delimiter, json& _extra)
 		{
 			bool r = false;
 
@@ -3791,7 +3792,8 @@ namespace corona
 				line = line.substr(0, line.size() - 1);
 			}
 
-			std::vector<std::string_view> pieces = split(line, _delimiter);
+			char c = _delimiter[0];
+			std::vector<std::string_view> pieces = split(line, c);
 
 			for (int i = 0; i < pieces.size(); i++)
 			{
@@ -3799,6 +3801,7 @@ namespace corona
 				std::string column_name = _column_map[index_key];
 				bool t = _dest_template.import_member(column_name, pieces[i]);
 				if (t) r = t;
+                else _extra.put_member(column_name, pieces[i]);
 			}
 
 			return r;

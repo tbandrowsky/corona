@@ -873,7 +873,7 @@ namespace corona
 			return results;
 		}
 
-		virtual xfor_each_result for_each(json _object, std::function<relative_ptr_type(json& _item)> _process) override
+		virtual xfor_each_result for_each(int *_max_rows, json _object, std::function<relative_ptr_type(json& _item)> _process) override
 		{
 
 			xfor_each_result result = {};
@@ -884,6 +884,11 @@ namespace corona
 				{
 					result.count++;
 					result.is_any = true;
+                    if (_max_rows) {
+                        if (result.count >= *_max_rows) {
+                            break;
+                        }
+                    }
 				}
 				else {
 					result.is_any = false;
@@ -892,7 +897,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json select(json _object, std::function<json(json& _item)> _process) override
+		virtual json select(int* _max_rows, json _object, std::function<json(json& _item)> _process) override
 		{
 			json_parser jp;
 			json raw_results = get(_object);
@@ -901,6 +906,11 @@ namespace corona
 			{
 				json jresult = _process(obj);
 				if (jresult.object()) {
+					if (_max_rows) {
+						if (results.size()  >= *_max_rows) {
+							break;
+						}
+					}
 					results.push_back(jresult);
 				}
 			}
