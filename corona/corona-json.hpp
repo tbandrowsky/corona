@@ -3590,6 +3590,7 @@ namespace corona
 
 	public:
 
+		json from_cartesian(json& _array_of_arrays);
 
 		json from_double(double _d)
 		{
@@ -4816,6 +4817,42 @@ namespace corona
 			comments = _src["comments"];
 		}
 	};
+
+	json json_parser::from_cartesian(json& _array_of_arrays)
+	{
+		if (not _array_of_arrays.array())
+			throw std::logic_error("cartesian join requires an array of arrays");
+
+		json_parser jp;
+		json final_result = jp.create_array();
+
+		int n = _array_of_arrays.size();
+		if (!n) {
+			return final_result;
+		}
+		json last_result = _array_of_arrays[0];
+		for (int i = 1; i < n; i++)
+		{
+			json current_array = _array_of_arrays.get_element(i);
+			json new_result = jp.create_array();
+			for (int li = 0; li < last_result.size(); li++)
+			{
+				json left_item = last_result.get_element(li);
+				for (int ci = 0; ci < current_array.size(); ci++)
+				{
+					json right_item = current_array.get_element(ci);
+					json combined_item = left_item.clone();
+					auto members = right_item.get_members();
+					for (auto m : members) {
+						combined_item.copy_member(m.first, right_item);
+					}
+					new_result.append_element(combined_item);
+				}
+			}
+			last_result = new_result;
+		}
+		return last_result;
+	}
 
 }
 
