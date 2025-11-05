@@ -339,7 +339,7 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "name",
-      "card_fields": [ "description", "authors"],
+      "card_fields": [ "description", "authors" ],
       "fields": {
         "components": [ "string" ],
         "steps": [ "string" ]
@@ -472,7 +472,7 @@
                 "class_name": "committee",
                 "name": "committee",
                 "filter": {
-                  "committee_id": "committee_candidate.committee_id"
+                  "committee_id": "$committee_candidate.committee_id"
                 }
               }
             ],
@@ -528,7 +528,7 @@
                 "class_name": "candidate",
                 "name": "candidate",
                 "filter": {
-                  "candidate_id": "committee_candidate.candidate_id"
+                  "candidate_id": "$committee_candidate.candidate_id"
                 }
               }
             ],
@@ -635,7 +635,7 @@
                 "class_name": "candidate",
                 "name": "candidate",
                 "filter": {
-                  "candidate_id": "committee_candidate.candidate_id"
+                  "candidate_id": "$committee_candidate.candidate_id"
                 }
               }
             ],
@@ -675,12 +675,14 @@
         "county": {
           "field_type": "string",
           "grid_column": "1",
-          "grid_row": "1"
+          "grid_row": "1",
+          "label": "County"
         },
         "state": {
           "field_type": "string",
           "grid_column": "2",
-          "grid_row": "1"
+          "grid_row": "1",
+          "label": "State"
         },
         "percent_65_and_older": {
           "field_type": "number",
@@ -953,62 +955,324 @@
         "bachelor's_degree_or_higher_2023"
       ],
       "full_text": [ "state", "county" ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px 300px 300px 300px",
       "fields": {
         "fips_code": "string",
         "state": "string",
         "county": "string",
-        "2013_urban_influence_code": "number",
-        "2024_urban_influence_code": "number",
-        "2013_rural_urban_continuum_code": "number",
-        "2023_rural_urban_continuum_code": "number",
-        "less_than_a_high_school_diploma_1970": "number",
-        "high_school_diploma_only_1970": "number",
-        "some_college_1970": "number",
-        "four_years_of_college_or_higher_1970": "number",
-        "percent_of_adults_with_less_than_a_high_school_diploma_1970": "number",
-        "percent_of_adults_with_a_high_school_diploma_only_1970": "number",
-        "percent_of_adults_completing_some_college_1970": "number",
-        "percent_of_adults_completing_four_years_of_college_or_higher_1970": "number",
-        "less_than_a_high_school_diploma_1980": "number",
-        "high_school_diploma_only_1980": "number",
-        "some_college_1980": "number",
-        "four_years_of_college_or_higher_1980": "number",
-        "percent_of_adults_with_less_than_a_high_school_diploma_1980": "number",
-        "percent_of_adults_with_a_high_school_diploma_only_1980": "number",
-        "percent_of_adults_completing_some_college_1980": "number",
-        "percent_of_adults_completing_four_years_of_college_or_higher_1980": "number",
-        "less_than_high_school_graduate_1990": "number",
-        "high_school_graduate_1990": "number",
-        "some_college_or_associate_degree_1990": "number",
-        "bachelor's_degree_or_higher_1990": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_1990": "number",
-        "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_1990": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_1990": "number",
-        "less_than_high_school_graduate_2000": "number",
-        "high_school_graduate_2000": "number",
-        "some_college_or_associate_degree_2000": "number",
-        "bachelors_degree_or_higher_2000": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2000": "number",
-        "percent_of_adults_who_are_high_school_graduates_2000": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2000": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2000": "number",
-        "less_than_high_school_graduate_2012": "number",
-        "high_school_graduate_2012": "number",
-        "some_college_or_associate_degree_2012": "number",
-        "bachelor's_degree_or_higher_2012": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2012": "number",
-        "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2012": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2012": "number",
-        "less_than_high_school_graduate_2023": "number",
-        "high_school_graduate_2023": "number",
-        "some_college_or_associate_degree_2023": "number",
-        "bachelor's_degree_or_higher_2023": "number",
-        "percent_of_adults_who_are_not_high_school_graduates_2023": "number",
-        "percent_of_adults_who_are_high_school_graduates_2023": "number",
-        "percent_of_adults_completing_some_college_or_associate_degree_2023": "number",
-        "percent_of_adults_with_a_bachelors_degree_or_higher_2023": "number"
+        "2013_urban_influence_code": {
+          "field_type": "string",
+          "label": "2013 Urban Influence Code",
+          "grid_row": 1,
+          "grid_column": 1
+        },
+        "2024_urban_influence_code": {
+          "field_type": "string",
+          "label": "2024 Urban Influence Code",
+          "grid_row": 1,
+          "grid_column": 2
+        },
+        "2013_rural_urban_continuum_code": {
+          "field_type": "string",
+          "label": "2013 Rural-Urban Continuum Code",
+          "grid_row": 1,
+          "grid_column": 3
+        },
+        "2023_rural_urban_continuum_code": {
+          "field_type": "string",
+          "label": "2023 Rural-Urban Continuum Code",
+          "grid_row": 1,
+          "grid_column": 4
+        },
+        "less_than_a_high_school_diploma_1970": {
+          "field_type": "number",
+          "label": "Less Than High School Diploma (1970)",
+          "grid_row": 2,
+          "grid_column": 1
+        },
+        "high_school_diploma_only_1970": {
+          "field_type": "number",
+          "label": "High School Diploma Only (1970)",
+          "grid_row": 2,
+          "grid_column": 2
+        },
+        "some_college_1970": {
+          "field_type": "number",
+          "label": "Some College (1970)",
+          "grid_row": 2,
+          "grid_column": 3
+        },
+        "four_years_of_college_or_higher_1970": {
+          "field_type": "number",
+          "label": "Four Years of College or Higher (1970)",
+          "grid_row": 2,
+          "grid_column": 4
+        },
+        "percent_of_adults_with_less_than_a_high_school_diploma_1970": {
+          "field_type": "number",
+          "label": "% Adults < High School Diploma (1970)",
+          "grid_row": 3,
+          "grid_column": 1
+        },
+        "percent_of_adults_with_a_high_school_diploma_only_1970": {
+          "field_type": "number",
+          "label": "% Adults High School Diploma Only (1970)",
+          "grid_row": 3,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_1970": {
+          "field_type": "number",
+          "label": "% Adults Some College (1970)",
+          "grid_row": 3,
+          "grid_column": 3
+        },
+        "percent_of_adults_completing_four_years_of_college_or_higher_1970": {
+          "field_type": "number",
+          "label": "% Adults Four Years College+ (1970)",
+          "grid_row": 3,
+          "grid_column": 4
+        },
+        "less_than_a_high_school_diploma_1980": {
+          "field_type": "number",
+          "label": "Less Than High School Diploma (1980)",
+          "grid_row": 4,
+          "grid_column": 1
+        },
+        "high_school_diploma_only_1980": {
+          "field_type": "number",
+          "label": "High School Diploma Only (1980)",
+          "grid_row": 4,
+          "grid_column": 2
+        },
+        "some_college_1980": {
+          "field_type": "number",
+          "label": "Some College (1980)",
+          "grid_row": 4,
+          "grid_column": 3
+        },
+        "four_years_of_college_or_higher_1980": {
+          "field_type": "number",
+          "label": "Four Years of College or Higher (1980)",
+          "grid_row": 4,
+          "grid_column": 4
+        },
+        "percent_of_adults_with_less_than_a_high_school_diploma_1980": {
+          "field_type": "number",
+          "label": "% Adults < High School Diploma (1980)",
+          "grid_row": 5,
+          "grid_column": 1
+        },
+        "percent_of_adults_with_a_high_school_diploma_only_1980": {
+          "field_type": "number",
+          "label": "% Adults High School Diploma Only (1980)",
+          "grid_row": 5,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_1980": {
+          "field_type": "number",
+          "label": "% Adults Some College (1980)",
+          "grid_row": 5,
+          "grid_column": 3
+        },
+        "percent_of_adults_completing_four_years_of_college_or_higher_1980": {
+          "field_type": "number",
+          "label": "% Adults Four Years College+ (1980)",
+          "grid_row": 5,
+          "grid_column": 4
+        },
+        "less_than_high_school_graduate_1990": {
+          "field_type": "number",
+          "label": "Less Than High School Graduate (1990)",
+          "grid_row": 6,
+          "grid_column": 1
+        },
+        "high_school_graduate_1990": {
+          "field_type": "number",
+          "label": "High School Graduate (1990)",
+          "grid_row": 6,
+          "grid_column": 2
+        },
+        "some_college_or_associate_degree_1990": {
+          "field_type": "number",
+          "label": "Some College or Associate Degree (1990)",
+          "grid_row": 6,
+          "grid_column": 3
+        },
+        "bachelor's_degree_or_higher_1990": {
+          "field_type": "number",
+          "label": "Bachelor's Degree or Higher (1990)",
+          "grid_row": 6,
+          "grid_column": 4
+        },
+        "percent_of_adults_who_are_not_high_school_graduates_1990": {
+          "field_type": "number",
+          "label": "% Adults Not High School Graduates (1990)",
+          "grid_row": 7,
+          "grid_column": 1
+        },
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990": {
+          "field_type": "number",
+          "label": "% Adults High School Graduates or Equivalent (1990)",
+          "grid_row": 7,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_or_associate_degree_1990": {
+          "field_type": "number",
+          "label": "% Adults Some College or Associate Degree (1990)",
+          "grid_row": 7,
+          "grid_column": 3
+        },
+        "percent_of_adults_with_a_bachelors_degree_or_higher_1990": {
+          "field_type": "number",
+          "label": "% Adults Bachelor's Degree or Higher (1990)",
+          "grid_row": 7,
+          "grid_column": 4
+        },
+        "less_than_high_school_graduate_2000": {
+          "field_type": "number",
+          "label": "Less Than High School Graduate (2000)",
+          "grid_row": 8,
+          "grid_column": 1
+        },
+        "high_school_graduate_2000": {
+          "field_type": "number",
+          "label": "High School Graduate (2000)",
+          "grid_row": 8,
+          "grid_column": 2
+        },
+        "some_college_or_associate_degree_2000": {
+          "field_type": "number",
+          "label": "Some College or Associate Degree (2000)",
+          "grid_row": 8,
+          "grid_column": 3
+        },
+        "bachelors_degree_or_higher_2000": {
+          "field_type": "number",
+          "label": "Bachelor's Degree or Higher (2000)",
+          "grid_row": 8,
+          "grid_column": 4
+        },
+        "percent_of_adults_who_are_not_high_school_graduates_2000": {
+          "field_type": "number",
+          "label": "% Adults Not High School Graduates (2000)",
+          "grid_row": 9,
+          "grid_column": 1
+        },
+        "percent_of_adults_who_are_high_school_graduates_2000": {
+          "field_type": "number",
+          "label": "% Adults High School Graduates (2000)",
+          "grid_row": 9,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_or_associate_degree_2000": {
+          "field_type": "number",
+          "label": "% Adults Some College or Associate Degree (2000)",
+          "grid_row": 9,
+          "grid_column": 3
+        },
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2000": {
+          "field_type": "number",
+          "label": "% Adults Bachelor's Degree or Higher (2000)",
+          "grid_row": 9,
+          "grid_column": 4
+        },
+        "less_than_high_school_graduate_2012": {
+          "field_type": "number",
+          "label": "Less Than High School Graduate (2012)",
+          "grid_row": 10,
+          "grid_column": 1
+        },
+        "high_school_graduate_2012": {
+          "field_type": "number",
+          "label": "High School Graduate (2012)",
+          "grid_row": 10,
+          "grid_column": 2
+        },
+        "some_college_or_associate_degree_2012": {
+          "field_type": "number",
+          "label": "Some College or Associate Degree (2012)",
+          "grid_row": 10,
+          "grid_column": 3
+        },
+        "bachelor's_degree_or_higher_2012": {
+          "field_type": "number",
+          "label": "Bachelor's Degree or Higher (2012)",
+          "grid_row": 10,
+          "grid_column": 4
+        },
+        "percent_of_adults_who_are_not_high_school_graduates_2012": {
+          "field_type": "number",
+          "label": "% Adults Not High School Graduates (2012)",
+          "grid_row": 11,
+          "grid_column": 1
+        },
+        "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012": {
+          "field_type": "number",
+          "label": "% Adults High School Graduates or Equivalent (2012)",
+          "grid_row": 11,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_or_associate_degree_2012": {
+          "field_type": "number",
+          "label": "% Adults Some College or Associate Degree (2012)",
+          "grid_row": 11,
+          "grid_column": 3
+        },
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2012": {
+          "field_type": "number",
+          "label": "% Adults Bachelor's Degree or Higher (2012)",
+          "grid_row": 11,
+          "grid_column": 4
+        },
+        "less_than_high_school_graduate_2023": {
+          "field_type": "number",
+          "label": "Less Than High School Graduate (2023)",
+          "grid_row": 12,
+          "grid_column": 1
+        },
+        "high_school_graduate_2023": {
+          "field_type": "number",
+          "label": "High School Graduate (2023)",
+          "grid_row": 12,
+          "grid_column": 2
+        },
+        "some_college_or_associate_degree_2023": {
+          "field_type": "number",
+          "label": "Some College or Associate Degree (2023)",
+          "grid_row": 12,
+          "grid_column": 3
+        },
+        "bachelor's_degree_or_higher_2023": {
+          "field_type": "number",
+          "label": "Bachelor's Degree or Higher (2023)",
+          "grid_row": 12,
+          "grid_column": 4
+        },
+        "percent_of_adults_who_are_not_high_school_graduates_2023": {
+          "field_type": "number",
+          "label": "% Adults Not High School Graduates (2023)",
+          "grid_row": 13,
+          "grid_column": 1
+        },
+        "percent_of_adults_who_are_high_school_graduates_2023": {
+          "field_type": "number",
+          "label": "% Adults High School Graduates (2023)",
+          "grid_row": 13,
+          "grid_column": 2
+        },
+        "percent_of_adults_completing_some_college_or_associate_degree_2023": {
+          "field_type": "number",
+          "label": "% Adults Some College or Associate Degree (2023)",
+          "grid_row": 13,
+          "grid_column": 3
+        },
+        "percent_of_adults_with_a_bachelors_degree_or_higher_2023": {
+          "field_type": "number",
+          "label": "% Adults Bachelor's Degree or Higher (2023)",
+          "grid_row": 13,
+          "grid_column": 4
+        }
       },
       "indexes": {
         "county_education_county_state_idx": {
@@ -1035,74 +1299,398 @@
         "census_2020_pop"
       ],
       "fields": {
-        "fips_code": "string",
         "state": "string",
         "county": "string",
-        "births_2020": "number",
-        "births_2021": "number",
-        "births_2022": "number",
-        "births_2023": "number",
-        "census_2020_pop": "number",
-        "deaths_2020": "number",
-        "deaths_2021": "number",
-        "deaths_2022": "number",
-        "deaths_2023": "number",
-        "domestic_mig_2020": "number",
-        "domestic_mig_2021": "number",
-        "domestic_mig_2022": "number",
-        "domestic_mig_2023": "number",
-        "economic_typology_2015": "number",
-        "estimates_base_2020": "number",
-        "gq_estimates_2020": "number",
-        "gq_estimates_2021": "number",
-        "gq_estimates_2022": "number",
-        "gq_estimates_2023": "number",
-        "gq_estimates_base_2020": "number",
-        "international_mig_2020": "number",
-        "international_mig_2021": "number",
-        "international_mig_2022": "number",
-        "international_mig_2023": "number",
-        "n_pop_chg_2020": "number",
-        "n_pop_chg_2021": "number",
-        "n_pop_chg_2022": "number",
-        "n_pop_chg_2023": "number",
-        "natural_chg_2020": "number",
-        "natural_chg_2021": "number",
-        "natural_chg_2022": "number",
-        "natural_chg_2023": "number",
-        "net_mig_2020": "number",
-        "net_mig_2021": "number",
-        "net_mig_2022": "number",
-        "net_mig_2023": "number",
-        "pop_estimate_2020": "number",
-        "pop_estimate_2021": "number",
-        "pop_estimate_2022": "number",
-        "pop_estimate_2023": "number",
-        "r_birth_2021": "number",
-        "r_birth_2022": "number",
-        "r_birth_2023": "number",
-        "r_death_2021": "number",
-        "r_death_2022": "number",
-        "r_death_2023": "number",
-        "r_domestic_mig_2021": "number",
-        "r_domestic_mig_2022": "number",
-        "r_domestic_mig_2023": "number",
-        "r_international_mig_2021": "number",
-        "r_international_mig_2022": "number",
-        "r_international_mig_2023": "number",
-        "r_natural_chg_2021": "number",
-        "r_natural_chg_2022": "number",
-        "r_natural_chg_2023": "number",
-        "r_net_mig_2021": "number",
-        "r_net_mig_2022": "number",
-        "r_net_mig_2023": "number",
-        "residual_2020": "number",
-        "residual_2021": "number",
-        "residual_2022": "number",
-        "residual_2023": "number",
-        "rural_urban_continuum_code_2013": "number",
-        "rural_urban_continuum_code_2023": "number",
-        "urban_influence_2013": "number"
+        "births_2020": {
+          "field_type": "number",
+          "label": "Births 2020",
+          "grid_row": 1,
+          "grid_column": 1
+        },
+        "births_2021": {
+          "field_type": "number",
+          "label": "Births 2021",
+          "grid_row": 1,
+          "grid_column": 2
+        },
+        "births_2022": {
+          "field_type": "number",
+          "label": "Births 2022",
+          "grid_row": 1,
+          "grid_column": 3
+        },
+        "births_2023": {
+          "field_type": "number",
+          "label": "Births 2023",
+          "grid_row": 1,
+          "grid_column": 4
+        },
+        "census_2020_pop": {
+          "field_type": "number",
+          "label": "Census 2020 Population",
+          "grid_row": 2,
+          "grid_column": 1
+        },
+        "deaths_2020": {
+          "field_type": "number",
+          "label": "Deaths 2020",
+          "grid_row": 2,
+          "grid_column": 2
+        },
+        "deaths_2021": {
+          "field_type": "number",
+          "label": "Deaths 2021",
+          "grid_row": 2,
+          "grid_column": 3
+        },
+        "deaths_2022": {
+          "field_type": "number",
+          "label": "Deaths 2022",
+          "grid_row": 2,
+          "grid_column": 4
+        },
+        "deaths_2023": {
+          "field_type": "number",
+          "label": "Deaths 2023",
+          "grid_row": 3,
+          "grid_column": 1
+        },
+        "domestic_mig_2020": {
+          "field_type": "number",
+          "label": "Domestic Migration 2020",
+          "grid_row": 3,
+          "grid_column": 2
+        },
+        "domestic_mig_2021": {
+          "field_type": "number",
+          "label": "Domestic Migration 2021",
+          "grid_row": 3,
+          "grid_column": 3
+        },
+        "domestic_mig_2022": {
+          "field_type": "number",
+          "label": "Domestic Migration 2022",
+          "grid_row": 3,
+          "grid_column": 4
+        },
+        "domestic_mig_2023": {
+          "field_type": "number",
+          "label": "Domestic Migration 2023",
+          "grid_row": 4,
+          "grid_column": 1
+        },
+        "economic_typology_2015": {
+          "field_type": "number",
+          "label": "Economic Typology 2015",
+          "grid_row": 4,
+          "grid_column": 2
+        },
+        "estimates_base_2020": {
+          "field_type": "number",
+          "label": "Estimates Base 2020",
+          "grid_row": 4,
+          "grid_column": 3
+        },
+        "gq_estimates_2020": {
+          "field_type": "number",
+          "label": "GQ Estimates 2020",
+          "grid_row": 4,
+          "grid_column": 4
+        },
+        "gq_estimates_2021": {
+          "field_type": "number",
+          "label": "GQ Estimates 2021",
+          "grid_row": 5,
+          "grid_column": 1
+        },
+        "gq_estimates_2022": {
+          "field_type": "number",
+          "label": "GQ Estimates 2022",
+          "grid_row": 5,
+          "grid_column": 2
+        },
+        "gq_estimates_2023": {
+          "field_type": "number",
+          "label": "GQ Estimates 2023",
+          "grid_row": 5,
+          "grid_column": 3
+        },
+        "gq_estimates_base_2020": {
+          "field_type": "number",
+          "label": "GQ Estimates Base 2020",
+          "grid_row": 5,
+          "grid_column": 4
+        },
+        "international_mig_2020": {
+          "field_type": "number",
+          "label": "International Migration 2020",
+          "grid_row": 6,
+          "grid_column": 1
+        },
+        "international_mig_2021": {
+          "field_type": "number",
+          "label": "International Migration 2021",
+          "grid_row": 6,
+          "grid_column": 2
+        },
+        "international_mig_2022": {
+          "field_type": "number",
+          "label": "International Migration 2022",
+          "grid_row": 6,
+          "grid_column": 3
+        },
+        "international_mig_2023": {
+          "field_type": "number",
+          "label": "International Migration 2023",
+          "grid_row": 6,
+          "grid_column": 4
+        },
+        "n_pop_chg_2020": {
+          "field_type": "number",
+          "label": "Net Population Change 2020",
+          "grid_row": 7,
+          "grid_column": 1
+        },
+        "n_pop_chg_2021": {
+          "field_type": "number",
+          "label": "Net Population Change 2021",
+          "grid_row": 7,
+          "grid_column": 2
+        },
+        "n_pop_chg_2022": {
+          "field_type": "number",
+          "label": "Net Population Change 2022",
+          "grid_row": 7,
+          "grid_column": 3
+        },
+        "n_pop_chg_2023": {
+          "field_type": "number",
+          "label": "Net Population Change 2023",
+          "grid_row": 7,
+          "grid_column": 4
+        },
+        "natural_chg_2020": {
+          "field_type": "number",
+          "label": "Natural Change 2020",
+          "grid_row": 8,
+          "grid_column": 1
+        },
+        "natural_chg_2021": {
+          "field_type": "number",
+          "label": "Natural Change 2021",
+          "grid_row": 8,
+          "grid_column": 2
+        },
+        "natural_chg_2022": {
+          "field_type": "number",
+          "label": "Natural Change 2022",
+          "grid_row": 8,
+          "grid_column": 3
+        },
+        "natural_chg_2023": {
+          "field_type": "number",
+          "label": "Natural Change 2023",
+          "grid_row": 8,
+          "grid_column": 4
+        },
+        "net_mig_2020": {
+          "field_type": "number",
+          "label": "Net Migration 2020",
+          "grid_row": 9,
+          "grid_column": 1
+        },
+        "net_mig_2021": {
+          "field_type": "number",
+          "label": "Net Migration 2021",
+          "grid_row": 9,
+          "grid_column": 2
+        },
+        "net_mig_2022": {
+          "field_type": "number",
+          "label": "Net Migration 2022",
+          "grid_row": 9,
+          "grid_column": 3
+        },
+        "net_mig_2023": {
+          "field_type": "number",
+          "label": "Net Migration 2023",
+          "grid_row": 9,
+          "grid_column": 4
+        },
+        "pop_estimate_2020": {
+          "field_type": "number",
+          "label": "Population Estimate 2020",
+          "grid_row": 10,
+          "grid_column": 1
+        },
+        "pop_estimate_2021": {
+          "field_type": "number",
+          "label": "Population Estimate 2021",
+          "grid_row": 10,
+          "grid_column": 2
+        },
+        "pop_estimate_2022": {
+          "field_type": "number",
+          "label": "Population Estimate 2022",
+          "grid_row": 10,
+          "grid_column": 3
+        },
+        "pop_estimate_2023": {
+          "field_type": "number",
+          "label": "Population Estimate 2023",
+          "grid_row": 10,
+          "grid_column": 4
+        },
+        "r_birth_2021": {
+          "field_type": "number",
+          "label": "Rate Birth 2021",
+          "grid_row": 11,
+          "grid_column": 1
+        },
+        "r_birth_2022": {
+          "field_type": "number",
+          "label": "Rate Birth 2022",
+          "grid_row": 11,
+          "grid_column": 2
+        },
+        "r_birth_2023": {
+          "field_type": "number",
+          "label": "Rate Birth 2023",
+          "grid_row": 11,
+          "grid_column": 3
+        },
+        "r_death_2021": {
+          "field_type": "number",
+          "label": "Rate Death 2021",
+          "grid_row": 11,
+          "grid_column": 4
+        },
+        "r_death_2022": {
+          "field_type": "number",
+          "label": "Rate Death 2022",
+          "grid_row": 12,
+          "grid_column": 1
+        },
+        "r_death_2023": {
+          "field_type": "number",
+          "label": "Rate Death 2023",
+          "grid_row": 12,
+          "grid_column": 2
+        },
+        "r_domestic_mig_2021": {
+          "field_type": "number",
+          "label": "Rate Domestic Migration 2021",
+          "grid_row": 12,
+          "grid_column": 3
+        },
+        "r_domestic_mig_2022": {
+          "field_type": "number",
+          "label": "Rate Domestic Migration 2022",
+          "grid_row": 12,
+          "grid_column": 4
+        },
+        "r_domestic_mig_2023": {
+          "field_type": "number",
+          "label": "Rate Domestic Migration 2023",
+          "grid_row": 13,
+          "grid_column": 1
+        },
+        "r_international_mig_2021": {
+          "field_type": "number",
+          "label": "Rate International Migration 2021",
+          "grid_row": 13,
+          "grid_column": 2
+        },
+        "r_international_mig_2022": {
+          "field_type": "number",
+          "label": "Rate International Migration 2022",
+          "grid_row": 13,
+          "grid_column": 3
+        },
+        "r_international_mig_2023": {
+          "field_type": "number",
+          "label": "Rate International Migration 2023",
+          "grid_row": 13,
+          "grid_column": 4
+        },
+        "r_natural_chg_2021": {
+          "field_type": "number",
+          "label": "Rate Natural Change 2021",
+          "grid_row": 14,
+          "grid_column": 1
+        },
+        "r_natural_chg_2022": {
+          "field_type": "number",
+          "label": "Rate Natural Change 2022",
+          "grid_row": 14,
+          "grid_column": 2
+        },
+        "r_natural_chg_2023": {
+          "field_type": "number",
+          "label": "Rate Natural Change 2023",
+          "grid_row": 14,
+          "grid_column": 3
+        },
+        "r_net_mig_2021": {
+          "field_type": "number",
+          "label": "Rate Net Migration 2021",
+          "grid_row": 14,
+          "grid_column": 4
+        },
+        "r_net_mig_2022": {
+          "field_type": "number",
+          "label": "Rate Net Migration 2022",
+          "grid_row": 15,
+          "grid_column": 1
+        },
+        "r_net_mig_2023": {
+          "field_type": "number",
+          "label": "Rate Net Migration 2023",
+          "grid_row": 15,
+          "grid_column": 2
+        },
+        "residual_2020": {
+          "field_type": "number",
+          "label": "Residual 2020",
+          "grid_row": 15,
+          "grid_column": 3
+        },
+        "residual_2021": {
+          "field_type": "number",
+          "label": "Residual 2021",
+          "grid_row": 15,
+          "grid_column": 4
+        },
+        "residual_2022": {
+          "field_type": "number",
+          "label": "Residual 2022",
+          "grid_row": 16,
+          "grid_column": 1
+        },
+        "residual_2023": {
+          "field_type": "number",
+          "label": "Residual 2023",
+          "grid_row": 16,
+          "grid_column": 2
+        },
+        "rural_urban_continuum_code_2013": {
+          "field_type": "number",
+          "label": "Rural Urban Continuum Code 2013",
+          "grid_row": 16,
+          "grid_column": 3
+        },
+        "rural_urban_continuum_code_2023": {
+          "field_type": "number",
+          "label": "Rural Urban Continuum Code 2023",
+          "grid_row": 16,
+          "grid_column": 4
+        },
+        "urban_influence_2013": {
+          "field_type": "number",
+          "label": "Urban Influence 2013",
+          "grid_row": 17,
+          "grid_column": 1
+        }
 
       },
       "indexes": {
@@ -1122,56 +1710,272 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "county",
-      "full_text": [ "grantee_city", "state", "county", "grantee_name", "grant_program_name", "abstract" ],
+      "full_text": [ "grant_number", "grantee_city", "state", "county", "grantee_name", "grant_program_name", "abstract" ],
       "card_fields": [
         "state_name",
         "grantee_name",
         "financial_assistance"
       ],
       "fields": {
-        "state": "string",
-        "county": "string",
-        "award_year": "string",
-        "financial_assistance": "string",
-        "grantee_address": "string",
-        "grantee_city": "string",
-        "grantee_county_description": "string",
-        "grantee_name": "string",
-        "grantee_region_code": "string",
-        "hrsa_region": "string",
-        "state_name": "string",
-        "grantee_zip_code": "string",
-        "grant_activity_code": "string",
-        "grant_number": "string",
-        "grant_serial_number": "string",
-        "project_period_start_date": "string",
-        "project_period_start_date_text_string": "string",
-        "grant_project_period_end_date": "string",
-        "grant_project_period_end_date_text": "string",
-        "hrsa_program_area_code": "string",
-        "hrsa_program_area_name": "string",
-        "complete_county_name": "string",
-        "grant_program_name": "string",
-        "congressional_district_name": "string",
-        "congressional_district_number": "string",
-        "hhs_region_number": "string",
-        "us_congressional_representative_name": "string",
-        "state_and_county_federal_information_processing_standard_code": "string",
-        "state_fips_code": "string",
-        "us_mexico_border_100_kilometer_indicator": "string",
-        "us_mexico_border_county_indicator": "string",
-        "name_of_us_senator_number_one": "string",
-        "name_of_us_senator_number_two": "string",
-        "uniform_data_system_grant_program_description": "string",
-        "abstract": "string",
-        "grantee_type_description": "string",
-        "duns_number": "string",
-        "unique_entity_identifier": "string",
-        "ccn": "string",
-        "geocoding_artifact_address_primary_x_coordinate": "number",
-        "geocoding_artifact_address_primary_y_coordinate": "number",
-        "data_warehouse_record_create_date": "string",
-        "data_warehouse_record_create_date_text": "string"
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "grid_row": 1,
+          "grid_column": 1
+        },
+        "county": {
+          "field_type": "string",
+          "label": "County",
+          "grid_row": 1,
+          "grid_column": 2
+        },
+        "award_year": {
+          "field_type": "string",
+          "label": "Award Year",
+          "grid_row": 1,
+          "grid_column": 3
+        },
+        "financial_assistance": {
+          "field_type": "string",
+          "label": "Financial Assistance",
+          "grid_row": 1,
+          "grid_column": 4
+        },
+        "grantee_address": {
+          "field_type": "string",
+          "label": "Grantee Address",
+          "grid_row": 2,
+          "grid_column": 1
+        },
+        "grantee_city": {
+          "field_type": "string",
+          "label": "Grantee City",
+          "grid_row": 2,
+          "grid_column": 2
+        },
+        "grantee_county_description": {
+          "field_type": "string",
+          "label": "Grantee County Description",
+          "grid_row": 2,
+          "grid_column": 3
+        },
+        "grantee_name": {
+          "field_type": "string",
+          "label": "Grantee Name",
+          "grid_row": 2,
+          "grid_column": 4
+        },
+        "grantee_region_code": {
+          "field_type": "string",
+          "label": "Grantee Region Code",
+          "grid_row": 3,
+          "grid_column": 1
+        },
+        "hrsa_region": {
+          "field_type": "string",
+          "label": "HRSA Region",
+          "grid_row": 3,
+          "grid_column": 2
+        },
+        "state_name": {
+          "field_type": "string",
+          "label": "State Name",
+          "grid_row": 3,
+          "grid_column": 3
+        },
+        "grantee_zip_code": {
+          "field_type": "string",
+          "label": "Grantee Zip Code",
+          "grid_row": 3,
+          "grid_column": 4
+        },
+        "grant_activity_code": {
+          "field_type": "string",
+          "label": "Grant Activity Code",
+          "grid_row": 4,
+          "grid_column": 1
+        },
+        "grant_number": {
+          "field_type": "string",
+          "label": "Grant Number",
+          "grid_row": 4,
+          "grid_column": 2
+        },
+        "grant_serial_number": {
+          "field_type": "string",
+          "label": "Grant Serial Number",
+          "grid_row": 4,
+          "grid_column": 3
+        },
+        "project_period_start_date": {
+          "field_type": "string",
+          "label": "Project Period Start Date",
+          "grid_row": 4,
+          "grid_column": 4
+        },
+        "project_period_start_date_text_string": {
+          "field_type": "string",
+          "label": "Project Period Start Date Text",
+          "grid_row": 5,
+          "grid_column": 1
+        },
+        "grant_project_period_end_date": {
+          "field_type": "string",
+          "label": "Grant Project Period End Date",
+          "grid_row": 5,
+          "grid_column": 2
+        },
+        "grant_project_period_end_date_text": {
+          "field_type": "string",
+          "label": "Grant Project Period End Date Text",
+          "grid_row": 5,
+          "grid_column": 3
+        },
+        "hrsa_program_area_code": {
+          "field_type": "string",
+          "label": "HRSA Program Area Code",
+          "grid_row": 5,
+          "grid_column": 4
+        },
+        "hrsa_program_area_name": {
+          "field_type": "string",
+          "label": "HRSA Program Area Name",
+          "grid_row": 6,
+          "grid_column": 1
+        },
+        "complete_county_name": {
+          "field_type": "string",
+          "label": "Complete County Name",
+          "grid_row": 6,
+          "grid_column": 2
+        },
+        "grant_program_name": {
+          "field_type": "string",
+          "label": "Grant Program Name",
+          "grid_row": 6,
+          "grid_column": 3
+        },
+        "congressional_district_name": {
+          "field_type": "string",
+          "label": "Congressional District Name",
+          "grid_row": 6,
+          "grid_column": 4
+        },
+        "congressional_district_number": {
+          "field_type": "string",
+          "label": "Congressional District Number",
+          "grid_row": 7,
+          "grid_column": 1
+        },
+        "hhs_region_number": {
+          "field_type": "string",
+          "label": "HHS Region Number",
+          "grid_row": 7,
+          "grid_column": 2
+        },
+        "us_congressional_representative_name": {
+          "field_type": "string",
+          "label": "US Congressional Representative Name",
+          "grid_row": 7,
+          "grid_column": 3
+        },
+        "state_and_county_federal_information_processing_standard_code": {
+          "field_type": "string",
+          "label": "State and County FIPS Code",
+          "grid_row": 7,
+          "grid_column": 4
+        },
+        "state_fips_code": {
+          "field_type": "string",
+          "label": "State FIPS Code",
+          "grid_row": 8,
+          "grid_column": 1
+        },
+        "us_mexico_border_100_kilometer_indicator": {
+          "field_type": "string",
+          "label": "US-Mexico Border 100km Indicator",
+          "grid_row": 8,
+          "grid_column": 2
+        },
+        "us_mexico_border_county_indicator": {
+          "field_type": "string",
+          "label": "US-Mexico Border County Indicator",
+          "grid_row": 8,
+          "grid_column": 3
+        },
+        "name_of_us_senator_number_one": {
+          "field_type": "string",
+          "label": "Name of US Senator #1",
+          "grid_row": 8,
+          "grid_column": 4
+        },
+        "name_of_us_senator_number_two": {
+          "field_type": "string",
+          "label": "Name of US Senator #2",
+          "grid_row": 9,
+          "grid_column": 1
+        },
+        "uniform_data_system_grant_program_description": {
+          "field_type": "string",
+          "label": "Uniform Data System Grant Program Description",
+          "grid_row": 9,
+          "grid_column": 2
+        },
+        "abstract": {
+          "field_type": "string",
+          "label": "Abstract",
+          "grid_row": 9,
+          "grid_column": 3
+        },
+        "grantee_type_description": {
+          "field_type": "string",
+          "label": "Grantee Type Description",
+          "grid_row": 9,
+          "grid_column": 4
+        },
+        "duns_number": {
+          "field_type": "string",
+          "label": "DUNS Number",
+          "grid_row": 10,
+          "grid_column": 1
+        },
+        "unique_entity_identifier": {
+          "field_type": "string",
+          "label": "Unique Entity Identifier",
+          "grid_row": 10,
+          "grid_column": 2
+        },
+        "ccn": {
+          "field_type": "string",
+          "label": "CCN",
+          "grid_row": 10,
+          "grid_column": 3
+        },
+        "geocoding_artifact_address_primary_x_coordinate": {
+          "field_type": "number",
+          "label": "Geocoding X Coordinate",
+          "grid_row": 10,
+          "grid_column": 4
+        },
+        "geocoding_artifact_address_primary_y_coordinate": {
+          "field_type": "number",
+          "label": "Geocoding Y Coordinate",
+          "grid_row": 11,
+          "grid_column": 1
+        },
+        "data_warehouse_record_create_date": {
+          "field_type": "string",
+          "label": "Data Warehouse Record Create Date",
+          "grid_row": 11,
+          "grid_column": 2
+        },
+        "data_warehouse_record_create_date_text": {
+          "field_type": "string",
+          "label": "Data Warehouse Record Create Date Text",
+          "grid_row": 11,
+          "grid_column": 3
+        }
+
       },
       "indexes": {
         "county_hsra_county_state_idx": {
@@ -1196,22 +2000,103 @@
         "estimated_population"
       ],
       "fields": {
-        "zip": "string",
-        "type": "string",
-        "primary_city": "string",
-        "acceptable_cities": "string",
-        "unacceptable_cities": "string",
-        "state": "string",
-        "county": "string",
-        "timezone": "string",
-        "area_codes": "string",
-        "latitude": "number",
-        "longitude": "number",
-        "world_region": "string",
-        "country": "string",
-        "decommissioned": "string",
-        "estimated_population": "number",
-        "notes": "string",
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "grid_row": 1,
+          "grid_column": 1
+        },
+        "type": {
+          "field_type": "string",
+          "label": "Type",
+          "grid_row": 1,
+          "grid_column": 2
+        },
+        "primary_city": {
+          "field_type": "string",
+          "label": "Primary City",
+          "grid_row": 1,
+          "grid_column": 3
+        },
+        "acceptable_cities": {
+          "field_type": "string",
+          "label": "Acceptable Cities",
+          "grid_row": 1,
+          "grid_column": 4
+        },
+        "unacceptable_cities": {
+          "field_type": "string",
+          "label": "Unacceptable Cities",
+          "grid_row": 2,
+          "grid_column": 1
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "grid_row": 2,
+          "grid_column": 2
+        },
+        "county": {
+          "field_type": "string",
+          "label": "County",
+          "grid_row": 2,
+          "grid_column": 3
+        },
+        "timezone": {
+          "field_type": "string",
+          "label": "Timezone",
+          "grid_row": 2,
+          "grid_column": 4
+        },
+        "area_codes": {
+          "field_type": "string",
+          "label": "Area Codes",
+          "grid_row": 3,
+          "grid_column": 1
+        },
+        "latitude": {
+          "field_type": "number",
+          "label": "Latitude",
+          "grid_row": 3,
+          "grid_column": 2
+        },
+        "longitude": {
+          "field_type": "number",
+          "label": "Longitude",
+          "grid_row": 3,
+          "grid_column": 3
+        },
+        "world_region": {
+          "field_type": "string",
+          "label": "World Region",
+          "grid_row": 3,
+          "grid_column": 4
+        },
+        "country": {
+          "field_type": "string",
+          "label": "Country",
+          "grid_row": 4,
+          "grid_column": 1
+        },
+        "decommissioned": {
+          "field_type": "string",
+          "label": "Decommissioned",
+          "grid_row": 4,
+          "grid_column": 2
+        },
+        "estimated_population": {
+          "field_type": "number",
+          "label": "Estimated Population",
+          "grid_row": 4,
+          "grid_column": 3
+        },
+        "notes": {
+          "field_type": "string",
+          "label": "Notes",
+          "grid_row": 4,
+          "grid_column": 4
+        },
+
         "candidates": {
           "field_type": "query",
           "query": {

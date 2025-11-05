@@ -588,8 +588,12 @@ namespace corona
 
 				if (parent) {
 					new_filter_object.put_member("parent_source", parent->source_name);
-					int64_t object_id = parent->context->members[object_id_field]->to_int64();
-					new_filter_object.put_member_i64("parent_id", object_id);
+                    if (parent->context->members.find(object_id_field) != parent->context->members.end()) {
+
+						auto jobject_id = parent->context->members[object_id_field];
+						int64_t object_id = jobject_id ? jobject_id->to_int64() : 0;
+						new_filter_object.put_member_i64("parent_id", object_id);
+					}
 				}
 
 				dest_array.push_back(new_filter_object);

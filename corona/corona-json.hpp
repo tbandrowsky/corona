@@ -2612,13 +2612,13 @@ namespace corona
 			auto source_value = get_member_value(key);
 			auto dest_value = _item.get_member_value(key);
 
-			if (not dest_value or dest_value->get_field_type() != source_value->get_field_type())
-			{
-				comparison_result = 1;
-			}
-			else if (not source_value)
+			if (!source_value)
 			{
 				comparison_result = -1;
+			}
+			else if (!dest_value or (dest_value->get_field_type() != source_value->get_field_type()))
+			{
+				comparison_result = (int)dest_value->get_field_type() - (int)source_value->get_field_type();
 			}
 			else switch (source_value->get_field_type())
 			{
