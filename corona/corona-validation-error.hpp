@@ -12,9 +12,13 @@ namespace corona
 		std::string filename;
 		int			line_number;
 		std::string comments;
-		int64_t		count = 1;
+		int			count;
 
-		validation_error() = default;
+		validation_error()
+		{
+			count = 1;
+		}
+
 		validation_error(const validation_error& _src) = default;
 		validation_error(validation_error&& _src) = default;
 		validation_error& operator = (const validation_error& _src) = default;
@@ -22,7 +26,7 @@ namespace corona
 
 		validation_error(std::string _field_name, std::string _message, std::string _filename, int _line_number)
 		{
-			count = 0;
+			count = 1;
 			class_name = "N/A";
 			field_name = _field_name;
 			message = _message;
@@ -38,7 +42,7 @@ namespace corona
 			_dest.put_member("filename", filename);
 			_dest.put_member("line_number", line_number);
 			_dest.put_member("comments", line_number);
-			_dest.put_member_i64("count", count);
+			_dest.put_member("count", count);
 		}
 
 		virtual void put_json(json& _src)
@@ -49,7 +53,7 @@ namespace corona
 			filename = _src["filename"];
 			line_number = _src["line_number"];
 			comments = _src["comments"];
-			count = (int64_t)_src["count"];
+			count = (int)_src["count"];
 		}
 
 		bool operator < (const validation_error& _src) const
@@ -60,8 +64,9 @@ namespace corona
 
 	class validation_error_collection
 	{
-	public:
 		std::set<validation_error> errors;
+
+	public:
 		validation_error_collection() = default;
 
 		void push_back(std::string _field_name, std::string _message, std::string _filename, int _line_number)
@@ -71,7 +76,7 @@ namespace corona
 			if (it != errors.end())
 			{
 				validation_error existing = *it;
-				existing.count += 1;
+				existing.count += ve.count;
 				errors.erase(it);
 				errors.insert(existing);
 			}
@@ -88,7 +93,7 @@ namespace corona
 			if (it != errors.end())
 			{
 				validation_error existing = *it;
-				existing.count += 1;
+				existing.count += _ve.count;
 				errors.erase(it);
 				errors.insert(existing);
 			}

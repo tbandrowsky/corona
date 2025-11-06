@@ -682,6 +682,11 @@ namespace corona
 		bool check(time_t current)
 		{
 			bool keep = true;
+
+            if (use_count > 0) {
+                return true;
+            }
+
 			lease_lock.lock();
 			if (block and 
 				!block->is_dirty() and 				
@@ -1304,23 +1309,27 @@ namespace corona
 
 	xblock_lease<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
+		std::shared_ptr<xblock_leaseable<xleaf_block>> found_block;
+
 		{
 			read_scope_lock lockme(cache_lock);
 
 			auto foundit = leaf_blocks.find(_ref.location);
 			if (foundit != std::end(leaf_blocks)) {
 				if (not foundit->second->empty()) {
-					return foundit->second->lease();
+					found_block = foundit->second;
 				}
 				else {
+					found_block = foundit->second;
 					auto new_block = new xleaf_block(fb, _ref, false);
 					foundit->second->open(new_block);
-					return foundit->second->lease();
 				}
 			}
-
-
 		}
+
+		if (found_block)
+			return found_block->lease();
+
 
 		{
 			write_scope_lock lockme(cache_lock);
@@ -1345,25 +1354,28 @@ namespace corona
 
 	xblock_lease<xbranch_block> xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
+		std::shared_ptr<xblock_leaseable<xbranch_block>> found_block;
 
 		{
 
 			read_scope_lock lockme(cache_lock);
 
-
 			auto foundit = branch_blocks.find(_ref.location);
 			if (foundit != std::end(branch_blocks)) {
 				if (not foundit->second->empty()) {
-					return foundit->second->lease();
+                    found_block = foundit->second;
 				}
 				else {
 					auto new_block = new xbranch_block(fb, _ref, _retain);
 					foundit->second->open(new_block);
-					return foundit->second->lease();
+					found_block = foundit->second;
 				}
 			}
 
 		}
+
+		if (found_block)
+			return found_block->lease();
 
 		{
 
@@ -1434,7 +1446,6 @@ namespace corona
 			else
 			{
 				system_monitoring_interface::active_mon->log_warning("Closing branch block not found", __FILE__, __LINE__);
-				abort();
 			}
 		}
 	}

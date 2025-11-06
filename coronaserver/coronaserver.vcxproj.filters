@@ -33,7 +33,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="account_recovery_email_template.html" />
     <CopyFileToFolders Include="onboarding_email_template.html" />
-    <CopyFileToFolders Include="revolution_old_schema.json" />
+    <CopyFileToFolders Include="politics.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="corona.postman_collection.json" />

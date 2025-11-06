@@ -797,7 +797,7 @@ namespace corona
         json fetch(corona_database_interface* _src, std::string _user_name, json _filter)
         {
 			json result = _src->query_class(_user_name, _filter);
-			data = data["data"];
+			data = result["data"];
 			return data;
         }
 	};
@@ -3270,6 +3270,13 @@ namespace corona
 			_dest.put_member("class_author", class_author);
 			_dest.put_member("card_title", card_title);
 
+			if (table) {
+				_dest.put_member("object_count", table->get_count());
+			}
+			if (full_text_index) {
+				_dest.put_member("word_count", full_text_index->get_count());
+			}
+
 			json ja = jp.create_array();
 			for (auto p : parents)
 			{
@@ -4764,13 +4771,42 @@ namespace corona
 
 		virtual void log_errors(validation_error_collection& _errors) override
 		{
-			for (auto err : _errors) {
+			for (auto &err : _errors) {
 				std::string msg = std::format("{0}.{1}: {2}", err.class_name, err.field_name, err.message);
 				system_monitoring_interface::active_mon->log_warning(msg);
-				std::string msg2 = std::format("Code Location: @({0},{1}), Occurrances:{2}", err.filename, err.line_number, err.count);
+				std::string msg2 = std::format("Code Location: @({0},{1}), Occurrences:{2}", err.filename, err.line_number, err.count);
 				system_monitoring_interface::active_mon->log_warning(msg2);
 			}
 		}
+
+		void log_error_array(json& put_result)
+		{
+			auto result_items = put_result[data_field];
+			if (result_items.object()) {
+				result_items.for_each_member([](const std::string& _member_name, json _member) {
+					if (_member.array()) {
+						_member.for_each_element([](json& _item) {
+							if (not _item[success_field]) {
+								std::string msg = std::format("{0}:", (std::string)_item[message_field]);
+								system_monitoring_interface::active_mon->log_warning(msg);
+								if (_item.has_member("errors"))
+								{
+									json errors = _item["errors"];
+									errors.for_each_element([](json& _msg) {
+										std::string msg = std::format("{0}.{1} {2}", (std::string)_msg[class_name_field], (std::string)_msg["field_name"], (std::string)_msg[message_field]);
+										system_monitoring_interface::active_mon->log_information(msg);
+										});
+								}
+							}
+							});
+					}
+					});
+			}
+			else {
+				system_monitoring_interface::active_mon->log_warning("No result items found in put_result", __FILE__, __LINE__);
+			}
+		}
+
 
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name)
 		{
@@ -5865,6 +5901,8 @@ private:
 			json_parser jp;
 			using namespace std::literals;
 
+			bool had_conniption = false;
+
 			json object_definition = _object_definition.clone();
 
 			json result = jp.create_object();
@@ -5882,6 +5920,8 @@ private:
 				ve.line_number = __LINE__;
 				ve.message = "Not an object";
 				validation_errors.push_back(ve);
+                had_conniption = true;
+				goto bail;
 			}
 			else {
 
@@ -5896,6 +5936,8 @@ private:
 					ve.line_number = __LINE__;
 					ve.message = "Missing class";
 					validation_errors.push_back(ve);
+					had_conniption = true;
+					goto bail;
 				}
 
 				db_object_id_type object_id = -1;
@@ -5960,6 +6002,8 @@ private:
 					if (not object_definition.has_members(missing, idx_keys))
 					{
 						for (auto& missed : missing) {
+							had_conniption = true;
+
 							validation_error ve;
 							ve.field_name = missed;
 							ve.class_name = class_data->get_class_name();
@@ -5981,6 +6025,8 @@ private:
 					}
 					else
 					{
+						had_conniption = true;
+
 						json warning = jp.create_object();
 						validation_error ve;
 						ve.class_name = class_data->get_class_name();
@@ -5992,16 +6038,15 @@ private:
 					}
 				}
 			}
-
-			if (validation_errors.size() > 0) {
+bail:
+			if (had_conniption) {
 				json warnings = jp.create_array();
-				std::string msg = std::format("Object '{0}' has problems", class_data->get_class_name());
 				for (auto& ve : validation_errors) {
 					json jve = jp.create_object();
 					ve.get_json(jve);
 					warnings.push_back(jve);
 				}
-				result.put_member(message_field, msg);
+				result.put_member(message_field, "Failed"sv);
 				result.put_member(success_field, 0);
 				result.put_member("errors", warnings);
 				result.share_member(data_field, object_definition);
@@ -6022,6 +6067,9 @@ private:
 			date_time current_date = date_time::now();
 			using namespace std::literals;
 			json response; 			
+
+			int64_t success_object_count = 0;
+			int64_t fail_object_count = 0;
 
 			response = jp.create_object();
 
@@ -6057,7 +6105,14 @@ private:
 				if (class_pair.first.empty()) {
 					response.put_member(success_field, false);
 					response.put_member(message_field, "empty class name"sv);
-					return response;
+					validation_error ve;
+					ve.count = classes_group[class_pair.first].size();
+					ve.filename = __FILE__;
+					ve.class_name = "(empty)";
+					ve.message = "Missing classname";
+					ve.line_number = __LINE__;
+					validation_errors.push_back(ve);
+					continue;
 				}
 				auto cd = read_lock_class(class_pair.first);
 
@@ -6069,13 +6124,17 @@ private:
 				{
 					response.put_member(success_field, false);
 					response.put_member(message_field, class_pair.first + " invalid class name");
-					return response;
+					validation_error ve;
+					ve.count = classes_group[class_pair.first].size();
+					ve.filename = __FILE__;
+					ve.class_name = class_pair.first;
+					ve.message = "Invalid classname";
+					ve.line_number = __LINE__;
+					validation_errors.push_back(ve);
+					continue;
 				}
 			}
 
-
-			int64_t success_object_count = 0;
-			int64_t fail_object_count = 0;
 
 			for (auto class_pair : class_list)
 			{
@@ -6097,6 +6156,13 @@ private:
 					if (permission.put_grant == class_grants::grant_none) {
 						response.put_member(success_field, false);
 						response.put_member(message_field, "check_object denied"sv);
+						validation_error ve;
+						ve.count = classes_group[class_name].size();
+						ve.filename = __FILE__;
+						ve.class_name = class_pair.first;
+						ve.message = "Check object denied";
+						ve.line_number = __LINE__;
+						validation_errors.push_back(ve);
 						return response;
 					}
 				}
@@ -6112,6 +6178,11 @@ private:
 					json result = check_single_object(current_date, class_data, item_definition, permission, validation_errors);
 					if (result[success_field]) {
 						result_list.push_back(result);
+						success_object_count++;
+					}
+					else 
+					{
+						fail_object_count++;
 					}
 				}
 
@@ -6123,7 +6194,7 @@ private:
 			}
 
 			response.put_member(success_field, true);
-			response.put_member(message_field, std::format("{0} success, {1} failed", success_object_count, fail_object_count) );
+			response.put_member(message_field, std::format("{} success, {} failed", success_object_count, fail_object_count) );
 			response.share_member(data_field, classes_group);
 			return response;
 		}
@@ -7113,33 +7184,6 @@ private:
 			return class_def;
 		}
 
-		void log_error_array(json& put_result)
-		{
-			auto result_items = put_result[data_field];
-			if (result_items.object()) {
-				result_items.for_each_member([](const std::string& _member_name, json _member) {
-					if (_member.array()) {
-						_member.for_each_element([](json& _item) {
-							if (not _item[success_field]) {
-								std::string msg = std::format("{0}:", (std::string)_item[message_field]);
-								system_monitoring_interface::active_mon->log_warning(msg);
-								if (_item.has_member("errors"))
-								{
-									json errors = _item["errors"];
-									errors.for_each_element([](json& _msg) {
-										std::string msg = std::format("{0}.{1} {2}", (std::string)_msg[class_name_field], (std::string)_msg["field_name"], (std::string)_msg[message_field]);
-										system_monitoring_interface::active_mon->log_information(msg);
-										});
-								}
-							}
-							});
-					}
-					});
-			}
-			else {
-                system_monitoring_interface::active_mon->log_warning("No result items found in put_result", __FILE__, __LINE__);
-			}
-		}
 
 		virtual json apply_schema(json _schema)
 		{
@@ -7469,10 +7513,12 @@ private:
 															json cor = create_system_request(request);
 
 															put_object_sync(cor, [this, total_row_count, batch_size](json& put_result, double _exec_time) {
+																double x = batch_size / _exec_time;
+																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
+																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
+																system_monitoring_interface::active_mon->log_activity(put_result["message"], _exec_time, __FILE__, __LINE__);
 																if (put_result[success_field]) {
-																	double x = batch_size / _exec_time;
-																	std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
-																	system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
+
 																}
 																else
 																{
@@ -7494,6 +7540,7 @@ private:
 																double x = batch_size / _exec_time;
 																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
+																system_monitoring_interface::active_mon->log_activity(put_result["message"], _exec_time, __FILE__, __LINE__);
 															}
 															else
 															{
@@ -9331,7 +9378,7 @@ grant_type=authorization_code
 
 				json grouped_by_class_name = result[data_field];
 
-				std::string message = result[message];
+				std::string message = result["message"];
 
 				if (result[success_field])
 				{
@@ -9367,10 +9414,10 @@ grant_type=authorization_code
 				}
 				else
 				{
-					result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					result = create_response(put_object_request, false, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
 					log_errors(errors);
 				}
-				system_monitoring_interface::active_mon->log_function_stop("put_object", message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
 			catch (std::exception exc)
 			{
