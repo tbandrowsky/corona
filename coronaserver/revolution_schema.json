@@ -478,7 +478,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "committee",
                 "name": "committees"
               }
@@ -495,6 +495,11 @@
         "candidate_full_name_idx": {
           "index_keys": [
             "full_name"
+          ]
+        },
+        "candidate_zip_idx": {
+          "index_keys": [
+            "zip"
           ]
         }
       }
@@ -534,7 +539,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "candidate",
                 "name": "candidates"
               }
@@ -613,7 +618,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "committee",
                 "name": "committees"
               }
@@ -641,12 +646,24 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "candidate",
                 "name": "candidates"
               }
             ]
           }
+        }
+      },
+      "indexes": {
+        "donor_committee": {
+          "index_keys": [
+            "committee_id"
+          ]
+        },
+        "donor_zip": {
+          "index_keys": [
+            "zip"
+          ]
         }
       }
     },
@@ -2111,7 +2128,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "candidate",
                 "name": "candidate"
               }
@@ -2132,7 +2149,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "committee",
                 "name": "committee"
               }
@@ -2153,7 +2170,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "donor",
                 "name": "donor"
               }
@@ -2207,7 +2224,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "county_demographics",
                 "name": "demographics"
               }
@@ -2229,7 +2246,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "county_education",
                 "name": "education"
               }
@@ -2251,7 +2268,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "county_population",
                 "name": "population"
               }
@@ -2273,7 +2290,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "input": "county_hsra",
                 "name": "hsra"
               }
@@ -2295,7 +2312,7 @@
             ],
             "stages": [
               {
-                "class_name": "filter",
+                "class_name": "result",
                 "name": "zip_codes",
                 "input": "zip_code"
               }

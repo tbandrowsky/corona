@@ -399,6 +399,72 @@ namespace corona
 
 	};
 
+	class query_result : public query_stage
+	{
+	public:
+
+		std::string stage_input_name;
+		virtual std::string term_name() { return "result"; }
+
+		virtual json process(query_context_base* _src) {
+			timer tx;
+			json_parser jp;
+			json result = jp.create_array();
+
+			if (stage_input_name.empty())
+			{
+				_src->add_error("result", "input", "missing property 'input' for stage.", __FILE__, __LINE__);
+				return result;
+			}
+
+			json stage_input = _src->get_data(stage_input_name);
+			if (stage_input.object()) {
+				result.push_back(stage_input);
+				stage_output = result;
+				return stage_output;
+			}
+			else if (stage_input.array()) {
+				stage_output = stage_input;
+				return stage_output;
+			}
+			else
+			{
+				std::string msg = std::format("input '{0}' not found", stage_input_name);
+				_src->add_error("filter", "input", msg, __FILE__, __LINE__);
+			}
+			execution_time_seconds = tx.get_elapsed_seconds();
+			return stage_output;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+			query_stage::get_json(_dest);
+			using namespace std::literals;
+			_dest.put_member("class_name", "result"sv);
+			_dest.put_member("input", stage_input_name);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+
+			if (not _src.has_members(missing, { "class_name", "input" })) {
+				system_monitoring_interface::active_mon->log_warning("query_result missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			query_stage::put_json(_src);
+			stage_input_name = _src["input"];
+		}
+
+	};
+
 	class query_join : public query_stage
 	{
 	public:
@@ -528,7 +594,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -571,7 +637,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -615,7 +681,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -659,7 +725,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -702,7 +768,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -745,7 +811,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "valuepath", "value" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -798,7 +864,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "start", "stop" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -856,7 +922,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "src_path", "items_path" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -869,6 +935,8 @@ namespace corona
 		}
 
 	};
+
+
 
 	class filter_all : public query_condition
 	{
@@ -903,7 +971,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "conditions" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -965,7 +1033,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "conditions" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -1024,7 +1092,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "class_name", "conditions" })) {
-				system_monitoring_interface::active_mon->log_warning("filter missing:");
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -1045,6 +1113,42 @@ namespace corona
 				corona::put_json(new_condition, jcondition);
 				conditions.push_back(new_condition);
 			}
+		}
+	};
+
+	class filter_allow_all : public query_condition
+	{
+	public:
+
+
+		virtual std::string term_name() { return "allow_all"; }
+
+		virtual bool accepts(query_context_base* _qcb, json _src)
+		{
+			return true;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+			query_condition::get_json(_dest);
+			_dest.put_member("class_name", "allow_all"sv);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "class_name" })) {
+				system_monitoring_interface::active_mon->log_warning(std::format("filter '{}' missing:", term_name()));
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			query_condition::put_json(_src);
 		}
 	};
 
@@ -1194,8 +1298,13 @@ namespace corona
 				_dest = std::make_shared<query_join>();
 				_dest->put_json(_src);
 			}
+			else if (class_name == "result")
+			{
+				_dest = std::make_shared<query_result>();
+				_dest->put_json(_src);
+			}
 			else {
-				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'join'.",  class_name );
+				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'join' or 'result'.",  class_name );
 				system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 			}
 		}
@@ -1271,6 +1380,25 @@ namespace corona
 			{
 				_dest = std::make_shared<filter_contains>();
 				_dest->put_json(_src);
+			}
+			else if (class_name == "allow_all")
+			{
+				_dest = std::make_shared<filter_allow_all>();
+				_dest->put_json(_src);
+            }
+            else if (class_name == "between")
+            {
+                _dest = std::make_shared<filter_between>();
+                _dest->put_json(_src);
+            }
+            else if (class_name == "in")
+            {
+                _dest = std::make_shared<filter_in>();
+                _dest->put_json(_src);
+            }
+			else {
+				std::string msg = std::format("class_name {0} is not a valid query filter.  Use 'eq', 'gt', 'lt', 'gte', 'lte', 'any', 'all', 'none', 'contains', 'between', 'in', 'allow_all'.", class_name);
+				system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 			}
 		}
 	}

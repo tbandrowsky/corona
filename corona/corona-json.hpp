@@ -2609,18 +2609,28 @@ namespace corona
 		int compare_field(const std::string& key, json& _item)
 		{
 			int comparison_result = 0;
+
+			if (!has_member(key))
+			{
+				comparison_result = -1;
+				return comparison_result;
+			}
+			else if (!_item.has_member(key))
+			{
+				comparison_result = 1;
+				return comparison_result;
+			}
+			
 			auto source_value = get_member_value(key);
 			auto dest_value = _item.get_member_value(key);
 
-			if (!source_value)
-			{
-				comparison_result = -1;
-			}
-			else if (!dest_value or (dest_value->get_field_type() != source_value->get_field_type()))
-			{
-				comparison_result = (int)dest_value->get_field_type() - (int)source_value->get_field_type();
-			}
-			else switch (source_value->get_field_type())
+            if (source_value->get_field_type() != dest_value->get_field_type())
+            {
+                int t = (int)source_value->get_field_type() - (int)dest_value->get_field_type();
+                comparison_result = (t < 0) ? -1 : 1;
+            }
+
+			switch (source_value->get_field_type())
 			{
 			case field_types::ft_none:
 			{
@@ -4830,7 +4840,7 @@ namespace corona
 		if (!n) {
 			return final_result;
 		}
-		json last_result = _array_of_arrays[0];
+		json last_result = _array_of_arrays.get_element(0);
 		for (int i = 1; i < n; i++)
 		{
 			json current_array = _array_of_arrays.get_element(i);

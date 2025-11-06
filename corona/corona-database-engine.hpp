@@ -836,18 +836,18 @@ namespace corona
 					new_source->use_fetch = false;
 					new_source->data = jp.create_array();
 					new_source->data.push_back(data);
-					sources.insert_or_assign(filter_source_name, new_source);
 				}
 				else if (data.array())
 				{
 					new_source->use_fetch = false;
 					new_source->data = data;
-					sources.insert_or_assign(filter_source_name, new_source);
+					
 				}
 				else if (data.empty())
 				{
-					new_source->use_fetch = false;
+					new_source->use_fetch = true;
 				}
+				sources.insert_or_assign(filter_source_name, new_source);
 			}
 		}
 
@@ -866,9 +866,8 @@ namespace corona
 			{
 				json cross_arrays = jp.create_array();
 
-				if (os.second->filter.object()) {
+				if (os.second->filter.object() and os.second->filter.size()>0) {
 					auto filter_members = os.second->filter.get_members();
-
 
 					for (auto member : filter_members) {
 						std::string key = member.first;
@@ -897,25 +896,24 @@ namespace corona
 						{
 							json temp_array = jp.create_array();
 							json star = jp.create_object();
-							star.put_member("class_name", std::string("sys_dummy"));
+							star.put_member("class_name", os.second->class_name);
+							star.put_member(key, value);
 							temp_array.push_back(star);
-							cross_arrays.push_back(star);
+							cross_arrays.push_back(temp_array);
 						}
 					}
 				}
-				else 
-				{
-					cross_arrays->push_back(os->data);
-				}
 
                 json combined = jp.from_cartesian(cross_arrays);
-				json result_array = jp.create_array();
+				json data_result = jp.create_array();
 
 				for (auto item : combined) 
 				{
 
 					json filter_object = jp.create_object();
 					auto filter_members = os.second->filter.get_members();
+                    filter_object.put_member("class_name", os.second->class_name);
+                    json filter = jp.create_object();
 
 					for (auto member : filter_members) {
 						std::string key = member.first;
@@ -927,29 +925,58 @@ namespace corona
 
 							if (kv.size() == 2) {
 								std::string ref_field = kv[1];
-								filter_object.copy_member(item, ref_field);
+                                json v = item[ref_field];
+								filter.put_member(key, v);
+							}
+							else if (kv.size() == 1) {
+								std::string ref_field = kv[0];
+								json v = item[ref_field];
+								filter.put_member(key, v);
+							}
+							else {
+								filter.copy_member(key, item);
 							}
 						}
-					}
+						else {
+							filter.put_member(key, value);
+						}
+                    }
+                    filter_object.put_member("filter", filter);
 
-					json data_result = jp.create_array();
+					if (os.second->use_fetch) {
+						json temp_result = os.second->fetch(_db, user_name, filter_object);
 
-					if (os->use_fetch) {
-						filter_object.put_member(class_name_field, os.second->class_name);
-						data_result = os.second->fetch(_db, user_name, filter_object);
+						if (temp_result.object()) {
+							json data = temp_result[data_field];
+							if (data.array()) {
+								for (auto m : data) {
+									data_result.push_back(m);
+								}
+							}
+							else {
+								data_result.push_back(data);
+							}
+						}
+						else if (temp_result.array()) {
+							for (auto m : temp_result) {
+								data_result.push_back(m);
+							}
+						}
 					}
 					else 
 					{
 						data_result = jp.create_object();
                         for (auto m : data_result) {
-							if (filter_members.compare(m) == 0) {
+							if (filter_object.compare(m) == 0) {
 								data_result.push_back(m);
 							}
                         }
 					}
 
-                    _context->set_data_source(os->second->source_name, data_result);
 				}
+
+				_dest->set_data_source(os.second->source_name, data_result);
+
 			}
 		}
 
@@ -6087,12 +6114,8 @@ private:
 				for (auto item_definition : class_object_list)
 				{
 					json result = check_single_object(current_date, class_data, item_definition, permission, validation_errors);
-					result_list.push_back(result);
-
-					if (not result[success_field]) 
-					{
-						all_objects_good = false;
-						break;
+					if (result[success_field]) {
+						result_list.push_back(result);
 					}
 				}
 
