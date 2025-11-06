@@ -484,6 +484,34 @@
               }
             ]
           }
+        },
+        "donors": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee_candidate",
+                "name": "committee_candidate",
+                "filter": {
+                  "candidate_id": "$this.candidate_id"
+                }
+              },
+              {
+                "class_name": "donor",
+                "name": "committee",
+                "filter": {
+                  "committee_id": "$committee_candidate.committee_id"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "result",
+                "input": "donor",
+                "name": "donors"
+              }
+            ]
+          }
         }
       },
       "indexes": {
@@ -545,8 +573,28 @@
               }
             ]
           }
+        },
+        "donors": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "donor",
+                "name": "donor",
+                "filter": {
+                  "committee_id": "$this.committee_id"
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "result",
+                "input": "donor",
+                "name": "donors"
+              }
+            ]
+          }
         }
-
       },
       "indexes": {
         "committee_committee_id_idx": {
@@ -2318,6 +2366,32 @@
               }
             ]
           }
+        },
+        "candidates": {
+          "from": [
+            {
+              "class_name": "zip_code",
+              "name": "zip_code",
+              "filter": {
+                "state": "$this.state",
+                "county": "$this.county"
+              }
+            },
+            {
+              "class_name": "candidate",
+              "name": "candidate",
+              "filter": {
+                "zip": "$this.zip"
+              }
+            }
+          ],
+          "stages": [
+            {
+              "class_name": "result",
+              "name": "candidates",
+              "input": "candidate"
+            }
+          ]
         }
       },
       "indexes": {

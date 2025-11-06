@@ -653,7 +653,7 @@ namespace corona
 
 		block_type* block;
 		std::mutex lease_lock;
-		int use_count;
+		int64_t use_count;
 		shared_lockable lockme;
 
 	public:
@@ -711,14 +711,14 @@ namespace corona
         xblock_lease<block_type> lease()
         {
 			lease_lock.lock();
-			use_count++;
+			InterlockedIncrement64(&use_count);
             return xblock_lease<block_type>(block);
         }
 
 		void lease_end(xblock_lease<block_type>& _src)
 		{
-			use_count--;
-            xblock_lease<block_type> dummy = std::move(_src);
+			InterlockedDecrement64(&use_count);
+			xblock_lease<block_type> dummy = std::move(_src);
 			lease_lock.unlock();
 		}
 

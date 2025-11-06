@@ -7446,6 +7446,18 @@ bail:
 										date_time file_modified_dt = date_time(file_modified_time);
 										if (file_modified_dt > import_datatime) {
 
+											int64_t file_size = 0;
+											int64_t bytes_processed = 0;
+
+											try 
+											{
+												file_size = std::filesystem::file_size(filename);
+											}
+											catch (std::exception exc) 
+											{
+
+											}
+
 											json column_map = import_spec["column_map"];
 
 											FILE* fp = nullptr;
@@ -7471,6 +7483,8 @@ bail:
 														// Print each line to the standard output.
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
+                                                        int64_t bytes_in_line = (int64_t)strlen(line);
+														bytes_processed += bytes_in_line;
 
 														if (pivot.empty()) 
 														{
@@ -7512,11 +7526,15 @@ bail:
 															json request(datomatic);
 															json cor = create_system_request(request);
 
-															put_object_sync(cor, [this, total_row_count, batch_size](json& put_result, double _exec_time) {
+															put_object_sync(cor, [this, file_size, bytes_processed, total_row_count, batch_size](json& put_result, double _exec_time) {
 																double x = batch_size / _exec_time;
 																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
-																system_monitoring_interface::active_mon->log_activity(put_result["message"], _exec_time, __FILE__, __LINE__);
+																msg = put_result["message"];
+																if (file_size) {
+																	msg = msg + std::format(", {0:.2f}%", (double)bytes_processed/(double)file_size * 100.0);
+																}
+																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
 																if (put_result[success_field]) {
 
 																}
