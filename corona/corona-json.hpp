@@ -4780,53 +4780,8 @@ namespace corona
 			}
 		}
 		return result;
-	}
-
-	class validation_error
-	{
-	public:
-		std::string class_name;
-		std::string field_name;
-		std::string message;
-		std::string filename;
-		int			line_number;
-		std::string comments;
-
-		validation_error() = default;
-		validation_error(const validation_error& _src) = default;
-		validation_error(validation_error&& _src) = default;
-		validation_error& operator = (const validation_error& _src) = default;
-		validation_error& operator = (validation_error&& _src) = default;
-
-		validation_error(std::string _field_name, std::string _message, std::string _filename, int _line_number)
-		{
-			class_name = "N/A";
-			field_name = _field_name;
-			message = _message;
-			filename = _filename;
-			line_number = _line_number;
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			_dest.put_member(class_name_field, class_name);
-			_dest.put_member("field_name", field_name);
-			_dest.put_member(message_field, message);
-			_dest.put_member("filename", filename);
-			_dest.put_member("line_number", line_number);
-			_dest.put_member("comments", line_number);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			class_name = _src[class_name_field];
-			field_name = _src["field_name"];
-			message = _src[message_field];
-			filename = _src["filename"];
-			line_number = _src["line_number"];
-			comments = _src["comments"];
-		}
 	};
+
 
 	json json_parser::from_cartesian(json& _array_of_arrays)
 	{

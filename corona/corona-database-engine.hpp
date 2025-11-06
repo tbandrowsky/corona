@@ -523,7 +523,7 @@ namespace corona
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json & _object) = 0;
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
 		virtual bool is_relational_children() = 0;
 		virtual json get_openapi_schema(corona_database_interface* _db) = 0;
@@ -550,9 +550,9 @@ namespace corona
 
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual void get_json(json& _dest) = 0;
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src, class_interface_base*_owner) = 0;
+		virtual void put_json(validation_error_collection& _errors, json& _src, class_interface_base*_owner) = 0;
 
 		virtual std::string get_field_name()
 		{
@@ -599,7 +599,7 @@ namespace corona
 	protected:
 	public:
 		virtual void get_json(json& _dest) = 0;
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
+		virtual void put_json(validation_error_collection& _errors, json& _src) = 0;
 
 		virtual int64_t									get_index_id() = 0;
 		virtual std::string								get_index_name() = 0;
@@ -619,7 +619,7 @@ namespace corona
 
 		virtual bool is_server_only(const std::string& _field_name) = 0;
 		virtual void get_json(json& _dest) = 0;
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src) = 0;
+		virtual void put_json(validation_error_collection& _errors, json& _src) = 0;
 
 		virtual bool ready() {
 			return false;
@@ -701,7 +701,7 @@ namespace corona
 		corona_database_interface* db;
 
 		std::map<std::string, write_class_sp> classes;
-		std::vector<validation_error> errors;
+		validation_error_collection errors;
 
 		class_interface* get_class(std::string _class_name);
 		class_interface* create_class(std::string _class_name);
@@ -744,7 +744,7 @@ namespace corona
 			const class_permissions& _src,
 			std::string _class_name) = 0;
 
-		virtual void log_errors(std::vector<validation_error>& _errors) = 0;
+		virtual void log_errors(validation_error_collection& _errors) = 0;
 
 		virtual std::shared_ptr<class_interface> read_get_class(const std::string& _class_name) = 0;
 		virtual std::shared_ptr<class_interface> put_class_impl(activity* _activity, json& _class_definition) = 0;
@@ -796,9 +796,9 @@ namespace corona
 
         json fetch(corona_database_interface* _src, std::string _user_name, json _filter)
         {
-			data = _src->query_class(_user_name, _filter);
-			json result = data["data"];
-			return result;
+			json result = _src->query_class(_user_name, _filter);
+			data = data["data"];
+			return data;
         }
 	};
 
@@ -946,26 +946,17 @@ namespace corona
 					if (os.second->use_fetch) {
 						json temp_result = os.second->fetch(_db, user_name, filter_object);
 
-						if (temp_result.object()) {
-							json data = temp_result[data_field];
-							if (data.array()) {
-								for (auto m : data) {
-									data_result.push_back(m);
-								}
-							}
-							else {
-								data_result.push_back(data);
-							}
-						}
-						else if (temp_result.array()) {
+						if (temp_result.array()) {
 							for (auto m : temp_result) {
 								data_result.push_back(m);
 							}
 						}
+						else {
+							
+						}
 					}
 					else 
 					{
-						data_result = jp.create_object();
                         for (auto m : data_result) {
 							if (filter_object.compare(m) == 0) {
 								data_result.push_back(m);
@@ -1050,7 +1041,7 @@ namespace corona
 			return empty;
 		}
 
-		virtual bool accepts(corona_database_interface *_db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)  override
+		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)  override
 		{
 			bool is_empty = _object_to_test.empty();
 			if (required and is_empty) {
@@ -1389,7 +1380,7 @@ namespace corona
 				bridges->init_validation(_db, _permissions);
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -1617,7 +1608,7 @@ namespace corona
 				bridges->init_validation(_db, _permissions);
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -1816,7 +1807,7 @@ namespace corona
 			return is_legit;
 		}
 
-		virtual bool accepts(corona_database_interface *_db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -1924,7 +1915,7 @@ namespace corona
 			max_value = (int64_t)_src["max_value"];
 		}
 
-		virtual bool accepts(corona_database_interface *_db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -2018,7 +2009,7 @@ namespace corona
 			}
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -2085,7 +2076,7 @@ namespace corona
 			max_value = (date_time)_src["max_value"];
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -2162,7 +2153,7 @@ namespace corona
 			max_value = (scalar_type)_src["max_value"];
 		}
 
-		virtual bool accepts(corona_database_interface *_db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
@@ -2267,7 +2258,7 @@ namespace corona
 			options = jp.create_array();
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_empty = _object_to_test.empty();
@@ -2380,7 +2371,7 @@ namespace corona
 			}
 			else 
 			{
-				std::vector<validation_error> ves;
+				validation_error_collection ves;
 				validation_error ve;
 				json errors = query_results["data"];
 				for (auto err : errors) {
@@ -2393,7 +2384,7 @@ namespace corona
 			return query_data_results;
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			return false;
 		}
@@ -2461,7 +2452,7 @@ namespace corona
 			if (options) options->init_validation(_db, _permissions);
 		}
 
-		virtual bool accepts(corona_database_interface* _db, std::vector<validation_error>& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) override
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) override
 		{
 			if (options) {
 				return options->accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test);
@@ -2501,7 +2492,7 @@ namespace corona
 			}
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src, class_interface_base* _classdb)
+		virtual void put_json(validation_error_collection& _errors, json& _src, class_interface_base* _classdb)
 		{
 
             class_interface* _classd = dynamic_cast<class_interface*>(_classdb);
@@ -2700,7 +2691,7 @@ namespace corona
 			_dest.share_member("index_keys", jindex_keys);
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src) override
+		virtual void put_json(validation_error_collection& _errors, json& _src) override
 		{			
 			index_name = _src["index_name"];
 
@@ -3344,7 +3335,7 @@ namespace corona
 			}
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src)
+		virtual void put_json(validation_error_collection& _errors, json& _src)
 		{
 
 			json jfields, jindexes, jancestors, jdescendants, jtable_fields;
@@ -3794,7 +3785,7 @@ namespace corona
 			{
 				system_monitoring_interface::active_mon->log_warning(std::format("Errors on updating class {0}", class_name), __FILE__, __LINE__);
 				for (auto error : _context->errors) {
-					system_monitoring_interface::active_mon->log_information(std::format("{0} {1} {2}  @{3} {4}", error.class_name, error.field_name, error.message, error.filename, error.line_number), __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_information(std::format("{0} {1} {2}  @{3} {4}: {5} times", error.class_name, error.field_name, error.message, error.filename, error.line_number, error.count), __FILE__, __LINE__);
 				}
 
 				return false;
@@ -4771,11 +4762,13 @@ namespace corona
 
 	public:
 
-		virtual void log_errors(std::vector<validation_error>& _errors) override
+		virtual void log_errors(validation_error_collection& _errors) override
 		{
 			for (auto err : _errors) {
-				std::string msg = std::format("{0}.{1}: {2} @({3},{4})", err.class_name, err.field_name, err.message, err.filename, err.line_number);
+				std::string msg = std::format("{0}.{1}: {2}", err.class_name, err.field_name, err.message);
 				system_monitoring_interface::active_mon->log_warning(msg);
+				std::string msg2 = std::format("Code Location: @({0},{1}), Occurrances:{2}", err.filename, err.line_number, err.count);
+				system_monitoring_interface::active_mon->log_warning(msg2);
 			}
 		}
 
@@ -5824,7 +5817,7 @@ namespace corona
 			new_user_request = create_system_request(new_user_data);
 			json new_user_result =  create_user(new_user_request);
 			bool success = (bool)new_user_result[success_field];
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			if (success) {
 				json new_user = new_user_result[data_field];
@@ -5867,7 +5860,7 @@ private:
 			return response;
 		}
 
-		json check_single_object(date_time &current_date, read_class_sp& class_data, json& _object_definition, const class_permissions& _permission, std::vector<validation_error>& validation_errors)
+		json check_single_object(date_time &current_date, read_class_sp& class_data, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
 		{
 			json_parser jp;
 			using namespace std::literals;
@@ -6022,7 +6015,7 @@ private:
 			return result;
 		}
 
-		json check_object(json object_load, std::string _user_name, std::vector<validation_error>& validation_errors, std::string _authorization)
+		json check_object(json object_load, std::string _user_name, validation_error_collection& validation_errors, std::string _authorization)
 		{
 			timer method_timer;
 			json_parser jp;
@@ -6058,7 +6051,6 @@ private:
 
 			auto class_list = classes_group.get_members();
 
-			bool all_objects_good = true;
 
 			for (auto class_pair : class_list)
 			{
@@ -6080,6 +6072,10 @@ private:
 					return response;
 				}
 			}
+
+
+			int64_t success_object_count = 0;
+			int64_t fail_object_count = 0;
 
 			for (auto class_pair : class_list)
 			{
@@ -6126,8 +6122,8 @@ private:
 				classes_group.move_member(class_name, result_list);
 			}
 
-			response.put_member(success_field, all_objects_good);
-			response.put_member(message_field, all_objects_good ? "Objects processed"sv : "Object errors"sv);
+			response.put_member(success_field, true);
+			response.put_member(message_field, std::format("{0} success, {1} failed", success_object_count, fail_object_count) );
 			response.share_member(data_field, classes_group);
 			return response;
 		}
@@ -6142,7 +6138,7 @@ private:
 			return "This is a test iv";
 		}
 
-		json create_response(std::string _user_name, std::string _authorization, bool _success, std::string _message, json _data, std::vector<validation_error>& _errors, double _seconds)
+		json create_response(std::string _user_name, std::string _authorization, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
 		{
 			json_parser jp;
 
@@ -6180,7 +6176,7 @@ private:
 			return payload;
 		}
 
-		json create_user_response(json _request, bool _success, std::string _message, json _data, std::vector<validation_error>& _errors, double _seconds)
+		json create_user_response(json _request, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
 		{
 			json_parser jp;
 			json payload;
@@ -6215,7 +6211,7 @@ private:
 			return payload;
 		}
 
-		json create_response(json _request, bool _success, std::string _message, json _data, std::vector<validation_error>& _errors, double _seconds)
+		json create_response(json _request, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
 		{
 			json_parser jp;
 			json payload = jp.create_object();
@@ -7820,7 +7816,7 @@ private:
 			json_parser jp;
 			json response;
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 			read_scope_lock my_lock(database_lock);
 			date_time start_time = date_time::now();
 			timer tx;
@@ -7834,7 +7830,7 @@ private:
 
 			if (access_code.empty())
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "access_code";
@@ -7873,7 +7869,7 @@ grant_type=authorization_code
 
 			if (not google_response1.response.response_body.is_safe_string())
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "access_token";
@@ -7896,7 +7892,7 @@ grant_type=authorization_code
 
             if (not google_response.response.response_body.is_safe_string())
 			{
-                std::vector<validation_error> errors;
+                validation_error_collection errors;
                 validation_error err;
                 err.class_name = "sys_user";
                 err.field_name = "access_token";
@@ -8009,7 +8005,7 @@ grant_type=authorization_code
 				user_email = user_name;
             }
 			else if (user_name.empty() and user_email.empty()) {
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
                 err.class_name = "sys_user";
                 err.field_name = user_name_field;	
@@ -8032,7 +8028,7 @@ grant_type=authorization_code
 
 			if (user_password1 != user_password2)
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
                 err.class_name = "sys_user";
 				err.field_name = "password2";
@@ -8051,7 +8047,7 @@ grant_type=authorization_code
 
 			if (not reason.empty())
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "password1";
@@ -8171,7 +8167,7 @@ grant_type=authorization_code
 			}
 
 			if (user_name.empty()) {
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = user_name_field;
@@ -8194,7 +8190,7 @@ grant_type=authorization_code
 			}
 			else 
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = user_name_field;
@@ -8275,7 +8271,7 @@ grant_type=authorization_code
 			timer tx;
 
 			read_scope_lock my_lock(database_lock);
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("confirm", "start", start_time, __FILE__, __LINE__);
 
@@ -8296,7 +8292,7 @@ grant_type=authorization_code
 
 			if (user.empty()) {
 
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "user_name";
@@ -8329,7 +8325,7 @@ grant_type=authorization_code
 			}
 			else
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "validation_code";
@@ -8358,7 +8354,7 @@ grant_type=authorization_code
 			timer tx;
 
 			read_scope_lock my_lock(database_lock);
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("user_home", "start", start_time, __FILE__, __LINE__);
 
@@ -8373,7 +8369,7 @@ grant_type=authorization_code
             json user_details = get_user(user_name, get_system_permission());
 
 			system_monitoring_interface::active_mon->log_function_stop("user_home", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-            std::vector<validation_error> empty_errors;
+            validation_error_collection empty_errors;
 			result = create_response(_user_home_request, true, "Ok", user_details, empty_errors, method_timer.get_elapsed_seconds());
 
 			return result;
@@ -8393,7 +8389,7 @@ grant_type=authorization_code
 			system_monitoring_interface::active_mon->log_function_start("confirm", "start", start_time, __FILE__, __LINE__);
 
 			read_scope_lock my_lock(database_lock);
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			json data = _password_request[data_field];
 			std::string user_name, user_auth;
@@ -8406,7 +8402,7 @@ grant_type=authorization_code
 
 			if (user.empty()) {
 
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "user_name";
@@ -8429,7 +8425,7 @@ grant_type=authorization_code
 			}
 			else if (not check_message(_password_request, { auth_general }, user_name, user_auth))
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "user_name";
@@ -8457,7 +8453,7 @@ grant_type=authorization_code
 
 			if (user_password1 != user_password2)
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "password2";
@@ -8476,7 +8472,7 @@ grant_type=authorization_code
             std::string reason = pm1.is_stupid();
 			if (not reason.empty())
 			{
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 				validation_error err;
 				err.class_name = "sys_user";
 				err.field_name = "password1";
@@ -8515,7 +8511,7 @@ grant_type=authorization_code
 			timer tx;
 
 			read_scope_lock my_lock(database_lock);
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("user_set_team", "start", start_time, __FILE__, __LINE__);
 
@@ -8548,7 +8544,7 @@ grant_type=authorization_code
 
 			system_monitoring_interface::active_mon->log_function_stop("user_set_team", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
-			std::vector<validation_error> empty_errors;
+			validation_error_collection empty_errors;
 
 			if (team_set) {
 				apply_user_team(user_details);
@@ -8574,7 +8570,7 @@ grant_type=authorization_code
 			json_parser jp;
 			json response;
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			date_time start_time = date_time::now();
 			timer tx;
@@ -8641,7 +8637,7 @@ grant_type=authorization_code
 
 			date_time start_time = date_time::now();
 			timer tx;
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			if (not check_message(_run_object_request, { auth_general }, user_name, user_auth))
 			{
@@ -8685,7 +8681,7 @@ grant_type=authorization_code
 			std::string user_name, user_auth;
 
 			bool include_children = (bool)_edit_object_request["include_children"];
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			if (not check_message(_edit_object_request, { auth_general }, user_name, user_auth))
 			{
@@ -8776,7 +8772,7 @@ grant_type=authorization_code
 			timer tx;
 
 			read_scope_lock my_lock(database_lock);
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("get_classes", "start", start_time, __FILE__, __LINE__);
 
@@ -8839,7 +8835,7 @@ grant_type=authorization_code
 			system_monitoring_interface::active_mon->log_function_start("get_class", "start", start_time, __FILE__, __LINE__);
 
 			std::vector<std::string> missing_elements;
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 
 			if (not get_class_request.has_members(missing_elements, { token_field, class_name_field })) {
@@ -8906,7 +8902,7 @@ grant_type=authorization_code
 			json result;
 			json_parser jp;
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			date_time start_time = date_time::now();
 			timer tx;
@@ -8999,7 +8995,7 @@ grant_type=authorization_code
 
 			date_time start_time = date_time::now();
 			timer tx;
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("update", "start", start_time, __FILE__, __LINE__);
 
@@ -9074,7 +9070,7 @@ grant_type=authorization_code
 			json response;
 
 			std::string user_name, user_auth;
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			if (not check_message(query_request, { auth_general }, user_name, user_auth))
 			{
@@ -9178,7 +9174,7 @@ grant_type=authorization_code
 			json response;
 
 			std::string user_name, user_auth;
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			if (not check_message(create_object_request, { auth_general }, user_name, user_auth))
 			{
@@ -9305,7 +9301,7 @@ grant_type=authorization_code
 
 				date_time start_time = date_time::now();
 				timer tx;
-				std::vector<validation_error> errors;
+				validation_error_collection errors;
 
 				system_monitoring_interface::active_mon->log_function_start("put_object", "start", start_time, __FILE__, __LINE__);
 
@@ -9334,6 +9330,8 @@ grant_type=authorization_code
 				result = check_object(object_definition, user_name, errors, token_authority);
 
 				json grouped_by_class_name = result[data_field];
+
+				std::string message = result[message];
 
 				if (result[success_field])
 				{
@@ -9364,14 +9362,15 @@ grant_type=authorization_code
 						result = put_object(put_object_request);
 					}
 
-					result = create_response(put_object_request, true, "Object(s) created", grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					result = create_response(put_object_request, true, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					log_errors(errors);
 				}
 				else
 				{
 					result = create_response(put_object_request, false, result[message_field], grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
 					log_errors(errors);
 				}
-				system_monitoring_interface::active_mon->log_function_stop("put_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_function_stop("put_object", message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
 			catch (std::exception exc)
 			{
@@ -9437,7 +9436,7 @@ grant_type=authorization_code
 			std::string user_name, user_auth;
 			json object_key = get_object_request.extract({ class_name_field, object_id_field });
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 			if (not check_message(get_object_request, { auth_general }, user_name, user_auth))
 			{
 				result = create_response(get_object_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
@@ -9489,7 +9488,7 @@ grant_type=authorization_code
 			date_time start_time = date_time::now();			
 			timer tx;
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 
 			system_monitoring_interface::active_mon->log_function_start("delete_object", "start", start_time, __FILE__, __LINE__);
 
@@ -9541,7 +9540,7 @@ grant_type=authorization_code
 			timer tx;
 			system_monitoring_interface::active_mon->log_function_start("copy_object", "start", start_time, __FILE__, __LINE__);
 
-			std::vector<validation_error> errors;
+			validation_error_collection errors;
 			std::string user_name, user_auth;
 
 			if (not check_message(copy_request, { auth_general }, user_name, user_auth))

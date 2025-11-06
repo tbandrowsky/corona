@@ -1304,67 +1304,87 @@ namespace corona
 
 	xblock_lease<xleaf_block> xblock_cache::open_leaf_block(xblock_ref& _ref)
 	{
-		write_scope_lock lockme(cache_lock);
+		{
+			read_scope_lock lockme(cache_lock);
 
-		auto foundit = leaf_blocks.find(_ref.location);
-		if (foundit != std::end(leaf_blocks)) {
-			if (not foundit->second->empty()) {
-				return foundit->second->lease();
+			auto foundit = leaf_blocks.find(_ref.location);
+			if (foundit != std::end(leaf_blocks)) {
+				if (not foundit->second->empty()) {
+					return foundit->second->lease();
+				}
+				else {
+					auto new_block = new xleaf_block(fb, _ref, false);
+					foundit->second->open(new_block);
+					return foundit->second->lease();
+				}
+			}
+
+
+		}
+
+		{
+			write_scope_lock lockme(cache_lock);
+
+			auto new_block = new xleaf_block(fb, _ref, false);
+			auto loc = new_block->get_reference().location;
+
+			if (leaf_blocks.contains(loc)) {
+				leaf_blocks[loc]->open(new_block);
 			}
 			else {
-				auto new_block = new xleaf_block(fb, _ref, false);
-                foundit->second->open(new_block);
-                return foundit->second->lease();
+				auto leaseable = std::make_shared<xblock_leaseable<xleaf_block>>();
+				leaseable->open(new_block);
+				leaf_blocks[loc] = leaseable;
 			}
+
+			auto temp = leaf_blocks[loc]->lease();
+			return temp;
 		}
 
-		auto new_block = new xleaf_block(fb, _ref, false);
-		auto loc = new_block->get_reference().location;
-
-		if (leaf_blocks.contains(loc)) {
-			leaf_blocks[loc]->open(new_block);
-		}
-		else {
-			auto leaseable = std::make_shared<xblock_leaseable<xleaf_block>>();
-			leaseable->open(new_block);
-			leaf_blocks[loc] = leaseable;
-		}
-
-		auto temp = leaf_blocks[loc]->lease();
-		return temp;
 	}
 
 	xblock_lease<xbranch_block> xblock_cache::open_branch_block(xblock_ref& _ref, bool _retain)
 	{
-		write_scope_lock lockme(cache_lock);
 
-		auto foundit = branch_blocks.find(_ref.location);
-		if (foundit != std::end(branch_blocks)) {
-			if (not foundit->second->empty()) {
-				return foundit->second->lease();
-			}
-			else {
-				auto new_block = new xbranch_block(fb, _ref, _retain);
-				foundit->second->open(new_block);
-				return foundit->second->lease();
-			}
-		}
-
-		auto new_block = new xbranch_block(fb, _ref, _retain);
-		auto loc = new_block->get_reference().location;
-
-		if (branch_blocks.contains(loc)) {
-			branch_blocks[loc]->open(new_block);
-		}
-		else 
 		{
-			auto leaseable = std::make_shared<xblock_leaseable<xbranch_block>>();
-			leaseable->open(new_block);
-			branch_blocks[loc] = leaseable;
+
+			read_scope_lock lockme(cache_lock);
+
+
+			auto foundit = branch_blocks.find(_ref.location);
+			if (foundit != std::end(branch_blocks)) {
+				if (not foundit->second->empty()) {
+					return foundit->second->lease();
+				}
+				else {
+					auto new_block = new xbranch_block(fb, _ref, _retain);
+					foundit->second->open(new_block);
+					return foundit->second->lease();
+				}
+			}
+
 		}
 
-		auto temp = branch_blocks[loc]->lease();
-		return temp;
+		{
+
+			write_scope_lock lockme(cache_lock);
+
+			auto new_block = new xbranch_block(fb, _ref, _retain);
+			auto loc = new_block->get_reference().location;
+
+			if (branch_blocks.contains(loc)) {
+				branch_blocks[loc]->open(new_block);
+			}
+			else
+			{
+				auto leaseable = std::make_shared<xblock_leaseable<xbranch_block>>();
+				leaseable->open(new_block);
+				branch_blocks[loc] = leaseable;
+			}
+
+			auto temp = branch_blocks[loc]->lease();
+			return temp;
+		}
 	}
 
 	void xblock_cache::close_block_nl(xblock_lease<xleaf_block>& _block)

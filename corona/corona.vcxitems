@@ -104,6 +104,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-threadsafe-map.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-time_box.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-utility.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-validation-error.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-visual.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-wave_box.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-wchart_convert.hpp" />

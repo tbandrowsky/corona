@@ -132,6 +132,7 @@ namespace corona {
 #include "corona-locks.hpp"
 #include "corona-threadsafe-map.hpp"
 #include "corona-json.hpp"
+#include "corona-validation-error.hpp"
 #include "corona-json-serialization.hpp"
 #include "corona-queue.hpp"
 #include "corona-function.hpp"

@@ -40,7 +40,7 @@ namespace corona
 			_dest.put_member("string_size", string_size);
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src)
+		virtual void put_json(validation_error_collection& _errors, json& _src)
 		{
 			corona_field_name = _src["corona_field_name"];
 			sql_field_name = _src["sql_field_name"];
@@ -93,7 +93,7 @@ namespace corona
 			_dest.put_member("mappings", jmappings);
 		}
 
-		virtual void put_json(std::vector<validation_error>& _errors, json& _src)
+		virtual void put_json(validation_error_collection& _errors, json& _src)
 		{
 			mappings.clear();
 			connection_name = _src["connection_name"];
