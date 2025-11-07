@@ -209,10 +209,9 @@ namespace corona
 				auto& xout = get_log_file();
 
 				xout << Logusercommand;
-				xout << std::format("{0:<30}{1:<45}{2:<10}{3:<25}",
+				xout << std::format("{0:<30}{1:<55}{2:<25}",
 					_command_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
 				file_line(_file, _line);
@@ -252,10 +251,9 @@ namespace corona
 				auto& xout = get_log_file();
 
 				xout << Logusercommand;
-				xout << std::format("{0:<30}{1:<45}{2:<10}{3:<25}",
+				xout << std::format("{0:<30}{1:<55}{2:<25}",
 					_command_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					std::format("{0} secs",_elapsed_seconds)
 				);
 				file_line(_file, _line);
@@ -298,10 +296,9 @@ namespace corona
 				auto& xout = get_log_file();
 
 				xout << Logcommand;
-				xout << std::format("{0:<30}{1:<45}{2:<10}{3:<25}",
+				xout << std::format("{0:<30}{1:<55}{2:<25}",
 					_command_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
 				file_line(_file, _line);
@@ -345,10 +342,9 @@ namespace corona
 				_message = " ";
 
 			xout << Logcommand;
-			xout << std::format("{0:<30}{1:<45}{2:<10}{3:<25}",
+			xout << std::format("{0:<30}{1:<55}{2:<25}",
 				_command_name,
 				_message,
-				GetCurrentThreadId(),
 				std::format("{0} secs", _elapsed_seconds)
 			);
 			file_line(_file, _line);
@@ -393,10 +389,9 @@ namespace corona
 			xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
 			xout << Logapi;
-			xout << std::format("{0:<25}{1:<45}{2:<10}{3:<25}",
+			xout << std::format("{0:<25}{1:<55}{2:<25}",
 				_api_name,
-				trim(_message, 45),
-				GetCurrentThreadId(),
+				trim(_message, 55),
 				_request_time.format("%D %H:%M start")
 			);
 			file_line(_file, _line);
@@ -443,10 +438,9 @@ namespace corona
 			xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
 			xout << Logapi;
-			xout << std::format("{0:<25}{1:<45}{2:<10}{3:<25}",
+			xout << std::format("{0:<25}{1:<55}{2:<25}",
 				_api_name,
-				trim(_message, 45),
-				GetCurrentThreadId(),
+				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
 			);
 			file_line(_file, _line);
@@ -477,10 +471,9 @@ namespace corona
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
-				xout << std::format(" {0:<24}{1:<45}{2:<10}{3:<25}",
+				xout << std::format(" {0:<24}{1:<55}{2:<25}",
 					_api_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
 				file_line(_file, _line);
@@ -528,10 +521,9 @@ namespace corona
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
-				xout << std::format(" {0:<24}{1:<45}{2:<10}{3:<25}",
+				xout << std::format(" {0:<24}{1:<55}{2:<25}",
 					_api_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
 				file_line(_file, _line);
@@ -564,10 +556,9 @@ namespace corona
 			xout << Logapi;
 			xout << std::format("{0:<5}", " ");
 			xout << Logfunction;
-			xout << std::format("{0:<20}{1:<45}{2:<10}{3:<25}",
+			xout << std::format("{0:<20}{1:<55}{2:<25}",
 				_function_name,
-				trim(cmessage, 45),
-				GetCurrentThreadId(),
+				trim(cmessage, 55),
 				_request_time.format("%D %H:%M start")
 			);
 			file_line(_file, _line);
@@ -612,10 +603,9 @@ namespace corona
 			xout << Logapi;
 			xout << std::format("{0:<5}", " ");
 			xout << Logfunction;
-			xout << std::format("{0:<20}{1:<45}{2:<10}{3:<25}",
+			xout << std::format("{0:<20}{1:<55}{2:<25}",
 				_function_name,
-				trim(_message, 45),
-				GetCurrentThreadId(),
+				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
 			);
 			file_line(cfilename, _line);
@@ -647,10 +637,9 @@ namespace corona
 				xout << Logapi;
 				xout << std::format("{0:<5}", " ");
 				xout << Logfunction;
-				xout << std::format("{0:<20}{1:<45}{2:<10}{3:<25}",
+				xout << std::format("{0:<20}{1:<55}{2:<25}",
 					_function_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
 				file_line(_file, _line);
@@ -682,10 +671,9 @@ namespace corona
 				xout << Logapi;
 				xout << std::format("{0:<5}", " ");
 				xout << Logfunction;
-				xout << std::format("{0:<20}{1:<45}{2:<10}{3:<25}",
+				xout << std::format("{0:<20}{1:<55}{2:<25}",
 					_function_name,
-					trim(_message, 45),
-					GetCurrentThreadId(),
+					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
 				file_line(_file, _line);
@@ -773,10 +761,9 @@ namespace corona
 			xout << Logfunction;
 			xout << std::format("{0:<20}", " ");
 			xout << Loginformation;
-			if (_message.size() < 45) {
-				xout << std::format("{0:<45}{1:<10}{2:<25}",
+			if (_message.size() < 55) {
+				xout << std::format("{0:<55}{1:<25}",
 					_message,
-					GetCurrentThreadId(),
 					" "
 				);
 				file_line(_file, _line);
@@ -810,9 +797,8 @@ namespace corona
 			xout << Logfunction;
 			xout << std::format("{0:<20}", " ");
 			xout << Loginformation;
-			xout << std::format("{0:<45}{1:<10}{2:<25}",
-				trim(_message, 45),
-				GetCurrentThreadId(),
+			xout << std::format("{0:<55}{1:<25}",
+				trim(_message, 55),
 				_time.format("%D %H:%M")
 			);
 			file_line(_file, _line);
@@ -842,9 +828,8 @@ namespace corona
 			xout << Logfunction;
 			xout << std::format("{0:<20}", " ");
 			xout << Logactivity;
-			xout << std::format("{0:<45}{1:<10}{2:<25}",
-				trim(_message, 45),
-				GetCurrentThreadId(),
+			xout << std::format("{0:<55}{1:<25}",
+				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
 			);
 			file_line(_file, _line);
@@ -878,9 +863,8 @@ namespace corona
 				xout << Logfunction;
 				xout << std::format("{0:<20}", " ");
 				xout << Loginformation;
-				xout << std::format("{0:<45}{1:<10}{2:<25}",
-					trim(_message, 45),
-					GetCurrentThreadId(),
+				xout << std::format("{0:<55}{1:<25}",
+					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
 				file_line(_file, _line);
@@ -1018,13 +1002,13 @@ namespace corona
 					if (body.object())
 					{
 						std::string rightArrow = "->";
-						xout << std::format("{0:<45}:", "{object}" + rightArrow) << std::endl;
+						xout << std::format("{0:<55}:", "{object}" + rightArrow) << std::endl;
 						log_json<json_type>(body, _indent + 4);
 					}
 					else if (body.array())
 					{
 						std::string rightArrow = "->";
-						xout << std::format("{0:<45}:", "[array]" + rightArrow ) << std::endl;
+						xout << std::format("{0:<55}:", "[array]" + rightArrow ) << std::endl;
 						log_json<json_type>(body, _indent + 4);
 					}
 					else
@@ -1088,8 +1072,8 @@ namespace corona
 			}
 			else {
 				std::string v = _src.to_json();
-				v = trim(v, 45);
-				xout << std::format("{0:<45}", v);
+				v = trim(v, 55);
+				xout << std::format("{0:<55}", v);
 				xout << std::endl;
 			}
 

@@ -2350,6 +2350,9 @@ namespace corona
 		{
 			using namespace std::literals;
 			json_parser jp;
+            if (query_body.empty()) {
+                return jp.create_array();
+            }
 			json this_query_body = query_body.clone();
 			this_query_body.put_member("include_children", false);
 
@@ -4739,7 +4742,7 @@ namespace corona
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
 		
-		long import_batch_size = 10000;
+		long import_batch_size = 5000;
 		/*
 		* authorizations in tokens, methods and progressions
 		* 
@@ -6694,6 +6697,9 @@ bail:
 										descendants.push_back(d.first);
 									}
 								}
+								else {
+									descendants.push_back(class_name);
+								}
 								granted_all.put_member(cls, descendants);
 							}
 						}
@@ -6920,12 +6926,6 @@ bail:
 									granted = true;
 									break;
 								}
-								else {
-									system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not granted permission", jclass, team_name), __FILE__, __LINE__);
-								}
-							}
-							else {
-								system_monitoring_interface::active_mon->log_warning(std::format("Team {1}: Class '{0}' not found for permission", jclass, team_name), __FILE__, __LINE__);
 							}
 						}
 					}
@@ -7528,11 +7528,9 @@ bail:
 
 															put_object_sync(cor, [this, file_size, bytes_processed, total_row_count, batch_size](json& put_result, double _exec_time) {
 																double x = batch_size / _exec_time;
-																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
-																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
-																msg = put_result["message"];
+																std::string msg = put_result["message"];
 																if (file_size) {
-																	msg = msg + std::format(", {0:.2f}%", (double)bytes_processed/(double)file_size * 100.0);
+																	msg = msg + std::format(", {0:.2f}%, {1:.2f} / sec", (double)bytes_processed/(double)file_size * 100.0, x);
 																}
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
 																if (put_result[success_field]) {
@@ -9062,14 +9060,11 @@ grant_type=authorization_code
 			timer tx;
 			validation_error_collection errors;
 
-			system_monitoring_interface::active_mon->log_function_start("update", "start", start_time, __FILE__, __LINE__);
-
 			bool include_children = (bool)query_details["include_children"];
 
 			json base_class_name = query_details[class_name_field];
 			if (base_class_name.empty()) {
 				response = create_response(_user_name, auth_general, false, "class_name not specified", query_details, errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("update", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return response;
 			}
 
@@ -9077,7 +9072,6 @@ grant_type=authorization_code
 			if (permission.get_grant == class_grants::grant_none)
 			{
 				response = create_response(_user_name, auth_general, false, "query_class denied", query_details, errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("update", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return response;
 			}
 
@@ -9086,7 +9080,6 @@ grant_type=authorization_code
 			json object_list = jp.create_array();
 			if (not class_def) {
 				response = create_response(_user_name, auth_general, false, "class not found", query_details, errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("update", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				return response;
 			}
 
@@ -9121,7 +9114,6 @@ grant_type=authorization_code
 
 			response = create_response(_user_name, auth_general, true, "completed", object_list, errors, method_timer.get_elapsed_seconds());
 
-			system_monitoring_interface::active_mon->log_function_stop("update", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			return response;
 		}
 
