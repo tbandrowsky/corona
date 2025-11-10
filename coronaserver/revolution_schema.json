@@ -51,6 +51,53 @@
       }
     },
     {
+      "class_name": "mutant",
+      "base_class_name": "person",
+      "class_description": "People with special skills like in comic books",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "super_powers", "costume" ],
+      "card_title": "super_powers",
+      "card_fields": [ "costume" ],
+      "fields": {
+        "super_powers": "string",
+        "costume": "string"
+      }
+    },
+    {
+      "class_name": "superhero",
+      "base_class_name": "mutant",
+      "class_description": "Good People with special skills",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "good_message" ],
+      "card_title": "hero_name",
+      "card_fields": [ "good_message" ],
+      "fields": {
+        "good_message": "string",
+        "hero_name": "string",
+        "costume": "string"
+      }
+    },
+    {
+      "class_name": "supervillian",
+      "base_class_name": "mutant",
+      "class_description": "Bad People with special skills",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "good_message" ],
+      "card_title": "evil_name",
+      "card_fields": [ "bad_message", "weapon" ],
+      "fields": {
+        "bad_message": "string",
+        "evil_name": "string",
+        "weapon": "string"
+      }
+    },
+    {
       "class_name": "family_member",
       "base_class_name": "person",
       "class_description": "Family Member",
@@ -201,7 +248,10 @@
         "start_time": "datetime",
         "hours": "number",
         "goal": "string",
-        "description": "string",
+        "description": {
+          "field_type": "string",
+          "display": "markdown"
+        },
         "street1": "string",
         "street2": "string",
         "city": "string",
@@ -222,7 +272,10 @@
       "card_fields": [ "task" ],
       "fields": {
         "mission": "string",
-        "task": "string"
+        "task": {
+          "field_type": "string",
+          "display": "markdown"
+        }
       }
     },
     {
@@ -230,19 +283,58 @@
       "class_description": "Base Story",
       "base_class_name": "sys_object",
       "class_color": "#4e7a69",
-      "parents": [ "work_team" ],
+      "parents": [ "work_object" ],
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "full_text": [ "name", "description", "authors", "contents" ],
       "card_title": "name",
       "card_fields": [ "description", "authors" ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px 300px 300px",
       "fields": {
-        "name": "string",
-        "description": "string",
-        "authors": "[ string ]",
-        "contents": "string",
-        "copywrite": "string",
-        "url": "string"
+        "name": {
+          "field_type": "string",
+          "grid_row": "1",
+          "grid_column": "1",
+          "label": "Name",
+          "tab_index": 1
+        },
+        "copywrite": {
+          "field_type": "string",
+          "grid_row": "1",
+          "grid_column": "2",
+          "label": "Copywrite",
+          "tab_index": 2
+        },
+        "url": {
+          "field_type": "string",
+          "grid_row": "1",
+          "grid_column": "3",
+          "label": "Url",
+          "tab_index": 3
+        },
+        "description": {
+          "field_type": "string",
+          "grid_row": "2",
+          "grid_column": "1/3",
+          "label": "Description",
+          "tab_index": 4
+        },
+        "authors": {
+          "field_type": "string",
+          "label": "Authors",
+          "grid_row": "3",
+          "grid_column": "1/3",
+          "tab_index": 5
+        },
+        "contents": {
+          "field_type": "string",
+          "display": "markdown",
+          "label": "Contents",
+          "grid_row": "5/4",
+          "grid_column": "1/3",
+          "tab_index": 6
+        }
       }
     },
     {
@@ -447,16 +539,54 @@
       "class_version": "1.0",
       "card_title": "full_name",
       "card_fields": [ "political_party", "city", "state" ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "250px 250px 250px",
       "fields": {
-        "candidate_id": "string",
-        "full_name": "string",
-        "political_party": "string",
-        "election_year": "int64",
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
-        "state": "string",
-        "zip": "string",
+        "full_name": {
+          "field_type": "string",
+          "grid-row": "1",
+          "grid-column": "1"
+        },
+        "candidate_id": {
+          "field_type": "string",
+          "grid-row": "2",
+          "grid-column": "1"
+        },
+        "political_party": {
+          "field_type": "string",
+          "grid-row": "2",
+          "grid-column": "2"
+        },
+        "election_year": {
+          "field_type": "string",
+          "grid-row": "2",
+          "grid-column": "3"
+        },
+        "street1": {
+          "field_type": "string",
+          "grid-row": "3",
+          "grid-column": "1"
+        },
+        "street2": {
+          "field_type": "string",
+          "grid-row": "4",
+          "grid-column": "1"
+        },
+        "city": {
+          "field_type": "string",
+          "grid-row": "5",
+          "grid-column": "1"
+        },
+        "state": {
+          "field_type": "string",
+          "grid-row": "5",
+          "grid-column": "2"
+        },
+        "zip": {
+          "field_type": "string",
+          "grid-row": "5",
+          "grid-column": "3"
+        },
         "committees": {
           "field_type": "query",
           "query": {
@@ -759,10 +889,22 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "county",
-      "card_fields": [ "state" ],
+      "card_fields": [ "state", "land_area", "population_per_square_mile" ],
       "grid_template_rows": "60px auto",
       "grid_template_columns": "300px 300px 300px 300px",
       "fields": {
+        "land_area": {
+          "field_type": "number",
+          "grid_column": "1",
+          "grid_row": "1",
+          "label": "Land Area"
+        },
+        "population_per_square_mile": {
+          "field_type": "number",
+          "grid_column": "2",
+          "grid_row": "1",
+          "label": "Population Density"
+        },
         "percent_65_and_older": {
           "field_type": "number",
           "grid_column": "1",
@@ -900,18 +1042,6 @@
           "grid_column": "3",
           "grid_row": "10",
           "label": "% Foreign"
-        },
-        "land_area": {
-          "field_type": "number",
-          "grid_column": "1",
-          "grid_row": "11",
-          "label": "Land Area"
-        },
-        "population_per_square_mile": {
-          "field_type": "number",
-          "grid_column": "2",
-          "grid_row": "11",
-          "label": "Population Density"
         },
         "language_other_than_english_at_home": {
           "field_type": "number",
@@ -1808,6 +1938,36 @@
           "grid_row": 1,
           "grid_column": 2
         },
+        "complete_county_name": {
+          "field_type": "string",
+          "label": "Complete County Name",
+          "grid_row": 6,
+          "grid_column": 2
+        },
+        "grantee_county_description": {
+          "field_type": "string",
+          "label": "Grantee County Description",
+          "grid_row": 2,
+          "grid_column": 3
+        },
+        "grant_program_name": {
+          "field_type": "string",
+          "label": "Grant Program Name",
+          "grid_row": 6,
+          "grid_column": 3
+        },
+        "congressional_district_name": {
+          "field_type": "string",
+          "label": "Congressional District Name",
+          "grid_row": 6,
+          "grid_column": 4
+        },
+        "congressional_district_number": {
+          "field_type": "string",
+          "label": "Congressional District Number",
+          "grid_row": 7,
+          "grid_column": 1
+        },
         "award_year": {
           "field_type": "string",
           "label": "Award Year",
@@ -1818,6 +1978,12 @@
           "field_type": "string",
           "label": "Financial Assistance",
           "grid_row": 1,
+          "grid_column": 4
+        },
+        "grantee_name": {
+          "field_type": "string",
+          "label": "Grantee Name",
+          "grid_row": 2,
           "grid_column": 4
         },
         "grantee_address": {
@@ -1831,18 +1997,6 @@
           "label": "Grantee City",
           "grid_row": 2,
           "grid_column": 2
-        },
-        "grantee_county_description": {
-          "field_type": "string",
-          "label": "Grantee County Description",
-          "grid_row": 2,
-          "grid_column": 3
-        },
-        "grantee_name": {
-          "field_type": "string",
-          "label": "Grantee Name",
-          "grid_row": 2,
-          "grid_column": 4
         },
         "grantee_region_code": {
           "field_type": "string",
@@ -1920,30 +2074,6 @@
           "field_type": "string",
           "label": "HRSA Program Area Name",
           "grid_row": 6,
-          "grid_column": 1
-        },
-        "complete_county_name": {
-          "field_type": "string",
-          "label": "Complete County Name",
-          "grid_row": 6,
-          "grid_column": 2
-        },
-        "grant_program_name": {
-          "field_type": "string",
-          "label": "Grant Program Name",
-          "grid_row": 6,
-          "grid_column": 3
-        },
-        "congressional_district_name": {
-          "field_type": "string",
-          "label": "Congressional District Name",
-          "grid_row": 6,
-          "grid_column": 4
-        },
-        "congressional_district_number": {
-          "field_type": "string",
-          "label": "Congressional District Number",
-          "grid_row": 7,
           "grid_column": 1
         },
         "hhs_region_number": {
@@ -2420,402 +2550,402 @@
         }
       }
     },
-      {
-        "class_name": "model",
-        "class_description": "Model",
-        "base_class_name": "work_object",
-        "parents": [ "model_ticket", "policy_base", "insurance_response" ],
-        "full_text": [ "model_name", "model_description", "model_accepts", "model_code" ],
-        "class_author": "TJ Bandrowsky",
-        "class_version": "1.0",
-        "card_title": "model_name",
-        "card_fields": [
-          "model_description",
-          "model_accepts"
-        ],
+    {
+      "class_name": "model",
+      "class_description": "Model",
+      "base_class_name": "work_object",
+      "parents": [ "model_ticket", "policy_base", "insurance_response" ],
+      "full_text": [ "model_name", "model_description", "model_accepts", "model_code" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "model_name",
+      "card_fields": [
+        "model_description",
+        "model_accepts"
+      ],
 
-        "fields": {
-          "model_name": "string",
-          "model_description": "string",
-          "model_accepts": "string",
-          "model_code": "string"
-        }
-      },
-      {
-        "class_name": "model_ticket",
-        "class_description": "Model Ticket",
-        "base_class_name": "sys_ticket",
-        "class_color": "#4f7959",
-        "full_text": [ "model_description" ],
-        "class_author": "TJ Bandrowsky",
-        "class_version": "1.0",
-        "card_title": "ticket_name",
-        "card_fields": [
-          "ticket_description"
-        ],
-        "fields": {
-          "model": "model",
-          "responsibility": "[ responsibility ]"
-        }
-      },
-      {
-        "class_name": "model_request_ticket",
-        "class_description": "Model Request",
-        "base_class_name": "model_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "model_response_ticket",
-        "class_description": "Model Response",
-        "base_class_name": "model_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "results": "object"
-        }
-      },
-      {
-        "class_name": "justice_ticket",
-        "class_description": "Justice Ticket",
-        "base_class_name": "sys_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "order": "string",
-          "target": "[ responsibility ]"
-        }
-      },
-      {
-        "class_name": "court_order",
-        "class_description": "An order from the court",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "court_plea",
-        "class_description": "A plea to the court",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "court_motion",
-        "class_description": "A plea to the court about a case",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "court_motion_evidence",
-        "class_description": "A plea to the court about a case",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "evidence": "string",
-          "evident_link": "string"
-        }
-      },
-      {
-        "class_name": "court_motion_plaintiff",
-        "class_description": "Add plaintiff",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "role": "string"
-        }
-      },
-      {
-        "class_name": "court_motion_defendant",
-        "class_description": "Add defendant",
-        "base_class_name": "justice_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "role": "string"
-        }
-      },
-      {
-        "class_name": "arrest_ticket",
-        "class_description": "Arrest Ticket",
-        "base_class_name": "court_order",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "seize_ticket",
-        "class_description": "Seize Ticket",
-        "base_class_name": "court_order",
-        "class_color": "#4f7959",
-        "fields": {
-
-        }
-      },
-      {
-        "class_name": "adversary",
-        "class_description": "Adversary",
-        "base_class_name": "work_object",
-        "fields": {
-          "entity_name": "string",
-          "first_name": "string",
-          "last_name": "string",
-          "street": "string",
-          "city": "string",
-          "state": "string",
-          "zip": "string"
-        }
-      },
-      {
-        "class_name": "plaintiff",
-        "class_description": "Plaintiff",
-        "base_class_name": "adversary",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "defendant",
-        "class_description": "Defendant",
-        "base_class_name": "adversary",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "case",
-        "class_description": "Court Case",
-        "base_class_name": "work_object",
-        "fields": {
-          "name": "string",
-          "plaintiffs": [ "plaintiff" ],
-          "defendants": [ "defendant" ]
-        }
-      },
-      {
-        "class_name": "reparations_case",
-        "class_description": "Reparations Case",
-        "base_class_name": "case",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "treason_case",
-        "class_description": "Treason Case",
-        "base_class_name": "case",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "criminal_case",
-        "class_description": "Criminal Case",
-        "base_class_name": "case",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "liability_case",
-        "class_description": "Liability Case",
-        "base_class_name": "case",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "insurance_coverage",
-        "class_description": "Insurance Coverage",
-        "base_class_name": "work_object",
-        "fields": {
-          "reponsibilities": "[ responsibility ]",
-          "risk": "string",
-          "coverage_cost": "double",
-          "deductible": "double",
-          "attachment_point": "double",
-          "limit": "double",
-          "blanket": "double"
-        }
-      },
-      {
-        "class_name": "policy_base",
-        "class_description": "Base Policy",
-        "base_class_name": "work_object",
-        "fields": {
-          "policy_name": "string",
-          "policy_text": "string",
-          "responsibilities": "[ responsibility ]",
-          "coverages": "[ insurance_coverage ]",
-          "models": "[ model ]"
-        }
-      },
-      {
-        "class_name": "policy_quote",
-        "class_description": "Insurance Proposal",
-        "base_class_name": "policy_base",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "policy_in_force",
-        "class_description": "Policy In Force",
-        "base_class_name": "policy_base",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "insurance_ticket",
-        "class_description": "Insurance Ticket",
-        "base_class_name": "sys_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "responsibilities": "[ responsibility ]"
-        }
-      },
-      {
-        "class_name": "insurance_request",
-        "class_description": "Insurance Request",
-        "base_class_name": "insurance_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "insurance_response",
-        "class_description": "Insurance Response",
-        "base_class_name": "insurance_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "responsibilities": "[ responsibility ]"
-        }
-      },
-      {
-        "class_name": "insurance_quote_request",
-        "class_description": "Quote Request",
-        "base_class_name": "insurance_request",
-        "class_color": "#4f7959",
-        "fields": {
-
-        }
-      },
-      {
-        "class_name": "insurance_quote_response",
-        "class_description": "Quote Request",
-        "base_class_name": "insurance_response",
-        "class_color": "#4f7959",
-        "fields": {
-          "policy_quote": "policy_quote"
-        }
-      },
-      {
-        "class_name": "insurance_quote_accept",
-        "class_description": "Quote Accept",
-        "base_class_name": "insurance_request",
-        "class_color": "#4f7959",
-        "fields": {
-          "models": "[ model ]",
-          "policy_quote": "policy_quote"
-        }
-      },
-      {
-        "class_name": "insurance_quote_reject",
-        "class_description": "Quote Change",
-        "base_class_name": "insurance_request",
-        "class_color": "#4f7959",
-        "fields": {
-          "models": "[ model ]",
-          "policy_quote": "policy_quote"
-        }
-      },
-      {
-        "class_name": "insurance_claim_request",
-        "class_description": "Claim Request",
-        "base_class_name": "insurance_request",
-        "class_color": "#4f7959",
-        "fields": {
-          "policy": "policy_in_force",
-          "responsibility": "[responsibility]"
-        }
-      },
-      {
-        "class_name": "insurance_claim_response",
-        "class_description": "Claim Response",
-        "base_class_name": "insurance_order",
-        "class_color": "#4f7959",
-        "fields": {
-          "policy": "policy_in_force",
-          "responsibility": "[responsibility]"
-        }
-      },
-      {
-        "class_name": "permit_ticket",
-        "class_description": "Permit Ticket",
-        "base_class_name": "sys_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "name": "string",
-          "description": "string"
-        }
-      },
-      {
-        "class_name": "discharge",
-        "class_description": "Discharge",
-        "base_class_name": "sys_object",
-        "parents": [ "environmental_discharge_ticket" ],
-        "fields": {
-          "location": "location",
-          "discharge_material": "string",
-          "discharge_amount": "string",
-          "discharge_start": "datetime",
-          "discharge_stop": "datetime"
-        }
-      },
-      {
-        "class_name": "environmental_discharge_ticket",
-        "class_description": "Discharge Ticket",
-        "base_class_name": "permit_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "responsibility_set": "responsibility_set",
-          "discharges": "[ discharge ]"
-        }
-      },
-      {
-        "class_name": "construction_ticket",
-        "class_description": "Construction Ticket",
-        "base_class_name": "permit_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "location": "[ location ]"
-        }
-      },
-      {
-        "class_name": "permit",
-        "class_description": "Permit",
-        "base_class_name": "story",
-        "fields": {
-          "status": "string"
-        }
-      },
-      {
-        "class_name": "technical_ticket",
-        "class_description": "Tech Ticket",
-        "base_class_name": "sys_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "name": "string",
-          "description": "string",
-          "status": "string"
-        }
-      },
-      {
-        "class_name": "create_class_ticket",
-        "class_description": "Modify Class Ticket",
-        "base_class_name": "technical_ticket",
-        "class_color": "#4f7959",
-        "fields": {
-          "name": "string",
-          "description": "string",
-          "status": "string"
-        }
+      "fields": {
+        "model_name": "string",
+        "model_description": "string",
+        "model_accepts": "string",
+        "model_code": "string"
       }
+    },
+    {
+      "class_name": "model_ticket",
+      "class_description": "Model Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "full_text": [ "model_description" ],
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "ticket_name",
+      "card_fields": [
+        "ticket_description"
+      ],
+      "fields": {
+        "model": "model",
+        "responsibility": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "model_request_ticket",
+      "class_description": "Model Request",
+      "base_class_name": "model_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "model_response_ticket",
+      "class_description": "Model Response",
+      "base_class_name": "model_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "results": "object"
+      }
+    },
+    {
+      "class_name": "justice_ticket",
+      "class_description": "Justice Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "order": "string",
+        "target": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "court_order",
+      "class_description": "An order from the court",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_plea",
+      "class_description": "A plea to the court",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_motion",
+      "class_description": "A plea to the court about a case",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_motion_evidence",
+      "class_description": "A plea to the court about a case",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "evidence": "string",
+        "evident_link": "string"
+      }
+    },
+    {
+      "class_name": "court_motion_plaintiff",
+      "class_description": "Add plaintiff",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "role": "string"
+      }
+    },
+    {
+      "class_name": "court_motion_defendant",
+      "class_description": "Add defendant",
+      "base_class_name": "justice_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "role": "string"
+      }
+    },
+    {
+      "class_name": "arrest_ticket",
+      "class_description": "Arrest Ticket",
+      "base_class_name": "court_order",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "seize_ticket",
+      "class_description": "Seize Ticket",
+      "base_class_name": "court_order",
+      "class_color": "#4f7959",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "adversary",
+      "class_description": "Adversary",
+      "base_class_name": "work_object",
+      "fields": {
+        "entity_name": "string",
+        "first_name": "string",
+        "last_name": "string",
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string"
+      }
+    },
+    {
+      "class_name": "plaintiff",
+      "class_description": "Plaintiff",
+      "base_class_name": "adversary",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "defendant",
+      "class_description": "Defendant",
+      "base_class_name": "adversary",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "case",
+      "class_description": "Court Case",
+      "base_class_name": "work_object",
+      "fields": {
+        "name": "string",
+        "plaintiffs": [ "plaintiff" ],
+        "defendants": [ "defendant" ]
+      }
+    },
+    {
+      "class_name": "reparations_case",
+      "class_description": "Reparations Case",
+      "base_class_name": "case",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "treason_case",
+      "class_description": "Treason Case",
+      "base_class_name": "case",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "criminal_case",
+      "class_description": "Criminal Case",
+      "base_class_name": "case",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "liability_case",
+      "class_description": "Liability Case",
+      "base_class_name": "case",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurance_coverage",
+      "class_description": "Insurance Coverage",
+      "base_class_name": "work_object",
+      "fields": {
+        "reponsibilities": "[ responsibility ]",
+        "risk": "string",
+        "coverage_cost": "double",
+        "deductible": "double",
+        "attachment_point": "double",
+        "limit": "double",
+        "blanket": "double"
+      }
+    },
+    {
+      "class_name": "policy_base",
+      "class_description": "Base Policy",
+      "base_class_name": "work_object",
+      "fields": {
+        "policy_name": "string",
+        "policy_text": "string",
+        "responsibilities": "[ responsibility ]",
+        "coverages": "[ insurance_coverage ]",
+        "models": "[ model ]"
+      }
+    },
+    {
+      "class_name": "policy_quote",
+      "class_description": "Insurance Proposal",
+      "base_class_name": "policy_base",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "policy_in_force",
+      "class_description": "Policy In Force",
+      "base_class_name": "policy_base",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurance_ticket",
+      "class_description": "Insurance Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "responsibilities": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "insurance_request",
+      "class_description": "Insurance Request",
+      "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurance_response",
+      "class_description": "Insurance Response",
+      "base_class_name": "insurance_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "responsibilities": "[ responsibility ]"
+      }
+    },
+    {
+      "class_name": "insurance_quote_request",
+      "class_description": "Quote Request",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "insurance_quote_response",
+      "class_description": "Quote Request",
+      "base_class_name": "insurance_response",
+      "class_color": "#4f7959",
+      "fields": {
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_quote_accept",
+      "class_description": "Quote Accept",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "models": "[ model ]",
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_quote_reject",
+      "class_description": "Quote Change",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "models": "[ model ]",
+        "policy_quote": "policy_quote"
+      }
+    },
+    {
+      "class_name": "insurance_claim_request",
+      "class_description": "Claim Request",
+      "base_class_name": "insurance_request",
+      "class_color": "#4f7959",
+      "fields": {
+        "policy": "policy_in_force",
+        "responsibility": "[responsibility]"
+      }
+    },
+    {
+      "class_name": "insurance_claim_response",
+      "class_description": "Claim Response",
+      "base_class_name": "insurance_order",
+      "class_color": "#4f7959",
+      "fields": {
+        "policy": "policy_in_force",
+        "responsibility": "[responsibility]"
+      }
+    },
+    {
+      "class_name": "permit_ticket",
+      "class_description": "Permit Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "discharge",
+      "class_description": "Discharge",
+      "base_class_name": "sys_object",
+      "parents": [ "environmental_discharge_ticket" ],
+      "fields": {
+        "location": "location",
+        "discharge_material": "string",
+        "discharge_amount": "string",
+        "discharge_start": "datetime",
+        "discharge_stop": "datetime"
+      }
+    },
+    {
+      "class_name": "environmental_discharge_ticket",
+      "class_description": "Discharge Ticket",
+      "base_class_name": "permit_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "responsibility_set": "responsibility_set",
+        "discharges": "[ discharge ]"
+      }
+    },
+    {
+      "class_name": "construction_ticket",
+      "class_description": "Construction Ticket",
+      "base_class_name": "permit_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "location": "[ location ]"
+      }
+    },
+    {
+      "class_name": "permit",
+      "class_description": "Permit",
+      "base_class_name": "story",
+      "fields": {
+        "status": "string"
+      }
+    },
+    {
+      "class_name": "technical_ticket",
+      "class_description": "Tech Ticket",
+      "base_class_name": "sys_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "status": "string"
+      }
+    },
+    {
+      "class_name": "create_class_ticket",
+      "class_description": "Modify Class Ticket",
+      "base_class_name": "technical_ticket",
+      "class_color": "#4f7959",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "status": "string"
+      }
+    }
   ],
   "users": [
 
@@ -2838,7 +2968,7 @@
           "permissions": [
             {
               "class_name": "sys_grant",
-              "grant_classes": [ "county_ticket", "donor", "candidate", "committee", "county_education", "county_hsra", "county_population", "county_demographics", "committee_candidate", "county", "zip_code" ],
+              "grant_classes": [ "county_ticket", "person", "mutant", "superhero", "supervillian", "donor", "candidate", "committee", "county_education", "county_hsra", "county_population", "county_demographics", "committee_candidate", "county", "zip_code" ],
               "get": "any",
               "put": "any",
               "delete": "any",

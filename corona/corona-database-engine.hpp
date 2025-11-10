@@ -987,6 +987,7 @@ namespace corona
 		std::string grid_row;
 		std::string grid_column;
 		std::string display;
+		std::string tab_index;
 		bool		read_only;
 		bool		server_only;
 
@@ -1009,6 +1010,8 @@ namespace corona
 			_dest.put_member("grid_column", grid_column);
 			_dest.put_member("display", display);
 			_dest.put_member("read_only", read_only);
+			_dest.put_member("tab_index", tab_index);
+
 		}
 
 		virtual void put_json(json& _src)
@@ -1023,6 +1026,7 @@ namespace corona
 			grid_row = (std::string)_src["grid_row"];
 			grid_column = (std::string)_src["grid_column"];
 			display = (std::string)_src["display"];
+			tab_index = (std::string)_src["tab_index"];
 		}
 
 		virtual void init_validation() override
@@ -8779,6 +8783,15 @@ grant_type=authorization_code
 					json result = create_object(create_object_request);
 					jedit_object = result[data_field];
 				}
+
+				auto parents = edit_class->get_parents();
+
+				for (auto parent : parents) {
+					if (_edit_object_request.has_member(parent)) {
+						jedit_object.copy_member(parent, _edit_object_request);
+					}
+				}
+
 				result = jp.create_object();
 				bool attempted = false;
 				json jclasses = jp.create_object();
