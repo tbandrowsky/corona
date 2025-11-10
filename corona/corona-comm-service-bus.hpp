@@ -664,6 +664,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			auto fn_response = local_db->login_user(parsed_request);
 			http_response response = create_response(200, fn_response);
@@ -675,6 +677,9 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+
+				return;
+
 			}
 			auto fn_response = local_db->login_user_sso(parsed_request);
 			http_response response = create_response(200, fn_response);
@@ -687,6 +692,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -699,6 +706,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -712,6 +721,9 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -725,6 +737,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			// there's not a token in create_user to allow anyone to onboard.
 			json fn_response = local_db->create_user(parsed_request);
@@ -737,6 +751,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -750,6 +766,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -764,6 +782,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -777,6 +797,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			local_db->scrub_object(parsed_request);
 			std::string token = get_token(_request);
@@ -791,6 +813,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -805,6 +829,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -819,6 +845,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -833,6 +861,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -847,6 +877,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -862,6 +894,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -876,6 +910,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -890,6 +926,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -904,6 +942,8 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
+
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);
@@ -918,6 +958,7 @@ namespace corona
 			if (parsed_request.error()) {
 				http_response error_response = create_response(500, parsed_request);
 				_request.send_response(500, "Parse error", parsed_request);
+				return;
 			}
 			std::string token = get_token(_request);
 			parsed_request.put_member(token_field, token);

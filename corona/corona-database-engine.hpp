@@ -8747,6 +8747,8 @@ grant_type=authorization_code
 			timer tx;
 			std::string user_name, user_auth;
 
+			json edit_request_data = _edit_object_request[data_field];
+
 			bool include_children = (bool)_edit_object_request["include_children"];
 			validation_error_collection errors;
 
@@ -8760,7 +8762,7 @@ grant_type=authorization_code
 			system_monitoring_interface::active_mon->log_function_start("edit_object", "start", start_time, __FILE__, __LINE__);
 
 			json token = _edit_object_request[token_field];
-			json key = _edit_object_request.extract({ class_name_field, object_id_field });
+			json key = edit_request_data.extract({ class_name_field, object_id_field });
 			int64_t object_id = (int64_t)key[object_id_field];
 			std::string class_name = key[class_name_field];
 
@@ -8787,8 +8789,8 @@ grant_type=authorization_code
 				auto parents = edit_class->get_parents();
 
 				for (auto parent : parents) {
-					if (_edit_object_request.has_member(parent)) {
-						jedit_object.copy_member(parent, _edit_object_request);
+					if (edit_request_data.has_member(parent)) {
+						jedit_object.copy_member(parent, edit_request_data);
 					}
 				}
 

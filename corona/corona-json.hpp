@@ -1526,7 +1526,11 @@ namespace corona
 
 		bool error()
 		{
-			return has_member(class_name_field) and (std::string)get_member(class_name_field) == parse_error_class;
+			std::string class_check;
+			if (has_member(class_name_field)) {
+                class_check = (std::string)get_member(class_name_field);
+			}
+			return class_check == parse_error_class;
 		}
 
 		int64_t& get_int64()   const
