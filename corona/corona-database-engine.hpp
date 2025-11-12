@@ -6533,7 +6533,7 @@ bail:
 			}
 		}
 
-		json get_user(std::string _user_name, class_permissions _permission)
+		json get_user(std::string _user_name, class_permissions _permission, bool _run_teams = true)
 		{
 			json_parser jp;
 
@@ -6554,15 +6554,17 @@ bail:
 
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
-                    json team_data = run_team(team_name, _permission);
-					if (team_data.object()) {
-						user.share_member("team", team_data);
-						json jallowed_teams = team_data["allowed_teams"];
-						if (jallowed_teams.array()) {
-							for (json jteam_name : jallowed_teams) {
-								std::string atm = (std::string)jteam_name;
-								allowed_teams[atm] = true;
-								jall_allowed_teams.push_back(atm);
+					if (_run_teams) {
+						json team_data = run_team(team_name, _permission);
+						if (team_data.object()) {
+							user.share_member("team", team_data);
+							json jallowed_teams = team_data["allowed_teams"];
+							if (jallowed_teams.array()) {
+								for (json jteam_name : jallowed_teams) {
+									std::string atm = (std::string)jteam_name;
+									allowed_teams[atm] = true;
+									jall_allowed_teams.push_back(atm);
+								}
 							}
 						}
 					}
@@ -6722,6 +6724,8 @@ bail:
 						std::string workflow_name = (std::string)wf["workflow_name"];
 						std::string workflow_description = (std::string)wf["workflow_description"];
 
+						system_monitoring_interface::active_mon->log_information(std::format("Workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
+
 						std::string workflow_schedule_type = (std::string)wf["workflow_schedule_type"];
 						json workflow_schedule_days = wf["workflow_schedule_days"];
 						int hour = (int64_t)wf["workflow_schedule_hour"];
@@ -6764,7 +6768,6 @@ bail:
 						}
 						else
 						{
-							system_monitoring_interface::active_mon->log_information(std::format("Not scheduled time for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
 							continue;
 						}
 
@@ -6959,7 +6962,7 @@ bail:
 			}
 
 			auto sys_perm = get_system_permission();
-			json user =  get_user(_user_name, sys_perm);
+			json user =  get_user(_user_name, sys_perm, false);
 
 			if (not user.empty()) 
 			{			
@@ -7986,7 +7989,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json existing_user = get_user(user_name, sys_perm);
+			json existing_user = get_user(user_name, sys_perm, false);
 
 			if (not existing_user.object())
 			{
@@ -8139,7 +8142,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json existing_user = get_user(user_name, sys_perm);
+			json existing_user = get_user(user_name, sys_perm, false);
 
 			if (existing_user.object())
 			{
