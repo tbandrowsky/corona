@@ -781,30 +781,23 @@
         "transaction_date": "datetime",
         "transaction_amount": "double",
         "memo": "string",
-        "candidates": {
+        "committees": {
           "field_type": "query",
           "query": {
             "from": [
               {
-                "class_name": "committee_candidate",
-                "name": "committee_candidate",
+                "class_name": "committee",
+                "name": "committee",
                 "filter": {
                   "committee_id": "$this.committee_id"
-                }
-              },
-              {
-                "class_name": "candidate",
-                "name": "candidate",
-                "filter": {
-                  "candidate_id": "$committee_candidate.candidate_id"
                 }
               }
             ],
             "stages": [
               {
                 "class_name": "result",
-                "input": "candidate",
-                "name": "candidates"
+                "input": "committee",
+                "name": "committees"
               }
             ]
           }

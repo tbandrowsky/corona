@@ -8888,8 +8888,8 @@ grant_type=authorization_code
 							json item = jp.create_object();
 							if (classd) {
 								classd->get_json(item);
-								json class_info = classd->get_info(this);
-								item.share_member("info", class_info);
+//								json class_info = classd->get_info(this);
+//								item.share_member("info", class_info);
                                 result_list.push_back(item);
 							}
 						}
@@ -8960,11 +8960,11 @@ grant_type=authorization_code
 					json class_definition = jp.create_object();
 					classd->get_json(class_definition);
 
-					json class_info = classd->get_info(this);
+//					json class_info = classd->get_info(this);
 
 					result = jp.create_object();
 					result.share_member("class", class_definition);
-					result.share_member("info", class_info);
+	//				result.share_member("info", class_info);
 
 					result = create_response(get_class_request, true, "Ok", result, errors, method_timer.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("get_class", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
