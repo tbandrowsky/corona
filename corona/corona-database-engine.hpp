@@ -4916,49 +4916,49 @@ namespace corona
 				"field_type":"int64",
 				"read_only": true,	
 				"label": "Object Id",	
-				"grid_row": "2",		
+				"grid_row": "1",		
 				"grid_column": "2"		
 			},
 			"class_name" : { 
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Class",	
-				"grid_row": "2",		
+				"grid_row": "1",		
 				"grid_column": "1"		
 			},
 			"created" : {
 				"field_type":"datetime",
 				"read_only": true,	
 				"label": "Created",	
-				"grid_row": "3",		
+				"grid_row": "2",		
 				"grid_column": "1"		
 			},
 			"created_by" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Created By",	
-				"grid_row": "3",		
+				"grid_row": "2",		
 				"grid_column": "2"		
 			},
 			"updated": {
 				"field_type":"datetime",
 				"read_only": true,	
 				"label": "Updated",	
-				"grid_row": "4",		
+				"grid_row": "3",		
 				"grid_column": "1"		
 			},
  			"updated_by" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Updated By",	
-				"grid_row": "4",		
+				"grid_row": "3",		
 				"grid_column": "2"		
 			},
 			"team" : {
 				"field_type":"string",
 				"read_only": true,	
 				"label": "Team",	
-				"grid_row": "5",		
+				"grid_row": "4",		
 				"grid_column": "1"		
 			}
 	}
@@ -8723,7 +8723,7 @@ grant_type=authorization_code
 			json edit_request_data = _run_object_request[data_field];
 			std::string class_name = edit_request_data[class_name_field];
 			int64_t object_id = (int64_t)edit_request_data[object_id_field];
-			json edit_request = create_get_request(user_name, user_auth, class_name, object_id);
+			json edit_request = create_request(user_name, auth_general, edit_request_data);
             edit_request.put_member("include_children", true);
 			result = edit_object(edit_request);
 			if (result.error())
