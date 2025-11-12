@@ -8759,6 +8759,13 @@ grant_type=authorization_code
 				return result;
 			}
 
+			if (edit_request_data.empty())
+			{
+				result = create_response(_edit_object_request, false, "edit object bad request", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("edit_object", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				return result;
+			}
+
 			system_monitoring_interface::active_mon->log_function_start("edit_object", "start", start_time, __FILE__, __LINE__);
 
 			json token = _edit_object_request[token_field];
