@@ -973,13 +973,22 @@ namespace corona
 			json_parser jph;
 			json request;
 
-			if (_request.body.get_size() > 1)
-			{
-				request = jph.parse_object(_request.body.get_ptr());
+			try {
+
+				if (_request.body.get_size() > 1)
+				{
+					request = jph.parse_object(_request.body.get_ptr());
+				}
+				else
+				{
+					request = jph.create_object();
+				}
+
 			}
-			else
+			catch (std::exception exc)
 			{
-				request = jph.create_object();
+                std::string mxessage = std::format("Could not parse request body: {}", exc.what());
+                system_monitoring_interface::active_mon->log_warning(mxessage, __FILE__, __LINE__);
 			}
 
 			return request;

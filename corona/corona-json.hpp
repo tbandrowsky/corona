@@ -3408,7 +3408,7 @@ namespace corona
 				_src++;
 				result = true;
 				bool parsing = false;
-				while (*_src != '"')
+				while (*_src && *_src != '"')
 				{
 					check_line(_src);
 					if (*_src < 0 or std::iscntrl(*_src))

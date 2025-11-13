@@ -3742,6 +3742,24 @@ namespace corona
 						}
 					}
 				}
+				else if (query_field->get_field_type() == field_types::ft_array || query_field->get_field_type() == field_types::ft_object) {
+					std::shared_ptr<child_bridges_interface> brs = query_field->get_bridges();
+					auto class_list = brs->get_bridge_list();
+
+					for (auto& class_name : class_list)
+					{
+						if (not class_name.empty()) {
+							if (!classes.has_member(class_name)) {
+								auto classd = _db->read_lock_class(class_name);
+								json classdef = jp.create_object();
+								if (classd) {
+									classd->get_json(classdef);
+								}
+								classes.put_member(class_name, classdef);
+							}
+						}
+					}
+				}
 			}
 			return classes;
 		}
@@ -8724,6 +8742,8 @@ grant_type=authorization_code
 			}
 
 			json edit_request_data = _run_object_request[data_field];
+			if (edit_request_data.array())
+				edit_request_data = edit_request_data.get_element(0);
 			std::string class_name = edit_request_data[class_name_field];
 			int64_t object_id = (int64_t)edit_request_data[object_id_field];
 			json edit_request = create_request(user_name, auth_general, edit_request_data);
@@ -9789,12 +9809,8 @@ grant_type=authorization_code
 			json_parser jp;
 
 			json payload;
-
-			if (_data.object())
-			{
-				payload = jp.create_object();
-			}
-
+			
+			payload = jp.create_object();
 			json token = jp.create_object();
 			token.put_member(user_name_field, _user_name);
 			token.put_member(authorization_field, _authorization);
