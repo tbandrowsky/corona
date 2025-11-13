@@ -45,6 +45,7 @@
     <None Include="table_test_schema.json" />
     <None Include="naughty_monsters.json" />
     <None Include="corona-readme.md" />
+    <None Include="azure_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coronaserver.hpp">
