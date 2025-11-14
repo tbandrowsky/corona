@@ -46,6 +46,7 @@
     <None Include="naughty_monsters.json" />
     <None Include="corona-readme.md" />
     <None Include="recipe_schema.json" />
+    <None Include="azure_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coronaserver.hpp">
