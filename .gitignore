@@ -374,3 +374,5 @@ seed_data/
 *.corona
 /coronaserver/corona.coronaheader
 *.coronatextindex
+*.coronatext
+*.coronaindex
