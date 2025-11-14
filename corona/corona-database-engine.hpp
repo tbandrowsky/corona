@@ -5240,20 +5240,20 @@ namespace corona
 	"class_color": "#bcbcbc",
 	"display":"default",
 	"grid_template_rows": "60px 120px",
-	"grid_template_columns": "1fr 1fr",
+	"grid_template_columns": "300px 300px",
 	"fields" : {
 			"status_name" :{
 				"field_type":"string",
 				"label": "Status Name",
-				"grid_row":"2",
+				"grid_row":"1",
 				"grid_column":"1"
 			},
 			"status_description" : {
 				"field_type":"string",
 				"label": "Status Description",
 				"display": "markdown",	
-				"grid_row": "3",
-				"grid_column": "1"
+				"grid_row": "2",
+				"grid_column": "1/2"
 			},
 	}
 }
@@ -5284,22 +5284,22 @@ namespace corona
 	"parents" : [ "sys_team" ],
 	"class_color": "#bcbcbc",
 	"display":"default",
-	"grid_template_rows": "60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
+	"grid_template_rows": "60px 150px",
+	"grid_template_columns": "600px",
 	"full_text" : [ "ticket_name", "ticket_description" ],
 	"fields" : {
 			"ticket_name" :{
 				"field_type":"string",
 				"label": "Ticket Name",
 				"display": "url",
-				"grid_row": "2",
+				"grid_row": "1",
 				"grid_column":"1"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Name",
 				"display": "markdown",	
-				"grid_row": "3",
+				"grid_row": "2",
 				"grid_column":"1"
 			},
 			"history" : "[sys_status]"

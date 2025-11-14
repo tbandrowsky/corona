@@ -1,0 +1,104 @@
+{
+  "schema_name": "Recipes",
+  "schema_description": "Schema for the Recipes.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "TJ Bandrowsky"
+  ],
+  "classes": [
+    {
+      "class_name": "ingredient",
+      "base_class_name": "sys_object",
+      "class_description": "Items to put into a recipe",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "ingredient", "quanitity" ],
+      "card_title": "ingredient",
+      "card_fields": [ "quantity" ],
+      "parents": [ "recipe" ],
+      "fields": {
+        "ingredient": "string",
+        "quantity": "string"
+      }
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "sys_object",
+      "class_description": "Task to perform a recipe",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "description" ],
+      "card_title": "description",
+      "card_fields": [],
+      "parents": [ "recipe" ],
+      "fields": {
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "comment",
+      "class_description": "Comment",
+      "base_class_name": "sys_object",
+      "parents": [ "sys_ticket", "story" ],
+      "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "display": "markdown"
+        }
+      }
+    },
+    {
+      "class_name": "recipe",
+      "class_description": "Recipe",
+      "base_class_name": "sys_object",
+      "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
+      "fields": {
+        "name": "string",
+        "description": {
+          "field_type": "string",
+          "display": "markdown"
+        },
+        "ingredients": "[ ingredient ]",
+        "tasks": "[ task ]",
+        "comments": "[ comment ]"
+      }
+    }
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Recipe Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "Recipe Team",
+          "team_description": "Manages recipes",
+          "team_domain": ".*",
+          "inventory_classes": [],
+          "allowed_teams": [ "Recipe Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "ingredient", "task", "recipe", "comment" ],
+              "get": "any",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

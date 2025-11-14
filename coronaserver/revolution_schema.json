@@ -230,6 +230,7 @@
       "class_color": "#4f7959",
       "parents": [ "work_object", "story" ],
       "fields": {
+        "work_details": "string",
         "comments": "[ comment ]"
       }
     },
@@ -545,47 +546,56 @@
         "full_name": {
           "field_type": "string",
           "grid-row": "1",
-          "grid-column": "1"
+          "grid-column": "1",
+          "label" :  "Full Name"
         },
         "candidate_id": {
           "field_type": "string",
           "grid-row": "2",
-          "grid-column": "1"
+          "grid-column": "1",
+          "label": "Candidate ID"
         },
         "political_party": {
           "field_type": "string",
           "grid-row": "2",
-          "grid-column": "2"
+          "grid-column": "2",
+          "label": "Political Party"
         },
         "election_year": {
           "field_type": "string",
           "grid-row": "2",
-          "grid-column": "3"
+          "grid-column": "3",
+          "label": "Election Year"
         },
         "street1": {
           "field_type": "string",
           "grid-row": "3",
-          "grid-column": "1"
+          "grid-column": "1",
+          "label": "Street1"
         },
         "street2": {
           "field_type": "string",
           "grid-row": "4",
-          "grid-column": "1"
+          "grid-column": "1",
+          "label": "Street2"
         },
         "city": {
           "field_type": "string",
           "grid-row": "5",
-          "grid-column": "1"
+          "grid-column": "1",
+          "label": "City"
         },
         "state": {
           "field_type": "string",
           "grid-row": "5",
-          "grid-column": "2"
+          "grid-column": "2",
+          "label": "State"
         },
         "zip": {
           "field_type": "string",
           "grid-row": "5",
-          "grid-column": "3"
+          "grid-column": "3",
+          "label": "Zip"
         },
         "committees": {
           "field_type": "query",
@@ -1472,6 +1482,8 @@
       "class_version": "1.0",
       "card_title": "county",
       "full_text": [ "state", "county" ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px 300px 300px 300px",
       "card_fields": [
         "state",
         "births_2023",
@@ -1891,6 +1903,8 @@
       "class_version": "1.0",
       "card_title": "county",
       "full_text": [ "grant_number", "grantee_city", "state", "county", "grantee_name", "grant_program_name", "abstract" ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px 300px 300px 300px",
       "card_fields": [
         "state_name",
         "grantee_name",
@@ -1912,248 +1926,248 @@
         "complete_county_name": {
           "field_type": "string",
           "label": "Complete County Name",
-          "grid_row": 6,
-          "grid_column": 2
+          "grid_row": 2,
+          "grid_column": 1
         },
         "grantee_county_description": {
           "field_type": "string",
           "label": "Grantee County Description",
           "grid_row": 2,
-          "grid_column": 3
+          "grid_column": 2
         },
         "grant_program_name": {
           "field_type": "string",
           "label": "Grant Program Name",
-          "grid_row": 6,
-          "grid_column": 3
+          "grid_row": 3,
+          "grid_column": 1
         },
         "congressional_district_name": {
           "field_type": "string",
           "label": "Congressional District Name",
-          "grid_row": 6,
-          "grid_column": 4
+          "grid_row": 4,
+          "grid_column": 1
         },
         "congressional_district_number": {
           "field_type": "string",
           "label": "Congressional District Number",
-          "grid_row": 7,
-          "grid_column": 1
+          "grid_row": 4,
+          "grid_column": 2
         },
         "award_year": {
           "field_type": "string",
           "label": "Award Year",
-          "grid_row": 1,
-          "grid_column": 3
+          "grid_row": 5,
+          "grid_column": 1
         },
         "financial_assistance": {
           "field_type": "string",
           "label": "Financial Assistance",
-          "grid_row": 1,
-          "grid_column": 4
+          "grid_row": 5,
+          "grid_column": 2
+        },
+        "hrsa_region": {
+          "field_type": "string",
+          "label": "HRSA Region",
+          "grid_row": 6,
+          "grid_column": 1
         },
         "grantee_name": {
           "field_type": "string",
           "label": "Grantee Name",
-          "grid_row": 2,
-          "grid_column": 4
+          "grid_row": 7,
+          "grid_column": 1
         },
         "grantee_address": {
           "field_type": "string",
           "label": "Grantee Address",
-          "grid_row": 2,
+          "grid_row": 8,
           "grid_column": 1
         },
         "grantee_city": {
           "field_type": "string",
           "label": "Grantee City",
-          "grid_row": 2,
-          "grid_column": 2
-        },
-        "grantee_region_code": {
-          "field_type": "string",
-          "label": "Grantee Region Code",
-          "grid_row": 3,
+          "grid_row": 9,
           "grid_column": 1
-        },
-        "hrsa_region": {
-          "field_type": "string",
-          "label": "HRSA Region",
-          "grid_row": 3,
-          "grid_column": 2
         },
         "state_name": {
           "field_type": "string",
           "label": "State Name",
-          "grid_row": 3,
-          "grid_column": 3
+          "grid_row": 9,
+          "grid_column": 2
         },
         "grantee_zip_code": {
           "field_type": "string",
           "label": "Grantee Zip Code",
-          "grid_row": 3,
-          "grid_column": 4
+          "grid_row": 9,
+          "grid_column": 3
+        },
+        "grantee_region_code": {
+          "field_type": "string",
+          "label": "Grantee Region Code",
+          "grid_row": 10,
+          "grid_column": 1
         },
         "grant_activity_code": {
           "field_type": "string",
           "label": "Grant Activity Code",
-          "grid_row": 4,
-          "grid_column": 1
+          "grid_row": 10,
+          "grid_column": 2
         },
         "grant_number": {
           "field_type": "string",
           "label": "Grant Number",
-          "grid_row": 4,
-          "grid_column": 2
+          "grid_row": 10,
+          "grid_column": 3
         },
         "grant_serial_number": {
           "field_type": "string",
           "label": "Grant Serial Number",
-          "grid_row": 4,
-          "grid_column": 3
+          "grid_row": 10,
+          "grid_column": 4
         },
         "project_period_start_date": {
           "field_type": "string",
           "label": "Project Period Start Date",
-          "grid_row": 4,
-          "grid_column": 4
+          "grid_row": 11,
+          "grid_column": 1
         },
         "project_period_start_date_text_string": {
           "field_type": "string",
           "label": "Project Period Start Date Text",
-          "grid_row": 5,
-          "grid_column": 1
+          "grid_row": 11,
+          "grid_column": 2
         },
         "grant_project_period_end_date": {
           "field_type": "string",
           "label": "Grant Project Period End Date",
-          "grid_row": 5,
-          "grid_column": 2
+          "grid_row": 11,
+          "grid_column": 3
         },
         "grant_project_period_end_date_text": {
           "field_type": "string",
           "label": "Grant Project Period End Date Text",
-          "grid_row": 5,
-          "grid_column": 3
+          "grid_row": 11,
+          "grid_column": 4
         },
         "hrsa_program_area_code": {
           "field_type": "string",
           "label": "HRSA Program Area Code",
-          "grid_row": 5,
-          "grid_column": 4
+          "grid_row": 12,
+          "grid_column": 1
         },
         "hrsa_program_area_name": {
           "field_type": "string",
           "label": "HRSA Program Area Name",
-          "grid_row": 6,
-          "grid_column": 1
+          "grid_row": 12,
+          "grid_column": 2
         },
         "hhs_region_number": {
           "field_type": "string",
           "label": "HHS Region Number",
-          "grid_row": 7,
-          "grid_column": 2
+          "grid_row": 12,
+          "grid_column": 3
         },
         "us_congressional_representative_name": {
           "field_type": "string",
           "label": "US Congressional Representative Name",
-          "grid_row": 7,
-          "grid_column": 3
+          "grid_row": 13,
+          "grid_column": 1
         },
         "state_and_county_federal_information_processing_standard_code": {
           "field_type": "string",
           "label": "State and County FIPS Code",
-          "grid_row": 7,
-          "grid_column": 4
+          "grid_row": 13,
+          "grid_column": 2
         },
         "state_fips_code": {
           "field_type": "string",
           "label": "State FIPS Code",
-          "grid_row": 8,
-          "grid_column": 1
+          "grid_row": 13,
+          "grid_column": 3
         },
         "us_mexico_border_100_kilometer_indicator": {
           "field_type": "string",
           "label": "US-Mexico Border 100km Indicator",
-          "grid_row": 8,
-          "grid_column": 2
+          "grid_row": 14,
+          "grid_column": 1
         },
         "us_mexico_border_county_indicator": {
           "field_type": "string",
           "label": "US-Mexico Border County Indicator",
-          "grid_row": 8,
-          "grid_column": 3
+          "grid_row": 14,
+          "grid_column": 2
         },
         "name_of_us_senator_number_one": {
           "field_type": "string",
           "label": "Name of US Senator #1",
-          "grid_row": 8,
-          "grid_column": 4
+          "grid_row": 15,
+          "grid_column": 1
         },
         "name_of_us_senator_number_two": {
           "field_type": "string",
           "label": "Name of US Senator #2",
-          "grid_row": 9,
-          "grid_column": 1
+          "grid_row": 15,
+          "grid_column": 2
         },
         "uniform_data_system_grant_program_description": {
           "field_type": "string",
           "label": "Uniform Data System Grant Program Description",
-          "grid_row": 9,
-          "grid_column": 2
+          "grid_row": "16/2",
+          "grid_column": "1/2"
         },
         "abstract": {
           "field_type": "string",
           "label": "Abstract",
-          "grid_row": 9,
-          "grid_column": 3
+          "grid_row": "17/2",
+          "grid_column": "1/2"
         },
         "grantee_type_description": {
           "field_type": "string",
           "label": "Grantee Type Description",
-          "grid_row": 9,
-          "grid_column": 4
+          "grid_row": 18,
+          "grid_column": 1
         },
         "duns_number": {
           "field_type": "string",
           "label": "DUNS Number",
-          "grid_row": 10,
-          "grid_column": 1
+          "grid_row": 18,
+          "grid_column": 2
         },
         "unique_entity_identifier": {
           "field_type": "string",
           "label": "Unique Entity Identifier",
-          "grid_row": 10,
-          "grid_column": 2
+          "grid_row": 18,
+          "grid_column": 3
         },
         "ccn": {
           "field_type": "string",
           "label": "CCN",
-          "grid_row": 10,
-          "grid_column": 3
+          "grid_row": 18,
+          "grid_column": 4
         },
         "geocoding_artifact_address_primary_x_coordinate": {
           "field_type": "number",
           "label": "Geocoding X Coordinate",
-          "grid_row": 10,
-          "grid_column": 4
+          "grid_row": 19,
+          "grid_column": 1
         },
         "geocoding_artifact_address_primary_y_coordinate": {
           "field_type": "number",
           "label": "Geocoding Y Coordinate",
-          "grid_row": 11,
-          "grid_column": 1
+          "grid_row": 19,
+          "grid_column": 2
         },
         "data_warehouse_record_create_date": {
           "field_type": "string",
           "label": "Data Warehouse Record Create Date",
-          "grid_row": 11,
-          "grid_column": 2
+          "grid_row": 19,
+          "grid_column": 3
         },
         "data_warehouse_record_create_date_text": {
           "field_type": "string",
           "label": "Data Warehouse Record Create Date Text",
-          "grid_row": 11,
-          "grid_column": 3
+          "grid_row": 19,
+          "grid_column": 4
         }
 
       },
@@ -2180,6 +2194,8 @@
         "type",
         "estimated_population"
       ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px 300px 300px 300px",
       "full_text": [ "zip", "county", "state", "type", "primary_city", "timezone", "area_codes" ],
       "fields": {
         "zip": {
