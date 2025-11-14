@@ -607,7 +607,7 @@ namespace corona
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) = 0;
 		virtual std::string								get_index_key_string() = 0;
-		virtual std::string								get_index_filename() = 0;
+		virtual std::string								get_index_filename(corona_database_interface *_db) = 0;
 	};
 
 	class activity;
@@ -745,6 +745,8 @@ namespace corona
 			std::string _class_name) = 0;
 
 		virtual void log_errors(validation_error_collection& _errors) = 0;
+
+		virtual std::string get_directory() = 0;
 
 		virtual std::shared_ptr<class_interface> read_get_class(const std::string& _class_name) = 0;
 		virtual std::shared_ptr<class_interface> put_class_impl(activity* _activity, json& _class_definition) = 0;
@@ -2741,7 +2743,12 @@ namespace corona
 			return *this;
 		}
 
-        virtual std::string get_index_filename() override { return index_implementation::get_index_name() + ".coronaidx"; }
+        virtual std::string get_index_filename(corona_database_interface *_db) override { 
+				std::filesystem::path p = _db->get_directory();
+				std::string bfn = get_index_name() + ".coronaindex";
+				p = p / bfn;
+				return p.string();
+			}
 
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) override
 		{
@@ -2768,14 +2775,14 @@ namespace corona
 			auto table_header = std::make_shared<xtable_header>();
 			table_header->key_members = key_columns;
 			table_header->object_members = object_columns;
-			table = std::make_shared<xtable>(get_index_filename(), table_header);
+			table = std::make_shared<xtable>(get_index_filename(_db), table_header);
 			return table;
 		}
 
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
 			if (!table)
-				table = std::make_shared<xtable>(get_index_filename());
+				table = std::make_shared<xtable>(get_index_filename(_db));
 			return table;
 		}
 
@@ -2805,8 +2812,19 @@ namespace corona
 		std::string class_author;
 		std::string class_version;
 
-		std::string get_class_filename() { return class_name + ".coronaclass"; }
-		std::string get_text_index_filename() { return class_name + ".coronatextindex"; }
+		std::string get_class_filename(corona_database_interface *_db) { 
+			std::filesystem::path p = _db->get_directory();
+			std::string bfn = class_name + ".coronaclass";
+            p = p / bfn;
+			return p.string(); 
+		}
+
+		std::string get_text_index_filename(corona_database_interface* _db) {
+			std::filesystem::path p = _db->get_directory();
+			std::string bfn = class_name + ".coronatext";
+			p = p / bfn;
+			return p.string();
+		}
 
 		void copy_from(const class_interface* _src)
 		{
@@ -3019,7 +3037,7 @@ namespace corona
 				table_header->object_members.columns[column_id] = col;
 				column_id++;
 			}
-			table = std::make_shared<xtable>(get_class_filename(), table_header);
+			table = std::make_shared<xtable>(get_class_filename(_db), table_header);
 			if (full_text_fields.size() > 0) {
 				full_text_index = create_full_text_index(_db);
 			}
@@ -3033,7 +3051,7 @@ namespace corona
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
 			if (!table) {
-				table = std::make_shared<xtable>(get_class_filename());
+				table = std::make_shared<xtable>(get_class_filename(_db));
 				full_text_index = get_full_text_index(_db);
 			}
 
@@ -3058,7 +3076,7 @@ namespace corona
 			col.field_id = 2;
 			table_header->key_members.columns[2] = col;
 
-			full_text_index = std::make_shared<xtable>(get_text_index_filename(), table_header);
+			full_text_index = std::make_shared<xtable>(get_text_index_filename(_db), table_header);
 			return full_text_index;
 		}
 
@@ -3066,7 +3084,7 @@ namespace corona
 		{
 			if (full_text_fields.size() > 0) {
 				if (!full_text_index) {
-					full_text_index = std::make_shared<xtable>(get_text_index_filename());
+					full_text_index = std::make_shared<xtable>(get_text_index_filename(_db));
 				}
 			}
 			return full_text_index;
@@ -3081,7 +3099,7 @@ namespace corona
 		{
 			std::shared_ptr<xtable> current_table, new_table;
 
-			if (std::filesystem::exists(get_class_filename()))
+			if (std::filesystem::exists(get_class_filename(_db)))
 			{
 				auto table_header = std::make_shared<xtable_header>();
 				int column_id = 1;
@@ -3112,9 +3130,9 @@ namespace corona
 				if (field_check_current == field_check_new)
 					return table;
 
-				std::string file_name_old = get_class_filename();
+				std::string file_name_old = get_class_filename(_db);
 				std::string file_name_new = "new_";
-				file_name_new += get_class_filename();
+				file_name_new += get_class_filename(_db);
 
 				new_table = std::make_shared<xtable>(file_name_new, table_header);
 				json_parser jp;
@@ -3146,7 +3164,7 @@ namespace corona
 					table_header->object_members.columns[column_id] = col;
 					column_id++;
 				}
-				current_table = std::make_shared<xtable>(get_class_filename(), table_header);
+				current_table = std::make_shared<xtable>(get_class_filename(_db), table_header);
 				table = current_table;
 			}
 			return current_table;
@@ -3177,7 +3195,7 @@ namespace corona
 			table = create_xtable(_db);
 			table->commit();
 			table = nullptr;
-			table = std::make_shared<xtable>(get_class_filename());
+			table = std::make_shared<xtable>(get_class_filename(_db));
 
 			// we're going to make our xtable anyway so we can slap our object id 
 			// on top of a sql server primary key
@@ -3197,7 +3215,7 @@ namespace corona
 				table = create_xtable(_db);
 				table->commit();
 				table = nullptr;
-				table = std::make_shared<xtable>(get_class_filename());
+				table = std::make_shared<xtable>(get_class_filename(_db));
 			}
 			return table;
 		}
@@ -3808,7 +3826,7 @@ namespace corona
 
 			put_json(_context->errors, definition);
 			
-			if (not std::filesystem::exists(get_class_filename())) {
+			if (not std::filesystem::exists(get_class_filename(_context->db))) {
 				std::string stuff = std::format("Attempt to open {0} but not created", (std::string)definition[class_name_field]);
 				throw std::logic_error(stuff);
 			}
@@ -3963,7 +3981,7 @@ namespace corona
 			{
 				std::shared_ptr<index_interface> index_to_create;
 
-				if (std::filesystem::exists(new_index.second->get_index_filename()))
+				if (std::filesystem::exists(new_index.second->get_index_filename(_context->db)))
 				{
 					continue;
 				}
@@ -4164,9 +4182,9 @@ namespace corona
 			json_parser jp;
 			json result;
 
-			if (not std::filesystem::exists(get_class_filename()))
+			if (not std::filesystem::exists(get_class_filename(_db)))
 			{
-                throw std::logic_error(get_class_filename() + " not found");
+                throw std::logic_error(get_class_filename(_db) + " not found");
 			}
 
 			if (sql) {
@@ -4757,13 +4775,12 @@ namespace corona
 
 		crypto crypter;
 
-		bool watch_polling;
-
         const std::string auth_general = "auth-general"; // this is the general user, which is used for general operations
         const std::string auth_system = "auth-system"; // this is the system user, which is used for system operations
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
-		
+		std::string data_path;
+
 		long import_batch_size = 5000;
 		/*
 		* authorizations in tokens, methods and progressions
@@ -4802,6 +4819,11 @@ namespace corona
 				std::string msg2 = std::format("Code Location: @({0},{1}), Occurrences:{2}", err.filename, err.line_number, err.count);
 				system_monitoring_interface::active_mon->log_warning(msg2);
 			}
+		}
+
+		virtual std::string get_directory()
+		{
+			return data_path;
 		}
 
 		void log_error_array(json& put_result)
@@ -7081,9 +7103,16 @@ bail:
 
 		// constructing and opening a database
 
-		corona_database() 
+		corona_database()
 		{
-			token_life = time_span(1, time_models::hours);	
+			data_path = "/";
+			token_life = time_span(1, time_models::days);
+		}
+
+		corona_database(std::string _data_path)
+		{
+            data_path = _data_path;
+			token_life = time_span(1, time_models::days);	
 		}
 
 		virtual ~corona_database()
@@ -7130,8 +7159,21 @@ bail:
 				default_api_author = server[sys_default_api_author_field];
                 default_onboard_email_filename = server[sys_default_onboard_email_template];
 				default_recovery_email_filename = server[sys_default_recovery_email_template];
-				default_onboard_email = read_all_string(default_onboard_email_filename);
-				default_recovery_email = read_all_string(default_recovery_email_filename);
+
+				std::filesystem::path schema_path(data_path);
+				std::filesystem::path onboard_file(default_onboard_email_filename);
+				std::filesystem::path recovery_file(default_recovery_email_filename);
+                if (not onboard_file.is_absolute()) {
+                    onboard_file = schema_path / onboard_file;
+                }
+				if (not recovery_file.is_absolute()) {
+					recovery_file = schema_path / recovery_file;
+				}
+
+				std::string obf = onboard_file.string();
+                std::string rf = recovery_file.string();
+				default_onboard_email = read_all_string(obf);
+				default_recovery_email = read_all_string(rf);
 
 				if (server.has_member(sys_record_cache_field)) {
 					maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];
@@ -9923,7 +9965,7 @@ grant_type=authorization_code
 		date_time start_schema = date_time::now();
 		system_monitoring_interface::active_mon->log_job_start("test_database_engine", "start", start_schema, __FILE__, __LINE__);
 
-		corona_database db;
+		corona_database db("test");
 
 		proof_assertion.put_member("dependencies", dependencies);
 		json db_config = jp.create_object();

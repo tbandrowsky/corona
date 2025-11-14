@@ -20,12 +20,11 @@ SERVICE_STATUS          gSvcStatus;
 SERVICE_STATUS_HANDLE   gSvcStatusHandle;
 HANDLE                  ghSvcStopEvent = NULL;
 
-std::shared_ptr<corona::corona_simulation_interface> simulation;
-std::shared_ptr<corona::comm_bus_service> service;
+std::vector<std::shared_ptr<corona::comm_bus_service>> services;
 bool exit_flag = false;
 std::string config_filename = "config.json";
 
-int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation, int argc, char* argv[]);
+int CoronaMain(int argc, char* argv[]);
 
 VOID InstallService(void);
 VOID SvcCtrlHandler(DWORD);
@@ -49,28 +48,8 @@ void corona_console_command()
             command[0] = std::tolower(command[0]);
             if (command == "?") {
                 std::cout << "?           - help" << std::endl;
-                std::cout << "c           - list of classes" << std::endl;
-                std::cout << "c classname - class of name" << std::endl;
-                std::cout << "d classname - data for class" << std::endl;
                 std::cout << "x           - exits the shell" << std::endl;
                 std::cout << "q           - quit" << std::endl;
-            }
-            else if (command == "c")
-            {
-                corona::system_monitoring_interface::active_mon->log_information("Listing all classes", __FILE__, __LINE__);
-                service->get_classes();
-            }
-            else if (command.starts_with("c "))
-            {
-                command = command.substr(2);
-                corona::system_monitoring_interface::active_mon->log_information("Class " + command, __FILE__, __LINE__);
-                service->get_class(command);
-            }
-            else if (command.starts_with("d "))
-            {
-                command = command.substr(2);
-                corona::system_monitoring_interface::active_mon->log_information("Class Details" + command, __FILE__, __LINE__);
-                service->get_data(command);
             }
             else if (command == "q")
             {
@@ -103,29 +82,55 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
 
 
 
-void RunConsole(std::shared_ptr<corona::corona_simulation_interface> _simulation)
+void RunConsole()
 {
     exit_flag = false;
-    simulation = _simulation;
-    SvcLogInfo("Running Revolution Console", __FILE__, __LINE__);
+    SvcLogInfo("Running Corona Console", __FILE__, __LINE__);
 
     if (SetConsoleCtrlHandler(CtrlHandler, TRUE)) {
         try
         {
-            std::cout << "Running Revolution in console mode. CTRL-C for shell." << std::endl;
+            std::cout << "Running Corona in console mode. CTRL-C for shell." << std::endl;
             std::cout.flush();
-            service = std::make_shared<corona::comm_bus_service>(
-                _simulation, 
-                config_filename,                 
-                [](const std::string& _msg, const char* _file, int _line) {
-                    SvcLogError(_msg, __FILE__, __LINE__);
-                },
-                false);
+
+            std::string config_contents = corona::read_all_string(config_filename);
+
+            corona::json_parser jp;
+            corona::json config = jp.parse_object(config_contents);
+
+            corona::json servers = config["Servers"];
+
+            if (servers.array()) {
+                for (auto server : servers) {
+                    std::string listen_point = server["listen_point"];
+                    std::string server_name = server["application_name"];
+                    std::cout << "launching " << server_name << " on " << listen_point << std::endl;
+
+                    auto service = std::make_shared<corona::comm_bus_service>(
+                        config,
+                        server,
+                        [server_name](const std::string& _msg, const char* _file, int _line) {
+                            SvcLogError(server_name + ":" + _msg, __FILE__, __LINE__);
+                        },
+                        false);
+                    services.push_back(service);
+                }
+            }
+
             while (not exit_flag)
             {
-                service->run_frame();
+                for (auto service : services) {
+                    try 
+                    {
+                        service->run_frame();
+                    }
+                    catch (...)
+                    {
+                        SvcLogError("Exception during service frame", __FILE__, __LINE__);
+                    }
+                }
             }
-            service = nullptr;
+            services.clear();
         }
         catch (std::exception exc)
         {
@@ -297,26 +302,44 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv)
 
     try 
     {        
-        service = std::make_shared<corona::comm_bus_service>(
-            simulation,
-            config_filename,
-            [](const std::string& _msg, const char* _file, int _line) {
-                std::string message = std::format("Revolution error: {0} at {1}:{2}", _msg, _file, _line);
-                SvcLogError(message, __FILE__, __LINE__);
-            },
-            false);
-        while (not exit_flag)
-        {
-            ::Sleep(1);
-            try {
-                service->run_frame();
-            }
-            catch (std::exception& exc)
-            {
-                SvcLogError(exc.what(), __FILE__, __LINE__);
-                std::cerr << "Exception in service: " << exc.what() << std::endl;
+        std::string config_contents = corona::read_all_string(config_filename);
+
+        corona::json_parser jp;
+        corona::json config = jp.parse_object(config_contents);
+
+        corona::json servers = config["Servers"];
+
+        if (servers.array()) {
+            for (auto server : servers) {
+                std::string listen_point = server["listen_point"];
+                std::string server_name = server["application_name"];
+                std::cout << "launching " << server_name << " on " << listen_point << std::endl;
+
+                auto service = std::make_shared<corona::comm_bus_service>(
+                    config,
+                    server,
+                    [server_name](const std::string& _msg, const char* _file, int _line) {
+                        SvcLogError(server_name + ":" + _msg, __FILE__, __LINE__);
+                    },
+                    false);
+                services.push_back(service);
             }
         }
+
+        while (not exit_flag)
+        {
+            for (auto service : services) {
+                try
+                {
+                    service->run_frame();
+                }
+                catch (...)
+                {
+                    SvcLogError("Exception during service frame", __FILE__, __LINE__);
+                }
+            }
+        }
+        services.clear();
     }
     catch (std::exception exc)
     {
@@ -485,9 +508,8 @@ VOID SvcLogInfo(std::string message, std::string file, int line)
 
 }
 
-void RunService(std::shared_ptr<corona::corona_simulation_interface> _simulation)
+void RunService()
 {
-    simulation = _simulation;
     // If command-line parameter is "install", install the service. 
     // Otherwise, the service is probably being started by the SCM.
 
@@ -510,7 +532,7 @@ void RunService(std::shared_ptr<corona::corona_simulation_interface> _simulation
 
 }
 
-int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation, int argc, char* argv[])
+int CoronaMain(int argc, char* argv[])
 {
     TraceLoggingRegister(global_corona_provider);
 
@@ -541,7 +563,7 @@ int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation,
         PathRemoveFileSpecA(szUnquotedPath);
         SetCurrentDirectoryA(szUnquotedPath);
 
-        RunService(_simulation);
+        RunService();
         return 0;
     }
     else if (_strcmpi(argv[1], "install") == 0)
@@ -588,7 +610,7 @@ int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation,
         char currentPath[MAX_PATH];
         GetCurrentDirectoryA(sizeof(currentPath), currentPath);
         std::cout << "Current Directory:" << currentPath << std::endl;
-        RunConsole(_simulation);
+        RunConsole();
         return 0;
     }
     else
@@ -597,7 +619,7 @@ int CoronaMain(std::shared_ptr<corona::corona_simulation_interface> _simulation,
         PathRemoveFileSpecA(szUnquotedPath);
         SetCurrentDirectoryA(szUnquotedPath);
 
-        RunService(_simulation);
+        RunService();
         return 0;
     }
 
