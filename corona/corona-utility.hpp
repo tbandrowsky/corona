@@ -87,6 +87,18 @@ namespace corona {
 		return !s.empty();
 	}
 
+
+	// Function to get the first n characters of a string
+	std::string getFirstNChars(const std::string& input, size_t n) {
+		// Validate n
+		if (n > input.size()) {
+			// If n is larger than string length, return the whole string
+			return input;
+		}
+		// Return substring from index 0 to n characters
+		return input.substr(0, n);
+	}
+
 	std::string trim(std::string str, size_t width)
 	{
 		if (width < 3)

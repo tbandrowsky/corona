@@ -3641,7 +3641,7 @@ namespace corona
 
 			for (auto parent : parents)
 			{
-				std::string index_name = std::format("idx_{0}_{0}", class_name, parent);
+				std::string index_name = std::format("idx_{0}_{0}", getFirstNChars(class_name, 16), getFirstNChars(parent, 16));
 				if (jindexes.has_member(index_name)) {
 					continue;
 				}
@@ -3762,18 +3762,20 @@ namespace corona
 				}
 				else if (query_field->get_field_type() == field_types::ft_array || query_field->get_field_type() == field_types::ft_object) {
 					std::shared_ptr<child_bridges_interface> brs = query_field->get_bridges();
-					auto class_list = brs->get_bridge_list();
+					if (brs) {
+						auto class_list = brs->get_bridge_list();
 
-					for (auto& class_name : class_list)
-					{
-						if (not class_name.empty()) {
-							if (!classes.has_member(class_name)) {
-								auto classd = _db->read_lock_class(class_name);
-								json classdef = jp.create_object();
-								if (classd) {
-									classd->get_json(classdef);
+						for (auto& class_name : class_list)
+						{
+							if (not class_name.empty()) {
+								if (!classes.has_member(class_name)) {
+									auto classd = _db->read_lock_class(class_name);
+									json classdef = jp.create_object();
+									if (classd) {
+										classd->get_json(classdef);
+									}
+									classes.put_member(class_name, classdef);
 								}
-								classes.put_member(class_name, classdef);
 							}
 						}
 					}
