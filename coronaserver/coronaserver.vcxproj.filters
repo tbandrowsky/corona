@@ -23,17 +23,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="candidate_schema.json" />
     <CopyFileToFolders Include="CoronaApplicationServer.docx" />
     <CopyFileToFolders Include="config.json" />
     <CopyFileToFolders Include="insurance_schema.json" />
-    <CopyFileToFolders Include="revolution_schema.json" />
-    <CopyFileToFolders Include="game_schema.json">
-      <Filter>Source Files</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="account_recovery_email_template.html" />
-    <CopyFileToFolders Include="onboarding_email_template.html" />
-    <CopyFileToFolders Include="politics.json" />
+    <CopyFileToFolders Include="revolution\revolution_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="corona.postman_collection.json" />
@@ -42,11 +35,10 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="sqlintegrationschema.json" />
-    <None Include="table_test_schema.json" />
-    <None Include="naughty_monsters.json" />
     <None Include="corona-readme.md" />
-    <None Include="recipe_schema.json" />
-    <None Include="azure_schema.json" />
+    <None Include="recipe\recipe_schema.json" />
+    <None Include="azure_simple\azure_schema.json" />
+    <None Include="shop\shop_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coronaserver.hpp">

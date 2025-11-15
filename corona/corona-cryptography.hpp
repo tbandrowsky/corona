@@ -203,6 +203,7 @@ namespace corona
 				{
 					os_result osr;
 					std::cout << osr << std::endl;
+					key = nullptr;
 					goto cleanup;
 				}
 
@@ -281,8 +282,8 @@ namespace corona
 
 			std::string cipher_text;
 
-			BCRYPT_ALG_HANDLE algorithm = {};
-			BCRYPT_KEY_HANDLE key = {};
+			BCRYPT_ALG_HANDLE algorithm = nullptr;
+			BCRYPT_KEY_HANDLE key = nullptr;
 
 			NTSTATUS status;
 

@@ -101,8 +101,6 @@ namespace corona
 			database_threads = (int)server_config["database_threads"];
 			database_recreate = (bool)server_config["database_recreate"];
 
-			database_schema_mon.filename = database_schema_filename;
-
 			app = std::make_shared<application>(database_threads);
 			app->application_name = server_config["application_name"];
 
@@ -110,6 +108,10 @@ namespace corona
             std::filesystem::path application_path = current_path;
             std::filesystem::path database_path = application_path / app->application_name;
             change_to_folder(database_path.string());
+
+			std::filesystem::path schema_path = database_path;
+			schema_path /= database_schema_filename;
+			database_schema_mon.filename = schema_path.string();
 
 			listen_point = server_config["listen_point"];
 
@@ -135,8 +137,8 @@ namespace corona
 			if (not std::filesystem::exists("classes.coronatbl"))
 			{
 				try {
-					local_db = std::make_shared<corona_database>(database_path);
-					local_db->apply_config(local_db_config);
+					local_db = std::make_shared<corona_database>(database_path.string());
+					local_db->apply_config(_system_config, _server_config);
 				}
 				catch (std::exception exc)
 				{
@@ -159,7 +161,7 @@ namespace corona
 
 				try {
 					local_db = std::make_shared<corona_database>();
-					local_db->apply_config(local_db_config);
+					local_db->apply_config(_system_config, _server_config);
 					local_db->open_database();
 				}
 				catch (std::exception exc)

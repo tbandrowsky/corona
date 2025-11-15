@@ -163,46 +163,7 @@ namespace corona
 			PathRemoveFileSpecA(path);
 			*/
 
-			checker.path = std::filesystem::current_path();
-
-			if (create)
-			{
-				local_db = std::make_shared<corona_database>();
-
-				if (read_json(database_config_filename, local_db_config) != null_row) {
-					local_db->apply_config(local_db_config);
-				}
-
-				if (local_db_config.has_member("Client"))
-                {
-                    json client_config = local_db_config["Client"];
-                    client.base_path = client_config["base_path"];
-					client.host = client_config["host"];
-					client.port = client_config["port"];
-				}
-
-				json create_database_response = local_db->create_database();
-
-			}
-			else
-			{
-				local_db = std::make_shared<corona_database>();
-
-				if (read_json(database_config_filename, local_db_config) != null_row) {
-					local_db->apply_config(local_db_config);
-				}
-
-				if (local_db_config.has_member("Client"))
-				{
-					json client_config = local_db_config["Client"];
-					client.base_path = client_config["base_path"];
-					client.host = client_config["host"];
-					client.port = client_config["port"];
-				}
-
-
-				local_db->open_database();
-			}
+            // this needs to be updated along the lines with corona_comm_service_bus
 
 			json token = get_local_token();
 
@@ -250,7 +211,7 @@ namespace corona
 			timer tx2;
 			if (read_json(database_config_filename, temp) != null_row) {
 				log_command_start("poll_db", "apply config", start_time, __FILE__, __LINE__);
-				local_db->apply_config(temp);
+//				local_db->apply_config(temp);
 				log_command_stop("poll_db", "config applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
 

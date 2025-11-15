@@ -178,29 +178,17 @@
     </ClInclude>
     <ClInclude Include="eventmessages.h" />
     <ClInclude Include="resource.h" />
-    <CopyFileToFolders Include="game_schema.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <ClCompile Include="insuranceapplication.cpp" />
     <ClCompile Include="revolutionapplication.cpp">
       <FileType>CppHeader</FileType>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="candidate_schema.json">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="account_recovery_email_template.html">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="config.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <None Include="azure_schema.json" />
+    <None Include="azure_simple\azure_schema.json" />
     <None Include="corona-readme.md" />
     <None Include="corona.postman_collection.json" />
     <CopyFileToFolders Include="CoronaApplicationServer.docx">
@@ -213,22 +201,14 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="deploy.ps1" />
-    <CopyFileToFolders Include="onboarding_email_template.html">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="politics.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <None Include="naughty_monsters.json" />
-    <CopyFileToFolders Include="revolution_schema.json">
+    <CopyFileToFolders Include="revolution\revolution_schema.json">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <None Include="recipe_schema.json" />
+    <None Include="recipe\recipe_schema.json" />
+    <None Include="shop\shop_schema.json" />
     <None Include="sqlintegrationschema.json" />
-    <None Include="table_test_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="eventmessages.txt">
@@ -247,7 +227,7 @@
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties politics_1json__JsonSchema="https://api.app-prg1.zerops.io/api/rest/public/settings/zerops-yml-json-schema.json" />
+      <UserProperties />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

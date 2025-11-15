@@ -1,0 +1,145 @@
+{
+  "schema_name": "Shop",
+  "schema_description": "Schema for the Shop.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "TJ Bandrowsky"
+  ],
+  "classes": [
+    {
+      "class_name": "part",
+      "base_class_name": "sys_object",
+      "class_description": "Items to put into a build",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "part", "quantity" ],
+      "card_title": "part",
+      "card_fields": [ "quantity" ],
+      "parents": [ "build", "inventory" ],
+      "fields": {
+        "part": "string",
+        "quantity": "string",
+        "manufacturer": "string",
+        "purchased_from": "string",
+        "comment": "[comment]"
+      }
+    },
+    {
+      "class_name": "tool",
+      "base_class_name": "sys_object",
+      "class_description": "Items to put into a recipe",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "tool" ],
+      "card_title": "part",
+      "card_fields": [ "manufacturer" ],
+      "parents": [ "build", "inventory", "task" ],
+      "fields": {
+        "tool": "string",
+        "manufacturer": "string",
+        "purchased_from": "string",
+        "comment": "[comment]"
+      }
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "sys_object",
+      "class_description": "Task to perform a build",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "description" ],
+      "card_title": "description",
+      "card_fields": [],
+      "parents": [ "build" ],
+      "fields": {
+        "description": "string",
+        "comment": "[comment]",
+        "tools": "[ tool ]"
+      }
+    },
+    {
+      "class_name": "comment",
+      "class_description": "Comment",
+      "base_class_name": "sys_object",
+      "parents": [ "part", "tool", "task", "build" ],
+      "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "display": "markdown"
+        }
+      }
+    },
+    {
+      "class_name": "build",
+      "class_description": "Fabricate",
+      "base_class_name": "sys_object",
+      "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
+      "fields": {
+        "name": "string",
+        "description": {
+          "field_type": "string",
+          "display": "markdown"
+        },
+        "parts": "[ part]",
+        "tasks": "[ task ]",
+        "comments": "[ comment ]",
+        "hours_estimate": "number",
+        "hours_actual": "number"
+      }
+    },
+    {
+      "class_name": "inventory",
+      "class_description": "build",
+      "base_class_name": "sys_object",
+      "class_color": "#e1cab2",
+      "full_text": [ "name", "text" ],
+      "fields": {
+        "name": "string",
+        "description": {
+          "field_type": "string",
+          "display": "markdown"
+        },
+        "parts": "[ part ]",
+        "tools": "[ tool ]"
+      }
+    }
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Shop Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "Recipe Team",
+          "team_description": "Manages recipes",
+          "team_domain": ".*",
+          "inventory_classes": [],
+          "allowed_teams": [ "Recipe Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "ingredient", "task", "recipe", "comment" ],
+              "get": "any",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

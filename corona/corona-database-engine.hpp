@@ -731,7 +731,7 @@ namespace corona
 		virtual json create_database() = 0;
 		virtual relative_ptr_type open_database() = 0;
 
-		virtual void apply_config(json _config) = 0;
+		virtual void apply_config(json _system_config, json _server_config) = 0;
 		virtual json apply_schema(json _schema) = 0;
 
 		virtual std::string get_random_code() = 0;
@@ -4481,51 +4481,81 @@ namespace corona
 
 			if (_key.has_member("full_text"))
 			{
-                auto ftb = get_full_text_index(_db);
-				if (ftb) {
-					text_tokenizer ctt;
-					std::string full_text = _key["full_text"];
-                    auto terms = ctt.tokenize(full_text);
-                    std::set<int64_t> found_object_ids, join_result;
+				
+				std::string full_text = _key["full_text"];
 
-					bool first_word = true;
+				if (full_text.size() > 0)
+				{
 
-					for (auto word : terms) {
-						std::set<int64_t> base_object_ids;
-						json ft_key = jp.create_object();
-                        ft_key.put_member("text", word);
+					auto ftb = get_full_text_index(_db);
+					if (ftb) {
+						text_tokenizer ctt;
+						auto terms = ctt.tokenize(full_text);
+						std::set<int64_t> found_object_ids, join_result;
 
-                        json ft_results = ftb->select(&max_query_result_rows, ft_key, [&base_object_ids](json& _item) -> json {
-                            int64_t object_id = (int64_t)_item["object_id"];
-							base_object_ids.insert(object_id);
-							json temp;
-                            return temp;
-                            });
+						bool first_word = true;
 
-						if (first_word) {
+						for (auto word : terms) {
+							std::set<int64_t> base_object_ids;
+							json ft_key = jp.create_object();
+							ft_key.put_member("text", word);
 
-                            found_object_ids = std::move(base_object_ids);
-                            first_word = false;
-						} 
-						else 
-						{
+							json ft_results = ftb->select(&max_query_result_rows, ft_key, [&base_object_ids](json& _item) -> json {
+								int64_t object_id = (int64_t)_item["object_id"];
+								base_object_ids.insert(object_id);
+								json temp;
+								return temp;
+								});
 
-							for (auto base_id : base_object_ids) {
-								if (found_object_ids.contains(base_id)) {
-									join_result.insert(base_id);
-								}
+							if (first_word) {
+
+								found_object_ids = std::move(base_object_ids);
+								first_word = false;
 							}
+							else
+							{
 
-							found_object_ids = std::move(join_result);
+								for (auto base_id : base_object_ids) {
+									if (found_object_ids.contains(base_id)) {
+										join_result.insert(base_id);
+									}
+								}
+
+								found_object_ids = std::move(join_result);
+							}
+						}
+						for (auto ids : found_object_ids) {
+							bool exists;
+							json temp = get_object(_db, ids, _grant, exists);
+							if (temp.object()) {
+								obj.push_back(temp);
+							}
 						}
 					}
-					for (auto ids : found_object_ids) {
-                        bool exists;
-                        json temp = get_object(_db, ids, _grant, exists);
-                        if (temp.object()) {
-                            obj.push_back(temp);
-                        }
-					}
+				}
+				else {
+					auto class_data = get_table(_db);
+					int max_plain_rows = 500;
+					json key;
+					obj = class_data->select(&max_plain_rows, key, [&max_plain_rows, &key, &_grant](json& _j)-> json
+						{
+							max_plain_rows--;
+							json result;
+							if (max_plain_rows >= 0) {
+								if (_grant.get_grant & class_grants::grant_any) {
+									result = _j;
+								}
+								else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
+
+									result = _j;
+								}
+								else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
+
+									result = _j;
+								}
+							}
+							return result;
+						});
 				}
 			}
 			else if (_key.has_member(object_id_field)) {
@@ -4585,7 +4615,7 @@ namespace corona
                 auto obj_items = obj.array_impl();
 				for (auto item : obj_items->elements)
 				{
-                    json _src_obj(item);
+					json _src_obj(item);
 					for (auto& fpair : fields) {
 						auto& fld = fpair.second;
 
@@ -4938,7 +4968,11 @@ namespace corona
 			class_data_header->object_members.columns[8] = { field_types::ft_array, 8, "descendants" };
 			class_data_header->object_members.columns[9] = { field_types::ft_object, 9, "sql" };
 
-			classes = std::make_shared<xtable>("classes.coronatbl", class_data_header);
+			std::filesystem::path class_table = data_path;
+            class_table /= "classes.coronatbl";
+            std::string file_name = class_table.string();
+			
+			classes = std::make_shared<xtable>(file_name, class_data_header);
 			classes->commit();
 
 			created_classes = jp.create_object();
@@ -5916,7 +5950,10 @@ namespace corona
 			}
 			classes->commit();
 			classes = nullptr;
-			classes = std::make_shared<xtable>("classes.coronatbl");
+			class_table = data_path;
+			class_table /= "classes.coronatbl";
+			file_name = class_table.string();
+			classes = std::make_shared<xtable>(file_name);
 
 			system_monitoring_interface::active_mon->log_job_stop("create_database", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			return response;
@@ -7120,16 +7157,16 @@ bail:
 			
 		}
 
-		void apply_config(json _config)
+		void apply_config(json _system_config, json _server_config)
 		{
 			date_time start;
 			start = date_time::now();
 			timer tx;
 			system_monitoring_interface::active_mon->log_job_start("apply_config", "start", start, __FILE__, __LINE__);
 
-			if (_config.has_member("SendGrid"))
+			if (_system_config.has_member("SendGrid"))
 			{
-				json send_grid = _config["SendGrid"];
+				json send_grid = _system_config["SendGrid"];
 				std::string send_grid_api_key = send_grid["ApiKey"];
 				sendgrid_sender = send_grid["SenderName"];
 				sendgrid_sender_email = send_grid["SenderEmail"];
@@ -7137,47 +7174,44 @@ bail:
 				this->connections.set_connection("sendgrid", (std::string)send_grid_api_key);
 			}
 
-			if (_config.has_member("Connections"))
+			if (_system_config.has_member("Connections"))
 			{
-				json connections = _config["Connections"];
+				json connections = _system_config["Connections"];
 				auto members = connections.get_members();
 				for (auto member : members) {
 					this->connections.set_connection(member.first, (std::string)member.second);
 				}
 			}
 
-			if (_config.has_member("Server"))
-			{
-				json server = _config["Server"];
-				default_user = server[sys_user_name_field];
-				default_password = server[sys_user_password_field];
-				default_email_address = server[sys_user_email_field];
-				default_guest_team = server[sys_default_team_field];
-				default_api_title = server[sys_default_api_title_field];
-				default_api_description = server[sys_default_api_description_field];
-				default_api_version = server[sys_default_api_version_field];
-				default_api_author = server[sys_default_api_author_field];
-                default_onboard_email_filename = server[sys_default_onboard_email_template];
-				default_recovery_email_filename = server[sys_default_recovery_email_template];
+			json server = _server_config;
+			default_user = server[sys_user_name_field];
+			default_password = server[sys_user_password_field];
+			default_email_address = server[sys_user_email_field];
+			default_guest_team = server[sys_default_team_field];
+			default_api_title = server[sys_default_api_title_field];
+			default_api_description = server[sys_default_api_description_field];
+			default_api_version = server[sys_default_api_version_field];
+			default_api_author = server[sys_default_api_author_field];
+            default_onboard_email_filename = server[sys_default_onboard_email_template];
+			default_recovery_email_filename = server[sys_default_recovery_email_template];
 
-				std::filesystem::path schema_path(data_path);
-				std::filesystem::path onboard_file(default_onboard_email_filename);
-				std::filesystem::path recovery_file(default_recovery_email_filename);
-                if (not onboard_file.is_absolute()) {
-                    onboard_file = schema_path / onboard_file;
-                }
-				if (not recovery_file.is_absolute()) {
-					recovery_file = schema_path / recovery_file;
-				}
+			std::filesystem::path schema_path(data_path);
+			std::filesystem::path onboard_file(default_onboard_email_filename);
+			std::filesystem::path recovery_file(default_recovery_email_filename);
+            if (not onboard_file.is_absolute()) {
+                onboard_file = schema_path / onboard_file;
+            }
+			if (not recovery_file.is_absolute()) {
+				recovery_file = schema_path / recovery_file;
+			}
 
-				std::string obf = onboard_file.string();
-                std::string rf = recovery_file.string();
-				default_onboard_email = read_all_string(obf);
-				default_recovery_email = read_all_string(rf);
+			std::string obf = onboard_file.string();
+            std::string rf = recovery_file.string();
+			default_onboard_email = read_all_string(obf);
+			default_recovery_email = read_all_string(rf);
 
-				if (server.has_member(sys_record_cache_field)) {
-					maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];
-				}
+			if (server.has_member(sys_record_cache_field)) {
+				maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];
 			}
 
 			system_monitoring_interface::active_mon->log_job_stop("apply_config", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
@@ -7763,7 +7797,11 @@ bail:
 			if (class_definition.error())
 				throw std::exception("Class Definition Parse Error");
 
-			classes = std::make_shared<xtable>("classes.coronatbl");
+			std::filesystem::path class_table = data_path;
+			class_table /= "classes.coronatbl";
+			std::string file_name = class_table.string();
+
+			classes = std::make_shared<xtable>(file_name);
 
             std::vector<std::string> check_classes = { "sys_object", "sys_user", "sys_team", "sys_grant", "sys_server", "sys_error", "sys_schema", "sys_dataset" };
 
@@ -9968,16 +10006,26 @@ grant_type=authorization_code
 		corona_database db("test");
 
 		proof_assertion.put_member("dependencies", dependencies);
-		json db_config = jp.create_object();
+
+		json system_config = jp.create_object();
 		json server_config = jp.create_object();
+		json servers = jp.create_array();
+
 		server_config.put_member(sys_user_name_field, "todd"sv);
 		server_config.put_member(sys_user_password_field, "randomite"sv);
 		server_config.put_member(sys_user_email_field, "todd.bandrowsky@gmail.com"sv);
 		server_config.put_member(sys_default_team_field, "GuestTeam"sv);
-		db_config.put_member("Server", server_config);
 
-		db.apply_config(db_config);
+		// Add any other required server config fields here, e.g.:
+		// server_config.put_member("schema_filename", "revolution_schema.json");
+		// server_config.put_member("database_threads", 4);
+		// server_config.put_member("database_recreate", true);
 
+        servers.push_back(server_config);
+		system_config.put_member("Servers", servers);
+
+		// Now apply the config to the database
+		db.apply_config(system_config, server_config);
 		relative_ptr_type database_location = db.create_database();
 
 		login_success = true;

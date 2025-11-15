@@ -44,6 +44,8 @@
       "parents": [ "sys_ticket", "story" ],
       "class_color": "#e1cab2",
       "full_text": [ "name", "text" ],
+      "card_title": "text",
+      "card_fields": [],
       "fields": {
         "text": {
           "field_type": "string",
@@ -57,6 +59,8 @@
       "base_class_name": "sys_object",
       "class_color": "#e1cab2",
       "full_text": [ "name", "text" ],
+      "card_title": "name",
+      "card_fields": [ "description" ],
       "fields": {
         "name": "string",
         "description": {
