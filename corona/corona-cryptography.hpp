@@ -19,6 +19,10 @@ don't forget to encrypt key fields and traffic.
 
 #pragma once
 
+#ifndef NT_SUCCESS
+#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#endif
+
 namespace corona
 {
 	class crypto
@@ -166,44 +170,39 @@ namespace corona
 			scope_lock mylock(crypto_lock);
 
 			std::string cipher_text;
-			std::string plain_text;
-
-			plain_text = _src.to_json_typed();
+			std::string plain_text = _src.to_json_typed();
 
 			BCRYPT_ALG_HANDLE algorithm = NULL;
 			BCRYPT_KEY_HANDLE key = NULL;
-
 			NTSTATUS status;
 
 			status = BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_AES_ALGORITHM, 0, 0);
 
+			// Move buffers outside the inner block so their lifetime extends to cleanup
+			buffer key_buffer;
+			buffer iv_buffer;
+			buffer pass_buffer;
+
 			if (algorithm)
 			{
-				buffer key_buffer = get_crypto_buffer(algorithm, BCRYPT_OBJECT_LENGTH);
-				buffer iv_buffer = get_crypto_buffer(algorithm, BCRYPT_BLOCK_LENGTH);
-				buffer pass_buffer = get_crypto_buffer(algorithm, BCRYPT_BLOCK_LENGTH);
-
-				PUCHAR pkey = key_buffer.get_uptr();
-				DWORD skey = key_buffer.get_size();
-				PUCHAR ppass = pass_buffer.get_uptr();
-				DWORD spass = pass_buffer.get_size();
+				key_buffer = get_crypto_buffer(algorithm, BCRYPT_OBJECT_LENGTH);
+				iv_buffer = get_crypto_buffer(algorithm, BCRYPT_BLOCK_LENGTH);
+				pass_buffer = get_crypto_buffer(algorithm, BCRYPT_BLOCK_LENGTH);
 				pass_buffer.set_buffer(_pass_phrase);
 
-				// Generate the key from supplied input key bytes.
-				if (status = BCryptGenerateSymmetricKey(
+				status = BCryptGenerateSymmetricKey(
 					algorithm,
 					&key,
 					key_buffer.get_uptr(),
 					key_buffer.get_size(),
 					pass_buffer.get_uptr(),
 					pass_buffer.get_size(),
-					0))
-				{
-					os_result osr;
-					std::cout << osr << std::endl;
-					key = nullptr;
-					goto cleanup;
-				}
+					0);
+
+				if (!NT_SUCCESS(status)) {
+                    // handle error, key is still null or valid
+                    goto cleanup;
+                }
 
 				if (key)
 				{

@@ -299,7 +299,7 @@ namespace corona
 	bool bitmapFilter::adjustBrightness(point size, int cbBufferSize, int cbStride, char* pv)
 	{
 		PBGRAPixel* base = (PBGRAPixel*)pv;
-		int r, x;
+		int r;
 
 		int szy = size.y;
 
@@ -347,7 +347,7 @@ namespace corona
 			auto row = (PBGRAPixel*)(pv + cbStride * r);
 			for (int x = 0; x < _size.x; x++) {
 				PBGRAPixel* pixel = row + x;
-				rgb in, fin;
+				rgb in;
 				in.r = pixel->red;
 				in.g = pixel->green;
 				in.b = pixel->blue;
@@ -393,7 +393,7 @@ namespace corona
 		int x, x2;
 		for (x = 0; x < width; x++) {
 			PBGRAPixel* pixel = row + x;
-			rgb in, fin;
+			rgb in;
 			in.r = pixel->red;
 			in.g = pixel->green;
 			in.b = pixel->blue;
@@ -420,9 +420,8 @@ namespace corona
 
 	bool bitmapFilter::adjustChromaKey(point _size, int cbBufferSize, int cbStride, char* pv)
 	{
-		PBGRAPixel* base = (PBGRAPixel*)pv,
-			* row;
-		int x, cy;
+		PBGRAPixel* base = (PBGRAPixel*)pv;
+		int cy;
 		rgb keyRgb;
 		hsl keyHsl;
 

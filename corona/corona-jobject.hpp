@@ -921,7 +921,6 @@ namespace corona {
 
 	bool init_collection_id(collection_id_type& collection_id)
 	{
-		GUID gidReference;
 		HRESULT hr = ::CoCreateGuid((GUID*)&collection_id);
 		return hr == S_OK;
 	}
@@ -1997,7 +1996,7 @@ namespace corona {
 	{
 		if (_src_slice.class_id == class_id)
 		{
-			relative_ptr_type fis, fid, ssf;
+			relative_ptr_type fis,  ssf;
 			ssf = _src_slice.size();
 			for (fis = 0; fis < ssf; fis++)
 			{
@@ -2015,7 +2014,7 @@ namespace corona {
 		}
 		else
 		{
-			relative_ptr_type fis, fid, ssf;
+			relative_ptr_type fis, ssf;
 			ssf = _src_slice.size();
 			for (fis = 0; fis < ssf; fis++)
 			{

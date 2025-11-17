@@ -687,7 +687,7 @@ namespace corona
 		virtual bool	any(corona_database_interface* _db) = 0;
 		virtual bool	any_descendants(corona_database_interface* _db) = 0;
 
-		virtual int64_t get_next_object_id() = 0;
+		virtual int64_t get_next_object_id(corona_database_interface* _db) = 0;
 	};
 
 	using read_class_sp = read_locked_sp<class_interface>;
@@ -2889,9 +2889,10 @@ namespace corona
 			return *this;
 		}
 
-		virtual int64_t get_next_object_id()
+		virtual int64_t get_next_object_id(corona_database_interface* _db)
 		{
-            return table->get_next_object_id();
+			auto tbl = get_table(_db);
+            return tbl->get_next_object_id();
 		}
 
 		virtual bool is_server_only(const std::string& _field_name) override
@@ -4479,6 +4480,11 @@ namespace corona
 			json obj;
 			obj = jp.create_array();
 
+			if (!table)
+			{
+				return obj;
+            }
+
 			if (_key.has_member("full_text"))
 			{
 				
@@ -5932,7 +5938,7 @@ namespace corona
 			new_user_data.put_member("password2", default_password);
 
 			new_user_request = create_system_request(new_user_data);
-			json new_user_result =  create_user(new_user_request);
+			json new_user_result =  create_user(new_user_request, true, true);
 			bool success = (bool)new_user_result[success_field];
 			validation_error_collection errors;
 
@@ -6049,7 +6055,7 @@ private:
 				}
 				else
 				{
-					object_id = class_data->get_next_object_id();
+					object_id = class_data->get_next_object_id(this);
 					object_definition.put_member_i64(object_id_field, object_id);
 					object_definition.put_member("created", current_date);
 					object_definition.put_member("created_by", _permission.user_name);
@@ -6758,6 +6764,8 @@ bail:
 				json permissions = team["permissions"];
 
 				json class_colors = jp.create_object();
+				json leaf_classes = jp.create_array();
+				json root_classes = jp.create_array();
 				if (permissions.array()) 
 				{
 					for (auto grant : permissions) 
@@ -6778,6 +6786,15 @@ bail:
 									for (auto d : desc) 
 									{
 										descendants.push_back(d.first);
+                                        auto sub_classd = read_lock_class(d.first);
+										if (sub_classd) {
+											if (sub_classd->get_parents().size() == 0) {
+												root_classes.push_back(d.first);
+											}
+											if (sub_classd->get_descendants().size() == 1) {
+												leaf_classes.push_back(d.first);
+											}
+										}
 									}
 								}
 								else {
@@ -6788,6 +6805,8 @@ bail:
 						}
 						grant.put_member("all_granted_classes", granted_all);
 						grant.put_member("class_colors", class_colors);
+						grant.put_member("leaf_classes", leaf_classes);
+						grant.put_member("root_classes", root_classes);
 					}
 				}
 
@@ -6943,7 +6962,6 @@ bail:
 		virtual class_permissions get_team_permissions(std::string user_name, std::string team_name, std::string _class_name)
 		{
 
-			bool granted;
 			auto sys_perm = get_system_permission();
 			json jteam = get_team(team_name, sys_perm);
 
@@ -8271,12 +8289,7 @@ grant_type=authorization_code
 			// this may change or at least be allowed as an option 
 			// if in the future you really wanted to lock this down.
 
-			bool is_system_user = _system_user;
-			if (is_system_user) {
-				is_system_user = user_name == user_name;
-			}
-
-			create_user_params.put_member("confirmed_code", is_system_user ? 1 : 0);
+			create_user_params.put_member("confirmed_code", _system_user ? 1 : 0);
 
 			std::string new_code = get_random_code();
 			create_user_params.put_member("validation_code", new_code);
@@ -8288,7 +8301,7 @@ grant_type=authorization_code
 			if (user_result[success_field]) {
 				json new_user_wrapper = user_result[data_field]["sys_user"].get_element(0);
 				new_user_wrapper = new_user_wrapper[data_field];
-				if (not is_system_user)
+				if (not _system_user)
 				{
 					send_user_confirmation(new_user_wrapper, default_onboard_email);
 				}
@@ -9455,7 +9468,7 @@ grant_type=authorization_code
 						}
 					}
 				}
-				int64_t new_id = class_def->get_next_object_id();
+				int64_t new_id = class_def->get_next_object_id(this);
 				new_object.put_member_i64("object_id", new_id);
 				response = create_response(create_object_request, true, "Object created", new_object, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop("create_object", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);

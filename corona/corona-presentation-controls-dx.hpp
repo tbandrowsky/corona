@@ -674,7 +674,7 @@ namespace corona
 
                 if (pType)
                 {
-                    GUID major_type, minor_type;
+                    GUID major_type;
                     hr = pType->GetGUID(MF_MT_MAJOR_TYPE, &major_type);
                     if (SUCCEEDED(hr))
                     {
@@ -898,7 +898,7 @@ namespace corona
                 IMFSample* pSample = NULL;
 
                 DWORD streamIndex, flags;
-                LONGLONG llTimeStamp, currentStamp;
+                LONGLONG llTimeStamp;
                 FILETIME ft;
                 LARGE_INTEGER li;
 

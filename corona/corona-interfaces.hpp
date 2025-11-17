@@ -31,7 +31,7 @@ namespace corona
 			json_parser jp;
 			json response;
 
-			if (_params.response.response_body.is_safe_string() > 0) {
+			if (_params.response.response_body.is_safe_string()) {
 				// read the response body
 				response = jp.parse_object(_params.response.response_body.get_ptr());
 			}

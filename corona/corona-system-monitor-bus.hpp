@@ -560,7 +560,7 @@ namespace corona
 				trim(cmessage, 55),
 				_request_time.format("%D %H:%M start")
 			);
-			file_line(_file, _line);
+			file_line(cfilename, _line);
 			xout << Normal;
 			xout << std::endl;
 

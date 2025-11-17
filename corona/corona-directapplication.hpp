@@ -258,7 +258,6 @@ namespace corona
 			{
 				auto ctx = winroot->getContext();
 				auto dc = ctx->getDeviceContext();
-				bool adapterLost;
 
 				// here, we tell the children to draw on their own surfaces...
 				// and then, draw on this one.

@@ -233,7 +233,6 @@ namespace corona
 			char thousands_sep[3] = ",";
 			char currency_symbol[3] = "$";
 
-			bool insurance = false;
 			int decimals = 0;
 
 			for (auto option : options) 
@@ -608,7 +607,7 @@ namespace corona
 		{
 			return value != 0;
 		}
-		virtual double to_double() const const
+		virtual double to_double() const 
 		{
 			return value;
 		}
@@ -1340,8 +1339,6 @@ namespace corona
 
 			if (not object())
 				return 0;
-
-			bool flippo;
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -2237,8 +2234,6 @@ namespace corona
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
 			}
-			auto existing_object = _object.function_impl();
-//			auto new_object = existing_object->clone();
 			object_impl()->members[_key] = _object.value_base;
 			return *this;
 		}
@@ -2562,9 +2557,6 @@ namespace corona
 			if (not array_impl()) {
 				throw std::logic_error("Not an array");
 			}
-			auto existing_array = _array.array_impl();
-//			auto new_array = existing_array->clone();
-
 			if (_index < 0 or _index >= array_impl()->elements.size())
 			{
 				array_impl()->elements.push_back(_array.value_base);
@@ -2581,8 +2573,6 @@ namespace corona
 			if (not array_impl()) {
 				throw std::logic_error("Not an array");
 			}
-			auto existing_object = _object.object_impl();
-//			auto new_object = existing_object->clone();
 
 			if (_index < 0 or _index >= array_impl()->elements.size()) {
 				array_impl()->elements.push_back(_object.value_base);
@@ -3405,7 +3395,6 @@ namespace corona
 			{
 				_src++;
 				result = true;
-				bool parsing = false;
 				while (*_src && *_src != '"')
 				{
 					check_line(_src);

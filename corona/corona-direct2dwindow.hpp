@@ -151,7 +151,6 @@ namespace corona
 
 	void direct2dWindow::resize(UINT width, UINT height)
 	{
-		HRESULT hr;
 
 #if TRACE_RENDER
 		std::cout << "%%%%%%%%% parent resize " << GetDlgCtrlID(hwnd) << " " << width << " " << height << std::endl;
@@ -184,7 +183,6 @@ namespace corona
 
 		float dpix, dpiy;
 		int dpiWindow;
-		RECT r;
 
 		dpiWindow = ::GetDpiForWindow(hwnd);
 		context->getDeviceContext()->GetDpi(&dpix, &dpiy);
@@ -318,7 +316,6 @@ namespace corona
 			}
 			else if (SUCCEEDED(hr))
 			{
-				RECT r;
 				hr = swapChain->Present(1, 0);
 
 				switch (hr)
@@ -339,8 +336,6 @@ namespace corona
 
 	direct2dChildWindow::direct2dChildWindow(std::weak_ptr<direct2dWindow> _parent, std::weak_ptr<directXAdapterBase> _adapterSet, UINT _xdips, UINT _ydips, UINT _wdips, UINT _hdips)
 	{
-		HRESULT hr;
-
 		parent = _parent;
 
 		context = std::make_shared<direct2dContext>(_adapterSet);
@@ -358,8 +353,6 @@ namespace corona
 
 	void direct2dChildWindow::resize(UINT _wdips, UINT _hdips)
 	{
-		HRESULT hr;
-
 		bool changed = false;
 
 		if (_wdips != windowPosition.w or _hdips != windowPosition.h or !childBitmap)

@@ -39,7 +39,6 @@ namespace corona
 		bool poll(application *_app, std::function<void(json&)> _handler)
 		{
 			json_parser jp;
-			relative_ptr_type type;
             bool success = false;
 
 			try {

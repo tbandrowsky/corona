@@ -501,7 +501,7 @@ namespace corona
 		
 		virtual xfor_each_result for_each(int *_max_rows, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 		{
-			xfor_each_result result;
+			xfor_each_result result = {};
 			result.is_all = true;
 			result.is_any = false;
 			result.count = 0;
@@ -1857,7 +1857,7 @@ namespace corona
 	{
 		dirtied();
 
-		for (auto item : records) {
+		for (auto& item : records) {
 			auto found_block = item.second;
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
@@ -1880,12 +1880,12 @@ namespace corona
 
 	xfor_each_result xbranch_block::for_each(int *_max_rows, xblock_cache* cache, xrecord _key, std::function<relative_ptr_type(const xrecord& _key, const xrecord& _value)> _process)
 	{
-		xfor_each_result result;
+		xfor_each_result result = {};
 		result.is_all = false;
 		result.is_any = false;
 		result.count = 0;
 
-		int child_max_rows;
+		int child_max_rows = 0;
 		int* pchild_max_rows = nullptr;
 
 		if (_max_rows) {
@@ -2043,7 +2043,7 @@ namespace corona
 		result.put_member_i64("block_location", get_reference().location);
 
 		json children = jp.create_array();
-		for (auto r : records)
+		for (auto& r : records)
 		{
 			if (r.second.block_type == xblock_types::xb_leaf)
 			{

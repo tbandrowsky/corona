@@ -376,7 +376,6 @@ namespace corona
 
 			D2D1_POINT_2F point1, point2, point3;
 			D2D1_SIZE_F size1;
-			FLOAT float1;
 			pathLineDto* pline;
 			pathArcDto* parc;
 			pathBezierDto* pbezier;
