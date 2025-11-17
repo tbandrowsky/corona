@@ -15,9 +15,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_DIRECT2DCONTEXTBASE_H
-#define CORONA_DIRECT2DCONTEXTBASE_H
-
+#pragma once
 
 namespace corona
 {
@@ -108,4 +106,3 @@ namespace corona
 
 }
 
-#endif

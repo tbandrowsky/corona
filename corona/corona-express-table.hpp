@@ -1,8 +1,6 @@
 
 #pragma once
 
-#ifndef CORONA_EXPRESS_TABLE_H
-#define CORONA_EXPRESS_TABLE_H
 
 const bool debug_xblock = false;
 const bool debug_branch = false;
@@ -648,13 +646,33 @@ namespace corona
         }
 	};
 
+	// implements hand off who cares locking.
+	// because, i lock on one thread and release on another.
+	// evil thing!
+	class lease_lock_guard
+	{
+		int t = 0;
+	public:
+		void lock()
+		{
+			while (t) {
+				Sleep(2);
+			}
+			t = 1;
+		}
+		void unlock()
+		{
+			t = 0;
+		}
+	};
+
 	template <typename block_type> class xblock_leaseable
 	{
 
 		block_type* block;
-		std::mutex lease_lock;
 		int64_t use_count;
 		shared_lockable lockme;
+		lease_lock_guard lease_lock;
 
 	public:
 
@@ -2557,6 +2575,4 @@ namespace corona
 	}
 
 }
-
-#endif
 

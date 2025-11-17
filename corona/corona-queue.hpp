@@ -14,10 +14,7 @@ Notes
 
 For Future Consideration
 */
-
-
-#ifndef CORONA_QUEUE_H
-#define CORONA_QUEUE_H
+#pragma once
 
 namespace corona {
 
@@ -917,4 +914,3 @@ namespace corona {
 
 }
 
-#endif

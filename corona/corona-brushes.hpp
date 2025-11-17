@@ -16,9 +16,8 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_BRUSHES_H
-#define CORONA_BRUSHES_H
 
+#pragma once
 
 namespace corona
 {
@@ -215,4 +214,3 @@ namespace corona
 	};
 }
 
-#endif

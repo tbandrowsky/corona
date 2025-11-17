@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_STORE_BOX_H
-#define CORONA_STORE_BOX_H
+#pragma once
 
 namespace corona {
 
@@ -992,4 +990,3 @@ namespace corona {
 
 }
 
-#endif

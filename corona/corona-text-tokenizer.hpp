@@ -7,6 +7,7 @@
 //
 //
 
+#pragma once
 
 namespace corona
 {

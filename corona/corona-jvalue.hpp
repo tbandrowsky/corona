@@ -17,8 +17,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_JVALUE_H
-#define CORONA_JVALUE_H
+#pragma once
 
 #define _DETAIL 0
 #define _TRACE_RULE 0
@@ -447,4 +446,3 @@ namespace corona {
 
 }
 
-#endif

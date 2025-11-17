@@ -15,9 +15,7 @@ Needs unit test script
 For Future Consideration
 */
 
-
-#ifndef CORONA_DIRECTORY_H
-#define CORONA_DIRECTORY_H
+#pragma once
 
 namespace corona
 {
@@ -67,5 +65,3 @@ namespace corona
 	};
 }
 
-#endif
- 

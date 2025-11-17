@@ -20,8 +20,7 @@ the json class group is better.
 For Future Consideration
 */
 
-#ifndef CORONA_GROUPING_H
-#define CORONA_GROUPING_H
+#pragma once
 
 namespace corona {
 
@@ -198,4 +197,3 @@ namespace corona {
 
 }
 
-#endif

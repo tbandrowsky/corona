@@ -16,8 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_LAYOUT_RECT_H
-#define CORONA_LAYOUT_RECT_H
+#pragma once
 
 namespace corona {
 
@@ -171,4 +170,3 @@ namespace corona {
 
 }
 
-#endif

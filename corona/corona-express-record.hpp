@@ -1,7 +1,6 @@
 #pragma once
 
-#ifndef CORONA_EXPRESS_RECORD_HPP
-#define CORONA_EXPRESS_RECORD_HPP
+
 
 /// <summary>
 /// 
@@ -952,4 +951,3 @@ namespace corona
 
 }
 
-#endif

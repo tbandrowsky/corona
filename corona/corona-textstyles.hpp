@@ -15,9 +15,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_TEXTSTYLES
-#define CORONA_TEXTSTYLES
+#pragma once
 
 namespace corona {
 
@@ -232,4 +230,3 @@ namespace corona {
 	};
 }
 
-#endif

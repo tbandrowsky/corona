@@ -1,6 +1,4 @@
-
-#ifndef CORONA_TEST_HPP
-#define CORONA_TEST_HPP
+#pragma once
 
 namespace corona
 {
@@ -137,5 +135,3 @@ namespace corona
 		}
 	};
 }
-
-#endif

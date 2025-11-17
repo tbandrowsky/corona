@@ -16,9 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_MESSAGE_H
-#define CORONA_MESSAGE_H
-
+#pragma once
 #include "corona-windows-lite.h"
 #include "corona-constants.hpp"
 
@@ -140,5 +138,3 @@ namespace corona
 	}
 
 }
-
-#endif

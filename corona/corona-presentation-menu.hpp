@@ -14,9 +14,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_PRESENTATION_MENU_H
-#define CORONA_PRESENTATION_MENU_H
+#pragma once
 
 namespace corona
 {
@@ -273,4 +271,3 @@ namespace corona
 
 }
 
-#endif

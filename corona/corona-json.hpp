@@ -15,9 +15,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_JSON_H
-#define CORONA_JSON_H
+#pragma once
 
 namespace corona 
 {
@@ -4827,4 +4825,3 @@ namespace corona
 
 /* todo, unit tests for the json parser, in particular, compare */
 
-#endif

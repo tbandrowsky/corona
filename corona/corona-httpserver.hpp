@@ -18,9 +18,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_HTTP_SERVER
-#define CORONA_HTTP_SERVER
-
+#pragma once
 
 namespace corona
 {
@@ -733,4 +731,3 @@ namespace corona {
 }
 
 
-#endif

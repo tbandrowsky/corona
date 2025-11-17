@@ -16,8 +16,8 @@ Notes
 
 For Future Consideration
 */
-#ifndef CORONA_FILE_MONITOR
-#define CORONA_FILE_MONITOR
+
+#pragma once
 
 namespace corona
 {
@@ -78,4 +78,3 @@ namespace corona
 
 }
 
-#endif

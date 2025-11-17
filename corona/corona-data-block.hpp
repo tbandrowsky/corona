@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef CORONA_DATABLOCK_HPP
-#define CORONA_DATABLOCK_HPP
 
 namespace corona
 {
@@ -391,4 +389,3 @@ namespace corona
 	};
 }
 
-#endif

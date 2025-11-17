@@ -18,10 +18,7 @@ for mass background removal in another project.  Note all the hsl stuff.
 For Future Consideration
 */
 
-
-#ifndef CORONA_BITMAP_FILTERS_H
-#define CORONA_BITMAP_FILTERS_H
-
+#pragma once
 
 namespace corona
 {
@@ -470,4 +467,3 @@ namespace corona
 
 }
 
-#endif

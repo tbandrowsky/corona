@@ -17,9 +17,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_WCHAR_CONVERT_H
-#define CORONA_WCHAR_CONVERT_H
+#pragma once
 
 namespace corona 
 {
@@ -107,4 +105,3 @@ namespace corona
 }
 
 
-#endif

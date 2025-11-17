@@ -19,9 +19,6 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_DATATRANSFER_H
-#define CORONA_DATATRANSFER_H
-
 namespace corona
 {
 
@@ -131,4 +128,3 @@ namespace corona
 
 }
 
-#endif

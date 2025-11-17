@@ -14,9 +14,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_OBJECT_ID_H
-#define CORONA_OBJECT_ID_H
+#pragma once
 
 namespace corona {
 
@@ -125,4 +123,3 @@ namespace corona {
 }
 
 
-#endif

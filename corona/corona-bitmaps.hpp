@@ -18,8 +18,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_BITMAPS_H
-#define CORONA_BITMAPS_H
+#pragma once
 
 namespace corona
 {
@@ -848,5 +847,3 @@ namespace corona
 		}
 	};
 }
-
-#endif

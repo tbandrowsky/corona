@@ -18,9 +18,7 @@ Is it the best? No, but it works.  Plus, I learned about iterators!
 For Future Consideration
 */
 
-
-#ifndef CORONA_FILTERABLE_ITERATOR_H
-#define CORONA_FILTERABLE_ITERATOR_H
+#pragma once
 
 namespace corona
 {
@@ -398,5 +396,3 @@ namespace corona
 
 }
 
-
-#endif

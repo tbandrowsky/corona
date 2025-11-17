@@ -14,8 +14,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_STYLES_H
-#define CORONA_STYLES_H
+#pragma once
 
 namespace corona 
 {
@@ -663,4 +662,3 @@ namespace corona
 	}
 }
 
-#endif

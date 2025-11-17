@@ -18,8 +18,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_COMM_BUS_INTERFACE_H
-#define CORONA_COMM_BUS_INTERFACE_H
+#pragma once
 
 namespace corona
 {
@@ -365,4 +364,3 @@ namespace corona
 	};
 }
 
-#endif

@@ -16,9 +16,8 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_SMI
-#define CORONA_SMI
 
+#pragma once
 
 
 namespace corona
@@ -1100,5 +1099,3 @@ namespace corona
 	}
 
 }
-
-#endif

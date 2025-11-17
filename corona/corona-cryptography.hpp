@@ -17,9 +17,7 @@ don't forget to encrypt key fields and traffic.
 
 */
 
-
-#ifndef CORONA_CRYPTOGRAPHY
-#define CORONA_CRYPTOGRAPHY
+#pragma once
 
 namespace corona
 {
@@ -660,4 +658,3 @@ namespace corona
 	}
 }
 
-#endif

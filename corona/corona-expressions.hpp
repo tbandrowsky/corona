@@ -17,8 +17,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_EXPRESSIONS_HPP
-#define CORONA_EXPRESSIONS_HPP
+#pragma once
 
 namespace corona
 {
@@ -227,4 +226,3 @@ namespace corona
     }
 }
 
-#endif

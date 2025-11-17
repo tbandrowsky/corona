@@ -21,8 +21,8 @@ then wait all them together.
 For Future Consideration
 */
 
-#ifndef CORONA_FILE_BLOCK
-#define CORONA_FILE_BLOCK
+#pragma once
+
 
 namespace corona
 {
@@ -496,4 +496,3 @@ namespace corona
 
 }
 
-#endif

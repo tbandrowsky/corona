@@ -1,6 +1,5 @@
 #pragma once
 
-#ifndef CORONA_INTERFACES_H
 
 namespace corona
 {
@@ -68,5 +67,3 @@ namespace corona
 		virtual corona_client_response query_objects(json _query) = 0;
 	};
 }
-
-#endif

@@ -4,10 +4,28 @@
 #pragma once
 
 #include "corona.hpp"
-#include <windows.h>
-#include <iostream>
 
 #include "eventmessages.h"
+#include <TraceLoggingProvider.h>
+#include <string.h>
+#include <Shlwapi.h>
+#include <Windows.h>
+#include <winmeta.h>
+#include <cctype>
+#include <ciso646>
+#include <cstdio>
+#include <exception>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <vector>
+#include "../corona/corona-comm-service-bus.hpp"
+#include "../corona/corona-constants.hpp"
+#include "../corona/corona-json.hpp"
+#include "../corona/corona-read_all_string.hpp"
+#include "../corona/corona-system-monitor-bus.hpp"
 
 bool RegisterCoronaEventSource(const std::string& svcName, const std::string& exePath);
 
@@ -23,8 +41,6 @@ HANDLE                  ghSvcStopEvent = NULL;
 std::vector<std::shared_ptr<corona::comm_bus_service>> services;
 bool exit_flag = false;
 std::string config_filename = "config.json";
-
-int CoronaMain(int argc, char* argv[]);
 
 VOID InstallService(void);
 VOID SvcCtrlHandler(DWORD);
@@ -70,7 +86,7 @@ void corona_console_command()
 }
 
 // Handler function to handle CTRL+C
-BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
+static BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
     switch (fdwCtrlType) {
     case CTRL_C_EVENT:
         corona_console_command();
@@ -82,7 +98,7 @@ BOOL WINAPI CtrlHandler(DWORD fdwCtrlType) {
 
 
 
-void RunConsole()
+static void RunConsole()
 {
     exit_flag = false;
     SvcLogInfo("Running Corona Console", __FILE__, __LINE__);
@@ -119,7 +135,7 @@ void RunConsole()
 
             while (not exit_flag)
             {
-                for (auto service : services) {
+                for (auto& service : services) {
                     try 
                     {
                         service->run_frame();
@@ -328,7 +344,7 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv)
 
         while (not exit_flag)
         {
-            for (auto service : services) {
+            for (auto& service : services) {
                 try
                 {
                     service->run_frame();
@@ -508,7 +524,7 @@ VOID SvcLogInfo(std::string message, std::string file, int line)
 
 }
 
-void RunService()
+static void RunService()
 {
     // If command-line parameter is "install", install the service. 
     // Otherwise, the service is probably being started by the SCM.
@@ -532,7 +548,7 @@ void RunService()
 
 }
 
-int CoronaMain(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     TraceLoggingRegister(global_corona_provider);
 

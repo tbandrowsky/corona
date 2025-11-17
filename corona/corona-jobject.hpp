@@ -15,9 +15,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_JOBJECT_H
-#define CORONA_JOBJECT_H
-
+#pragma once
 
 namespace corona {
 
@@ -2325,4 +2323,3 @@ namespace corona {
 
 }
 
-#endif

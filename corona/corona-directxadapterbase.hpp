@@ -15,8 +15,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_DIRECTXADAPTERBASE_H
-#define CORONA_DIRECTXADAPTERBASE_H
+#pragma once
 
 namespace corona
 {
@@ -120,4 +119,3 @@ namespace corona
 
 }
 
-#endif

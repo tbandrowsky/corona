@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_STRING_BOX
-#define CORONA_STRING_BOX
+#pragma once
 
 namespace corona {
 	struct string_box_data {
@@ -1110,4 +1108,3 @@ namespace corona {
 	}
 }
 
-#endif

@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_RECTANGLE_H
-#define CORONA_RECTANGLE_H
+#pragma once
 
 namespace corona {
 
@@ -175,4 +173,3 @@ namespace corona {
 
 }
 
-#endif

@@ -15,8 +15,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_JFIELD_H
-#define CORONA_JFIELD_H
+#pragma once
 
 namespace corona {
 
@@ -492,4 +491,3 @@ namespace corona {
 	}
 }
 
-#endif

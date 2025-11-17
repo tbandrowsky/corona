@@ -13,8 +13,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_VISUAL
-#define CORONA_VISUAL
+#pragma once
 
 namespace corona {
 
@@ -1378,5 +1377,3 @@ namespace corona {
 	}
 
 }
-
-#endif

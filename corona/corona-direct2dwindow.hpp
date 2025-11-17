@@ -16,9 +16,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_DIRECT2DWINDOW_H
-#define CORONA_DIRECT2DWINDOW_H
+#pragma once
 
 namespace corona
 {
@@ -419,4 +417,3 @@ namespace corona
 
 }
 
-#endif

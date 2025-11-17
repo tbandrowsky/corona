@@ -15,9 +15,7 @@ Corona needs to use these more often.
 For Future Consideration
 */
 
-#ifndef CORONA_ASSERT_IF_H
-#define CORONA_ASSERT_IF_H
-
+#pragma once
 namespace corona
 {
 
@@ -80,4 +78,3 @@ namespace corona
 
 }
 
-#endif

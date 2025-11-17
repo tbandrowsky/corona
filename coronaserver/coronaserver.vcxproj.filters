@@ -15,14 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="revolutionapplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="insuranceapplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CoronaApplicationServer.docx" />
     <CopyFileToFolders Include="config.json" />
     <CopyFileToFolders Include="insurance_schema.json" />
@@ -41,9 +33,6 @@
     <None Include="shop\shop_schema.json" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="coronaserver.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="eventmessages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -58,5 +47,10 @@
     <ResourceCompile Include="corona.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="coronaserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

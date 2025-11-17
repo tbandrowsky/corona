@@ -1,5 +1,6 @@
+
 /*
-* 
+
 CORONA 
 C++ Low Code Performance Applications for Windows SDK
 by Todd Bandrowky
@@ -22,18 +23,9 @@ For Future Consideration
 // visual C++ compiler warning disable
 #pragma warning(disable: 4100)
 
-#ifndef CORONA_H
-#define CORONA_H
+#pragma once
 
 #include "corona-windows-all.h"
-
-#include <winmeta.h>
-#include <TraceLoggingProvider.h>
-
-TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
-	global_corona_provider, // Name of the provider handle
-	"CountryVideoGames.CoronaDb", // Human-readable name for the provider
-	(0x2de904b0, 0x0e7b, 0x5db0, 0xc1, 0x88, 0xaa, 0x1a, 0x39, 0x1e, 0x3e, 0x5c));
 
 #include <string>
 #include <bit>
@@ -82,6 +74,16 @@ TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
 // these are all miscellaneous utility classes and the ever abused core constants
 
 #include <ciso646>
+
+
+#include <winmeta.h>
+#include <TraceLoggingProvider.h>
+
+TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
+	global_corona_provider, // Name of the provider handle
+	"CountryVideoGames.CoronaDb", // Human-readable name for the provider
+	(0x2de904b0, 0x0e7b, 0x5db0, 0xc1, 0x88, 0xaa, 0x1a, 0x39, 0x1e, 0x3e, 0x5c));
+
 
 namespace corona {
 	void log_warning(const std::string &_src);
@@ -303,4 +305,3 @@ namespace corona {
 
 
 
-#endif

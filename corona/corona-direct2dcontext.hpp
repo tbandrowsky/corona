@@ -17,8 +17,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_DIRECT2DCONTEXT_H
-#define CORONA_DIRECT2DCONTEXT_H
+#pragma once
 
 namespace corona
 {
@@ -926,8 +925,6 @@ namespace corona
 		friend class path;
 
 		friend class direct2dWindow;
-};
+	};
 
 }
-
-#endif

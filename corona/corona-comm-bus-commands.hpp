@@ -20,8 +20,8 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_COMM_BUS_COMMANDS_H
-#define CORONA_COMM_BUS_COMMANDS_H
+#pragma once
+
 
 namespace corona
 {
@@ -1723,4 +1723,3 @@ namespace corona
 
 }
 
-#endif

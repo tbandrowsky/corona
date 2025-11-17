@@ -16,9 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_LIST_BOX_H
-#define CORONA_LIST_BOX_H
-
+#pragma once
 
 namespace corona {
 
@@ -406,4 +404,3 @@ namespace corona {
 	}
 }
 
-#endif

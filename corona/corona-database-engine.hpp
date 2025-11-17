@@ -11,9 +11,7 @@ This is the core database engine for the corona database server.
 
 */
 
-
-#ifndef CORONA_DATABASE_ENGINE_HPP
-#define CORONA_DATABASE_ENGINE_HPP
+#pragma once
 
 const bool debug_teams = false;
 
@@ -10347,4 +10345,3 @@ grant_type=authorization_code
 
 }
 
-#endif

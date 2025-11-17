@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_UTILITY_H
-#define CORONA_UTILITY_H
+#pragma once
 
 namespace corona {
 
@@ -121,5 +119,4 @@ namespace corona {
 
 }
 
-#endif
 

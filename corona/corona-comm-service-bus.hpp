@@ -15,8 +15,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_COMM_SERVICE_BUS
-#define CORONA_COMM_SERVICE_BUS
+#pragma once
 
 namespace corona
 {
@@ -2333,4 +2332,3 @@ Bind get classes
 	};
 }
 
-#endif

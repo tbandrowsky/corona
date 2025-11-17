@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef SORTED_INDEX_H
-#define SORTED_INDEX_H
+#pragma once
 
 
 namespace corona {
@@ -825,5 +823,3 @@ bool test_index()
 }
 
 }
-
-#endif

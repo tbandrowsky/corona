@@ -16,8 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_PRESENTATION_CONTROLS_BASE_H
-#define CORONA_PRESENTATION_CONTROLS_BASE_H
+#pragma once
 
 namespace corona
 {
@@ -1205,4 +1204,3 @@ namespace corona
 
 }
 
-#endif

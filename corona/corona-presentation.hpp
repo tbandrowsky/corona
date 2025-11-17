@@ -18,8 +18,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_PRESENTATION_H
-#define CORONA_PRESENTATION_H
+#pragma once
 
 namespace corona {
 
@@ -1175,4 +1174,3 @@ namespace corona {
 	}
 }
 
-#endif

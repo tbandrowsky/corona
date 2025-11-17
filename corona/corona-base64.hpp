@@ -1,6 +1,5 @@
 
-#ifndef CORONA_BASE64_HPP
-#define CORONA_BASE64_HPP
+#pragma once
 
 namespace corona {
     /*
@@ -170,10 +169,10 @@ namespace corona {
         while (pos < in_len) {
             ret.push_back(base64_chars_[(bytes_to_encode[pos + 0] & 0xfc) >> 2]);
 
-            if (pos + 1 < in_len) {
+            if (static_cast<unsigned long long>(pos) + 1 < in_len) {
                 ret.push_back(base64_chars_[((bytes_to_encode[pos + 0] & 0x03) << 4) + ((bytes_to_encode[pos + 1] & 0xf0) >> 4)]);
 
-                if (pos + 2 < in_len) {
+                if (static_cast<unsigned long long>(pos) + 2 < in_len) {
                     ret.push_back(base64_chars_[((bytes_to_encode[pos + 1] & 0x0f) << 2) + ((bytes_to_encode[pos + 2] & 0xc0) >> 6)]);
                     ret.push_back(base64_chars_[bytes_to_encode[pos + 2] & 0x3f]);
                 }
@@ -320,4 +319,3 @@ namespace corona {
 
 }
 
-#endif

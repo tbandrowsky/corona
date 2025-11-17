@@ -17,10 +17,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_QUERY_H
-#define CORONA_QUERY_H
-
+#pragma once
 namespace corona
 {
 	class source_item
@@ -1405,4 +1402,3 @@ namespace corona
 
 }
 
-#endif

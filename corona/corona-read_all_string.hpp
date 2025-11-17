@@ -14,10 +14,8 @@ Notes
 
 For Future Consideration
 */
+#pragma once
 
-
-#ifndef CORONA_READ_ALL_STRING_H
-#define CORONA_READ_ALL_STRING_H
 
 namespace corona {
 
@@ -46,4 +44,3 @@ namespace corona {
 
 }
 
-#endif

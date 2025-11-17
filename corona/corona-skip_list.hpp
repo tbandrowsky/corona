@@ -13,9 +13,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_SKIP_LIST_H
-#define CORONA_SKIP_LIST_H
+#pragma once
 
 namespace corona {
 
@@ -790,4 +788,3 @@ namespace corona {
 	}
 }
 
-#endif

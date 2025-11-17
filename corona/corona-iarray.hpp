@@ -16,9 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_IARRAY_H
-#define CORONA_IARRAY_H
-
+#pragma once
 #include "corona-constants.hpp"
 #include "corona-assert_if.hpp"
 #include "corona-filterable_iterator.hpp"
@@ -564,4 +562,3 @@ namespace corona {
 }
 
 
-#endif

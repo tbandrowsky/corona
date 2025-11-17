@@ -1,7 +1,5 @@
 
-#ifndef CORONA_THREAD_SAFE_MAP_H
-#define CORONA_THREAD_SAFE_MAP_H
-
+#pragma once
 #include <map>
 #include <mutex>
 
@@ -74,4 +72,3 @@ public:
 
 }
 
-#endif

@@ -17,9 +17,6 @@ For Future Consideration
 
 #pragma once
 
-#ifndef CORONA_LOCKS_HPP
-#define CORONA_LOCKS_HPP
-
 namespace corona
 {
 	// simple wrapper for interlocked increment
@@ -552,4 +549,3 @@ namespace corona
 
 }
 
-#endif

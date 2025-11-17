@@ -20,8 +20,8 @@ For Future Consideration
 
 */
 
-#ifndef CORONA_JSON_SERIALIZATION_H
-#define CORONA_JSON_SERIALIZATION_H
+
+#pragma once
 
 namespace corona
 {
@@ -272,6 +272,4 @@ namespace corona
 
 
 }
-
-#endif
 

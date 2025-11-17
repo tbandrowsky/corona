@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef CORONA_CORONA_CLIENT_HPP
-#define CORONA_CORONA_CLIENT_HPP
 
 /*
 
@@ -407,4 +405,3 @@ namespace corona
 
 }
 
-#endif

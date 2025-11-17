@@ -15,9 +15,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_IMAGE_H
-#define CORONA_IMAGE_H
+#pragma once
 
 namespace corona {
 
@@ -64,4 +62,3 @@ namespace corona {
 
 }
 
-#endif

@@ -17,8 +17,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_CONSTANTS_H
-#define CORONA_CONSTANTS_H
+#pragma once
 
 namespace corona
 {
@@ -1083,4 +1082,3 @@ namespace corona
 
 }
 
-#endif

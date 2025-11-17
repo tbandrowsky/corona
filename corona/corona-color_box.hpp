@@ -15,9 +15,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_COLOR_BOX_H
-#define CORONA_COLOR_BOX_H
-
+#pragma once
 
 namespace corona
 {
@@ -66,4 +64,3 @@ namespace corona
 
 }
 
-#endif

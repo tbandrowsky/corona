@@ -19,8 +19,7 @@ This was never actually needed, once I changed my design per linked in.
 
 */
 
-#ifndef CORONA_FUNCTION_BAG_H
-#define CORONA_FUNCTION_BAG_H
+#pragma once
 
 namespace corona
 {
@@ -55,6 +54,4 @@ namespace corona
 	};
 
 }
-
-#endif
 

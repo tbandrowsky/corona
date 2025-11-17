@@ -21,8 +21,26 @@ For Future Consideration
 This is a singleton.  having a public constructor is wrong.
 */
 
-#ifndef CORONA_APPLICATION_H
-#define CORONA_APPLICATION_H
+#pragma once
+#include <lmcons.h>
+#include <secext.h>
+#include <string.h>
+#include <KnownFolders.h>
+#include <ShlObj_core.h>
+#include <Shlwapi.h>
+#include <shtypes.h>
+#include <Windows.h>
+#include <ciso646>
+#include <exception>
+#include <memory>
+#include <string>
+
+#include "corona-file.hpp"
+#include "corona-queue.hpp"
+#include "corona-string_box.hpp"
+#include "corona-system-monitor-bus.hpp"
+
+
 
 namespace corona
 {
@@ -67,9 +85,9 @@ namespace corona
 			return temp;
 		}
 
-		std::string get_data_filename(std::string _filename)
+		std::string get_data_filename(std::string _filename) const
 		{
-			char path_name[ MAX_PATH * 4 ];
+			char path_name[MAX_PATH * 4] = {};
 			wchar_t* wide_path = nullptr;
 			std::string result;
 			::SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &wide_path);
@@ -187,7 +205,7 @@ namespace corona
 
 			// Open the current process token
 			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &tokenHandle)) {
-				TOKEN_ELEVATION elevation;
+				TOKEN_ELEVATION elevation = {};
 				DWORD size;
 
 				// Query the token for elevation information
@@ -233,5 +251,3 @@ namespace corona
 		}
 	}
 }
-
-#endif

@@ -14,9 +14,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_DIRECTXDEVICES_H
-#define CORONA_DIRECTXDEVICES_H
+#pragma once
 
 namespace corona
 {
@@ -163,4 +161,3 @@ namespace corona
 
 }
 
-#endif

@@ -15,9 +15,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_FILE_H
-#define CORONA_FILE_H
+#pragma once
 
 namespace corona
 {
@@ -328,5 +326,3 @@ namespace corona
 	};
 }
 
-
-#endif

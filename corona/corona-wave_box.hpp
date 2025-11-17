@@ -13,8 +13,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_WAVE_BOX
-#define CORONA_WAVE_BOX
+#pragma once
 
 namespace corona {
 
@@ -67,4 +66,3 @@ namespace corona {
 
 }
 
-#endif

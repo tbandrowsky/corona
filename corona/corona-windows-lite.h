@@ -12,12 +12,10 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_WINDOWS_LITE
-#define CORONA_WINDOWS_LITE
+#pragma once
 
 #include "windows.h"
 #include "windowsx.h"
 
 #include <iostream>
 
-#endif

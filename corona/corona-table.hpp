@@ -14,8 +14,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_TABLE_H
-#define CORONA_TABLE_H
+#pragma once
 
 namespace corona {
 
@@ -973,4 +972,3 @@ namespace corona {
 	}
 }
 
-#endif

@@ -16,8 +16,7 @@ For Future Consideration
 */
 
 
-#ifndef CORONA_CONTROL_DATA_H
-#define CORONA_CONTROL_DATA_H
+#pragma once
 
 namespace corona
 {
@@ -178,4 +177,3 @@ namespace corona
 	};
 }
 
-#endif

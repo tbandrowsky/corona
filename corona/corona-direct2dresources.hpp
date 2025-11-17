@@ -15,8 +15,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_DIRECT2DRESOURCES_H
-#define CORONA_DIRECT2DRESOURCES_H
+#pragma once
 
 namespace corona
 {
@@ -109,5 +108,4 @@ namespace corona
 
 }
 
-#endif
 

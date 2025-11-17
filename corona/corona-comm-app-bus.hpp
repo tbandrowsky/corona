@@ -17,9 +17,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_COMM_APP_BUS_H
-#define CORONA_COMM_APP_BUS_H
+#pragma once
 
 namespace corona
 {
@@ -1222,4 +1220,3 @@ namespace corona
 	};
 }
 
-#endif

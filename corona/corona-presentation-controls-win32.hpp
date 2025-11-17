@@ -14,8 +14,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_PRESENTATION_CONTROLS_WIN32_H
-#define CORONA_PRESENTATION_CONTROLS_WIN32_H
+#pragma once
 
 namespace corona
 {
@@ -2059,5 +2058,3 @@ namespace corona
 	}
 
 }
-
-#endif

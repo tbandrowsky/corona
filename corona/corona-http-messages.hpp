@@ -16,9 +16,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_HTTP_MESSAGES_H
-#define CORONA_HTTP_MESSAGES_H
+#pragma once
 
 namespace corona
 {
@@ -75,5 +73,3 @@ namespace corona
 		}
 	};
 }
-
-#endif

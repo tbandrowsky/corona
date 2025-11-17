@@ -16,9 +16,7 @@ For Future Consideration
 Implement midi chumpies here.
 */
 
-
-#ifndef CORONA_MIDI_BOX_H
-#define CORONA_MIDI_BOX_H
+#pragma once
 
 namespace corona {
 
@@ -68,5 +66,3 @@ namespace corona {
 	};
 
 }
-
-#endif

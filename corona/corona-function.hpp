@@ -18,9 +18,7 @@ Notes
 For Future Consideration
 */
 
-#ifndef CORONA_FUNCTION_H
-#define CORONA_FUNCTION_H
-
+#pragma once
 const int debug_functions = 0;
 
 namespace corona
@@ -558,4 +556,3 @@ namespace corona
 
 }
 
-#endif

@@ -14,9 +14,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_TIME_BOX
-#define CORONA_TIME_BOX
+#pragma once
 
 namespace corona 
 {
@@ -884,4 +882,3 @@ struct std::formatter<corona::date_time> {
 	}
 };
 
-#endif

@@ -14,10 +14,7 @@ Notes
 For Future Consideration
 */
 
-
-#ifndef CORONA_SENDGRID_CLIENT_H
-#define CORONA_SENDGRID_CLIENT_H
-
+#pragma once
 namespace corona
 {
 	class sendgrid_client
@@ -139,4 +136,3 @@ namespace corona
 	};
 }
 
-#endif

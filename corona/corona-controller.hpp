@@ -17,9 +17,7 @@ A corona page is a corona controller.
 For Future Consideration
 */
 
-
-#ifndef CORONA_CONTROLLER_H
-#define CORONA_CONTROLLER_H
+#pragma once
 
 namespace corona
 {
@@ -78,4 +76,3 @@ namespace corona
 
 }
 
-#endif

@@ -20,9 +20,7 @@ jcollection is a binary stored bag in a single blob.  good for super speedo crun
 For Future Consideration
 */
 
-
-#ifndef CORONA_JDATABASE_SERVER_H
-#define CORONA_JDATABASE_SERVER_H
+#pragma once
 
 namespace corona {
 
@@ -498,4 +496,3 @@ namespace corona {
 
 }
 
-#endif
