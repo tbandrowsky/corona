@@ -7171,6 +7171,16 @@ bail:
 		{
             data_path = _data_path;
 			token_life = time_span(1, time_models::days);	
+
+
+			default_user = "system";
+			default_password = "nonprivatestuff";
+			default_email_address = "system@example.com";
+			default_guest_team = "Guests";
+			default_api_title = "API";
+			default_api_description = "API Description";
+			default_api_version = "1.0";
+			default_api_author = "System";
 		}
 
 		virtual ~corona_database()

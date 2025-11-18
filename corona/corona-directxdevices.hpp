@@ -49,15 +49,16 @@ namespace corona
 				D3D_FEATURE_LEVEL_11_0,
 				D3D_FEATURE_LEVEL_11_1
 			};
-
+			
 			ID3D11Device* temp = nullptr;
 
-			HRESULT hr;
+			HRESULT hr = E_FAIL;
+			ID3D11Device* d3d11Device = nullptr;
+			D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
 
-			try
-			{
-
-				hr = D3D11CreateDevice(_adapter,
+			__try {
+				hr = D3D11CreateDevice(
+					_adapter,
 					D3D_DRIVER_TYPE_UNKNOWN,
 					NULL,
 					D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED,
@@ -68,15 +69,18 @@ namespace corona
 					&feature_level,
 					NULL
 				);
-
 			}
-			catch (...)
-			{
-				std::cerr << "An exception occurred trying to D3D11CreateDevice." << std::endl;
-				return false;
+			__except (EXCEPTION_EXECUTE_HANDLER) {
+				// Log the exception code (GetExceptionCode()) and fail gracefully
+				hr = E_FAIL;
+				d3d11Device = nullptr;
 			}
 
-			if (SUCCEEDED(hr) and d3d11Device != nullptr)
+			if (SUCCEEDED(hr) && d3d11Device != nullptr) {
+				// Continue initialization
+			}
+
+			if (SUCCEEDED(hr) && d3d11Device != nullptr)
 			{
 				return true;
 			}

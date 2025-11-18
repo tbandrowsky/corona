@@ -15,10 +15,28 @@ namespace corona
 		std::string		message;
 		double			execution_time;
 		json			data;
-		std::vector<validation_error> errors;
+		validation_error_collection errors;
 		std::vector<std::shared_ptr<client_class_interface>> classes;
 
-		void set(json& response);
+		void set(json& response)
+		{
+			success = (bool)response[success_field];
+			message = response[message_field];
+			execution_time = (double)response["execution_time_seconds"];
+			data = response["data"];
+			errors.clear();
+			if (response.has_member("errors") and response["errors"].array())
+			{
+				auto error_array = response["errors"];
+				for (int i = 0; i < error_array.size(); i++)
+				{
+					validation_error ve;
+					json err = error_array.get_element(i);
+					ve.put_json(err);
+					errors.push_back(ve);
+				}
+            }
+		}
 
 		corona_client_response& operator = (json& response)
 		{

@@ -39,9 +39,15 @@ namespace corona
 		{
 			bool result = false;
 			for (const auto& entry : std::filesystem::directory_iterator(path)) {
-				auto temp = entry.path().string();
+				auto& entry_path = entry.path();
+				auto temp = entry_path.string();
+
+				if (entry_path.extension().string().find("corona") != std::string::npos)
+                    continue;
+
 				if (_options.files_to_ignore.contains(temp))
 					continue;
+				
 				auto foundi = entries.find(temp);
 				if (foundi != std::end(entries))
 				{

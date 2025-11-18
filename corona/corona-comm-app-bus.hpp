@@ -29,6 +29,8 @@ namespace corona
 		std::multimap<UINT, windows_event_waiter> windows_waiters;
 		std::multimap<std::string, topic_event_waiter> topic_waiters;
 
+		corona_client client;
+
 		void check_windows_queue(MSG* _msg)
 		{
 			auto waiters = windows_waiters.find(_msg->message);
@@ -79,8 +81,6 @@ namespace corona
 		std::shared_ptr<application>		app;
 		json								abbreviations;
 
-		corona_client						client;
-
 		// the adapter, created first.  It is the graphics card on the machine
 		std::shared_ptr<directXAdapter> factory;
 
@@ -97,14 +97,13 @@ namespace corona
 
 		int application_icon_id;
 
-		std::string database_schema_filename;
 		std::string database_config_filename;
 		std::string styles_config_filename;
 		std::string pages_config_filename;
+		std::string database_schema_filename;
 
 		directory_checker checker;
 
-		std::string database_filename;
 		std::string user_file_name;
 
 		bool ready_for_polling;
@@ -112,9 +111,7 @@ namespace corona
 		json system_proof;
 
 		comm_app_bus(std::string _application_name,
-			std::string _application_folder_name,
-			std::string _config_filename_base,
-			bool create)
+			std::string _application_folder_name)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
 			timer tx;
@@ -147,49 +144,16 @@ namespace corona
 
 			app_menu = std::make_shared<menu_item>();
 
-			log_information("Default user:" + app->get_user_display_name());
-
-			database_schema_filename = _config_filename_base + "schema.json";
 			database_config_filename = "config.json";
-			pages_config_filename = _config_filename_base + "pages.json";
-			styles_config_filename = _config_filename_base + "styles.json";
-			database_filename = app->get_data_filename("instantenterprise.cdb");
-
-			/*
-			char path[MAX_PATH + 16] = {};
-			GetModuleFileNameA(NULL, path, MAX_PATH);
-			PathRemoveFileSpecA(path);
-			*/
-
-            // this needs to be updated along the lines with corona_comm_service_bus
+			database_schema_filename = _application_name + "_schema.json";
+			pages_config_filename = _application_name + "_pages.json";
+			styles_config_filename = _application_name + "_styles.json";
 
 			json token = get_local_token();
 
 			ready_for_polling = true;
 
 			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-		}
-
-		void prove_system()
-		{
-			timer tx;
-			date_time t = date_time::now();
-
-			json_parser jp;
-
-			test_master tm;
-
-			log_job_start("verification", "verification start", t, __FILE__, __LINE__);
-
-			std::vector<std::string> dependencies;
-
-			std::shared_ptr<test_set> testo = tm.create_test_set("locks", dependencies);
-			test_locks(testo);
-
-			testo = tm.create_test_set("rw locks", dependencies);
-			test_rw_locks(testo);
-
-			log_job_stop("verification", "verification is a bit bs here", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 		}
 
 
@@ -206,21 +170,7 @@ namespace corona
 				log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
 
-			timer tx2;
-			if (read_json(database_config_filename, temp) != null_row) {
-				log_command_start("poll_db", "apply config", start_time, __FILE__, __LINE__);
-//				local_db->apply_config(temp);
-				log_command_stop("poll_db", "config applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
-			}
-
-			if (temp.has_member("Client"))
-			{
-				json client_config = local_db_config["Client"];
-				client.base_path = client_config["base_path"];
-				client.host = client_config["host"];
-				client.port = client_config["port"];
-			}
-
+			// there is no apply config because that's a server only thing.
 		}
 
 		void poll_pages(bool _select_default_page)
@@ -348,8 +298,6 @@ namespace corona
 		virtual void poll(bool _select_default_page)
 		{
 			directory_checker::check_options options;
-
-			options.files_to_ignore.insert_or_assign(database_filename, true);
 
 			if (checker.check_changes( options)) {
 				poll_db();
