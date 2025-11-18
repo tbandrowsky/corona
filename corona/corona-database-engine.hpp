@@ -4208,34 +4208,33 @@ namespace corona
 			if (result.object())
 			{
 				_exists = true;
-                if (_grant.get_grant & class_grants::grant_any)
+				result.put_member("class_color", class_color);
+
+				if (_grant.get_grant & class_grants::grant_any)
                 {
                     // all good
                 }
                 else if (_grant.get_grant == class_grants::grant_own)
 				{
 					if ((std::string)result["created_by"] != _grant.user_name) {
-						result = jp.create_object();
+						result.clear();
 					}
                 }
                 else if (_grant.get_grant == class_grants::grant_team) {
 					if ((std::string)result["team"] != _grant.team_name) {
-						result = jp.create_object();
+						result.clear();
 					}
                 }
 				else if (_grant.get_grant == class_grants::grant_teamorown) {
 					if (((std::string)result["team"] != _grant.team_name) || (std::string)result["created_by"] != _grant.user_name) {
-						result = jp.create_object();
+						result.clear();
 					}
 				}
-
-				result.put_member("class_color", class_color);
 			}
 			else 
 			{
 				_exists = false;
 			}
-
 
 			return result;
 		}
@@ -4501,42 +4500,46 @@ namespace corona
 
 						bool first_word = true;
 
-						for (auto word : terms) {
-							std::set<int64_t> base_object_ids;
-							json ft_key = jp.create_object();
+						json ft_key = jp.create_object();
+                        if (terms.size() > 0) {
+
+							auto word = terms[0];
 							ft_key.put_member("text", word);
 
-							json ft_results = ftb->select(&max_query_result_rows, ft_key, [&base_object_ids](json& _item) -> json {
+							json *pobj = &obj;
+
+							json ft_results = ftb->select(nullptr, ft_key, [&terms, &_grant, &_db, pobj, this](json& _item) -> json {
 								int64_t object_id = (int64_t)_item["object_id"];
-								base_object_ids.insert(object_id);
-								json temp;
-								return temp;
-								});
-
-							if (first_word) {
-
-								found_object_ids = std::move(base_object_ids);
-								first_word = false;
-							}
-							else
-							{
-
-								for (auto base_id : base_object_ids) {
-									if (found_object_ids.contains(base_id)) {
-										join_result.insert(base_id);
+								bool exists;
+								json temp = get_object(_db, object_id, _grant, exists);
+								if (temp.object()) {
+									bool found = true;
+									for (auto& tword : terms) {
+										bool found_word = false;
+										for (auto& ftx : full_text_fields) {
+											std::string str= temp[ftx];
+                                            std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+ 											bool result = str.find(tword) != std::string::npos;
+											if (result) {
+												found_word = true;
+												break;
+                                            }
+										}
+                                        if (found_word == false) {
+											found = false;
+											break;
+										}
+									}
+									if (found && pobj->size() < max_query_result_rows) {
+										pobj->push_back(temp);
 									}
 								}
+								json emptio;
+								return emptio;
+								});
 
-								found_object_ids = std::move(join_result);
-							}
 						}
-						for (auto ids : found_object_ids) {
-							bool exists;
-							json temp = get_object(_db, ids, _grant, exists);
-							if (temp.object()) {
-								obj.push_back(temp);
-							}
-						}
+
 					}
 				}
 				else {

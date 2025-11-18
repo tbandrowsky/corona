@@ -2376,7 +2376,7 @@
     {
       "class_name": "county",
       "class_description": "County",
-      "base_class_name": "county_information",
+      "base_class_name": "work_object",
       "class_color": "#4e7a69",
       "full_text": [ "fips_code", "state", "county" ],
       "class_author": "TJ Bandrowsky",
@@ -2386,6 +2386,8 @@
         "state",
         "fips"
       ],
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "300px auto",
       "fields": {
         "county": {
           "field_type": "string",
@@ -2395,14 +2397,14 @@
         },
         "state": {
           "field_type": "string",
-          "grid_column": "2",
-          "grid_row": "1",
+          "grid_column": "1",
+          "grid_row": "2",
           "label": "State"
         },
         "fips_code": {
           "field_type": "string",
-          "grid_column": "3",
-          "grid_row": "1",
+          "grid_column": "1",
+          "grid_row": "3",
           "label": "State"
         },
         "demographics": {
