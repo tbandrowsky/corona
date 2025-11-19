@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface ISetSendCodeRequest
+    public interface ISetSendCodeRequest : ICoronaBaseRequest
     {
-        string Username { get; }
-        string Destination { get; } // e.g. email or phone
     }
 }

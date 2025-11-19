@@ -32,11 +32,10 @@ namespace CoronaInterface
 
     public interface ISendGrid
     {
-        public string ApiKey { get; }
-        public string SenderName { get; }
-        public string SenderEmail { get; }
-        public string UserConfirmationTitle { get; }
-        public string SendMail(string recipientEmail, string recipientName, string subject, string body);
+        public string ApiKey { get; set; }
+        public string SenderName { get; set; }
+        public string SenderEmail { get; set; }
+        public string UserConfirmationTitle { get; set; }
     }
 
     public interface IConnection

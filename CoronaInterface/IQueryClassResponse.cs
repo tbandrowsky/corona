@@ -2,10 +2,7 @@ using System.Collections.Generic;
 
 namespace CoronaInterface
 {
-    public interface IQueryClassResponse
+    public interface IQueryClassResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
-        IEnumerable<object>? Results { get; }
     }
 }

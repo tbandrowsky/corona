@@ -1,9 +1,9 @@
+using Newtonsoft.Json.Linq;
+
 namespace CoronaInterface
 {
     public interface ICreateUserRequest
     {
-        string Username { get; }
-        string Password { get; }
-        string? Email { get; }
+        JToken Data { get; set; }
     }
 }

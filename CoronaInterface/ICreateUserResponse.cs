@@ -1,9 +1,6 @@
 namespace CoronaInterface
 {
-    public interface ICreateUserResponse
+    public interface ICreateUserResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
-        string? UserId { get; }
     }
 }

@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace CoronaInterface
 {
-    public interface IPutObjectsRequest
+    public interface IPutObjectsRequest : ICoronaBaseRequest
     {
-        IEnumerable<object> Objects { get; }
+        
     }
 }

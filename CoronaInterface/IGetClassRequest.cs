@@ -2,9 +2,7 @@ using System.Collections.Generic;
 
 namespace CoronaInterface
 {
-    public interface IGetClassRequest
+    public interface IGetClassRequest : ICoronaBaseRequest
     {
-        string ClassName { get; }
-        IDictionary<string, object>? Options { get; }
     }
 }

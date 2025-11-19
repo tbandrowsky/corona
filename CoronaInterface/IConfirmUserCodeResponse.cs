@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IConfirmUserCodeResponse
+    public interface IConfirmUserCodeResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
     }
 }

@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IConfirmUserCodeRequest
+    public interface IConfirmUserCodeRequest : ICoronaBaseRequest
     {
-        string Username { get; }
-        string Code { get; }
     }
 }

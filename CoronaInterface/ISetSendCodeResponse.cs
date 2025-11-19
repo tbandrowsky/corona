@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface ISetSendCodeResponse
+    public interface ISetSendCodeResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
     }
 }

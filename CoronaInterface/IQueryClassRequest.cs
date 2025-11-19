@@ -2,10 +2,7 @@ using System.Collections.Generic;
 
 namespace CoronaInterface
 {
-    public interface IQueryClassRequest
+    public interface IQueryClassRequest : ICoronaBaseRequest
     {
-        string ClassName { get; }
-        IDictionary<string, object>? Filters { get; }
-        int? Limit { get; }
     }
 }

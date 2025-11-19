@@ -1,9 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IGetObjectResponse
+    public interface IGetObjectResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
-        object? ObjectData { get; }
     }
 }

@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface ILoginResult
+    public interface ILoginResult : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
     }
 }

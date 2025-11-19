@@ -13,6 +13,8 @@
         IGetClassResponse GetClass(IGetClassRequest request);
         IPutClassResponse PutClass(IPutClassRequest request);
         IGetObjectResponse GetObject(IGetObjectRequest request);
+        IEditObjectResponse EditObject(IEditObjectRequest request);
+        IRunObjectResponse EditObject(IRunObjectRequest request);
         IPutObjectsResponse PutObjects(IPutObjectsRequest request);
         IDeleteObjectsResponse DeleteObjects(IDeleteObjectsRequest request);
         IQueryClassResponse QueryClass(IQueryClassRequest request);

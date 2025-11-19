@@ -1,8 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IPutClassResponse
+    public interface IPutClassResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
     }
 }

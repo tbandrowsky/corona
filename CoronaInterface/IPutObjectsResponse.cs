@@ -1,9 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IPutObjectsResponse
+    public interface IPutObjectsResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
-        int ObjectsInserted { get; }
     }
 }

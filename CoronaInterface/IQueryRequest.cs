@@ -2,9 +2,7 @@ using System.Collections.Generic;
 
 namespace CoronaInterface
 {
-    public interface IQueryRequest
+    public interface IQueryRequest : ICoronaBaseRequest
     {
-        string QueryText { get; }
-        IDictionary<string, object>? Parameters { get; }
     }
 }
