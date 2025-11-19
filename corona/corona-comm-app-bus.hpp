@@ -1,4 +1,5 @@
 #pragma once
+#include <ShlObj_core.h>
 
 /*
 CORONA
@@ -97,6 +98,7 @@ namespace corona
 
 		int application_icon_id;
 
+		std::string database_path;
 		std::string database_config_filename;
 		std::string styles_config_filename;
 		std::string pages_config_filename;
@@ -111,7 +113,7 @@ namespace corona
 		json system_proof;
 
 		comm_app_bus(std::string _application_name,
-			std::string _application_folder_name)
+			std::string _application_folder_name, bool _database_recreate = true)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
 			timer tx;
@@ -149,6 +151,72 @@ namespace corona
 			pages_config_filename = _application_name + "_pages.json";
 			styles_config_filename = _application_name + "_styles.json";
 
+            auto current_path = std::filesystem::current_path();
+
+			PWSTR userFolderPath = nullptr;
+			HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
+			if (result == S_OK) {
+                istring<4096> dataPath(userFolderPath);
+
+				std::filesystem::path application_path = app->application_folder_name;
+				std::filesystem::path database_path = dataPath.c_str();
+				database_path /= application_path;
+				change_to_folder(database_path.string());
+
+				CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
+			}
+			else {
+				log_warning("Could not get app_data folder path", __FILE__, __LINE__);
+				return;
+			}
+
+			if (_database_recreate = true)
+			{
+				run("del *.coronatbl");
+				run("del *.coronaclass");
+				run("del *.coronaindex");
+			}
+
+			if (not std::filesystem::exists("classes.coronatbl"))
+			{
+				try {
+					local_db = std::make_shared<corona_database>(database_path);
+				}
+				catch (std::exception exc)
+				{
+					log_warning("Could not apply database config", __FILE__, __LINE__);
+				}
+
+				json create_database_response = local_db->create_database();
+
+				bool success = (bool)create_database_response[success_field];
+				if (!success) {
+					log_json(create_database_response);
+					std::filesystem::current_path(current_path);
+					throw std::exception("Could not create database");
+				}
+
+				ready_for_polling = true;
+			}
+			else
+			{
+
+				try {
+					local_db = std::make_shared<corona_database>();
+					std::filesystem::current_path(current_path);
+					local_db->open_database();
+				}
+				catch (std::exception exc)
+				{
+					std::string mxessage = std::format("Could not apply config {}", exc.what());
+					log_warning(mxessage, __FILE__, __LINE__);
+				}
+
+
+				ready_for_polling = true;
+			}
+
+
 			json token = get_local_token();
 
 			ready_for_polling = true;
@@ -156,6 +224,26 @@ namespace corona
 			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 		}
 
+		std::string run(const std::string& _command)
+		{
+			char buffer[4096] = {};
+			std::string result;
+
+#if defined(_WIN32)
+			std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(_command.c_str(), "r"), _pclose);
+#else
+			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(commandLine.c_str(), "r"), pclose);
+#endif
+
+			if (!pipe) {
+				throw std::runtime_error("Failed to run command: " + _command);
+			}
+
+			while (std::fgets(buffer, sizeof(buffer) - 10, pipe.get()) != nullptr) {
+				result += buffer;
+			}
+			return result;
+		}
 
 		void poll_db()
 		{

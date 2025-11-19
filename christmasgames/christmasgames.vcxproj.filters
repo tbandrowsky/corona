@@ -54,6 +54,7 @@
     <None Include="christmasgames_root.json" />
     <None Include="christmasgames_styles.json" />
     <None Include="client.json" />
+    <None Include="christmasgames.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="christmasgames.cpp">

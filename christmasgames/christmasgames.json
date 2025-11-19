@@ -1,0 +1,153 @@
+{
+  "schema_name": "Christmas Games Local Db",
+  "schema_description": "Schema for the Christmas Games.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "Bandrowsky Hudnall"
+  ],
+  "classes": [
+    {
+      "class_name": "object_frame",
+      "base_class_name": "sys_object",
+      "class_description": "frame of an object",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "card_title": "object_state",
+      "card_fields": [ "x", "y", "w", "h" ],
+      "parents": [ "object_state" ],
+      "fields": {
+        "x": "double",
+        "y": "double",
+        "w": "double",
+        "h": "double",
+        "duration": "double"
+      }
+    },
+    {
+      "class_name": "object_state",
+      "base_class_name": "sys_object",
+      "class_description": "A state, and its animation frames",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "state_name", "image_name" ],
+      "card_title": "state_name",
+      "card_fields": [ "image_name" ],
+      "parents": [ "object_instance" ],
+      "fields": {
+        "state_name": "string",
+        "image_name": "string",
+        "frames": "[ object_frame ]"
+      }
+    },
+    {
+      "class_name": "object_instance",
+      "base_class_name": "sys_object",
+      "class_description": "State of a tile",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "state_name", "object_name" ],
+      "card_title": "object_name",
+      "card_fields": [ "state_name" ],
+      "parents": [ "game_board" ],
+      "fields": {
+        "state_name": "string",
+        "object_name": "string",
+        "x": "double",
+        "y": "double",
+        "z": "double",
+        "w": "double",
+        "h": "double",
+        "dxs": "double",
+        "dys": "double",
+        "dzs": "double"
+      }
+    },
+    {
+      "class_name": "game_board",
+      "base_class_name": "sys_object",
+      "class_description": "Items to put into a recipe",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "board_name", "board_description" ],
+      "card_title": "board_name",
+      "card_fields": [ "board_description" ],
+      "parents": [ "game" ],
+      "fields": {
+        "board_name": "string",
+        "board_description": "string",
+        "objects": "[object_instance]"
+      }
+    },
+    {
+      "class_name": "player",
+      "base_class_name": "sys_object",
+      "class_description": "A player in the game",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "player_name", "player_description" ],
+      "card_title": "player_name",
+      "card_fields": [ "player_description" ],
+      "parents": [ "game" ],
+      "fields": {
+        "player_name": "string",
+        "player_description": "string",
+        "player_command": "string",
+        "player_command_time": "double",
+        "player_command_executed": "boolean"
+      }
+    },
+    {
+      "class_name": "game",
+      "base_class_name": "sys_object",
+      "class_description": "Items to put into a recipe",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "class_color": "#4cbcbc",
+      "full_text": [ "game_name", "game_description" ],
+      "card_title": "game_name",
+      "card_fields": [ "game_description" ],
+      "fields": {
+        "game_name": "string",
+        "game_description": "string",
+        "game_boards": "[ game_board ]"
+      }
+    }
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Game Objects",
+      "dataset_description": "Game objects and their properties",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "Game Team",
+          "team_description": "Manages Games",
+          "team_domain": ".*",
+          "inventory_classes": [],
+          "allowed_teams": [ "Game Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "ingredient", "task", "recipe", "comment" ],
+              "get": "any",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

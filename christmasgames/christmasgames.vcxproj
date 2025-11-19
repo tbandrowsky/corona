@@ -582,6 +582,7 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="christmasgames.json" />
     <None Include="christmasgames_home.json" />
     <None Include="christmasgames_pages.json" />
     <None Include="christmasgames_root.json" />
