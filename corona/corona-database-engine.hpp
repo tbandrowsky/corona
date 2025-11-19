@@ -6292,14 +6292,21 @@ bail:
 			return response;
 		}
 
+		std::string pass_phrase;
+		std::string pass_iv;
+
 		std::string get_pass_phrase()
 		{
-			return "This is a test pass phrase";
+			if (pass_phrase.empty()) {
+				pass_phrase = get_random_code(16);
+            }
 		}
 
 		std::string get_iv()
 		{
-			return "This is a test iv";
+			if (pass_iv.empty()) {
+				pass_iv = get_random_code(8);
+			}
 		}
 
 		json create_response(std::string _user_name, std::string _authorization, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
@@ -7249,12 +7256,18 @@ bail:
 
 		}
 
+        static const int max_code_length = 31;
 
-		virtual std::string get_random_code()
+		virtual std::string get_random_code(int _confirmation_code_digits = 8)
 		{
 			std::string s_confirmation_code = "";
-			int confirmation_code_digits = 8;
-			char confirmation_code[32] = {};
+			int confirmation_code_digits = _confirmation_code_digits;
+			if (confirmation_code_digits > max_code_length) {
+                confirmation_code_digits = max_code_length;
+			} else if (max_code_length < 0) {
+				confirmation_code_digits = 8;
+            }
+			char confirmation_code[max_code_length + 1] = {};
 
 			int rc = 0;
 			int lc = 0;
