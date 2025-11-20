@@ -729,10 +729,11 @@ namespace corona
 		virtual json create_database() = 0;
 		virtual relative_ptr_type open_database() = 0;
 
+		virtual void apply_config(json _system_config) = 0;
 		virtual void apply_config(json _system_config, json _server_config) = 0;
 		virtual json apply_schema(json _schema) = 0;
 
-		virtual std::string get_random_code() = 0;
+		virtual std::string get_random_code(int _confirmation_code_digits = 8) = 0;
 
 		virtual class_permissions get_class_permission(
 			std::string _user_name,
@@ -7195,7 +7196,20 @@ bail:
 			
 		}
 
-		void apply_config(json _system_config, json _server_config)
+		virtual void apply_config(json _system_config)
+		{
+			json_parser jp;
+			json system_config, server_config;
+
+			system_config = jp.create_object();
+			server_config = jp.create_object();
+
+            system_config.copy_member("Connections", _system_config);
+			system_config.copy_member("SendGrid", _system_config);
+			server_config.copy_member("Server", _system_config);
+		}
+
+		virtual void apply_config(json _system_config, json _server_config)
 		{
 			date_time start;
 			start = date_time::now();

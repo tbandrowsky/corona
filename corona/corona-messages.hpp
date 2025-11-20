@@ -112,7 +112,7 @@ namespace corona
 		buffer env_path_buf(32768);
 		std::string ret;
 
-		DWORD result = GetEnvironmentVariable(_src.c_str(), env_path_buf.get_ptr(), (DWORD)env_path_buf.get_size());
+		DWORD result = GetEnvironmentVariableA(_src.c_str(), env_path_buf.get_ptr(), (DWORD)env_path_buf.get_size());
 
 		if (result > 0 and result < env_path_buf.get_size())
 		{
