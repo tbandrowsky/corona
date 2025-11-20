@@ -7206,7 +7206,12 @@ bail:
 
             system_config.copy_member("Connections", _system_config);
 			system_config.copy_member("SendGrid", _system_config);
-			server_config.copy_member("Server", _system_config);
+            json servers = _system_config["Servers"];
+
+			if (servers.array() && servers.size() > 0) {
+                server_config = servers.get_element(0);
+			}
+			apply_config(system_config, server_config);
 		}
 
 		virtual void apply_config(json _system_config, json _server_config)

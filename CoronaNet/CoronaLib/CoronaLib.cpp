@@ -25,19 +25,32 @@ bool CoronaLib::CoronaDatabase::put_response(CoronaInterface::ICoronaBaseRespons
 bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::IDatabaseConfiguration^ configuration)
 {
     corona::json_parser jp;
+    corona::json config_json = jp.create_object();
+
     String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
     std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
-
+    
+    config_json = jp.parse_object(config_string);
     m_database = new corona::corona_database();
-
-
-    m_database->create_database();
-    return m_database != nullptr;
+    m_database->apply_config(config_json);
+    corona::json jresponse = m_database->create_database();
+    bool success = (bool)jresponse[corona::success_field];
+    return success;
 }
 
 bool CoronaLib::CoronaDatabase::OpenDatabase(CoronaInterface::IDatabaseConfiguration^ configuration)
 {
+    corona::json_parser jp;
+    corona::json config_json = jp.create_object();
+
+    String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
+    std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
+
+    config_json = jp.parse_object(config_string);
     m_database = new corona::corona_database();
+    m_database->apply_config(config_json);
+    auto result = m_database->open_database();
+    return result >= -1;
 }
 
 CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::String^ username, System::String^ password)
