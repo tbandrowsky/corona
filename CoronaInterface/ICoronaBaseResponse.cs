@@ -9,6 +9,7 @@ namespace CoronaInterface
     {
         bool Success { get; set; }
         string Message { get; set; }
+        string Token { get; set; }
         double ExecutionTimeSeconds { get; set; }
         JToken Data { get; set; }
 

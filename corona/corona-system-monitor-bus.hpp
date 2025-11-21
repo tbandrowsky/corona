@@ -39,6 +39,32 @@ namespace corona
 		return _src;
 	}
 
+
+	bool create_folders(const std::string& folder_path) {
+		if (std::filesystem::exists(folder_path) && std::filesystem::is_directory(folder_path)) {
+			return true;
+		}
+		else {
+			std::filesystem::create_directories(folder_path);
+		}
+		return false;
+	}
+
+	bool change_to_folder(const std::string& folder_path) {
+		if (std::filesystem::exists(folder_path) && std::filesystem::is_directory(folder_path)) {
+			std::filesystem::current_path(folder_path);
+			return true;
+		}
+		else {
+			std::filesystem::create_directories(folder_path);
+			if (std::filesystem::exists(folder_path) && std::filesystem::is_directory(folder_path)) {
+				std::filesystem::current_path(folder_path);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	class system_monitoring_interface
 	{
 	public:

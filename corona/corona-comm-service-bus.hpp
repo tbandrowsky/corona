@@ -22,30 +22,6 @@ namespace corona
 
 	namespace fs = std::filesystem;
 
-	bool create_folders(const std::string& folder_path) {
-		if (fs::exists(folder_path) && fs::is_directory(folder_path)) {
-			return true;
-		}
-		else {
-			fs::create_directories(folder_path);
-		}
-		return false;
-	}
-
-	bool change_to_folder(const std::string& folder_path) {
-		if (fs::exists(folder_path) && fs::is_directory(folder_path)) {
-			fs::current_path(folder_path);
-			return true;
-		}
-		else {
-            fs::create_directories(folder_path);
-            if (fs::exists(folder_path) && fs::is_directory(folder_path)) {
-                fs::current_path(folder_path);
-                return true;
-            }
-		}
-		return false;
-	}
 
 	class comm_bus_service : public system_monitoring_interface
 	{

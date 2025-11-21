@@ -756,6 +756,7 @@ namespace corona
 		virtual json create_user(json create_user_request, bool _trusted_user, bool _system_user) = 0;
 		virtual json login_user(json _login_request) = 0;
 		virtual json login_user_sso(json _create_user_request) = 0;
+		virtual json login_user_local(json _create_user_request) = 0;
 		virtual json user_confirm_code(json _login_request) = 0;
 		virtual json user_send_code(json _send_user_request) = 0;
 		virtual json set_user_password(json _set_password_request) = 0;
@@ -6301,6 +6302,7 @@ bail:
 			if (pass_phrase.empty()) {
 				pass_phrase = get_random_code(16);
             }
+            return pass_phrase;
 		}
 
 		std::string get_iv()
@@ -6308,6 +6310,7 @@ bail:
 			if (pass_iv.empty()) {
 				pass_iv = get_random_code(8);
 			}
+			return pass_iv;
 		}
 
 		json create_response(std::string _user_name, std::string _authorization, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
@@ -8039,6 +8042,114 @@ bail:
 			}
 
 			return result;
+		}
+
+
+		virtual json login_user_local(json _sso_user_request) override
+		{
+			timer method_timer;
+			json_parser jp;
+			json response;
+
+			validation_error_collection errors;
+			read_scope_lock my_lock(database_lock);
+			date_time start_time = date_time::now();
+			timer tx;
+
+			system_monitoring_interface::active_mon->log_function_start("login_user_local", "start", start_time, __FILE__, __LINE__);
+
+			json data = _sso_user_request[data_field];
+			std::string access_code = data["code"];
+			std::string user_name = data[user_name_field];
+			std::string user_email = data[user_email_field];
+
+			if (access_code.empty())
+			{
+				validation_error_collection errors;
+				validation_error err;
+				err.class_name = "sys_user";
+				err.field_name = "access_code";
+				err.filename = get_file_name(__FILE__);
+				err.line_number = __LINE__;
+				err.message = "Invalid access_code (sso integration botched)";
+				errors.push_back(err);
+				response = create_user_response(_sso_user_request, false, "access_code is required to validate.", data, errors, method_timer.get_elapsed_seconds());
+				return response;
+			}
+
+			std::string machine_id = application::get_machine_id();
+			if (machine_id != access_code)
+			{
+				validation_error_collection errors;
+				validation_error err;
+				err.class_name = "sys_user";
+				err.field_name = "access_code";
+				err.filename = get_file_name(__FILE__);
+				err.line_number = __LINE__;
+				err.message = "Invalid access_code (machine id mismatch)";
+				errors.push_back(err);
+				response = create_user_response(_sso_user_request, false, "access_code is invalid for this machine.", data, errors, method_timer.get_elapsed_seconds());
+				return response;
+            }
+
+			auto sys_perm = get_system_permission();
+
+			json existing_user = get_user(user_name, sys_perm, false);
+
+			if (not existing_user.object())
+			{
+				std::string user_password1;
+				user_password1 = get_random_code() + get_random_code() + get_random_code();
+				std::string hashed_pw = crypter.hash(user_password1);
+
+				existing_user = jp.create_object();
+				existing_user.put_member(class_name_field, std::string("sys_user"));
+				existing_user.put_member(user_name_field, user_name);
+				existing_user.put_member(user_email_field, user_email);
+				existing_user.put_member(user_password_field, hashed_pw);
+				existing_user.put_member("confirmed_code", 1);
+				json teams = get_team_by_email(user_email, sys_perm);
+				for (json team : teams)
+				{
+					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
+					existing_user.put_member("team_name", (std::string)team["team_name"]);
+				}
+
+				apply_user_team(existing_user);
+
+				json create_object_request = create_system_request(existing_user);
+				json user_result = put_object(create_object_request);
+				// we have to confirm if this guy did his job.
+				json jerrors = user_result["errors"];
+				if (user_result[success_field]) {
+					existing_user = get_user(user_name, sys_perm);
+				}
+				else
+				{
+					std::string message = user_result[message_field];
+					system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_json(user_result);
+					response = create_user_response(_sso_user_request, false, "User not created", existing_user, jerrors, method_timer.get_elapsed_seconds());
+					system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					return response;
+				}
+			}
+			else {
+				json teams = get_team_by_email(user_email, sys_perm);
+				for (json team : teams)
+				{
+					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
+					existing_user.put_member("team_name", (std::string)team["team_name"]);
+				}
+				apply_user_team(existing_user);
+				put_user(existing_user);
+				existing_user = get_user(user_name, sys_perm);
+			}
+
+			response = create_response(user_name, auth_general, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
+			system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+
+			return response;
 		}
 
 		virtual json login_user_sso(json _sso_user_request) override

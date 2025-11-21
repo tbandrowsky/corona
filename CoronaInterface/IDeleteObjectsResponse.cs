@@ -1,9 +1,6 @@
 namespace CoronaInterface
 {
-    public interface IDeleteObjectsResponse
+    public interface IDeleteObjectsResponse : ICoronaBaseResponse
     {
-        bool Success { get; }
-        string? ErrorMessage { get; }
-        int ObjectsDeleted { get; }
     }
 }

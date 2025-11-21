@@ -245,7 +245,7 @@ namespace corona
 				temp = std::dynamic_pointer_cast<control_type>(*found);
 
 				// and, it is not, so we replace it
-				if (temp == nullptr) {
+				if (!temp) {
 					temp = std::make_shared<control_type>(cp, _id);
 					if (temp) {
 						// here's our new temp, and we copy the children
