@@ -39,9 +39,9 @@ namespace CoronaInterface
     public class QueryStage : CoronaBaseObject
     {
         [JsonProperty("name")]
-        string Name { get; set; }
+        string? Name { get; set; }
         [JsonProperty("output")]
-        string Output { get; set; }
+        string? Output { get; set; }
     }
 
     public class QueryResult : QueryStage
@@ -56,120 +56,120 @@ namespace CoronaInterface
     public class ConditionLt : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionLte : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionEq : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionGte : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionGt : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionContains : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionIn : Condition
     {
         [JsonProperty("value_path")]
-        string ValuePath { get; set; }
+        string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string Value { get; set; }
+        string? Value { get; set; }
     }
 
     public class ConditionBetween : Condition
     {
         [JsonProperty("start")]
-        ConditionGte Start { get; set; }
+        ConditionGte? Start { get; set; }
         [JsonProperty("stop")]
-        ConditionLte End { get; set; }
+        ConditionLte? End { get; set; }
     }
 
     public class ConditionAllowAll : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition> Conditions { get; set; }
+        IList<Condition>? Conditions { get; set; }
     }
 
     public class ConditionAny: Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition> Conditions { get; set; }
+        IList<Condition>? Conditions { get; set; }
     }
 
     public class ConditionAll : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition> Conditions { get; set; }
+        IList<Condition>? Conditions { get; set; }
     }
 
     public class ConditionNone : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition> Conditions { get; set; }
+        IList<Condition>? Conditions { get; set; }
     }
 
     public class QueryFilter : QueryStage
     {
         [JsonProperty("input")]
-        string Input { get; set; }
+        string? Input { get; set; }
         [JsonProperty("condition")]
-        Condition Condition { get; set; }
+        Condition? Condition { get; set; }
     }
 
     public class QueryProject : QueryStage
     {
         [JsonProperty("input")]
-        string Input { get; set; }
+        string? Input { get; set; }
 
         [JsonProperty("projection")]
-        Dictionary<string, string> Projection { get; set; }
+        Dictionary<string, string>? Projection { get; set; }
     }
 
     public class QueryJoin : QueryStage
     {
         [JsonProperty("resultname1")]
-        string ResultName1 { get; set; }
+        string? ResultName1 { get; set; }
         [JsonProperty("resultname2")]
-        string ResultName2 { get; set; }
+        string? ResultName2 { get; set; }
         [JsonProperty("source1")]
-        string Source1 { get; set; }
+        string? Source1 { get; set; }
         [JsonProperty("source2")]
-        string Source2 { get; set; }
+        string? Source2 { get; set; }
         [JsonProperty("keys")]
-        IList<string> Keys { get; set; }
+        IList<string>? Keys { get; set; }
     }
 
     public class QueryBody
@@ -444,19 +444,19 @@ namespace CoronaInterface
         IList<string> AllowedTeams { get; set; }
 
         [JsonProperty("tickets")]
-        IList<ITicket> Tickets { get; set; }
+        IList<Ticket> Tickets { get; set; }
 
         [JsonProperty("workflow")]
-        IList<IWorkflow> Workflow { get; set; }
+        IList<Workflow> Workflow { get; set; }
 
         [JsonProperty("items")]
-        IList<IItem> Items { get; set; }
+        IList<Item> Items { get; set; }
     }
 
-    public class SysUser : ISysObject
+    public class SysUser : SysObject
     {
         [JsonProperty("user_name")]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         [JsonProperty("email")]
         public string Email { get; set; }
