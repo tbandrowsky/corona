@@ -90,30 +90,148 @@ namespace CoronaLib {
 	};
 
 	public ref class LoginResult : public BaseResponse, public CoronaInterface::ILoginResult {
-	
+
+		CoronaInterface::SysUser^ m_user;
+	public:
+
+		virtual property CoronaInterface::SysUser^ User {
+			CoronaInterface::SysUser^ get() {
+				return m_user;
+			}
+			void set(CoronaInterface::SysUser^ value) {
+				m_user = value;
+			}
+		}
+
 	};
+
 	public ref class CreateUserResponse : public BaseResponse, public CoronaInterface::ICreateUserResponse {
 
 	};
+
 	public ref class SetSendCodeResponse : public BaseResponse, public CoronaInterface::ISetSendCodeResponse {
 
 	};
+
 	public ref class ConfirmUserCodeResponse : public BaseResponse, public CoronaInterface::IConfirmUserCodeResponse {
-	
+		CoronaInterface::SysUser^ m_user;
+	public:
+
+		virtual property CoronaInterface::SysUser^ User {
+			CoronaInterface::SysUser^ get() {
+				return m_user;
+			}
+			void set(CoronaInterface::SysUser^ value) {
+				m_user = value;
+			}
+		}
 	};
+
 	public ref class GetClassResponse : public BaseResponse, public CoronaInterface::IGetClassResponse {
+		CoronaInterface::CoronaClass^ m_class;
+	public:
 
+		virtual property CoronaInterface::CoronaClass^ CoronaClass {
+			CoronaInterface::CoronaClass^ get() {
+				return m_class;
+			}
+			void set(CoronaInterface::CoronaClass^ value) {
+				m_class = value;
+			}
+		}
 	};
+
 	public ref class PutClassResponse : public BaseResponse, public CoronaInterface::IPutClassResponse {
+		CoronaInterface::CoronaClass^ m_class;
+	public:
+
+		virtual property CoronaInterface::CoronaClass^ CoronaClass {
+			CoronaInterface::CoronaClass^ get() {
+				return m_class;
+			}
+			void set(CoronaInterface::CoronaClass^ value) {
+				m_class = value;
+			}
+		}
 
 	};
+
 	public ref class GetObjectResponse : public BaseResponse, public CoronaInterface::IGetObjectResponse {
 
 	};
+
 	public ref class EditObjectResponse : public BaseResponse, public CoronaInterface::IEditObjectResponse {
 
+		CoronaInterface::SysObject^ m_sysObject;
+		System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ m_classes;
+		JObject^ m_childClasses;
+
+		CoronaInterface::SysUser^ m_class;
+	public:
+
+		virtual property CoronaInterface::SysObject^ SysObject {
+			CoronaInterface::SysObject^ get() {
+				return m_sysObject;
+			}
+			void set(CoronaInterface::SysObject^ value) {
+				m_sysObject = value;
+			}
+		}
+
+		virtual property System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ Classes {
+			System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ get() {
+				return m_classes;
+			}
+			void set(System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ value) {
+				m_classes = value;
+			}
+		}
+
+		virtual property JObject^ ChildClasses {
+			JObject^ get() {
+				return m_childClasses;
+			}
+			void set(JObject^ value) {
+				m_childClasses = value;
+			}
+		}
 	};
+
 	public ref class RunObjectResponse : public BaseResponse, public CoronaInterface::IRunObjectResponse {
+
+		CoronaInterface::SysObject^ m_sysObject;
+		System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ m_classes;
+		JObject^ m_childClasses;
+
+		CoronaInterface::SysUser^ m_class;
+	public:
+
+		virtual property CoronaInterface::SysObject^ SysObject {
+			CoronaInterface::SysObject^ get() {
+				return m_sysObject;
+			}
+			void set(CoronaInterface::SysObject^ value) {
+				m_sysObject = value;
+			}
+		}
+
+		virtual property System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ Classes {
+			System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ get() {
+				return m_classes;
+			}
+			void set(System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^ value) {
+				m_classes = value;
+			}
+		}
+
+		virtual property JObject^ ChildClasses {
+			JObject^ get() {
+				return m_childClasses;
+			}
+			void set(JObject^ value) {
+				m_childClasses = value;
+			}
+		}
 
 	};
 	public ref class PutObjectsResponse : public BaseResponse, public CoronaInterface::IPutObjectsResponse {

@@ -4,7 +4,7 @@
 
 using namespace Newtonsoft::Json;
 
-bool put_response(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::json result)
+bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::json result)
 {
     bool success = false;
 
@@ -30,15 +30,69 @@ bool put_response(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::js
     return success;
 }
 
-bool put_response_plus(CoronaInterface::ILoginResult^ baseResponse, corona::json result)
+bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json result)
 {
-    bool success = put_response(baseResponse, result);
+    bool success_base = put_response_base(baseResponse, result);
 
     if (baseResponse->Data) {
-        JsonConvert::DeserializeObject<CoronaInterface::SysUser>(baseResponse->Data->ToString());
+        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
     }
 
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::json result)
+{
+    bool success = put_response_base(baseResponse, result);
+
+    if (baseResponse->Data) {
+        baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(baseResponse->Data->ToString());
+    }
+
+    corona::json data = result["data"];
+
+    corona::json object = data["object"];
+    std::string object_contents = object.to_json_escaped();
+    String^ sobject_contents = gcnew String(object_contents.c_str());
+    // Fix: assign to the property, not the type
+    baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
+
+    corona::json classes = data["classes"];
+    std::string classes_contents = classes.to_json_escaped();
+    String^ sclasses_contents = gcnew String(classes_contents.c_str());
+    baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^> ^>(sclasses_contents);
+
+    corona::json child_classes = data["child_classes"];
+    std::string child_classes_contents = child_classes.to_json_escaped();
+    String^ schild_classes_contents = gcnew String(child_classes_contents.c_str());
+    baseResponse->ChildClasses = JObject::Parse(schild_classes_contents);
+
     return success;
+}
+
+bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    corona::json data = result["data"];
+
+    corona::json object = data["object"];
+    std::string object_contents = object.to_json_escaped();
+    String^ sobject_contents = gcnew String(object_contents.c_str());
+    // Fix: assign to the property, not the type
+    baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
+
+    corona::json classes = data["classes"];
+    std::string classes_contents = classes.to_json_escaped();
+    String^ sclasses_contents = gcnew String(classes_contents.c_str());
+    baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^>(sclasses_contents);
+
+    corona::json child_classes = data["child_classes"];
+    std::string child_classes_contents = child_classes.to_json_escaped();
+    String^ schild_classes_contents = gcnew String(child_classes_contents.c_str());
+    baseResponse->ChildClasses = JObject::Parse(schild_classes_contents);
+
+    return success_base;
 }
 
 template <typename interface_type, typename response_type, typename request_type> response_type^ process_request(corona::corona_database* db, String^ token, request_type^ request, std::function<corona::json(corona::corona_database * _db, corona::json _request)> implementation) 
@@ -73,6 +127,14 @@ std::function<corona::json(corona::corona_database *_db, corona::json _request)>
     return _db->user_set_team(_request);
     };
 
+std::function<corona::json(corona::corona_database* _db, corona::json _request)> create_user_impl = [](corona::corona_database* _db, corona::json _request) {
+    return _db->create_user(_request);
+    };
+
+std::function<corona::json(corona::corona_database* _db, corona::json _request)> confirm_user_impl = [](corona::corona_database* _db, corona::json _request) {
+    return _db->user_confirm_code(_request);
+    };
+
 std::function<corona::json(corona::corona_database* _db, corona::json _request)> get_class_impl = [](corona::corona_database* _db, corona::json _request) {
     return _db->get_class(_request);
     };
@@ -95,6 +157,10 @@ std::function<corona::json(corona::corona_database* _db, corona::json _request)>
 
 std::function<corona::json(corona::corona_database* _db, corona::json _request)> put_objects_impl = [](corona::corona_database* _db, corona::json _request) {
     return _db->put_object(_request);
+    };
+
+std::function<corona::json(corona::corona_database* _db, corona::json _request)> delete_objects_impl = [](corona::corona_database* _db, corona::json _request) {
+    return _db->delete_object(_request);
     };
 
 std::function<corona::json(corona::corona_database* _db, corona::json _request)> query_class_impl = [](corona::corona_database* _db, corona::json _request) {
@@ -236,21 +302,27 @@ CoronaInterface::ICreateUserResponse^ CoronaLib::CoronaDatabase::CreateUser(Coro
 
     CoronaLib::CreateUserResponse^ loginResult = gcnew CoronaLib::CreateUserResponse();
 
-    put_response(loginResult, response);
+    put_response_base(loginResult, response);
     return loginResult;
 }
 
 CoronaInterface::ISetSendCodeResponse^ CoronaLib::CoronaDatabase::SetSendCode(CoronaInterface::ISetSendCodeRequest^ request)
 {
-    return nullptr;
+    CoronaLib::SetSendCodeResponse^ netresult = nullptr;
+
+    return netresult;
 }
 
 CoronaInterface::IConfirmUserCodeResponse^ CoronaLib::CoronaDatabase::ConfirmUserCode(CoronaInterface::IConfirmUserCodeRequest^ request)
 {
-    if (!m_database) {
-        throw gcnew System::InvalidOperationException("Database not open");
-    }
-    // TODO: insert return statement here
+    CoronaLib::ConfirmUserCodeResponse^ netresult = process_request<CoronaInterface::IConfirmUserCodeResponse, CoronaLib::ConfirmUserCodeResponse, CoronaInterface::IConfirmUserCodeRequest>(
+        m_database,
+        token,
+        request,
+        confirm_user_impl
+    );
+
+    return netresult;
 }
 
 CoronaInterface::IGetClassResponse^ CoronaLib::CoronaDatabase::GetClass(CoronaInterface::IGetClassRequest^ request)
@@ -271,7 +343,7 @@ CoronaInterface::IPutClassResponse^ CoronaLib::CoronaDatabase::PutClass(CoronaIn
         m_database,
         token,
         request,
-        get_class_impl
+        put_class_impl
     );
 
     return netresult;
@@ -331,7 +403,7 @@ CoronaInterface::IDeleteObjectsResponse^ CoronaLib::CoronaDatabase::DeleteObject
         m_database,
         token,
         request,
-        put_objects_impl
+        delete_impl
     );
 
     return netresult;

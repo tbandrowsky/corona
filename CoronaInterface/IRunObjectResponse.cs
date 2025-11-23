@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json.Nodes;
 
 namespace CoronaInterface
 {
@@ -9,6 +9,6 @@ namespace CoronaInterface
     {
         SysObject SysObject { get; set; }
         Dictionary<string, CoronaClass> Classes { get; set; }
-        JsonObject ChildClasses { get; set; }
+        JObject ChildClasses { get; set; }
     }
 }
