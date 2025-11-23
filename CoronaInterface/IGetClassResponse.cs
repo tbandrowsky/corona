@@ -4,5 +4,6 @@ namespace CoronaInterface
 {
     public interface IGetClassResponse : ICoronaBaseResponse
     {
+        CoronaClass CoronaClass { get; set; }
     }
 }

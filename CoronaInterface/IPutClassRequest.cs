@@ -6,5 +6,6 @@ namespace CoronaInterface
 {
     public interface IPutClassRequest : ICoronaBaseRequest
     {
+        CoronaClass CoronaClass { get; set; }
     }
 }

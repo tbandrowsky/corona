@@ -4,6 +4,6 @@ namespace CoronaInterface
 {
     public interface IQueryRequest : ICoronaBaseRequest
     {
-        IQueryBody QueryBody { get; set; }
+        QueryBody QueryBody { get; set; }
     }
 }

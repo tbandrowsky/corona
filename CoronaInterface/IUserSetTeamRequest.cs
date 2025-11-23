@@ -6,5 +6,6 @@ namespace CoronaInterface
 {
     public interface IUserSetTeamRequest : ICoronaBaseRequest
     {
+        public string TeamName { get; set; }
     }
 }

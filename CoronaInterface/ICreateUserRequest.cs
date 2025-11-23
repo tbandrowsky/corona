@@ -4,6 +4,6 @@ namespace CoronaInterface
 {
     public interface ICreateUserRequest
     {
-        JToken Data { get; set; }
+        SysUser User { get; set; }
     }
 }

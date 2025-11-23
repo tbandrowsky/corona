@@ -8,8 +8,9 @@ bool put_response(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::js
 {
     bool success = false;
 
-    baseResponse->Success = (bool)result["success"];
     std::string msg = result["message"];
+
+    baseResponse->Success = (bool)result["success"];
     baseResponse->Message = gcnew System::String(msg.c_str());
     baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
 
@@ -24,6 +25,17 @@ bool put_response(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::js
             baseResponse->Data = JArray::Parse(gcnew System::String(data_string.c_str()));
             success = true;
         }
+    }
+
+    return success;
+}
+
+bool put_response_plus(CoronaInterface::ILoginResult^ baseResponse, corona::json result)
+{
+    bool success = put_response(baseResponse, result);
+
+    if (baseResponse->Data) {
+        JsonConvert::DeserializeObject<CoronaInterface::SysUser>(baseResponse->Data->ToString());
     }
 
     return success;
