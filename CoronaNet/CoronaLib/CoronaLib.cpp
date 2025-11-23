@@ -41,6 +41,77 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
     return success_base;
 }
 
+bool put_response(CoronaInterface::ICreateUserResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IPutClassResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IDeleteObjectsResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IConfirmUserCodeResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    if (baseResponse->Data) {
+        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
+    }
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IGetObjectResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IPutObjectsResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IQueryClassResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
+bool put_response(CoronaInterface::IQueryResponse^ baseResponse, corona::json result)
+{
+    bool success_base = put_response_base(baseResponse, result);
+
+    return success_base;
+}
+
 bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::json result)
 {
     bool success = put_response_base(baseResponse, result);
@@ -403,7 +474,7 @@ CoronaInterface::IDeleteObjectsResponse^ CoronaLib::CoronaDatabase::DeleteObject
         m_database,
         token,
         request,
-        delete_impl
+        delete_objects_impl
     );
 
     return netresult;
