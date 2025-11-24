@@ -670,7 +670,7 @@ namespace corona
 	{
 
 		block_type* block;
-		int32_t use_count;
+		volatile unsigned long use_count;
 		shared_lockable lockme;
 		lease_lock_guard lease_lock;
 
@@ -724,7 +724,7 @@ namespace corona
 			return keep;
 		}
 
-		int get_use_count() const { return use_count; }
+		unsigned long get_use_count() const { return use_count; }
 
         xblock_lease<block_type> lease()
         {

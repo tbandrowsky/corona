@@ -486,7 +486,7 @@ CoronaInterface::IQueryClassResponse^ CoronaLib::CoronaDatabase::QueryClass(Coro
         m_database,
         token,
         request,
-        put_objects_impl
+        query_class_impl
     );
     return netresult;
 }
@@ -497,7 +497,7 @@ CoronaInterface::IQueryResponse^ CoronaLib::CoronaDatabase::Query(CoronaInterfac
         m_database,
         token,
         request,
-        put_objects_impl
+        query_impl
     );
     return netresult;
 }
