@@ -43,7 +43,7 @@ namespace CoronaInterface
         void LogAdapter(string message);
 
         void LogWarning(string message, string file = null, int line = 0);
-        void LogException(Exception ex, string file = null, int line = 0);
+        void LogException(string message, string file = null, int line = 0);
 
         void LogJson<T>(T src, int indent = 2);
     }

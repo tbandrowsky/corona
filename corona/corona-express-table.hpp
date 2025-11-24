@@ -332,7 +332,7 @@ namespace corona
 		HANDLE save_async(int64_t *_size)
 		{
 			if (_size) {
-				InterlockedAdd64(_size, size());
+				*_size += size();
 			}
 
             HANDLE hwait = CreateEvent(nullptr, TRUE, FALSE, nullptr);
@@ -670,7 +670,7 @@ namespace corona
 	{
 
 		block_type* block;
-		int64_t use_count;
+		int32_t use_count;
 		shared_lockable lockme;
 		lease_lock_guard lease_lock;
 
@@ -729,13 +729,13 @@ namespace corona
         xblock_lease<block_type> lease()
         {
 			lease_lock.lock();
-			InterlockedIncrement64(&use_count);
+			InterlockedIncrement(&use_count);
             return xblock_lease<block_type>(block);
         }
 
 		void lease_end(xblock_lease<block_type>& _src)
 		{
-			InterlockedDecrement64(&use_count);
+			InterlockedDecrement(&use_count);
 			xblock_lease<block_type> dummy = std::move(_src);
 			lease_lock.unlock();
 		}
@@ -1054,7 +1054,7 @@ namespace corona
 
 		virtual int64_t get_next_object_id() override
 		{
-            InterlockedIncrement64(&table_header->next_id);
+            table_header->next_id++;
             return table_header->next_id;
 		}
 
@@ -1207,7 +1207,7 @@ namespace corona
 					for (auto& rec : it.second) {
                         bool added = root->put(cache.get(), 0, rec.first, rec.second);
                         if (added) {
-                            ::InterlockedIncrement64(&table_header->count);
+							table_header->count++;
                         }
                     }
                     if (root->is_full()) {
@@ -1243,7 +1243,7 @@ namespace corona
 			write_scope_lock lockme(locker);
 			xrecord key;
 			key.put_json(&table_header->key_members, _object);
-			::InterlockedDecrement64(&table_header->count);
+			table_header->count--;
 			auto root = cache->open_branch_block(table_header->root_block, true);
 			root->erase(cache.get(), key);
 			cache->close_block(root);
@@ -1258,7 +1258,7 @@ namespace corona
 					write_scope_lock lockme(locker);
 					xrecord key;
 					key.put_json(&table_header->key_members, item);
-					::InterlockedDecrement64(&table_header->count);
+					table_header->count--;
 					root->erase(cache.get(), key);
 				}
 				cache->close_block(root);

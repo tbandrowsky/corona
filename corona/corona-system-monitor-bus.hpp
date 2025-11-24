@@ -86,7 +86,7 @@ namespace corona
 		// store a managed interface in a gcroot so native builds still compile
 		msclr::auto_gcroot<CoronaInterface::ISystemMonitoring^> net_reporting;
 
-		System::DateTime ^to_managed(const date_time& _dt)
+		System::DateTime to_managed(const date_time& _dt)
 		{
 			SYSTEMTIME st;
 			st.wYear = _dt.year();
@@ -96,7 +96,7 @@ namespace corona
 			st.wMinute = _dt.minute();
 			st.wSecond = _dt.second();
 			st.wMilliseconds = _dt.millisecond();
-			return gcnew System::DateTime(
+			return System::DateTime(
 				st.wYear,
 				st.wMonth,
 				st.wDay,
@@ -249,6 +249,7 @@ namespace corona
 				net_reporting->LogUserCommandStart(
 					marshal_as<System::String^>(_command_name.c_str()),
 					marshal_as<System::String^>(_message.c_str()),
+					to_managed(_request_time),
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
                 );
@@ -306,7 +307,7 @@ namespace corona
 				const char* cfilename = get_file_name(_file);
 
 #if defined(__cplusplus_cli)
-				if (net_reporting != nullptr) {
+				if (net_reporting.get()) {
 					net_reporting->LogUserCommandStop(
 						marshal_as<System::String^>(_command_name.c_str()),
 						marshal_as<System::String^>(_message.c_str()),
@@ -406,7 +407,7 @@ namespace corona
 
 
 #if defined(__cplusplus_cli)
-			if (net_reporting != nullptr) {
+			if (net_reporting.get()) {
 
 				net_reporting->LogCommandStop(
 					marshal_as<System::String^>(_command_name.c_str()),
@@ -512,7 +513,7 @@ namespace corona
 
 
 #if defined(__cplusplus_cli)
-			if (net_reporting != nullptr) {
+			if (net_reporting.get()) {
 				net_reporting->LogJobStop(
 					marshal_as<System::String^>(_api_name.c_str()),
 					marshal_as<System::String^>(_message.c_str()),
@@ -775,9 +776,10 @@ namespace corona
 				auto& xout = get_log_file();
 
 #if defined(__cplusplus_cli)
-				if (net_reporting != nullptr) {
+				if (net_reporting.get()) {
 
 					net_reporting->LogBaseBlockStop(
+						_indent,
 						marshal_as<System::String^>(_function_name.c_str()),
 						marshal_as<System::String^>(_message.c_str()),
 						_elapsed_seconds,
@@ -874,11 +876,10 @@ namespace corona
 		virtual void log_information(std::string _message, const char* _file = nullptr, int _line = 0)
 		{
 #if defined(__cplusplus_cli)
-			if (net_reporting != nullptr) {
+			if (net_reporting.get()) {
 
 				net_reporting->LogInformation(
 					marshal_as<System::String^>(_message.c_str()),
-					0,
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
 				);
@@ -924,7 +925,7 @@ namespace corona
 		{
 
 #if defined(__cplusplus_cli)
-			if (net_reporting != nullptr) {
+			if (net_reporting.get()) {
 				net_reporting->LogActivity(	
 					marshal_as<System::String^>(_message.c_str()),
 					to_managed(_time),
@@ -967,7 +968,7 @@ namespace corona
 		virtual void log_activity(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
 		{
 #if defined(__cplusplus_cli)
-			if (net_reporting != nullptr) {
+			if (net_reporting.get()) {
 				net_reporting->LogActivity(
 					marshal_as<System::String^>(_message.c_str()),
 					_elapsed_seconds,
@@ -1045,7 +1046,7 @@ namespace corona
 		{
 
 #if defined(__cplusplus_cli)
-			if (net_reporting) {
+			if (net_reporting.get()) {
 
 				net_reporting->LogAdapter(
 					marshal_as<System::String^>(_message.c_str())
@@ -1093,7 +1094,7 @@ namespace corona
 		{
 
 #if defined(__cplusplus_cli)
-			if (net_reporting) {
+			if (net_reporting.get()) {
 
 				net_reporting->LogWarning(
 					marshal_as<System::String^>(_message.c_str()),
@@ -1136,7 +1137,7 @@ namespace corona
 		{
 
 #if defined(__cplusplus_cli)
-			if (net_reporting) {
+			if (net_reporting.get()) {
 
 				net_reporting->LogException(
 					marshal_as<System::String^>(exc.what()),
