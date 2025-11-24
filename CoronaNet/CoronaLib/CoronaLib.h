@@ -247,6 +247,19 @@ namespace CoronaLib {
 
 	};
 
+	public ref class CoronaSystem : public CoronaInterface::ICoronaSystem
+	{
+	public:
+		virtual property CoronaInterface::ISystemMonitoring^ SystemMonitoring {
+			CoronaInterface::ISystemMonitoring^ get() {
+				return corona::system_monitoring_interface::active_mon->net_reporting.get();
+			}
+			void set(CoronaInterface::ISystemMonitoring^ value) {
+				corona::system_monitoring_interface::active_mon->net_reporting.attach(value);
+			}
+		}
+	};
+
 	public ref class CoronaDatabase : public CoronaInterface::ICoronaDatabase
 	{
 

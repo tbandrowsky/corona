@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Revolution (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Revolution (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

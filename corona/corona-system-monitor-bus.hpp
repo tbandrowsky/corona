@@ -1,5 +1,13 @@
 #pragma once
 
+#if defined(_MANAGED) || defined(__cplusplus_cli) // building with /clr
+#include "msclr/marshal_cppstd.h"
+#include <msclr/auto_gcroot.h>
+// include the generated C# interop assembly if needed:
+// #using <CoronaInterface.dll>
+using namespace msclr::interop;
+#endif
+
 /*
 CORONA
 C++ Low Code Performance Applications for Windows SDK
@@ -15,9 +23,6 @@ Notes
 
 For Future Consideration
 */
-
-
-#pragma once
 
 
 namespace corona
@@ -76,6 +81,32 @@ namespace corona
 		bool enable_json_block_logging = false;
 		bool enable_put_logging = false;
 		bool enable_options_display = false;
+
+#if defined(__cplusplus_cli)
+		// store a managed interface in a gcroot so native builds still compile
+		msclr::auto_gcroot<CoronaInterface::ISystemMonitoring^> net_reporting;
+
+		System::DateTime ^to_managed(const date_time& _dt)
+		{
+			SYSTEMTIME st;
+			st.wYear = _dt.year();
+			st.wMonth = _dt.month();
+			st.wDay = _dt.day();
+			st.wHour = _dt.hour();
+			st.wMinute = _dt.minute();
+			st.wSecond = _dt.second();
+			st.wMilliseconds = _dt.millisecond();
+			return gcnew System::DateTime(
+				st.wYear,
+				st.wMonth,
+				st.wDay,
+				st.wHour,
+				st.wMinute,
+				st.wSecond,
+				st.wMilliseconds
+			);
+        }
+#endif
 
 		void test_colors()
 		{
@@ -212,6 +243,19 @@ namespace corona
 			if (_message.empty())
 				_message = " ";
 
+#if defined(__cplusplus_cli)
+			if (net_reporting.get()) {
+
+				net_reporting->LogUserCommandStart(
+					marshal_as<System::String^>(_command_name.c_str()),
+					marshal_as<System::String^>(_message.c_str()),
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+                );
+				return;
+			}
+#endif
+
             const char* cmessage = _message.c_str();
             const char* ccommand = _command_name.c_str();
             const char* cfilename = get_file_name(_file);
@@ -260,6 +304,19 @@ namespace corona
 				const char* cmessage = _message.c_str();
 				const char* ccommand = _command_name.c_str();
 				const char* cfilename = get_file_name(_file);
+
+#if defined(__cplusplus_cli)
+				if (net_reporting != nullptr) {
+					net_reporting->LogUserCommandStop(
+						marshal_as<System::String^>(_command_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						_elapsed_seconds,
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
 
 				TraceLoggingWrite(
 					global_corona_provider,
@@ -346,6 +403,21 @@ namespace corona
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _command_name.c_str();
 			const char* cfilename = get_file_name(_file);
+
+
+#if defined(__cplusplus_cli)
+			if (net_reporting != nullptr) {
+
+				net_reporting->LogCommandStop(
+					marshal_as<System::String^>(_command_name.c_str()),
+					marshal_as<System::String^>(_message.c_str()),
+					_elapsed_seconds,
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+				);
+				return;
+			}
+#endif
 
 			TraceLoggingWrite(
 				global_corona_provider,
@@ -437,6 +509,20 @@ namespace corona
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
 			const char* cfilename = get_file_name(_file);
+
+
+#if defined(__cplusplus_cli)
+			if (net_reporting != nullptr) {
+				net_reporting->LogJobStop(
+					marshal_as<System::String^>(_api_name.c_str()),
+					marshal_as<System::String^>(_message.c_str()),
+					_elapsed_seconds,
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+				);
+				return;
+			}
+#endif
 
 			TraceLoggingWrite(
 				global_corona_provider,
@@ -688,6 +774,19 @@ namespace corona
 			try {
 				auto& xout = get_log_file();
 
+#if defined(__cplusplus_cli)
+				if (net_reporting != nullptr) {
+
+					net_reporting->LogBaseBlockStop(
+						marshal_as<System::String^>(_function_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						_elapsed_seconds,
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
 
 				std::string sindent(_indent, ' ');
 				_function_name = sindent + _function_name;
@@ -774,6 +873,19 @@ namespace corona
 
 		virtual void log_information(std::string _message, const char* _file = nullptr, int _line = 0)
 		{
+#if defined(__cplusplus_cli)
+			if (net_reporting != nullptr) {
+
+				net_reporting->LogInformation(
+					marshal_as<System::String^>(_message.c_str()),
+					0,
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+				);
+				return;
+			}
+#endif
+
 			::EnterCriticalSection(&log_lock);
 
 			try {
@@ -810,6 +922,19 @@ namespace corona
 
 		virtual void log_activity(std::string _message, date_time _time, const char* _file = nullptr, int _line = 0)
 		{
+
+#if defined(__cplusplus_cli)
+			if (net_reporting != nullptr) {
+				net_reporting->LogActivity(	
+					marshal_as<System::String^>(_message.c_str()),
+					to_managed(_time),
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+				);
+				return;
+			}
+#endif
+
 			::EnterCriticalSection(&log_lock);
 
 			try {
@@ -841,6 +966,17 @@ namespace corona
 
 		virtual void log_activity(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
 		{
+#if defined(__cplusplus_cli)
+			if (net_reporting != nullptr) {
+				net_reporting->LogActivity(
+					marshal_as<System::String^>(_message.c_str()),
+					_elapsed_seconds,
+					marshal_as<System::String^>(get_file_name(_file)),
+					_line
+				);
+				return;
+			}
+#endif
 			::EnterCriticalSection(&log_lock);
 
 			try {
@@ -907,6 +1043,17 @@ namespace corona
 
 		virtual void log_adapter(std::string _message)
 		{
+
+#if defined(__cplusplus_cli)
+			if (net_reporting) {
+
+				net_reporting->LogAdapter(
+					marshal_as<System::String^>(_message.c_str())
+				);
+				return;
+			}
+#endif
+
 			::EnterCriticalSection(&log_lock);
 
 			try {
@@ -935,7 +1082,7 @@ namespace corona
 			}
 			catch (std::exception exc)
 			{
-				log_exception(exc, __FILE__, __LINE__);
+			 log_exception(exc, __FILE__, __LINE__);
 			}
 
 
@@ -944,6 +1091,19 @@ namespace corona
 
 		virtual void log_warning(std::string _message, const char *_file = nullptr, int _line = 0)
 		{
+
+#if defined(__cplusplus_cli)
+			if (net_reporting) {
+
+				net_reporting->LogWarning(
+					marshal_as<System::String^>(_message.c_str()),
+					marshal_as<System::String^>(_file ? _file : ""),
+					_line
+				);
+				return;
+			}
+#endif
+
 			::EnterCriticalSection(&log_lock);
 
 			try {
@@ -974,7 +1134,21 @@ namespace corona
 
 		virtual void log_exception(std::exception exc, const char* _file = nullptr, int _line = 0)
 		{
+
+#if defined(__cplusplus_cli)
+			if (net_reporting) {
+
+				net_reporting->LogException(
+					marshal_as<System::String^>(exc.what()),
+					marshal_as<System::String^>(_file ? _file : ""),
+					_line
+				);
+				return;
+			}
+#endif
+
 			::EnterCriticalSection(&log_lock);
+
 
 			try {
 				auto& xout = get_log_file();
