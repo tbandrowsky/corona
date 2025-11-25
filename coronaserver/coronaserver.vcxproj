@@ -207,6 +207,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <None Include="locknet\locknet_schema.json" />
     <None Include="recipe\recipe_schema.json" />
     <None Include="shop\shop_schema.json" />
     <None Include="sqlintegrationschema.json" />

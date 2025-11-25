@@ -1,0 +1,672 @@
+{
+  "schema_name": "Revolution",
+  "schema_description": "Schema for the Revolution.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "TJ Bandrowsky"
+  ],
+  "classes": [
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Locknet Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "work_team",
+          "team_name": "County Team",
+          "team_description": "Manages county resources",
+          "team_domain": "NONE",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "county_ticket", "person", "mutant", "superhero", "supervillian", "donor", "candidate", "committee", "county_education", "county_hsra", "county_population", "county_demographics", "committee_candidate", "county", "zip_code" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "note", "story" ],
+              "get": "team",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "model_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "county_story_workflow",
+              "workflow_description": "Create story",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "county_ticket",
+              "ticket_name": "Create Story",
+              "ticket_description": "Create Story"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Model Team",
+          "team_description": "Analysis Team",
+          "team_domain": "NONE",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "model_ticket", "model" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "own"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "county_ticket", "justice_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "none",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "model_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "model_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Policy Article"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Justice Team",
+          "team_description": "Revolution Court",
+          "team_domain": "NONE",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "justice_ticket", "case", "adversary" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "county_ticket", "model_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility_set", "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            }
+          ],
+          "workflow": [
+          ]
+
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Insurance Team",
+          "team_description": "Revolution Insurance",
+          "team_domain": "NONE",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "policy_base", "insurance_coverage", "insurance_ticket" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "model_ticket", "permit_ticket", "technical_ticket", "court_ticket", "responsibility" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "insurance_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "insurance_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Insurance Article"
+            }
+          ]
+
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Permit Team",
+          "team_description": "Revolution Permits",
+          "team_domain": "NONE",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "permit_ticket", "permit", "discharge" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "reponsibility" ],
+              "get": "team",
+              "put": "team",
+              "delete": "team",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "model_ticket", "permit_ticket", "technical_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "model_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "permit_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Permit Article"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Technical Team",
+          "team_description": "Revolution Technical",
+          "team_domain": ".*countryvideogames\\.com",
+          "inventory_classes": [
+          ],
+          "allowed_teams": [ "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team", "Technical Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ],
+          "workflow": [
+            {
+              "class_name": "sys_workflow",
+              "workflow_name": "model_article",
+              "workflow_description": "Create article",
+              "workflow_schedule_type": "Week",
+              "workflow_schedule_days": [ 0, 1, 2, 3, 4, 5, 6 ],
+              "workflow_schedule_hour": 1,
+              "ticket_class_name": "technical_ticket",
+              "ticket_name": "Create Article",
+              "ticket_description": "Create Technical Article"
+            }
+          ]
+        },
+        {
+          "class_name": "work_team",
+          "team_name": "Home Team",
+          "team_description": "Revolution Customer",
+          "team_domain": ".*",
+          "inventory_classes": [],
+          "allowed_teams": [ "Home Team", "County Team", "Model Team", "Justice Team", "Permit Team", "Insurance Team" ],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_ticket" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            },
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "responsibility", "note" ],
+              "get": "own",
+              "put": "own",
+              "delete": "own",
+              "alter": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataset_name": "Candidate Master",
+      "dataset_description": "Load Candidates",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\cn.csv",
+        "target_class": "candidate",
+        "column_map": {
+          "0": "candidate_id",
+          "1": "full_name",
+          "2": "political_party",
+          "3": "election_year",
+          "10": "street1",
+          "11": "street2",
+          "12": "city",
+          "13": "state",
+          "14": "zip"
+        }
+      }
+    },
+    {
+      "dataset_name": "Committee Master",
+      "dataset_description": "Load Committees",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\cm.csv",
+        "target_class": "committee",
+        "column_map": {
+          "0": "committee_id",
+          "1": "committee_name",
+          "10": "political_party",
+          "13": "company_name"
+        }
+      }
+    },
+    {
+      "dataset_name": "CommitteeCandidates Master",
+      "dataset_description": "Map Committees and Candidates",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\ccl.csv",
+        "target_class": "committee_candidate",
+        "column_map": {
+          "0": "candidate_id",
+          "3": "committee_id"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Education",
+      "dataset_description": "County Education Demographics",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_education.txt",
+        "target_class": "county_education",
+        "column_map": {
+          "0": "fips_code",
+          "1": "state",
+          "2": "county",
+          "3": "2013_urban_influence_code",
+          "4": "2024_urban_influence_code",
+          "5": "2013_rural_urban_continuum_code",
+          "6": "2023_rural_urban_continuum_code",
+          "7": "less_than_a_high_school_diploma_1970",
+          "8": "high_school_diploma_only_1970",
+          "9": "some_college_1970",
+          "10": "four_years_of_college_or_higher_1970",
+          "11": "percent_of_adults_with_less_than_a_high_school_diploma_1970",
+          "12": "percent_of_adults_with_a_high_school_diploma_only_1970",
+          "13": "percent_of_adults_completing_some_college_1970",
+          "14": "percent_of_adults_completing_four_years_of_college_or_higher_1970",
+          "15": "less_than_a_high_school_diploma_1980",
+          "16": "high_school_diploma_only_1980",
+          "17": "some_college_1980",
+          "18": "four_years_of_college_or_higher_1980",
+          "19": "percent_of_adults_with_less_than_a_high_school_diploma_1980",
+          "20": "percent_of_adults_with_a_high_school_diploma_only_1980",
+          "21": "percent_of_adults_completing_some_college_1980",
+          "22": "percent_of_adults_completing_four_years_of_college_or_higher_1980",
+          "23": "less_than_high_school_graduate_1990",
+          "24": "high_school_graduate_1990",
+          "25": "some_college_or_associate_degree_1990",
+          "26": "bachelor's_degree_or_higher_1990",
+          "27": "percent_of_adults_who_are_not_high_school_graduates_1990",
+          "28": "percent_of_adults_who_are_high_school_graduates_or_equivalent_1990",
+          "29": "percent_of_adults_completing_some_college_or_associate_degree_1990",
+          "30": "percent_of_adults_with_a_bachelors_degree_or_higher_1990",
+          "31": "less_than_high_school_graduate_2000",
+          "32": "high_school_graduate_2000",
+          "33": "some_college_or_associate_degree_2000",
+          "34": "bachelors_degree_or_higher_2000",
+          "35": "percent_of_adults_who_are_not_high_school_graduates_2000",
+          "36": "percent_of_adults_who_are_high_school_graduates_2000",
+          "37": "percent_of_adults_completing_some_college_or_associate_degree_2000",
+          "38": "percent_of_adults_with_a_bachelors_degree_or_higher_2000",
+          "39": "less_than_high_school_graduate_2012",
+          "40": "high_school_graduate_2012",
+          "41": "some_college_or_associate_degree_2012",
+          "42": "bachelor's_degree_or_higher_2012",
+          "43": "percent_of_adults_who_are_not_high_school_graduates_2012",
+          "44": "percent_of_adults_who_are_high_school_graduates_or_equivalent_2012",
+          "45": "percent_of_adults_completing_some_college_or_associate_degree_2012",
+          "46": "percent_of_adults_with_a_bachelors_degree_or_higher_2012",
+          "47": "less_than_high_school_graduate_2023",
+          "48": "high_school_graduate_2023",
+          "49": "some_college_or_associate_degree_2023",
+          "50": "bachelor's_degree_or_higher_2023",
+          "51": "percent_of_adults_who_are_not_high_school_graduates_2023",
+          "52": "percent_of_adults_who_are_high_school_graduates_2023",
+          "53": "percent_of_adults_completing_some_college_or_associate_degree_2023",
+          "54": "percent_of_adults_with_a_bachelors_degree_or_higher_2023"
+        }
+      }
+    },
+    {
+      "dataset_name": "County HRSA Grants",
+      "dataset_description": "Load HRSA Grants",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
+        "target_class": "county_hsra",
+        "column_map": {
+          "0": "award_year",
+          "1": "financial_assistance",
+          "2": "grantee_address",
+          "3": "grantee_city",
+          "4": "county",
+          "5": "grantee_name",
+          "6": "grantee_region_code",
+          "7": "hrsa_region",
+          "8": "state",
+          "9": "state_name",
+          "10": "grantee_zip_code",
+          "11": "grant_activity_code",
+          "12": "grant_number",
+          "13": "grant_serial_number",
+          "14": "project_period_start_date",
+          "15": "project_period_start_date_text_string",
+          "16": "grant_project_period_end_date",
+          "17": "grant_project_period_end_date_text",
+          "18": "hrsa_program_area_code",
+          "19": "hrsa_program_area_name",
+          "20": "complete_county_name",
+          "21": "grant_program_name",
+          "22": "congressional_district_name",
+          "23": "congressional_district_number",
+          "24": "hhs_region_number",
+          "25": "us_congressional_representative_name",
+          "26": "state_and_county_federal_information_processing_standard_code",
+          "27": "state_fips_code",
+          "28": "us_mexico_border_100_kilometer_indicator",
+          "29": "us_mexico_border_county_indicator",
+          "30": "name_of_us_senator_number_one",
+          "31": "name_of_us_senator_number_two",
+          "32": "uniform_data_system_grant_program_description",
+          "33": "abstract",
+          "34": "grantee_type_description",
+          "35": "duns_number",
+          "36": "unique_entity_identifier",
+          "37": "ccn",
+          "38": "geocoding_artifact_address_primary_x_coordinate",
+          "39": "geocoding_artifact_address_primary_y_coordinate",
+          "40": "data_warehouse_record_create_date",
+          "41": "data_warehouse_record_create_date_text"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Demographics",
+      "dataset_description": "County Population Demographics",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_demographics.txt",
+        "target_class": "county_demographics",
+        "column_map": {
+          "0": "county",
+          "1": "state",
+          "2": "percent_65_and_older",
+          "3": "percent_under_18_years",
+          "4": "percent_under_5_years",
+          "5": "bachelor's_degree_or_higher",
+          "6": "high_school_or_higher",
+          "7": "nonemployer_establishments",
+          "8": "american_indian_and_alaska_native_alone",
+          "9": "asian_alone",
+          "10": "black_alone",
+          "11": "hispanic_or_latino",
+          "12": "native_hawaiian_and_other_pacific_islander_alone",
+          "13": "two_or_more_races",
+          "14": "white_alone",
+          "15": "white_not_hispanic_or_latino",
+          "16": "homeownership_rate",
+          "17": "households",
+          "18": "housing_units",
+          "19": "median_value_of_owner-occupied_units",
+          "20": "persons_per_household",
+          "21": "median_houseold_income",
+          "22": "per_capita_income",
+          "23": "foreign_born",
+          "24": "land_area",
+          "25": "language_other_than_english_at_home",
+          "26": "living_in_same_house_for_year",
+          "27": "manufacturers_shipments",
+          "28": "mean_travel_time_to_work",
+          "29": "percent_female",
+          "30": "veterans",
+          "31": "2020_population",
+          "32": "2010_population",
+          "33": "population_per_square_mile",
+          "34": "accommodation_and_food_services_sales",
+          "35": "retail_sales",
+          "36": "firms_total",
+          "37": "firms_women-owned",
+          "38": "firms_men-owned",
+          "39": "firms_minority-owned",
+          "40": "firms_nonminority-owned",
+          "41": "firms_veteran-owned",
+          "42": "firms_nonveteran-owned"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Population",
+      "dataset_description": "County Population",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_population.txt",
+        "target_class": "county_population",
+        "pivot": {
+          "attribute_field": "attribute",
+          "value_field": "value",
+          "object_fields": [ "fips_code", "county", "state" ],
+          "lower_case_attribute": true
+        },
+        "column_map": {
+          "0": "fips_code",
+          "2": "county",
+          "1": "state",
+          "3": "attribute",
+          "4": "value"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Base",
+      "dataset_description": "County",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\county_base.txt",
+        "target_class": "county",
+        "column_map": {
+          "0": "fips_code",
+          "1": "state",
+          "2": "county"
+        }
+      }
+    },
+    {
+      "dataset_name": "County Zip",
+      "dataset_description": "County",
+      "dataset_version": "1.0",
+      "dataset_author": "US CENSUS",
+      "import": {
+        "type": "csv",
+        "delimiter": "tab",
+        "filename": "seed_data\\us_counties\\zip_code.txt",
+        "target_class": "zip_code",
+        "column_map": {
+          "0": "zip",
+          "1": "type",
+          "2": "primary_city",
+          "3": "acceptable_cities",
+          "4": "unacceptable_cities",
+          "5": "state",
+          "6": "county",
+          "7": "timezone",
+          "8": "area_codes",
+          "9": "latitude",
+          "10": "longitude",
+          "11": "world_region",
+          "12": "country",
+          "13": "decommissioned",
+          "14": "estimated_population",
+          "15": "notes"
+        }
+      }
+    },
+    {
+      "dataset_name": "Donor Master",
+      "dataset_description": "Load Donors",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "seed_data\\us_elections\\itcont.csv",
+        "target_class": "donor",
+        "column_map": {
+          "0": "committee_id",
+          "7": "full_name",
+          "8": "city",
+          "9": "state",
+          "10": "zip",
+          "11": "employer",
+          "12": "occupation",
+          "13": "transaction_date",
+          "14": "transaction_amount",
+          "19": "memo"
+        }
+      }
+    }
+  ]
+}

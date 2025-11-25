@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ObservableCollections;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -76,13 +77,21 @@ namespace Politics
 
     }
 
-    public class CoronaStatusModel
+    public class CoronaStatusModel : INotifyPropertyChanged
     {
-        public Dictionary<string, CoronaMessage> ActiveMessages { get; set; } = new();
+        public ObservableStack<CoronaMessage> Messages { get; set; } = new ObservableStack<CoronaMessage>();
 
-        public Stack<CoronaMessage> Messages { get; set; } = new Stack<CoronaMessage>();
-        public CoronaMessage? CurrentMessage { get; set; }
+        private CoronaMessage? currentMessage;
+        public CoronaMessage? CurrentMessage {
+            get => currentMessage;
+            set
+            {
+                currentMessage  = value;
+                OnPropertyChanged(nameof(CurrentMessage));
+            }
+        }
 
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public void StartMessage(string color, string topic, string message, DateTime added)
         {
@@ -93,26 +102,38 @@ namespace Politics
                 Message = message,
                 StartTime = added
             };
-            if (CurrentMessage != null)
+            if (CurrentMessage == null)
+            {
+                CurrentMessage = new_message;
+            }
+            else if (CurrentMessage != null)
             {
                 CurrentMessage.Children.Add(new_message);
                 Messages.Push(CurrentMessage);
             }
-            ActiveMessages[topic] = new_message;
         }
 
         public void StopMessage(string topic, string message, double elapsed_seconds)
         {
-            if (ActiveMessages.TryGetValue(topic, out var coronaMessage))
+            if (CurrentMessage == null)
             {
-                coronaMessage.Message = message;
-                coronaMessage.ElapsedSeconds = elapsed_seconds;
-                if (coronaMessage.Topic == CurrentMessage.Topic && coronaMessage.Message == CurrentMessage.Message)
-                {
-                    CurrentMessage = Messages.Count > 0 ? Messages.Pop() : null;
-                }
+                return;
+            }
+            if (CurrentMessage.Topic == topic)
+            {
+                CurrentMessage.Message = message;
+                CurrentMessage.ElapsedSeconds = elapsed_seconds;
+                CurrentMessage = Messages.Count > 0 ? Messages.Pop() : null;
             }
         }
+
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
 
     }
 }

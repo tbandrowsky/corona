@@ -52,10 +52,10 @@
       "recovery_email_filename": "account_recovery_email_template.html"
     },
     {
-      "listen_point": "http://localhost:5678/revolution/",
-      "application_name": "revolution",
-      "schema_filename": "revolution_schema.json",
-      "database_filename": "revolution_database.cdb",
+      "listen_point": "http://localhost:5678/locknet/",
+      "application_name": "locknet",
+      "schema_filename": "locknet_schema.json",
+      "database_filename": "locknet_database.cdb",
       "database_threads": 20,
       "database_recreate": true,
       "sys_user_name": "system",
