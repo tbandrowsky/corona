@@ -242,7 +242,7 @@ std::function<corona::json(corona::corona_database* _db, corona::json _request)>
     return _db->query(_request);
     };
 
-bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::IDatabaseConfiguration^ configuration)
+bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::DatabaseConfiguration^ configuration)
 {
     corona::json_parser jp;
     corona::json config_json = jp.create_object();
@@ -258,7 +258,7 @@ bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::IDatabaseConfigu
     return success;
 }
 
-bool CoronaLib::CoronaDatabase::OpenDatabase(CoronaInterface::IDatabaseConfiguration^ configuration)
+bool CoronaLib::CoronaDatabase::OpenDatabase(CoronaInterface::DatabaseConfiguration^ configuration)
 {
     corona::json_parser jp;
     corona::json config_json = jp.create_object();

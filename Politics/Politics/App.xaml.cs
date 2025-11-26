@@ -1,4 +1,5 @@
-﻿using CoronaLib;
+﻿using CoronaInterface;
+using CoronaLib;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -31,7 +33,7 @@ namespace Politics
         private Window? _window;
 
         private CoronaDatabase coronaDatabase = new CoronaDatabase();
-        private  CoronaStatusModel coronaStatusModel = new CoronaStatusModel();
+        private CoronaStatusModel coronaStatusModel = new CoronaStatusModel();
 
         public CoronaDatabase CoronaDatabase { get => coronaDatabase; }
         public CoronaStatusModel CoronaStatusModel { get => coronaStatusModel; }
@@ -49,10 +51,28 @@ namespace Politics
         /// Invoked when the application is launched.
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
+        /// 
+
+        public string DatabasePath => System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "politics");
+        public string ConfigPath => System.IO.Path.Combine(Environment.ProcessPath ?? Assembly.GetExecutingAssembly().Location, "onboard_email_template.html");
+
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();
             _window.Activate();
+            DatabaseConfiguration config = new DatabaseConfiguration();
+            config.DatabasePath = DatabasePath;
+            config.Servers = new List<ServerConfiguration>();
+            config.Servers.Add(new ServerConfiguration
+            {
+                ApplicationName = "Politics",
+                DatabaseRecreate = true,
+                ListenPoint = "http://localhost:5678/Politics",
+                DatabaseThreads = 8,
+                OnboardEmailFilename = System.IO.Path.Combine(ConfigPath, "onboard_email_template.html" ),
+                RecoveryEmailFilename = System.IO.Path.Combine(ConfigPath, "recovery_email_template.html" ),
+                SchemaFilename = System.IO.Path.Combine(ConfigPath, "politics_schema.json" )
+            });
         }
 
         public void LogUserCommandStart(string commandName, string message, DateTime requestTime, string file = null, int line = 0)

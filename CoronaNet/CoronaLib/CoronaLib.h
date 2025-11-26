@@ -284,8 +284,8 @@ namespace CoronaLib {
 		}
 
 	public:
-		virtual bool CreateDatabase(CoronaInterface::IDatabaseConfiguration^ configuration);
-		virtual bool OpenDatabase(CoronaInterface::IDatabaseConfiguration^ configuration);
+		virtual bool CreateDatabase(CoronaInterface::DatabaseConfiguration^ configuration);
+		virtual bool OpenDatabase(CoronaInterface::DatabaseConfiguration^ configuration);
 		virtual CoronaInterface::ILoginResult^ LoginLocal(System::String^ username, System::String^ email);
 		virtual CoronaInterface::ILoginResult^ LoginUser(System::String^ username, System::String^ password);
 		virtual CoronaInterface::ILoginResult^ LoginUserSso(System::String^ username, System::String^ email, System::String^ code);

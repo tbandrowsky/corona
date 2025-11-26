@@ -2,8 +2,8 @@
 {
     public interface ICoronaDatabase : IDisposable
     {
-        bool CreateDatabase(IDatabaseConfiguration configuration);
-        bool OpenDatabase(IDatabaseConfiguration configuration);
+        bool CreateDatabase(DatabaseConfiguration configuration);
+        bool OpenDatabase(DatabaseConfiguration configuration);
         ILoginResult LoginLocal(string username, string email);
         ILoginResult LoginUser(string username, string password);
         ILoginResult LoginUserSso(string username, string email, string code);
