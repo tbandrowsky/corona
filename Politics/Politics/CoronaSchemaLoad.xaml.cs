@@ -21,10 +21,11 @@ namespace Politics
 {
     public sealed partial class CoronaSchemaLoad : UserControl
     {
+
+        public CoronaStatusModel CoronaStatusModel => App.CurrentPolitics.CoronaStatusModel;
         public CoronaSchemaLoad()
         {
             InitializeComponent();
         }
-
     }
 }

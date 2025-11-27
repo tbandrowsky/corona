@@ -134,7 +134,6 @@ namespace corona
 
 		char Normal[5] = { 0x1b, '[', '0', 'm', 0 };
 
-
 		console_color Logusercommand;
 		console_color Logcommand;
 		console_color Logapi;
@@ -236,8 +235,6 @@ namespace corona
 
 		virtual void log_user_command_start(std::string _command_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-
-
 			if (_command_name.empty())
 				_command_name = " ";
 			if (_message.empty())
@@ -405,7 +402,6 @@ namespace corona
 			const char* ccommand = _command_name.c_str();
 			const char* cfilename = get_file_name(_file);
 
-
 #if defined(__cplusplus_cli)
 			if (net_reporting.get()) {
 
@@ -480,14 +476,14 @@ namespace corona
 			try {
 				auto& xout = get_log_file();
 
-			if (_api_name.empty())
-				_api_name = " ";
-			if (_message.empty())
-				_message = " ";
-			xout << Logcommand;
-			xout << std::format("{0:<5}", " ");
-			xout << Logapi;
-			xout << std::format("{0:<25}{1:<55}{2:<25}",
+				if (_api_name.empty())
+					_api_name = " ";
+				if (_message.empty())
+					_message = " ";
+				xout << Logcommand;
+				xout << std::format("{0:<5}", " ");
+				xout << Logapi;
+				xout << std::format("{0:<25}{1:<55}{2:<25}",
 				_api_name,
 				trim(_message, 55),
 				_request_time.format("%D %H:%M start")
@@ -510,7 +506,6 @@ namespace corona
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
 			const char* cfilename = get_file_name(_file);
-
 
 #if defined(__cplusplus_cli)
 			if (net_reporting.get()) {

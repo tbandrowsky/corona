@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -59,9 +60,22 @@ namespace Politics
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();
-            _window.Activate();
+            _window.Activate();            
+            CoronaSystem cm = new CoronaSystem();
+            cm.SystemMonitoring = this;
+        }
+
+        public static App CurrentPolitics => (App)App.Current; 
+
+        public static void CreateDatabase(App app)
+        {
             DatabaseConfiguration config = new DatabaseConfiguration();
-            config.DatabasePath = DatabasePath;
+
+            string config_file_name = System.IO.Path.Combine(app.ConfigPath, "config.json");
+            string config_content = File.ReadAllText(config_file_name);
+
+            config.DatabasePath = app.DatabasePath;
+
             config.Servers = new List<ServerConfiguration>();
             config.Servers.Add(new ServerConfiguration
             {
@@ -69,14 +83,16 @@ namespace Politics
                 DatabaseRecreate = true,
                 ListenPoint = "http://localhost:5678/Politics",
                 DatabaseThreads = 8,
-                OnboardEmailFilename = System.IO.Path.Combine(ConfigPath, "onboard_email_template.html" ),
-                RecoveryEmailFilename = System.IO.Path.Combine(ConfigPath, "recovery_email_template.html" ),
-                SchemaFilename = System.IO.Path.Combine(ConfigPath, "politics_schema.json" )
+                OnboardEmailFilename = System.IO.Path.Combine(app.ConfigPath, "onboard_email_template.html"),
+                RecoveryEmailFilename = System.IO.Path.Combine(app.ConfigPath, "recovery_email_template.html"),
+                SchemaFilename = System.IO.Path.Combine(app.ConfigPath, "politics_schema.json")
             });
+            
+            app.coronaDatabase.CreateDatabase(config);
         }
 
         public void LogUserCommandStart(string commandName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
+        {        
             coronaStatusModel.StartMessage("#c0c0c0", commandName, message, requestTime);
         }
 

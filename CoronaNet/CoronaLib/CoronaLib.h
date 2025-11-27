@@ -204,6 +204,7 @@ namespace CoronaLib {
 		JObject^ m_childClasses;
 
 		CoronaInterface::SysUser^ m_class;
+
 	public:
 
 		virtual property CoronaInterface::SysObject^ SysObject {
@@ -250,14 +251,23 @@ namespace CoronaLib {
 	public ref class CoronaSystem : public CoronaInterface::ICoronaSystem
 	{
 	public:
+		CoronaSystem()
+		{
+			corona::system_monitoring_interface::start(); // this will create the global log queue.
+			corona::system_monitoring_interface::active_mon = corona::system_monitoring_interface::global_mon;
+			corona::init_xtables();
+		}
+
 		virtual property CoronaInterface::ISystemMonitoring^ SystemMonitoring {
 			CoronaInterface::ISystemMonitoring^ get() {
 				return corona::system_monitoring_interface::active_mon->net_reporting.get();
 			}
 			void set(CoronaInterface::ISystemMonitoring^ value) {
-				corona::system_monitoring_interface::active_mon->net_reporting.attach(value);
+				corona::system_monitoring_interface::active_mon->net_reporting=value;
 			}
 		}
+
+
 	};
 
 	public ref class CoronaDatabase : public CoronaInterface::ICoronaDatabase
