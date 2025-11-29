@@ -86,7 +86,7 @@ namespace corona
 		// store a managed interface in a gcroot so native builds still compile
 		msclr::auto_gcroot<CoronaInterface::ISystemMonitoring^> net_reporting;
 
-		System::DateTime to_managed(const date_time& _dt)
+		System::DateTime ^to_managed(const date_time& _dt)
 		{
 			SYSTEMTIME st;
 			st.wYear = _dt.year();
@@ -96,7 +96,7 @@ namespace corona
 			st.wMinute = _dt.minute();
 			st.wSecond = _dt.second();
 			st.wMilliseconds = _dt.millisecond();
-			return System::DateTime(
+			return gcnew System::DateTime(
 				st.wYear,
 				st.wMonth,
 				st.wDay,
@@ -149,11 +149,8 @@ namespace corona
 		static system_monitoring_interface* global_mon;
 		static system_monitoring_interface* active_mon;
 
-		CRITICAL_SECTION log_lock;
-
 		system_monitoring_interface()
 		{
-			::InitializeCriticalSectionAndSpinCount(&log_lock, 10);
 			Logusercommand.color_background = "12;59;69";
 			Logcommand.color_background = "21;83;98";
 			Logapi.color_background = "40;55;42";
@@ -246,7 +243,7 @@ namespace corona
 				net_reporting->LogUserCommandStart(
 					marshal_as<System::String^>(_command_name.c_str()),
 					marshal_as<System::String^>(_message.c_str()),
-					to_managed(_request_time),
+					*to_managed(_request_time),
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
                 );
@@ -257,19 +254,6 @@ namespace corona
             const char* cmessage = _message.c_str();
             const char* ccommand = _command_name.c_str();
             const char* cfilename = get_file_name(_file);
-
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "UserCommandStart"),
-				TraceLoggingValue(ccommand, "Command"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_line, "Line")
-			);
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 
@@ -289,13 +273,10 @@ namespace corona
 			{
 				log_exception(exc, __FILE__, __LINE__);
 			}
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_user_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
 
 			try {
 
@@ -316,18 +297,6 @@ namespace corona
 				}
 #endif
 
-				TraceLoggingWrite(
-					global_corona_provider,
-					"Corona",
-					TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-					TraceLoggingStruct(3, "UserCommandStop"),
-					TraceLoggingValue(ccommand, "Command"),
-					TraceLoggingValue(cmessage, "Message"),
-					TraceLoggingValue(cfilename, "File"),
-					TraceLoggingValue(_elapsed_seconds, "ExecutionTime"),
-					TraceLoggingValue(_line, "Line")
-				);
-
 				auto& xout = get_log_file();
 
 				xout << Logusercommand;
@@ -346,34 +315,32 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 
 		virtual void log_command_start(std::string _command_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
 
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _command_name.c_str();
 			const char* cfilename = get_file_name(_file);
-			if (cfilename) {
-		
-				TraceLoggingWrite(
-					global_corona_provider,
-					"Corona",
-					TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-					TraceLoggingStruct(3, "CommandStart"),
-					TraceLoggingValue(ccommand, "Command"),
-					TraceLoggingValue(cmessage, "Message"),
-					TraceLoggingValue(cfilename, "File"),
-					TraceLoggingValue(_line, "Line")
-				);
-			}
 
 			try {
 				auto& xout = get_log_file();
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+
+					net_reporting->LogCommandStart(
+						marshal_as<System::String^>(_command_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						*to_managed(_request_time),
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
 
 				xout << Logcommand;
 				xout << std::format("{0:<30}{1:<55}{2:<25}",
@@ -390,13 +357,10 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
 
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _command_name.c_str();
@@ -416,62 +380,37 @@ namespace corona
 			}
 #endif
 
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "CommandStop"),
-				TraceLoggingValue(ccommand, "Command"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_elapsed_seconds, "ExecutionTime"),
-				TraceLoggingValue(_line, "Line")
-			);
 			try {
 				auto& xout = get_log_file();
 
-			if (_command_name.empty())
-				_command_name = " ";
-			if (_message.empty())
-				_message = " ";
+				if (_command_name.empty())
+					_command_name = " ";
+				if (_message.empty())
+					_message = " ";
 
-			xout << Logcommand;
-			xout << std::format("{0:<30}{1:<55}{2:<25}",
-				_command_name,
-				_message,
-				std::format("{0} secs", _elapsed_seconds)
-			);
-			file_line(_file, _line);
-			xout << Normal;
-			xout << std::endl;
+				xout << Logcommand;
+				xout << std::format("{0:<30}{1:<55}{2:<25}",
+					_command_name,
+					_message,
+					std::format("{0} secs", _elapsed_seconds)
+				);
+				file_line(_file, _line);
+				xout << Normal;
+				xout << std::endl;
 
 			}
 			catch (std::exception exc)
 			{
 				log_exception(exc, __FILE__, __LINE__);
 			}
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_job_start(std::string _api_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
 
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
 			const char* cfilename = get_file_name(_file);
-
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "JobStart"),
-				TraceLoggingValue(ccommand, "Api"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_line, "Line")
-			);
 
 			try {
 				auto& xout = get_log_file();
@@ -480,6 +419,21 @@ namespace corona
 					_api_name = " ";
 				if (_message.empty())
 					_message = " ";
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+
+					net_reporting->LogJobStart(
+						marshal_as<System::String^>(ccommand),
+						marshal_as<System::String^>(cmessage),
+						*to_managed(_request_time),
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
+
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -498,7 +452,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_job_stop(std::string _api_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
@@ -510,8 +463,8 @@ namespace corona
 #if defined(__cplusplus_cli)
 			if (net_reporting.get()) {
 				net_reporting->LogJobStop(
-					marshal_as<System::String^>(_api_name.c_str()),
-					marshal_as<System::String^>(_message.c_str()),
+					marshal_as<System::String^>(ccommand),
+					marshal_as<System::String^>(cmessage),
 					_elapsed_seconds,
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
@@ -519,20 +472,6 @@ namespace corona
 				return;
 			}
 #endif
-
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "JobStop"),
-				TraceLoggingValue(ccommand, "Api"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_elapsed_seconds, "ExecutionTime"),
-				TraceLoggingValue(_line, "Line")
-			);
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -560,13 +499,10 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_job_section_start(std::string _api_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -575,6 +511,23 @@ namespace corona
 					_api_name = " ";
 				if (_message.empty())
 					_message = " ";
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+
+					net_reporting->LogJobSectionStart(
+						marshal_as<System::String^>(_api_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						*to_managed(_request_time),
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
+
+
+
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -593,8 +546,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_job_section_stop(std::string _api_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
@@ -603,19 +554,6 @@ namespace corona
 			const char* ccommand = _api_name.c_str();
 			const char* cfilename = get_file_name(_file);
 
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "JobSectionStop"),
-				TraceLoggingValue(ccommand, "Api"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_elapsed_seconds, "ExecutionTime"),
-				TraceLoggingValue(_line, "Line")
-			);
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -624,6 +562,19 @@ namespace corona
 					_api_name = " ";
 				if (_message.empty())
 					_message = " ";
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+					net_reporting->LogJobSectionStop(
+						marshal_as<System::String^>(_api_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						_elapsed_seconds,
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -643,8 +594,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_function_start(std::string _function_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
@@ -653,18 +602,30 @@ namespace corona
 			const char* cfilename = get_file_name(_file);
 
 
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
-			xout << Logcommand;
-			xout << std::format("{0:<5}", " ");
-			xout << Logapi;
-			xout << std::format("{0:<5}", " ");
-			xout << Logfunction;
-			xout << std::format("{0:<20}{1:<55}{2:<25}",
-				_function_name,
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+
+					net_reporting->LogFunctionStart(
+						marshal_as<System::String^>(_function_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						*to_managed(_request_time),
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
+
+				xout << Logcommand;
+				xout << std::format("{0:<5}", " ");
+				xout << Logapi;
+				xout << std::format("{0:<5}", " ");
+				xout << Logfunction;
+				xout << std::format("{0:<20}{1:<55}{2:<25}",
+					_function_name,
 				trim(cmessage, 55),
 				_request_time.format("%D %H:%M start")
 			);
@@ -678,8 +639,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_function_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
@@ -688,29 +647,30 @@ namespace corona
 			const char* ccommand = _function_name.c_str();
 			const char* cfilename = get_file_name(_file);
 
-			::EnterCriticalSection(&log_lock);
-
-			TraceLoggingWrite(
-				global_corona_provider,
-				"Corona",
-				TraceLoggingLevel(WINEVENT_LEVEL_INFO),
-				TraceLoggingStruct(3, "FunctionComplete"),
-				TraceLoggingValue(ccommand, "Function"),
-				TraceLoggingValue(cmessage, "Message"),
-				TraceLoggingValue(cfilename, "File"),
-				TraceLoggingValue(_elapsed_seconds, "ExecutionTime"),
-				TraceLoggingValue(_line, "Line")
-			);
 
 			try {
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+					net_reporting->LogFunctionStop(
+						marshal_as<System::String^>(ccommand),
+						marshal_as<System::String^>(cmessage),
+						_elapsed_seconds,
+						marshal_as<System::String^>(cfilename),
+						_line
+					);
+					return;
+				}
+#endif
+
 				auto& xout = get_log_file();
 				
 				xout << Logcommand;
-			xout << std::format("{0:<5}", " ");
-			xout << Logapi;
-			xout << std::format("{0:<5}", " ");
-			xout << Logfunction;
-			xout << std::format("{0:<20}{1:<55}{2:<25}",
+				xout << std::format("{0:<5}", " ");
+				xout << Logapi;
+				xout << std::format("{0:<5}", " ");
+				xout << Logfunction;
+				xout << std::format("{0:<20}{1:<55}{2:<25}",
 				_function_name,
 				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
@@ -724,21 +684,31 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 
 		virtual void log_base_block_start(int _indent, std::string _function_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
 				std::string sindent(_indent, ' ');
 				_function_name = sindent + _function_name;
+
+#if defined(__cplusplus_cli)
+				if (net_reporting.get()) {
+
+					net_reporting->LogBlockStart(
+						marshal_as<System::String^>(_function_name.c_str()),
+						marshal_as<System::String^>(_message.c_str()),
+						*to_managed(_request_time),
+						marshal_as<System::String^>(get_file_name(_file)),
+						_line
+					);
+					return;
+				}
+#endif
+
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -758,15 +728,10 @@ namespace corona
 			{
 				log_exception(exc, __FILE__, __LINE__);
 			}
-
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_base_block_stop(int _indent, std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
 		{
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
@@ -785,14 +750,14 @@ namespace corona
 				}
 #endif
 
-				std::string sindent(_indent, ' ');
-				_function_name = sindent + _function_name;
-				xout << Logcommand;
-				xout << std::format("{0:<5}", " ");
-				xout << Logapi;
-				xout << std::format("{0:<5}", " ");
-				xout << Logfunction;
-				xout << std::format("{0:<20}{1:<55}{2:<25}",
+					std::string sindent(_indent, ' ');
+					_function_name = sindent + _function_name;
+					xout << Logcommand;
+					xout << std::format("{0:<5}", " ");
+					xout << Logapi;
+					xout << std::format("{0:<5}", " ");
+					xout << Logfunction;
+					xout << std::format("{0:<20}{1:<55}{2:<25}",
 					_function_name,
 					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
@@ -806,9 +771,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_table_start(std::string _function_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
@@ -882,8 +844,6 @@ namespace corona
 			}
 #endif
 
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
@@ -912,8 +872,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_activity(std::string _message, date_time _time, const char* _file = nullptr, int _line = 0)
@@ -923,15 +881,13 @@ namespace corona
 			if (net_reporting.get()) {
 				net_reporting->LogActivity(	
 					marshal_as<System::String^>(_message.c_str()),
-					to_managed(_time),
+					*to_managed(_time),
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
 				);
 				return;
 			}
 #endif
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -956,8 +912,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_activity(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
@@ -973,8 +927,6 @@ namespace corona
 				return;
 			}
 #endif
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
@@ -998,8 +950,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_put(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
@@ -1007,8 +957,6 @@ namespace corona
 
 			if (not enable_put_logging)
 				return;
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -1033,8 +981,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_adapter(std::string _message)
@@ -1049,8 +995,6 @@ namespace corona
 				return;
 			}
 #endif
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -1081,8 +1025,6 @@ namespace corona
 			 log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_warning(std::string _message, const char *_file = nullptr, int _line = 0)
@@ -1099,8 +1041,6 @@ namespace corona
 				return;
 			}
 #endif
-
-			::EnterCriticalSection(&log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -1124,8 +1064,6 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		virtual void log_exception(std::exception exc, const char* _file = nullptr, int _line = 0)
@@ -1142,8 +1080,6 @@ namespace corona
 				return;
 			}
 #endif
-
-			::EnterCriticalSection(&log_lock);
 
 
 			try {
@@ -1167,14 +1103,10 @@ namespace corona
 				log_exception(exc, __FILE__, __LINE__);
 			}
 
-
-			::LeaveCriticalSection(&log_lock);
 		}
 
 		template <typename json_type> void log_json(json_type _src, int _indent = 2)
 		{
-			::EnterCriticalSection(&log_lock);
-
 			try {
 				auto& xout = get_log_file();
 
@@ -1277,9 +1209,6 @@ namespace corona
 			{
 				log_exception(exc, __FILE__, __LINE__);
 			}
-
-
-			::LeaveCriticalSection(&log_lock);
 
 		}
 	};

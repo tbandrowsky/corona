@@ -607,8 +607,8 @@ namespace corona
 		{
 			return value != 0;
 		}
-		virtual double to_double() const 
-		{
+
+		virtual double to_double() const{
 			return value;
 		}
 
@@ -1862,7 +1862,7 @@ namespace corona
 		void put_members(json& _member)
 		{
 			if (not object_impl()) {
-				throw std::logic_error("Target is not an object");
+				throw std::logic_error("Not an object");
 			}
 
 			if (not _member.object_impl()) {
