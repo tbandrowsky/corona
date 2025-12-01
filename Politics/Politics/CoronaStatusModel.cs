@@ -1,4 +1,5 @@
-﻿using ObservableCollections;
+﻿using Microsoft.UI.Dispatching;
+using ObservableCollections;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,11 +13,11 @@ namespace Politics
 
     public class CoronaMessage : INotifyPropertyChanged
     {
-        private string _color;
-        private string _topic;
-        private string _message;
+        private string _color = "";
+        private string _topic = "";
+        private string _message = "";
         private DateTime _startTime;
-        private ObservableCollection<CoronaMessage> _children = new ObservableCollection<CoronaMessage>();
+        private double _elapsedSeconds;
         public string Color
         {
             get => _color;
@@ -57,13 +58,13 @@ namespace Politics
             }
         }
 
-        public ObservableCollection<CoronaMessage> Children
+        public double ElapsedSeconds
         {
-            get => _children;
+            get => _elapsedSeconds;
             set
             {
-                _children = value;
-                OnPropertyChanged(nameof(Children));
+                _elapsedSeconds = value;
+                OnPropertyChanged(nameof(ElapsedSeconds));
             }
         }
 
@@ -71,27 +72,35 @@ namespace Politics
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public double ElapsedSeconds { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }
-
-    public class CoronaStatusModel : INotifyPropertyChanged
+    public class CoronaMessageGroup
     {
-        public ObservableStack<CoronaMessage> Messages { get; set; } = new ObservableStack<CoronaMessage>();
+        public string Key { get; init; }
+        public ObservableCollection<CoronaMessage> Items { get; set;  } = new();
+        public CoronaMessageGroup(string key) => Key = key;
+    }
+
+    public delegate void MessageReceivedEvent(CoronaMessage message);
+
+    public class CoronaStatusModel 
+    {
+        private Dictionary<string, CoronaMessage> ActiveMessages { get; set; } = new Dictionary<string, CoronaMessage>();
+        public ObservableCollection<CoronaMessageGroup> GroupedMessages { get; } = new();
+
+        public MessageReceivedEvent? MessageReceived;
 
         private CoronaMessage? currentMessage;
-        public CoronaMessage? CurrentMessage {
+        public CoronaMessage? CurrentMessage 
+        {
             get => currentMessage;
             set
             {
                 currentMessage  = value;
-                OnPropertyChanged(nameof(CurrentMessage));
             }
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
+        }        
 
         public void StartMessage(string color, string topic, string message, DateTime added)
         {
@@ -102,35 +111,46 @@ namespace Politics
                 Message = message,
                 StartTime = added
             };
-            if (CurrentMessage == null)
+
+            var queue = App.CurrentApp.DispatcherQueue;
+
+            queue?.TryEnqueue(() =>
             {
-                CurrentMessage = new_message;
-            }
-            else if (CurrentMessage != null)
-            {
-                CurrentMessage.Children.Add(new_message);
-                Messages.Push(CurrentMessage);
-            }
+                ActiveMessages[topic] = new_message;
+                foreach (var fg in GroupedMessages)
+                {
+                    if (fg.Key == topic)
+                    {
+                        fg.Items.Add(new_message);
+                        return;
+                    }
+                }
+                var cmg = new CoronaMessageGroup(topic);
+                cmg.Items.Add(new_message); 
+                GroupedMessages.Add(cmg);
+                MessageReceived?.Invoke(new_message);
+            });
         }
 
         public void StopMessage(string topic, string message, double elapsed_seconds)
         {
-            if (CurrentMessage == null)
-            {
-                return;
-            }
-            if (CurrentMessage.Topic == topic)
-            {
-                CurrentMessage.Message = message;
-                CurrentMessage.ElapsedSeconds = elapsed_seconds;
-                CurrentMessage = Messages.Count > 0 ? Messages.Pop() : null;
-            }
-        }
+            CoronaMessage? existingMessage = null;
 
+            var queue = App.CurrentApp.DispatcherQueue;
 
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            queue?.TryEnqueue(() =>
+            {
+                if (ActiveMessages.TryGetValue(topic, out existingMessage))
+                {
+                    existingMessage.Message = message;
+                    existingMessage.ElapsedSeconds = elapsed_seconds;
+                    ActiveMessages.Remove(topic);
+                }
+                if (existingMessage != null)
+                {
+                    MessageReceived?.Invoke(existingMessage);
+                }
+            });
         }
     }
 }

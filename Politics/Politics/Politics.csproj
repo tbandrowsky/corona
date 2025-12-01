@@ -31,6 +31,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Configuration\config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Configuration\politics_schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="CoronaSchemaLoad.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -133,7 +133,7 @@ namespace corona
 					break;
 				}
 				os_result what_wrong;
-				std::cout << what_wrong.message << std::endl;
+                OutputDebugStringA(what_wrong.message.c_str());
 				if (what_wrong.error_code < 90) {
 					Sleep(200);
 					retry_count--;
@@ -147,11 +147,7 @@ namespace corona
 				{
 					last_result = osr;
 					std::string temp = filename + ":" + osr.message;
-					std::string current = std::filesystem::current_path().string();
-                    if (current.ends_with('\\') == false)
-                        current += "\\";
-					current += temp;
-					throw std::logic_error(current);
+					throw std::logic_error(temp);
 				}
 			}
 			last_result = os_result(0);

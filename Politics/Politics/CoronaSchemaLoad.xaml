@@ -5,17 +5,34 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Politics"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    d:DataContext="{d:DesignInstance Type=local:CoronaStatusModel}"
     mc:Ignorable="d">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-    </Grid>
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="groupedItemsViewSource" IsSourceGrouped="True" Source="{Binding GroupedMessages}" />
+        <DataTemplate x:Key="GroupHeaderTemplate">
+            <TextBlock Text="{Binding Key}" FontWeight="Bold" FontSize="16" />
+        </DataTemplate>
+        <DataTemplate x:Key="ItemTemplate">
+            <Grid>
+                <TextBlock Text="{Binding Message}" />
+                <TextBlock Text="{Binding StartTime}" />
+                <TextBlock Text="{Binding ElapsedSeconds}" />
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ListView
+        x:Name="MessagesListView"
+        ItemsSource="{Binding Source={StaticResource groupedItemsViewSource}}"
+        IsItemClickEnabled="True"
+        SelectionMode="None">
+        <ListView.GroupStyle>
+            <GroupStyle HeaderTemplate="{StaticResource GroupHeaderTemplate}" />
+        </ListView.GroupStyle>
+        <ListView.ItemTemplate>
+            <StaticResource ResourceKey="ItemTemplate" />
+        </ListView.ItemTemplate>
+    </ListView>
 </UserControl>

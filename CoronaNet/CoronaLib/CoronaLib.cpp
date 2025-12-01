@@ -192,6 +192,8 @@ template <typename interface_type, typename response_type, typename request_type
     response_type^ netresult = gcnew response_type();
 
     put_response(netresult, response);
+
+    return netresult;
 }
 
 std::function<corona::json(corona::corona_database *_db, corona::json _request)> user_set_team_impl = [](corona::corona_database* _db, corona::json _request) {
@@ -251,7 +253,7 @@ bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::DatabaseConfigur
     std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
     
     config_json = jp.parse_object(config_string);
-    m_database = new corona::corona_database();
+    m_database = new corona::corona_database(msclr::interop::marshal_as<std::string>(configuration->DatabasePath));
     m_database->apply_config(config_json);
     corona::json jresponse = m_database->create_database();
     bool success = (bool)jresponse[corona::success_field];

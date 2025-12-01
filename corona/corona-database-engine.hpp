@@ -7176,22 +7176,20 @@ bail:
 		{
 			data_path = "/";
 			token_life = time_span(1, time_models::days);
-		}
-
-		corona_database(std::string _data_path)
-		{
-            data_path = _data_path;
-			token_life = time_span(1, time_models::days);	
-
 
 			default_user = "system";
-			default_password = "nonprivatestuff";
+			default_password = "TestDefaultPassword123456!";
 			default_email_address = "system@example.com";
 			default_guest_team = "Guests";
 			default_api_title = "API";
 			default_api_description = "API Description";
 			default_api_version = "1.0";
 			default_api_author = "System";
+		}
+
+        corona_database(std::string _data_path) : corona_database()
+		{
+            data_path = _data_path;
 		}
 
 		virtual ~corona_database()
@@ -7255,20 +7253,28 @@ bail:
             default_onboard_email_filename = server[sys_default_onboard_email_template];
 			default_recovery_email_filename = server[sys_default_recovery_email_template];
 
-			std::filesystem::path schema_path(data_path);
-			std::filesystem::path onboard_file(default_onboard_email_filename);
-			std::filesystem::path recovery_file(default_recovery_email_filename);
-            if (not onboard_file.is_absolute()) {
-                onboard_file = schema_path / onboard_file;
+			if (default_email_address.empty()) {
+				default_email_address = std::format("dummy@example.com", default_user);
             }
-			if (not recovery_file.is_absolute()) {
-				recovery_file = schema_path / recovery_file;
-			}
 
-			std::string obf = onboard_file.string();
-            std::string rf = recovery_file.string();
-			default_onboard_email = read_all_string(obf);
-			default_recovery_email = read_all_string(rf);
+			if (not (default_onboard_email_filename.empty() or default_onboard_email_filename.empty()))
+			{
+				std::filesystem::path schema_path(data_path);
+				std::filesystem::path onboard_file(default_onboard_email_filename);
+				std::filesystem::path recovery_file(default_recovery_email_filename);
+
+				if (not onboard_file.is_absolute()) {
+					onboard_file = schema_path / onboard_file;
+				}
+				if (not recovery_file.is_absolute()) {
+					recovery_file = schema_path / recovery_file;
+				}
+
+				std::string obf = onboard_file.string();
+				std::string rf = recovery_file.string();
+				default_onboard_email = read_all_string(obf);
+				default_recovery_email = read_all_string(rf);
+			}
 
 			if (server.has_member(sys_record_cache_field)) {
 				maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];

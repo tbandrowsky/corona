@@ -3993,12 +3993,12 @@ namespace corona
 			return result;
 		}
 
-		bool parse_object(std::shared_ptr<json_object>& _object, const char* _src, const char** _modified)
+		bool parse_object(std::shared_ptr<json_object>& _object, const char* _src_original, const char** _modified)
 		{
 			int comparison_index = 0;
 			bool result = false;
 			std::string temp = "";
-			_src = eat_white(_src);
+			const char *_src = eat_white(_src_original);
 			if (*_src == '{')
 			{
 				_src++;

@@ -1,5 +1,6 @@
 ﻿using CoronaInterface;
 using CoronaLib;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +23,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
+
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -29,15 +32,9 @@ namespace Politics
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    public partial class App : Application, CoronaInterface.ISystemMonitoring
+    public partial class App : Application
     {
-        private Window? _window;
-
-        private CoronaDatabase coronaDatabase = new CoronaDatabase();
-        private CoronaStatusModel coronaStatusModel = new CoronaStatusModel();
-
-        public CoronaDatabase CoronaDatabase { get => coronaDatabase; }
-        public CoronaStatusModel CoronaStatusModel { get => coronaStatusModel; }
+        private MainWindow? _window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -48,193 +45,27 @@ namespace Politics
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
-        /// 
-
-        public string DatabasePath => System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "politics");
-        public string ConfigPath => System.IO.Path.Combine(Environment.ProcessPath ?? Assembly.GetExecutingAssembly().Location, "onboard_email_template.html");
+        public static App CurrentApp => (App)Application.Current;
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();
-            _window.Activate();            
-            CoronaSystem cm = new CoronaSystem();
-            cm.SystemMonitoring = this;
+            _window.Activate();
+            Action<MainWindow> createDatabaseAction = MainWindow.CreateDatabase;
+            ThreadPool.QueueUserWorkItem<MainWindow>(createDatabaseAction, _window, false);
         }
 
-        public static App CurrentPolitics => (App)App.Current; 
-
-        public static void CreateDatabase(App app)
+        public DispatcherQueue DispatcherQueue
         {
-            DatabaseConfiguration config = new DatabaseConfiguration();
-
-            string config_file_name = System.IO.Path.Combine(app.ConfigPath, "config.json");
-            string config_content = File.ReadAllText(config_file_name);
-
-            config.DatabasePath = app.DatabasePath;
-
-            config.Servers = new List<ServerConfiguration>();
-            config.Servers.Add(new ServerConfiguration
+            get
             {
-                ApplicationName = "Politics",
-                DatabaseRecreate = true,
-                ListenPoint = "http://localhost:5678/Politics",
-                DatabaseThreads = 8,
-                OnboardEmailFilename = System.IO.Path.Combine(app.ConfigPath, "onboard_email_template.html"),
-                RecoveryEmailFilename = System.IO.Path.Combine(app.ConfigPath, "recovery_email_template.html"),
-                SchemaFilename = System.IO.Path.Combine(app.ConfigPath, "politics_schema.json")
-            });
-            
-            app.coronaDatabase.CreateDatabase(config);
+                if (_window != null)
+                {
+                    return _window.MessageQueue;
+                }
+                throw new InvalidOperationException("Application window is not initialized.");
+            }
         }
 
-        public void LogUserCommandStart(string commandName, string message, DateTime requestTime, string file = null, int line = 0)
-        {        
-            coronaStatusModel.StartMessage("#c0c0c0", commandName, message, requestTime);
-        }
-
-        public void LogUserCommandStop(string commandName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(commandName, message, elapsedSeconds);
-        }
-
-        public void LogCommandStart(string commandName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", commandName, message, requestTime);
-        }
-
-        public void LogCommandStop(string commandName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(commandName, message, elapsedSeconds);
-        }
-
-        public void LogJobStart(string apiName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", apiName, message, requestTime);
-        }
-
-        public void LogJobStop(string apiName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(apiName, message, elapsedSeconds);
-        }
-
-        public void LogJobSectionStart(string apiName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", apiName, message, requestTime);
-        }
-
-        public void LogJobSectionStop(string apiName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage( apiName, message, elapsedSeconds);
-        }
-
-        public void LogFunctionStart(string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogFunctionStop(string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds);
-        }
-
-        public void LogBaseBlockStart(int indent, string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogBaseBlockStop(int indent, string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds);
-        }
-
-        public void LogTableStart(string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogTableStop(string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds);
-        }
-
-        public void LogJsonStart(string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogJsonStop(string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds);
-        }
-
-        public void LogPocoStart(string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogPocoStop(string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds);
-        }
-
-        public void LogBlockStart(string functionName, string message, DateTime requestTime, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", functionName, message, requestTime);
-        }
-
-        public void LogBlockStop(string functionName, string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StopMessage(functionName, message, elapsedSeconds );
-        }
-
-        public void LogInformation(string message, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "information", message, DateTime.Now);
-            coronaStatusModel.StopMessage("information", message, 0);
-        }
-
-        public void LogActivity(string message, DateTime time, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "activity", message, DateTime.Now);
-            coronaStatusModel.StopMessage("activity", message, 0);
-        }
-
-        public void LogActivity(string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "activity", message, DateTime.Now);
-            coronaStatusModel.StopMessage("activity", message, 0);
-        }
-
-        public void LogPut(string message, double elapsedSeconds, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "activity", message, DateTime.Now);
-            coronaStatusModel.StopMessage("activity", message, 0);
-        }
-
-        public void LogAdapter(string message)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "activity", message, DateTime.Now);
-            coronaStatusModel.StopMessage("activity", message, 0);
-        }
-
-        public void LogWarning(string message, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "warning", message, DateTime.Now);
-            coronaStatusModel.StopMessage("warning", message, 0);
-        }
-
-        public void LogException(string message, string file = null, int line = 0)
-        {
-            coronaStatusModel.StartMessage("#c0c0c0", "activity", message, DateTime.Now);
-            coronaStatusModel.StopMessage("activity", message, 0);
-        }
-
-        public void LogJson<T>(T src, int indent = 2)
-        {
-        }
     }
 }
