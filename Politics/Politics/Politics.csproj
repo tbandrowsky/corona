@@ -13,6 +13,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="CoronaSchemaLoad.xaml" />
+    <None Remove="CoronaSearchPage.xaml" />
+    <None Remove="CoronaStatusPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
     <PackageReference Include="ObservableCollections" Version="3.3.4" />
@@ -37,6 +40,12 @@
     <None Update="Configuration\politics_schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="CoronaSearchPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="CoronaStatusPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

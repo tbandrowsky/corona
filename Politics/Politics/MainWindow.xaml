@@ -14,6 +14,12 @@
     </Window.SystemBackdrop>
 
     <Grid>
-        <local:CoronaSchemaLoad CoronaStatusModel="{Binding CoronaStatusModel}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
+        <NavigationView x:Name="MainNavigationView" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Status" Tag="coronaStatus" />
+                <NavigationViewItem Content="Search" Tag="coronaSearch" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
     </Grid>
 </Window>

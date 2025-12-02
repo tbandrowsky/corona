@@ -47,6 +47,30 @@ namespace Politics
 
         public static App CurrentApp => (App)Application.Current;
 
+        public CoronaStatusModel CoronaStatusModel
+        {
+            get
+            {
+                if (_window != null)
+                {
+                    return _window.CoronaStatusModel;
+                }
+                throw new InvalidOperationException("Application window is not initialized.");
+            }
+        }
+
+        public CoronaDatabase CoronaDatabase
+        {
+            get
+            {
+                if (_window != null)
+                {
+                    return _window.CoronaDatabase;
+                }
+                throw new InvalidOperationException("Application window is not initialized.");
+            }
+        }
+
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             _window = new MainWindow();

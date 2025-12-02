@@ -1,9 +1,11 @@
-﻿using Microsoft.UI.Dispatching;
+﻿using CoronaInterface;
+using Microsoft.UI.Dispatching;
 using ObservableCollections;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,19 +78,13 @@ namespace Politics
         public event PropertyChangedEventHandler? PropertyChanged;
 
     }
-    public class CoronaMessageGroup
-    {
-        public string Key { get; init; }
-        public ObservableCollection<CoronaMessage> Items { get; set;  } = new();
-        public CoronaMessageGroup(string key) => Key = key;
-    }
 
     public delegate void MessageReceivedEvent(CoronaMessage message);
 
-    public class CoronaStatusModel 
+    public class CoronaStatusModel : ISystemMonitoring
     {
         private Dictionary<string, CoronaMessage> ActiveMessages { get; set; } = new Dictionary<string, CoronaMessage>();
-        public ObservableCollection<CoronaMessageGroup> GroupedMessages { get; } = new();
+        public ObservableCollection<CoronaMessage> Messages{ get; } = new();
 
         public MessageReceivedEvent? MessageReceived;
 
@@ -112,24 +108,13 @@ namespace Politics
                 StartTime = added
             };
 
-            var queue = App.CurrentApp.DispatcherQueue;
-
-            queue?.TryEnqueue(() =>
-            {
-                ActiveMessages[topic] = new_message;
-                foreach (var fg in GroupedMessages)
+            App.CurrentApp
+                .DispatcherQueue.TryEnqueue(() =>
                 {
-                    if (fg.Key == topic)
-                    {
-                        fg.Items.Add(new_message);
-                        return;
-                    }
-                }
-                var cmg = new CoronaMessageGroup(topic);
-                cmg.Items.Add(new_message); 
-                GroupedMessages.Add(cmg);
-                MessageReceived?.Invoke(new_message);
-            });
+                    ActiveMessages[topic] = new_message;
+                    Messages.Add(new_message);
+                    MessageReceived?.Invoke(new_message);
+                });
         }
 
         public void StopMessage(string topic, string message, double elapsed_seconds)
@@ -138,19 +123,167 @@ namespace Politics
 
             var queue = App.CurrentApp.DispatcherQueue;
 
-            queue?.TryEnqueue(() =>
-            {
-                if (ActiveMessages.TryGetValue(topic, out existingMessage))
+            App.CurrentApp
+                .DispatcherQueue.TryEnqueue(() =>
                 {
-                    existingMessage.Message = message;
-                    existingMessage.ElapsedSeconds = elapsed_seconds;
-                    ActiveMessages.Remove(topic);
-                }
-                if (existingMessage != null)
-                {
-                    MessageReceived?.Invoke(existingMessage);
-                }
-            });
+                    if (ActiveMessages.TryGetValue(topic, out existingMessage))
+                    {
+                        existingMessage.Message = message;
+                        existingMessage.ElapsedSeconds = elapsed_seconds;
+                        ActiveMessages.Remove(topic);
+                    }
+                    if (existingMessage != null)
+                    {
+                        MessageReceived?.Invoke(existingMessage);
+                    }
+                });
         }
+
+        public void LogUserCommandStart(string commandName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", commandName, message, requestTime);
+        }
+
+        public void LogUserCommandStop(string commandName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(commandName, message, elapsedSeconds);
+        }
+
+        public void LogCommandStart(string commandName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", commandName, message, requestTime);
+        }
+
+        public void LogCommandStop(string commandName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(commandName, message, elapsedSeconds);
+        }
+
+        public void LogJobStart(string apiName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", apiName, message, requestTime);
+        }
+
+        public void LogJobStop(string apiName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(apiName, message, elapsedSeconds);
+        }
+
+        public void LogJobSectionStart(string apiName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", apiName, message, requestTime);
+        }
+
+        public void LogJobSectionStop(string apiName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(apiName, message, elapsedSeconds);
+        }
+
+        public void LogFunctionStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogFunctionStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogBaseBlockStart(int indent, string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogBaseBlockStop(int indent, string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogTableStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogTableStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogJsonStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogJsonStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogPocoStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogPocoStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogBlockStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", functionName, message, requestTime);
+        }
+
+        public void LogBlockStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StopMessage(functionName, message, elapsedSeconds);
+        }
+
+        public void LogInformation(string message, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "information", message, DateTime.Now);
+            StopMessage("information", message, 0);
+        }
+
+        public void LogActivity(string message, DateTime time, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "activity", message, DateTime.Now);
+            StopMessage("activity", message, 0);
+        }
+
+        public void LogActivity(string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "activity", message, DateTime.Now);
+            StopMessage("activity", message, 0);
+        }
+
+        public void LogPut(string message, double elapsedSeconds, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "activity", message, DateTime.Now);
+            StopMessage("activity", message, 0);
+        }
+
+        public void LogAdapter(string message)
+        {
+            StartMessage("#c0c0c0", "activity", message, DateTime.Now);
+            StopMessage("activity", message, 0);
+        }
+
+        public void LogWarning(string message, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "warning", message, DateTime.Now);
+            StopMessage("warning", message, 0);
+        }
+
+        public void LogException(string message, string file = "", int line = 0)
+        {
+            StartMessage("#c0c0c0", "activity", message, DateTime.Now);
+            StopMessage("activity", message, 0);
+        }
+
+        public void LogJson<T>(T src, int indent = 2)
+        {
+        }
+
     }
 }
