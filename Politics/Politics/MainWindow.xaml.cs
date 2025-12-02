@@ -57,12 +57,6 @@ namespace Politics
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.SelectedItem is NavigationViewItem newItem && newItem.Tag is string pageTag)
-            {
-                var pageType = Type.GetType(pageTag);
-                if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
-                    ContentFrame.Navigate(pageType);
-            }
         }
 
         private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)

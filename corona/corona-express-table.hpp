@@ -944,7 +944,7 @@ namespace corona
 			root->save();
 			cache->close_block(root);
 			int64_t bytes_written = cache->save();
-			system_monitoring_interface::global_mon->log_information(std::format("create table {0}", file_name), __FILE__, __LINE__);
+			system_monitoring_interface::global_mon->log_information(std::format("create table {0}", get_file_name(file_name)), __FILE__, __LINE__);
 		}
 
 		xtable(std::string _file_name)
@@ -955,13 +955,13 @@ namespace corona
 
 			table_header = std::make_shared<xtable_header>();
 			table_header->read(this, 0);
-			system_monitoring_interface::global_mon->log_information(std::format("open table {0}", file_name), __FILE__, __LINE__);
+			system_monitoring_interface::global_mon->log_information(std::format("open table {0}", get_file_name(file_name)), __FILE__, __LINE__);
 		}
 
 		virtual ~xtable()
 		{
             commit();            
-			system_monitoring_interface::global_mon->log_information(std::format("Closing table {0}", file_name), __FILE__, __LINE__);
+			system_monitoring_interface::global_mon->log_information(std::format("Closing table {0}", get_file_name(file_name)), __FILE__, __LINE__);
 		}
 
 		bool put_direct(xrecord& key, xrecord &data)
