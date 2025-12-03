@@ -9,6 +9,14 @@
     xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
-    <cty:DataGrid x:Name="SchemaGrid">
-    </cty:DataGrid>
+    <Grid>
+        <TabView>
+            <TabViewItem Header="Log">
+                <cty:DataGrid x:Name="SchemaGrid"></cty:DataGrid>
+            </TabViewItem>
+            <TabViewItem Header="Analysis">
+                <TextBlock>Charts</TextBlock>
+            </TabViewItem>
+        </TabView>
+    </Grid>
 </UserControl>

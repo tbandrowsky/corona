@@ -74,6 +74,7 @@
                     <TextBlock Text="Search" />
                 </NavigationViewItem>
             </NavigationView.MenuItems>
+
             <Frame x:Name="ContentFrame" />
         </NavigationView>
     </Grid>

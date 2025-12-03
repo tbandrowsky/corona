@@ -9,6 +9,21 @@
     mc:Ignorable="d">
 
     <Grid>
-
+        <StackPanel>
+            <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" />
+            <Button x:Name="SearchButton" Content="Search"  Margin="12" />
+        </StackPanel>
+        <ItemsControl x:Name="ResultsList" Margin="12,80,12,12">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Gray" BorderThickness="1" Padding="8" Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </Page>
