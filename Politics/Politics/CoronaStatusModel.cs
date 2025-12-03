@@ -57,7 +57,13 @@ namespace Politics
             {
                 _startTime = value;
                 OnPropertyChanged(nameof(StartTime));
+                OnPropertyChanged(nameof(StartTimeString));
             }
+        }
+
+        public string StartTimeString
+        {
+            get => _startTime.Year > 1900 ? string.Format("{0:M/d h:mm:ss tt}", _startTime) : "";
         }
 
         public double ElapsedSeconds
@@ -67,7 +73,13 @@ namespace Politics
             {
                 _elapsedSeconds = value;
                 OnPropertyChanged(nameof(ElapsedSeconds));
+                OnPropertyChanged(nameof(ElapsedMillisecondsString));
             }
+        }
+
+        public string ElapsedMillisecondsString
+        {
+            get => _elapsedSeconds > 0 ? string.Format("{0:.2}", _elapsedSeconds * 1000) : "";
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

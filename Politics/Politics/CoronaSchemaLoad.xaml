@@ -10,13 +10,14 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TabView>
-            <TabViewItem Header="Log">
-                <cty:DataGrid x:Name="SchemaGrid"></cty:DataGrid>
-            </TabViewItem>
-            <TabViewItem Header="Analysis">
-                <TextBlock>Charts</TextBlock>
-            </TabViewItem>
-        </TabView>
+        <cty:DataGrid x:Name="SchemaGrid">
+            <cty:DataGrid.Columns>
+                <cty:DataGridTextColumn Header="Api" Binding="{Binding Api}" Width="Auto"/>
+                <cty:DataGridTextColumn Header="Topic" Binding="{Binding Topic}" Width="Auto"/>
+                <cty:DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="Auto"/>
+                <cty:DataGridTextColumn Header="StartTime" Binding="{Binding StartTimeString}" Width="Auto"/>
+                <cty:DataGridTextColumn Header="Elapsed MS" Binding="{Binding ElapsedMillisecondsString}" Width="Auto"/>
+            </cty:DataGrid.Columns>
+        </cty:DataGrid>
     </Grid>
 </UserControl>

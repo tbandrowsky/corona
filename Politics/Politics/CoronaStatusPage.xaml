@@ -7,6 +7,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
-   <local:CoronaSchemaLoad HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
+    <Grid>
+        <TabView>
+            <TabViewItem Header="Activity">
+                <TabViewItem.Content>
+                    <local:CoronaSchemaLoad HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
+                </TabViewItem.Content>
+            </TabViewItem>
+            <TabViewItem Header="Analytics">
+                <TabViewItem.Content>
+                    <TextBlock>Charts</TextBlock>
+                </TabViewItem.Content>
+            </TabViewItem>
+        </TabView>
+    </Grid>
 </Page>
