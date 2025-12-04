@@ -1,4 +1,6 @@
-﻿using Microsoft.UI.Xaml.Input;
+﻿using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Brushes;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
@@ -13,8 +15,8 @@ namespace CoronaCharts
     {
         public string Name { get; set; }
         public double Value { get; set; }
-        public Brush FillBrush { get; set; }
-        public Brush BorderBrush { get; set; }
+        public ICanvasBrush FillBrush { get; set; }
+        public ICanvasBrush BorderBrush { get; set; }
     }
 
     public class SummaryChartSeriesCollection

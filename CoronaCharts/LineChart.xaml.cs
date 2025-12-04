@@ -62,6 +62,39 @@ namespace CoronaCharts
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        CanvasRenderTarget offscreen;
+
+        void updateCanvas()
+        {
+            if (offscreen == null || Series == null || Series.Series.Count == 0)
+                return;
+            using (var chumpy = offscreen.CreateDrawingSession())
+            {
+                chumpy.Clear(Microsoft.UI.Colors.White);
+                double maxValue = Series.Series.Max(s => s.Value);
+                double minValue = Series.Series.Min(s => s.Value);
+                if (minValue > 0) minValue = 0;
+                double rangeValue = maxValue - minValue;
+                double barAvailableWidth = CanvasWidth - BarSpacing * (Series.Series.Count() + 1);
+                if (barAvailableWidth > 0 && rangeValue > 0)
+                {
+                    float barWidth = (float)(barAvailableWidth / Series.Series.Count());
+                    float x = (float)BarSpacing;
+                    float yscale = (float)(CanvasHeight / rangeValue);
+
+                    foreach (var item in Series.Series)
+                    {
+                        float h = (float)(item.Value * yscale + minValue);
+                        float y = (float)CanvasHeight - h;
+                        var fillBrush = item.FillBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Blue);
+                        chumpy.FillRectangle(x, y, barWidth, h, fillBrush);
+                        var borderBrush = item.BorderBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Black);
+                        chumpy.DrawRectangle(x, y, barWidth, h, borderBrush, 2);
+                        x += barWidth + BarSpacing;
+                    }
+                }
+            }
+        }
 
         private void Canvas_CreateResources(CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {

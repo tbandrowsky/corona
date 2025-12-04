@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Graphics.Canvas.Brushes;
 
 namespace CoronaCharts
 {
     public interface ISeriesBase
     {
         public string Name { get; set; } 
-        public Brush FillBrush { get; set; }
-        public Brush BorderBrush { get; set; }
+        public ICanvasBrush FillBrush { get; set; }
+        public ICanvasBrush BorderBrush { get; set; }
     }
 }
