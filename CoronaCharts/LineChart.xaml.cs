@@ -1,4 +1,5 @@
 using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas.UI.Xaml;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -53,8 +55,6 @@ namespace CoronaCharts
             }
         }
 
-        CanvasRenderTarget offscreen;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         void OnPropertyChanged(string name)
@@ -62,44 +62,77 @@ namespace CoronaCharts
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        public float CanvasWidth = 1000;
+        public float CanvasHeight = 1000;
+
         CanvasRenderTarget offscreen;
 
-        void updateCanvas()
+        public void Refresh()
         {
             if (offscreen == null || Series == null || Series.Series.Count == 0)
                 return;
+
             using (var chumpy = offscreen.CreateDrawingSession())
             {
                 chumpy.Clear(Microsoft.UI.Colors.White);
-                double maxValue = Series.Series.Max(s => s.Value);
-                double minValue = Series.Series.Min(s => s.Value);
-                if (minValue > 0) minValue = 0;
-                double rangeValue = maxValue - minValue;
-                double barAvailableWidth = CanvasWidth - BarSpacing * (Series.Series.Count() + 1);
-                if (barAvailableWidth > 0 && rangeValue > 0)
-                {
-                    float barWidth = (float)(barAvailableWidth / Series.Series.Count());
-                    float x = (float)BarSpacing;
-                    float yscale = (float)(CanvasHeight / rangeValue);
 
-                    foreach (var item in Series.Series)
+                DateTime minDate = DateTime.MaxValue, maxDate = DateTime.MinValue;
+
+                double minValue = 0.0, maxValue = 0.0;
+
+                foreach (var s in Series.Series) 
+                {
+                    if (s.Points.Count == 0)
+                        continue;
+                    s.Points.Sort((a, b) => a.Time.CompareTo(b.Time));
+                    minDate = s.Points.First().Time;
+                    maxDate = s.Points.Last().Time;
+                    minValue = Math.Min(minValue, s.Points[0].Value);
+                    maxValue = Math.Max(maxValue, s.Points[0].Value);
+                    for (var i = 1; i < s.Points.Count; i++)
                     {
-                        float h = (float)(item.Value * yscale + minValue);
-                        float y = (float)CanvasHeight - h;
-                        var fillBrush = item.FillBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Blue);
-                        chumpy.FillRectangle(x, y, barWidth, h, fillBrush);
-                        var borderBrush = item.BorderBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Black);
-                        chumpy.DrawRectangle(x, y, barWidth, h, borderBrush, 2);
-                        x += barWidth + BarSpacing;
+                        minValue = Math.Min(minValue, s.Points[i].Value);
+                        maxValue = Math.Max(maxValue, s.Points[i].Value);
                     }
                 }
+
+                double date_range = maxDate.Subtract(minDate).TotalDays;
+                double xscale = CanvasWidth / date_range;
+                double yscale = CanvasHeight / (maxValue - minValue);
+
+                foreach (var s in Series.Series)
+                {
+                    if (s.Points.Count == 0)
+                        continue;
+
+                    CanvasPathBuilder pathBuilder = new CanvasPathBuilder(chumpy);
+
+                    float x = (float)(s.Points[0].Time.Subtract(minDate).TotalDays * xscale);
+                    float y = (float)(CanvasHeight - (s.Points[0].Value - minValue) * yscale);
+
+                    pathBuilder.BeginFigure(x, y);
+
+                    for (int i = 1; i < s.Points.Count; i++)
+                    {
+                        x = (float)(s.Points[i].Time.Subtract(minDate).TotalDays * xscale);
+                        y = (float)(CanvasHeight - (s.Points[i].Value - minValue) * yscale);
+                        pathBuilder.AddLine(x, y);
+                    }
+
+                    pathBuilder.EndFigure(CanvasFigureLoop.Open);
+
+                    var path = CanvasGeometry.CreatePath(pathBuilder);
+
+                    if (s.BorderBrush != null)
+                        chumpy.DrawGeometry(path, s.BorderBrush);
+                }
+
             }
         }
 
         private void Canvas_CreateResources(CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
         {
-            // Create a fixed-size render target (1024x1024 pixels)
-            offscreen = new CanvasRenderTarget(sender, 1024, 1024, sender.Dpi);
+            offscreen = new CanvasRenderTarget(sender, CanvasWidth, CanvasHeight, sender.Dpi);
         }
 
         void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)

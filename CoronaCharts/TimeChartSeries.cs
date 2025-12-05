@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Media;
+﻿using Microsoft.Graphics.Canvas.Brushes;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,8 +19,8 @@ namespace CoronaCharts
     {
         public string Name { get; set; }
         public List<TimePoint> Points { get; set; } = new List<TimePoint>();
-        public Brush FillBrush { get; set; }
-        public Brush BorderBrush { get; set; }
+        public ICanvasBrush FillBrush { get; set; }
+        public ICanvasBrush BorderBrush { get; set; }
     }
 
     public class TimeChartSeriesCollection

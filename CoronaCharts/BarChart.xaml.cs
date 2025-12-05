@@ -39,25 +39,27 @@ namespace CoronaCharts
             }
         }
 
-        public float CanvasWidth = 1000;
-        public float CanvasHeight = 1000;
-        public float BarSpacing = 32;
-
         SummaryChartSeriesCollection _series;
 
         public SummaryChartSeriesCollection Series
         {
             get => _series;
-            set {
+            set
+            {
                 _series = value;
                 OnPropertyChanged(nameof(Series));
-                updateCanvas();
+                Refresh();
             }
         }
 
+
+        public float CanvasWidth = 1000;
+        public float CanvasHeight = 1000;
+        public float BarSpacing = 32;
+
         CanvasRenderTarget offscreen;
 
-        void updateCanvas()
+        public void Refresh()
         {
             if (offscreen == null || Series == null || Series.Series.Count == 0)
                 return;

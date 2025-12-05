@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CoronaCharts\CoronaCharts.csproj" />
     <ProjectReference Include="..\..\CoronaNet\CoronaLib\CoronaLib.vcxproj" />
   </ItemGroup>
 
