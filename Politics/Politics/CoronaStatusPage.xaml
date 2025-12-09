@@ -13,15 +13,12 @@
         <TabView>
             <TabViewItem Header="Activity">
                 <TabViewItem.Content>
-                    <local:CoronaSchemaLoad HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
-                </TabViewItem.Content>
-            </TabViewItem>
-            <TabViewItem Header="Analytics">
-                <TabViewItem.Content>
-                    <Grid Width="500" Height="500" RowDefinitions="*,*" ColumnDefinitions="*,*">
-                        <ct:LineChart x:Name="historyChart" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"></ct:LineChart>
-                        <ct:BarChart x:Name="performanceChart" Grid.Row="1" Grid.Column="0"></ct:BarChart>
-                        <ct:PieChart x:Name="distributionChart" Grid.Row="1" Grid.Column="1"></ct:PieChart>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,300">
+                        <local:CoronaSchemaLoad Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
+                        <StackPanel Grid.Column="1" Grid.Row="0">
+                            <ct:BarChart x:Name="performanceChart" Width="300" Height="300"></ct:BarChart>
+                            <ct:PieChart x:Name="distributionChart" Width="300" Height="300"></ct:PieChart>
+                        </StackPanel>
                     </Grid>
                 </TabViewItem.Content>
             </TabViewItem>

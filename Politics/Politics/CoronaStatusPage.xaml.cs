@@ -88,7 +88,6 @@ namespace Politics
                     Value = g.Average(m => m.ElapsedSeconds)
                 }).ToList();
 
-            historyChart.Series = historyChartModel;
             performanceChart.Series = performanceChartModel;
             distributionChart.Series = distributionChartModel;
         }
