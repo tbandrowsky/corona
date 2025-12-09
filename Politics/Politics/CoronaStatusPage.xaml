@@ -6,17 +6,20 @@
     xmlns:local="using:Politics"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ct="using:CoronaCharts"
+    xmlns:ct="using:CoronaCharts" xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d"
     Loaded="Page_Loaded">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <TabView>
             <TabViewItem Header="Activity">
                 <TabViewItem.Content>
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,300">
-                        <local:CoronaSchemaLoad Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaSchemaLoad>
-                        <StackPanel Grid.Column="1" Grid.Row="0">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,Auto,*">
+                        <local:CoronaActivity Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaActivity>
+                        <controls:GridSplitter Grid.Row="0" Grid.Column="1"  Width="5" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>
+                        <StackPanel Grid.Column="2" Grid.Row="0" Spacing="8">
+                            <TextBlock Text="Function Performance" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
                             <ct:BarChart x:Name="performanceChart" Width="300" Height="300"></ct:BarChart>
+                            <TextBlock Text="Function Shares" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
                             <ct:PieChart x:Name="distributionChart" Width="300" Height="300"></ct:PieChart>
                         </StackPanel>
                     </Grid>

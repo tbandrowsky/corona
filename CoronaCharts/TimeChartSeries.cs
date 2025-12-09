@@ -19,8 +19,8 @@ namespace CoronaCharts
     {
         public string Name { get; set; }
         public List<TimePoint> Points { get; set; } = new List<TimePoint>();
-        public ICanvasBrush FillBrush { get; set; }
-        public ICanvasBrush BorderBrush { get; set; }
+        public string FillColor { get; set; }
+        public string BorderColor { get; set; }
     }
 
     public class TimeChartSeriesCollection

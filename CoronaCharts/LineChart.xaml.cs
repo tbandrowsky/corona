@@ -118,7 +118,7 @@ namespace CoronaCharts
                 if (list.Count == 0)
                     continue;
 
-                var series_color = Series.Palette[Series.Series.IndexOf(s) % Series.Palette.Count];
+                string series_color = s.FillColor;
 
                 CanvasPathBuilder pathBuilder = new CanvasPathBuilder(args.DrawingSession);
 

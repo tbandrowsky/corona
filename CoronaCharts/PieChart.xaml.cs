@@ -90,7 +90,8 @@ namespace CoronaCharts
 
                 foreach (var item in Series.Series)
                 {
-                    var series_color = Series.Palette[Series.Series.IndexOf(item) % Series.Palette.Count];
+                    string series_color = item.FillColor;
+
                     double angle = angularScale * item.Value;
                     CanvasPathBuilder pathBuilder = new CanvasPathBuilder(args.DrawingSession);
                     float cx = (float)(ActualWidth / 2);

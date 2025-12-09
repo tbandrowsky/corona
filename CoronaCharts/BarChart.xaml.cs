@@ -84,10 +84,7 @@ namespace CoronaCharts
                 {
                     float h = (float)(item.Value * yscale + minValue);
                     float y = (float)sender.ActualHeight - h;
-                    string series_color = Series.Palette[color_index];
-                    color_index++;
-                    if (color_index >= Series.Palette.Count)
-                        color_index = 0;
+                    string series_color = item.FillColor;
                     var fillBrush = new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(args.DrawingSession, series_color.ToColor());
                     args.DrawingSession.FillRectangle(x, y, barWidth, h, fillBrush);
                     var borderBrush = new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(args.DrawingSession, Microsoft.UI.Colors.Black);

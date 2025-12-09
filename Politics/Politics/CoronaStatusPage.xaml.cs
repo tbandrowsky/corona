@@ -41,19 +41,6 @@ namespace Politics
             Refresh();
         }
 
-        string[] pallet =
-        {
-            "#1f77b4",
-            "#ff7f0e",
-            "#2ca02c",
-            "#d62728",
-            "#9467bd",
-            "#8c564b",
-            "#e377c2",
-            "#7f7f7f",
-            "#bcbd22",
-            "#17becf"
-        };
 
         public void Refresh()
         {
@@ -72,20 +59,26 @@ namespace Politics
 
             performanceChartModel = new SummaryChartSeriesCollection();
             performanceChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
-                .GroupBy(a => a.Api + "\n" + a.Topic)
+                .Where( a => a.Api == "Function" && a.ElapsedSeconds > 0)
+                .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
                 .Select(g => new SummaryChartSeries
                 {
-                    Name = g.Key,
-                    Value = g.Average(m => m.ElapsedSeconds)
+                    Name = g.Key.Topic,
+                    Value = g.Average(m => m.ElapsedSeconds),
+                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message),
+                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message)
                 }).ToList();
 
             distributionChartModel = new SummaryChartSeriesCollection();
             distributionChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
-                .GroupBy(a => a.Api + "\n" + a.Topic)
+                .Where(a => a.Api == "Function")
+                .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
                 .Select(g => new SummaryChartSeries
                 {
-                    Name = g.Key,
-                    Value = g.Average(m => m.ElapsedSeconds)
+                    Name = g.Key.Topic,
+                    Value = g.Sum(m => m.ElapsedSeconds),
+                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message),
+                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message)
                 }).ToList();
 
             performanceChart.Series = performanceChartModel;

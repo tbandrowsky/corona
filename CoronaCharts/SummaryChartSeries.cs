@@ -15,8 +15,8 @@ namespace CoronaCharts
     {
         public string Name { get; set; }
         public double Value { get; set; }
-        public ICanvasBrush FillBrush { get; set; }
-        public ICanvasBrush BorderBrush { get; set; }
+        public string FillColor { get; set; }
+        public string BorderColor { get; set; }
     }
 
     public class SummaryChartSeriesCollection

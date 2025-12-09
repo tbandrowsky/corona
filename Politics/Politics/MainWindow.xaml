@@ -14,24 +14,24 @@
     </Window.SystemBackdrop>
 
     <Grid>
-        <NavigationView x:Name="MainNavigationView" OpenPaneLength="300" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
+        <NavigationView x:Name="MainNavigationView" OpenPaneLength="200" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
             <NavigationView.MenuItems>
                 <NavigationViewItem Tag="Politics.CoronaStatusPage"
-                                    MinWidth="120"
+                                    MinWidth="80"
                                     Padding="12,4"
                                     HorizontalContentAlignment="Left">
                     <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Contact"/>
+                        <ImageIcon Source="Assets/engineroom.png" />
                     </NavigationViewItem.Icon>
                     <TextBlock Text="Status" />
                 </NavigationViewItem>
 
                 <NavigationViewItem Tag="Politics.CoronaSearchPage"
-                                    MinWidth="120"
+                                    MinWidth="80"
                                     Padding="12,4"
                                     HorizontalContentAlignment="Left">
                     <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Find"/>
+                        <ImageIcon Source="Assets/library.png" />
                     </NavigationViewItem.Icon>
                     <TextBlock Text="Search" />
                 </NavigationViewItem>

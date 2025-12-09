@@ -12,7 +12,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="CoronaSchemaLoad.xaml" />
     <None Remove="CoronaSearchPage.xaml" />
     <None Remove="CoronaStatusPage.xaml" />
   </ItemGroup>
@@ -23,6 +22,9 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
@@ -50,9 +52,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="CoronaSchemaLoad.xaml">
+    <Page Update="CoronaActivity.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="assets\" />
   </ItemGroup>
 
     <!-- Publish Properties -->

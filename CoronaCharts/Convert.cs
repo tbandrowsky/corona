@@ -27,7 +27,7 @@ namespace CoronaCharts
             {
                 str = str.Substring(1);
             }
-            
+
             byte[] byteArray = Convert.FromHexString(str);
 
             if (byteArray.Length == 3)
@@ -41,6 +41,23 @@ namespace CoronaCharts
             else
             {
                 throw new FormatException("Invalid color format.");
+            }
+        }
+
+        public static string FirstWord(this string src)
+        {
+            if (string.IsNullOrEmpty(src))
+            {
+                return src;
+            }
+            int index = src.IndexOf(' ');
+            if (index == -1)
+            {
+                return src;
+            }
+            else
+            {
+                return src.Substring(0, index);
             }
         }
     }
