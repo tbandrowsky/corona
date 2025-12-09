@@ -24,6 +24,8 @@
             x:Name="Canvas"
             Grid.Row="0"
             Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
             ClearColor="White"
             Draw="Canvas_Draw"/>
     </Grid>

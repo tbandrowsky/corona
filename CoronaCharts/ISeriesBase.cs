@@ -11,7 +11,5 @@ namespace CoronaCharts
     public interface ISeriesBase
     {
         public string Name { get; set; } 
-        public ICanvasBrush FillBrush { get; set; }
-        public ICanvasBrush BorderBrush { get; set; }
     }
 }

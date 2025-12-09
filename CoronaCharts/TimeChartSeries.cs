@@ -25,7 +25,9 @@ namespace CoronaCharts
 
     public class TimeChartSeriesCollection
     {
+        public List<string> Palette { get; set; } = new List<string>{ "#33691E", "#1e6954", "#35478c", "#012840", "#d23600", "#36175E", "#5E1736", "#281740" }; // Palette
         public List<TimeChartSeries> Series { get; set; } = new List<TimeChartSeries>();
+
     }
 
 }

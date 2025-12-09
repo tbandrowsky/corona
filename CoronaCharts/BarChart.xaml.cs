@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -48,48 +49,11 @@ namespace CoronaCharts
             {
                 _series = value;
                 OnPropertyChanged(nameof(Series));
-                Refresh();
+                Canvas.Invalidate();
             }
         }
 
-
-        public float CanvasWidth = 1000;
-        public float CanvasHeight = 1000;
-        public float BarSpacing = 32;
-
-        CanvasRenderTarget offscreen;
-
-        public void Refresh()
-        {
-            if (offscreen == null || Series == null || Series.Series.Count == 0)
-                return;
-            using (var chumpy = offscreen.CreateDrawingSession())
-            {
-                chumpy.Clear(Microsoft.UI.Colors.White);
-                double maxValue = Series.Series.Max(s => s.Value);
-                double minValue = Series.Series.Min(s => s.Value);
-                if (minValue > 0) minValue = 0;
-                double rangeValue = maxValue - minValue;
-                double barAvailableWidth = CanvasWidth - BarSpacing * (Series.Series.Count() + 1);
-                if (barAvailableWidth > 0 && rangeValue > 0)
-                {
-                    float barWidth = (float)(barAvailableWidth / Series.Series.Count());
-                    float x = (float)BarSpacing;
-                    float yscale = (float)(CanvasHeight / rangeValue);
-
-                    foreach (var item in Series.Series)
-                    {
-                        float h = (float)(item.Value * yscale + minValue);
-                        float y = (float)CanvasHeight - h;
-                        var fillBrush = item.FillBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Blue);
-                        chumpy.FillRectangle(x, y, barWidth, h, fillBrush);
-                        var borderBrush = item.BorderBrush ?? new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(chumpy, Microsoft.UI.Colors.Black);
-                        chumpy.DrawRectangle(x, y, barWidth, h, borderBrush, 2);
-                        x += barWidth + BarSpacing;
-                    }
-                }
-            }
-        }
+        public float BarSpacing = 8;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -98,16 +62,38 @@ namespace CoronaCharts
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private void Canvas_CreateResources(CanvasControl sender, Microsoft.Graphics.Canvas.UI.CanvasCreateResourcesEventArgs args)
-        {
-            offscreen = new CanvasRenderTarget(sender, CanvasWidth, CanvasHeight, sender.Dpi);
-        }
-
         void Canvas_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args)
         {
-            if (offscreen != null)
+            if (Series == null || Series.Series.Count == 0)
+                return;
+
+            args.DrawingSession.Clear(Microsoft.UI.Colors.White);
+            double maxValue = Series.Series.Max(s => s.Value);
+            double minValue = Series.Series.Min(s => s.Value);
+            if (minValue > 0) minValue = 0;
+            double rangeValue = maxValue - minValue;
+            double barAvailableWidth = sender.ActualWidth - BarSpacing * (Series.Series.Count() + 1);
+            if (barAvailableWidth > 0 && rangeValue > 0)
             {
-                args.DrawingSession.DrawImage(offscreen, new Rect(0, 0, CanvasWidth, CanvasHeight));
+                float barWidth = (float)(barAvailableWidth / Series.Series.Count());
+                float x = (float)BarSpacing;
+                float yscale = (float)(sender.ActualHeight / rangeValue);
+                int color_index = 0;
+
+                foreach (var item in Series.Series)
+                {
+                    float h = (float)(item.Value * yscale + minValue);
+                    float y = (float)sender.ActualHeight - h;
+                    string series_color = Series.Palette[color_index];
+                    color_index++;
+                    if (color_index >= Series.Palette.Count)
+                        color_index = 0;
+                    var fillBrush = new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(args.DrawingSession, series_color.ToColor());
+                    args.DrawingSession.FillRectangle(x, y, barWidth, h, fillBrush);
+                    var borderBrush = new Microsoft.Graphics.Canvas.Brushes.CanvasSolidColorBrush(args.DrawingSession, Microsoft.UI.Colors.Black);
+                    args.DrawingSession.DrawRectangle(x, y, barWidth, h, borderBrush, 1);
+                    x += barWidth + BarSpacing;
+                }
             }
         }
     }

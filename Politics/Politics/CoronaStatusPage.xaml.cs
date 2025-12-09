@@ -1,3 +1,4 @@
+using CommunityToolkit.HighPerformance.Buffers;
 using CoronaCharts;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.UI.Xaml;
@@ -31,52 +32,70 @@ namespace Politics
         }
 
         TimeChartSeriesCollection historyChartModel;
-        SummaryChartSeriesCollection functionChartModel;
+        SummaryChartSeriesCollection performanceChartModel;
         SummaryChartSeriesCollection distributionChartModel;
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             App.CurrentApp.CoronaStatusModel.MessageReceived += OnMessageReceived;
+            Refresh();
         }
 
-        (ICanvasBrush border, ICanvasBrush fill) CreateBrushes(Windows.UI.Color color)
+        string[] pallet =
         {
-            var border = new CanvasSolidColorBrush(performanceChart.CanvasDevice, Windows.UI.Color.FromArgb(255, (byte)(color.R * 0.7), (byte)(color.G * 0.7), (byte)(color.B * 0.7)));
-            var fill = new CanvasSolidColorBrush(performanceChart.CanvasDevice, color);
-            return (border, fill);
+            "#1f77b4",
+            "#ff7f0e",
+            "#2ca02c",
+            "#d62728",
+            "#9467bd",
+            "#8c564b",
+            "#e377c2",
+            "#7f7f7f",
+            "#bcbd22",
+            "#17becf"
+        };
+
+        public void Refresh()
+        {
+            historyChartModel = new TimeChartSeriesCollection();
+            historyChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
+                .GroupBy(a => a.Api + "\n" + a.Topic)
+                .Select(g => new TimeChartSeries
+                {
+                    Name = g.Key,
+                    Points = g.Select(m => new TimePoint
+                    {
+                        Time = m.StartTime,
+                        Value = m.ElapsedSeconds
+                    }).ToList()
+                }).ToList();
+
+            performanceChartModel = new SummaryChartSeriesCollection();
+            performanceChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
+                .GroupBy(a => a.Api + "\n" + a.Topic)
+                .Select(g => new SummaryChartSeries
+                {
+                    Name = g.Key,
+                    Value = g.Average(m => m.ElapsedSeconds)
+                }).ToList();
+
+            distributionChartModel = new SummaryChartSeriesCollection();
+            distributionChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
+                .GroupBy(a => a.Api + "\n" + a.Topic)
+                .Select(g => new SummaryChartSeries
+                {
+                    Name = g.Key,
+                    Value = g.Average(m => m.ElapsedSeconds)
+                }).ToList();
+
+            historyChart.Series = historyChartModel;
+            performanceChart.Series = performanceChartModel;
+            distributionChart.Series = distributionChartModel;
         }
 
         private void OnMessageReceived(CoronaMessage message)
         {
-            historyChartModel = new TimeChartSeriesCollection();
-            historyChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
-                .GroupBy(a => a.Api + "\n" + a.Topic )
-                .Select( g => new TimeChartSeries
-                {
-                    Name = g.Key,
-                    Points = g.Select( m => new TimePoint
-                    {
-                        Time = m.StartTime,
-                        Value = m.ElapsedSeconds
-                    } ).ToList()
-                } ).ToList();
-
-            performanceChart.Series.Series = App.CurrentApp.CoronaStatusModel.Messages
-                .GroupBy(a => a.Api + "\n" + a.Topic)
-                .Select(g => new SummaryChartSeries
-                {
-                    Name = g.Key,
-                    Value = g.Average(m => m.ElapsedSeconds)
-                }).ToList();
-
-            distributionChart.Series.Series = App.CurrentApp.CoronaStatusModel.Messages
-                .GroupBy(a => a.Api + "\n" + a.Topic)
-                .Select(g => new SummaryChartSeries
-                {
-                    Name = g.Key,
-                    Value = g.Average(m => m.ElapsedSeconds)
-                }).ToList();
-
+            Refresh();
         }
 
     }

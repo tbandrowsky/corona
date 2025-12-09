@@ -14,44 +14,6 @@
     </Window.SystemBackdrop>
 
     <Grid>
-        <Grid.Resources>
-            <SolidColorBrush x:Key="NeonCyan" Color="#FF00FFF0"/>
-            <SolidColorBrush x:Key="NeonMagenta" Color="#FFFF00FF"/>
-            <SolidColorBrush x:Key="NeonLime" Color="#FF39FF14"/>
-            <SolidColorBrush x:Key="NeonYellow" Color="#FFFFFF00"/>
-            <SolidColorBrush x:Key="WindowChrome" Color="#FF05050A"/>
-
-            <!-- General text style for neon look -->
-            <Style TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource NeonCyan}" />
-            </Style>
-
-            <!-- SymbolIcon neon color -->
-            <Style TargetType="SymbolIcon">
-                <Setter Property="Foreground" Value="{StaticResource NeonMagenta}" />
-            </Style>
-
-            <!-- NavigationView styling: dark pane + neon item text -->
-            <Style TargetType="NavigationView">
-                <Setter Property="Background" Value="{StaticResource WindowChrome}" />
-                <Setter Property="Foreground" Value="{StaticResource NeonCyan}" />
-            </Style>
-
-            <!-- NavigationViewItem: keep it compact and neon on normal/selected -->
-            <Style TargetType="NavigationViewItem">
-                <Setter Property="MinWidth" Value="120" />
-                <Setter Property="Padding" Value="12,6" />
-                <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="Foreground" Value="{StaticResource NeonCyan}" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-            </Style>
-
-            <!-- Provide a subtle glow effect for item text (uses drop shadow if available) -->
-            <Style x:Key="NeonTextGlow" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{StaticResource NeonCyan}" />
-            </Style>
-
-        </Grid.Resources>
         <NavigationView x:Name="MainNavigationView" OpenPaneLength="300" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
             <NavigationView.MenuItems>
                 <NavigationViewItem Tag="Politics.CoronaStatusPage"
