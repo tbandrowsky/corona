@@ -7243,7 +7243,11 @@ bail:
 
 			json server = _server_config;
 			default_user = server[sys_user_name_field];
-			default_password = server[sys_user_password_field];
+			std::string defaultpw = server[sys_user_password_field];
+
+			if (not defaultpw.empty()) {
+				default_password = server[sys_user_password_field];
+			}
 			default_email_address = server[sys_user_email_field];
 			default_guest_team = server[sys_default_team_field];
 			default_api_title = server[sys_default_api_title_field];

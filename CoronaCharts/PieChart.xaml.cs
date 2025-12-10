@@ -82,7 +82,7 @@ namespace CoronaCharts
             args.DrawingSession.Clear(Microsoft.UI.Colors.White);
             double maxValue = Series.Series.Max(s => s.Value);
             double totalValue = Series.Series.Sum(s => s.Value);
-            double angularScale = 360.0 / totalValue;
+            double angularScale = (Math.PI * 2) / totalValue;
 
             if (maxValue > 0 && totalValue > 0)
             {

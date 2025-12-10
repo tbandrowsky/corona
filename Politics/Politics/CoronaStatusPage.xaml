@@ -13,7 +13,7 @@
         <TabView>
             <TabViewItem Header="Activity">
                 <TabViewItem.Content>
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,Auto,*,Auto,3*">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="1.5*,Auto,*,Auto,3*">
                         <ScrollViewer Grid.Column="0" Grid.Row="0" x:Name="TargetScrollViewer"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Visible">
