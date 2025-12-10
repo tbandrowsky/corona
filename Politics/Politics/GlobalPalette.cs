@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Media.MediaProperties;
+using CoronaCharts;
+using Windows.UI;
 
 namespace Politics
 {
@@ -12,13 +14,19 @@ namespace Politics
 
         public static GlobalPalette Current { get; } = new GlobalPalette();
 
+        internal class ColorMapDetail
+        {
+            public string ItemColor { get; set; }
+            public bool Selected { get; set; }
+        }
+
         internal class ColorMap
         {
             public string Api { get; set; }
             public int ColorIndex { get; set; }
             public int CurrentIndex { get; set; } = 0;
 
-            public Dictionary<string, string> TopicColors = new Dictionary<string, string>();
+            public Dictionary<string, ColorMapDetail> TopicColors = new Dictionary<string, ColorMapDetail>();
         }
 
         public Dictionary<string, ColorMap> ApiColorMapping = new Dictionary<string, ColorMap>
@@ -33,16 +41,67 @@ namespace Politics
             { "Warning", new ColorMap { Api = "Warning", ColorIndex = 10 } },
         };
 
+        public void Select(LegendItem item)
+        {
+            ColorMap map = null;
+
+            if (ApiColorMapping.TryGetValue(item.Api, out map))
+            {
+                string key = item.Topic;
+                ColorMapDetail color = null;
+
+                if (map.TopicColors.TryGetValue(key, out color))
+                {
+                    color.Selected = item.IsSelected;
+                }
+            }
+        }
+
+        public bool IsSelected(CoronaMessage cm)
+        {
+            ColorMap map = null;
+            if (ApiColorMapping.TryGetValue(cm.Api, out map))
+            {
+                string key = cm.Topic + "." + cm.Message.FirstWord();
+                ColorMapDetail color = null;
+                if (map.TopicColors.TryGetValue(key, out color))
+                {
+                    return color.Selected;
+                }
+            }
+            return true;
+        }
+
+        public List<LegendItem> GetLegend()
+        {
+            List<LegendItem> legend = new List<LegendItem>();
+            foreach (var api in ApiColorMapping.Values)
+            {
+                foreach (var topicColor in api.TopicColors)
+                {
+                    legend.Add(new LegendItem
+                    {
+                        Label = $"{api.Api} - {topicColor.Key}",
+                        Color = topicColor.Value.ItemColor.ToColor(),
+                        Api = api.Api,
+                        Topic = topicColor.Key,
+                        IsSelected = topicColor.Value.Selected
+                    });
+                }
+            }
+            return legend;
+        }
+
         public string GetApiColor( string api, string topic, string message )
         {
             ColorMap map = null;
             if (ApiColorMapping.TryGetValue(api, out map))
             {
                 string key = topic + "." + message;
-                string color = null;
+                ColorMapDetail color = null;
                 if (map.TopicColors.TryGetValue(key, out color))
                 {
-                    return color;
+                    return color.ItemColor;
                 }
                 else
                 {
@@ -51,14 +110,14 @@ namespace Politics
                         map.CurrentIndex = map.ColorIndex;
                     }
                     int colorIndex = map.CurrentIndex;
-                    color = Palette[colorIndex];
+                    color = new ColorMapDetail { ItemColor = Palette[colorIndex], Selected = true };
                     map.TopicColors[key] = color;
                     map.CurrentIndex++;
                     if ((map.CurrentIndex - map.ColorIndex) >= 10)
                     {
                         map.CurrentIndex = map.ColorIndex;
                     }
-                    return color;
+                    return color.ItemColor;
                 }
             }
             else

@@ -9,13 +9,21 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ListView>
+        <ListView ItemsSource="{Binding Items}" SelectionMode="None">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <Rectangle Width="20" Height="20" Fill="{Binding Brush}" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center"/>
-                    </StackPanel>
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" VerticalAlignment="Center">
+                            <CheckBox.Content>
+                                <StackPanel Orientation="Horizontal" Margin="5">
+                                    <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush Color="{Binding Color}"/>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </CheckBox.Content>
+                        </CheckBox>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

@@ -1,4 +1,5 @@
 using CoronaCharts;
+using CoronaInterface;
 using CoronaLib;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
@@ -27,7 +28,8 @@ namespace Politics
 {
     public sealed partial class CoronaActivity : UserControl
     {
-       
+        public ObservableCollection<CoronaMessage> Messages { get; } = new ObservableCollection<CoronaMessage>();   
+
         public CoronaActivity()
         {
             InitializeComponent();
@@ -57,12 +59,24 @@ namespace Politics
         private void CoronaActivity_Loaded(object sender, RoutedEventArgs e)
         {
             DataContext = this;
-            App.CurrentApp.CoronaStatusModel.MessageReceived += OnMessageReceived;
-            SchemaGrid.ItemsSource = App.CurrentApp.CoronaStatusModel.Messages;
+            foreach (var item in App.CurrentApp.CoronaStatusModel.Messages)
+            {
+                GlobalPalette.Current.GetApiColor(item.Api, item.Topic, item.Message.FirstWord());
+                Messages.Add(item);
+            }
+            SchemaGrid.ItemsSource = Messages;
         }
 
-        private void OnMessageReceived(CoronaMessage message)
+        public void Refresh()
         {
+            Messages.Clear();
+            foreach (var item in App.CurrentApp.CoronaStatusModel.Messages)
+            {
+                if (GlobalPalette.Current.IsSelected(item))
+                {
+                    Messages.Add(item);
+                }
+            }
         }
     }
 }

@@ -13,15 +13,24 @@
         <TabView>
             <TabViewItem Header="Activity">
                 <TabViewItem.Content>
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,Auto,*">
-                        <local:CoronaActivity Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaActivity>
-                        <controls:GridSplitter Grid.Row="0" Grid.Column="1"  Width="5" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="*,Auto,*,Auto,3*">
+                        <ScrollViewer Grid.Column="0" Grid.Row="0" x:Name="TargetScrollViewer"
+                                HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Visible">
+                                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                                    <TextBlock Text="Legend" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                                    <ct:LegendControl x:Name="legendControl"></ct:LegendControl>
+                                </StackPanel>
+                            </ScrollViewer>
+                        <controls:GridSplitter Background="Gray"  Grid.Column="1" Grid.Row="0" Width="2" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>
                         <StackPanel Grid.Column="2" Grid.Row="0" Spacing="8">
-                            <TextBlock Text="Function Performance" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
-                            <ct:BarChart x:Name="performanceChart" Width="300" Height="300"></ct:BarChart>
-                            <TextBlock Text="Function Shares" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
-                            <ct:PieChart x:Name="distributionChart" Width="300" Height="300"></ct:PieChart>
+                            <TextBlock Text="Avg Milliseconds" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                            <ct:BarChart x:Name="performanceChart" Width="250" Height="250"></ct:BarChart>
+                            <TextBlock Text="Execution Share" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                            <ct:PieChart x:Name="distributionChart" Width="250" Height="250"></ct:PieChart>
                         </StackPanel>
+                        <controls:GridSplitter Background="Gray" Grid.Column="3"  Grid.Row="0" Width="2" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>
+                        <local:CoronaActivity x:Name="activitygrid" Grid.Column="4" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></local:CoronaActivity>
                     </Grid>
                 </TabViewItem.Content>
             </TabViewItem>
