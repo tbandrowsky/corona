@@ -286,6 +286,15 @@ namespace CoronaLib {
 			m_database = nullptr;
 		}
 
+		CoronaDatabase()
+		{
+			corona::system_monitoring_interface::start();
+			if (!corona::global_job_queue) {
+				corona::global_job_queue = std::make_unique<corona::job_queue>();
+				corona::global_job_queue->start(0);
+			}
+		}
+
 	protected:
 
 		~CoronaDatabase() // destructor calls finalizer
@@ -296,6 +305,7 @@ namespace CoronaLib {
 	public:
 		virtual bool CreateDatabase(CoronaInterface::DatabaseConfiguration^ configuration);
 		virtual bool OpenDatabase(CoronaInterface::DatabaseConfiguration^ configuration);
+        virtual void ApplySchema(System::String^ schema_file_name);
 		virtual CoronaInterface::ILoginResult^ LoginLocal(System::String^ username, System::String^ email);
 		virtual CoronaInterface::ILoginResult^ LoginUser(System::String^ username, System::String^ password);
 		virtual CoronaInterface::ILoginResult^ LoginUserSso(System::String^ username, System::String^ email, System::String^ code);

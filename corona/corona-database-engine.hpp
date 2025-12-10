@@ -720,6 +720,7 @@ namespace corona
 		corona_connections connections;
 		std::string onboarding_email;
 		std::string recovery_email;
+		std::string schema_file_name;
 
 		corona_database_interface()
 		{
@@ -7248,6 +7249,7 @@ bail:
 			if (not defaultpw.empty()) {
 				default_password = server[sys_user_password_field];
 			}
+
 			default_email_address = server[sys_user_email_field];
 			default_guest_team = server[sys_default_team_field];
 			default_api_title = server[sys_default_api_title_field];
@@ -7259,11 +7261,22 @@ bail:
 
 			if (default_email_address.empty()) {
 				default_email_address = std::format("dummy@example.com", default_user);
-            }
+
+			}
+
+			std::filesystem::path schema_path(data_path);
+			schema_file_name = server["schema_filename"];
+
+            if (not schema_file_name.empty()) {
+				std::filesystem::path schema_file_path(schema_file_name);
+				if (not schema_file_path.is_absolute()) {
+					schema_file_path = schema_path / schema_file_path;
+					schema_file_name = schema_file_path.string();
+				}
+			}
 
 			if (not (default_onboard_email_filename.empty() or default_onboard_email_filename.empty()))
 			{
-				std::filesystem::path schema_path(data_path);
 				std::filesystem::path onboard_file(default_onboard_email_filename);
 				std::filesystem::path recovery_file(default_recovery_email_filename);
 
@@ -7358,9 +7371,30 @@ bail:
 			_class_to_save->get_json(class_def);
             classes->put(class_def);
 			classes->commit();
-			return class_def;
+			return class_def;		
 		}
 
+		virtual json apply_schema()
+		{
+			json_parser jp;
+			std::string schema = read_all_string(schema_file_name);
+            if (schema.empty()) {
+				system_monitoring_interface::active_mon->log_warning(std::format("Could not read schema '{}'", schema_file_name), __FILE__, __LINE__);
+				return jp.create_object();
+			}
+			json jschema = jp.parse_object(schema);
+            if (jschema.error()) {
+				system_monitoring_interface::active_mon->log_warning("Could not parse schema file", __FILE__, __LINE__);
+                for (auto& err : jp.parse_errors) {
+					system_monitoring_interface::active_mon->log_warning(err.error, schema_file_name.c_str(), err.line);
+				}
+				return jschema;
+			}
+
+			global_job_queue->submit_job([this, &jschema]() -> void {
+				apply_schema(jschema);
+                }, nullptr);
+		}
 
 		virtual json apply_schema(json _schema)
 		{

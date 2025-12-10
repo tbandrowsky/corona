@@ -4,6 +4,7 @@
     {
         bool CreateDatabase(DatabaseConfiguration configuration);
         bool OpenDatabase(DatabaseConfiguration configuration);
+        void ApplySchema(string schema_file_name);
         ILoginResult LoginLocal(string username, string email);
         ILoginResult LoginUser(string username, string password);
         ILoginResult LoginUserSso(string username, string email, string code);

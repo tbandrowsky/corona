@@ -246,6 +246,7 @@ std::function<corona::json(corona::corona_database* _db, corona::json _request)>
 
 bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::DatabaseConfiguration^ configuration)
 {
+
     corona::json_parser jp;
     corona::json config_json = jp.create_object();
 
@@ -273,6 +274,11 @@ bool CoronaLib::CoronaDatabase::OpenDatabase(CoronaInterface::DatabaseConfigurat
     m_database->apply_config(config_json);
     auto result = m_database->open_database();
     return result >= -1;
+}
+
+void CoronaLib::CoronaDatabase::ApplySchema(String^ configuration)
+{
+    m_database->apply_schema();
 }
 
 CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::String^ username, System::String^ email)
