@@ -37,10 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Configuration\config.json">
+    <None Update="configuration\config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Configuration\politics_schema.json">
+    <None Update="configuration\politics_schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="seed_data\us_counties\county_base.txt">

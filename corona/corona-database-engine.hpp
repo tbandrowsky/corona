@@ -4822,6 +4822,7 @@ namespace corona
 		const std::string auth_self = "auth-self"; // this is the self user, which is used for the case when a user wants his own record
 
 		std::string data_path;
+		std::string config_path;
 
 		long import_batch_size = 5000;
 		/*
@@ -7176,6 +7177,7 @@ bail:
 		corona_database()
 		{
 			data_path = "/";
+			config_path = "/";
 			token_life = time_span(1, time_models::days);
 
 			default_user = "system";
@@ -7188,9 +7190,10 @@ bail:
 			default_api_author = "System";
 		}
 
-        corona_database(std::string _data_path) : corona_database()
+        corona_database(std::string _data_path, std::string _config_path) : corona_database()
 		{
             data_path = _data_path;
+            config_path = _config_path;
 		}
 
 		virtual ~corona_database()
@@ -7236,9 +7239,10 @@ bail:
 			if (_system_config.has_member("Connections"))
 			{
 				json connections = _system_config["Connections"];
-				auto members = connections.get_members();
-				for (auto member : members) {
-					this->connections.set_connection(member.first, (std::string)member.second);
+				for (auto connection : connections) {
+                    std::string conn_name = (std::string)connection["name"];
+                    std::string conn_value = (std::string)connection["connection"];	
+					this->connections.set_connection(conn_name, conn_value);
 				}
 			}
 
@@ -7264,7 +7268,7 @@ bail:
 
 			}
 
-			std::filesystem::path schema_path(data_path);
+			std::filesystem::path schema_path(config_path);
 			schema_file_name = server["schema_filename"];
 
             if (not schema_file_name.empty()) {
@@ -7275,7 +7279,7 @@ bail:
 				}
 			}
 
-			if (not (default_onboard_email_filename.empty() or default_onboard_email_filename.empty()))
+			if (not (default_onboard_email_filename.empty() or default_recovery_email_filename.empty()))
 			{
 				std::filesystem::path onboard_file(default_onboard_email_filename);
 				std::filesystem::path recovery_file(default_recovery_email_filename);
@@ -7289,8 +7293,12 @@ bail:
 
 				std::string obf = onboard_file.string();
 				std::string rf = recovery_file.string();
-				default_onboard_email = read_all_string(obf);
-				default_recovery_email = read_all_string(rf);
+				if (std::filesystem::exists(obf)) {
+					default_onboard_email = read_all_string(obf);
+				}
+				if (std::filesystem::exists(rf)) {
+					default_recovery_email = read_all_string(rf);
+				}
 			}
 
 			if (server.has_member(sys_record_cache_field)) {
@@ -7391,9 +7399,7 @@ bail:
 				return jschema;
 			}
 
-			global_job_queue->submit_job([this, &jschema]() -> void {
-				apply_schema(jschema);
-                }, nullptr);
+			apply_schema(jschema);
 		}
 
 		virtual json apply_schema(json _schema)
@@ -7466,7 +7472,7 @@ bail:
 						date_time start_class = date_time::now();
 						timer txc;
 
-						json class_definition = class_array.get_element(i);
+						json class_definition = class_array.get_element(i).clone();
 
 						try {
 
@@ -7606,11 +7612,20 @@ bail:
 									}
 
 									std::string filename = import_spec["filename"];
+
+									
+
 									std::string delimiter = import_spec["delimiter"];
 									if (filename.empty() or delimiter.empty()) {
 										system_monitoring_interface::active_mon->log_warning("filename and delimiter can't be blank.");
 										continue;
 									}
+
+                                    std::filesystem::path import_path(filename);
+									if (not import_path.is_absolute()) {
+										import_path = config_path / import_path;
+									}
+									filename = import_path.string();
 
 									if (delimiter == "tab") {
 										delimiter = "\t";
@@ -7672,7 +7687,7 @@ bail:
 											json column_map = import_spec["column_map"];
 
 											FILE* fp = nullptr;
-											int error_code = fopen_s(&fp, filename.c_str(), "rS");
+											int error_code = fopen_s(&fp, filename.c_str(), "rt");
 
 											if (fp) {
 												// Buffer to store each line of the file.
@@ -7690,23 +7705,29 @@ bail:
 
 													// Read each line from the file and store it in the 'line' buffer.
 													int64_t total_row_count = 0;
-													while (fgets(line, sizeof(line), fp)) {
+													while (fgets(line, sizeof(line)-1, fp)) {
+
+														char* line_start = line;
+                                                        if (line_start[0] == '\ufeff') {
+															line_start = &line_start[3];
+														}
+
 														// Print each line to the standard output.
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
-                                                        int64_t bytes_in_line = (int64_t)strlen(line);
+                                                        int64_t bytes_in_line = (int64_t)strlen(line_start);
 														bytes_processed += bytes_in_line;
 
 														if (pivot.empty()) 
 														{
 															json extra = jp.create_object();
-															jp.parse_delimited_string(new_object, column_map, line, delimiter, extra);
+															jp.parse_delimited_string(new_object, column_map, line_start, delimiter, extra);
 															datomatic.push_back(new_object);
 														}                                                        
 														else
 														{
 															json extra = jp.create_object();
-															jp.parse_delimited_string(new_object, column_map, line, delimiter, extra);
+															jp.parse_delimited_string(new_object, column_map, line_start, delimiter, extra);
 
 															json pivot_keys = new_object.extract(pivot_object_field_names);
 
@@ -7823,7 +7844,7 @@ bail:
 								json object_list = new_dataset["objects"];
 								if (object_list.array()) {
 									for (int j = 0; j < object_list.size(); j++) {
-										json object_definition = object_list.get_element(j);
+										json object_definition = object_list.get_element(j).clone();
 										json put_object_request = create_system_request(object_definition);
 										json create_result = put_object(put_object_request);
 										if (not create_result[success_field]) {
@@ -10216,7 +10237,7 @@ grant_type=authorization_code
 		date_time start_schema = date_time::now();
 		system_monitoring_interface::active_mon->log_job_start("test_database_engine", "start", start_schema, __FILE__, __LINE__);
 
-		corona_database db("test");
+		corona_database db("test", "test");
 
 		proof_assertion.put_member("dependencies", dependencies);
 

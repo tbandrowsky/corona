@@ -701,7 +701,8 @@ namespace corona
 		ft_array = 'a',
 		ft_function = 'f',
 		ft_query = 'q',
-		ft_blob = 'x'
+		ft_blob = 'x',
+		ft_null = 'n'
 	};
 	
 	const int field_type_size = 12;

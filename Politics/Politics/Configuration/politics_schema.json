@@ -2041,7 +2041,7 @@
       "dataset_source": "This is canonical",
       "objects": [
         {
-          "class_name": "work_team",
+          "class_name": "sys_team",
           "team_name": "Politics Team",
           "team_description": "Local security for teams",
           "team_domain": ".*",
@@ -2069,7 +2069,7 @@
       "import": {
         "type": "csv",
         "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cn.csv",
+        "filename": "us_elections\\cn.csv",
         "target_class": "candidate",
         "column_map": {
           "0": "candidate_id",
@@ -2093,7 +2093,7 @@
       "import": {
         "type": "csv",
         "delimiter": "|",
-        "filename": "seed_data\\us_elections\\cm.csv",
+        "filename": "us_elections\\cm.csv",
         "target_class": "committee",
         "column_map": {
           "0": "committee_id",
@@ -2112,7 +2112,7 @@
       "import": {
         "type": "csv",
         "delimiter": "|",
-        "filename": "seed_data\\us_elections\\ccl.csv",
+        "filename": "us_elections\\ccl.csv",
         "target_class": "committee_candidate",
         "column_map": {
           "0": "candidate_id",
@@ -2128,7 +2128,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\county_education.txt",
+        "filename": "us_counties\\county_education.txt",
         "target_class": "county_education",
         "column_map": {
           "0": "fips_code",
@@ -2198,7 +2198,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\county_hrsa_grants.txt",
+        "filename": "us_counties\\county_hrsa_grants.txt",
         "target_class": "county_hsra",
         "column_map": {
           "0": "award_year",
@@ -2254,7 +2254,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\county_demographics.txt",
+        "filename": "us_counties\\county_demographics.txt",
         "target_class": "county_demographics",
         "column_map": {
           "0": "county",
@@ -2311,7 +2311,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\county_population.txt",
+        "filename": "us_counties\\county_population.txt",
         "target_class": "county_population",
         "pivot": {
           "attribute_field": "attribute",
@@ -2336,7 +2336,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\county_base.txt",
+        "filename": "us_counties\\county_base.txt",
         "target_class": "county",
         "column_map": {
           "0": "fips_code",
@@ -2353,7 +2353,7 @@
       "import": {
         "type": "csv",
         "delimiter": "tab",
-        "filename": "seed_data\\us_counties\\zip_code.txt",
+        "filename": "us_counties\\zip_code.txt",
         "target_class": "zip_code",
         "column_map": {
           "0": "zip",
@@ -2384,7 +2384,7 @@
       "import": {
         "type": "csv",
         "delimiter": "|",
-        "filename": "seed_data\\us_elections\\itcont.csv",
+        "filename": "us_elections\\itcont.csv",
         "target_class": "donor",
         "column_map": {
           "0": "committee_id",

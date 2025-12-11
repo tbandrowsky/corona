@@ -1,7 +1,8 @@
-﻿{
+{
   "Connections": [
     {
-      "YourServerName": "Driver={ODBC Driver 17 for SQL Server};Server=YOUR SERVER HERE;Database=YOUR DATABASE NAME;Trusted_Connection=yes;TrustServerCertificate=yes"
+      "name": "YourServerName",
+      "connection": "Driver={ODBC Driver 17 for SQL Server};Server=YOUR SERVER HERE;Database=YOUR DATABASE NAME;Trusted_Connection=yes;TrustServerCertificate=yes"
     }
   ],
   "Servers": [

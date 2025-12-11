@@ -180,7 +180,7 @@ namespace corona
 			if (not std::filesystem::exists("classes.coronatbl"))
 			{
 				try {
-					local_db = std::make_shared<corona_database>(database_path);
+					local_db = std::make_shared<corona_database>(database_path, database_path);
 				}
 				catch (std::exception exc)
 				{

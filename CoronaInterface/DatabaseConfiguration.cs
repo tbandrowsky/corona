@@ -80,6 +80,9 @@ namespace CoronaInterface
 
     public class DatabaseConfiguration
     {
+        [JsonProperty("SchemaPath")]
+        public string SchemaPath { get; set; } = "";
+
         [JsonProperty("DatabasePath")]
         public string DatabasePath { get; set; } = "";
 

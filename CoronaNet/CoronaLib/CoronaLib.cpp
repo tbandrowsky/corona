@@ -246,39 +246,73 @@ std::function<corona::json(corona::corona_database* _db, corona::json _request)>
 
 bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::DatabaseConfiguration^ configuration)
 {
+    bool success = false;
+    try {
+        corona::json_parser jp;
+        corona::json config_json = jp.create_object();
 
-    corona::json_parser jp;
-    corona::json config_json = jp.create_object();
+        String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
+        std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
 
-    String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
-    std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
-    
-    config_json = jp.parse_object(config_string);
-    m_database = new corona::corona_database(msclr::interop::marshal_as<std::string>(configuration->DatabasePath));
-    m_database->apply_config(config_json);
-    corona::json jresponse = m_database->create_database();
-    bool success = (bool)jresponse[corona::success_field];
+        config_json = jp.parse_object(config_string);
+        if (jp.parse_errors.size() > 0) {
+            for (auto& err : jp.parse_errors) {
+                corona::system_monitoring_interface::active_mon->log_warning(err.error, "", err.line);
+            }
+        }
+        std::string database_path = msclr::interop::marshal_as<std::string>(configuration->DatabasePath);
+        std::string schema_path = msclr::interop::marshal_as<std::string>(configuration->SchemaPath);
+
+        m_database = new corona::corona_database(database_path, schema_path);
+        m_database->apply_config(config_json);
+        corona::json jresponse = m_database->create_database();
+        success = (bool)jresponse[corona::success_field];
+        if (success) {
+            m_database->apply_schema();
+        }
+    }
+    catch (const std::exception& ex) {
+        corona::system_monitoring_interface::active_mon->log_warning(ex.what(), "", 0);
+    }
     return success;
 }
 
 bool CoronaLib::CoronaDatabase::OpenDatabase(CoronaInterface::DatabaseConfiguration^ configuration)
 {
-    corona::json_parser jp;
-    corona::json config_json = jp.create_object();
+    bool success = false;
 
-    String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
-    std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
+    try {
 
-    config_json = jp.parse_object(config_string);
-    m_database = new corona::corona_database();
-    m_database->apply_config(config_json);
-    auto result = m_database->open_database();
-    return result >= -1;
+        corona::json_parser jp;
+        corona::json config_json = jp.create_object();
+
+        String^ config_string_managed = configuration != nullptr ? JsonConvert::SerializeObject(configuration) : "";
+        std::string config_string = configuration != nullptr ? msclr::interop::marshal_as<std::string>(config_string_managed) : "";
+
+        config_json = jp.parse_object(config_string);
+        std::string database_path = msclr::interop::marshal_as<std::string>(configuration->DatabasePath);
+        std::string schema_path = msclr::interop::marshal_as<std::string>(configuration->SchemaPath);
+        m_database = new corona::corona_database(database_path, schema_path);
+        m_database->apply_config(config_json);
+        auto result = m_database->open_database();
+        if (result >= -1) {
+            m_database->apply_schema();
+        }
+        else {
+            result = CreateDatabase(configuration);
+        }
+        success = (result >= -1);
+    }
+    catch (const std::exception& ex) {
+        corona::system_monitoring_interface::active_mon->log_warning(ex.what(), "", 0);
+    }
+
+    return success;
 }
 
 void CoronaLib::CoronaDatabase::ApplySchema(String^ configuration)
 {
-    m_database->apply_schema();
+    //m_database->apply_schema();
 }
 
 CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::String^ username, System::String^ email)

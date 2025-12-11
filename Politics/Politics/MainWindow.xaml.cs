@@ -74,6 +74,7 @@ namespace Politics
 
         public static void CreateDatabase(MainWindow app)
         {
+            
             DatabaseConfiguration? config = new DatabaseConfiguration();
 
             string config_file_name = System.IO.Path.Combine(app.ConfigPath, "config.json");
@@ -83,7 +84,9 @@ namespace Politics
 
             if (config != null)
             {
+                
                 config.DatabasePath = app.DatabasePath;
+                config.SchemaPath = app.ConfigPath;
 
                 if (app.coronaDatabase != null)
                 {

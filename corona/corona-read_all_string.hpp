@@ -29,13 +29,27 @@ namespace corona {
 		if (length > 0)
 		{
 			FILE* fp = nullptr;
-			fopen_s(&fp, _filename.c_str(), "r");
+			fopen_s(&fp, _filename.c_str(), "rt");
 			if (fp != nullptr) {
 				char* buffer = new char[length + 1];
-				size_t l = fread(buffer, 1, length, fp);
+				bool skip_bom = true;
+                while (fgets(buffer, length, fp) != nullptr) {
+					if (skip_bom) {
+						skip_bom = false;
+						// check for BOM
+						if (length >= 3) {
+							if ((unsigned char)buffer[0] == 0xEF &&
+								(unsigned char)buffer[1] == 0xBB &&
+								(unsigned char)buffer[2] == 0xBF) {
+								// skip BOM
+								results += (buffer + 3);
+								continue;
+							}
+						}
+                    }
+					results += buffer;
+				}
 				fclose(fp);
-				buffer[l] = 0;
-				results = buffer;
 				delete[] buffer;
 			}
 		}

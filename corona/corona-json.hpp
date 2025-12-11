@@ -750,6 +750,8 @@ namespace corona
 
 		virtual std::string to_string() const
 		{
+			if (!value)
+				return "";
 			return *value;
 		}
 		virtual void from_string(const std::string_view& _src)
@@ -801,6 +803,111 @@ namespace corona
 		virtual double to_double() const
 		{
 			return std::strtod((*value).c_str(), nullptr);
+		}
+
+	};
+
+	class json_null : public json_value
+	{
+
+	public:
+
+
+		json_null() 
+		{
+			;
+		}
+
+		virtual ~json_null() {
+
+		}
+
+		virtual std::string get_value() const
+		{
+			return "null";
+		}
+
+		virtual void set_value(const char* _src)
+		{
+			;
+		}
+
+		virtual std::string to_key() const
+		{
+			return "null";
+		}
+
+		virtual std::string to_json() const
+		{
+			std::string temp = "null";
+			return temp;
+		}
+
+		virtual std::string to_json_typed() const
+		{
+			return get_type_prefix() + " " + to_json();
+		}
+
+		virtual std::stringstream& serialize(std::stringstream& _src) const
+		{
+			_src << to_json_typed();
+			return _src;
+		}
+
+		virtual std::string to_string() const
+		{
+			return "null";
+		}
+
+		virtual void from_string(const std::string_view& _src)
+		{
+		}
+
+		virtual bool is_empty() const
+		{
+			return true;
+		}
+
+		virtual field_types get_field_type() const
+		{
+			return field_types::ft_null;
+		}
+
+		virtual std::string get_type_prefix() const
+		{
+			return "$null";
+		}
+
+		virtual std::string format(std::string _format) const
+		{
+			return "null";
+		}
+
+		virtual std::shared_ptr<json_value> clone() const
+		{
+			auto t = std::make_shared<json_null>();
+			return t;
+		}
+
+		virtual int64_t to_int64() const
+		{
+			return 0;
+		}
+
+		virtual date_time to_datetime() const
+		{
+			date_time dt;
+			return dt;
+		}
+
+		virtual bool to_bool() const
+		{
+			return false;
+		}
+
+		virtual double to_double() const
+		{
+			return 0.0;
 		}
 
 	};
@@ -3931,7 +4038,8 @@ namespace corona
 			}
 			else if (parse_null(_src, &new_src))
 			{
-				// don't put anything into it... it's null!
+				auto js = std::make_shared<json_string>();
+				_value = js;
 			}
 			else if (parse_boolean(new_number_value, _src, &new_src))
 			{
