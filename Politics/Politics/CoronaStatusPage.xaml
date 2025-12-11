@@ -23,7 +23,7 @@
                 <Setter Property="Margin" Value="20"/>
                 <Setter Property="HorizontalAlignment" Value="Left"/>
                 <Setter Property="FontSize" Value="20"/>
-            </Style>Fix 
+            </Style>
         </Grid.Resources>
         <TabView>
             <TabViewItem Header="Current">
@@ -36,7 +36,7 @@
                             <Setter Property="Width" Value="150"/>
                         </Style>
                         <Style x:Key="MessageText" TargetType="TextBlock">
-                            <Setter Property="Width" Value="250"/>
+                            <Setter Property="Width" Value="350"/>
                         </Style>
                     </StackPanel.Resources>
                     <TextBlock Style="{StaticResource ChapterText}">P O L I T I C S</TextBlock>
