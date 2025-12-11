@@ -16,6 +16,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.AccessControl;
 using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -98,6 +99,9 @@ namespace Politics
             }
         }
 
-
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            ContentFrame.Navigate(typeof(CoronaStatusPage));
+        }
     }
 }

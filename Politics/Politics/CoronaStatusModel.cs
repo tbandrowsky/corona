@@ -125,7 +125,7 @@ namespace Politics
             };
 
             App.CurrentApp
-                .DispatcherQueue.TryEnqueue(() =>
+                ?.DispatcherQueue.TryEnqueue(() =>
                 {
                     Messages.Add(new_message);
                     MessageReceived?.Invoke(new_message);
@@ -141,6 +141,9 @@ namespace Politics
                 Message = message,
                 ElapsedSeconds = elapsed_seconds
             };
+
+            if (App.CurrentApp == null)
+                return;
 
             App.CurrentApp
                 .DispatcherQueue.TryEnqueue(() =>

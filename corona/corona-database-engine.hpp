@@ -7399,7 +7399,8 @@ bail:
 				return jschema;
 			}
 
-			apply_schema(jschema);
+			json result = apply_schema(jschema);
+			return result;
 		}
 
 		virtual json apply_schema(json _schema)
@@ -7546,7 +7547,7 @@ bail:
 				}
 				system_monitoring_interface::active_mon->log_job_section_stop("", "Users", txsect.get_elapsed_seconds(), __FILE__, __LINE__);
 			}
-	
+
 			if (jschema.has_member("datasets"))
 			{
 				date_time start_section = date_time::now();

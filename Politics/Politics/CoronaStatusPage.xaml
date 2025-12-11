@@ -11,22 +11,145 @@
     Loaded="Page_Loaded">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <TabView>
-            <TabViewItem Header="Activity">
+            <TabViewItem Header="Current">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel.Resources>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Margin" Value="20"/>
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Width" Value="150"/>
+                        </Style>
+                        <Style x:Key="MessageText" TargetType="TextBlock">
+                            <Setter Property="Width" Value="250"/>
+                        </Style>
+                        <Style x:Key="ChapterText" TargetType="TextBlock">
+                            <Setter Property="Width" Value="250"/>
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="Margin" Value="20"/>
+                            <Setter Property="FontSize" Value="24"/>
+                        </Style>
+                        <Style x:Key="SubChapterText" TargetType="TextBlock">
+                            <Setter Property="Width" Value="600"/>
+                            <Setter Property="TextWrapping" Value="WrapWholeWords"/>
+                            <Setter Property="Margin" Value="20"/>
+                            <Setter Property="HorizontalAlignment" Value="Left"/>
+                            <Setter Property="FontSize" Value="20"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <TextBlock Style="{StaticResource ChapterText}">P O L I T I C S</TextBlock>
+                    <TextBlock Style="{StaticResource SubChapterText}">The system is loading data. You may search at any time, but you won't pick up as many results until this is complete.</TextBlock>
+                    <StackPanel x:Name="UserCommandStatus" Orientation="Horizontal" Visibility="Collapsed">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding UserCommandColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding UserCommandApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding UserCommandTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding UserCommandMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding UserCommandStart}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding UserCommandElapsed}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="CommandStatus" Orientation="Horizontal" Visibility="Collapsed">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding CommandColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding CommandApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding CommandTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding CommandMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding CommandStart}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding CommandElapsed}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="JobStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding JobColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding JobApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding JobTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding JobMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding JobStart}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding JobElapsed}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="JobSectionStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding JobSectionColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding JobSectionApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding JobSectionTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding JobSectionMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding JobSectionStart}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding JobSectionElapsed}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="FunctionStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding FunctionColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding FunctionApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding FunctionTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding FunctionMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding FunctionStart}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding FunctionElapsed}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="InformationStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding InformationColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding InformationApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding InformationTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding InformationMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding InformationStart}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="WarningStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding WarningColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding WarningApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding WarningTopic}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding WarningMessage}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding WarningStart}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel x:Name="ExceptionStatus" Orientation="Horizontal">
+                        <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                            <Rectangle.Fill>
+                                <SolidColorBrush Color="{Binding ExceptionColor}"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <TextBlock Text="{Binding ExceptionApi}" VerticalAlignment="Center" Width="100"/>
+                        <TextBlock Text="{Binding ExceptionTopic}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource MessageText}" Text="{Binding ExceptionMessage}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ExceptionStart}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </TabViewItem>
+            <TabViewItem Header="Details">
                 <TabViewItem.Content>
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RowDefinitions="*" ColumnDefinitions="1.5*,2,*,2,3*">
                         <ScrollViewer Grid.Column="0" Grid.Row="0" x:Name="TargetScrollViewer"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Visible">
                                 <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-                                    <TextBlock Text="Legend" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                                <TextBlock Style="{StaticResource ChapterText}" Text="LEGEND" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
                                     <ct:LegendControl x:Name="legendControl"></ct:LegendControl>
                                 </StackPanel>
                             </ScrollViewer>
                         <controls:GridSplitter Background="LightGray"  Grid.Column="1" Grid.Row="0" Width="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>
                         <StackPanel Grid.Column="2" Grid.Row="0" Spacing="8">
-                            <TextBlock Text="Avg Milliseconds" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                            <TextBlock Style="{StaticResource ChapterText}" Text="AVG MILLISEC" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
                             <ct:BarChart x:Name="performanceChart" Width="250" Height="250"></ct:BarChart>
-                            <TextBlock Text="Execution Share" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+                            <TextBlock Style="{StaticResource ChapterText}" Text="SUM MILLISEC" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
                             <ct:PieChart x:Name="distributionChart" Width="250" Height="250"></ct:PieChart>
                         </StackPanel>
                         <controls:GridSplitter Background="LightGray" Grid.Column="3"  Grid.Row="0" Width="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"></controls:GridSplitter>

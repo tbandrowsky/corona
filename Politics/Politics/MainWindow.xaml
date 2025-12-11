@@ -13,7 +13,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid Loaded="Grid_Loaded">
         <NavigationView x:Name="MainNavigationView" OpenPaneLength="200" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
             <NavigationView.MenuItems>
                 <NavigationViewItem Tag="Politics.CoronaStatusPage"
