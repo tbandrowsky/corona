@@ -103,7 +103,7 @@ namespace Politics
                 {
                     key = "General";
                 }
-               else if (api == "Function")
+                else if ((api == "Function") || (api == "Job") || (api == "JobSection"))
                 {
                     key = topic;
                 }

@@ -78,6 +78,7 @@ namespace Politics
 
         public void Navigate(LegendItem li)
         {
+            messageIndex++;
             if (messageIndex >= Messages.Count)
             {
                 messageIndex = 0;
@@ -85,21 +86,15 @@ namespace Politics
             while ( messageIndex < Messages.Count)
             {
                 var msg = Messages[messageIndex];
-                if (msg.Api == li.Api && msg.Topic == li.Topic)
+                if (msg.Api == li.Api && ((msg.Api == "Information" || msg.Api == "Activity") || (msg.Topic == li.Topic)))
                 {
+                    SchemaGrid.SelectedItem = msg;
                     SchemaGrid.ScrollIntoView(msg, null);
-                    break;
+                    return;
                 }
                 messageIndex++;
             }
-            if (messageIndex >= Messages.Count)
-            {
-                messageIndex = 0;
-            }
-            else
-            {
-                messageIndex++;
-            }
+            messageIndex = 0;
         }
 
         public void Refresh()
@@ -111,6 +106,14 @@ namespace Politics
                 {
                     Messages.Add(item);
                 }
+            }
+        }
+
+        private void SchemaGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SchemaGrid.SelectedItem is CoronaMessage selectedMessage)
+            {
+                messageIndex = Messages.IndexOf(selectedMessage);
             }
         }
     }

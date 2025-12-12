@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <cty:DataGrid x:Name="SchemaGrid" AutoGenerateColumns="false">
+        <cty:DataGrid x:Name="SchemaGrid" AutoGenerateColumns="false" SelectionChanged="SchemaGrid_SelectionChanged">
             <cty:DataGrid.Columns>
                 <cty:DataGridTextColumn Header="Api" Binding="{Binding Api}" Width="Auto"/>
                 <cty:DataGridTextColumn Header="Topic" Binding="{Binding Topic}" Width="Auto"/>
