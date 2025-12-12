@@ -205,7 +205,6 @@ namespace Politics
             performanceChartModel = new SummaryChartSeriesCollection();
             performanceChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
                 .Where( a => a.Api == "Function" && a.ElapsedSeconds > 0)
-                .Where(a => GlobalPalette.Current.IsSelected(a))
                 .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
                 .Select(g => new SummaryChartSeries
                 {
@@ -218,7 +217,6 @@ namespace Politics
             distributionChartModel = new SummaryChartSeriesCollection();
             distributionChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
                 .Where(a => a.Api == "Function" && a.ElapsedSeconds > 0)
-                .Where(a => GlobalPalette.Current.IsSelected(a))
                 .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
                 .Select(g => new SummaryChartSeries
                 {
