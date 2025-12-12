@@ -205,25 +205,25 @@ namespace Politics
             performanceChartModel = new SummaryChartSeriesCollection();
             performanceChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
                 .Where( a => a.Api == "Function" && a.ElapsedSeconds > 0)
-                .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
+                .GroupBy(a => new { a.Topic })
                 .Select(g => new SummaryChartSeries
                 {
                     Name = g.Key.Topic,
                     Value = g.Average(m => m.ElapsedSeconds),
-                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message),
-                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message)
+                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, ""),
+                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, "")
                 }).ToList();
 
             distributionChartModel = new SummaryChartSeriesCollection();
             distributionChartModel.Series = App.CurrentApp.CoronaStatusModel.Messages
                 .Where(a => a.Api == "Function" && a.ElapsedSeconds > 0)
-                .GroupBy(a => new { a.Topic, Message = a.Message.FirstWord() })
+                .GroupBy(a => new { a.Topic })
                 .Select(g => new SummaryChartSeries
                 {
                     Name = g.Key.Topic,
                     Value = g.Sum(m => m.ElapsedSeconds),
-                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message),
-                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, g.Key.Message)
+                    FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, ""),
+                    BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, "")
                 }).ToList();
 
             performanceChart.Series = performanceChartModel;

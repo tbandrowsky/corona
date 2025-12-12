@@ -67,7 +67,7 @@ namespace CoronaCharts
             if (Series == null || Series.Series.Count == 0)
                 return;
 
-            args.DrawingSession.Clear(Microsoft.UI.Colors.White);
+            args.DrawingSession.en Clear(Microsoft.UI.Colors.White);
             double maxValue = Series.Series.Max(s => s.Value);
             double minValue = Series.Series.Min(s => s.Value);
             if (minValue > 0) minValue = 0;
