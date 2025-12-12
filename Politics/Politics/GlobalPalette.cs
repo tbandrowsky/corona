@@ -37,6 +37,7 @@ namespace Politics
             { "JobSection", new ColorMap { Api = "JobSection", ColorIndex = 30 } },
             { "Function", new ColorMap { Api = "Function", ColorIndex = 40 } },
             { "Information", new ColorMap { Api = "Information", ColorIndex = 100 } },
+            { "Activity", new ColorMap { Api = "Activity", ColorIndex = 100 } },
             { "Exception", new ColorMap { Api = "Exception", ColorIndex = 20 } },
             { "Warning", new ColorMap { Api = "Warning", ColorIndex = 10 } },
         };
@@ -97,7 +98,19 @@ namespace Politics
             ColorMap map = null;
             if (ApiColorMapping.TryGetValue(api, out map))
             {
-                string key = topic + "." + message;
+                string key = string.Empty;
+                if (api == "Information" || api == "Activity")
+                {
+                    key = "General";
+                }
+               else if (api == "Function")
+                {
+                    key = topic;
+                }
+                else
+                {
+                    key = topic + "." + message;
+                }
                 ColorMapDetail color = null;
                 if (map.TopicColors.TryGetValue(key, out color))
                 {

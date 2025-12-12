@@ -29,21 +29,47 @@ namespace CoronaCharts
         public bool IsSelected { get; set; }
     }
 
+    public class LegendByApi : ObservableCollection<LegendItem>
+    {
+        public string Api { get; set; }
+    }
+
     public sealed partial class LegendControl : UserControl
     {
         public LegendControl()
         {
             InitializeComponent();
-            this.DataContext = this;
+            DataContext = this;
+            GroupedLegend.Source = LegendByApiItems;
+            GroupedLegend.IsSourceGrouped = true;
         }
 
+        public void Add(LegendItem li)
+        {
+            foreach (var group in LegendByApiItems)
+            {
+                if (group.Api == li.Api)
+                {
+                    group.Add(li);
+                    return;
+                }
+            }
+            var lba = new LegendByApi
+            {
+                Api = li.Api
+            };
+            lba.Add(li);
+            LegendByApiItems.Add(lba);
+        }
         public LegendItem Find(string api, string topic)
         {
-            var item = Items.FirstOrDefault(i => i.Api == api && i.Topic == topic);
+            var item = LegendByApiItems.SelectMany(g => g).FirstOrDefault(i => i.Api == api && i.Topic == topic);
             return item;
         }
 
-        public ObservableCollection<LegendItem> Items { get; } = new ObservableCollection<LegendItem>();
+        public event EventHandler<LegendItem> NavigateLegend;
+
+        public ObservableCollection<LegendByApi> LegendByApiItems { get; } = new ObservableCollection<LegendByApi>();
 
         public event EventHandler<LegendItem> LegendItemChecked;
 
@@ -60,6 +86,14 @@ namespace CoronaCharts
             if (sender is CheckBox checkBox && checkBox.DataContext is LegendItem legendItem)
             {
                 LegendItemChecked?.Invoke(this, legendItem);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is LegendItem legendItem)
+            {
+               NavigateLegend?.Invoke(this, legendItem);
             }
         }
     }

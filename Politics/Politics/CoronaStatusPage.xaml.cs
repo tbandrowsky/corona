@@ -164,17 +164,25 @@ namespace Politics
             DataContext = this;
             App.CurrentApp.CoronaStatusModel.MessageReceived += OnMessageReceived;
             legendControl.LegendItemChecked += LegendControl_LegendItemChecked;
+            legendControl.NavigateLegend += LegendControl_NavigateLegend;
             Refresh(true);
             foreach (var msg in App.CurrentApp.CoronaStatusModel.Messages)
             {
                 UpdateStatusPanel(msg);
             }
+            activitygrid.Refresh();
+        }
+
+        private void LegendControl_NavigateLegend(object? sender, LegendItem e)
+        {
+            activitygrid.Navigate(e);
         }
 
         private void LegendControl_LegendItemChecked(object? sender, LegendItem e)
         {
             GlobalPalette.Current.Select(e);
             Refresh(false);
+            activitygrid.Refresh();
         }
 
         public void Refresh(bool update_legend)
@@ -222,7 +230,6 @@ namespace Politics
 
             performanceChart.Series = performanceChartModel;
             distributionChart.Series = distributionChartModel;
-            activitygrid.Refresh();
 
             if (update_legend)
             {
@@ -234,12 +241,10 @@ namespace Politics
                     {
                         li.IsSelected = existingli.IsSelected;
                     }
-                }
-
-                legendControl.Items.Clear();
-                foreach (var item in legendItems)
-                {
-                    legendControl.Items.Add(item);
+                    else
+                    {
+                        legendControl.Add(li);
+                    }
                 }
             }
         }
@@ -248,11 +253,6 @@ namespace Politics
         private void UpdateStatusPanel(CoronaMessage message)
         {
             string api = message.Api;
-
-            if (api == "Activity")
-            {
-                api = "Information";
-            }
 
             switch (api)
             {
@@ -303,6 +303,17 @@ namespace Politics
                     JobSectionStatus.Visibility = Visibility.Visible;
                     FunctionStatus.Visibility = Visibility.Visible;
                     goto SetInformation;
+                case "Activity":
+                    InformationColor = GlobalPalette.Current.GetApiColor(message.Api, message.Topic, message.Message.FirstWord()).ToColor();
+                    InformationApi = message.Api;
+                    InformationTopic = message.Topic;
+                    InformationMessage = message.Message;
+                    InformationStart = message.StartTimeString;
+                    JobStatus.Visibility = Visibility.Visible;
+                    JobSectionStatus.Visibility = Visibility.Visible;
+                    FunctionStatus.Visibility = Visibility.Visible;
+                    InformationStatus.Visibility = Visibility.Visible;
+                    goto SetWarning;
                 case "Information":
                     InformationColor = GlobalPalette.Current.GetApiColor(message.Api, message.Topic, message.Message.FirstWord()).ToColor();
                     InformationApi = message.Api;
@@ -370,7 +381,11 @@ namespace Politics
                         lastRefreshTime = DateTime.Now;
                         Refresh(true);
                     }
-                    UpdateStatusPanel(message);
+                    else
+                    {
+                        UpdateStatusPanel(message);
+                        activitygrid.Messages.Add(message);
+                    }
                 }
             );
         }

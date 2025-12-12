@@ -9,21 +9,47 @@
     mc:Ignorable="d">
 
     <Grid>
-        <ListView ItemsSource="{Binding Items}" SelectionMode="None">
+        <Grid.Resources>
+            <CollectionViewSource
+                x:Name="GroupedLegend"
+                x:Key="GroupedLegend"/>
+        </Grid.Resources>
+        <ListView ItemsSource="{x:Bind GroupedLegend.View, Mode=OneWay}" SelectionMode="None">
+            <ListView.GroupStyle>
+                <GroupStyle >
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="local:LegendByApi">
+                            <Border>
+                                <TextBlock Text="{Binding Api}" Style="{ThemeResource BodyTextBlockStyle}"/>
+                            </Border>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel AreStickyGroupHeadersEnabled="False"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" VerticalAlignment="Center">
-                            <CheckBox.Content>
-                                <StackPanel Orientation="Horizontal" Margin="5">
-                                    <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
-                                        <Rectangle.Fill>
-                                            <SolidColorBrush Color="{Binding Color}"/>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
-                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </CheckBox.Content>
-                        </CheckBox>
+                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" VerticalAlignment="Center">
+                        <CheckBox.Content>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="{Binding Color}"/>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                <Button Click="Button_Click" DataContext="{Binding}">
+                                    <Button.Content>
+                                        <SymbolIcon Symbol="Go"/>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </CheckBox.Content>
+                    </CheckBox>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

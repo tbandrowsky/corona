@@ -65,6 +65,41 @@ namespace Politics
                 Messages.Add(item);
             }
             SchemaGrid.ItemsSource = Messages;
+            Messages.CollectionChanged += (s, ev) =>
+            {
+                if (ev.NewItems != null && ev.NewItems.Count > 0)
+                {
+                    SchemaGrid.ScrollIntoView(ev.NewItems[ev.NewItems.Count - 1], null);
+                }
+            };
+        }
+
+        int messageIndex = 0;
+
+        public void Navigate(LegendItem li)
+        {
+            if (messageIndex >= Messages.Count)
+            {
+                messageIndex = 0;
+            }
+            while ( messageIndex < Messages.Count)
+            {
+                var msg = Messages[messageIndex];
+                if (msg.Api == li.Api && msg.Topic == li.Topic)
+                {
+                    SchemaGrid.ScrollIntoView(msg, null);
+                    break;
+                }
+                messageIndex++;
+            }
+            if (messageIndex >= Messages.Count)
+            {
+                messageIndex = 0;
+            }
+            else
+            {
+                messageIndex++;
+            }
         }
 
         public void Refresh()
