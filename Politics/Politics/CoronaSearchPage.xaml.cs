@@ -27,5 +27,10 @@ namespace Politics
         {
             InitializeComponent();
         }
+
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
