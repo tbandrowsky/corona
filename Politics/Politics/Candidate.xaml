@@ -6,9 +6,59 @@
     xmlns:local="using:Politics"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
     <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0">
 
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Full Name</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind full_name, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Candidate Id</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind candidate_id, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Political Party</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind political_party, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Election Year</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind election_year, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Street 1</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind street1, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Street 2</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind street2, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">City</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind city, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">State</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind state, Mode=TwoWay}" IsReadOnly="True"/>
+
+                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Zip</TextBlock>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind zip, Mode=TwoWay}" IsReadOnly="True"/>
+
+
+            </StackPanel>
+            <cty:DataGrid Grid.Column="1" Grid.Row="0" x:Name="SchemaGrid" AutoGenerateColumns="false">
+                <cty:DataGrid.Columns>
+                    <cty:DataGridTextColumn Header="Full Name" Binding="{Binding full_name}" Width="Auto"/>
+                    <cty:DataGridTextColumn Header="City" Binding="{Binding city}" Width="Auto"/>
+                    <cty:DataGridTextColumn Header="State" Binding="{Binding state}" Width="Auto"/>
+                    <cty:DataGridTextColumn Header="Zip" Binding="{Binding zip}" Width="Auto"/>
+                    <cty:DataGridTextColumn Header="Amount" Binding="{Binding amount}" Width="Auto"/>
+                </cty:DataGrid.Columns>
+            </cty:DataGrid>
+        </Grid>
     </Grid>
 </UserControl>
