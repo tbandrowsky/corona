@@ -4824,7 +4824,7 @@ namespace corona
 		std::string data_path;
 		std::string config_path;
 
-		long import_batch_size = 5000;
+		long import_batch_size = 2500;
 		/*
 		* authorizations in tokens, methods and progressions
 		* 

@@ -38,6 +38,9 @@ namespace Politics
             this.Loaded += Page_Loaded;
         }
 
+        private string _activityText = "Data load status.";
+        public string ActivityText { get => _activityText; set { if (_activityText != value) { _activityText = value; RaisePropertyChanged(); } } }
+
         // INotifyPropertyChanged
         public event PropertyChangedEventHandler? PropertyChanged;
         private void RaisePropertyChanged([CallerMemberName] string? name = null) =>
@@ -374,6 +377,21 @@ namespace Politics
         {
             DispatcherQueue.TryEnqueue(() =>
                 {
+                    if (message.Api == "Job" && message.Topic == "apply_schema" && message.ElapsedSeconds == 0)
+                    {
+                        // Always refresh for Function messages
+                        ActivityText = "Applying schema.  Politics is loading dataset.";
+                        UpdateStatusPanel(message);
+                        activitygrid.Messages.Add(message);
+                        return;
+                    } 
+                    else if (message.Api == "Job" && message.Topic == "apply_schema" && message.ElapsedSeconds > 0)
+                    {
+                        ActivityText = "Database schema applied. Politics has finished loading dataset.";
+                        UpdateStatusPanel(message);
+                        activitygrid.Messages.Add(message);
+                    }
+
                     if ((DateTime.Now - lastRefreshTime).TotalMilliseconds > 500)
                     {
                         lastRefreshTime = DateTime.Now;

@@ -39,8 +39,8 @@
                             <Setter Property="Width" Value="350"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Style="{StaticResource DisplayTextBlockStyle}">POLITICS</TextBlock>
-                    <TextBlock Style="{StaticResource BodyTextBlockStyle}">The system is loading data. You may search at any time, but you won't pick up as many results until this is complete.</TextBlock>
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}">Revolution: POLITICS</TextBlock>
+                    <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ActivityText}"></TextBlock>
                     <StackPanel x:Name="UserCommandStatus" Orientation="Horizontal" Visibility="Collapsed">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
                             <Rectangle.Fill>
@@ -49,9 +49,9 @@
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandApi}" VerticalAlignment="Center" Width="100"/>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandTopic}" VerticalAlignment="Center" Width="200" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandStart}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandElapsed}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandStart}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding UserCommandElapsed}" VerticalAlignment="Center" Width="400" />
                     </StackPanel>
                     <StackPanel x:Name="CommandStatus" Orientation="Horizontal" Visibility="Collapsed">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -60,10 +60,10 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandStart}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandElapsed}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandStart}" VerticalAlignment="Center" Width="150" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding CommandElapsed}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="JobStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -72,10 +72,10 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobStart}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobElapsed}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobStart}" VerticalAlignment="Center" Width="150" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobElapsed}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="JobSectionStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -84,10 +84,10 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionStart}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionElapsed}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionStart}" VerticalAlignment="Center" Width="150" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding JobSectionElapsed}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="FunctionStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -96,10 +96,10 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionStart}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionElapsed}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionStart}" VerticalAlignment="Center" Width="150" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding FunctionElapsed}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="InformationStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -108,9 +108,9 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationStart}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding InformationStart}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="WarningStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -119,9 +119,9 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningStart}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding WarningStart}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                     <StackPanel x:Name="ExceptionStatus" Orientation="Horizontal">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
@@ -130,9 +130,9 @@
                             </Rectangle.Fill>
                         </Rectangle>
                         <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionApi}" VerticalAlignment="Center" Width="100"/>
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionTopic}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionMessage}" VerticalAlignment="Center" />
-                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionStart}" VerticalAlignment="Center" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionTopic}" VerticalAlignment="Center" Width="200" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionMessage}" VerticalAlignment="Center" Width="400" />
+                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ExceptionStart}" VerticalAlignment="Center" Width="150" />
                     </StackPanel>
                 </StackPanel>
             </TabViewItem>
