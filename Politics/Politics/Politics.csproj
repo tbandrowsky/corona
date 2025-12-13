@@ -12,10 +12,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Candidate.xaml" />
     <None Remove="configuration\config.json" />
     <None Remove="configuration\politics_schema.json" />
     <None Remove="CoronaSearchPage.xaml" />
     <None Remove="CoronaStatusPage.xaml" />
+    <None Remove="County.xaml" />
+    <None Remove="Donor.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="configuration\config.json">
@@ -47,6 +50,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Candidate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="configuration\us_counties\county_base.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -101,6 +107,12 @@
     <None Update="configuration\us_elections\itcont.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="County.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Donor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="seed_data\us_counties\county_base.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
