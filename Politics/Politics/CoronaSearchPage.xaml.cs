@@ -1,3 +1,4 @@
+using CoronaLib;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -29,6 +30,12 @@ namespace Politics
         }
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            QueryResponse
+            App.CurrentApp.CoronaDatabase.Query();
+        }
+
+        private void ResultsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }

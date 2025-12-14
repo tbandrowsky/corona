@@ -6,13 +6,23 @@
     xmlns:local="using:Politics"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
     <Grid>
-        <StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0">
             <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" />
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
         </StackPanel>
-        
+        <cty:DataGrid Grid.Row="1" Grid.Column="0" x:Name="ResultsDataGrid" AutoGenerateColumns="True" Margin="12" SelectionChanged="ResultsDataGrid_SelectionChanged" />
+        <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ControlFrame" Margin="12" />
     </Grid>
 </Page>
