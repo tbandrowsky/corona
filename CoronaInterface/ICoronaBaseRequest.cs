@@ -11,4 +11,10 @@ namespace CoronaInterface
         string Token { get; set; }
         JToken Data { get; set; }
     }
+
+    public class CoronaBaseRequest : ICoronaBaseRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public JToken Data { get; set; } = new JObject();
+    }
 }

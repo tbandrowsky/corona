@@ -8,4 +8,8 @@ namespace CoronaInterface
     public interface IRunObjectRequest : ICoronaBaseRequest
     {
     }
+
+    public class RunObjectRequest : CoronaBaseRequest, IRunObjectRequest
+    {
+    }
 }

@@ -6,4 +6,9 @@ namespace CoronaInterface
     {
         string ClassName { get; set; }
     }
+
+    public class GetClassRequest : CoronaBaseRequest, IGetClassRequest
+    {
+        public string ClassName { get; set; } = string.Empty;
+    }
 }

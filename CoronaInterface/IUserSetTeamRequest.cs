@@ -8,4 +8,9 @@ namespace CoronaInterface
     {
         public string TeamName { get; set; }
     }
+
+    public class UserSetTeamRequest : CoronaBaseRequest, IUserSetTeamRequest
+    {
+        public string TeamName { get; set; } = string.Empty;
+    }
 }

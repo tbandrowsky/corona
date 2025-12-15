@@ -9,4 +9,10 @@ namespace CoronaInterface
         SysObject SysObject { get; set; }
         bool IncludeChildren {  get; set; }
     }
+
+    public class EditObjectRequest : CoronaBaseRequest, IEditObjectRequest
+    {
+        public SysObject SysObject { get; set; } = new SysObject();
+        public bool IncludeChildren { get; set; } = false;
+    }
 }

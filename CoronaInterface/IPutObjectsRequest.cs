@@ -6,4 +6,9 @@ namespace CoronaInterface
     {
         
     }
+
+    public class PutObjectsRequest : CoronaBaseRequest, IPutObjectsRequest
+    {
+
+    }
 }

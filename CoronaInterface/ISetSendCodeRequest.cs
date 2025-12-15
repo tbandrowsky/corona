@@ -4,4 +4,9 @@ namespace CoronaInterface
     {
         public string Email { get; set;  }
     }
+
+    public class SetSendCodeRequest : CoronaBaseRequest, ISetSendCodeRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
 }

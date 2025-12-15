@@ -6,4 +6,9 @@ namespace CoronaInterface
     {
         SysUser User { get; set; }
     }
+
+    public class CreateUserRequest : ICreateUserRequest
+    {
+        public SysUser User { get; set; } = new SysUser();
+    }
 }

@@ -9,4 +9,10 @@ namespace CoronaInterface
         public string ClassName { get; set; }
         public long ObjectId { get; set; }
     }
+
+    public class GetObjectRequest : CoronaBaseRequest, IGetObjectRequest
+    {
+        public string ClassName { get; set; } = string.Empty;
+        public long ObjectId { get; set; } = 0;
+    }
 }

@@ -8,6 +8,7 @@ using namespace Newtonsoft::Json::Linq;
 
 namespace CoronaLib {
 
+
 	public ref class BaseResponse : public CoronaInterface::ICoronaBaseResponse 
 	{
 	
@@ -62,10 +63,10 @@ namespace CoronaLib {
 		virtual property double ExecutionTimeSeconds		
 		{
 			double get() {
-				return ExecutionTimeSeconds;
+				return executionTimeSeconds;
 			}
 			void set(double value) {
-				ExecutionTimeSeconds = value;
+				executionTimeSeconds = value;
 			}
 		}
 
@@ -81,10 +82,12 @@ namespace CoronaLib {
 			}
 			void set(JToken^ value) {
 
-                if (value->Type == JTokenType::Array)
-					data_array = (JArray^)value;
-				else if (value->Type == JTokenType::Object)
-					data_object = (JObject^)value;
+				if (value) {
+					if (value->Type == JTokenType::Array)
+						data_array = (JArray^)value;
+					else if (value->Type == JTokenType::Object)
+						data_object = (JObject^)value;
+				}
 			}
 		}
 	};
