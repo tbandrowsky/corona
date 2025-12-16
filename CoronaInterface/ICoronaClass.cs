@@ -25,27 +25,43 @@ namespace CoronaInterface
     public class CoronaBaseObject
     {
         [JsonProperty("class_name")]
-        string? ClassName { get; set;  }
+        public string? ClassName { get; protected set;  }
     }
 
     public class QueryFrom : CoronaBaseObject
     {
+        /// <summary>
+        /// Class to query from
+        /// </summary>
         [JsonProperty("name")]
-        string? Name { get; set; }
+        public string? Name { get; set; }
         [JsonProperty("filter")]
-        IDictionary<string, string> Filter { get; set; }
+        public IDictionary<string, string> Filter { get; set; }
+        public QueryFrom()
+        {
+            ClassName = "from";
+        }
     }
 
     public class QueryStage : CoronaBaseObject
     {
         [JsonProperty("name")]
-        string? Name { get; set; }
+        public string? Name { get; set; }
         [JsonProperty("output")]
-        string? Output { get; set; }
+        public string? Output { get; set; }
+
+        public QueryStage()
+        {
+            ClassName = "query_stage";
+        }
     }
 
     public class QueryResult : QueryStage
     {
+        public QueryResult()
+        {
+            ClassName = "result";
+        }
     }
 
     public class Condition : CoronaBaseObject
@@ -56,233 +72,305 @@ namespace CoronaInterface
     public class ConditionLt : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+
+        public ConditionLt()
+        {
+            ClassName = "lt";
+        }
     }
 
     public class ConditionLte : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+        public ConditionLte()
+        {
+            ClassName = "lte";
+        }
     }
 
     public class ConditionEq : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+
+        public ConditionEq()
+        {
+            ClassName = "eq";
+        }
+
     }
 
     public class ConditionGte : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+        public ConditionGte()
+        {
+            ClassName = "gte";
+        }
+
     }
 
     public class ConditionGt : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+        public ConditionGt()
+        {
+            ClassName = "gt";
+        }
+
     }
 
     public class ConditionContains : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+        public ConditionContains()
+        {
+            ClassName = "contains";
+        }
+
     }
 
     public class ConditionIn : Condition
     {
         [JsonProperty("value_path")]
-        string? ValuePath { get; set; }
+        public string? ValuePath { get; set; }
         [JsonProperty("value")]
-        string? Value { get; set; }
+        public string? Value { get; set; }
+
+        public ConditionIn()
+        {
+            ClassName = "in";
+        }
+
     }
 
     public class ConditionBetween : Condition
     {
         [JsonProperty("start")]
-        ConditionGte? Start { get; set; }
+        public ConditionGte? Start { get; set; }
         [JsonProperty("stop")]
-        ConditionLte? End { get; set; }
+        public ConditionLte? End { get; set; }
+        public ConditionBetween()
+        {
+            ClassName = "between";
+        }
+
     }
 
     public class ConditionAllowAll : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition>? Conditions { get; set; }
+        public IList<Condition>? Conditions { get; set; }
+
+        public ConditionAllowAll()
+        {
+            ClassName = "allow_all";
+        }
     }
 
     public class ConditionAny: Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition>? Conditions { get; set; }
+        public IList<Condition>? Conditions { get; set; }
     }
 
     public class ConditionAll : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition>? Conditions { get; set; }
+        public IList<Condition>? Conditions { get; set; }
+
+        public ConditionAll()
+        {
+            ClassName = "all";
+        }
     }
 
     public class ConditionNone : Condition
     {
         [JsonProperty("conditions")]
-        IList<Condition>? Conditions { get; set; }
+        public IList<Condition>? Conditions { get; set; }
+        public ConditionNone()
+        {
+            ClassName = "none";
+        }
     }
 
     public class QueryFilter : QueryStage
     {
         [JsonProperty("input")]
-        string? Input { get; set; }
+        public string? Input { get; set; }
         [JsonProperty("condition")]
-        Condition? Condition { get; set; }
+        public Condition? Condition { get; set; }
+        public QueryFilter()
+        {
+            ClassName = "filter";
+        }
+
     }
 
     public class QueryProject : QueryStage
     {
         [JsonProperty("input")]
-        string? Input { get; set; }
+        public string? Input { get; set; }
 
         [JsonProperty("projection")]
-        Dictionary<string, string>? Projection { get; set; }
+        public Dictionary<string, string>? Projection { get; set; }
+
+        public QueryProject()
+        {
+            ClassName = "project";
+        }
+
     }
 
     public class QueryJoin : QueryStage
     {
         [JsonProperty("resultname1")]
-        string? ResultName1 { get; set; }
+        public string? ResultName1 { get; set; }
         [JsonProperty("resultname2")]
-        string? ResultName2 { get; set; }
+        public string? ResultName2 { get; set; }
         [JsonProperty("source1")]
-        string? Source1 { get; set; }
+        public string? Source1 { get; set; }
         [JsonProperty("source2")]
-        string? Source2 { get; set; }
+        public string? Source2 { get; set; }
         [JsonProperty("keys")]
         IList<string>? Keys { get; set; }
+
+        public QueryJoin()
+        {
+            ClassName = "join";
+        }
     }
 
     public class QueryBody
     {
         [JsonProperty("from")]
 
-        IList<QueryFrom>? From { get; set; }
+        public IList<QueryFrom>? From { get; set; } = new List<QueryFrom>();
 
         [JsonProperty("stages")]
-        IList<QueryStage>? Stages { get; set; }
+        public IList<QueryStage>? Stages { get; set; } = new List<QueryStage>();
+
     }
 
     public class FieldBase
 	{
         [JsonProperty("field_name")]
-        string? FieldName { get; set; }
+        public string? FieldName { get; set; }
         [JsonProperty("field_type")]
         FieldTypes FieldType { get; set; }
         [JsonProperty("field_description")]
-        string? FieldDescription { get; set; }
+        public string? FieldDescription { get; set; }
         [JsonProperty("required")]
-        bool Required { get; set; }
+        public bool Required { get; set; }
         [JsonProperty("format")]
-        string? Format { get; set; }
+        public string? Format { get; set; }
         [JsonProperty("input_mask")]
-        string? InputMask { get; set; }
+        public string? InputMask { get; set; }
         [JsonProperty("label")]
-        string? Label { get; set; }
+        public string? Label { get; set; }
         [JsonProperty("description")]
-        string? Description { get; set; }
+        public string? Description { get; set; }
         [JsonProperty("grid_row")]
-        string? GridRow { get; set; }
+        public string? GridRow { get; set; }
         [JsonProperty("grid_column")]
-        string? GridColumn { get; set; }
+        public string? GridColumn { get; set; }
         [JsonProperty("display")]
-        string? Display { get; set; }
+        public string? Display { get; set; }
         [JsonProperty("tab_index")]
-        string? TabIndex { get; set; }
+        public string? TabIndex { get; set; }
         [JsonProperty("read_only")]
-        bool? ReadOnly { get; set; }
+        public bool? ReadOnly { get; set; }
         [JsonProperty("server_only")]
-        bool? ServerOnly { get; set; }
+        public bool? ServerOnly { get; set; }
     }
 
     public class StringField : FieldBase
     {
         [JsonProperty("maximum_length")]
-        int? MaximumLength { get; set; }
+        public int? MaximumLength { get; set; }
         [JsonProperty("minimum_length")]
-        int? MinimumLength { get; set; }
+        public int? MinimumLength { get; set; }
         [JsonProperty("match_pattern")]
-        string? MatchPattern { get; set; }
+        public string? MatchPattern { get; set; }
         [JsonProperty("allowed_values")]
-        IList<string>? AllowedValues { get; set; }
+        public IList<string>? AllowedValues { get; set; }
     }
 
     public class DoubleField : FieldBase
     {
         [JsonProperty("min_value")]
-        double? MinValue { get; set; }
+        public double? MinValue { get; set; }
         [JsonProperty("max_value")]
-        double? MaxValue { get; set; }
+        public double? MaxValue { get; set; }
     }
 
     public class DateTimeField : FieldBase
     {
         [JsonProperty("min_value")]
-        DateTime? MinValue { get; set; }
+        public DateTime? MinValue { get; set; }
         [JsonProperty("max_value")]
-        DateTime? MaxValue { get; set; }
+        public DateTime? MaxValue { get; set; }
     }
 
     public class Int64Field : FieldBase
     {
         [JsonProperty("min_value")]
-        long? MinValue { get; set; }
+        public long? MinValue { get; set; }
         [JsonProperty("max_value")]
-        long? MaxValue { get; set; }
+        public long? MaxValue { get; set; }
     }
 
     public class QueryField : FieldBase
     {
         [JsonProperty("query_body")]
-        QueryBody? QueryBody { get; set; }
+        public QueryBody? QueryBody { get; set; }
     }
 
     public class ChildBridge
     {
         [JsonProperty("child_class_name")]
-        string? ChildClassName { get; set; }
+        public string? ChildClassName { get; set; }
         [JsonProperty("copy_values")]
-        IDictionary<string, string>? CopyValues { get; set; }
+        public IDictionary<string, string>? CopyValues { get; set; }
     }
 
     public class ChildBridges
     {
-        IDictionary<string, ChildBridge>? BaseClasses { get; set; }
-        IDictionary<string, ChildBridge>? AllClasses { get; set; }
+        public IDictionary<string, ChildBridge>? BaseClasses { get; set; }
+        public IDictionary<string, ChildBridge>? AllClasses { get; set; }
     }
 
     public class ArrayField : FieldBase
     {
         [JsonProperty("fundamental_type")]
-        FieldTypes? FundamentalType { get; set; }
+        public FieldTypes? FundamentalType { get; set; }
         [JsonProperty("child_objects")]
-        ChildBridges? ChildBridges {  get; set; }
+        public ChildBridges? ChildBridges {  get; set; }
     }
 
     public class ObjectField : FieldBase
     {
 
         [JsonProperty("child_objects")]
-        ChildBridge? ChildBridge { get; set; }
+        public ChildBridge? ChildBridge { get; set; }
     }
 
     public class FunctionField : FieldBase
@@ -297,103 +385,103 @@ namespace CoronaInterface
 	{
 
         [JsonProperty("index_name")]
-        string? IndexName { get; set; }
+        public string? IndexName { get; set; }
         [JsonProperty("index_keys")]
-        IList<string>? IndexKeys { get; set; }
+        public IList<string>? IndexKeys { get; set; }
     }
 
     public class SqlFieldMapping
     {
         [JsonProperty("corona_field_name")]
-        string? CoronaFieldName { get; set; }
+        public string? CoronaFieldName { get; set; }
 
         [JsonProperty("sql_field_name")]
-        string? SqlFieldName { get; set; }
+        public string? SqlFieldName { get; set; }
 
         [JsonProperty("primary_key")]
-        bool? PrimaryKey { get; set; }
+        public bool? PrimaryKey { get; set; }
 
         [JsonProperty("field_type")]
-        FieldTypes? FieldType { get; set; }
+        public FieldTypes? FieldType { get; set; }
 
         [JsonProperty("string_size")]
-        int? StringSize { get; set; }
+        public int? StringSize { get; set; }
 
         [JsonProperty("is_expression")]
-        bool? IsExpression { get; set; }
+        public bool? IsExpression { get; set; }
 
         [JsonProperty("field_id")]
-        int? FieldId { get; set; }
+        public int? FieldId { get; set; }
 
     }
 
     public class SqlIntegration
     {
         [JsonProperty("connection_name")]
-        string? ConnectionName { get; set; }
+        public string? ConnectionName { get; set; }
 
         [JsonProperty("sql_table_name")]
-        string? TableName { get; set; }
-        IDictionary<string, string> Mappings { get; set; }
+        public string? TableName { get; set; }
+        public IDictionary<string, string> Mappings { get; set; }
     }
 
     public class CoronaClass
     {
         [JsonProperty("class_name")]
-        string? ClassName { get; set; }
+        public string? ClassName { get; set; }
         [JsonProperty("class_description")]
-        string? ClassDescription { get; set; }
+        public string? ClassDescription { get; set; }
         [JsonProperty("class_color")]
-        string? ClassColor { get; set; }
+        public string? ClassColor { get; set; }
 
         [JsonProperty("grid_template_rows")]
-        string? GridTemplateRows { get; set; }
+        public string? GridTemplateRows { get; set; }
         [JsonProperty("grid_template_columns")]
-        string? GridTemplateColumns { get; set; }
+        public string? GridTemplateColumns { get; set; }
         [JsonProperty("class_author")]
-        string? ClassAuthor { get; set; }
+        public string? ClassAuthor { get; set; }
         [JsonProperty("class_version")]
-        string? ClassVersion { get; set; }
+        public string? ClassVersion { get; set; }
         [JsonProperty("card_title")]
-        string? CardTitle { get; set; }
+        public string? CardTitle { get; set; }
         [JsonProperty("card_fields")]
-        IList<string>? CardFields { get; set; }
+        public IList<string>? CardFields { get; set; }
 
         [JsonProperty("base_class_name")]
-        string? BaseClassName { get; set; }
+        public string? BaseClassName { get; set; }
 
         [JsonProperty("parents")]
-        IList<string>? Parents { get; set; }
+        public IList<string>? Parents { get; set; }
 
         [JsonProperty("full_text")]
-        IList<string>? FullText { get; set; }
+        public IList<string>? FullText { get; set; }
         [JsonProperty("ancestors")]
-        IList<string>? Ancestors { get; set; }
+        public IList<string>? Ancestors { get; set; }
         [JsonProperty("descendants")]
-        IList<string>? Descendants { get; set; }
+        public IList<string>? Descendants { get; set; }
         [JsonProperty("fields")]
-        IDictionary<string, FieldBase>? Fields { get; set; }
+        public IDictionary<string, FieldBase>? Fields { get; set; }
         [JsonProperty("indexes")]
-        IDictionary<string, Index>? Indexes { get; set; }
+        public IDictionary<string, Index>? Indexes { get; set; }
         [JsonProperty("sql")]
-        IDictionary<string, SqlIntegration>? Sql { get; set; }
+        public IDictionary<string, SqlIntegration>? Sql { get; set; }
 
     }
 
     public class SysObject : CoronaBaseObject
     {
         [JsonProperty("object_id")]
-        string? ObjectId { get; set; }
+        public string? ObjectId { get; set; }
         [JsonProperty("created")]
-        DateTime? Created { get; set; }
+        public DateTime? Created { get; set; }
         [JsonProperty("created_by")]
-        string? CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         [JsonProperty("updated")]
-        DateTime? Modified { get; set; }
+        public DateTime? Modified { get; set; }
         [JsonProperty("modified_by")]
-        string? ModifiedBy { get; set; }
+        public string? ModifiedBy { get; set; }
         [JsonProperty("team")]
-        string? Team { get; set; }
+        public string? Team { get; set; }
     }
 
     public class Ticket : SysObject
@@ -409,48 +497,48 @@ namespace CoronaInterface
     public class SysGrant : CoronaBaseObject
     {
         [JsonProperty("grant_classes")]
-        IList<string>? GrantClasses { get; set; }
+        public IList<string>? GrantClasses { get; set; }
 
         [JsonProperty("get")]
-        string? GetPermission { get; set; }
+        public  string? GetPermission { get; set; }
         [JsonProperty("put")]
-        string? PutPermission { get; set; }
+        public  string? PutPermission { get; set; }
         [JsonProperty("delete")]
-        string? DeletePermission { get; set; }
+        public  string? DeletePermission { get; set; }
         [JsonProperty("alter")]
-        string? AlterPermission { get; set; }
+        public  string? AlterPermission { get; set; }
         [JsonProperty("derive")]
-        string? DerivePermission { get; set; }
+        public  string? DerivePermission { get; set; }
     }
 
     public class SysTeam : CoronaBaseObject
     {
         [JsonProperty("team_name")]
-        string? TeamName { get; set; }
+        public string? TeamName { get; set; }
 
         [JsonProperty("team_description")]
-        string? TeamDescription { get; set; }
+        public string? TeamDescription { get; set; }
 
         [JsonProperty("team_domain")]
-        string? TeamDomain { get; set; }
+        public string? TeamDomain { get; set; }
 
         [JsonProperty("permissions")]
-        IList<SysGrant>? Permissions { get; set; }
+        public IList<SysGrant>? Permissions { get; set; }
 
         [JsonProperty("inventory_classes")]
-        IList<string>? InventoryClasses { get; set; }
+        public IList<string>? InventoryClasses { get; set; }
 
         [JsonProperty("allowed_teams")]
-        IList<string>? AllowedTeams { get; set; }
+        public IList<string>? AllowedTeams { get; set; }
 
         [JsonProperty("tickets")]
-        IList<Ticket>? Tickets { get; set; }
+        public IList<Ticket>? Tickets { get; set; }
 
         [JsonProperty("workflow")]
-        IList<Workflow>? Workflow { get; set; }
+        public IList<Workflow>? Workflow { get; set; }
 
         [JsonProperty("items")]
-        IList<Item>? Items { get; set; }
+        public IList<Item>? Items { get; set; }
     }
 
     public class SysUser : SysObject

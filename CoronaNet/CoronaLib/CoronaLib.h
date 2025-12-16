@@ -5,6 +5,7 @@
 
 using namespace System;
 using namespace Newtonsoft::Json::Linq;
+using namespace System::Threading::Tasks;
 
 namespace CoronaLib {
 
@@ -325,5 +326,7 @@ namespace CoronaLib {
 		virtual CoronaInterface::IDeleteObjectsResponse^ DeleteObjects(CoronaInterface::IDeleteObjectsRequest^ request);
 		virtual CoronaInterface::IQueryClassResponse^ QueryClass(CoronaInterface::IQueryClassRequest^ request);
 		virtual CoronaInterface::IQueryResponse^ Query(CoronaInterface::IQueryRequest^ request);
+		virtual Task<CoronaInterface::IQueryClassResponse^> ^QueryClassAsync(CoronaInterface::IQueryClassRequest^ request);
+		virtual Task<CoronaInterface::IQueryResponse^> ^QueryAsync(CoronaInterface::IQueryRequest^ request);
 	};
 }

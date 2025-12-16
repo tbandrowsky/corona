@@ -533,6 +533,52 @@ CoronaInterface::IQueryClassResponse^ CoronaLib::CoronaDatabase::QueryClass(Coro
     return netresult;
 }
 
+public ref class database_query_class
+{
+public:
+    CoronaLib::CoronaDatabase^ db;
+    CoronaInterface::IQueryClassRequest^ request;
+
+    CoronaInterface::IQueryClassResponse^ RunQuery()
+    {
+        return db->QueryClass(request);
+    }
+};
+
+Task<CoronaInterface::IQueryClassResponse^> ^CoronaLib::CoronaDatabase::QueryClassAsync(CoronaInterface::IQueryClassRequest^ request)
+{
+    auto dqc = gcnew database_query_class();
+    dqc->db = this;
+    dqc->request = request;
+
+    auto new_query = gcnew Func<CoronaInterface::IQueryClassResponse^>(dqc, &database_query_class::RunQuery);
+    auto v = Task::Run<CoronaInterface::IQueryClassResponse^>(new_query);
+    return v;
+}
+
+public ref class database_query
+{
+public:
+    CoronaLib::CoronaDatabase^ db;
+    CoronaInterface::IQueryRequest^ request;
+
+    CoronaInterface::IQueryResponse^ RunQuery()
+    {
+        return db->Query(request);
+    }
+};
+
+Task<CoronaInterface::IQueryResponse^>^ CoronaLib::CoronaDatabase::QueryAsync(CoronaInterface::IQueryRequest^ request)
+{
+    auto dq = gcnew database_query();
+    dq->db = this;
+    dq->request = request;
+
+    auto new_query = gcnew Func<CoronaInterface::IQueryResponse^>(dq, &database_query::RunQuery);
+    auto v = Task::Run<CoronaInterface::IQueryResponse^>(new_query);
+    return v;
+}
+
 CoronaInterface::IQueryResponse^ CoronaLib::CoronaDatabase::Query(CoronaInterface::IQueryRequest^ request)
 {
     CoronaLib::QueryResponse^ netresult = process_request<CoronaInterface::IQueryResponse, CoronaLib::QueryResponse, CoronaInterface::IQueryRequest>(

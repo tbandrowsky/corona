@@ -21,6 +21,8 @@
         IDeleteObjectsResponse DeleteObjects(IDeleteObjectsRequest request);
         IQueryClassResponse QueryClass(IQueryClassRequest request);
         IQueryResponse Query(IQueryRequest request);
+        Task<IQueryClassResponse> QueryClassAsync(IQueryClassRequest request);
+        Task<IQueryResponse> QueryAsync(IQueryRequest request);
 
     }
 }

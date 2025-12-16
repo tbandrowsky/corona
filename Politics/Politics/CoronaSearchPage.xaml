@@ -19,7 +19,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0">
-            <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" />
+            <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
         </StackPanel>
         <cty:DataGrid Grid.Row="1" Grid.Column="0" x:Name="ResultsDataGrid" AutoGenerateColumns="True" Margin="12" SelectionChanged="ResultsDataGrid_SelectionChanged" />

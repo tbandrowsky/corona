@@ -12,16 +12,38 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Politics;
 
-public sealed partial class Candidate : UserControl
+public partial class Candidate : UserControl, INotifyPropertyChanged
 {
+
+    private models.candidate _candidate;
+
+    public models.candidate CandidateModel
+    {
+        get => _candidate;
+        set
+        {
+            _candidate = value;
+            OnPropertyChanged();
+        }
+    }
+
     public Candidate()
     {
         InitializeComponent();
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
