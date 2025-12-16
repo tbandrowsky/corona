@@ -7,8 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
-    mc:Ignorable="d">
-
+    mc:Ignorable="d"
+    xmlns:model="using:Politics.models">
+            
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,7 +23,17 @@
             <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
         </StackPanel>
-        <cty:DataGrid Grid.Row="1" Grid.Column="0" x:Name="ResultsDataGrid" AutoGenerateColumns="True" Margin="12" SelectionChanged="ResultsDataGrid_SelectionChanged" />
+        <cty:DataGrid Grid.Row="1" Grid.Column="0" 
+                      x:Name="ResultsDataGrid" 
+                      AutoGenerateColumns="false" 
+                      Margin="12" 
+                      SelectionChanged="ResultsDataGrid_SelectionChanged"
+                      ItemsSource="{x:Bind SearchResults, Mode=OneWay}">
+            <cty:DataGrid.Columns>
+                <cty:DataGridTextColumn Header="object_id" Binding="{Binding object_id}" />
+                <cty:DataGridTextColumn Header="class_name" Binding="{Binding class_name}" />
+            </cty:DataGrid.Columns>
+        </cty:DataGrid>
         <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ControlFrame" Margin="12" />
     </Grid>
 </Page>

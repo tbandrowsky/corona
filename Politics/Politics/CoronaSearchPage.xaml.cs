@@ -7,12 +7,16 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Newtonsoft.Json.Linq;
+using Politics.models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -26,6 +30,14 @@ namespace Politics
     /// </summary>
     public sealed partial class CoronaSearchPage : Page, INotifyPropertyChanged
     {
+        public ObservableCollection<cobject> SearchResults { get; } = new ObservableCollection<cobject>();
+
+        public CoronaSearchPage()
+        {
+            this.InitializeComponent();
+            this.DataContext = this;
+        }
+
         private string _searchText;
 
         public string SearchText
@@ -44,11 +56,11 @@ namespace Politics
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             QueryRequest request = new QueryRequest();
 
-            request.QueryBody?.From?.Add(new QueryFrom
+            request.From?.Add(new QueryFrom
             {
                 Name = "political_object",
                 Filter = new Dictionary<string, string>
@@ -57,12 +69,36 @@ namespace Politics
                 }
             });
 
-            request.QueryBody?.Stages?.Add(new QueryResult
+            request.Stages?.Add(new QueryStage
             {
                 Name = "results",
                 Output = "results"
             });
-        }
+
+            var response = await App.CurrentApp.CoronaDatabase.QueryAsync(request);
+
+            SearchResults.Clear();
+            if (response.Data != null)
+            {
+                if (response.Data is JArray array)
+                {
+                    foreach (var item in array)
+                    {
+                        cobject obj = new cobject();
+                        obj.object_id = item["object_id"]?.ToString();
+                        obj.class_name = item["class_name"]?.ToString();
+                        SearchResults.Add(obj);
+                    }
+                }
+                else
+                {
+                    cobject obj = new cobject();
+                    obj.object_id = response.Data["object_id"]?.ToString();
+                    obj.class_name = response.Data["class_name"]?.ToString();
+                    SearchResults.Add(obj);
+                }
+            }
+       }
 
         private void ResultsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

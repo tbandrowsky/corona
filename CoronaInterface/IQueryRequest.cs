@@ -1,14 +1,27 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CoronaInterface
 {
     public interface IQueryRequest : ICoronaBaseRequest
     {
-        QueryBody QueryBody { get; set; }
+        [JsonProperty("from")]
+
+        IList<QueryFrom>? From { get; set; }
+
+        [JsonProperty("stages")]
+        IList<QueryStage>? Stages { get; set; }
+
     }
 
     public class QueryRequest : CoronaBaseRequest, IQueryRequest
     {
-        public QueryBody QueryBody { get; set; } = new QueryBody();
+        [JsonProperty("from")]
+
+        public IList<QueryFrom>? From { get; set; } = new List<QueryFrom>();
+
+        [JsonProperty("stages")]
+        public IList<QueryStage>? Stages { get; set; } = new List<QueryStage>();
+
     }
 }

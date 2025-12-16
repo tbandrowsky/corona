@@ -83,7 +83,7 @@ namespace CoronaLib {
 			}
 			void set(JToken^ value) {
 
-				if (value) {
+				if (value->HasValues) {
 					if (value->Type == JTokenType::Array)
 						data_array = (JArray^)value;
 					else if (value->Type == JTokenType::Object)

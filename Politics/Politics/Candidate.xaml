@@ -22,31 +22,31 @@
             <StackPanel Grid.Column="0" Grid.Row="0">
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Full Name</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind full_name, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.full_name, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Candidate Id</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind candidate_id, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.candidate_id, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Political Party</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind political_party, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.political_party, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Election Year</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind election_year, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.election_year, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Street 1</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind street1, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.street1, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Street 2</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind street2, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.street2, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">City</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind city, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.city, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">State</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind state, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.state, Mode=TwoWay}" IsReadOnly="True"/>
 
                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Zip</TextBlock>
-                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind zip, Mode=TwoWay}" IsReadOnly="True"/>
+                <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind CandidateModel.zip, Mode=TwoWay}" IsReadOnly="True"/>
 
 
             </StackPanel>

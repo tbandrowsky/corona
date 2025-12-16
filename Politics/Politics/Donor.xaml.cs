@@ -12,14 +12,33 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using System.ComponentModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Politics;
 
-public sealed partial class Donor : UserControl
+public partial class Donor : UserControl, INotifyPropertyChanged
 {
+    private models.donor _donor_model;
+    public models.donor DonorModel
+    {
+        get => _donor_model;
+        set
+        {
+            _donor_model = value;
+            OnPropertyChanged(nameof(DonorModel));
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
     public Donor()
     {
         InitializeComponent();
