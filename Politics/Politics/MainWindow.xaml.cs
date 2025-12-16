@@ -85,7 +85,6 @@ namespace Politics
 
             if (config != null)
             {
-                
                 config.DatabasePath = app.DatabasePath;
                 config.SchemaPath = app.ConfigPath;
 

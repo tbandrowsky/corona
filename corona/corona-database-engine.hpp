@@ -6480,13 +6480,13 @@ bail:
 			std::string authorization = token[authorization_field];
 			std::string user = token[user_name_field];
 
+			if (authorization == auth_system) {
+                return token;
+			}
+
 			for (auto _authorization : _authorizations)
 			{
 				if (authorization == _authorization) /* perhaps a tad loose used to be  and user == default_user*/
-				{
-					return token;
-				}
-				else if (authorization == auth_system)
 				{
 					return token;
 				}
@@ -8125,7 +8125,7 @@ bail:
 			system_monitoring_interface::active_mon->log_function_start("login_user_local", "start", start_time, __FILE__, __LINE__);
 
 			json data = _sso_user_request[data_field];
-			std::string access_code = data["code"];
+			std::string access_code = data["access_code"];
 			std::string user_name = data[user_name_field];
 			std::string user_email = data[user_email_field];
 
@@ -8212,7 +8212,7 @@ bail:
 				existing_user = get_user(user_name, sys_perm);
 			}
 
-			response = create_response(user_name, auth_general, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
+			response = create_response(user_name, auth_system, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
 			system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 
 			return response;

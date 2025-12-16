@@ -74,16 +74,16 @@ namespace CoronaLib {
 		virtual property JToken^ Data
 		{
 			JToken ^get() {
-                if (data_array)
+                if (data_array != nullptr)
 					return data_array;
-				else if (data_object)
+				else if (data_object != nullptr)
 					return data_object;
 				else
 					return nullptr;
 			}
 			void set(JToken^ value) {
 
-				if (value->HasValues) {
+				if (value != nullptr) {
 					if (value->Type == JTokenType::Array)
 						data_array = (JArray^)value;
 					else if (value->Type == JTokenType::Object)

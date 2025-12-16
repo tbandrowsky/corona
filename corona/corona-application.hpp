@@ -79,7 +79,7 @@ namespace corona
 			std::string machine_id = "";
 			// Reads the specified value from HKLM\SOFTWARE\Microsoft\Cryptography.
 			// Returns string representation (UTF-8 for text, hex for binary, decimal for DWORD).
-			const std::wstring valueName = L"MachineId";
+			const std::wstring valueName = L"MachineGuid";
 
 			constexpr LPCWSTR subKey = L"SOFTWARE\\Microsoft\\Cryptography";
 			DWORD type = 0;

@@ -34,7 +34,7 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data) {
+    if (baseResponse->Data != nullptr) {
         baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
     }
 
@@ -52,7 +52,9 @@ bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+    if (baseResponse->Data != nullptr) {
+        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+    }
 
     return success_base;
 }
@@ -61,7 +63,9 @@ bool put_response(CoronaInterface::IPutClassResponse^ baseResponse, corona::json
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+    if (baseResponse->Data != nullptr) {
+        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+    }
 
     return success_base;
 }
@@ -69,7 +73,7 @@ bool put_response(CoronaInterface::IPutClassResponse^ baseResponse, corona::json
 bool put_response(CoronaInterface::IDeleteObjectsResponse^ baseResponse, corona::json result)
 {
     bool success_base = put_response_base(baseResponse, result);
-
+    
     return success_base;
 }
 
@@ -77,7 +81,7 @@ bool put_response(CoronaInterface::IConfirmUserCodeResponse^ baseResponse, coron
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data) {
+    if (baseResponse->Data != nullptr) {
         baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
     }
 
@@ -331,7 +335,7 @@ CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::Str
     corona::json data = jp.create_object();
     data.put_member("username", user_name);
     data.put_member("email", email_str);
-    data.put_member("code", code_str);
+    data.put_member("access_code", code_str);
     request.share_member("data", data);
 
     corona::json response = m_database->login_user_local(request);

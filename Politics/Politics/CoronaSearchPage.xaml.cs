@@ -75,28 +75,34 @@ namespace Politics
                 Output = "results"
             });
 
-            var response = await App.CurrentApp.CoronaDatabase.QueryAsync(request);
+            var login = App.CurrentApp.CoronaDatabase.LoginLocal(Environment.UserName, Environment.UserDomainName ?? "");
 
-            SearchResults.Clear();
-            if (response.Data != null)
+            if (login.Success)
             {
-                if (response.Data is JArray array)
+                request.Token = login.Token;
+                var response = await App.CurrentApp.CoronaDatabase.QueryAsync(request);
+                SearchResults.Clear();
+                if (response.Data != null)
                 {
-                    foreach (var item in array)
+                    if (response.Data is JArray array)
+                    {
+                        foreach (var item in array)
+                        {
+                            cobject obj = new cobject();
+                            obj.object_id = item["object_id"]?.ToString();
+                            obj.class_name = item["class_name"]?.ToString();
+                            SearchResults.Add(obj);
+                        }
+                    }
+                    else
                     {
                         cobject obj = new cobject();
-                        obj.object_id = item["object_id"]?.ToString();
-                        obj.class_name = item["class_name"]?.ToString();
+                        obj.object_id = response.Data["object_id"]?.ToString();
+                        obj.class_name = response.Data["class_name"]?.ToString();
                         SearchResults.Add(obj);
                     }
                 }
-                else
-                {
-                    cobject obj = new cobject();
-                    obj.object_id = response.Data["object_id"]?.ToString();
-                    obj.class_name = response.Data["class_name"]?.ToString();
-                    SearchResults.Add(obj);
-                }
+
             }
        }
 
