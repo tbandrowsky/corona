@@ -27,7 +27,7 @@
         <ScrollViewer Grid.Row="1" Grid.Column="0" 
                       x:Name="ResultsDataGrid" 
                       Margin="12">
-            <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}">
+            <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ListView_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:cobject">
                         <local:CoronaCard CObject="{x:Bind Mode=OneWay}"/>
