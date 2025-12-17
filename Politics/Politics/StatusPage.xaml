@@ -6,7 +6,8 @@
     xmlns:local="using:Politics"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ct="using:CoronaCharts" xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ct="using:CoronaCharts" 
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d"    
     xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     Loaded="Page_Loaded">
@@ -28,7 +29,7 @@
         </Grid.Resources>
         <TabView>
             <TabViewItem Header="Current">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <StackPanel.Resources>
                         <Style TargetType="StackPanel">
                             <Setter Property="Margin" Value="20"/>
@@ -40,7 +41,7 @@
                             <Setter Property="Width" Value="350"/>
                         </Style>
                     </StackPanel.Resources>
-                    <TextBlock Style="{StaticResource TitleTextBlockStyle}">POLITICS</TextBlock>
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}">Status</TextBlock>
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ActivityText}"></TextBlock>
                     <StackPanel x:Name="UserCommandStatus" Orientation="Horizontal" Visibility="Collapsed">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">

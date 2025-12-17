@@ -172,5 +172,10 @@ namespace Politics
                 }
             }
         }
+
+        private void ListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            
+        }
     }
 }

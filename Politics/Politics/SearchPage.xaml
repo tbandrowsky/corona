@@ -8,26 +8,31 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
-    xmlns:model="using:Politics.models" xmlns:cty1="using:CommunityToolkit.WinUI.Controls">
+    xmlns:model="using:Politics.models" 
+    xmlns:cty1="using:CommunityToolkit.WinUI.Controls">
             
-    <Grid>
+    <Grid Padding="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="4" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Search" Margin="16,0,0,0"></TextBlock>
             <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
             <local:ErrorControl x:Name="ErrorControl"/>
         </StackPanel>
         <ScrollViewer Grid.Row="1" Grid.Column="0" 
-                      x:Name="ResultsDataGrid" 
                       Margin="12">
-            <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ListView_SelectionChanged">
+            <ListView x:Name="ResultsListView" ItemsSource="{x:Bind SearchResults, Mode=OneWay}" 
+                      SelectionMode="Single" 
+                      SelectionChanged="ListView_SelectionChanged"
+                      ItemClick="ListView_ItemClick">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:cobject">
                         <local:Card CObject="{x:Bind Mode=OneWay}"/>
@@ -35,7 +40,8 @@
                 </ListView.ItemTemplate>
             </ListView>
         </ScrollViewer>
-        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Visibility="Collapsed" />
-        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Visibility="Collapsed" />
+        <cty1:GridSplitter Background="LightGray"  Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
+        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8" />
+        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8"/>
     </Grid>
 </Page>
