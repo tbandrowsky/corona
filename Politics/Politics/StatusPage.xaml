@@ -154,8 +154,9 @@
                         <ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" x:Name="TargetScrollViewer"
                                 HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Visible">
-                                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="LEGEND" FontSize="20" HorizontalAlignment="Center"></TextBlock>
+                                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Details" HorizontalAlignment="Left" Margin="20,0,0,0"></TextBlock>
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Legend" FontSize="20" HorizontalAlignment="Left" Margin="20,0,0,0"></TextBlock>
                                     <ct:LegendControl x:Name="legendControl"></ct:LegendControl>
                                 </StackPanel>
                             </ScrollViewer>
@@ -166,11 +167,11 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Orientation="Vertical">
-                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Average Milliseconds" FontSize="20" HorizontalAlignment="Center"></TextBlock>
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Avg Time" FontSize="20" HorizontalAlignment="Center"></TextBlock>
                                 <ct:BarChart x:Name="performanceChart" Width="200" Height="200" HorizontalAlignment="Center"></ct:BarChart>
                             </StackPanel>
                             <StackPanel Grid.Column="1" >
-                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Total Milliseconds" FontSize="20" HorizontalAlignment="Center"></TextBlock>
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Total Time" FontSize="20" HorizontalAlignment="Center"></TextBlock>
                                 <ct:PieChart x:Name="distributionChart" Width="200" Height="200" HorizontalAlignment="Center"></ct:PieChart>
                             </StackPanel>
                         </Grid>
