@@ -26,11 +26,11 @@ using static System.Net.WebRequestMethods;
 
 namespace Politics
 {
-    public sealed partial class CoronaActivity : UserControl
+    public sealed partial class Activity : UserControl
     {
         public ObservableCollection<CoronaMessage> Messages { get; } = new ObservableCollection<CoronaMessage>();   
 
-        public CoronaActivity()
+        public Activity()
         {
             InitializeComponent();
             Loaded += CoronaActivity_Loaded;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="Politics.CoronaSearchPage"
+    x:Class="Politics.SearchPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Politics"
@@ -22,7 +22,7 @@
         <StackPanel Grid.Row="0" Grid.Column="0">
             <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
-            <local:CoronaErrorControl x:Name="ErrorControl"/>
+            <local:ErrorControl x:Name="ErrorControl"/>
         </StackPanel>
         <ScrollViewer Grid.Row="1" Grid.Column="0" 
                       x:Name="ResultsDataGrid" 
@@ -30,11 +30,12 @@
             <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}" SelectionMode="Single" SelectionChanged="ListView_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:cobject">
-                        <local:CoronaCard CObject="{x:Bind Mode=OneWay}"/>
+                        <local:Card CObject="{x:Bind Mode=OneWay}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </ScrollViewer>
-        <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ControlFrame" Margin="12" />
+        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Visibility="Collapsed" />
+        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Visibility="Collapsed" />
     </Grid>
 </Page>

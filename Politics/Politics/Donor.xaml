@@ -21,22 +21,22 @@
         
         <StackPanel Grid.Column="0" Grid.Row="0">
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Full Name</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.full_name, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding full_name, Mode=TwoWay}" IsReadOnly="True"/>
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">City</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.city, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding city, Mode=TwoWay}" IsReadOnly="True"/>
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">State</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.state, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding state, Mode=TwoWay}" IsReadOnly="True"/>
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Zip</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.zip, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding zip, Mode=TwoWay}" IsReadOnly="True"/>
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Employer</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.employer, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding employer, Mode=TwoWay}" IsReadOnly="True"/>
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Occupation</TextBlock>
-            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{x:Bind DonorModel.occupation, Mode=TwoWay}" IsReadOnly="True"/>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding occupation, Mode=TwoWay}" IsReadOnly="True"/>
         </StackPanel>
         
         <cty:DataGrid Grid.Column="1" Grid.Row="0" x:Name="SchemaGrid" AutoGenerateColumns="false">

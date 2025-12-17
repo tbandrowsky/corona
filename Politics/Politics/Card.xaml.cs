@@ -21,9 +21,9 @@ using Windows.Foundation.Collections;
 
 namespace Politics
 {
-    public partial class CoronaCard : UserControl
+    public partial class Card : UserControl
     {
-        public CoronaCard()
+        public Card()
         {
             InitializeComponent();
             DataContext = new cobject();
@@ -38,13 +38,13 @@ namespace Politics
         DependencyProperty CObjectProperty = DependencyProperty.Register(
             "CObject",
             typeof(models.cobject),
-            typeof(CoronaCard),
+            typeof(Card),
             new PropertyMetadata(null, OnCoronaDataChanged)
         );
 
         private static void OnCoronaDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is CoronaCard card && e.NewValue is models.cobject newData)
+            if (d is Card card && e.NewValue is models.cobject newData)
             {
                 card.DataContext = newData;
             }

@@ -28,15 +28,16 @@ namespace Politics
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class CoronaSearchPage : Page, INotifyPropertyChanged
+    public sealed partial class SearchPage : Page, INotifyPropertyChanged
     {
-        public ObservableCollection<cobject> SearchResults { get; } = new ObservableCollection<cobject>();
-        public Dictionary<String, CoronaClass> CoronaClasses { get; } = new Dictionary<string, CoronaClass>();
-        public CoronaSearchPage()
+        public SearchPage()
         {
             this.InitializeComponent();
             this.DataContext = this;
         }
+
+        public ObservableCollection<cobject> SearchResults { get; } = new ObservableCollection<cobject>();
+        public Dictionary<String, CoronaClass> CoronaClasses { get; } = new Dictionary<string, CoronaClass>();
 
         private string _searchText;
 
@@ -93,6 +94,7 @@ namespace Politics
                             cobject obj = new cobject();
                             obj.object_id = item["object_id"]?.ToString();
                             obj.class_name = item["class_name"]?.ToString();
+                            obj.BaseObject = (JObject)item;
                             CoronaClass cclass = null;
                             if (CoronaClasses.ContainsKey(obj.class_name))
                             {
@@ -143,16 +145,32 @@ namespace Politics
             {
                 ErrorControl.BaseResponse = login;
             }
-       }
-
-        private void ResultsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var selectedItem = e.AddedItems.OfType<cobject>().FirstOrDefault();
+            if (selectedItem != null)
+            {
+               switch (selectedItem.class_name)
+                {
+                    case "candidate":
+                        CandidateControl.CObject = selectedItem;
+                        CandidateControl.Visibility = Visibility.Visible;
+                        DonorControl.Visibility = Visibility.Collapsed;
+                        break;
+                    case "donor":
+                        DonorControl.CObject = selectedItem;
+                        DonorControl.Visibility = Visibility.Visible;
+                        CandidateControl.Visibility = Visibility.Collapsed;
+                        break;
+                    default:
+                        DonorControl.Visibility = Visibility.Visible;
+                        CandidateControl.Visibility = Visibility.Collapsed;
+                        break;
 
+                }
+            }
         }
     }
 }

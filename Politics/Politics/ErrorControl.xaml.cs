@@ -8,9 +8,9 @@ using System.ComponentModel;
 
 namespace Politics
 {
-    public sealed partial class CoronaErrorControl : UserControl, INotifyPropertyChanged
+    public sealed partial class ErrorControl : UserControl, INotifyPropertyChanged
     {
-        public CoronaErrorControl()
+        public ErrorControl()
         {
             this.InitializeComponent();
         }

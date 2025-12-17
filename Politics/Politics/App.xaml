@@ -15,11 +15,24 @@
                         <Setter Property="FontFamily" Value="Cambria"/>
                         <Setter Property="FontSize" Value="30"/>
                         <Setter Property="Margin" Value="0,0,0,12"/>
+                        <Setter Property="CharacterSpacing" Value="16"/>
                     </Style>
                     <Style TargetType="TextBlock" x:Key="SubtitleTextBlockStyle">
                         <Setter Property="FontFamily" Value="Cambria"/>
                         <Setter Property="FontSize" Value="24"/>
                         <Setter Property="Margin" Value="0,0,0,12"/>
+                        <Setter Property="CharacterSpacing" Value="16"/>
+                    </Style>
+                    <Style TargetType="TextBlock" x:Key="CaptionTextBlockStyle">
+                        <Setter Property="FontFamily" Value="Segoe UI"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Margin" Value="0,6,0,2"/>
+                    </Style>
+                    <Style TargetType="TextBox" x:Key="BodyTextBoxStyle">
+                        <Setter Property="FontFamily" Value="Segoe UI"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Padding" Value="6"/>
+                        <Setter Property="Margin" Value="0,0,0,8"/>
                     </Style>
                 </ResourceDictionary>
                 <!-- Other merged dictionaries here -->

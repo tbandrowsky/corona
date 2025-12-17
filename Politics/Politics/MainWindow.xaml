@@ -16,7 +16,7 @@
     <Grid Loaded="Grid_Loaded">
         <NavigationView x:Name="MainNavigationView" OpenPaneLength="200" IsBackButtonVisible="Collapsed" IsSettingsVisible="False">
             <NavigationView.MenuItems>
-                <NavigationViewItem Tag="Politics.CoronaStatusPage"
+                <NavigationViewItem Tag="Politics.StatusPage"
                                     MinWidth="80"
                                     Padding="12,4"
                                     HorizontalContentAlignment="Left">
@@ -26,7 +26,7 @@
                     <TextBlock Text="Status" />
                 </NavigationViewItem>
 
-                <NavigationViewItem Tag="Politics.CoronaSearchPage"
+                <NavigationViewItem Tag="Politics.SearchPage"
                                     MinWidth="80"
                                     Padding="12,4"
                                     HorizontalContentAlignment="Left">

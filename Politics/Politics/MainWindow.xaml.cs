@@ -100,7 +100,7 @@ namespace Politics
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            ContentFrame.Navigate(typeof(CoronaStatusPage));
+            ContentFrame.Navigate(typeof(StatusPage));
         }
     }
 }

@@ -15,9 +15,6 @@
     <None Remove="Candidate.xaml" />
     <None Remove="configuration\config.json" />
     <None Remove="configuration\politics_schema.json" />
-    <None Remove="CoronaCard.xaml" />
-    <None Remove="CoronaSearchPage.xaml" />
-    <None Remove="CoronaStatusPage.xaml" />
     <None Remove="Donor.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -107,10 +104,10 @@
     <None Update="configuration\us_elections\itcont.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Page Update="CoronaCard.xaml">
+    <Page Update="Card.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="CoronaErrorControl.xaml">
+    <Page Update="ErrorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Update="Donor.xaml">
@@ -170,16 +167,16 @@
     <None Update="seed_data\us_elections\itcont.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Page Update="CoronaSearchPage.xaml">
+    <Page Update="SearchPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="CoronaStatusPage.xaml">
+    <Page Update="StatusPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="CoronaActivity.xaml">
+    <Page Update="Activity.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
