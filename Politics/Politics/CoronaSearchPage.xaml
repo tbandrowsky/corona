@@ -28,14 +28,6 @@
                       x:Name="ResultsDataGrid" 
                       Margin="12">
             <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <cty1:WrapPanel x:Name="sampleWrapPanel"
-                                        Padding="12"
-                                        HorizontalSpacing="8"
-                                        VerticalSpacing="8" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="model:cobject">
                         <local:CoronaCard CObject="{x:Bind Mode=OneWay}"/>
