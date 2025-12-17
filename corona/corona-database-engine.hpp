@@ -9562,13 +9562,13 @@ grant_type=authorization_code
 				json query_results = context.run();
 				if (context.is_error()) {
 					auto query_errors = context.get_errors();
-					response = create_response(query_request, false, "query failed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
+					response = create_response(query_request, false, "query failed", query_results, query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
 				else 
 				{
 					auto query_errors = context.get_errors();
-					response = create_response(query_request, true, "completed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
+					response = create_response(query_request, true, "completed", query_results, query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
 			}

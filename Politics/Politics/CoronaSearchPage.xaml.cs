@@ -73,7 +73,7 @@ namespace Politics
             request.Stages?.Add(new QueryResult
             {
                 Name = "results",
-//                Input = "political_object",
+                Input = "political_object",
                 Output = "results"
             });
 
