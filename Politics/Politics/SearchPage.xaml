@@ -41,7 +41,7 @@
             </ListView>
         </ScrollViewer>
         <cty1:GridSplitter Background="LightGray"  Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
-        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8" />
-        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8"/>
+        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0" />
+        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0"/>
     </Grid>
 </Page>

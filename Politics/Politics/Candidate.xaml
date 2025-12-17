@@ -19,7 +19,7 @@
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" Text="Candidate Details"/>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" Text="Candidate Details" />
         <StackPanel Grid.Column="0" Grid.Row="1">
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Full Name</TextBlock>
             <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding full_name, Mode=TwoWay}" IsReadOnly="True"/>
