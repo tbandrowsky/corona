@@ -31,7 +31,7 @@ namespace Politics
     public sealed partial class CoronaSearchPage : Page, INotifyPropertyChanged
     {
         public ObservableCollection<cobject> SearchResults { get; } = new ObservableCollection<cobject>();
-
+        public Dictionary<String, CoronaClass> CoronaClasses { get; } = new Dictionary<string, CoronaClass>();
         public CoronaSearchPage()
         {
             this.InitializeComponent();
@@ -93,6 +93,39 @@ namespace Politics
                             cobject obj = new cobject();
                             obj.object_id = item["object_id"]?.ToString();
                             obj.class_name = item["class_name"]?.ToString();
+                            CoronaClass cclass = null;
+                            if (CoronaClasses.ContainsKey(obj.class_name))
+                            {
+                                cclass = CoronaClasses[obj.class_name];
+                            }
+                            else
+                            {
+                                GetClassRequest classrequest = new GetClassRequest
+                                {
+                                    ClassName = obj.class_name,
+                                    Token = request.Token
+                                };
+                                var classResponse = App.CurrentApp.CoronaDatabase.GetClass(classrequest);
+                                if (classResponse.Success && classResponse.CoronaClass != null)
+                                {
+                                    CoronaClasses[obj.class_name] = classResponse.CoronaClass;
+                                    cclass = classResponse.CoronaClass;
+                                }
+                            }
+                            if (cclass != null && cclass.CardFields != null)
+                            {
+                                foreach (var field in cclass.CardFields)
+                                {
+                                    cobjectitem itemobj = new cobjectitem();
+                                    itemobj.field_name = field;
+                                    itemobj.field_value = item[field]?.ToString();
+                                    obj.items.Add(itemobj);
+                                }
+                            }
+                            if (cclass != null && !string.IsNullOrEmpty(cclass.CardTitle))
+                            {
+                                obj.title = item[cclass.CardTitle]?.ToString();
+                            }
                             SearchResults.Add(obj);
                         }
                     }

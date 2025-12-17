@@ -71,7 +71,8 @@ bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json
     bool success_base = put_response_base(baseResponse, result);
 
     if (baseResponse->Data != nullptr) {
-        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+        auto class_data = baseResponse->Data["class"];
+        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(class_data->ToString());
     }
 
     return success_base;

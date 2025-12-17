@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cty="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
-    xmlns:model="using:Politics.models">
+    xmlns:model="using:Politics.models" xmlns:cty1="using:CommunityToolkit.WinUI.Controls">
             
     <Grid>
         <Grid.RowDefinitions>
@@ -24,17 +24,25 @@
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
             <local:CoronaErrorControl x:Name="ErrorControl"/>
         </StackPanel>
-        <cty:DataGrid Grid.Row="1" Grid.Column="0" 
+        <ScrollViewer Grid.Row="1" Grid.Column="0" 
                       x:Name="ResultsDataGrid" 
-                      AutoGenerateColumns="false" 
-                      Margin="12" 
-                      SelectionChanged="ResultsDataGrid_SelectionChanged"
-                      ItemsSource="{x:Bind SearchResults, Mode=OneWay}">
-            <cty:DataGrid.Columns>
-                <cty:DataGridTextColumn Header="object_id" Binding="{Binding object_id}" />
-                <cty:DataGridTextColumn Header="class_name" Binding="{Binding class_name}" />
-            </cty:DataGrid.Columns>
-        </cty:DataGrid>
+                      Margin="12">
+            <ListView ItemsSource="{x:Bind SearchResults, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <cty1:WrapPanel x:Name="sampleWrapPanel"
+                                        Padding="12"
+                                        HorizontalSpacing="8"
+                                        VerticalSpacing="8" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="model:cobject">
+                        <local:CoronaCard CObject="{x:Bind Mode=OneWay}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollViewer>
         <Frame Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ControlFrame" Margin="12" />
     </Grid>
 </Page>

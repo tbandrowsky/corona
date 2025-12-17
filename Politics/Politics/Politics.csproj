@@ -15,6 +15,7 @@
     <None Remove="Candidate.xaml" />
     <None Remove="configuration\config.json" />
     <None Remove="configuration\politics_schema.json" />
+    <None Remove="CoronaCard.xaml" />
     <None Remove="CoronaSearchPage.xaml" />
     <None Remove="CoronaStatusPage.xaml" />
     <None Remove="Donor.xaml" />
@@ -106,6 +107,9 @@
     <None Update="configuration\us_elections\itcont.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="CoronaCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="CoronaErrorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
