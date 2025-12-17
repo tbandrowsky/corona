@@ -27,6 +27,24 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
         }
     }
 
+    if (result.has_member("token"))
+    {
+        std::string token = result["token"];
+        baseResponse->Token = gcnew System::String(token.c_str());
+    }
+
+    if (result.has_member("errors"))
+    {
+        corona::json errors = result["errors"];
+        baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
+        if (errors.array()) {
+            for (auto error : errors) {
+                std::string error_contents = error.to_json();
+                baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+            }
+        }
+    }
+
     return success;
 }
 
@@ -333,7 +351,7 @@ CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::Str
 
     corona::json request = jp.create_object();
     corona::json data = jp.create_object();
-    data.put_member("username", user_name);
+    data.put_member("user_name", user_name);
     data.put_member("email", email_str);
     data.put_member("access_code", code_str);
     request.share_member("data", data);
@@ -358,7 +376,7 @@ CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginUser(System::Stri
 
     corona::json request = jp.create_object();
     corona::json data = jp.create_object();
-    data.put_member("username", user_name);
+    data.put_member("user_name", user_name);
     data.put_member("password", pass_word);
     request.share_member("data", data);
 
@@ -385,7 +403,7 @@ CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginUserSso(System::S
 
     corona::json request = jp.create_object();
     corona::json data = jp.create_object();
-    data.put_member("username", user_name);
+    data.put_member("user_name", user_name);
     data.put_member("email", email_str);
     data.put_member("code", code_str);
     request.share_member("data", data);

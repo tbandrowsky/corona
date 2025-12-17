@@ -7265,7 +7265,6 @@ bail:
 
 			if (default_email_address.empty()) {
 				default_email_address = std::format("dummy@example.com", default_user);
-
 			}
 
 			std::filesystem::path schema_path(config_path);
@@ -8128,6 +8127,13 @@ bail:
 			std::string access_code = data["access_code"];
 			std::string user_name = data[user_name_field];
 			std::string user_email = data[user_email_field];
+
+			if (user_name.empty()) {
+				user_name = default_user;
+			}
+			if (user_email.empty()) {
+				user_email = default_email_address;
+			}
 
 			if (access_code.empty())
 			{
@@ -9532,7 +9538,7 @@ grant_type=authorization_code
 					if (not cd) {
 						std::string message = std::format("from class '{0}' not found", from_class_name);
 						response = create_response(query_request, false, message, jp.create_object(), errors, tx.get_elapsed_seconds());
-						system_monitoring_interface::active_mon->log_function_stop("query", "from class not found", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_function_stop("query", message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
 						return response;
 					}
 				}
@@ -9543,8 +9549,8 @@ grant_type=authorization_code
 
 				if (context.is_error()) 
 				{
-					json query_errors = context.get_errors();
-					response = create_response(query_request, false, "errors", query_errors, errors, tx.get_elapsed_seconds());
+					auto query_errors = context.get_errors();
+					response = create_response(query_request, false, "query failed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 					return response;
 				}
@@ -9555,14 +9561,14 @@ grant_type=authorization_code
 				// and, we can run the thing.
 				json query_results = context.run();
 				if (context.is_error()) {
-					json query_errors = context.get_errors();
-					response = create_response(query_request, false, "errors", query_errors, errors, tx.get_elapsed_seconds());
+					auto query_errors = context.get_errors();
+					response = create_response(query_request, false, "query failed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
 				else 
 				{
-					json query_errors = context.get_errors();
-					response = create_response(query_request, true, "completed", query_results, errors, tx.get_elapsed_seconds());
+					auto query_errors = context.get_errors();
+					response = create_response(query_request, true, "completed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
 				}
 			}

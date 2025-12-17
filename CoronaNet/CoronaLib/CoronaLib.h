@@ -6,6 +6,7 @@
 using namespace System;
 using namespace Newtonsoft::Json::Linq;
 using namespace System::Threading::Tasks;
+using namespace System::Collections::Generic;
 
 namespace CoronaLib {
 
@@ -18,6 +19,7 @@ namespace CoronaLib {
 		String^ token;
 		JArray^ data_array;
 		JObject^ data_object;
+        IList<CoronaInterface::CoronaError^>^ errors;
         double executionTimeSeconds;
 
 	public:
@@ -29,6 +31,7 @@ namespace CoronaLib {
 			data_array(nullptr),
 			token(nullptr)
 		{
+			errors = gcnew List<CoronaInterface::CoronaError^>(10);
 		}
 
 		virtual property bool Success		
@@ -91,6 +94,16 @@ namespace CoronaLib {
 				}
 			}
 		}
+
+		virtual property IList<CoronaInterface::CoronaError^>^ Errors
+		{
+			IList<CoronaInterface::CoronaError^>^ get() {
+				return errors;
+			}
+			void set(IList<CoronaInterface::CoronaError^>^ value) {
+				errors = value;
+			}
+        }
 	};
 
 	public ref class LoginResult : public BaseResponse, public CoronaInterface::ILoginResult {

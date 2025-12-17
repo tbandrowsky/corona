@@ -106,6 +106,9 @@
     <None Update="configuration\us_elections\itcont.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="CoronaErrorControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Donor.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

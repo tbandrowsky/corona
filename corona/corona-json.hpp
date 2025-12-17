@@ -734,7 +734,8 @@ namespace corona
 		}
 		virtual std::string to_json() const
 		{
-            std::string temp = + "\"" + escape_json_string(*value) + "\"";
+            if (value == nullptr) return "null";
+			std::string temp = "\"" + escape_json_string(*value) + "\"";
 			return temp;
 		}
 		virtual std::string to_json_typed() const

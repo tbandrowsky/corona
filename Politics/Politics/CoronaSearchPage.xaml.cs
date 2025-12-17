@@ -63,26 +63,28 @@ namespace Politics
             request.From?.Add(new QueryFrom
             {
                 Name = "political_object",
+                ClassName = "political_object",
                 Filter = new Dictionary<string, string>
                 {
                     { "full_text", SearchText }
                 }
             });
 
-            request.Stages?.Add(new QueryStage
+            request.Stages?.Add(new QueryResult
             {
                 Name = "results",
+//                Input = "political_object",
                 Output = "results"
             });
 
-            var login = App.CurrentApp.CoronaDatabase.LoginLocal(Environment.UserName, Environment.UserDomainName ?? "");
+            var login = App.CurrentApp.CoronaDatabase.LoginLocal(Environment.UserName, "local@localhost.com");
 
             if (login.Success)
             {
                 request.Token = login.Token;
                 var response = await App.CurrentApp.CoronaDatabase.QueryAsync(request);
                 SearchResults.Clear();
-                if (response.Data != null)
+                if (response.Success && response.Data != null)
                 {
                     if (response.Data is JArray array)
                     {
@@ -102,7 +104,11 @@ namespace Politics
                         SearchResults.Add(obj);
                     }
                 }
-
+                ErrorControl.BaseResponse = response;
+            }
+            else
+            {
+                ErrorControl.BaseResponse = login;
             }
        }
 

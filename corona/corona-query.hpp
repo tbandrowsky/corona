@@ -38,7 +38,7 @@ namespace corona
 	{
 		json froms;
 		std::map<std::string, std::shared_ptr<source_item>> sources;
-		std::vector<validation_error> errors;
+		validation_error_collection errors;
 		 
 	public:
 
@@ -93,7 +93,7 @@ namespace corona
 			return errors.size() > 0;
 		}
 
-		json get_errors()
+		json get_errors_json()
 		{
 			json_parser jp;
 			json results = jp.create_array();
@@ -105,6 +105,10 @@ namespace corona
 			return results;
 		}
 
+		validation_error_collection& get_errors()
+		{
+			return errors;
+        }
 
 		virtual json get_data(std::string _query) 
 		{

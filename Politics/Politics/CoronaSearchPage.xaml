@@ -22,6 +22,7 @@
         <StackPanel Grid.Row="0" Grid.Column="0">
             <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
+            <local:CoronaErrorControl x:Name="ErrorControl"/>
         </StackPanel>
         <cty:DataGrid Grid.Row="1" Grid.Column="0" 
                       x:Name="ResultsDataGrid" 

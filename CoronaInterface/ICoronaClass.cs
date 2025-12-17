@@ -28,18 +28,26 @@ namespace CoronaInterface
         public string? ClassName { get; protected set;  }
     }
 
-    public class QueryFrom : CoronaBaseObject
+    public class QueryFrom 
     {
         /// <summary>
-        /// Class to query from
+        ///  class toquery from
+        /// </summary>
+        [JsonProperty("class_name")]
+        public string? ClassName { get; set; }
+        /// <summary>
+        /// alias name for class
         /// </summary>
         [JsonProperty("name")]
         public string? Name { get; set; }
+        /// <summary>
+        /// key value filter for data
+        /// </summary>
         [JsonProperty("filter")]
         public IDictionary<string, string> Filter { get; set; }
         public QueryFrom()
         {
-            ClassName = "from";
+            ;
         }
     }
 
@@ -49,6 +57,8 @@ namespace CoronaInterface
         public string? Name { get; set; }
         [JsonProperty("output")]
         public string? Output { get; set; }
+        [JsonProperty("input")]
+        public string? Input { get; set; }
 
         public QueryStage()
         {
