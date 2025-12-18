@@ -8,13 +8,14 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Newtonsoft.Json.Linq;
-using Politics.models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -36,7 +37,7 @@ namespace Politics
             this.DataContext = this;
         }
 
-        public ObservableCollection<cobject> SearchResults { get; } = new ObservableCollection<cobject>();
+        public ObservableCollection<dynamic> SearchResults { get; } = new ObservableCollection<dynamic>();
         public Dictionary<String, CoronaClass> CoronaClasses { get; } = new Dictionary<string, CoronaClass>();
 
         private string _searchText;
@@ -51,8 +52,20 @@ namespace Politics
             }
         }
 
+        private ExpandoObject _selectedItem;
+
+        public ExpandoObject SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
+        private void OnPropertyChanged([CallerMemberName] string propertyName ="")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -87,56 +100,61 @@ namespace Politics
                 SearchResults.Clear();
                 if (response.Success && response.Data != null)
                 {
-                    if (response.Data is JArray array)
+                    if (response.Data is IList<object> array)
                     {
                         foreach (var item in array)
                         {
-                            cobject obj = new cobject();
-                            obj.object_id = item["object_id"]?.ToString();
-                            obj.class_name = item["class_name"]?.ToString();
-                            obj.BaseObject = (JObject)item;
-                            CoronaClass cclass = null;
-                            if (CoronaClasses.ContainsKey(obj.class_name))
+                            if (item is ExpandoObject eitem)
                             {
-                                cclass = CoronaClasses[obj.class_name];
-                            }
-                            else
-                            {
-                                GetClassRequest classrequest = new GetClassRequest
+                                dynamic inbound = eitem;
+                                IDictionary<string, object> ditem = (IDictionary<string, object>)eitem;
+
+                                CoronaClass cclass = null;
+                                if (CoronaClasses.ContainsKey(inbound.class_name))
                                 {
-                                    ClassName = obj.class_name,
-                                    Token = request.Token
-                                };
-                                var classResponse = App.CurrentApp.CoronaDatabase.GetClass(classrequest);
-                                if (classResponse.Success && classResponse.CoronaClass != null)
-                                {
-                                    CoronaClasses[obj.class_name] = classResponse.CoronaClass;
-                                    cclass = classResponse.CoronaClass;
+                                    cclass = CoronaClasses[inbound.class_name];
                                 }
-                            }
-                            if (cclass != null && cclass.CardFields != null)
-                            {
-                                foreach (var field in cclass.CardFields)
+                                else
                                 {
-                                    cobjectitem itemobj = new cobjectitem();
-                                    itemobj.field_name = field;
-                                    itemobj.field_value = item[field]?.ToString();
-                                    obj.items.Add(itemobj);
+                                    GetClassRequest classrequest = new GetClassRequest
+                                    {
+                                        ClassName = inbound.class_name,
+                                        Token = request.Token
+                                    };
+                                    var classResponse = App.CurrentApp.CoronaDatabase.GetClass(classrequest);
+                                    if (classResponse.Success && classResponse.CoronaClass != null)
+                                    {
+                                        CoronaClasses[inbound.class_name] = classResponse.CoronaClass;
+                                        cclass = classResponse.CoronaClass;
+                                    }
                                 }
+                                if (cclass != null && cclass.CardFields != null)
+                                {
+                                    List<dynamic> items = new List<dynamic>();
+                                    foreach (var field in cclass.CardFields)
+                                    {
+                                        if (!ditem.ContainsKey(field))
+                                            continue;
+                                        dynamic itemobj = new ExpandoObject();
+                                        itemobj.field_name = field;
+                                        itemobj.field_value = ditem[field]?.ToString();
+                                        items.Add(itemobj);
+                                    }
+                                    inbound.items = items;
+
+                                }
+                                if (cclass != null && !string.IsNullOrEmpty(cclass.CardTitle))
+                                {
+                                    inbound.title = ditem[cclass.CardTitle]?.ToString();
+                                }
+                                SearchResults.Add(inbound);
                             }
-                            if (cclass != null && !string.IsNullOrEmpty(cclass.CardTitle))
-                            {
-                                obj.title = item[cclass.CardTitle]?.ToString();
-                            }
-                            SearchResults.Add(obj);
                         }
                     }
-                    else
+                    else if (response.Data is ExpandoObject expando)
                     {
-                        cobject obj = new cobject();
-                        obj.object_id = response.Data["object_id"]?.ToString();
-                        obj.class_name = response.Data["class_name"]?.ToString();
-                        SearchResults.Add(obj);
+                        dynamic inbound = expando;
+                        SearchResults.Add(inbound);
                     }
                 }
                 ErrorControl.BaseResponse = response;
@@ -149,24 +167,30 @@ namespace Politics
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = e.AddedItems.OfType<cobject>().FirstOrDefault();
+            var selectedItem = e.AddedItems.OfType<dynamic>().FirstOrDefault();
             if (selectedItem != null)
             {
                switch (selectedItem.class_name)
                 {
                     case "candidate":
-                        CandidateControl.CObject = selectedItem;
-                        CandidateControl.Visibility = Visibility.Visible;
                         DonorControl.Visibility = Visibility.Collapsed;
+                        DonorControl.IsEnabled = false;
+                        CandidateControl.Visibility = Visibility.Visible;
+                        CandidateControl.IsEnabled = true;
+                        CandidateControl.Candidate = selectedItem;
                         break;
                     case "donor":
-                        DonorControl.CObject = selectedItem;
                         DonorControl.Visibility = Visibility.Visible;
+                        DonorControl.IsEnabled = true;
+                        DonorControl.Donor = selectedItem;
                         CandidateControl.Visibility = Visibility.Collapsed;
+                        CandidateControl.IsEnabled = false;
                         break;
                     default:
-                        DonorControl.Visibility = Visibility.Visible;
+                        DonorControl.Visibility = Visibility.Collapsed;
                         CandidateControl.Visibility = Visibility.Collapsed;
+                        DonorControl.IsEnabled = false;
+                        CandidateControl.IsEnabled = false;
                         break;
 
                 }

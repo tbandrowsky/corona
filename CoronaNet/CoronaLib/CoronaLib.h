@@ -17,8 +17,7 @@ namespace CoronaLib {
 		bool success;
 		String^ message;
 		String^ token;
-		JArray^ data_array;
-		JObject^ data_object;
+		Object^ object;
         IList<CoronaInterface::CoronaError^>^ errors;
         double executionTimeSeconds;
 
@@ -27,8 +26,6 @@ namespace CoronaLib {
 			: success(false),
 			message(nullptr),
 			executionTimeSeconds(0.0),
-			data_object(nullptr),
-			data_array(nullptr),
 			token(nullptr)
 		{
 			errors = gcnew List<CoronaInterface::CoronaError^>(10);
@@ -74,24 +71,13 @@ namespace CoronaLib {
 			}
 		}
 
-		virtual property JToken^ Data
+		virtual property Object^ Data
 		{
-			JToken ^get() {
-                if (data_array != nullptr)
-					return data_array;
-				else if (data_object != nullptr)
-					return data_object;
-				else
-					return nullptr;
+			Object ^get() {
+				return object;
 			}
-			void set(JToken^ value) {
-
-				if (value != nullptr) {
-					if (value->Type == JTokenType::Array)
-						data_array = (JArray^)value;
-					else if (value->Type == JTokenType::Object)
-						data_object = (JObject^)value;
-				}
+			void set(Object^ value) {
+				object = value;
 			}
 		}
 
@@ -103,7 +89,8 @@ namespace CoronaLib {
 			void set(IList<CoronaInterface::CoronaError^>^ value) {
 				errors = value;
 			}
-        }
+		}
+
 	};
 
 	public ref class LoginResult : public BaseResponse, public CoronaInterface::ILoginResult {

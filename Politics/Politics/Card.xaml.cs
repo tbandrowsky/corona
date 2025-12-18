@@ -5,10 +5,10 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Politics.models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -22,29 +22,32 @@ using Windows.Foundation.Collections;
 namespace Politics
 {
     public partial class Card : UserControl
+
     {
+
+        public ExpandoObject card { get; set; }
+
         public Card()
         {
             InitializeComponent();
-            DataContext = new cobject();
         }
 
-        public cobject CObject
+        public ExpandoObject CObject
         {
-            get => (cobject)GetValue(CObjectProperty);
+            get => (dynamic)GetValue(CObjectProperty);
             set => SetValue(CObjectProperty, value);
         }
 
         DependencyProperty CObjectProperty = DependencyProperty.Register(
             "CObject",
-            typeof(models.cobject),
+            typeof(ExpandoObject),
             typeof(Card),
             new PropertyMetadata(null, OnCoronaDataChanged)
         );
 
         private static void OnCoronaDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is Card card && e.NewValue is models.cobject newData)
+            if (d is Card card && e.NewValue is ExpandoObject newData)
             {
                 card.DataContext = newData;
             }

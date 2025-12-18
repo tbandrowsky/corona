@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,7 +13,7 @@ namespace CoronaInterface
         [JsonProperty("token")]
         string Token { get; set; }
         [JsonProperty("data")]
-        JToken Data { get; set; }
+        ExpandoObject Data { get; set; }
     }
 
     public class CoronaBaseRequest : ICoronaBaseRequest
@@ -20,6 +21,6 @@ namespace CoronaInterface
         [JsonProperty("token")]
         public string Token { get; set; } = string.Empty;
         [JsonProperty("data")]
-        public JToken Data { get; set; } = new JObject();
+        public ExpandoObject Data { get; set; } = new ExpandoObject();
     }
 }

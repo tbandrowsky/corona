@@ -3,10 +3,76 @@
 #include <msclr\marshal_cppstd.h>
 
 using namespace Newtonsoft::Json;
+using namespace System::Collections::Generic;
+using namespace System::Dynamic;
+using namespace System;
+
+Object^ expand( corona::json result )
+{
+    auto expando = gcnew ExpandoObject();
+    auto dict = (IDictionary<String^, Object^> ^)expando;
+
+    if (result.object()) {
+
+        for (auto& member : result.object_impl()->members) {
+            std::string member_name = member.first;
+            corona::json member_value = member.second;
+            String^ key = gcnew String(member_name.c_str());
+            if (member_value.object()) {
+                auto exp = expand(member_value);
+                dict->Add(key, exp);
+            }
+            else if (member_value.array()) {
+                auto array = gcnew List<Object^>(member_value.size());
+                for (auto var : member_value) {
+                    auto exp2 = expand(var);
+                    array->Add(exp2);
+                }
+                dict->Add(key, array);
+            }
+            else {
+                auto exp = expand(member_value);
+                dict->Add(key, exp);
+            }
+        }
+    }
+    else if (result.array())
+    {
+        auto array = gcnew List<Object^>(result.size());
+        for (auto vvar : result.array_impl()->elements) {
+            auto exp2 = expand(vvar);
+            array->Add(exp2);
+        }
+        return array;
+    }
+    else if (result.value())
+    {
+        switch (result.get_field_type()) {
+            case corona::field_types::ft_bool:
+                return gcnew System::Boolean(result.value_impl()->to_bool());
+            case corona::field_types::ft_int64:
+                return gcnew System::Int64(result.value_impl()->to_int64());
+            case corona::field_types::ft_double:
+                return gcnew System::Double(result.value_impl()->to_double());
+            case corona::field_types::ft_datetime:
+            {
+                auto datetime =  result.value_impl()->to_datetime();
+                SYSTEMTIME st = (SYSTEMTIME)datetime;  
+                return gcnew System::DateTime(st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+            }
+            case corona::field_types::ft_string:
+                return gcnew System::String(result.value_impl()->to_string().c_str());
+        }
+    }
+
+    return expando;
+}
 
 bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, corona::json result)
 {
     bool success = false;
+
+    ExpandoObject^ expando = gcnew ExpandoObject();
 
     std::string msg = result["message"];
 
@@ -16,15 +82,7 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
 
     if (result.has_member("data")) {
         corona::json data = result["data"];
-        std::string data_string = data.to_json();
-        if (data.object()) {
-            baseResponse->Data = JObject::Parse(gcnew System::String(data_string.c_str()));
-            success = true;
-        }
-        else if (data.array()) {
-            baseResponse->Data = JArray::Parse(gcnew System::String(data_string.c_str()));
-            success = true;
-        }
+        baseResponse->Data = expand(data);
     }
 
     if (result.has_member("token"))
@@ -53,7 +111,9 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
     bool success_base = put_response_base(baseResponse, result);
 
     if (baseResponse->Data != nullptr) {
-        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
+        std::string class_data = result["data"];
+        String^ sclass_data = gcnew String(class_data.c_str());
+        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(sclass_data);
     }
 
     return success_base;
@@ -71,8 +131,9 @@ bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json
     bool success_base = put_response_base(baseResponse, result);
 
     if (baseResponse->Data != nullptr) {
-        auto class_data = baseResponse->Data["class"];
-        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(class_data->ToString());
+        std::string class_data = result["data"]["class"];
+        String^ sclass_data = gcnew String(class_data.c_str());
+        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(sclass_data);
     }
 
     return success_base;

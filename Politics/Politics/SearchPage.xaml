@@ -23,25 +23,25 @@
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Row="0" Grid.Column="0">
             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Search" Margin="16,0,0,0"></TextBlock>
-            <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{x:Bind SearchText,Mode=TwoWay}"/>
+            <TextBox x:Name="SearchBox" PlaceholderText="Search..." Margin="12" Text="{Binding SearchText,Mode=TwoWay}"/>
             <Button x:Name="SearchButton" Content="Search"  Margin="12" Click="SearchButton_Click" />
             <local:ErrorControl x:Name="ErrorControl"/>
         </StackPanel>
         <ScrollViewer Grid.Row="1" Grid.Column="0" 
                       Margin="12">
-            <ListView x:Name="ResultsListView" ItemsSource="{x:Bind SearchResults, Mode=OneWay}" 
+            <ListView x:Name="ResultsListView" ItemsSource="{Binding SearchResults, Mode=OneWay}" 
                       SelectionMode="Single" 
                       SelectionChanged="ListView_SelectionChanged"
                       ItemClick="ListView_ItemClick">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="model:cobject">
-                        <local:Card CObject="{x:Bind Mode=OneWay}"/>
+                    <DataTemplate>
+                        <local:Card CObject="{Binding Mode=OneWay}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </ScrollViewer>
         <cty1:GridSplitter Background="LightGray"  Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Width="1" ResizeBehavior="PreviousAndNext" ResizeDirection="Columns"/>
-        <local:Donor x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0" />
-        <local:Candidate x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0"/>
+        <local:DonorControl x:Name="DonorControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0" IsEnabled="false"/>
+        <local:CandidateControl x:Name="CandidateControl" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Visibility="Collapsed" Margin="8,0,0,0" IsEnabled="false"/>
     </Grid>
 </Page>

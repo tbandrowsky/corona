@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text;
 
 namespace CoronaInterface
@@ -26,7 +27,7 @@ namespace CoronaInterface
         [JsonProperty("executiontimeseconds")]
         double ExecutionTimeSeconds { get; set; }
         [JsonProperty("data")]
-        JToken Data { get; set; }
+        Object Data { get; set; }
         [JsonProperty("errors")]
         IList<CoronaError> Errors { get; set; }
     }
