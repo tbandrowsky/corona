@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     >
-    <Border Background="White" BorderBrush="Gray" BorderThickness="2" Margin="0,2,0,2" Padding="4" CornerRadius="4">
+    <Border Background="White" BorderBrush="Gray" BorderThickness="1" Margin="0,2,0,2" Padding="4" CornerRadius="2">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

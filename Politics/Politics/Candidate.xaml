@@ -50,7 +50,7 @@
 
 
         </StackPanel>
-        <cty:DataGrid Grid.Column="1" Grid.Row="1" x:Name="SchemaGrid" AutoGenerateColumns="false" ItemsSource="{Binding Donations}">
+        <cty:DataGrid Grid.Column="1" Grid.Row="1" x:Name="SchemaGrid" AutoGenerateColumns="false"  VerticalAlignment="Stretch" ItemsSource="{Binding Donations}">
             <cty:DataGrid.Columns>
                 <cty:DataGridTextColumn Header="Full Name" Binding="{Binding full_name}" Width="Auto"/>
                 <cty:DataGridTextColumn Header="City" Binding="{Binding city}" Width="Auto"/>

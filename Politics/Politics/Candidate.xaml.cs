@@ -61,15 +61,7 @@ public partial class Candidate : UserControl, INotifyPropertyChanged
         }
     }
 
-    public string full_name { get; set; } = string.Empty;
-    public string candidate_id { get; set; } = string.Empty;
-    public string political_party { get; set; } = string.Empty;
-    public string election_year { get; set; } = string.Empty;
-    public string street1 { get; set; } = string.Empty;
-    public string street2 { get; set; } = string.Empty;
-    public string city { get; set; } = string.Empty;
-    public string state { get; set; } = string.Empty;
-    public string zip { get; set; }  = string.Empty;
+
 
     public event PropertyChangedEventHandler PropertyChanged;
 

@@ -41,7 +41,7 @@
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Occupation</TextBlock>
             <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding occupation, Mode=TwoWay}" IsReadOnly="True"/>
         </StackPanel>
-        <cty:DataGrid Grid.Column="2" Grid.Row="1" x:Name="SchemaGrid" AutoGenerateColumns="false">
+        <cty:DataGrid Grid.Column="2" Grid.Row="1" x:Name="CandidatesGrid" AutoGenerateColumns="false" VerticalAlignment="Stretch" ItemsSource="{Binding Candidates}">
             <cty:DataGrid.Columns>
                 <cty:DataGridTextColumn Header="Transaction Date" Binding="{Binding transaction_date}" Width="Auto"/>
                 <cty:DataGridTextColumn Header="Transaction Amount" Binding="{Binding transaction_amount}" Width="Auto"/>
