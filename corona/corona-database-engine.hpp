@@ -787,6 +787,31 @@ namespace corona
 		virtual json get_openapi_schema(std::string _user_name) = 0;
 	};
 
+	class from_apply
+	{
+	public:
+		std::string apply_class;
+		std::string apply_field;
+		json		join;
+
+		json get_json()
+		{
+			json_parser jp;
+			json result = jp.create_object();
+			result.put_member("apply_class", apply_class);
+			result.put_member("apply_field", apply_field);
+			result.put_member("join", join);
+			return result;
+        }
+
+		void put_json(json& _src)
+		{
+			apply_class = _src["apply_class"];
+			apply_field = _src["apply_field"];
+            join = _src["join"];
+		}
+	};
+
 	class from_source
 	{
 	public:
@@ -794,13 +819,62 @@ namespace corona
 		std::string											source_name;
 		std::string											class_name;
 		json												filter;
-		json												data;
+		json												data; 
+        std::vector<std::shared_ptr<from_apply>>			applies;
+
         bool	                                            use_fetch;
+
+		void apply(corona_database_interface* _db, json& _previous_item, int _filter_index)
+		{
+			json_parser jp;
+			json		result = jp.create_array();
+
+            if (_filter_index < applies.size())
+			{
+				auto impl = _previous_item.array_impl();
+                if (impl) {
+					for (auto &item : impl->elements)
+					{
+						std::shared_ptr<json_object> jo;
+						jo = std::dynamic_pointer_cast<json_object>(item);
+						if (jo.get() == nullptr)
+						{
+							continue;
+						}
+						auto apply = applies[_filter_index];
+						json filter = jp.create_object();
+
+						for (auto member : apply->join.get_members())
+						{
+							std::string src_field = member.first;
+							std::string dst_field = member.second;
+							json src = jo->members[src_field];
+							filter.put_member(dst_field, src);
+						}
+						filter.put_member("class_name", apply->apply_class);
+						filter.put_member("filter", filter);
+						json apply_result = _db->query_class(apply->apply_class, filter);
+						json result_data = apply_result["data"];
+						for (auto r : result_data)
+						{
+							result.push_back(r);
+						}
+						auto jvalue = std::dynamic_pointer_cast<json_array>(result.value());
+						jo->members.insert_or_assign(apply->apply_field, jvalue);
+					}
+
+					apply(_db, result, _filter_index + 1);
+				}
+			}
+		}
 
         json fetch(corona_database_interface* _src, std::string _user_name, json _filter)
         {
 			json result = _src->query_class(_user_name, _filter);
+
 			data = result["data"];
+            apply(_src, data, 0);
+
 			return data;
         }
 	};
@@ -953,9 +1027,6 @@ namespace corona
 							for (auto m : temp_result) {
 								data_result.push_back(m);
 							}
-						}
-						else {
-							
 						}
 					}
 					else 
