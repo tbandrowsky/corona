@@ -787,28 +787,25 @@ namespace corona
 		virtual json get_openapi_schema(std::string _user_name) = 0;
 	};
 
-	class from_apply
+	class from_replace
 	{
 	public:
-		std::string apply_class;
-		std::string apply_field;
-		json		join;
+		std::string with_class;
+		json		joined_by;
 
 		json get_json()
 		{
 			json_parser jp;
 			json result = jp.create_object();
-			result.put_member("apply_class", apply_class);
-			result.put_member("apply_field", apply_field);
-			result.put_member("join", join);
+			result.put_member("with_class", with_class);
+			result.put_member("joined_by", joined_by);
 			return result;
         }
 
 		void put_json(json& _src)
 		{
-			apply_class = _src["apply_class"];
-			apply_field = _src["apply_field"];
-            join = _src["join"];
+			with_class = _src["source_class"];
+            joined_by = _src["joined_by"];
 		}
 	};
 
@@ -820,19 +817,20 @@ namespace corona
 		std::string											class_name;
 		json												filter;
 		json												data; 
-        std::vector<std::shared_ptr<from_apply>>			applies;
+        std::vector<std::shared_ptr<from_replace>>			replacements;
 
         bool	                                            use_fetch;
 
-		void apply(corona_database_interface* _db, json& _previous_item, int _filter_index)
+		json replace_set(corona_database_interface* _db, json& _previous_item, int _filter_index)
 		{
 			json_parser jp;
-			json		result = jp.create_array();
+			json		result = _previous_item;
 
-            if (_filter_index < applies.size())
+            if (_filter_index < replacements.size())
 			{
 				auto impl = _previous_item.array_impl();
-                if (impl) {
+                if (impl) 
+				{
 					for (auto &item : impl->elements)
 					{
 						std::shared_ptr<json_object> jo;
@@ -841,31 +839,30 @@ namespace corona
 						{
 							continue;
 						}
-						auto apply = applies[_filter_index];
+						auto replacement = replacements[_filter_index];
 						json filter = jp.create_object();
 
-						for (auto member : apply->join.get_members())
+						for (auto member : replacement->joined_by.get_members())
 						{
 							std::string src_field = member.first;
 							std::string dst_field = member.second;
 							json src = jo->members[src_field];
 							filter.put_member(dst_field, src);
 						}
-						filter.put_member("class_name", apply->apply_class);
+						filter.put_member("class_name", replacement->with_class);
 						filter.put_member("filter", filter);
-						json apply_result = _db->query_class(apply->apply_class, filter);
+						json apply_result = _db->query_class(replacement->with_class, filter);
 						json result_data = apply_result["data"];
 						for (auto r : result_data)
 						{
 							result.push_back(r);
 						}
-						auto jvalue = std::dynamic_pointer_cast<json_array>(result.value());
-						jo->members.insert_or_assign(apply->apply_field, jvalue);
 					}
 
-					apply(_db, result, _filter_index + 1);
+					result = replace_set(_db, result, _filter_index + 1);
 				}
-			}
+			} 
+			return result;
 		}
 
         json fetch(corona_database_interface* _src, std::string _user_name, json _filter)
@@ -873,7 +870,7 @@ namespace corona
 			json result = _src->query_class(_user_name, _filter);
 
 			data = result["data"];
-            apply(_src, data, 0);
+			data = replace_set(_src, data, 0);
 
 			return data;
         }
@@ -906,6 +903,16 @@ namespace corona
 				new_source->source_name = filter_source_name;
 				new_source->class_name = from_class_name;
                 new_source->filter = from_class["filter"];
+				if (from_class.has_member("replacements"))
+				{
+                    json follows = from_class["replacements"];
+					for (auto replacements : follows)
+					{
+						std::shared_ptr<from_replace> new_follow = std::make_shared<from_replace>();
+                        new_follow->put_json(replacements);
+						new_source->replacements.push_back(new_follow);
+					}
+                }
 
 				// allow the query to have inline objects
 				if (data.object())

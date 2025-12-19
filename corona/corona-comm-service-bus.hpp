@@ -1726,7 +1726,7 @@ Bind get classes
 		},
 		"stages": {
 		  "type": "array",
-		  "description": "stages such as filter, join, project."
+		  "description": "stages such as filter, joined_by, project."
 		}
   }
 })";
