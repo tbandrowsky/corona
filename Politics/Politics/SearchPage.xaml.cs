@@ -170,19 +170,25 @@ namespace Politics
             var selectedItem = e.AddedItems.OfType<dynamic>().FirstOrDefault();
             if (selectedItem != null)
             {
-               switch (selectedItem.class_name)
+                var request = new EditObjectRequest
+                {
+                    Data = selectedItem
+                };
+                var response = App.CurrentApp.CoronaDatabase.EditObject(request);
+                var edit_object = response.Data as dynamic;
+                switch (selectedItem.class_name)
                 {
                     case "candidate":
                         DonorControl.Visibility = Visibility.Collapsed;
                         DonorControl.IsEnabled = false;
                         CandidateControl.Visibility = Visibility.Visible;
                         CandidateControl.IsEnabled = true;
-                        CandidateControl.Candidate = selectedItem;
+                        CandidateControl.Candidate = edit_object;
                         break;
                     case "donor":
                         DonorControl.Visibility = Visibility.Visible;
                         DonorControl.IsEnabled = true;
-                        DonorControl.Donor = selectedItem;
+                        DonorControl.Donor = edit_object;
                         CandidateControl.Visibility = Visibility.Collapsed;
                         CandidateControl.IsEnabled = false;
                         break;

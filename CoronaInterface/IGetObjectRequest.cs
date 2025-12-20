@@ -15,6 +15,10 @@ namespace CoronaInterface
         [JsonProperty("object_id")]
 
         public long ObjectId { get; set; }
+
+        [JsonProperty("include_children")]
+
+        public bool IncludeChildren { get; set; }
     }
 
     public class GetObjectRequest : CoronaBaseRequest, IGetObjectRequest
@@ -23,5 +27,7 @@ namespace CoronaInterface
         public string ClassName { get; set; } = string.Empty;
         [JsonProperty("object_id")]
         public long ObjectId { get; set; } = 0;
+        [JsonProperty("include_children")]
+        public bool IncludeChildren { get; set; } = true;
     }
 }

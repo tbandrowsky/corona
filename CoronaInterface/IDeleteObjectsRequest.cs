@@ -1,14 +1,23 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CoronaInterface
 {
     public interface IDeleteObjectsRequest : ICoronaBaseRequest
     {
-        IEnumerable<string> ObjectIds { get; }
+        [JsonProperty("class_name")]
+        string ClassName { get; set; }
+
+        [JsonProperty("object_id")]
+        string ObjectId { get; set; }
     }
 
     public class DeleteObjectsRequest : CoronaBaseRequest, IDeleteObjectsRequest
     {
-        public IEnumerable<string> ObjectIds { get; set; } = new List<string>();
+        [JsonProperty("class_name")]
+        public string ClassName { get; set; }
+
+        [JsonProperty("object_id")]
+        public string ObjectId { get; set; }
     }
 }

@@ -1,18 +1,21 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text;
 
 namespace CoronaInterface
 {
     public interface IEditObjectRequest : ICoronaBaseRequest
     {
-        SysObject SysObject { get; set; }
+
+        [JsonProperty("include_children")]
         bool IncludeChildren {  get; set; }
     }
 
     public class EditObjectRequest : CoronaBaseRequest, IEditObjectRequest
     {
-        public SysObject SysObject { get; set; } = new SysObject();
+        [JsonProperty("include_children")]
         public bool IncludeChildren { get; set; } = false;
     }
 }

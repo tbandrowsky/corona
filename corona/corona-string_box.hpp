@@ -1072,6 +1072,101 @@ namespace corona {
 		return output;
 	}
 
+	class xstring {
+		const char* data;
+		int length;
+        field_types type;
+	public:
+		xstring(const char* _data, int _length) : data(_data), length(_length)
+		{
+            type = field_types::ft_string;
+		}
+		xstring(double* _data) : data((char *)_data), length(sizeof(double))
+		{
+			type = field_types::ft_double;
+		}
+		xstring(int64_t* _data) : data((char*)_data), length(sizeof(int64_t))
+		{
+			type = field_types::ft_int64;
+		}
+		xstring(date_time* _data) : data((char*)_data), length(sizeof(date_time))
+		{
+			type = field_types::ft_int64;
+		}
+
+		const char* c_str() const
+		{
+			return data;
+		}
+		int size() const
+		{
+			return length;
+        }
+		int compare(const xstring& b)
+		{
+			return strcmp(c_str(), b.c_str());
+		}
+		bool operator==(const xstring& b)
+		{
+			return compare(b) == 0;
+        }
+		bool operator!=(const xstring& b)
+		{
+			return compare(b) != 0;
+        }
+		bool operator<(const xstring& b)
+		{
+			return compare(b) < 0;
+        }
+		bool operator>(const xstring& b)
+		{
+            return compare(b) > 0;
+		}
+		bool operator<=(const xstring& b)
+		{
+			return compare(b) <= 0;
+        }
+		bool operator>=(const xstring& b)
+		{
+            return compare(b) >= 0;
+		}
+	};
+
+
+	std::string operator+(const xstring& a, const char* b)
+	{
+		std::string temp = a.c_str();
+		temp += b;
+		return temp;
+	}
+
+	std::string operator+(const char* b, const xstring& a)
+	{
+		std::string temp = b;
+		temp += a.c_str();
+		return temp;
+	}
+
+	std::string operator+(const xstring& a, const std::string& b)
+	{
+		std::string temp = a.c_str();
+		temp += b;
+		return temp;
+	}
+
+	std::string operator+(const std::string& b, const xstring& a)
+	{
+		std::string temp = b;
+		temp += a.c_str();
+		return temp;
+	}
+
+	std::ostream& operator <<(std::ostream& output, xstring& src)
+	{
+		output << src.c_str();
+		return output;
+	}
+
 	int get_hash_code(const char* _src)
 	{
 		int type_code = 17;

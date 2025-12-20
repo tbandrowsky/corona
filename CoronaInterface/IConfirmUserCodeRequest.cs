@@ -1,14 +1,22 @@
+using Newtonsoft.Json;
+
 namespace CoronaInterface
 {
     public interface IConfirmUserCodeRequest : ICoronaBaseRequest
     {
-        public string Email { get; set; }
-        public string Code { get; set; }
+        [JsonProperty("user_name")]
+        public string UserName { get; set; }
+
+        [JsonProperty("validation_code")]
+        public string ValidationCode { get; set; }
     }
 
     public class ConfirmUserCodeRequest : CoronaBaseRequest, IConfirmUserCodeRequest
     {
-        public string Email { get; set; } = string.Empty;
-        public string Code { get; set; } = string.Empty;
+        [JsonProperty("user_name")]
+        public string UserName { get; set; } = string.Empty;
+
+        [JsonProperty("validation_code")]
+        public string ValidationCode { get; set; } = string.Empty;
     }
 }
