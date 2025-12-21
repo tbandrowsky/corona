@@ -27,6 +27,7 @@ For Future Consideration
 
 #include "corona-windows-all.h"
 
+#include <charconv>
 #include <string>
 #include <bit>
 #include <cstdint>

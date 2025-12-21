@@ -9,6 +9,5 @@ namespace CoronaInterface
     {
         SysObject SysObject { get; set; }
         Dictionary<string, CoronaClass> Classes { get; set; }
-        JObject ChildClasses { get; set; }
     }
 }

@@ -154,6 +154,13 @@ namespace corona
 			*target = _d;
 		}
 
+		std::strong_ordering strong_compare(int64_t a, int64_t b) const
+		{
+			if (a < b) return std::strong_ordering::less;
+			if (a > b) return std::strong_ordering::greater;
+			return std::strong_ordering::equal;
+		}
+
 		std::strong_ordering strong_compare(double a, double b) const
 		{
 			if (std::isnan(a) && std::isnan(b)) return std::strong_ordering::equal;
@@ -162,6 +169,24 @@ namespace corona
 			if (a < b) return std::strong_ordering::less;
 			if (a > b) return std::strong_ordering::greater;
 			return std::strong_ordering::equal;
+		}
+
+		std::strong_ordering strong_compare(const char *a, int a_bytes, const char *b, int b_bytes) const
+		{
+
+            while (a_bytes > 0 && b_bytes > 0)
+			{
+				if (*a < *b) return std::strong_ordering::less;
+				if (*a > *b) return std::strong_ordering::greater;
+				a++;
+				b++;
+				a_bytes--;
+				b_bytes--;
+			}
+
+            if (a_bytes == 0 && b_bytes == 0) return std::strong_ordering::equal;
+			else if (a_bytes == 0) return std::strong_ordering::less;
+            else return std::strong_ordering::greater;	
 		}
 
 		std::strong_ordering compare_field(int32_t this_field_idx, int32_t that_field_idx, const xrecord& _other) const
@@ -179,23 +204,74 @@ namespace corona
 
 			if (op_type == field_types::ft_string)
 			{
-				std::string stringthis, stringthat;
+				const char *stringthis, *stringthat;
+				int lenthis, lenthat;
+                char bufferthis[64], bufferthat[64];
 
-				if (this_field.field_type == field_types::ft_string)
-					stringthis = std::string(this_data, this_field.size_bytes);
+				if (this_field.field_type == field_types::ft_string) {
+					stringthis = this_data;
+                    lenthis = this_field.size_bytes;
+				}
 				else if (this_field.field_type == field_types::ft_double)
-					stringthis = std::to_string(*((double*)this_data));
+				{
+					stringthis = bufferthis;
+					lenthis = sizeof(bufferthis);
+                    long double d = *((double*)this_data);
+                    auto result = std::to_chars(bufferthis, bufferthat + lenthis, d, std::chars_format::fixed, 8);
+					if (result.ec != std::errc()) {
+						lenthis = 0;
+					}
+					else {
+                        lenthat = (int)(result.ptr - bufferthis);
+					}
+				}
 				else if (this_field.field_type == field_types::ft_int64)
-					stringthis = std::to_string(*((int64_t*)this_data));
+				{
+					stringthis = bufferthis;
+					lenthis = sizeof(bufferthis);
+					int64_t dx = *((int64_t*)this_data);
+					auto result = std::to_chars(bufferthis, bufferthat + lenthis, dx);
+					if (result.ec != std::errc()) {
+						lenthis = 0;
+					}
+					else {
+						lenthat = (int)(result.ptr - bufferthis);
+					}
+				}
 
-				if (that_field.field_type == field_types::ft_string)
-					stringthat = std::string(that_data, that_field.size_bytes);
+				if (that_field.field_type == field_types::ft_string) {
+					stringthat = that_data;
+                    lenthat = that_field.size_bytes;
+				}
 				else if (that_field.field_type == field_types::ft_double)
-					stringthat = std::to_string(*((double*)that_data));
-				else if (that_field.field_type == field_types::ft_int64)
-					stringthat = std::to_string(*((int64_t*)that_data));
+				{
+					stringthat = bufferthat;
+					lenthat = sizeof(bufferthat);
+                    long double d = *((double*)that_data);
+                    auto result = std::to_chars(bufferthat, bufferthat + lenthat, d, std::chars_format::fixed, 8);
+					if (result.ec != std::errc()) {
+						lenthis = 0;
+					}
+					else {
+						lenthat = (int)(result.ptr - bufferthis);
+					}
 
-				comparison = stringthis <=> stringthat;
+				}
+				else if (that_field.field_type == field_types::ft_int64)
+				{
+					stringthat = bufferthat;
+					lenthat = sizeof(bufferthat);
+					int64_t dy = *((int64_t*)that_data);
+					auto result = std::to_chars(bufferthat, bufferthat + lenthat, dy);
+					if (result.ec != std::errc()) {
+						lenthis = 0;
+					}
+					else {
+						lenthat = (int)(result.ptr - bufferthis);
+					}
+				}
+
+				comparison = strong_compare(stringthis, lenthis, stringthat, lenthat);
 			}
 			else if (op_type == field_types::ft_double)
 			{
