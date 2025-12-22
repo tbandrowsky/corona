@@ -1075,7 +1075,6 @@ namespace corona
                         cache->split_root(root, 0);
                     }
 					cache->close_block(root);
-					cache->save();
 				}
 
                 for (auto item : spares) {

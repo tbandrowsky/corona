@@ -276,11 +276,6 @@
           "index_keys": [
             "committee_id"
           ]
-        },
-        "donor_zip": {
-          "index_keys": [
-            "zip"
-          ]
         }
       }
     }
