@@ -4320,7 +4320,7 @@ namespace corona
 			return result;
 		}
 
-		json check_single_object(corona_database *_db, date_time& current_date, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
+		json check_single_object(corona_database_interface*_db, date_time& current_date, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
 		{
 			json_parser jp;
 			using namespace std::literals;
@@ -4377,7 +4377,8 @@ namespace corona
 			for (auto om : object_impl->members) {
 				auto fld = get_field(om.first);
 				if (fld) {
-					fld->accepts(_db, validation_errors, get_class_name(), om.first, om.second);
+					json field_value = om.second;
+					fld->accepts(_db, validation_errors, get_class_name(), om.first, field_value);
 				}
 				else
 				{
@@ -4527,7 +4528,7 @@ namespace corona
                     }
                 }
 
-                json check_result = check_single_object(static_cast<corona_database*>(_db), current_date, write_object, _grant, validation_errors);
+                json check_result = check_single_object(_db, current_date, write_object, _grant, validation_errors);
 				if (check_result[success_field]) {
 					success_object_count++;
 				}
