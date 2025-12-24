@@ -673,7 +673,7 @@ namespace corona
 		virtual void	init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 
 		virtual json	get_object(corona_database_interface* _db, int64_t _object_id, class_permissions _grant, bool& _exists) = 0;
-		virtual void	put_objects(corona_database_interface* _db, json& _children, json& _src_objects, class_permissions _grant) = 0;
+		virtual json	put_objects(corona_database_interface* _db, json& _children, json& _src_objects, class_permissions _grant, validation_error_collection& validation_errors, int64_t& success_object_count, int64_t& fail_object_count) = 0;
 		virtual json	get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json	delete_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json    get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
@@ -4320,11 +4320,108 @@ namespace corona
 			return result;
 		}
 
-		virtual void put_objects(corona_database_interface* _db, json& _child_objects, json& _src_list, class_permissions _grant) override
+		json check_single_object(corona_database *_db, date_time& current_date, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
+		{
+			json_parser jp;
+			using namespace std::literals;
+
+			bool had_conniption = false;
+
+			json object_definition = _object_definition.clone();
+
+			json result = jp.create_object();
+
+
+			// check the object against the class definition for correctness
+			// first we see which fields are in the class not in the object
+
+			for (auto fld : get_fields()) {
+				if (object_definition.has_member(fld->get_field_name())) {
+					auto obj_typex = object_definition[fld->get_field_name()];
+					if (obj_typex.empty()) {
+						continue;
+					}
+					auto obj_type = obj_typex->get_field_type();
+					auto member_type = fld->get_field_type();
+					if (member_type != obj_type) {
+						object_definition.change_member_type(fld->get_field_name(), member_type);
+					}
+				}
+			}
+
+			// check to make sure that we have all the fields 
+			// for the index
+
+			for (auto& idx : get_indexes()) {
+				std::vector<std::string> missing;
+				std::vector<std::string>& idx_keys = idx->get_index_keys();
+				if (not object_definition.has_members(missing, idx_keys))
+				{
+					for (auto& missed : missing) {
+						had_conniption = true;
+
+						validation_error ve;
+						ve.field_name = missed;
+						ve.class_name = get_class_name();
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = std::format("Missing field required for index '{0}'", idx->get_index_name());
+						validation_errors.push_back(ve);
+					}
+				}
+			}
+
+			// then we see which fields are in the object that are not 
+			// in the class definition.
+			auto object_impl = object_definition.object_impl();
+			for (auto om : object_impl->members) {
+				auto fld = get_field(om.first);
+				if (fld) {
+					fld->accepts(_db, validation_errors, get_class_name(), om.first, om.second);
+				}
+				else
+				{
+					had_conniption = true;
+
+					json warning = jp.create_object();
+					validation_error ve;
+					ve.class_name = get_class_name();
+					ve.field_name = om.first;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Field not found in class definition";
+					validation_errors.push_back(ve);
+				}
+			}
+	bail:
+			if (had_conniption) {
+				json warnings = jp.create_array();
+				for (auto& ve : validation_errors) {
+					json jve = jp.create_object();
+					ve.get_json(jve);
+					warnings.push_back(jve);
+				}
+				result.put_member(message_field, "Failed"sv);
+				result.put_member(success_field, 0);
+				result.put_member("errors", warnings);
+				result.share_member(data_field, object_definition);
+			}
+			else {
+				result.put_member(message_field, "Ok"sv);
+				result.put_member(success_field, 1);
+				result.share_member(data_field, object_definition);
+			}
+
+			return result;
+		}
+
+
+		virtual json put_objects(corona_database_interface* _db, json& _child_objects, json& _src_list, class_permissions _grant, validation_error_collection& validation_errors, int64_t& success_object_count, int64_t& fail_object_count) override
 		{
 			bool index_ready = true;
 
 			json_parser jp;
+            json results = jp.create_array();
 
 			struct index_object_pair {
 				std::shared_ptr<index_interface> index;
@@ -4345,30 +4442,60 @@ namespace corona
 
 			json put_list = jp.create_array();
 
+            date_time current_date = date_time::now();
+
 			for (auto _src_obj : _src_list)
 			{
 
-				int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
+				_src_obj.erase_member("class_color");
 
-				bool exists = false;
-				json old_object = get_object(_db, parent_object_id, _grant, exists);
+				db_object_id_type object_id = -1;
 				json write_object;
+				json old_object;
 
-				if (old_object.object()) {
-					write_object = old_object.clone();
-					write_object.merge(_src_obj);
-				}
-				else if (not exists)
+				if (_src_obj.has_member(object_id_field))
 				{
-					write_object = _src_obj;
+					clear_queries(_src_obj);
+
+					int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
+
+					bool exists = false;
+					json old_object = get_object(_db, parent_object_id, _grant, exists);
+
+					if (old_object.object()) {
+						write_object = old_object.clone();
+						write_object.merge(_src_obj);
+						write_object.erase_member("class_color");
+					}
+					else if (not exists)
+					{
+						write_object = _src_obj;
+						write_object.put_member("created", current_date);
+						write_object.put_member("created_by", _grant.user_name);
+					}
+					else
+					{
+						// in this case, exists == true, but old_object is empty. This means that the object
+						// was there, but the user did not have permissions to change it.
+						continue;
+					}
+
+					write_object.put_member("updated", current_date);
+					write_object.put_member("updated_by", _grant.user_name);
+
 				}
-				else 
+				else
 				{
-					// in this case, exists == true, but old_object is empty. This means that the object
-					// was there, but the user did not have permissions to change it.
-					continue;
+					int64_t new_object_id = get_next_object_id(_db);
+					_src_obj.put_member_i64(object_id_field, new_object_id);
+					_src_obj.put_member("created", current_date);
+					_src_obj.put_member("created_by", _grant.user_name);
+					_src_obj.put_member("team", _grant.team_name);
+                    write_object = _src_obj;
 				}
 
+				// if the user was a stooser and saved the query results with the object,
+				// blank that out here because we will run that on load
 				write_object.erase_member("class_color");
 
 				bool use_write_object = false;
@@ -4399,6 +4526,15 @@ namespace corona
                         use_write_object = true;
                     }
                 }
+
+                json check_result = check_single_object(static_cast<corona_database*>(_db), current_date, write_object, _grant, validation_errors);
+				if (check_result[success_field]) {
+					success_object_count++;
+				}
+				else {
+					fail_object_count++;
+					results.push_back(check_result);
+				}
 
 				auto these_fields = get_fields();
 
@@ -4548,6 +4684,8 @@ namespace corona
 
             // now run them all
 			global_job_queue->run_jobs(runnables);
+
+			return results;
 
 		}
 
@@ -6243,9 +6381,6 @@ bail:
 			using namespace std::literals;
 			json response; 			
 
-			int64_t success_object_count = 0;
-			int64_t fail_object_count = 0;
-
 			response = jp.create_object();
 
 			json object_definition,
@@ -6289,25 +6424,6 @@ bail:
 					validation_errors.push_back(ve);
 					continue;
 				}
-				auto cd = read_lock_class(class_pair.first);
-
-				if (cd) {
-					auto permission = get_class_permission(_user_name, class_pair.first);
-					cd->init_validation(this, permission);
-				}
-				else 
-				{
-					response.put_member(success_field, false);
-					response.put_member(message_field, class_pair.first + " invalid class name");
-					validation_error ve;
-					ve.count = classes_group[class_pair.first].size();
-					ve.filename = __FILE__;
-					ve.class_name = class_pair.first;
-					ve.message = "Invalid classname";
-					ve.line_number = __LINE__;
-					validation_errors.push_back(ve);
-					continue;
-				}
 			}
 
 
@@ -6316,11 +6432,6 @@ bail:
 				std::string class_name = class_pair.first;
 
 				json class_object_list = classes_group[class_name];
-				read_class_sp class_data = read_lock_class(class_name);
-
-				if (not class_data) {
-					continue;
-				}
 
 				class_permissions permission;
 
@@ -6346,30 +6457,15 @@ bail:
                     permission.put_grant = class_grants::grant_any;	
 				}
 
-				result_list = jp.create_array();
-
-				for (auto item_definition : class_object_list)
-				{
-					json result = check_single_object(current_date, class_data, item_definition, permission, validation_errors);
-					if (result[success_field]) {
-						result_list.push_back(result);
-						success_object_count++;
-					}
-					else 
-					{
-						fail_object_count++;
-					}
-				}
-
 				// move_member here is to prevent something stupid happening because this is in a loop 
 				// and the scope of result_list is outside of it.
 				// fixing it is out of scope for this particular thing.
 				// TODO: fix result_list
-				classes_group.move_member(class_name, result_list);
+				classes_group.move_member(class_name, class_object_list);
 			}
 
 			response.put_member(success_field, true);
-			response.put_member(message_field, std::format("{} success, {} failed", success_object_count, fail_object_count) );
+			response.put_member(message_field, "Ok"sv);
 			response.share_member(data_field, classes_group);
 			return response;
 		}
@@ -6466,7 +6562,7 @@ bail:
 			return payload;
 		}
 
-		json create_response(json _request, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds)
+		json create_response(json _request, bool _success, std::string _message, json _data, validation_error_collection& _errors, double _seconds, int64_t success_objects = -1, int64_t failed_objects = -1)
 		{
 			json_parser jp;
 			json payload = jp.create_object();
@@ -6486,6 +6582,10 @@ bail:
 			payload.put_member(token_field, base64_token_string);
 			payload.put_member(success_field, _success);
 			payload.put_member(message_field, _message);
+            if (success_objects != -1) {
+				payload.put_member("success_objects", success_objects);
+				payload.put_member("failed_objects", failed_objects);
+			}
 			payload.share_member(data_field, _data);
 			if (_errors.size()) {
 				json errors_array = jp.create_array();
@@ -9834,6 +9934,9 @@ grant_type=authorization_code
 
 				std::string message = result["message"];
 
+				int64_t success_objects = 0;
+				int64_t failed_objects = 0;
+
 				if (result[success_field])
 				{
 					auto classes_and_data = grouped_by_class_name.get_members();
@@ -9845,16 +9948,9 @@ grant_type=authorization_code
 						auto cd = read_lock_class(class_pair.first);
 						if (cd) {
 
-							// now that we have our class, we can go ahead and open the storage for it
-
-							json data_list = jp.create_array();
-							for (const auto& item : class_pair.second) {
-								data_list.push_back(item[data_field]);
-							}
-
 							auto perms = get_system_permission();
-
-							cd->put_objects(this, child_objects, data_list, perms);
+							json put_results = cd->put_objects(this, child_objects, class_pair.second, perms, errors, success_objects, failed_objects);
+                            grouped_by_class_name.put_member(class_pair.first, put_results);
 						}
 					}
 
@@ -9863,7 +9959,7 @@ grant_type=authorization_code
 						result = put_object(put_object_request);
 					}
 
-					result = create_response(put_object_request, true, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds());
+					result = create_response(put_object_request, true, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds(), success_objects, failed_objects);
 					log_errors(errors);
 				}
 				else
