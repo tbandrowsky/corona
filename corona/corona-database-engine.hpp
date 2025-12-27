@@ -480,6 +480,8 @@ namespace corona
 			cp.get_grant = (class_grants)((int)get_grant | (int)_other.get_grant);
 			cp.delete_grant = (class_grants)((int)delete_grant | (int)_other.delete_grant);
 			cp.alter_grant = (class_grants)((int)alter_grant | (int)_other.alter_grant);
+			cp.user_name = user_name;
+            cp.team_name = team_name;
 			return cp;
 		}
 	};
@@ -738,10 +740,6 @@ namespace corona
 
 		virtual class_permissions get_class_permission(
 			std::string _user_name,
-			std::string _class_name) = 0;
-
-		virtual class_permissions get_class_permission(
-			const class_permissions& _src,
 			std::string _class_name) = 0;
 
 		virtual void log_errors(validation_error_collection& _errors) = 0;
@@ -3721,7 +3719,7 @@ namespace corona
 
 			for (auto parent : parents)
 			{
-				std::string index_name = std::format("idx_{0}_{0}", getFirstNChars(class_name, 16), getFirstNChars(parent, 16));
+				std::string index_name = std::format("idx_{0}_{1}", getFirstNChars(class_name, 16), getFirstNChars(parent, 16));
 				if (jindexes.has_member(index_name)) {
 					continue;
 				}
@@ -4528,90 +4526,91 @@ namespace corona
                     }
                 }
 
-                json check_result = check_single_object(_db, current_date, write_object, _grant, validation_errors);
-				if (check_result[success_field]) {
-					success_object_count++;
-				}
-				else {
-					fail_object_count++;
-					results.push_back(check_result);
-				}
+				if (use_write_object) {
 
-				auto these_fields = get_fields();
+					auto these_fields = get_fields();
 
-				for (auto& fld : these_fields) {
-					if (fld->get_field_type() == field_types::ft_array)
-					{
-						json array_field = write_object[fld->get_field_name()];
-						if (array_field.array() and fld->is_relational_children()) {
-							auto bridges = fld->get_bridges();
-							if (bridges) {
-								for (auto obj : array_field) {
-									std::string obj_class_name = obj[class_name_field];
+					for (auto& fld : these_fields) {
+						if (fld->get_field_type() == field_types::ft_array)
+						{
+							json array_field = write_object[fld->get_field_name()];
+							if (array_field.array() and fld->is_relational_children()) {
+								auto bridges = fld->get_bridges();
+								if (bridges) {
+									for (auto obj : array_field) {
+										std::string obj_class_name = obj[class_name_field];
+										auto bridge = bridges->get_bridge(obj_class_name);
+										if (bridge) {
+											bridge->copy(obj, write_object);
+										}
+										_child_objects.push_back(obj);
+									}
+									json empty_array = jp.create_array();
+									write_object.erase_member(fld->get_field_name());
+								}
+							}
+						}
+						else if (fld->get_field_type() == field_types::ft_object)
+						{
+							json obj = write_object[fld->get_field_name()];
+							if (obj.object() and fld->is_relational_children()) {
+								std::string obj_class_name = obj[class_name_field];
+								auto bridges = fld->get_bridges();
+								if (bridges) {
 									auto bridge = bridges->get_bridge(obj_class_name);
 									if (bridge) {
 										bridge->copy(obj, write_object);
 									}
+									json empty;
+									write_object.erase_member(fld->get_field_name());
 									_child_objects.push_back(obj);
 								}
-								json empty_array = jp.create_array();
-								write_object.erase_member(fld->get_field_name());
 							}
 						}
 					}
-					else if (fld->get_field_type() == field_types::ft_object)
+
+					json check_result = check_single_object(_db, current_date, write_object, _grant, validation_errors);
+					if (check_result[success_field]) {
+						success_object_count++;
+					}
+					else {
+						fail_object_count++;
+					}
+					results.push_back(check_result);
+
+
+					put_list.push_back(write_object);
+
+					if (index_updates.size() > 0)
 					{
-						json obj = write_object[fld->get_field_name()];
-						if (obj.object() and fld->is_relational_children()) {
-							std::string obj_class_name = obj[class_name_field];
-							auto bridges = fld->get_bridges();
-							if (bridges) {
-								auto bridge = bridges->get_bridge(obj_class_name);
-								if (bridge) {
-									bridge->copy(obj, write_object);
+						int64_t object_id = (int64_t)write_object[object_id_field];
+						if (old_object.object())
+						{
+							for (auto& iop : index_updates)
+							{
+								auto& idx_keys = iop.index->get_index_keys();
+
+								json obj_to_delete = old_object.extract(idx_keys);
+								json obj_to_add = write_object.extract(idx_keys);
+								if (obj_to_delete.compare(obj_to_add) != 0) {
+									iop.objects_to_delete.push_back(obj_to_delete);
 								}
-								json empty;
-								write_object.erase_member(fld->get_field_name());
-								_child_objects.push_back(obj);
+								iop.objects_to_add.push_back(obj_to_add);
+							}
+						}
+						else
+						{
+							for (auto& iop : index_updates)
+							{
+								auto& idx_keys = iop.index->get_index_keys();
+								// check to make sure that we have all the fields 
+								// for the index
+								json obj_to_add = write_object.extract(idx_keys);
+								iop.objects_to_add.push_back(obj_to_add);
 							}
 						}
 					}
 				}
-
-				if (use_write_object) {
-					put_list.array_impl()->elements.push_back(write_object.value());
-				}
-
-				if (index_updates.size() > 0)
-				{
-					int64_t object_id = (int64_t)write_object[object_id_field];
-					if (old_object.object())
-					{
-						for (auto& iop : index_updates)
-						{
-							auto& idx_keys = iop.index->get_index_keys();
-
-							json obj_to_delete = old_object.extract(idx_keys);
-							json obj_to_add = write_object.extract(idx_keys);
-							if (obj_to_delete.compare(obj_to_add) != 0) {
-								iop.objects_to_delete.push_back(obj_to_delete);
-							}
-							iop.objects_to_add.push_back(obj_to_add);
-						}
-					}
-					else 
-					{
-						for (auto& iop : index_updates)
-						{
-							auto& idx_keys = iop.index->get_index_keys();
-							// check to make sure that we have all the fields 
-							// for the index
-							json obj_to_add = write_object.extract(idx_keys);
-							iop.objects_to_add.push_back(obj_to_add);
-						}
-					}
-				}
-
 			}
 
 			runnable table_run = [this, _db, &put_list] {
@@ -6740,9 +6739,9 @@ bail:
 			if (not classd)
 				return obj;
 
-			auto perm = get_class_permission(_permissions, _class_name);
+			auto perm = get_class_permission(_permissions.user_name, _class_name);
 			bool exists = false;
-			json oneobj= classd->get_object(this, _object_id, _permissions, exists);
+			json oneobj= classd->get_object(this, _object_id, perm, exists);
 			if (oneobj.object())
                 obj.push_back(oneobj);
 
@@ -6763,7 +6762,7 @@ bail:
 			if (not classd)
 				return obj;
 
-			auto perm = get_class_permission(_permission, class_name);
+			auto perm = get_class_permission(_permission.user_name, class_name);
 
 			obj = classd->get_objects(this, _key, _children, perm);
 
@@ -6811,7 +6810,7 @@ bail:
 			}
 		}
 
-		json get_user(std::string _user_name, class_permissions _permission, bool _run_teams = true)
+		json get_user(std::string _user_name, bool _run_teams = true)
 		{
 			json_parser jp;
 
@@ -6822,7 +6821,9 @@ bail:
 			if (not classd)
 				return jp.create_array();
 
-			json users = classd->get_objects(this, key, true, _permission);
+            auto permission = get_system_permission();
+
+			json users = classd->get_objects(this, key, true, permission);
 
 			json user = users.get_first_element();
 			if (user.object()) {
@@ -6833,7 +6834,7 @@ bail:
 				std::string team_name = user["team_name"];
 				if (not team_name.empty()) {
 					if (_run_teams) {
-						json team_data = run_team(team_name, _permission);
+						json team_data = run_team(team_name, permission);
 						if (team_data.object()) {
 							user.share_member("team", team_data);
 							json jallowed_teams = team_data["allowed_teams"];
@@ -6849,7 +6850,7 @@ bail:
 				}
 				team_name = user["home_team_name"];
 				if (not team_name.empty()) {
-					json team_data = run_team(team_name, _permission);
+					json team_data = run_team(team_name, permission);
 					if (team_data.object()) {
 						user.share_member("home_team", team_data);
 						json jallowed_teams = team_data["allowed_teams"];
@@ -7147,13 +7148,6 @@ bail:
 			return grants;
 		}
 
-		virtual class_permissions get_class_permission(
-			const class_permissions &_perm,
-			std::string _class_name) override
-		{
-			return get_class_permission(_perm.user_name, _class_name);
-		}
-
 		virtual class_permissions get_team_permissions(std::string user_name, std::string team_name, std::string _class_name)
 		{
 
@@ -7163,6 +7157,7 @@ bail:
 			class_permissions grants;
 
 			grants.user_name = user_name;
+            grants.team_name = team_name;
 			grants.alter_grant = class_grants::grant_none;
 			grants.put_grant = class_grants::grant_own;
 			grants.get_grant = class_grants::grant_own;
@@ -7251,8 +7246,7 @@ bail:
 				return grants;
 			}
 
-			auto sys_perm = get_system_permission();
-			json user =  get_user(_user_name, sys_perm, false);
+			json user =  get_user(_user_name, false);
 
 			if (not user.empty()) 
 			{			
@@ -7269,6 +7263,18 @@ bail:
 				grants = home_grants | team_grants | grants;
 				grants.team_name = team_name;
 				grants.user_name = _user_name;
+			}
+			else {
+                grants.alter_grant = class_grants::grant_none;
+                grants.delete_grant = class_grants::grant_none;
+                grants.get_grant = class_grants::grant_none;
+                grants.put_grant = class_grants::grant_none;	
+				grants.team_name = "transporter malfunction";
+			}
+
+			if (_class_name == "sys_user") 
+			{
+				grants.put_grant = class_grants::grant_own;
 			}
 
 			return grants;
@@ -7427,6 +7433,11 @@ bail:
 
 			json server = _server_config;
 			default_user = server[sys_user_name_field];
+			if (default_user.empty()) 			
+			{
+				default_user = "system";
+            }
+
 			std::string defaultpw = server[sys_user_password_field];
 
 			if (not defaultpw.empty()) {
@@ -7434,6 +7445,10 @@ bail:
 			}
 
 			default_email_address = server[sys_user_email_field];
+			if (default_email_address.empty()) {
+				default_email_address = std::format("dummy@example.com", default_user);
+			}
+
 			default_guest_team = server[sys_default_team_field];
 			default_api_title = server[sys_default_api_title_field];
 			default_api_description = server[sys_default_api_description_field];
@@ -7441,10 +7456,6 @@ bail:
 			default_api_author = server[sys_default_api_author_field];
             default_onboard_email_filename = server[sys_default_onboard_email_template];
 			default_recovery_email_filename = server[sys_default_recovery_email_template];
-
-			if (default_email_address.empty()) {
-				default_email_address = std::format("dummy@example.com", default_user);
-			}
 
 			std::filesystem::path schema_path(config_path);
 			schema_file_name = server["schema_filename"];
@@ -8345,7 +8356,7 @@ bail:
 
 			auto sys_perm = get_system_permission();
 
-			json existing_user = get_user(user_name, sys_perm, false);
+			json existing_user = get_user(user_name, false);
 
 			if (not existing_user.object())
 			{
@@ -8373,7 +8384,7 @@ bail:
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
 				if (user_result[success_field]) {
-					existing_user = get_user(user_name, sys_perm);
+					existing_user = get_user(user_name);
 				}
 				else
 				{
@@ -8394,7 +8405,7 @@ bail:
 				}
 				apply_user_team(existing_user);
 				put_user(existing_user);
-				existing_user = get_user(user_name, sys_perm);
+				existing_user = get_user(user_name);
 			}
 
 			response = create_response(user_name, auth_system, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
@@ -8512,7 +8523,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json existing_user = get_user(user_name, sys_perm, false);
+			json existing_user = get_user(user_name, false);
 
 			if (not existing_user.object())
 			{
@@ -8543,7 +8554,7 @@ grant_type=authorization_code
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
 				if (user_result[success_field]) {
-					existing_user = get_user(user_name, sys_perm);
+					existing_user = get_user(user_name);
 				} 				
 				else 				
 				{
@@ -8564,7 +8575,7 @@ grant_type=authorization_code
 				}
 				apply_user_team(existing_user);
 				put_user(existing_user);
-				existing_user = get_user(user_name, sys_perm);
+				existing_user = get_user(user_name);
 			}
 
 			response = create_response(user_name, auth_general, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
@@ -8665,7 +8676,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json existing_user = get_user(user_name, sys_perm, false);
+			json existing_user = get_user(user_name, false);
 
 			if (existing_user.object())
 			{
@@ -8768,7 +8779,7 @@ grant_type=authorization_code
 				return response;
 			}
 
-			json user_info = get_user(user_name, sys_perm);
+			json user_info = get_user(user_name);
 
 			std::string message = "Code not sent.";
 
@@ -8876,7 +8887,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json user = get_user(user_name, sys_perm);
+			json user = get_user(user_name);
 
 			if (user.empty()) {
 
@@ -8907,7 +8918,7 @@ grant_type=authorization_code
 				}
 				apply_user_team(user);
 				put_user(user);
-				user = get_user(user_name, sys_perm);
+				user = get_user(user_name);
 
 				response = create_response(user_name, auth_general, true, "Ok", user, errors, method_timer.get_elapsed_seconds());
 			}
@@ -8954,7 +8965,7 @@ grant_type=authorization_code
 				return result;
 			}
 
-            json user_details = get_user(user_name, get_system_permission());
+            json user_details = get_user(user_name);
 
 			system_monitoring_interface::active_mon->log_function_stop("user_home", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
             validation_error_collection empty_errors;
@@ -8986,7 +8997,7 @@ grant_type=authorization_code
 
 			auto sys_perm = get_system_permission();
 
-			json user = get_user(requested_user_name, sys_perm);
+			json user = get_user(requested_user_name);
 
 			if (user.empty()) {
 
@@ -9113,7 +9124,7 @@ grant_type=authorization_code
 
 			bool team_set = false;
 			std::string ok_message;
-			json user_details = get_user(user_name, get_system_permission());
+			json user_details = get_user(user_name);
 			if (user_details.object()) {
 				json jteam = user_details["home_team"];
 				if (jteam.object()) {
@@ -9137,7 +9148,7 @@ grant_type=authorization_code
 			if (team_set) {
 				apply_user_team(user_details);
 				put_user(user_details);
-                user_details = get_user(user_name, get_system_permission());
+                user_details = get_user(user_name);
 				result = create_response(_user_set_team_request, true, ok_message, user_details, empty_errors, method_timer.get_elapsed_seconds());
 			}
 			else
@@ -9173,9 +9184,8 @@ grant_type=authorization_code
 			std::string hashed_user_password;
 
 			std::string hashed_pw = crypter.hash(user_password);
-			auto sys_perm = get_system_permission();
 
-			json user = get_user(user_name, sys_perm);
+			json user = get_user(user_name);
 			std::string pw = user["password"];
 
 			if (pw == hashed_pw)
@@ -9299,7 +9309,7 @@ grant_type=authorization_code
 			class_permissions perms = get_class_permission(user_name, class_name);
 			class_permissions sys_perms = get_system_permission();
 
-			json user = get_user(user_name, sys_perms);
+			json user = get_user(user_name);
 			auto edit_class = read_lock_class(class_name);
 
 			if (edit_class) {
@@ -9948,8 +9958,7 @@ grant_type=authorization_code
 					{
 						auto cd = read_lock_class(class_pair.first);
 						if (cd) {
-
-							auto perms = get_system_permission();
+							auto perms = get_class_permission(user_name, class_pair.first);
 							json put_results = cd->put_objects(this, child_objects, class_pair.second, perms, errors, success_objects, failed_objects);
                             grouped_by_class_name.put_member(class_pair.first, put_results);
 						}
@@ -9957,7 +9966,7 @@ grant_type=authorization_code
 
 					if (child_objects.size() > 0) {
 						put_object_request.put_member(data_field, child_objects);
-						result = put_object(put_object_request);
+						result = put_object_nl(put_object_request);
 					}
 
 					result = create_response(put_object_request, true, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds(), success_objects, failed_objects);

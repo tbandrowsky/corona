@@ -216,7 +216,7 @@
         "tags": "object"
       },
       "indexes": {
-        "db_server_idx": { "index_keys": [ "server_name", "resource_group" ] }
+        "db_server_idx": { "index_keys": [ "server_name" ] }
       }
     },
     {

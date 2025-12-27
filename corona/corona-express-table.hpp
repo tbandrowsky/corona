@@ -1061,10 +1061,8 @@ namespace corona
                         spares.push_back(item);
                     }
 				}
-				cache->close_block(root);
 
                 for (auto& it : items) {
-					auto root = cache->open_branch_block(table_header->root_block, true);
 					for (auto& rec : it.second) {
                         bool added = root->put(cache.get(), 0, rec.first, rec.second);
                         if (added) {
@@ -1074,15 +1072,14 @@ namespace corona
                     if (root->is_full()) {
                         cache->split_root(root, 0);
                     }
-					cache->close_block(root);
 				}
 
                 for (auto item : spares) {
                     put_impl(item);
                 }
 
-				cache->save();
-
+				cache->close_block(root);
+				commit_nl();
 			}
 
 		}

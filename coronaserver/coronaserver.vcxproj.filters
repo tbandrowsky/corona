@@ -31,7 +31,6 @@
     <None Include="recipe\recipe_schema.json" />
     <None Include="azure_simple\azure_schema.json" />
     <None Include="shop\shop_schema.json" />
-    <None Include="locknet\locknet_schema.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="eventmessages.h">

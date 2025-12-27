@@ -204,7 +204,7 @@ namespace corona
 
 			if (op_type == field_types::ft_string)
 			{
-				const char *stringthis, *stringthat;
+				const char *stringthis = nullptr, *stringthat = nullptr;
 				int lenthis, lenthat;
                 char bufferthis[64], bufferthat[64];
 
