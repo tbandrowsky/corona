@@ -3922,6 +3922,7 @@ namespace corona
 			}
 
             get_table(_context->db);
+
 			return true;
 		}
 
@@ -4820,21 +4821,21 @@ namespace corona
 					auto class_data = get_table(_db);
                     obj = class_data->select(&max_query_result_rows, _key, [&_key, &_grant](json& _j)-> json
 						{
-							json result;
+							json select_result;
 							if (_key.compare(_j) == 0) {
 								if (_grant.get_grant & class_grants::grant_any) {
-									result = _j;
+									select_result = _j;
                                 }		
 								else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
 
-									result = _j;
+									select_result = _j;
 								}
 								else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
 
-									result = _j;
+									select_result = _j;
 								}
 							}
-							return result;
+							return select_result;
 						});
 				}
 			}
@@ -5137,6 +5138,8 @@ namespace corona
 					get_activity.db = this;
 					try {
 						cdimp->open(&get_activity, class_def.get_first_element(), -1);
+						auto perms = get_system_permission();
+						cdimp->init_validation(this, perms);
 					}
                     catch (std::exception& ex) {
                         system_monitoring_interface::active_mon->log_warning(std::format("Exception {0} on opening class {1}", ex.what(), _class_name), __FILE__, __LINE__);
@@ -5165,6 +5168,8 @@ namespace corona
 				ci = std::make_shared<class_implementation>();
 				ci->create(&activio, _class_definition);
 			}
+			auto perms = get_system_permission();
+			ci->init_validation(this, perms);
             save_class(ci.get());
 			class_cache.insert(class_name, ci);
 			return ci;
@@ -9350,7 +9355,6 @@ grant_type=authorization_code
 				while (edit_class)
 				{
 					auto current_class_name = edit_class->get_class_name();
-					edit_class->init_validation(this, perms); // this might be a bad idea
 					json jedit_class = jp.create_object();
 					edit_class->get_json(jedit_class);
 					jclasses.share_member(current_class_name, jedit_class);

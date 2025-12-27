@@ -109,6 +109,8 @@ namespace Politics
             }
         }
 
+        public int MaxMessages { get; set; } = 1000;
+
         public void StartMessage(string api, string topic, string message)
         {
             StartMessage(api, topic, message, DateTime.Now);
@@ -128,6 +130,10 @@ namespace Politics
                 ?.DispatcherQueue.TryEnqueue(() =>
                 {
                     Messages.Add(new_message);
+                    if (Messages.Count() > MaxMessages)
+                    {
+                        Messages.RemoveAt(0);
+                    }
                     MessageReceived?.Invoke(new_message);
                 });
         }
@@ -149,6 +155,10 @@ namespace Politics
                 .DispatcherQueue.TryEnqueue(() =>
                 {
                     Messages.Add(new_message);
+                    if (Messages.Count()> MaxMessages)
+                    {
+                        Messages.RemoveAt(0);
+                    }
                     MessageReceived?.Invoke(new_message);
                 });
         }
