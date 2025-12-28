@@ -7603,6 +7603,13 @@ private:
 								}
 
 								std::string target_class = import_spec["target_class"];
+								std::string target_class_plural = target_class;
+								if (target_class_plural.ends_with("s")) {
+									target_class_plural += "es";
+								}
+								else {
+									target_class_plural += "s";
+								}
 								std::string import_type = import_spec["type"];
 								date_time import_datatime = import_spec["import_datatime"];
 
@@ -7618,9 +7625,7 @@ private:
 										continue;
 									}
 
-									std::string filename = import_spec["filename"];
-
-									
+									std::string filename = import_spec["filename"];							
 
 									std::string delimiter = import_spec["delimiter"];
 									if (filename.empty() or delimiter.empty()) {
@@ -7765,11 +7770,11 @@ private:
 															json request(datomatic);
 															json cor = create_system_request(request);
 
-															put_object_sync(cor, [this, file_size, bytes_processed, total_row_count, batch_size](json& put_result, double _exec_time) {
+															put_object_sync(cor, [this, file_size, bytes_processed, total_row_count, batch_size, &target_class_plural](json& put_result, double _exec_time) {
 																double x = batch_size / _exec_time;
 																std::string msg = put_result["message"];
 																if (file_size) {
-																	msg = msg + std::format(", {0:.2f}%, {1:.2f} / sec", (double)bytes_processed/(double)file_size * 100.0, x);
+																	msg = msg + std::format(", {0:.2f}%, {1:.2f} / sec, {2} {3}", (double)bytes_processed / (double)file_size * 100.0, x, total_row_count, target_class_plural);
 																}
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
 																if (put_result[success_field]) {

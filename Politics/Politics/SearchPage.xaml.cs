@@ -185,7 +185,7 @@ namespace Politics
                         CandidateControl.IsEnabled = true;
                         CandidateControl.Candidate = edit_object;
                         break;
-                    case "donor":
+                    case "donation":
                         DonorControl.Visibility = Visibility.Visible;
                         DonorControl.IsEnabled = true;
                         DonorControl.Donor = edit_object;
