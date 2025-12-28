@@ -554,11 +554,11 @@ namespace corona
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(validation_error_collection& _errors, json& _src, class_interface_base*_owner) = 0;
 
-		virtual std::string get_field_name()
+		virtual const std::string& get_field_name() const
 		{
 			return field_name;
 		}
-		virtual std::string get_field_class()
+		virtual const std::string& get_field_class() const
 		{
 			return field_class;
 		}
@@ -667,8 +667,9 @@ namespace corona
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
+		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
-
+		
 		virtual std::shared_ptr<index_interface>		get_index(const std::string& _name)  const = 0;
 		virtual std::vector<std::shared_ptr<index_interface>> get_indexes()  const = 0;
 
@@ -1696,7 +1697,6 @@ namespace corona
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
 
-
 				json& obj = _object_to_test;
 
 				std::string object_class_name;
@@ -2508,7 +2508,7 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::string get_field_name()
+		virtual const std::string &get_field_name() const
 		{
 			return field_name;
 		}
@@ -2707,8 +2707,7 @@ namespace corona
 			index_keys = _ii_index->get_index_keys();
 
 			auto temp = _ii_index->get_xtable(_db);
-
-	}
+		}
 
 		index_implementation(std::string &_name, std::vector<std::string> &_keys, corona_database_interface* _db)
 		{
@@ -2865,6 +2864,25 @@ namespace corona
 
 	};
 
+	class compiled_field_view {
+	public:
+		std::shared_ptr<field_interface> field_definition;
+		std::shared_ptr<json_value>	field_value;
+		bool index_required = false;
+	};
+
+	class compiled_object_view {
+	public:
+		std::vector<compiled_field_view> fields;
+		class_interface* class_definition = nullptr;
+		corona_database_interface* database = nullptr;
+		json last_object;
+
+		compiled_object_view() = default;
+		compiled_object_view(corona_database_interface *_db, class_interface* _class_definition);
+
+		bool check(json& _object, validation_error_collection& errors);
+	};
 
 	class class_implementation : public class_interface
 	{
@@ -4231,6 +4249,11 @@ namespace corona
 			return nullptr;
 		}
 
+		virtual std::map<std::string, std::shared_ptr<field_interface>>& use_fields() override
+		{
+			return fields;
+		}
+
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const override
 		{
 			std::vector<std::shared_ptr<field_interface>> fields_list;
@@ -4319,84 +4342,35 @@ namespace corona
 			return result;
 		}
 
-		json check_single_object(corona_database_interface*_db, date_time& current_date, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
+		json check_single_object( compiled_object_view& _view, date_time& current_date, json& _object_definition, validation_error_collection& _validation_errors)
 		{
 			json_parser jp;
 			using namespace std::literals;
 
 			bool had_conniption = false;
 
-			json object_definition = _object_definition.clone();
-
 			json result = jp.create_object();
 
+			validation_error_collection local_errors;
+
+			had_conniption = _view.check(_object_definition, local_errors);
+
+			for (auto err : local_errors) {
+				_validation_errors.push_back(err);
+			}
 
 			// check the object against the class definition for correctness
 			// first we see which fields are in the class not in the object
 
-			for (auto fld : get_fields()) {
-				if (object_definition.has_member(fld->get_field_name())) {
-					auto obj_typex = object_definition[fld->get_field_name()];
-					if (obj_typex.empty()) {
-						continue;
-					}
-					auto obj_type = obj_typex->get_field_type();
-					auto member_type = fld->get_field_type();
-					if (member_type != obj_type) {
-						object_definition.change_member_type(fld->get_field_name(), member_type);
-					}
-				}
-			}
-
 			// check to make sure that we have all the fields 
 			// for the index
 
-			for (auto& idx : get_indexes()) {
-				std::vector<std::string> missing;
-				std::vector<std::string>& idx_keys = idx->get_index_keys();
-				if (not object_definition.has_members(missing, idx_keys))
-				{
-					for (auto& missed : missing) {
-						had_conniption = true;
-
-						validation_error ve;
-						ve.field_name = missed;
-						ve.class_name = get_class_name();
-						ve.filename = get_file_name(__FILE__);
-						ve.line_number = __LINE__;
-						ve.message = std::format("Missing field required for index '{0}'", idx->get_index_name());
-						validation_errors.push_back(ve);
-					}
-				}
-			}
-
 			// then we see which fields are in the object that are not 
 			// in the class definition.
-			auto object_impl = object_definition.object_impl();
-			for (auto om : object_impl->members) {
-				auto fld = get_field(om.first);
-				if (fld) {
-					json field_value = om.second;
-					fld->accepts(_db, validation_errors, get_class_name(), om.first, field_value);
-				}
-				else
-				{
-					had_conniption = true;
 
-					json warning = jp.create_object();
-					validation_error ve;
-					ve.class_name = get_class_name();
-					ve.field_name = om.first;
-					ve.filename = get_file_name(__FILE__);
-					ve.line_number = __LINE__;
-					ve.message = "Field not found in class definition";
-					validation_errors.push_back(ve);
-				}
-			}
-	bail:
 			if (had_conniption) {
 				json warnings = jp.create_array();
-				for (auto& ve : validation_errors) {
+				for (auto& ve : local_errors) {
 					json jve = jp.create_object();
 					ve.get_json(jve);
 					warnings.push_back(jve);
@@ -4404,12 +4378,12 @@ namespace corona
 				result.put_member(message_field, "Failed"sv);
 				result.put_member(success_field, 0);
 				result.put_member("errors", warnings);
-				result.share_member(data_field, object_definition);
+				result.share_member(data_field, _object_definition);
 			}
 			else {
 				result.put_member(message_field, "Ok"sv);
 				result.put_member(success_field, 1);
-				result.share_member(data_field, object_definition);
+				result.share_member(data_field, _object_definition);
 			}
 
 			return result;
@@ -4443,6 +4417,8 @@ namespace corona
 			json put_list = jp.create_array();
 
             date_time current_date = date_time::now();
+
+			compiled_object_view compiled_object(_db, this);
 
 			for (auto _src_obj : _src_list)
 			{
@@ -4570,7 +4546,7 @@ namespace corona
 						}
 					}
 
-					json check_result = check_single_object(_db, current_date, write_object, _grant, validation_errors);
+					json check_result = check_single_object(compiled_object, current_date, write_object, validation_errors);
 					if (check_result[success_field]) {
 						success_object_count++;
 					}
@@ -6212,170 +6188,6 @@ private:
 			}
 
 			return response;
-		}
-
-		json check_single_object(date_time &current_date, read_class_sp& class_data, json& _object_definition, const class_permissions& _permission, validation_error_collection& validation_errors)
-		{
-			json_parser jp;
-			using namespace std::literals;
-
-			bool had_conniption = false;
-
-			json object_definition = _object_definition.clone();
-
-			json result = jp.create_object();
-
-			object_definition.erase_member("class_color");
-
-			if (not object_definition.object())
-			{
-				json warning = jp.create_object();
-				validation_error ve;
-
-				ve.class_name = class_data->get_class_name();
-				ve.field_name = trim(object_definition.to_json_typed(), 50);
-				ve.filename = get_file_name(__FILE__);
-				ve.line_number = __LINE__;
-				ve.message = "Not an object";
-				validation_errors.push_back(ve);
-                had_conniption = true;
-				goto bail;
-			}
-			else {
-
-				if (not object_definition.has_member(class_name_field))
-				{
-					json warning = jp.create_object();
-					validation_error ve;
-
-					ve.class_name = trim(object_definition.to_json_typed(), 50);
-					ve.field_name = class_name_field;
-					ve.filename = get_file_name(__FILE__);
-					ve.line_number = __LINE__;
-					ve.message = "Missing class";
-					validation_errors.push_back(ve);
-					had_conniption = true;
-					goto bail;
-				}
-
-				db_object_id_type object_id = -1;
-
-				if (object_definition.has_member(object_id_field))
-				{
-					object_id = object_definition[object_id_field];
-					bool exists;
-					auto existing_object = class_data->get_object(this, object_id, _permission, exists);
-
-					if (existing_object.object()) {
-						existing_object.erase_member("class_color");
-						existing_object.merge(object_definition);
-						object_definition = existing_object;
-					}
-					else 
-					{
-						object_definition.put_member("created", current_date);
-						object_definition.put_member("created_by", _permission.user_name);
-					}
-
-					object_definition.put_member("updated", current_date);
-					object_definition.put_member("updated_by", _permission.user_name);
-
-				}
-				else
-				{
-					object_id = class_data->get_next_object_id(this);
-					object_definition.put_member_i64(object_id_field, object_id);
-					object_definition.put_member("created", current_date);
-					object_definition.put_member("created_by", _permission.user_name);
-					object_definition.put_member("team", _permission.team_name);
-				}
-
-				// if the user was a stooser and saved the query results with the object,
-				// blank that out here because we will run that on load
-				class_data->clear_queries(object_definition);
-
-				// check the object against the class definition for correctness
-				// first we see which fields are in the class not in the object
-
-				for (auto fld : class_data->get_fields()) {
-					if (object_definition.has_member(fld->get_field_name())) {
-						auto obj_typex = object_definition[fld->get_field_name()];
-						if (obj_typex.empty()) {
-							continue;
-                        }
-						auto obj_type = obj_typex->get_field_type();
-						auto member_type = fld->get_field_type();
-						if (member_type != obj_type) {
-							object_definition.change_member_type(fld->get_field_name(), member_type);
-						}
-					}
-				}
-
-				// check to make sure that we have all the fields 
-				// for the index
-
-				for (auto& idx : class_data->get_indexes()) {
-					std::vector<std::string> missing;
-					std::vector<std::string>& idx_keys = idx->get_index_keys();
-					if (not object_definition.has_members(missing, idx_keys))
-					{
-						for (auto& missed : missing) {
-							had_conniption = true;
-
-							validation_error ve;
-							ve.field_name = missed;
-							ve.class_name = class_data->get_class_name();
-							ve.filename = get_file_name(__FILE__);
-							ve.line_number = __LINE__;
-							ve.message = std::format("Missing field required for index '{0}'", idx->get_index_name());
-							validation_errors.push_back(ve);
-						}
-					}
-				}
-
-				// then we see which fields are in the object that are not 
-				// in the class definition.
-				auto object_members = object_definition.get_members();
-				for (auto om : object_members) {
-					auto fld = class_data->get_field(om.first);
-					if (fld) {
-						fld->accepts(this, validation_errors, class_data->get_class_name(), om.first, om.second);
-					}
-					else
-					{
-						had_conniption = true;
-
-						json warning = jp.create_object();
-						validation_error ve;
-						ve.class_name = class_data->get_class_name();
-						ve.field_name = om.first;
-						ve.filename = get_file_name(__FILE__);
-						ve.line_number = __LINE__;
-						ve.message = "Field not found in class definition";
-						validation_errors.push_back(ve);
-					}
-				}
-			}
-bail:
-			if (had_conniption) {
-				json warnings = jp.create_array();
-				for (auto& ve : validation_errors) {
-					json jve = jp.create_object();
-					ve.get_json(jve);
-					warnings.push_back(jve);
-				}
-				result.put_member(message_field, "Failed"sv);
-				result.put_member(success_field, 0);
-				result.put_member("errors", warnings);
-				result.share_member(data_field, object_definition);
-			}
-			else {
-				result.put_member(message_field, "Ok"sv);
-				result.put_member(success_field, 1);
-				result.share_member(data_field, object_definition);
-			}
-
-			return result;
 		}
 
 		json check_object(json object_load, std::string _user_name, validation_error_collection& validation_errors, std::string _authorization)
@@ -10364,6 +10176,90 @@ grant_type=authorization_code
 		}
 
 	};
+
+	compiled_object_view::compiled_object_view(corona_database_interface *_db, class_interface* _class_definition)
+	{
+		database = _db;
+		class_definition = _class_definition;
+
+		auto& field_definitions = class_definition->use_fields();
+
+		for (auto& _class_field : field_definitions) 
+		{
+			compiled_field_view cfv;
+			cfv.field_definition = _class_field.second;
+			cfv.field_value = nullptr;
+			cfv.index_required = false;
+			auto indexes = _class_definition->get_indexes();
+
+			for (auto index : indexes) {
+				std::vector<std::string>& keys = index->get_index_keys();
+                for (auto& key : keys) {
+					if (key == cfv.field_definition->get_field_name()) {
+						cfv.index_required = true;
+					}
+				}
+			}
+
+			fields.push_back(cfv);
+		}
+	}
+
+	bool compiled_object_view::check(json& _object, validation_error_collection& errors)
+	{
+		bool succeeded = true;
+
+		auto oimpl = _object.object_impl();
+		auto ovalue = _object.value();
+		last_object = ovalue;
+
+		for (auto& fld : fields) 
+		{
+			auto it = oimpl->members.find(fld.field_definition->get_field_name());
+			if (it != std::end(oimpl->members)) {
+				
+				fld.field_value = it->second;
+				auto obj_type = fld.field_value->get_field_type();
+				auto member_type = fld.field_definition->get_field_type();
+				fld.field_value = it->second;
+				if (member_type != obj_type) {
+					_object.change_member_type(fld.field_definition->get_field_name(), member_type);
+                    fld.field_value = oimpl->members[fld.field_definition->get_field_name()];
+				}
+                json test_value(fld.field_value);
+				succeeded = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);
+
+			}
+			else 
+			{
+				fld.field_value = nullptr;
+				if (fld.index_required) {
+					validation_error ve;
+					ve.message = "indexed field missing from object";
+					ve.class_name = class_definition->get_class_name();
+					ve.field_name = fld.field_definition->get_field_name();
+					ve.filename = __FILE__;
+					ve.line_number = __LINE__;
+					errors.push_back(ve);
+                    succeeded = false;
+                }
+
+				auto options = fld.field_definition->get_options();
+				if (options && options->is_required()) {
+					validation_error ve;
+					ve.message = "required field missing from object";
+					ve.class_name = class_definition->get_class_name();
+					ve.field_name = fld.field_definition->get_field_name();
+					ve.filename = __FILE__;
+					ve.line_number = __LINE__;
+					errors.push_back(ve);
+					succeeded = false;
+                }
+			}
+        }
+
+		return succeeded;
+	}
 
 	////
 

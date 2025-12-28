@@ -18,7 +18,6 @@
       "class_description": "Candidates",
       "base_class_name": "political_object",
       "class_color": "#af9d66",
-      "full_text": [ "full_name", "political_party", "city", "state", "street1", "street2", "zip" ],
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "card_title": "full_name",
@@ -114,16 +113,6 @@
         "candidate_candidate_id_idx": {
           "index_keys": [
             "candidate_id"
-          ]
-        },
-        "candidate_full_name_idx": {
-          "index_keys": [
-            "full_name"
-          ]
-        },
-        "candidate_zip_idx": {
-          "index_keys": [
-            "zip"
           ]
         }
       }
