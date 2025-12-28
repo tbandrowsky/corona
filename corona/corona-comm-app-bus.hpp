@@ -221,7 +221,7 @@ namespace corona
 
 			ready_for_polling = true;
 
-			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		std::string run(const std::string& _command)
@@ -255,7 +255,7 @@ namespace corona
 			if (read_json(database_schema_filename, temp) != null_row) {
 				log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
 				auto tempo = local_db->apply_schema(temp);
-				log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			}
 
 			// there is no apply config because that's a server only thing.
@@ -380,7 +380,7 @@ namespace corona
 
 				load_pages(combined, _select_default_page);
 			}
-			log_job_stop("poll_pages", "pages updated", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_job_stop("poll_pages", "pages updated", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		virtual void poll(bool _select_default_page)
@@ -683,7 +683,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("create_user", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("create_user", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -698,7 +698,7 @@ namespace corona
 			json j = local_db->login_user(login_information);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("login", j["Message"], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("login", j["Message"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -730,7 +730,7 @@ namespace corona
 			request.put_member(token_field, token);
 			request.put_member(class_name_field, class_name);
 			json j = local_db->create_object(request);
-			log_command_stop("create_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("create_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
@@ -754,7 +754,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -775,7 +775,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -794,7 +794,7 @@ namespace corona
 			json j = local_db->get_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("get_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("get_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -813,7 +813,7 @@ namespace corona
 			json j = local_db->edit_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("edit_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("edit_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -832,7 +832,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 
-			log_command_stop("delete_object", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("delete_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -857,7 +857,7 @@ namespace corona
 				std::string rr = std::format("{0} items", j.size());
 				log_information(rr);
 			}
-			log_command_stop("query_objects", j[message_field], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("query_objects", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -881,7 +881,7 @@ namespace corona
 				}
 			}
 
-			log_command_stop("create_object", response.message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("create_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -906,7 +906,7 @@ namespace corona
 				log_error(response, __FILE__, __LINE__);
 			}
 
-			log_command_stop("put_object", response.message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("put_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -931,7 +931,7 @@ namespace corona
 				log_error(response, __FILE__, __LINE__);
 			}
 
-			log_command_stop("run_object", response.message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("run_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -959,7 +959,7 @@ namespace corona
 				log_error(response, __FILE__, __LINE__);
 			}
 
-			log_command_stop("edit_object", response.message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("edit_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -1040,7 +1040,7 @@ namespace corona
 				std::string rr = std::format("{0} items", response.data.size());
 				log_information(rr);
 			}
-			log_command_stop("query_objects", response.message, tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("query_objects", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -1092,7 +1092,7 @@ namespace corona
 				else {
 					page_message << "Pages loaded:" << default_page;
 				}
-				log_function_stop("load_pages", page_message.str(), tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				log_function_stop("load_pages", page_message.str(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
 				json jcommands = _pages["startup"];
 
@@ -1109,7 +1109,7 @@ namespace corona
 						}
 					}
 				}
-				log_function_stop("startup commands", page_message.str(), tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				log_function_stop("startup commands", page_message.str(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
 			});
 		}
@@ -1174,7 +1174,7 @@ namespace corona
 						presentation_layer->onResize();
 					}
 				}
-				log_command_stop("select_page", _page, tx.get_elapsed_seconds());
+				log_command_stop("select_page", _page, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			});
 		}
 
@@ -1225,7 +1225,7 @@ namespace corona
 					if (command) {
 						auto tranny = command->execute(context, this);
 					}
-					log_function_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					log_function_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					});
 			}
 		}
@@ -1248,7 +1248,7 @@ namespace corona
 						json context = jp2.create_object();
 						auto tranny = command->execute(context, this);
 					}
-					log_user_command_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					log_user_command_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				});
 			}
 		}

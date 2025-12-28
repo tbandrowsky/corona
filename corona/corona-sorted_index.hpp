@@ -655,7 +655,7 @@ bool test_sorted_index2(std::shared_ptr<test_set> _tests, std::shared_ptr<applic
 	}
 	_tests->test({ "read", true, __FILE__, __LINE__ });
 
-	system_monitoring_interface::active_mon->log_function_stop("sort_index", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+	system_monitoring_interface::active_mon->log_function_stop("sort_index", "complete", tx.get_elapsed_seconds(), 1,  __FILE__, __LINE__);
 	return true;
 }
 

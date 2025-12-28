@@ -212,7 +212,7 @@ namespace Politics
                 .Select(g => new SummaryChartSeries
                 {
                     Name = g.Key.Topic,
-                    Value = g.Average(m => m.ElapsedSeconds),
+                    Value = g.Sum(m => m.ElapsedSeconds) / g.Sum( m => m.BatchSize ),
                     FillColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, ""),
                     BorderColor = GlobalPalette.Current.GetApiColor("Function", g.Key.Topic, "")
                 }).ToList();

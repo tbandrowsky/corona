@@ -13,6 +13,7 @@ using ObservableCollections;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -26,9 +27,8 @@ using static System.Net.WebRequestMethods;
 
 namespace Politics
 {
-    public sealed partial class Activity : UserControl
+    public sealed partial class Activity : UserControl, INotifyPropertyChanged
     {
-        public ObservableCollection<CoronaMessage> Messages { get; } = new ObservableCollection<CoronaMessage>();   
 
         public Activity()
         {
@@ -56,6 +56,24 @@ namespace Politics
             };
         }
 
+        public ObservableCollection<CoronaMessage> Messages { get; } = new ObservableCollection<CoronaMessage>();
+
+
+        private bool _autoScroll = true;
+
+        public bool AutoScroll
+        {
+            get { return _autoScroll; }
+            set
+            {
+                if (_autoScroll != value)
+                {
+                    _autoScroll = value;
+                    OnPropertyChanged(nameof(AutoScroll));
+                }
+            }
+        }
+
         private void CoronaActivity_Loaded(object sender, RoutedEventArgs e)
         {
             DataContext = this;
@@ -67,7 +85,8 @@ namespace Politics
             SchemaGrid.ItemsSource = Messages;
             Messages.CollectionChanged += (s, ev) =>
             {
-                if (ev.NewItems != null && ev.NewItems.Count > 0)
+
+                if (ev.NewItems != null && ev.NewItems.Count > 0 && AutoScroll)
                 {
                     SchemaGrid.ScrollIntoView(ev.NewItems[ev.NewItems.Count - 1], null);
                 }
@@ -75,6 +94,13 @@ namespace Politics
         }
 
         int messageIndex = 0;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public void Navigate(LegendItem li)
         {
@@ -116,5 +142,6 @@ namespace Politics
                 messageIndex = Messages.IndexOf(selectedMessage);
             }
         }
+
     }
 }

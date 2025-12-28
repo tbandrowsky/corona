@@ -166,7 +166,7 @@ namespace corona
 			for (auto ipath : api_paths) {
 				log_information(ipath.path, __FILE__, __LINE__);
 			}
-			log_command_stop("comm_service_bus", "startup complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("comm_service_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			change_to_folder(current_path);
 		}
 
@@ -238,11 +238,11 @@ namespace corona
 			bool system_works = tm.prove("master");
 			if (not system_works)
 			{
-				log_job_stop("verification", "verification failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				log_job_stop("verification", "verification failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			}
 			else
 			{
-				log_job_stop("verification", "verification complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				log_job_stop("verification", "verification complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			}
 		}
 
@@ -465,7 +465,7 @@ namespace corona
 				database_schema_mon.poll(app.get(), [this, start_time, &tx, &show_listen](json& _new_schema) {
 					log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
 					auto tempo = local_db->apply_schema(_new_schema);
-					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					show_listen = true;
 					});
 

@@ -12,6 +12,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="CommitteeControl.xaml" />
     <None Remove="configuration\config.json" />
     <None Remove="configuration\politics_schema.json" />
   </ItemGroup>
@@ -46,6 +47,9 @@
 
   <ItemGroup>
     <Page Update="CandidateControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="CommitteeControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="configuration\us_counties\county_base.txt">
@@ -108,7 +112,7 @@
     <Page Update="ErrorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="DonorControl.xaml">
+    <Page Update="DonationControl.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <None Update="seed_data\us_counties\county_base.txt">

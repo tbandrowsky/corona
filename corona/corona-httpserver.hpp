@@ -554,7 +554,7 @@ namespace corona {
 								}
 							}
 						}
-						system_monitoring_interface::active_mon->log_command_stop(sabsPath, "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_command_stop(sabsPath, "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
 					}
 				}

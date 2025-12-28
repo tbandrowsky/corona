@@ -1999,7 +1999,7 @@ namespace corona
 		}
 		_tests->test({ "round_trip", round_trip_success, __FILE__, __LINE__ });
 
-		system_monitoring_interface::active_mon->log_function_stop("xleaf", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xleaf", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 	void test_xbranch(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
@@ -2089,7 +2089,7 @@ namespace corona
 		_tests->test({ "round_trip", round_trip_success, __FILE__, __LINE__ });
 
 
-		system_monitoring_interface::active_mon->log_function_stop("xbranch", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xbranch", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 	const int max_fill_records = 5000;
@@ -2130,7 +2130,7 @@ namespace corona
 		ptable->commit();
 		_tests->test({ "commit_survived", true, __FILE__, __LINE__ });
 
-		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), max_fill_records, __FILE__, __LINE__);
 	}
 
 	void test_xtable_read(std::shared_ptr<test_set> _tests, std::shared_ptr<application> _app)
@@ -2258,7 +2258,7 @@ namespace corona
 		json info = ptable->get_info();
 		system_monitoring_interface::active_mon->log_json(info);
 
-		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xtable read", "complete", tx.get_elapsed_seconds(), max_fill_records, __FILE__, __LINE__);
 	}
 
 
@@ -2271,7 +2271,7 @@ namespace corona
 		test_xtable_write(_tests, _app);
 		test_xtable_read(_tests, _app);
 
-		system_monitoring_interface::active_mon->log_function_stop("xtable", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xtable", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 }

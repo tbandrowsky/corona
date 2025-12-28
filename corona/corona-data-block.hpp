@@ -70,7 +70,7 @@ namespace corona
 					after_read(bytes, header.data_size);
 					finished_read(bytes);
 					if (ENABLE_JSON_LOGGING) {
-						system_monitoring_interface::active_mon->log_block_stop("block", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_block_stop("block", "complete", tx.get_elapsed_seconds(), header.data_size, __FILE__, __LINE__);
 					}
 					return header_result.location; // want to make this 0 or -1 if error
 				}
@@ -78,13 +78,13 @@ namespace corona
 				{
 					finished_read(bytes);
 					if (ENABLE_JSON_LOGGING) {
-						system_monitoring_interface::active_mon->log_function_stop("block", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_function_stop("block", "failed", tx.get_elapsed_seconds(), header.data_size, __FILE__, __LINE__);
 					}
 				}
 			}
 
 			if (ENABLE_JSON_LOGGING) {
-				system_monitoring_interface::active_mon->log_block_stop("block", "failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_block_stop("block", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			}
 			return -1i64;
 		}
@@ -132,7 +132,7 @@ namespace corona
 				after_write(bytes);
 				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
-					system_monitoring_interface::active_mon->log_block_stop("block", "write complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_block_stop("block", "write complete", tx.get_elapsed_seconds(), size,__FILE__, __LINE__);
 				}
 				return header_result.location;
 			}
@@ -140,7 +140,7 @@ namespace corona
 			{
 				finished_write(bytes);
 				if (ENABLE_JSON_LOGGING) {
-					system_monitoring_interface::active_mon->log_block_stop("block", "write failed", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_block_stop("block", "write failed", tx.get_elapsed_seconds(), size, __FILE__, __LINE__);
 				}
 			}
 			return -1i64;
@@ -173,7 +173,7 @@ namespace corona
 			auto data_status = _file->write(header.data_location, bytes, size);
 
 			if (ENABLE_JSON_LOGGING) {
-				system_monitoring_interface::active_mon->log_block_stop("block", "append", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_block_stop("block", "append", tx.get_elapsed_seconds(), actual_size, __FILE__, __LINE__);
 			}
 
 			after_write(bytes);

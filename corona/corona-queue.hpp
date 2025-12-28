@@ -772,7 +772,7 @@ namespace corona {
 			_tests->test({"wait suffice", true, __FILE__, __LINE__ });
 		}
 
-		system_monitoring_interface::active_mon->log_function_stop("lock proof", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("lock proof", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 	void test_rw_locks(std::shared_ptr<test_set> _tests)
@@ -907,7 +907,7 @@ namespace corona {
 		bool result = active_count == 0;
 		_tests->test({ "active_count", result, __FILE__, __LINE__ });
 
-		system_monitoring_interface::active_mon->log_function_stop("rw lock proof", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("rw lock proof", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 

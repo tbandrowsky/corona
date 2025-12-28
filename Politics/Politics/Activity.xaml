@@ -10,7 +10,15 @@
     mc:Ignorable="d">
 
     <Grid>
-        <cty:DataGrid x:Name="SchemaGrid" AutoGenerateColumns="false" SelectionChanged="SchemaGrid_SelectionChanged">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+            <CheckBox x:Name="AutoScrollCheckBox" Content="Auto Scroll" IsChecked="{Binding AutoScroll, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+        </StackPanel>
+        <cty:DataGrid Grid.Row="1" x:Name="SchemaGrid" AutoGenerateColumns="false" SelectionChanged="SchemaGrid_SelectionChanged">
             <cty:DataGrid.Columns>
                 <cty:DataGridTextColumn Header="Api" Binding="{Binding Api}" Width="Auto"/>
                 <cty:DataGridTextColumn Header="Topic" Binding="{Binding Topic}" Width="Auto"/>

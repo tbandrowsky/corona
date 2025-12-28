@@ -172,7 +172,8 @@ namespace Politics
             {
                 var request = new EditObjectRequest
                 {
-                    Data = selectedItem
+                    Data = selectedItem,
+                    IncludeChildren = true
                 };
                 var response = App.CurrentApp.CoronaDatabase.EditObject(request);
                 var edit_object = response.Data as dynamic;
@@ -181,6 +182,8 @@ namespace Politics
                     case "candidate":
                         DonorControl.Visibility = Visibility.Collapsed;
                         DonorControl.IsEnabled = false;
+                        CommitteeControl.Visibility = Visibility.Collapsed;
+                        CommitteeControl.IsEnabled = false;
                         CandidateControl.Visibility = Visibility.Visible;
                         CandidateControl.IsEnabled = true;
                         CandidateControl.Candidate = edit_object;
@@ -188,7 +191,18 @@ namespace Politics
                     case "donation":
                         DonorControl.Visibility = Visibility.Visible;
                         DonorControl.IsEnabled = true;
+                        CommitteeControl.Visibility = Visibility.Collapsed;
+                        CommitteeControl.IsEnabled = false;
                         DonorControl.Donor = edit_object;
+                        CandidateControl.Visibility = Visibility.Collapsed;
+                        CandidateControl.IsEnabled = false;
+                        break;
+                    case "committee":
+                        CommitteeControl.Visibility = Visibility.Visible;
+                        CommitteeControl.IsEnabled = true;
+                        CommitteeControl.Committee = edit_object;
+                        DonorControl.Visibility = Visibility.Collapsed;
+                        DonorControl.IsEnabled = false;
                         CandidateControl.Visibility = Visibility.Collapsed;
                         CandidateControl.IsEnabled = false;
                         break;

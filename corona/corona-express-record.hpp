@@ -1022,7 +1022,7 @@ namespace corona
 		result = not (comp3 < comp1);
 		_tests->test({ "index 3 < swo", result, __FILE__, __LINE__ });
 
-		system_monitoring_interface::active_mon->log_function_stop("xrecord", "complete", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+		system_monitoring_interface::active_mon->log_function_stop("xrecord", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
 }

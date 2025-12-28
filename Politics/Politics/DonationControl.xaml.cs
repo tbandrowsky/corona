@@ -21,9 +21,9 @@ using Windows.Foundation.Collections;
 
 namespace Politics;
 
-public partial class DonorControl : UserControl
+public partial class DonationControl : UserControl
 {
-    public DonorControl()
+    public DonationControl()
     {
         InitializeComponent();
     }
@@ -37,13 +37,13 @@ public partial class DonorControl : UserControl
     DependencyProperty DonorProperty = DependencyProperty.Register(
         "Donor",
         typeof(ExpandoObject),
-        typeof(DonorControl),
+        typeof(DonationControl),
         new PropertyMetadata(null, OnCoronaDataChanged)
     );
 
     private static void OnCoronaDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is DonorControl card && e.NewValue is ExpandoObject newData)
+        if (d is DonationControl card && e.NewValue is ExpandoObject newData)
         {
             card.DataContext = newData;
         }

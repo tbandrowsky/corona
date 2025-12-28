@@ -19,7 +19,8 @@ namespace Politics
         private string _topic = "";
         private string _message = "";
         private DateTime _startTime;
-        private double _elapsedSeconds;
+        private double _elapsedSeconds = 0;
+        private long _batchSize = 1;
         public string Api
         {
             get => _api;
@@ -58,6 +59,16 @@ namespace Politics
                 _startTime = value;
                 OnPropertyChanged(nameof(StartTime));
                 OnPropertyChanged(nameof(StartTimeString));
+            }
+        }
+
+        public long BatchSize
+        {
+            get => _batchSize;
+            set
+            {
+                _batchSize = value;
+                OnPropertyChanged(nameof(BatchSize));
             }
         }
 
@@ -138,14 +149,15 @@ namespace Politics
                 });
         }
 
-        public void StopMessage(string api, string topic, string message, double elapsed_seconds)
+        public void StopMessage(string api, string topic, string message, double elapsed_seconds, long batch_size = 1)
         {
             var new_message = new CoronaMessage
             {
                 Api = api,
                 Topic = topic,
                 Message = message,
-                ElapsedSeconds = elapsed_seconds
+                ElapsedSeconds = elapsed_seconds,
+                BatchSize = batch_size
             };
 
             if (App.CurrentApp == null)
@@ -168,9 +180,9 @@ namespace Politics
             StartMessage("UserCommand", commandName, message, requestTime);
         }
 
-        public void LogUserCommandStop(string commandName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogUserCommandStop(string commandName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("UserCommand", commandName, message, elapsedSeconds);
+            StopMessage("UserCommand", commandName, message, elapsedSeconds, batchSize);
         }
 
         public void LogCommandStart(string commandName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -178,9 +190,9 @@ namespace Politics
             StartMessage("Command", commandName, message, requestTime);
         }
 
-        public void LogCommandStop(string commandName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogCommandStop(string commandName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Command", commandName, message, elapsedSeconds);
+            StopMessage("Command", commandName, message, elapsedSeconds, batchSize);
         }
 
         public void LogJobStart(string apiName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -188,9 +200,9 @@ namespace Politics
             StartMessage("Job", apiName, message, requestTime);
         }
 
-        public void LogJobStop(string apiName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogJobStop(string apiName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Job", apiName, message, elapsedSeconds);
+            StopMessage("Job", apiName, message, elapsedSeconds, batchSize);
         }
 
         public void LogJobSectionStart(string apiName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -198,9 +210,9 @@ namespace Politics
             StartMessage("JobSection", apiName, message, requestTime);
         }
 
-        public void LogJobSectionStop(string apiName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogJobSectionStop(string apiName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("JobSection", apiName, message, elapsedSeconds);
+            StopMessage("JobSection", apiName, message, elapsedSeconds, batchSize);
         }
 
         public void LogFunctionStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -208,9 +220,9 @@ namespace Politics
             StartMessage("Function", functionName, message, requestTime);
         }
 
-        public void LogFunctionStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogFunctionStop(string functionName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Function", functionName, message, elapsedSeconds);
+            StopMessage("Function", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogBaseBlockStart(int indent, string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -218,9 +230,9 @@ namespace Politics
             StartMessage("Block", functionName, message, requestTime);
         }
 
-        public void LogBaseBlockStop(int indent, string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogBaseBlockStop(int indent, string functionName, string message, double elapsedSeconds, long batchSize,  string file = "", int line = 0)
         {
-            StopMessage("Block", functionName, message, elapsedSeconds);
+            StopMessage("Block", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogTableStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -228,9 +240,9 @@ namespace Politics
             StartMessage("Table", functionName, message, requestTime);
         }
 
-        public void LogTableStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogTableStop(string functionName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Table", functionName, message, elapsedSeconds);
+            StopMessage("Table", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogJsonStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -238,9 +250,9 @@ namespace Politics
             StartMessage("Json", functionName, message, requestTime);
         }
 
-        public void LogJsonStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogJsonStop(string functionName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Json", functionName, message, elapsedSeconds);
+            StopMessage("Json", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogPocoStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -248,9 +260,9 @@ namespace Politics
             StartMessage("Poco", functionName, message, requestTime);
         }
 
-        public void LogPocoStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogPocoStop(string functionName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Poco", functionName, message, elapsedSeconds);
+            StopMessage("Poco", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogBlockStart(string functionName, string message, DateTime requestTime, string file = "", int line = 0)
@@ -258,9 +270,9 @@ namespace Politics
             StartMessage("Block", functionName, message, requestTime);
         }
 
-        public void LogBlockStop(string functionName, string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogBlockStop(string functionName, string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Block", functionName, message, elapsedSeconds);
+            StopMessage("Block", functionName, message, elapsedSeconds, batchSize);
         }
 
         public void LogInformation(string message, string file = "", int line = 0)
@@ -273,14 +285,14 @@ namespace Politics
             StartMessage("Activity", "", message, DateTime.Now);
         }
 
-        public void LogActivity(string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogActivity(string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StopMessage("Activity", "", message, elapsedSeconds);
+            StopMessage("Activity", "", message, elapsedSeconds, batchSize);
         }
 
-        public void LogPut(string message, double elapsedSeconds, string file = "", int line = 0)
+        public void LogPut(string message, double elapsedSeconds, long batchSize, string file = "", int line = 0)
         {
-            StartMessage("Put", "", message, DateTime.Now);
+            StopMessage("Put", "", message, elapsedSeconds, batchSize);
         }
 
         public void LogAdapter(string message)

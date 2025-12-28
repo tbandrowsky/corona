@@ -224,8 +224,6 @@ namespace CoronaInterface
 
     public class QueryFilter : QueryStage
     {
-        [JsonProperty("input")]
-        public string? Input { get; set; }
         [JsonProperty("condition")]
         public Condition? Condition { get; set; }
         public QueryFilter()
@@ -237,9 +235,6 @@ namespace CoronaInterface
 
     public class QueryProject : QueryStage
     {
-        [JsonProperty("input")]
-        public string? Input { get; set; }
-
         [JsonProperty("projection")]
         public Dictionary<string, string>? Projection { get; set; }
 

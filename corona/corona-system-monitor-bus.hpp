@@ -129,7 +129,7 @@ namespace corona
 				}
 				xout << Loginformation << std::endl;
 			}
-			log_command_stop("Startup", "Color Test", tx.get_elapsed_seconds(), __FILE__, __LINE__);
+			log_command_stop("Startup", "Color Test", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		char Normal[5] = { 0x1b, '[', '0', 'm', 0 };
@@ -275,7 +275,7 @@ namespace corona
 			}
 		}
 
-		virtual void log_user_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_user_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, int64_t _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 
 			try {
@@ -290,6 +290,7 @@ namespace corona
 						marshal_as<System::String^>(_command_name.c_str()),
 						marshal_as<System::String^>(_message.c_str()),
 						_elapsed_seconds,
+						_batch_size,
 						marshal_as<System::String^>(get_file_name(_file)),
 						_line
 					);
@@ -359,7 +360,7 @@ namespace corona
 
 		}
 
-		virtual void log_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, int64_t _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 
 			const char* cmessage = _message.c_str();
@@ -373,6 +374,7 @@ namespace corona
 					marshal_as<System::String^>(_command_name.c_str()),
 					marshal_as<System::String^>(_message.c_str()),
 					_elapsed_seconds,
+					_batch_size,
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
 				);
@@ -454,7 +456,7 @@ namespace corona
 
 		}
 
-		virtual void log_job_stop(std::string _api_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_job_stop(std::string _api_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
@@ -466,6 +468,7 @@ namespace corona
 					marshal_as<System::String^>(ccommand),
 					marshal_as<System::String^>(cmessage),
 					_elapsed_seconds,
+					1,
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
 				);
@@ -548,7 +551,7 @@ namespace corona
 
 		}
 
-		virtual void log_job_section_stop(std::string _api_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_job_section_stop(std::string _api_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
@@ -569,6 +572,7 @@ namespace corona
 						marshal_as<System::String^>(_api_name.c_str()),
 						marshal_as<System::String^>(_message.c_str()),
 						_elapsed_seconds,
+						_batch_size,
 						marshal_as<System::String^>(get_file_name(_file)),
 						_line
 					);
@@ -641,7 +645,7 @@ namespace corona
 
 		}
 
-		virtual void log_function_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_function_stop(std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _function_name.c_str();
@@ -656,6 +660,7 @@ namespace corona
 						marshal_as<System::String^>(ccommand),
 						marshal_as<System::String^>(cmessage),
 						_elapsed_seconds,
+						_batch_size,
 						marshal_as<System::String^>(cfilename),
 						_line
 					);
@@ -730,7 +735,7 @@ namespace corona
 			}
 		}
 
-		virtual void log_base_block_stop(int _indent, std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_base_block_stop(int _indent, std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			try {
 				auto& xout = get_log_file();
@@ -743,6 +748,7 @@ namespace corona
 						marshal_as<System::String^>(_function_name.c_str()),
 						marshal_as<System::String^>(_message.c_str()),
 						_elapsed_seconds,
+						_batch_size,
 						marshal_as<System::String^>(get_file_name(_file)),
 						_line
 					);
@@ -780,10 +786,10 @@ namespace corona
 			}
 		}
 
-		virtual void log_table_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_table_stop(std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			if (enable_json_table_logging) {
-				log_base_block_stop(0, _function_name, _message, _elapsed_seconds, _file, _line);
+				log_base_block_stop(0, _function_name, _message, _elapsed_seconds, _batch_size, _file, _line);
 			}
 		}
 
@@ -795,10 +801,10 @@ namespace corona
 			}
 		}
 
-		virtual void log_json_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_json_stop(std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			if (enable_json_poco_logging) {
-				log_base_block_stop(2, _function_name, _message, _elapsed_seconds, _file, _line);
+				log_base_block_stop(2, _function_name, _message, _elapsed_seconds, _batch_size, _file, _line);
 			}
 		}
 
@@ -809,10 +815,10 @@ namespace corona
 			}
 		}
 
-		virtual void log_poco_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_poco_stop(std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			if (enable_json_poco_logging) {
-				log_base_block_stop(2, _function_name, _message, _elapsed_seconds, _file, _line);
+				log_base_block_stop(2, _function_name, _message, _elapsed_seconds, _batch_size, _file, _line);
 			}
 		}
 
@@ -823,10 +829,10 @@ namespace corona
 			}
 		}
 
-		virtual void log_block_stop(std::string _function_name, std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_block_stop(std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 			if (enable_json_block_logging) {
-				log_base_block_stop(4, _function_name, _message, _elapsed_seconds, _file, _line);
+				log_base_block_stop(4, _function_name, _message, _elapsed_seconds, _batch_size, _file, _line);
 			}
 		}
 
@@ -914,13 +920,14 @@ namespace corona
 
 		}
 
-		virtual void log_activity(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_activity(std::string _message, double _elapsed_seconds, int64_t _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 #if defined(__cplusplus_cli)
 			if (net_reporting.get()) {
 				net_reporting->LogActivity(
 					marshal_as<System::String^>(_message.c_str()),
 					_elapsed_seconds,
+					_batch_size,
 					marshal_as<System::String^>(get_file_name(_file)),
 					_line
 				);
@@ -930,20 +937,20 @@ namespace corona
 			try {
 				auto& xout = get_log_file();
 
-			xout << Logcommand;
-			xout << std::format("{0:<5}", " ");
-			xout << Logapi;
-			xout << std::format("{0:<5}", " ");
-			xout << Logfunction;
-			xout << std::format("{0:<20}", " ");
-			xout << Logactivity;
-			xout << std::format("{0:<55}{1:<25}",
-				trim(_message, 55),
-				std::format("{0} secs", _elapsed_seconds)
-			);
-			file_line(_file, _line);
-			xout << Normal;
-			xout << std::endl;
+				xout << Logcommand;
+				xout << std::format("{0:<5}", " ");
+				xout << Logapi;
+				xout << std::format("{0:<5}", " ");
+				xout << Logfunction;
+				xout << std::format("{0:<20}", " ");
+				xout << Logactivity;
+				xout << std::format("{0:<55}{1:<25}",
+					trim(_message, 55),
+					std::format("{0} secs", _elapsed_seconds)
+				);
+				file_line(_file, _line);
+				xout << Normal;
+				xout << std::endl;
 			}
 			catch (std::exception exc)
 			{
@@ -952,7 +959,7 @@ namespace corona
 
 		}
 
-		virtual void log_put(std::string _message, double _elapsed_seconds, const char* _file = nullptr, int _line = 0)
+		virtual void log_put(std::string _message, double _elapsed_seconds, int64_t _batch_size, const char* _file = nullptr, int _line = 0)
 		{
 
 			if (not enable_put_logging)
