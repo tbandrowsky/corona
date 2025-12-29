@@ -87,7 +87,7 @@ namespace Politics
             request.Stages?.Add(new QueryResult
             {
                 Name = "results",
-                Input = "political_object",
+                Source = "political_object",
                 Output = "results"
             });
 
@@ -180,20 +180,20 @@ namespace Politics
                 switch (selectedItem.class_name)
                 {
                     case "candidate":
+                        CandidateControl.Visibility = Visibility.Visible;
+                        CandidateControl.IsEnabled = true;
+                        CandidateControl.Candidate = edit_object;
                         DonorControl.Visibility = Visibility.Collapsed;
                         DonorControl.IsEnabled = false;
                         CommitteeControl.Visibility = Visibility.Collapsed;
                         CommitteeControl.IsEnabled = false;
-                        CandidateControl.Visibility = Visibility.Visible;
-                        CandidateControl.IsEnabled = true;
-                        CandidateControl.Candidate = edit_object;
                         break;
                     case "donation":
                         DonorControl.Visibility = Visibility.Visible;
                         DonorControl.IsEnabled = true;
+                        DonorControl.Donor = edit_object;
                         CommitteeControl.Visibility = Visibility.Collapsed;
                         CommitteeControl.IsEnabled = false;
-                        DonorControl.Donor = edit_object;
                         CandidateControl.Visibility = Visibility.Collapsed;
                         CandidateControl.IsEnabled = false;
                         break;
@@ -208,9 +208,11 @@ namespace Politics
                         break;
                     default:
                         DonorControl.Visibility = Visibility.Collapsed;
-                        CandidateControl.Visibility = Visibility.Collapsed;
                         DonorControl.IsEnabled = false;
+                        CandidateControl.Visibility = Visibility.Collapsed;
                         CandidateControl.IsEnabled = false;
+                        CommitteeControl.Visibility = Visibility.Collapsed;
+                        CommitteeControl.IsEnabled = false;
                         break;
 
                 }

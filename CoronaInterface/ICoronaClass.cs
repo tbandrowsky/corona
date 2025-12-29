@@ -57,8 +57,8 @@ namespace CoronaInterface
         public string? Name { get; set; }
         [JsonProperty("output")]
         public string? Output { get; set; }
-        [JsonProperty("input")]
-        public string? Input { get; set; }
+        [JsonProperty("source")]
+        public string? Source { get; set; }
 
         public QueryStage()
         {

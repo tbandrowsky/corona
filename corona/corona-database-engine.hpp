@@ -786,25 +786,35 @@ namespace corona
 		virtual json get_openapi_schema(std::string _user_name) = 0;
 	};
 
-	class from_replace
+	class from_join
 	{
 	public:
-		std::string with_class;
+		std::string join_to;
 		json		joined_by;
 
 		json get_json()
 		{
 			json_parser jp;
 			json result = jp.create_object();
-			result.put_member("with_class", with_class);
-			result.put_member("joined_by", joined_by);
+			result.put_member("join_to", join_to);
+			result.put_member("join_by", joined_by);
 			return result;
         }
 
 		void put_json(json& _src)
 		{
-			with_class = _src["source_class"];
-            joined_by = _src["joined_by"];
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "join_to", "join_by" })) {
+				system_monitoring_interface::active_mon->log_warning("join missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+			}
+
+			join_to = _src["join_to"];
+            joined_by = _src["join_by"];
 		}
 	};
 
@@ -814,16 +824,17 @@ namespace corona
 		int													index;
 		std::string											source_name;
 		std::string											class_name;
-		json												filter;
 		json												data; 
-        std::vector<std::shared_ptr<from_replace>>			replacements;
+        std::vector<std::shared_ptr<from_join>>				replacements;
+		std::shared_ptr<from_join>							filter;
+		std::string											user_name;
 
         bool	                                            use_fetch;
 
 		json replace_set(corona_database_interface* _db, json& _previous_item, int _filter_index)
 		{
 			json_parser jp;
-			json		result = _previous_item;
+			json		result = jp.create_array();
 
             if (_filter_index < replacements.size())
 			{
@@ -839,6 +850,7 @@ namespace corona
 							continue;
 						}
 						auto replacement = replacements[_filter_index];
+						json filter_request = jp.create_object();
 						json filter = jp.create_object();
 
 						for (auto member : replacement->joined_by.get_members())
@@ -848,19 +860,28 @@ namespace corona
 							json src = jo->members[src_field];
 							filter.put_member(dst_field, src);
 						}
-						filter.put_member("class_name", replacement->with_class);
-						filter.put_member("filter", filter);
-						json apply_result = _db->query_class(replacement->with_class, filter);
-						json result_data = apply_result["data"];
-						for (auto r : result_data)
-						{
-							result.push_back(r);
+						filter_request.put_member("class_name", replacement->join_to);
+						filter_request.put_member("filter", filter);
+						json apply_result = _db->query_class(user_name, filter);
+						if (apply_result[success_field]) {
+							json result_data = apply_result["data"];
+							if (result_data.array())
+							{
+								for (auto r : result_data)
+								{
+									result.push_back(r);
+								}
+							}
 						}
 					}
 
 					result = replace_set(_db, result, _filter_index + 1);
 				}
-			} 
+			}
+			else 
+			{
+				result = _previous_item;
+			}
 			return result;
 		}
 
@@ -879,9 +900,10 @@ namespace corona
 
 	class query_from
 	{
+		std::vector<std::shared_ptr<from_source>> ordered_sources;
 		from_sources			sources;
 		json					dest_array;
-		int						join_index;
+		int						join_index = 0;
 		std::string             user_name;
 
 	public:
@@ -890,6 +912,7 @@ namespace corona
 		{
 			json_parser jp;
 			user_name = _user_name;
+			
 			// these run in order to allow for dependencies
 			for (auto from_class : from_classes)
 			{
@@ -901,13 +924,19 @@ namespace corona
 				new_source->index = join_index++;
 				new_source->source_name = filter_source_name;
 				new_source->class_name = from_class_name;
-                new_source->filter = from_class["filter"];
-				if (from_class.has_member("replacements"))
+                json jjoin = from_class["filter"];
+				if (jjoin.object()) {
+					std::shared_ptr<from_join> new_join = std::make_shared<from_join>();
+					new_join->put_json(jjoin);
+                    new_source->filter = new_join;
+				}
+				new_source->user_name = user_name;
+				if (from_class.has_member("replace"))
 				{
-                    json follows = from_class["replacements"];
+                    json follows = from_class["replace"];
 					for (auto replacements : follows)
 					{
-						std::shared_ptr<from_replace> new_follow = std::make_shared<from_replace>();
+						std::shared_ptr<from_join> new_follow = std::make_shared<from_join>();
                         new_follow->put_json(replacements);
 						new_source->replacements.push_back(new_follow);
 					}
@@ -923,131 +952,81 @@ namespace corona
 				else if (data.array())
 				{
 					new_source->use_fetch = false;
-					new_source->data = data;
-					
+					new_source->data = data;					
 				}
 				else if (data.empty())
 				{
 					new_source->use_fetch = true;
 				}
 				sources.insert_or_assign(filter_source_name, new_source);
+                ordered_sources.push_back(new_source);
 			}
+		}
+
+        json run_class(query_context* _dest, 
+			corona_database_interface* _db, 
+			std::shared_ptr<from_source>& _source)
+		{
+			json_parser jp;
+            json result = jp.create_array();
+			json join_filter = jp.create_object();
+
+			if (_source->filter)
+			{
+				auto joined_by_members = _source->filter->joined_by.get_members();
+				auto join_source = sources.find(_source->filter->join_to);
+				if (join_source == sources.end())
+				{
+					system_monitoring_interface::active_mon->log_warning(std::format("Join source {} not found", _source->filter->join_to), __FILE__, __LINE__);
+				}
+				else
+				{
+					json _src = join_source->second->data;
+					if (_src.empty())
+					{
+						system_monitoring_interface::active_mon->log_warning(std::format("Join source {} has no data", _source->filter->join_to), __FILE__, __LINE__);
+					}
+					if (_src.array() && _src.size() > 0)
+					{
+						_src = _src.get_element(0);
+					}
+					for (auto member : joined_by_members)
+					{
+						std::string src_field = member.first;
+						std::string dst_field = member.second;
+						json src = _src[src_field];
+						join_filter.put_member(dst_field, src);
+					}
+				}
+			}
+
+			if (_source->use_fetch) 
+			{
+				result = _source->fetch(_db, user_name, join_filter);
+			}
+			else if (join_filter.empty())
+			{
+				result = _source->data;
+			}
+			else
+			{
+				result = _source->data.filter([&join_filter](json& _item)->bool {
+					return join_filter.compare(_item) == 0;
+				});
+			}
+
+			_dest->set_data_source(_source->source_name, result);
+
+			return result;
 		}
 
 		void run(query_context *_dest, corona_database_interface* _db)
 		{
 			json_parser jp;
 			
-			std::map<int, std::shared_ptr<from_source>> ordered_sources;
-
-			for (auto& mp : sources)
-			{
-				ordered_sources[mp.second->index] = mp.second;
-			}
-
 			for (auto& os : ordered_sources)
 			{
-				json cross_arrays = jp.create_array();
-
-				if (os.second->filter.object() and os.second->filter.size()>0) {
-					auto filter_members = os.second->filter.get_members();
-
-					for (auto member : filter_members) {
-						std::string key = member.first;
-						std::string value = member.second;
-
-						if (value[0] == '$') {
-							std::string ref_source_name = value.substr(1);
-							std::vector<std::string> kv = split(ref_source_name, '.');
-							json source_data;
-
-							if (kv.size() == 2) {
-								std::string ref_source = kv[0];
-								std::string ref_field = kv[1];
-								if (sources.contains(ref_source)) {
-									auto ref_os = sources[ref_source];
-									source_data = ref_os->data;
-									cross_arrays.push_back(source_data);
-								}
-							}
-							else
-							{
-								system_monitoring_interface::active_mon->log_warning(std::format("Invalid filter {} {}", key, value), __FILE__, __LINE__ );
-							}
-						}
-						else
-						{
-							json temp_array = jp.create_array();
-							json star = jp.create_object();
-							star.put_member("class_name", os.second->class_name);
-							star.put_member(key, value);
-							temp_array.push_back(star);
-							cross_arrays.push_back(temp_array);
-						}
-					}
-				}
-
-                json combined = jp.from_cartesian(cross_arrays);
-				json data_result = jp.create_array();
-
-				for (auto item : combined) 
-				{
-
-					json filter_object = jp.create_object();
-					auto filter_members = os.second->filter.get_members();
-                    filter_object.put_member("class_name", os.second->class_name);
-                    json filter = jp.create_object();
-
-					for (auto member : filter_members) {
-						std::string key = member.first;
-						std::string value = member.second;
-
-						if (value[0] == '$') {
-							std::string ref_source_name = value.substr(1);
-							std::vector<std::string> kv = split(ref_source_name, '.');
-
-							if (kv.size() == 2) {
-								std::string ref_field = kv[1];
-                                json v = item[ref_field];
-								filter.put_member(key, v);
-							}
-							else if (kv.size() == 1) {
-								std::string ref_field = kv[0];
-								json v = item[ref_field];
-								filter.put_member(key, v);
-							}
-							else {
-								filter.copy_member(key, item);
-							}
-						}
-						else {
-							filter.put_member(key, value);
-						}
-                    }
-                    filter_object.put_member("filter", filter);
-
-					if (os.second->use_fetch) {
-						json temp_result = os.second->fetch(_db, user_name, filter_object);
-
-						if (temp_result.array()) {
-							for (auto m : temp_result) {
-								data_result.push_back(m);
-							}
-						}
-					}
-					else 
-					{
-                        for (auto m : data_result) {
-							if (filter_object.compare(m) == 0) {
-								data_result.push_back(m);
-							}
-                        }
-					}
-
-				}
-
-				_dest->set_data_source(os.second->source_name, data_result);
-
+				run_class(_dest, _db, os);
 			}
 		}
 
@@ -2441,6 +2420,7 @@ namespace corona
 
 			json froms = this_query_body["from"];
 			if (froms.array()) {
+				// this adds us as an input source
 				json new_from = jp.create_object();
 				json thisobj = _object.clone();
 				new_from.put_member(data_field, thisobj);
@@ -2459,7 +2439,7 @@ namespace corona
 			{
 				validation_error_collection ves;
 				validation_error ve;
-				json errors = query_results["data"];
+				json errors = query_results["errors"];
 				for (auto err : errors) {
 					ve.put_json(err);
 					ves.push_back(ve);

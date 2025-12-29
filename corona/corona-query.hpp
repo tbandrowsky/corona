@@ -319,7 +319,7 @@ namespace corona
 
 			if (stage_input_name.empty())
 			{
-				_src->add_error("filter", "input", "missing property 'input' for stage.", __FILE__, __LINE__);
+				_src->add_error("filter", "source", "missing property 'source' for stage.", __FILE__, __LINE__);
 				return result;
 			}
 
@@ -355,8 +355,8 @@ namespace corona
 			}
 			else
 			{
-				std::string msg = std::format("input '{0}' not found", stage_input_name);
-				_src->add_error("filter", "input", msg, __FILE__, __LINE__);
+				std::string msg = std::format("source '{0}' not found", stage_input_name);
+				_src->add_error("filter", "source", msg, __FILE__, __LINE__);
 			}
 			execution_time_seconds = tx.get_elapsed_seconds();
 			return stage_output;  
@@ -373,7 +373,7 @@ namespace corona
 			}
 			using namespace std::literals;
 			_dest.put_member("class_name", "filter"sv);
-			_dest.put_member("input", stage_input_name);
+			_dest.put_member("source", stage_input_name);
 		}
 
 		virtual void put_json(json& _src)
@@ -389,13 +389,17 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
+			stage_input_name = _src["source"];
+			stage_name = _src["name"];
+			if (stage_name.empty()) {
+				stage_name = std::format("filter_{0}", stage_input_name);
+            }
+			stage_output = _src["output"];
 
-			query_stage::put_json(_src);
 			json jcondition = _src["condition"];
 			if (not jcondition.empty()) {
 				corona::put_json(condition, jcondition);
 			}
-			stage_input_name = _src["input"];
 		}
 
 	};
@@ -414,7 +418,7 @@ namespace corona
 
 			if (stage_input_name.empty())
 			{
-				_src->add_error("result", "input", "missing property 'input' for stage.", __FILE__, __LINE__);
+				_src->add_error("result", "source", "missing property 'source' for stage.", __FILE__, __LINE__);
 				return result;
 			}
 
@@ -430,8 +434,8 @@ namespace corona
 			}
 			else
 			{
-				std::string msg = std::format("input '{0}' not found", stage_input_name);
-				_src->add_error("filter", "input", msg, __FILE__, __LINE__);
+				std::string msg = std::format("source '{0}' not found", stage_input_name);
+				_src->add_error("filter", "source", msg, __FILE__, __LINE__);
 			}
 			execution_time_seconds = tx.get_elapsed_seconds();
 			return stage_output;
@@ -443,14 +447,14 @@ namespace corona
 			query_stage::get_json(_dest);
 			using namespace std::literals;
 			_dest.put_member("class_name", "result"sv);
-			_dest.put_member("input", stage_input_name);
+			_dest.put_member("source", stage_input_name);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
 
-			if (not _src.has_members(missing, { "class_name", "input" })) {
+			if (not _src.has_members(missing, { "class_name", "source" })) {
 				system_monitoring_interface::active_mon->log_warning("query_result missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -460,8 +464,12 @@ namespace corona
 				return;
 			}
 
-			query_stage::put_json(_src);
-			stage_input_name = _src["input"];
+			stage_input_name = _src["source"];
+			stage_name = _src["name"];
+			if (stage_name.empty()) {
+				stage_name = std::format("result_{0}", stage_input_name);
+			}
+			stage_output = _src["output"];
 		}
 
 	};
@@ -533,8 +541,8 @@ namespace corona
 			_dest.put_member("class_name", "join"sv);
 			_dest.put_member("resultname1", resultname1);
 			_dest.put_member("resultname2", resultname2);
-			_dest.put_member("input1", source1);
-			_dest.put_member("input2", source2);
+			_dest.put_member("source1", source1);
+			_dest.put_member("source2", source2);
 			std::string skeys = join(keys, ",");
 			_dest.put_member("keys", skeys);
 			_dest.put_member("execution_time_seconds", execution_time_seconds);
@@ -557,11 +565,11 @@ namespace corona
 
 			resultname1 = _src["resultname1"];
 			resultname2 = _src["resultname2"];
-			source1 = _src["input1"];
-			source2 = _src["input2"];
+			source1 = _src["source1"];
+			source2 = _src["source2"];
 			std::string skeys = _src["keys"];
 			keys = split(skeys, ',');
-
+			stage_output = _src["output"];
 		}
 
 	};
@@ -1165,7 +1173,7 @@ namespace corona
 		{
 			using namespace std::literals;
 			_dest.put_member("class_name", "project"sv);
-			_dest.put_member("input", source_name);
+			_dest.put_member("source", source_name);
 			_dest.put_member("projection", projection);
 		}
 
@@ -1173,8 +1181,14 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 
-			source_name = _src["source_name"];
+			source_name = _src["source"];
 			projection = _src["projection"];
+
+			stage_name = _src["name"];
+			if (stage_name.empty()) {
+				stage_name = std::format("project_{0}", source_name);
+			}
+			stage_output = _src["output"];
 		}
 
 		virtual json process(query_context_base* _src) {
@@ -1187,13 +1201,13 @@ namespace corona
 				for (auto member : members) {
 					std::string path = member.second;
 					json query = jp.parse_query(path);
-					if (query.has_member("source_name")) {
+					if (query.has_member("source")) {
 						json data = _src->get_data(path);
 						stage_output.put_member(member.first, data);
 					}
 					else 
 					{
-						std::string msg = std::format("'{0}' that does not have a source_name. Egs source_name:path.path.path", member.first, path);
+						std::string msg = std::format("'{0}' that does not have a source. Egs source_name:path.path.path", member.first, path);
 						_src->add_error("projection", member.first, msg, __FILE__, __LINE__);
 						comm_bus_app_interface::global_bus->log_warning(msg, __FILE__, __LINE__);
 					}
@@ -1209,7 +1223,7 @@ namespace corona
 					for (auto member : members) {
 						std::string path = member.second;
 						json query = jp.parse_query(path);
-						if (query.has_member("source_name")) {
+						if (query.has_member("source")) {
 							json data = _src->get_data(path);
 							stage_output.put_member(member.first, data);
 						}
@@ -1230,7 +1244,7 @@ namespace corona
 						for (auto member : members) {
 							std::string path = member.second;
 							json query = jp.parse_query(path);
-							if (query.has_member("source_name")) {
+							if (query.has_member("source")) {
 								std::string data_path = query["query_path"];
 								json data = _src->get_data(path);
 								json t = data.query(data_path);
@@ -1305,7 +1319,7 @@ namespace corona
 				_dest->put_json(_src);
 			}
 			else {
-				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'join' or 'result'.",  class_name );
+				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'join', 'replace' or 'result'.",  class_name );
 				system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 			}
 		}

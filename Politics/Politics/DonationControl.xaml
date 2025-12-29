@@ -20,7 +20,7 @@
             <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" Text="Donor Details"/>
+        <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource TitleTextBlockStyle}" Text="Donation Details"/>
 
         
         <StackPanel Grid.Column="0" Grid.Row="1">
@@ -41,6 +41,12 @@
 
             <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Occupation</TextBlock>
             <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding occupation}" IsReadOnly="True"/>
+
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Transaction Date</TextBlock>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding transaction_date}" IsReadOnly="True"/>
+
+            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">Transaction Amount</TextBlock>
+            <TextBox Style="{StaticResource BodyTextBoxStyle}" Text="{Binding transaction_amount}" IsReadOnly="True"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -103,8 +103,7 @@
             "stages": [
               {
                 "class_name": "result",
-                "input": "donations",
-                "name": "donations_result"
+                "source": "donations"
               }
             ]
           }
@@ -155,8 +154,7 @@
             "stages": [
               {
                 "class_name": "result",
-                "input": "candidate",
-                "name": "candidates"
+                "source": "candidate"
               }
             ]
           }
@@ -176,8 +174,7 @@
             "stages": [
               {
                 "class_name": "result",
-                "input": "donation",
-                "name": "donations"
+                "source": "donation"
               }
             ]
           }
@@ -253,7 +250,7 @@
             "stages": [
               {
                 "class_name": "result",
-                "input": "committee",
+                "source": "committee",
                 "name": "committees"
               }
             ]
