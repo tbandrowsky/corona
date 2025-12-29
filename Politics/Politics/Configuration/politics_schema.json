@@ -137,13 +137,16 @@
             "from": [
               {
                 "class_name": "committee_candidate",
-                "name": "committee_candidate",
+                "name": "candidates",
                 "filter": {
-                  "committee_id": "$this.committee_id"
+                  "join_to": "this",
+                  "join_by": {
+                    "committee_id": "committee_id"
+                  }
                 },
                 "replace": [
                   {
-                    "replace_with": "candidate",
+                    "join_to": "candidate",
                     "join_by": {
                       "candidate_id": "candidate_id"
                     }
@@ -154,7 +157,7 @@
             "stages": [
               {
                 "class_name": "result",
-                "source": "candidate"
+                "source": "candidates"
               }
             ]
           }
@@ -165,16 +168,19 @@
             "from": [
               {
                 "class_name": "donation",
-                "name": "donation",
+                "name": "donations",
                 "filter": {
-                  "committee_id": "$this.committee_id"
+                  "join_to": "this",
+                  "join_by": {
+                    "committee_id": "committee_id"
+                  }
                 }
               }
             ],
             "stages": [
               {
                 "class_name": "result",
-                "source": "donation"
+                "source": "donations"
               }
             ]
           }
@@ -240,18 +246,29 @@
           "query": {
             "from": [
               {
-                "class_name": "committee",
-                "name": "committee",
+                "class_name": "committee_candidate",
+                "name": "candidates",
                 "filter": {
-                  "committee_id": "$this.committee_id"
-                }
+                  "join_to": "this",
+                  "join_by": {
+                    "committee_id": "committee_id"
+                  }
+                },
+                "replace": [
+                  {
+                    "join_to": "candidate",
+                    "join_by": {
+                      "candidate_id": "candidate_id"
+                    }
+                  }
+                ]
               }
             ],
             "stages": [
               {
                 "class_name": "result",
-                "source": "committee",
-                "name": "committees"
+                "source": "candidates",
+                "name": "candidates"
               }
             ]
           }

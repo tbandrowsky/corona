@@ -826,9 +826,9 @@ namespace corona
 		std::string											class_name;
 		json												data; 
         std::vector<std::shared_ptr<from_join>>				replacements;
-		std::shared_ptr<from_join>							filter;
+		std::shared_ptr<from_join>							join_filter;
+		json                                                filter;
 		std::string											user_name;
-
         bool	                                            use_fetch;
 
 		json replace_set(corona_database_interface* _db, json& _previous_item, int _filter_index)
@@ -925,10 +925,16 @@ namespace corona
 				new_source->source_name = filter_source_name;
 				new_source->class_name = from_class_name;
                 json jjoin = from_class["filter"];
+
 				if (jjoin.object()) {
-					std::shared_ptr<from_join> new_join = std::make_shared<from_join>();
-					new_join->put_json(jjoin);
-                    new_source->filter = new_join;
+					if (jjoin.has_member("join_to")) {
+						std::shared_ptr<from_join> new_join = std::make_shared<from_join>();
+						new_join->put_json(jjoin);
+						new_source->join_filter = new_join;
+					}
+					else {
+						new_source->filter = jjoin;
+					}
 				}
 				new_source->user_name = user_name;
 				if (from_class.has_member("replace"))
@@ -971,20 +977,27 @@ namespace corona
             json result = jp.create_array();
 			json join_filter = jp.create_object();
 
-			if (_source->filter)
+			json filter_request = jp.create_object();
+			filter_request.put_member("class_name", _source->class_name);
+
+			if (_source->filter) {
+				join_filter = _source->filter;
+				filter_request.put_member("filter", _source->filter);
+			}
+			else if (_source->join_filter)
 			{
-				auto joined_by_members = _source->filter->joined_by.get_members();
-				auto join_source = sources.find(_source->filter->join_to);
+				auto joined_by_members = _source->join_filter->joined_by.get_members();
+				auto join_source = sources.find(_source->join_filter->join_to);
 				if (join_source == sources.end())
 				{
-					system_monitoring_interface::active_mon->log_warning(std::format("Join source {} not found", _source->filter->join_to), __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_warning(std::format("Join source {} not found", _source->join_filter->join_to), __FILE__, __LINE__);
 				}
 				else
 				{
 					json _src = join_source->second->data;
 					if (_src.empty())
 					{
-						system_monitoring_interface::active_mon->log_warning(std::format("Join source {} has no data", _source->filter->join_to), __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_warning(std::format("Join source {} has no data", _source->join_filter->join_to), __FILE__, __LINE__);
 					}
 					if (_src.array() && _src.size() > 0)
 					{
@@ -999,10 +1012,18 @@ namespace corona
 					}
 				}
 			}
+			else
+			{
+				join_filter = jp.create_object();
+			}
 
 			if (_source->use_fetch) 
 			{
-				result = _source->fetch(_db, user_name, join_filter);
+                if (not join_filter.empty())
+				{
+					filter_request.put_member("filter", join_filter);
+				}
+				result = _source->fetch(_db, user_name, filter_request);
 			}
 			else if (join_filter.empty())
 			{
@@ -4313,6 +4334,11 @@ namespace corona
 						result.clear();
 					}
 				}
+				if (result.empty())
+				{
+					std::string msg = std::format("{0} does not have permissions for {1}", _grant.user_name, class_name);
+					system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
+				}
 			}
 			else 
 			{
@@ -4722,21 +4748,26 @@ namespace corona
 					auto class_data = get_table(_db);
 					int max_plain_rows = 500;
 					json key;
-					obj = class_data->select(&max_plain_rows, key, [&max_plain_rows, &key, &_grant](json& _j)-> json
+					obj = class_data->select(&max_plain_rows, key, [&full_text, &max_plain_rows, &key, &_grant](json& _j)-> json
 						{
 							max_plain_rows--;
 							json result;
-							if (max_plain_rows >= 0) {
-								if (_grant.get_grant & class_grants::grant_any) {
-									result = _j;
-								}
-								else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
-
-									result = _j;
-								}
-								else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
-
-									result = _j;
+							auto members = _j.get_members();
+                            for (auto& mem : members) {
+								std::string str = (std::string)mem.second;
+								if (str.find(full_text) != std::string::npos) {
+									if (_grant.get_grant & class_grants::grant_any) {
+										result = _j;
+										break;
+									}
+									else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
+										result = _j;
+										break;
+									}
+									else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
+										result = _j;
+										break;
+                                    }
 								}
 							}
 							return result;
