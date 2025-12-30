@@ -72,35 +72,49 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
 {
     bool success = false;
 
-    ExpandoObject^ expando = gcnew ExpandoObject();
+    try 
+    {    
+        ExpandoObject^ expando = gcnew ExpandoObject();
 
-    std::string msg = result["message"];
+        std::string msg = result["message"];
 
-    baseResponse->Success = (bool)result["success"];
-    baseResponse->Message = gcnew System::String(msg.c_str());
-    baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+        baseResponse->Success = (bool)result["success"];
+        baseResponse->Message = gcnew System::String(msg.c_str());
+        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
 
-    if (result.has_member("data")) {
-        corona::json data = result["data"];
-        baseResponse->Data = expand(data);
-    }
+        if (result.has_member("data")) {
+            corona::json data = result["data"];
+            baseResponse->Data = expand(data);
+        }
 
-    if (result.has_member("token"))
-    {
-        std::string token = result["token"];
-        baseResponse->Token = gcnew System::String(token.c_str());
-    }
+        if (result.has_member("token"))
+        {
+            std::string token = result["token"];
+            baseResponse->Token = gcnew System::String(token.c_str());
+        }
 
-    if (result.has_member("errors"))
-    {
-        corona::json errors = result["errors"];
-        baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
-        if (errors.array()) {
-            for (auto error : errors) {
-                std::string error_contents = error.to_json();
-                baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+        if (result.has_member("errors"))
+        {
+            corona::json errors = result["errors"];
+            baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
+            if (errors.array()) {
+                for (auto error : errors) {
+                    std::string error_contents = error.to_json();
+                    baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+                }
             }
         }
+
+        success = true;
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response_base");
     }
 
     return success;
@@ -110,10 +124,23 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data != nullptr) {
-        std::string class_data = result["data"];
-        String^ sclass_data = gcnew String(class_data.c_str());
-        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(sclass_data);
+    try {
+
+        if (baseResponse->Data != nullptr) {
+            std::string class_data = result["data"];
+            String^ sclass_data = gcnew String(class_data.c_str());
+            baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(sclass_data);
+        }
+
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response LoginResult");
     }
 
     return success_base;
@@ -130,10 +157,22 @@ bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data != nullptr) {
-        std::string class_data = result["data"]["class"];
-        String^ sclass_data = gcnew String(class_data.c_str());
-        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(sclass_data);
+    try
+    {
+        if (baseResponse->Data != nullptr) {
+            std::string class_data = result["data"]["class"];
+            String^ sclass_data = gcnew String(class_data.c_str());
+            baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(sclass_data);
+        }
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response LoginResult");
     }
 
     return success_base;
@@ -143,8 +182,19 @@ bool put_response(CoronaInterface::IPutClassResponse^ baseResponse, corona::json
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data != nullptr) {
-        baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+    try {
+        if (baseResponse->Data != nullptr) {
+            baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(baseResponse->Data->ToString());
+        }
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response PutClassResponse");
     }
 
     return success_base;
@@ -161,8 +211,19 @@ bool put_response(CoronaInterface::IConfirmUserCodeResponse^ baseResponse, coron
 {
     bool success_base = put_response_base(baseResponse, result);
 
-    if (baseResponse->Data != nullptr) {
-        baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
+    try {
+        if (baseResponse->Data != nullptr) {
+            baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(baseResponse->Data->ToString());
+        }
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response ConfirmUserCodeResponse");
     }
 
     return success_base;
@@ -200,44 +261,58 @@ bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::js
 {
     bool success = false;
 
-    ExpandoObject^ expando = gcnew ExpandoObject();
 
-    std::string msg = result["message"];
+    try {
 
-    baseResponse->Success = (bool)result["success"];
-    baseResponse->Message = gcnew System::String(msg.c_str());
-    baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+        ExpandoObject^ expando = gcnew ExpandoObject();
 
-    if (result.has_member("data")) {
-        corona::json data = result["data"];
-        corona::json classes = data["classes"];
-        corona::json objects = data["object"];
-        baseResponse->Data = expand(objects);
-        std::string object_contents = objects.to_json();
-        String^ sobject_contents = gcnew String(object_contents.c_str());
-        // Fix: assign to the property, not the type
-        baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
-        std::string classes_contents = classes.to_json();
-        String^ sclasses_contents = gcnew String(classes_contents.c_str());
-        baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^>(sclasses_contents);
-    }
+        std::string msg = result["message"];
 
-    if (result.has_member("token"))
-    {
-        std::string token = result["token"];
-        baseResponse->Token = gcnew System::String(token.c_str());
-    }
+        baseResponse->Success = (bool)result["success"];
+        baseResponse->Message = gcnew System::String(msg.c_str());
+        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
 
-    if (result.has_member("errors"))
-    {
-        corona::json errors = result["errors"];
-        baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
-        if (errors.array()) {
-            for (auto error : errors) {
-                std::string error_contents = error.to_json();
-                baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+        if (result.has_member("data")) {
+            corona::json data = result["data"];
+            corona::json classes = data["classes"];
+            corona::json objects = data["object"];
+            baseResponse->Data = expand(objects);
+            std::string object_contents = objects.to_json();
+            String^ sobject_contents = gcnew String(object_contents.c_str());
+            // Fix: assign to the property, not the type
+            baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
+            std::string classes_contents = classes.to_json();
+            String^ sclasses_contents = gcnew String(classes_contents.c_str());
+            baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^>(sclasses_contents);
+        }
+
+        if (result.has_member("token"))
+        {
+            std::string token = result["token"];
+            baseResponse->Token = gcnew System::String(token.c_str());
+        }
+
+        if (result.has_member("errors"))
+        {
+            corona::json errors = result["errors"];
+            baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
+            if (errors.array()) {
+                for (auto error : errors) {
+                    std::string error_contents = error.to_json();
+                    baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+                }
             }
         }
+
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response EditObjectResponse");
     }
   
     return success;
@@ -247,44 +322,58 @@ bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::jso
 {
     bool success = false;
 
-    ExpandoObject^ expando = gcnew ExpandoObject();
-
-    std::string msg = result["message"];
-
-    baseResponse->Success = (bool)result["success"];
-    baseResponse->Message = gcnew System::String(msg.c_str());
-    baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
-
-    if (result.has_member("data")) {
-        corona::json data = result["data"];
-        corona::json classes = data["classes"];
-        corona::json objects = data["object"];
-        baseResponse->Data = expand(objects);
-        std::string object_contents = objects.to_json();
-        String^ sobject_contents = gcnew String(object_contents.c_str());
-        // Fix: assign to the property, not the type
-        baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
-        std::string classes_contents = classes.to_json();
-        String^ sclasses_contents = gcnew String(classes_contents.c_str());
-        baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^>(sclasses_contents);
-    }
-
-    if (result.has_member("token"))
+    try
     {
-        std::string token = result["token"];
-        baseResponse->Token = gcnew System::String(token.c_str());
-    }
 
-    if (result.has_member("errors"))
-    {
-        corona::json errors = result["errors"];
-        baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
-        if (errors.array()) {
-            for (auto error : errors) {
-                std::string error_contents = error.to_json();
-                baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+        ExpandoObject^ expando = gcnew ExpandoObject();
+
+        std::string msg = result["message"];
+
+        baseResponse->Success = (bool)result["success"];
+        baseResponse->Message = gcnew System::String(msg.c_str());
+        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+
+        if (result.has_member("data")) {
+            corona::json data = result["data"];
+            corona::json classes = data["classes"];
+            corona::json objects = data["object"];
+            baseResponse->Data = expand(objects);
+            std::string object_contents = objects.to_json();
+            String^ sobject_contents = gcnew String(object_contents.c_str());
+            // Fix: assign to the property, not the type
+            baseResponse->SysObject = JsonConvert::DeserializeObject<CoronaInterface::SysObject^>(sobject_contents);
+            std::string classes_contents = classes.to_json();
+            String^ sclasses_contents = gcnew String(classes_contents.c_str());
+            baseResponse->Classes = JsonConvert::DeserializeObject<System::Collections::Generic::Dictionary<String^, CoronaInterface::CoronaClass^>^>(sclasses_contents);
+        }
+
+        if (result.has_member("token"))
+        {
+            std::string token = result["token"];
+            baseResponse->Token = gcnew System::String(token.c_str());
+        }
+
+        if (result.has_member("errors"))
+        {
+            corona::json errors = result["errors"];
+            baseResponse->Errors = gcnew System::Collections::Generic::List<CoronaInterface::CoronaError^>();
+            if (errors.array()) {
+                for (auto error : errors) {
+                    std::string error_contents = error.to_json();
+                    baseResponse->Errors->Add(JsonConvert::DeserializeObject<CoronaInterface::CoronaError^>(gcnew System::String(error_contents.c_str())));
+                }
             }
         }
+
+    }
+    catch (std::exception& ex) {
+        std::string err_msg = ex.what();
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (...) {
+        baseResponse->Success = false;
+        baseResponse->Message = gcnew System::String("Unknown error in put_response RunObjectResponse");
     }
 
     return success;
@@ -292,30 +381,38 @@ bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::jso
 
 template <typename interface_type, typename response_type, typename request_type> response_type^ process_request(corona::corona_database* db, String^ token, request_type^ request, std::function<corona::json(corona::corona_database * _db, corona::json _request)> implementation) 
 {
-    if (db == nullptr) {
-        throw gcnew System::ArgumentNullException("db");
-    }
-    if (request == nullptr) {
-        throw gcnew System::ArgumentNullException("request");
-    }
-    if (!db) {
-        throw gcnew System::InvalidOperationException("Database not open");
-    }
-
-    corona::json_parser jp;
-    corona::json jrequest;
-
-    String^ request_string_managed = request != nullptr ? JsonConvert::SerializeObject(request) : "";
-    std::string request_string = request_string_managed != nullptr ? msclr::interop::marshal_as<std::string>(request_string_managed) : "";
-
-    jrequest = jp.parse_object(request_string);
-    jrequest.put_member("token", msclr::interop::marshal_as<std::string>(token != nullptr ? token : ""));
-
-    corona::json response = implementation(db, jrequest);
-
     response_type^ netresult = gcnew response_type();
 
-    put_response(netresult, response);
+    try
+    {
+        if (db == nullptr) {
+            throw gcnew System::ArgumentNullException("db");
+        }
+        if (request == nullptr) {
+            throw gcnew System::ArgumentNullException("request");
+        }
+        if (!db) {
+            throw gcnew System::InvalidOperationException("Database not open");
+        }
+
+        corona::json_parser jp;
+        corona::json jrequest;
+
+        String^ request_string_managed = request != nullptr ? JsonConvert::SerializeObject(request) : "";
+        std::string request_string = request_string_managed != nullptr ? msclr::interop::marshal_as<std::string>(request_string_managed) : "";
+
+        jrequest = jp.parse_object(request_string);
+        jrequest.put_member("token", msclr::interop::marshal_as<std::string>(token != nullptr ? token : ""));
+
+        corona::json response = implementation(db, jrequest);
+
+        put_response(netresult, response);
+    }
+    catch (std::exception& ex) 
+    {
+        netresult->Success = false;
+        netresult->Message = gcnew System::String(ex.what());
+    }
 
     return netresult;
 }
@@ -441,28 +538,39 @@ void CoronaLib::CoronaDatabase::ApplySchema(String^ configuration)
 
 CoronaInterface::ILoginResult^ CoronaLib::CoronaDatabase::LoginLocal(System::String^ username, System::String^ email)
 {
+    CoronaLib::LoginResult^ loginResult = gcnew CoronaLib::LoginResult();
 
-    if (!m_database) {
-        throw gcnew System::InvalidOperationException("Database not open");
+    try
+    {
+
+        if (!m_database) {
+            throw gcnew System::InvalidOperationException("Database not open");
+        }
+
+        std::string user_name = username != nullptr ? msclr::interop::marshal_as<std::string>(username) : "";
+        std::string email_str = email != nullptr ? msclr::interop::marshal_as<std::string>(email) : "";
+        std::string code_str = corona::application::get_machine_id();
+        corona::json_parser jp;
+
+        corona::json request = jp.create_object();
+        corona::json data = jp.create_object();
+        data.put_member("user_name", user_name);
+        data.put_member("email", email_str);
+        data.put_member("access_code", code_str);
+        request.share_member("data", data);
+
+        corona::json response = m_database->login_user_local(request);
+
+        put_response(loginResult, response);
+        this->token = loginResult->Token;
+
+    }
+    catch (std::exception& ex) 
+    {
+        loginResult->Success = false;
+        loginResult->Message = gcnew System::String(ex.what());
     }
 
-    std::string user_name = username != nullptr ? msclr::interop::marshal_as<std::string>(username) : "";
-    std::string email_str = email != nullptr ? msclr::interop::marshal_as<std::string>(email) : "";
-    std::string code_str = corona::application::get_machine_id();
-    corona::json_parser jp;
-
-    corona::json request = jp.create_object();
-    corona::json data = jp.create_object();
-    data.put_member("user_name", user_name);
-    data.put_member("email", email_str);
-    data.put_member("access_code", code_str);
-    request.share_member("data", data);
-
-    corona::json response = m_database->login_user_local(request);
-
-    CoronaLib::LoginResult^ loginResult = gcnew CoronaLib::LoginResult();
-    put_response(loginResult, response);
-    this->token = loginResult->Token;
     return loginResult;
 }
 

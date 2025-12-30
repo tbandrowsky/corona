@@ -1184,7 +1184,7 @@ namespace corona
 	private:
 		std::vector<compared_item> comparison_fields;
 
-		std::shared_ptr<json_value> value_base;
+		std::shared_ptr<json_value> value_base = nullptr;
 
 	public:
 

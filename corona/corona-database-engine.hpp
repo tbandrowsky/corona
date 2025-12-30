@@ -4792,16 +4792,22 @@ namespace corona
 						return _item;
 					});
 
-					for (auto obi : temp) {
+					int i = 0;
+                    int s = temp.size();
+                    for (i = 0; i < s; i++) {
+						if (temp_result.size() >= max_query_result_rows) {
+							break;
+						}
+						json obi = temp.get_element(i);
 						if (_key.compare(obi) != 0) {
 							continue;
-                        }	
-                        int64_t object_id = (int64_t)obi[object_id_field];	
-                        json bojdetail = _db->select_object(class_name, object_id, _grant);
-                        json detail = bojdetail.get_first_element();
+						}
+						int64_t object_id = (int64_t)obi[object_id_field];
+						json bojdetail = _db->select_object(class_name, object_id, _grant);
+						json detail = bojdetail.get_first_element();
 						temp_result.push_back(detail);
 					}
-					obj = temp_result;
+
 				}
 				else
 				{
