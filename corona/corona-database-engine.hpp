@@ -3968,7 +3968,7 @@ namespace corona
 				ve.filename = get_file_name(__FILE__);
 				ve.line_number = __LINE__;
 				ve.message = "class description not found";
-				_context->errors.push_back(ve);
+				_context->errors.push_back(ve);				
 				return false;
 			}
 
@@ -4786,7 +4786,6 @@ namespace corona
 				if (index_table)
 				{
 					json temp;
-					json temp_result = jp.create_array();
 
  					temp = index_table->select(&max_query_result_rows, _key, [](json& _item) -> json {
 						return _item;
@@ -4795,7 +4794,7 @@ namespace corona
 					int i = 0;
                     int s = temp.size();
                     for (i = 0; i < s; i++) {
-						if (temp_result.size() >= max_query_result_rows) {
+						if (obj.size() >= max_query_result_rows) {
 							break;
 						}
 						json obi = temp.get_element(i);
@@ -4805,7 +4804,7 @@ namespace corona
 						int64_t object_id = (int64_t)obi[object_id_field];
 						json bojdetail = _db->select_object(class_name, object_id, _grant);
 						json detail = bojdetail.get_first_element();
-						temp_result.push_back(detail);
+						obj.push_back(detail);
 					}
 
 				}
@@ -6623,7 +6622,10 @@ private:
 			json items = jp.create_array();
 			items.push_back(_user);
 			json request = create_system_request(items);
-			put_object(request);			
+			json put_result = put_object(request);			
+			if (!put_result[success_field]) {
+                
+			}
 		}
 
 		void put_error(std::string _system, std::string _message, json& _body, std::string _file, int _line)
@@ -6714,7 +6716,7 @@ private:
             query_details.put_member("class_name", std::string("sys_team"));	
 			query_details.put_member("filter", key);
 			json all_teams = query_class(default_user, query_details);
-			json teams = jp.create_array();
+			json found_teams = jp.create_array();
 
 			if (all_teams[success_field]) {
                 all_teams = all_teams[data_field];
@@ -6725,26 +6727,35 @@ private:
 						std::string domains = (std::string)team["team_domain"];
 						if (domains.size() == 0 || domains == "NONE")
 							continue;
-						try {
-							std::regex domain_matcher(domains);
-							if (std::regex_match(_domain, domain_matcher)) {
-								system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
-                                json actual_team = get_team(team_name, _permission);
-								teams.push_back(actual_team);
-							}
-							else {
-								system_monitoring_interface::active_mon->log_warning(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
-							}
-						}
-						catch (std::exception exc)
+						if (domains == "ANY")
 						{
-							system_monitoring_interface::active_mon->log_warning(std::format("Invalid regexp '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name ), __FILE__, __LINE__);
+							system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+							json actual_team = get_team(team_name, _permission);
+							found_teams.push_back(actual_team);
+						}
+						else 
+						{
+							try {
+								std::regex domain_matcher(domains);
+								if (std::regex_match(_domain, domain_matcher)) {
+									system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+									json actual_team = get_team(team_name, _permission);
+									found_teams.push_back(actual_team);
+								}
+								else {
+									system_monitoring_interface::active_mon->log_warning(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+								}
+							}
+							catch (std::exception exc)
+							{
+								system_monitoring_interface::active_mon->log_warning(std::format("Invalid regexp '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+							}
 						}
 					}
 				}
 			}
 
-			return teams;
+			return found_teams;
 		}
 
 		json get_team(std::string _team_name, class_permissions _permission)
@@ -7104,6 +7115,7 @@ private:
                 grants.get_grant = class_grants::grant_none;
                 grants.put_grant = class_grants::grant_none;	
 				grants.team_name = "transporter malfunction";
+				system_monitoring_interface::active_mon->log_warning(std::format("User '{0}' not found", _user_name), __FILE__, __LINE__);
 			}
 
 			if (_class_name == "sys_user") 
@@ -8214,6 +8226,11 @@ private:
 				existing_user.put_member(user_name_field, user_name);
 				existing_user.put_member(user_email_field, user_email);
 				existing_user.put_member(user_password_field, hashed_pw);
+                existing_user.put_member(user_street1_field, std::string("5 Watchful Road"));
+				existing_user.put_member(user_street2_field, std::string("Room One 101"));
+				existing_user.put_member(user_city_field, std::string("London"));
+				existing_user.put_member(user_state_field, std::string("Oceana"));
+				existing_user.put_member(user_zip_field, std::string("ILBBWU"));
 				existing_user.put_member("confirmed_code", 1);
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)

@@ -298,7 +298,7 @@
           "class_name": "sys_team",
           "team_name": "Politics Team",
           "team_description": "Local security for teams",
-          "team_domain": ".*",
+          "team_domain": "ANY",
           "inventory_classes": [],
           "allowed_teams": [],
           "permissions": [

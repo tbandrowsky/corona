@@ -1202,6 +1202,18 @@ namespace corona
 			value_base = _value;
 		}
 
+        json& operator = (const json& _other)
+		{
+			value_base = _other.value_base;
+			return *this;
+		}
+
+		json& operator = (std::shared_ptr<json_value> _value)
+		{
+			value_base = _value;
+			return *this;
+		}
+
 		void clear()
 		{
             value_base = nullptr;
