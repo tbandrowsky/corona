@@ -24,7 +24,8 @@ Object^ expand( corona::json result )
             }
             else if (member_value.array()) {
                 auto array = gcnew List<Object^>(member_value.size());
-                for (auto var : member_value) {
+                for (int i = 0; i < member_value.size(); i++) {
+                    auto var = member_value.get_element(i);
                     auto exp2 = expand(var);
                     array->Add(exp2);
                 }
@@ -137,6 +138,10 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
         std::string err_msg = ex.what();
         baseResponse->Success = false;
         baseResponse->Message = gcnew System::String(err_msg.c_str());
+    }
+    catch (System::Exception^ ex) {
+        baseResponse->Success = false;
+        baseResponse->Message = ex->Message;
     }
     catch (...) {
         baseResponse->Success = false;

@@ -682,7 +682,6 @@ namespace corona
 		virtual json    get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 
 		virtual json	run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _target) = 0;
-		virtual void	clear_queries(json& _target) = 0;
 
 		virtual json	get_info(corona_database_interface* _db) = 0;
         virtual json	get_openapi_schema(corona_database_interface* _db) = 0;
@@ -3819,19 +3818,6 @@ namespace corona
 
 		}
 
-		virtual void clear_queries(json& _target) override
-		{
-
-			json_parser jp;
-			for (auto fldpair : fields) {
-				auto query_field = fldpair.second;
-				if (query_field->get_field_type() == field_types::ft_query) {
-					json empty_array = jp.create_array();
-					_target.share_member(query_field->get_field_name(), empty_array);
-				}
-			}
-		}
-
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _target) override
 		{
 			json_parser jp;
@@ -4395,6 +4381,271 @@ namespace corona
 			return result;
 		}
 
+		struct index_object_pair {
+			std::shared_ptr<index_interface> index;
+			json objects_to_add;
+			json objects_to_delete;
+		};
+
+		class put_objects_job : public job 
+		{
+			corona_database* db;
+			class_implementation* class_def;
+			HANDLE job_complete_signal;
+			json_parser jp;
+			date_time current_data;
+
+		public:
+
+			std::vector<std::shared_ptr<json_object>> source_list;
+			json child_objects;
+			class_permissions grant;
+			validation_error_collection validation_errors;
+			int64_t success_object_count;
+			int64_t fail_object_count;
+			std::vector<index_object_pair> index_updates;
+
+			put_objects_job(
+				corona_database* _db,
+				class_implementation *_class_def,
+				json & _source_list,
+				int start_index,
+				int length,
+				class_permissions& _grant,
+                date_time& _current_date
+				)
+			{
+				db = _db;
+				class_def = _class_def;
+				grant = _grant;
+
+				int e = start_index + length;
+				if (e >= _source_list.size()) {
+					e = _source_list.size() - 1;
+				}
+
+				auto &source_vec = _source_list.array_impl()->elements;
+                for (int i = start_index; i < e; i++) {
+					auto el = std::dynamic_pointer_cast<json_object>(source_vec[i]);
+					if (el) {
+						source_list.push_back(el);
+					}
+				}
+
+				success_object_count = 0;
+				fail_object_count = 0;
+				job_complete_signal = CreateEventA(NULL, FALSE, FALSE, NULL);
+            }
+
+            put_objects_job(const put_objects_job&) = delete;
+            put_objects_job& operator=(const put_objects_job&) = delete;
+            put_objects_job(put_objects_job&&) = delete;
+            put_objects_job& operator=(put_objects_job&&) = delete;
+
+			virtual ~put_objects_job()
+			{
+				CloseHandle(job_complete_signal);
+			}
+
+			virtual bool queued(job_queue* _callingQueue) override
+			{
+                return true;
+			}
+
+			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success) override
+			{
+				job_notify jn;
+
+				try {
+                    compiled_object_view compiled_object(db, class_def);
+
+					for (auto _src_obj : source_list)
+					{
+
+						_src_obj->members.erase("class_color");
+
+						db_object_id_type object_id = -1;
+						json write_object;
+						json old_object;
+						json src_obj;
+						src_obj.set(_src_obj);
+
+						if (_src_obj->members.contains(object_id_field))
+						{
+
+							int64_t parent_object_id = (int64_t)src_obj[object_id_field];
+
+							bool exists = false;
+							json old_object = class_def->get_object(db, parent_object_id, grant, exists);
+
+							if (old_object.object()) {
+								write_object = old_object.clone();
+								write_object.merge(src_obj);
+								write_object.erase_member("class_color");
+							}
+							else if (not exists)
+							{
+								write_object.set(_src_obj);
+								write_object.put_member("created", current_date);
+								write_object.put_member("created_by", _grant.user_name);
+							}
+							else
+							{
+								// in this case, exists == true, but old_object is empty. This means that the object
+								// was there, but the user did not have permissions to change it.
+								continue;
+							}
+
+							write_object.put_member("updated", current_date);
+							write_object.put_member("updated_by", _grant.user_name);
+
+						}
+						else
+						{
+							int64_t new_object_id = get_next_object_id(_db);
+							_src_obj.put_member_i64(object_id_field, new_object_id);
+							_src_obj.put_member("created", current_date);
+							_src_obj.put_member("created_by", _grant.user_name);
+							_src_obj.put_member("team", _grant.team_name);
+							write_object = _src_obj;
+						}
+
+						// if the user was a stooser and saved the query results with the object,
+						// blank that out here because we will run that on load
+						write_object.erase_member("class_color");
+
+						bool use_write_object = false;
+
+						if (_grant.put_grant == class_grants::grant_any)
+						{
+							use_write_object = true;
+						}
+						else if (_grant.put_grant == class_grants::grant_own)
+						{
+							std::string owner = (std::string)write_object["created_by"];
+							if (_grant.user_name == owner) {
+								use_write_object = true;
+							}
+						}
+						else if (_grant.put_grant == class_grants::grant_team)
+						{
+							std::string team = (std::string)write_object["team"];
+							if (_grant.team_name == team) {
+								use_write_object = true;
+							}
+						}
+						else if (_grant.put_grant == class_grants::grant_teamorown)
+						{
+							std::string owner = (std::string)write_object["created_by"];
+							std::string team = (std::string)write_object["team"];
+							if (_grant.user_name == owner or _grant.team_name == team) {
+								use_write_object = true;
+							}
+						}
+
+						if (use_write_object) {
+
+							auto these_fields = get_fields();
+
+							for (auto& fld : these_fields) {
+								if (fld->get_field_type() == field_types::ft_array)
+								{
+									json array_field = write_object[fld->get_field_name()];
+									if (array_field.array() and fld->is_relational_children()) {
+										auto bridges = fld->get_bridges();
+										if (bridges) {
+											for (auto obj : array_field) {
+												std::string obj_class_name = obj[class_name_field];
+												auto bridge = bridges->get_bridge(obj_class_name);
+												if (bridge) {
+													bridge->copy(obj, write_object);
+												}
+												_child_objects.push_back(obj);
+											}
+											json empty_array = jp.create_array();
+											write_object.erase_member(fld->get_field_name());
+										}
+									}
+								}
+								else if (fld->get_field_type() == field_types::ft_object)
+								{
+									json obj = write_object[fld->get_field_name()];
+									if (obj.object() and fld->is_relational_children()) {
+										std::string obj_class_name = obj[class_name_field];
+										auto bridges = fld->get_bridges();
+										if (bridges) {
+											auto bridge = bridges->get_bridge(obj_class_name);
+											if (bridge) {
+												bridge->copy(obj, write_object);
+											}
+											json empty;
+											write_object.erase_member(fld->get_field_name());
+											_child_objects.push_back(obj);
+										}
+									}
+								}
+							}
+
+							json check_result = check_single_object(compiled_object, current_date, write_object, validation_errors);
+							if (check_result[success_field]) {
+								success_object_count++;
+							}
+							else {
+								fail_object_count++;
+							}
+							results.push_back(check_result);
+
+
+							put_list.push_back(write_object);
+
+							if (index_updates.size() > 0)
+							{
+								int64_t object_id = (int64_t)write_object[object_id_field];
+								if (old_object.object())
+								{
+									for (auto& iop : index_updates)
+									{
+										auto& idx_keys = iop.index->get_index_keys();
+
+										json obj_to_delete = old_object.extract(idx_keys);
+										json obj_to_add = write_object.extract(idx_keys);
+										if (obj_to_delete.compare(obj_to_add) != 0) {
+											iop.objects_to_delete.push_back(obj_to_delete);
+										}
+										iop.objects_to_add.push_back(obj_to_add);
+									}
+								}
+								else
+								{
+									for (auto& iop : index_updates)
+									{
+										auto& idx_keys = iop.index->get_index_keys();
+										// check to make sure that we have all the fields 
+										// for the index
+										json obj_to_add = write_object.extract(idx_keys);
+										iop.objects_to_add.push_back(obj_to_add);
+									}
+								}
+							}
+						}
+					}
+
+				}
+				catch (std::exception exc)
+				{
+
+
+				}
+
+				jn.setSignal(job_complete_signal);
+				jn.shouldDelete = false;
+			}
+
+			void wait_for_completion()
+			{
+				WaitForSingleObject(job_complete_signal, INFINITE);
+            }
+		};
 
 		virtual json put_objects(corona_database_interface* _db, json& _child_objects, json& _src_list, class_permissions _grant, validation_error_collection& validation_errors, int64_t& success_object_count, int64_t& fail_object_count) override
 		{
@@ -4403,11 +4654,6 @@ namespace corona
 			json_parser jp;
             json results = jp.create_array();
 
-			struct index_object_pair {
-				std::shared_ptr<index_interface> index;
-				json objects_to_add;
-				json objects_to_delete;
-			};
 
 			std::vector<index_object_pair> index_updates;
 
@@ -4429,171 +4675,6 @@ namespace corona
 			for (auto _src_obj : _src_list)
 			{
 
-				_src_obj.erase_member("class_color");
-
-				db_object_id_type object_id = -1;
-				json write_object;
-				json old_object;
-
-				if (_src_obj.has_member(object_id_field))
-				{
-					clear_queries(_src_obj);
-
-					int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
-
-					bool exists = false;
-					json old_object = get_object(_db, parent_object_id, _grant, exists);
-
-					if (old_object.object()) {
-						write_object = old_object.clone();
-						write_object.merge(_src_obj);
-						write_object.erase_member("class_color");
-					}
-					else if (not exists)
-					{
-						write_object = _src_obj;
-						write_object.put_member("created", current_date);
-						write_object.put_member("created_by", _grant.user_name);
-					}
-					else
-					{
-						// in this case, exists == true, but old_object is empty. This means that the object
-						// was there, but the user did not have permissions to change it.
-						continue;
-					}
-
-					write_object.put_member("updated", current_date);
-					write_object.put_member("updated_by", _grant.user_name);
-
-				}
-				else
-				{
-					int64_t new_object_id = get_next_object_id(_db);
-					_src_obj.put_member_i64(object_id_field, new_object_id);
-					_src_obj.put_member("created", current_date);
-					_src_obj.put_member("created_by", _grant.user_name);
-					_src_obj.put_member("team", _grant.team_name);
-                    write_object = _src_obj;
-				}
-
-				// if the user was a stooser and saved the query results with the object,
-				// blank that out here because we will run that on load
-				write_object.erase_member("class_color");
-
-				bool use_write_object = false;
-
-				if (_grant.put_grant == class_grants::grant_any)
-				{
-					use_write_object = true;
-				}
-				else if (_grant.put_grant == class_grants::grant_own)
-				{
-					std::string owner = (std::string)write_object["created_by"];
-					if (_grant.user_name == owner) {
-						use_write_object = true;
-					}
-                }
-                else if (_grant.put_grant == class_grants::grant_team)
-                {
-                    std::string team = (std::string)write_object["team"];
-                    if (_grant.team_name == team) {
-                        use_write_object = true;
-                    }
-                }
-                else if (_grant.put_grant == class_grants::grant_teamorown)
-                {
-                    std::string owner = (std::string)write_object["created_by"];
-                    std::string team = (std::string)write_object["team"];
-                    if (_grant.user_name == owner or _grant.team_name == team) {
-                        use_write_object = true;
-                    }
-                }
-
-				if (use_write_object) {
-
-					auto these_fields = get_fields();
-
-					for (auto& fld : these_fields) {
-						if (fld->get_field_type() == field_types::ft_array)
-						{
-							json array_field = write_object[fld->get_field_name()];
-							if (array_field.array() and fld->is_relational_children()) {
-								auto bridges = fld->get_bridges();
-								if (bridges) {
-									for (auto obj : array_field) {
-										std::string obj_class_name = obj[class_name_field];
-										auto bridge = bridges->get_bridge(obj_class_name);
-										if (bridge) {
-											bridge->copy(obj, write_object);
-										}
-										_child_objects.push_back(obj);
-									}
-									json empty_array = jp.create_array();
-									write_object.erase_member(fld->get_field_name());
-								}
-							}
-						}
-						else if (fld->get_field_type() == field_types::ft_object)
-						{
-							json obj = write_object[fld->get_field_name()];
-							if (obj.object() and fld->is_relational_children()) {
-								std::string obj_class_name = obj[class_name_field];
-								auto bridges = fld->get_bridges();
-								if (bridges) {
-									auto bridge = bridges->get_bridge(obj_class_name);
-									if (bridge) {
-										bridge->copy(obj, write_object);
-									}
-									json empty;
-									write_object.erase_member(fld->get_field_name());
-									_child_objects.push_back(obj);
-								}
-							}
-						}
-					}
-
-					json check_result = check_single_object(compiled_object, current_date, write_object, validation_errors);
-					if (check_result[success_field]) {
-						success_object_count++;
-					}
-					else {
-						fail_object_count++;
-					}
-					results.push_back(check_result);
-
-
-					put_list.push_back(write_object);
-
-					if (index_updates.size() > 0)
-					{
-						int64_t object_id = (int64_t)write_object[object_id_field];
-						if (old_object.object())
-						{
-							for (auto& iop : index_updates)
-							{
-								auto& idx_keys = iop.index->get_index_keys();
-
-								json obj_to_delete = old_object.extract(idx_keys);
-								json obj_to_add = write_object.extract(idx_keys);
-								if (obj_to_delete.compare(obj_to_add) != 0) {
-									iop.objects_to_delete.push_back(obj_to_delete);
-								}
-								iop.objects_to_add.push_back(obj_to_add);
-							}
-						}
-						else
-						{
-							for (auto& iop : index_updates)
-							{
-								auto& idx_keys = iop.index->get_index_keys();
-								// check to make sure that we have all the fields 
-								// for the index
-								json obj_to_add = write_object.extract(idx_keys);
-								iop.objects_to_add.push_back(obj_to_add);
-							}
-						}
-					}
-				}
 			}
 
 			runnable table_run = [this, _db, &put_list] {
@@ -10269,6 +10350,11 @@ grant_type=authorization_code
 				fld.field_value = it->second;
 				auto obj_type = fld.field_value->get_field_type();
 				auto member_type = fld.field_definition->get_field_type();
+
+				if (member_type == field_types::ft_query) {
+					oimpl->members[fld.field_definition->get_field_name()] = std::make_shared<json_array>();
+                }
+
 				fld.field_value = it->second;
 				if (member_type != obj_type) {
 					_object.change_member_type(fld.field_definition->get_field_name(), member_type);
