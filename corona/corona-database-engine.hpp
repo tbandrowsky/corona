@@ -4339,13 +4339,13 @@ namespace corona
 			json_parser jp;
 			using namespace std::literals;
 
-			bool had_conniption = false;
+			bool validation_ok = false;
 
 			json result = jp.create_object();
 
 			validation_error_collection local_errors;
 
-			had_conniption = _view.check(_object_definition, local_errors);
+			validation_ok = _view.check(_object_definition, local_errors);
 
 			for (auto err : local_errors) {
 				_validation_errors.push_back(err);
@@ -4360,7 +4360,7 @@ namespace corona
 			// then we see which fields are in the object that are not 
 			// in the class definition.
 
-			if (had_conniption) {
+			if (!validation_ok) {
 				json warnings = jp.create_array();
 				for (auto& ve : local_errors) {
 					json jve = jp.create_object();
@@ -4387,18 +4387,20 @@ namespace corona
 			json objects_to_delete;
 		};
 
+
 		class put_objects_job : public job 
 		{
-			corona_database* db;
+			corona_database_interface* db;
 			class_implementation* class_def;
 			HANDLE job_complete_signal;
 			json_parser jp;
-			date_time current_data;
+			date_time current_date;
+
 
 		public:
 
-			std::vector<std::shared_ptr<json_object>> source_list;
-			json child_objects;
+			json source_list;
+			json child_objects, results, put_list;
 			class_permissions grant;
 			validation_error_collection validation_errors;
 			int64_t success_object_count;
@@ -4406,7 +4408,7 @@ namespace corona
 			std::vector<index_object_pair> index_updates;
 
 			put_objects_job(
-				corona_database* _db,
+				corona_database_interface* _db,
 				class_implementation *_class_def,
 				json & _source_list,
 				int start_index,
@@ -4418,18 +4420,27 @@ namespace corona
 				db = _db;
 				class_def = _class_def;
 				grant = _grant;
+				put_list = jp.create_array();
+				results = jp.create_array();
+                child_objects = jp.create_array();
+                source_list = jp.create_array();
 
+                for (auto& idx : class_def->get_indexes()) {
+					index_object_pair iop;
+                    iop.index = idx;
+                    iop.objects_to_add = jp.create_array();
+                    iop.objects_to_delete = jp.create_array();
+					index_updates.push_back(iop);
+				}
+		
 				int e = start_index + length;
 				if (e >= _source_list.size()) {
-					e = _source_list.size() - 1;
+					e = _source_list.size();
 				}
 
-				auto &source_vec = _source_list.array_impl()->elements;
                 for (int i = start_index; i < e; i++) {
-					auto el = std::dynamic_pointer_cast<json_object>(source_vec[i]);
-					if (el) {
-						source_list.push_back(el);
-					}
+					json el = _source_list.get_element(i);
+					source_list.push_back(el);
 				}
 
 				success_object_count = 0;
@@ -4447,6 +4458,21 @@ namespace corona
 				CloseHandle(job_complete_signal);
 			}
 
+            void run_validation()
+			{
+				global_job_queue->submit_job(this);
+			}
+
+			void run_all_save()
+			{
+				std::vector<runnable> jobs;
+				jobs.push_back([this]() { run_save(); });
+				jobs.push_back([this]() { run_full_text(); });
+				jobs.push_back([this]() { run_stable(); });
+				jobs.push_back([this]() { run_indexes(); });
+				global_job_queue->run_jobs(jobs);
+			}
+
 			virtual bool queued(job_queue* _callingQueue) override
 			{
                 return true;
@@ -4457,37 +4483,63 @@ namespace corona
 				job_notify jn;
 
 				try {
-                    compiled_object_view compiled_object(db, class_def);
+					validate();
 
-					for (auto _src_obj : source_list)
+				}
+                catch (const std::exception& ex) 
+				{
+					system_monitoring_interface::active_mon->log_warning(std::format("Exception in put_objects_job: {0}", ex.what()), __FILE__, __LINE__);
+				}
+
+				jn.setSignal(job_complete_signal);
+				jn.shouldDelete = false;
+
+				return jn;
+			}
+
+			void wait_for_completion()
+			{
+				WaitForSingleObject(job_complete_signal, INFINITE);
+			}
+
+
+		private:
+
+			void validate() 
+			{
+				try {
+					compiled_object_view compiled_object(db, class_def);
+
+					int i = 0; 
+					int s = source_list.size();
+
+					for (int i = 0; i < s; i++)
 					{
-
-						_src_obj->members.erase("class_color");
+                        auto _src_obj = source_list.get_element(i);
+						_src_obj.erase_member("class_color");
 
 						db_object_id_type object_id = -1;
 						json write_object;
 						json old_object;
-						json src_obj;
-						src_obj.set(_src_obj);
 
-						if (_src_obj->members.contains(object_id_field))
+						if (_src_obj.has_member(object_id_field))
 						{
 
-							int64_t parent_object_id = (int64_t)src_obj[object_id_field];
+							int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
 
 							bool exists = false;
-							json old_object = class_def->get_object(db, parent_object_id, grant, exists);
+							old_object = class_def->get_object(db, parent_object_id, grant, exists);
 
 							if (old_object.object()) {
 								write_object = old_object.clone();
-								write_object.merge(src_obj);
+								write_object.merge(_src_obj);
 								write_object.erase_member("class_color");
 							}
 							else if (not exists)
 							{
-								write_object.set(_src_obj);
+								write_object = _src_obj;
 								write_object.put_member("created", current_date);
-								write_object.put_member("created_by", _grant.user_name);
+								write_object.put_member("created_by", grant.user_name);
 							}
 							else
 							{
@@ -4497,17 +4549,17 @@ namespace corona
 							}
 
 							write_object.put_member("updated", current_date);
-							write_object.put_member("updated_by", _grant.user_name);
+							write_object.put_member("updated_by", grant.user_name);
 
 						}
 						else
 						{
-							int64_t new_object_id = get_next_object_id(_db);
-							_src_obj.put_member_i64(object_id_field, new_object_id);
-							_src_obj.put_member("created", current_date);
-							_src_obj.put_member("created_by", _grant.user_name);
-							_src_obj.put_member("team", _grant.team_name);
+							int64_t new_object_id = class_def->get_next_object_id(db);
 							write_object = _src_obj;
+							write_object.put_member_i64(object_id_field, new_object_id);
+							write_object.put_member("created", current_date);
+							write_object.put_member("created_by", grant.user_name);
+							write_object.put_member("team", grant.team_name);
 						}
 
 						// if the user was a stooser and saved the query results with the object,
@@ -4516,36 +4568,36 @@ namespace corona
 
 						bool use_write_object = false;
 
-						if (_grant.put_grant == class_grants::grant_any)
+						if (grant.put_grant == class_grants::grant_any)
 						{
 							use_write_object = true;
 						}
-						else if (_grant.put_grant == class_grants::grant_own)
+						else if (grant.put_grant == class_grants::grant_own)
 						{
 							std::string owner = (std::string)write_object["created_by"];
-							if (_grant.user_name == owner) {
+							if (grant.user_name == owner) {
 								use_write_object = true;
 							}
 						}
-						else if (_grant.put_grant == class_grants::grant_team)
+						else if (grant.put_grant == class_grants::grant_team)
 						{
 							std::string team = (std::string)write_object["team"];
-							if (_grant.team_name == team) {
+							if (grant.team_name == team) {
 								use_write_object = true;
 							}
 						}
-						else if (_grant.put_grant == class_grants::grant_teamorown)
+						else if (grant.put_grant == class_grants::grant_teamorown)
 						{
 							std::string owner = (std::string)write_object["created_by"];
 							std::string team = (std::string)write_object["team"];
-							if (_grant.user_name == owner or _grant.team_name == team) {
+							if (grant.user_name == owner or grant.team_name == team) {
 								use_write_object = true;
 							}
 						}
 
 						if (use_write_object) {
 
-							auto these_fields = get_fields();
+							auto these_fields = class_def->get_fields();
 
 							for (auto& fld : these_fields) {
 								if (fld->get_field_type() == field_types::ft_array)
@@ -4560,7 +4612,7 @@ namespace corona
 												if (bridge) {
 													bridge->copy(obj, write_object);
 												}
-												_child_objects.push_back(obj);
+												child_objects.push_back(obj);
 											}
 											json empty_array = jp.create_array();
 											write_object.erase_member(fld->get_field_name());
@@ -4580,110 +4632,70 @@ namespace corona
 											}
 											json empty;
 											write_object.erase_member(fld->get_field_name());
-											_child_objects.push_back(obj);
+											child_objects.push_back(obj);
 										}
 									}
 								}
 							}
 
-							json check_result = check_single_object(compiled_object, current_date, write_object, validation_errors);
+							json check_result = class_def->check_single_object(compiled_object, current_date, write_object, validation_errors);
 							if (check_result[success_field]) {
 								success_object_count++;
+								put_list.push_back(write_object);
+								if (index_updates.size() > 0)
+								{
+									int64_t object_id = (int64_t)write_object[object_id_field];
+									if (old_object.object())
+									{
+										for (auto& iop : index_updates)
+										{
+											auto& idx_keys = iop.index->get_index_keys();
+
+											json obj_to_delete = old_object.extract(idx_keys);
+											json obj_to_add = write_object.extract(idx_keys);
+											if (obj_to_delete.compare(obj_to_add) != 0) {
+												iop.objects_to_delete.push_back(obj_to_delete);
+											}
+											iop.objects_to_add.push_back(obj_to_add);
+										}
+									}
+									else
+									{
+										for (auto& iop : index_updates)
+										{
+											auto& idx_keys = iop.index->get_index_keys();
+											// check to make sure that we have all the fields 
+											// for the index
+											json obj_to_add = write_object.extract(idx_keys);
+											iop.objects_to_add.push_back(obj_to_add);
+										}
+									}
+								}
 							}
 							else {
 								fail_object_count++;
 							}
+
 							results.push_back(check_result);
 
-
-							put_list.push_back(write_object);
-
-							if (index_updates.size() > 0)
-							{
-								int64_t object_id = (int64_t)write_object[object_id_field];
-								if (old_object.object())
-								{
-									for (auto& iop : index_updates)
-									{
-										auto& idx_keys = iop.index->get_index_keys();
-
-										json obj_to_delete = old_object.extract(idx_keys);
-										json obj_to_add = write_object.extract(idx_keys);
-										if (obj_to_delete.compare(obj_to_add) != 0) {
-											iop.objects_to_delete.push_back(obj_to_delete);
-										}
-										iop.objects_to_add.push_back(obj_to_add);
-									}
-								}
-								else
-								{
-									for (auto& iop : index_updates)
-									{
-										auto& idx_keys = iop.index->get_index_keys();
-										// check to make sure that we have all the fields 
-										// for the index
-										json obj_to_add = write_object.extract(idx_keys);
-										iop.objects_to_add.push_back(obj_to_add);
-									}
-								}
-							}
 						}
 					}
-
 				}
 				catch (std::exception exc)
 				{
-
-
+					system_monitoring_interface::global_mon->active_mon->log_exception(exc, __FILE__, __LINE__);
 				}
-
-				jn.setSignal(job_complete_signal);
-				jn.shouldDelete = false;
 			}
 
-			void wait_for_completion()
+			void run_save()
 			{
-				WaitForSingleObject(job_complete_signal, INFINITE);
-            }
-		};
-
-		virtual json put_objects(corona_database_interface* _db, json& _child_objects, json& _src_list, class_permissions _grant, validation_error_collection& validation_errors, int64_t& success_object_count, int64_t& fail_object_count) override
-		{
-			bool index_ready = true;
-
-			json_parser jp;
-            json results = jp.create_array();
-
-
-			std::vector<index_object_pair> index_updates;
-
-			for (auto idx : indexes) 
-			{
-				index_object_pair iop;
-				iop.index = idx.second;
-				iop.objects_to_add = jp.create_array();
-				iop.objects_to_delete = jp.create_array();
-				index_updates.push_back(iop);
-			}
-
-			json put_list = jp.create_array();
-
-            date_time current_date = date_time::now();
-
-			compiled_object_view compiled_object(_db, this);
-
-			for (auto _src_obj : _src_list)
-			{
-
-			}
-
-			runnable table_run = [this, _db, &put_list] {
-				auto tb = get_xtable(_db);
+				auto tb = class_def->get_xtable(db);
 				tb->put_array(put_list);
-			};
-		
-			runnable ft_index_run = [this, _db, &put_list] {
-				auto ftb = get_full_text_index(_db);
+			}
+
+			void run_full_text()
+			{
+				auto ftb = class_def->get_full_text_index(db);
 				if (ftb) {
 					json_parser jp;
 					json full_text_array = jp.create_array();
@@ -4695,7 +4707,7 @@ namespace corona
 
 						std::set<std::string> record_words;
 
-						for (auto& item_field : full_text_fields)
+						for (auto& item_field : class_def->full_text_fields)
 						{
 							auto fld = item.get_member(item_field);
 
@@ -4711,7 +4723,7 @@ namespace corona
 									record_words.insert(word);
 									xrecord key, value;
 									key.add(1, word);
-                                    key.add_int64(2, object_id);
+									key.add_int64(2, object_id);
 									ftb->put_direct(key, value);
 								}
 							}
@@ -4719,38 +4731,89 @@ namespace corona
 					}
 					ftb->commit();
 				}
+			}
 
-			};
-
-			std::vector<runnable> runnables;
-
-			runnables.push_back(table_run);
-			runnables.push_back(ft_index_run);
-
-			runnable sql_run = [this, _db, &put_list] {
-				auto stb = get_stable(_db);
+			void run_stable()
+			{
+				auto stb = class_def->get_stable(db);
 				if (stb) {
 					stb->put_array(put_list);
 				}
-			};
-			runnables.push_back(sql_run);
-
-			for (auto& iop : index_updates)
-			{
-				runnable index_run = [this, _db, &iop] {
-					auto idx_table = iop.index->get_xtable(_db);
-					idx_table->erase_array(iop.objects_to_delete);
-					idx_table->put_array(iop.objects_to_add);
-				};
-
-				runnables.push_back(index_run);
 			}
 
-            // now run them all
-			global_job_queue->run_jobs(runnables);
+			void run_indexes()
+			{
+				for (auto& iop : index_updates)
+				{
+					auto idx_table = iop.index->get_xtable(db);
+					idx_table->erase_array(iop.objects_to_delete);
+					idx_table->put_array(iop.objects_to_add);
+				}
+			}
+
+
+		};
+
+		const int objects_per_thread_size = 500;
+
+		virtual json put_objects(corona_database_interface* _db, json& _child_objects, json& _src_list, class_permissions _grant, validation_error_collection& validation_errors, int64_t& success_object_count, int64_t& fail_object_count) override
+		{
+			bool index_ready = true;
+
+			json_parser jp;
+			json results = jp.create_array();
+
+			date_time current_date = date_time::now();
+
+            int total_objects = (int)_src_list.size();
+			
+            std::vector<std::shared_ptr<put_objects_job>> jobs;
+
+			int i = 0;
+
+			while (i < total_objects) {
+				std::shared_ptr<put_objects_job> current_job = std::make_shared<put_objects_job>(_db,
+					this,
+					_src_list,
+					i,
+					objects_per_thread_size,
+					_grant,
+					current_date
+				);
+				jobs.push_back(current_job);
+				current_job->run_validation();
+				i += objects_per_thread_size;
+			}
+
+			for (auto& ptr : jobs)
+			{
+				ptr->wait_for_completion();
+			}
+
+			for (auto& ptr : jobs)
+			{
+                ptr->run_all_save();
+				for (auto& ve : ptr->validation_errors) {
+					validation_errors.push_back(ve);
+				}
+				success_object_count += ptr->success_object_count;
+				fail_object_count += ptr->fail_object_count;
+            }
+
+			for (auto& ptr : jobs)
+			{
+				for (int i = 0; i < ptr->child_objects.size(); i++) {
+					json obj_to_add = ptr->child_objects.get_element(i);
+					_child_objects.push_back(obj_to_add);
+				}
+
+				for (int i = 0; i < ptr->results.size(); i++) {
+					json obj_to_add = ptr->results.get_element(i);
+					results.push_back(obj_to_add);
+				}
+			}
 
 			return results;
-
 		}
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
@@ -4828,8 +4891,7 @@ namespace corona
 				else {
 					auto class_data = get_table(_db);
 					int max_plain_rows = 500;
-					json key;
-					obj = class_data->select(&max_plain_rows, key, [&full_text, &max_plain_rows, &key, &_grant](json& _j)-> json
+					obj = class_data->select(&max_plain_rows, _key, [&full_text, &max_plain_rows, &_key, &_grant](json& _j)-> json
 						{
 							max_plain_rows--;
 							json result;
@@ -6082,11 +6144,10 @@ namespace corona
 			"mobile" : {
 				"field_type":"string",
 				"field_name":"mobile",
-				"label": "E-Mail",
+				"label": "Mobile",
 				"format":"tel",
 				"required" : true,
 				"max_length" : 15,
-				"match_pattern": "^(1/s?)?(/d{3}|(/d{3}/))[/s/-]?/d{3}[/s/-]?/d{4}$",	
 				"grid_row": "4",
 				"grid_column": "1"
 			},
@@ -6235,8 +6296,16 @@ namespace corona
 			new_user_data.put_member(class_name_field, "sys_user"sv);
 			new_user_data.put_member(user_name_field, default_user);
 			new_user_data.put_member(user_email_field, default_email_address);
+			new_user_data.put_member(user_first_name_field, "first"sv);
+			new_user_data.put_member(user_last_name_field, "last"sv);
 			new_user_data.put_member("password1", default_password);
 			new_user_data.put_member("password2", default_password);
+			new_user_data.put_member(user_street1_field, "street1"sv);
+			new_user_data.put_member(user_street2_field, "street2"sv);
+			new_user_data.put_member(user_city_field, "bowling green"sv);
+			new_user_data.put_member(user_state_field, "ky"sv);
+			new_user_data.put_member(user_zip_field, "42101"sv);
+			new_user_data.put_member(user_mobile_field, "2158675309"sv);
 
 			new_user_request = create_system_request(new_user_data);
 			json new_user_result =  create_user(new_user_request, true, true);
@@ -6245,8 +6314,7 @@ namespace corona
 
 			if (success) {
 				json new_user = new_user_result[data_field];
-				json user_return = create_response(new_user_request, true, "Ok", new_user, errors, method_timer.get_elapsed_seconds());
-				response = create_response(new_user_request, true, "Database Created", user_return, errors, method_timer.get_elapsed_seconds());
+				response = create_response(new_user_request, true, "Database Created", new_user, errors, method_timer.get_elapsed_seconds());
 			}
 			else 
 			{
@@ -6694,7 +6762,7 @@ private:
 		{
 			json_parser jp;
 
-			_user.erase_member("team");
+			_user.erase_member("current_team");
 			_user.erase_member("home_team");
 			_user.erase_member("allowed_teams");
 			_user.erase_member("create_options");
@@ -6753,7 +6821,7 @@ private:
 					if (_run_teams) {
 						json team_data = run_team(team_name, permission);
 						if (team_data.object()) {
-							user.share_member("team", team_data);
+							user.share_member("current_team", team_data);
 							json jallowed_teams = team_data["allowed_teams"];
 							if (jallowed_teams.array()) {
 								for (json jteam_name : jallowed_teams) {
@@ -7195,8 +7263,8 @@ private:
                 grants.delete_grant = class_grants::grant_none;
                 grants.get_grant = class_grants::grant_none;
                 grants.put_grant = class_grants::grant_none;	
-				grants.team_name = "transporter malfunction";
-				system_monitoring_interface::active_mon->log_warning(std::format("User '{0}' not found", _user_name), __FILE__, __LINE__);
+				grants.team_name = std::format("permissions for user '{0}' not found", _user_name);
+				system_monitoring_interface::active_mon->log_warning(grants.team_name, __FILE__, __LINE__);
 			}
 
 			if (_class_name == "sys_user") 
@@ -8307,11 +8375,14 @@ private:
 				existing_user.put_member(user_name_field, user_name);
 				existing_user.put_member(user_email_field, user_email);
 				existing_user.put_member(user_password_field, hashed_pw);
-                existing_user.put_member(user_street1_field, std::string("5 Watchful Road"));
+				existing_user.put_member(user_first_name_field, std::string("firstname"));
+				existing_user.put_member(user_last_name_field, std::string("lastname"));
+				existing_user.put_member(user_street1_field, std::string("5 Watchful Road"));
 				existing_user.put_member(user_street2_field, std::string("Room One 101"));
 				existing_user.put_member(user_city_field, std::string("London"));
 				existing_user.put_member(user_state_field, std::string("Oceana"));
-				existing_user.put_member(user_zip_field, std::string("ILBBWU"));
+				existing_user.put_member(user_zip_field, std::string("12345"));
+				existing_user.put_member(user_mobile_field, std::string("5558675309"));
 				existing_user.put_member("confirmed_code", 1);
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
@@ -8322,11 +8393,12 @@ private:
 
 				apply_user_team(existing_user);
 
-				json create_object_request = create_system_request(existing_user);
+				json create_object_request = create_system_request(existing_user, default_user);
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
-				if (user_result[success_field]) {
+				if (user_result[success_field] && (!jerrors.array() || jerrors.size() == 0))
+				{
 					existing_user = get_user(user_name);
 				}
 				else
@@ -8492,7 +8564,7 @@ grant_type=authorization_code
 
 				apply_user_team(existing_user);
 
-				json create_object_request = create_system_request(existing_user);
+				json create_object_request = create_system_request(existing_user, default_user);
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
@@ -8642,6 +8714,7 @@ grant_type=authorization_code
 			create_user_params.copy_member(user_mobile_field, data);
 			create_user_params.copy_member(user_street1_field, data);
 			create_user_params.copy_member(user_street2_field, data);
+			create_user_params.copy_member(user_city_field, data);
 			create_user_params.copy_member(user_state_field, data);
 			create_user_params.copy_member(user_zip_field, data);
 
@@ -9163,7 +9236,7 @@ grant_type=authorization_code
 			}
 			else
 			{
-				response = create_response(_login_request, false, "Failed", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				response = create_response(_login_request, false, "Login Failed", jp.create_object(), errors, method_timer.get_elapsed_seconds());
 			}
 			system_monitoring_interface::active_mon->log_function_stop("login_user", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
@@ -9600,7 +9673,7 @@ grant_type=authorization_code
 
 								object_list.push_back(obj);
 							}
-							else if ((permission.get_grant & class_grants::grant_team) && (std::string)obj["team"] == permission.team_name) {
+							else if ((permission.get_grant & class_grants::grant_team) && (std::string)obj["current_team"] == permission.team_name) {
 
 								object_list.push_back(obj);
 							}
@@ -10223,7 +10296,7 @@ grant_type=authorization_code
 
 		private:
 
-		json create_system_request(json _data)
+		json create_system_request(json _data, std::string _override_user = "")
 		{
 			json_parser jp;
 
@@ -10233,6 +10306,9 @@ grant_type=authorization_code
 
 			json token = jp.create_object();
             std::string user_name = _data[user_name_field];
+            if (not _override_user.empty()) {
+				user_name = _override_user;
+			}
 			if (user_name.empty()) {
 				user_name = default_user;
             }
@@ -10352,7 +10428,7 @@ grant_type=authorization_code
 				auto member_type = fld.field_definition->get_field_type();
 
 				if (member_type == field_types::ft_query) {
-					oimpl->members[fld.field_definition->get_field_name()] = std::make_shared<json_array>();
+					continue;
                 }
 
 				fld.field_value = it->second;
@@ -10361,8 +10437,12 @@ grant_type=authorization_code
                     fld.field_value = oimpl->members[fld.field_definition->get_field_name()];
 				}
                 json test_value(fld.field_value);
-				succeeded = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);
+				bool accept_result = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);
 
+                if (accept_result == false) 
+				{
+					succeeded = false;
+				}
 			}
 			else 
 			{

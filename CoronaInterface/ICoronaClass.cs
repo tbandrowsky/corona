@@ -578,8 +578,8 @@ namespace CoronaInterface
         [JsonProperty("team_name")]
         public string? TeamName { get; set; }
 
-        [JsonProperty("team")]
-        public SysTeam? Team { get; set; }
+        [JsonProperty("current_team")]
+        public SysTeam? CurrentTeam { get; set; }
 
         [JsonProperty("home_team_name")]
         public string? HomeTeamName { get; set; }
