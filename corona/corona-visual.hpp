@@ -39,8 +39,8 @@ namespace corona {
 			system_monitoring_interface::active_mon->log_information("source json:");
 			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 		}
-		_dest.width = (double)_src["width"];
-		_dest.height = (double)_src["height"];
+		_dest.width = _src["width"].as_double();
+		_dest.height = _src["height"].as_double();
 	}
 
 	void get_json(json& _dest, D2D1_RECT_F& _src)
@@ -65,10 +65,10 @@ namespace corona {
 			return;
 		}
 
-		_dest.left = (double)_src["left"];
-		_dest.top = (double)_src["top"];
-		_dest.right = (double)_src["right"];
-		_dest.bottom = (double)_src["bottom"];
+		_dest.left = _src["left"].as_double();
+		_dest.top = _src["top"].as_double();
+		_dest.right =	_src["right"].as_double();
+		_dest.bottom =	_src["bottom"].as_double();
 	}
 
 	void get_json(json& _dest, sizeCrop& _src)
@@ -102,7 +102,7 @@ namespace corona {
 		json jcrop, jsize;
 		jcrop = _src["crop"];
 		jsize = _src["size"];
-		_dest.cropEnabled = (bool)_src["enabled"];
+		_dest.cropEnabled = _src["enabled"].as_bool();
 		put_json(_dest.crop, jcrop);
 		put_json(_dest.size, jsize);
 	}
@@ -187,7 +187,7 @@ namespace corona {
 
 	void put_json(visual_alignment& _dest, json& _src, std::string _member_name)
 	{
-		std::string dva = _src[_member_name];
+		std::string dva = _src[_member_name].as_string();
 
 		if (dva == "near")
 		{
@@ -242,19 +242,19 @@ namespace corona {
 	{
 		json jcolor = _src[_member_name];
 		if (jcolor.is_string()) {
-			std::string color_string = jcolor;
+			std::string color_string = jcolor.as_string();
 			_dest = corona::toColor(color_string);
 		}
 		else if (jcolor.object())
 		{
 			if (jcolor.has_member("a"))
-				_dest.a = (double)jcolor["a"];
+				_dest.a = jcolor["a"].as_double();
 			else
 				_dest.a = 1.0;
 
-			_dest.r = (double)jcolor["r"];
-			_dest.g = (double)jcolor["g"];
-			_dest.b = (double)jcolor["b"];
+			_dest.r = jcolor["r"].as_double();
+			_dest.g = jcolor["g"].as_double();
+			_dest.b = jcolor["b"].as_double();
 		}
 	}
 
@@ -281,7 +281,7 @@ namespace corona {
 			return;
 		}
 
-		_dest.stop_position = (double)_src["position"];
+		_dest.stop_position = _src["position"].as_double();
 		put_json(_dest.stop_color, "color", _src);
 	}
 
@@ -340,7 +340,8 @@ namespace corona {
 		for (auto sz : _src.sizes)
 		{
 			json jcrop = jp.create_object();
-			get_json(jcrop, _src.crop);
+			get_json(jcrop, sz);
+			jsizes.push_back(jcrop);
 		}
 		_dest.put_member("sizes", jsizes);
 	}
@@ -356,9 +357,9 @@ namespace corona {
 			return;
 		}
 
-		_dest.filename = _src["filename"];
-		_dest.resource_id = (int)_src["resource_id"];
-		_dest.cropEnabled = (bool)_src["crop_enabled"];
+		_dest.filename = _src["filename"].as_string();
+		_dest.resource_id = _src["resource_id"].as_int();
+		_dest.cropEnabled = _src["crop_enabled"].as_bool();
 
 		json jcrop = _src["crop"];
 		put_json(_dest.crop, jcrop);
@@ -411,7 +412,7 @@ namespace corona {
 			return;
 		}
 
-		_dest.bitmapName = _src["filename"];
+		_dest.bitmapName = _src["filename"].as_string();
 	}
 
 	class linearGradientBrushRequest 
@@ -587,8 +588,8 @@ namespace corona {
 		jsize = _src["size"];
 		put_json(_dest.size, jsize);
 
-		_dest.radiusX = (double)_src["radiusX"];
-		_dest.radiusY = (double)_src["radiusY"];
+		_dest.radiusX = _src["radiusX"].as_double();
+		_dest.radiusY = _src["radiusY"].as_double();
 
 		jstops = _src["stops"];
 		if (jstops.array()) {
@@ -1041,7 +1042,7 @@ namespace corona {
 	{
 		json_parser jp;
 
-		std::string jtype = _src.get_member("class_name");
+		std::string jtype = _src.get_member("class_name").as_string();
 		if (jtype == "solid_brush")
 		{
 			solidBrushRequest sbr;
@@ -1194,16 +1195,16 @@ namespace corona {
 			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 			return;
 		}
-		_dest.fontName = _src["font_name"];
-		_dest.fontSize = (double)_src["font_size"];
-		_dest.bold = (bool)_src["bold"];
-		_dest.italics = (bool)_src["italics"];
-		_dest.underline = (bool)_src["underline"];
-		_dest.strike_through = (bool)_src["strike_through"];
-		_dest.line_spacing =  (double)_src["line_spacing"];
-		_dest.wrap_text = (bool)_src["wrap_text"];
-		_dest.character_spacing = (double)_src["character_spacing"];
-		std::string stretch = _src["font_stretch"];
+		_dest.fontName = _src["font_name"].as_string();
+		_dest.fontSize = _src["font_size"].as_double();
+		_dest.bold = _src["bold"].as_bool();
+		_dest.italics = _src["italics"].as_bool();
+		_dest.underline = _src["underline"].as_bool();
+		_dest.strike_through = _src["strike_through"].as_bool();
+		_dest.line_spacing = _src["line_spacing"].as_double();
+		_dest.wrap_text = _src["wrap_text"].as_bool();
+		_dest.character_spacing = _src["character_spacing"].as_double();
+		std::string stretch = _src["font_stretch"].as_string()	;
 
 		if (stretch == "condensed")
 			_dest.font_stretch = DWRITE_FONT_STRETCH::DWRITE_FONT_STRETCH_CONDENSED;
@@ -1304,8 +1305,8 @@ namespace corona {
 		json box_fill = _src["box_fill_brush"];
 		json shape_fill = _src["shape_fill_brush"];
 
-		_dest.shape_border_thickness = (double)_src["shape_border_thickness"];
-		_dest.box_border_thickness = (double)_src["box_border_thickness"];
+		_dest.shape_border_thickness = _src["shape_border_thickness"].as_double();
+		_dest.box_border_thickness = _src["box_border_thickness"].as_double();
 
 		if (text_style.object()) {
 			put_json(_dest.text_style, text_style);
@@ -1315,7 +1316,7 @@ namespace corona {
 		put_json(_dest.box_fill_brush, box_fill);
 		put_json(_dest.shape_fill_brush, shape_fill);
 
-		_dest.name = (std::string)_src["name"];
+		_dest.name = _src["name"].as_string();
 		_dest.set_default_name(_dest.name);
 	}
 

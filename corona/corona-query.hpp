@@ -116,8 +116,8 @@ namespace corona
 			json query_s = jp.parse_query(_query);
 			json j;
 
-			std::string query_si = query_s["source_name"];
-			std::string query_p = query_s["query_path"];
+			std::string query_si = query_s["source_name"].as_string();
+			std::string query_p = query_s["query_path"].as_string();
 
 			if (query_si.empty()) 
 			{
@@ -190,7 +190,7 @@ namespace corona
 				return;
 			}
 
-			stage_name = _src["name"];
+			stage_name = _src["name"].as_string();
 			stage_output = _src["output"];
 		}
 
@@ -389,8 +389,8 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			stage_input_name = _src["source"];
-			stage_name = _src["name"];
+			stage_input_name = _src["source"].as_string();
+			stage_name = _src["name"].as_string();
 			if (stage_name.empty()) {
 				stage_name = std::format("filter_{0}", stage_input_name);
             }
@@ -464,8 +464,8 @@ namespace corona
 				return;
 			}
 
-			stage_input_name = _src["source"];
-			stage_name = _src["name"];
+			stage_input_name = _src["source"].as_string();
+			stage_name = _src["name"].as_string();
 			if (stage_name.empty()) {
 				stage_name = std::format("result_{0}", stage_input_name);
 			}
@@ -563,11 +563,11 @@ namespace corona
 			}
 			query_stage::put_json(_src);
 
-			resultname1 = _src["resultname1"];
-			resultname2 = _src["resultname2"];
-			source1 = _src["source1"];
-			source2 = _src["source2"];
-			std::string skeys = _src["keys"];
+			resultname1 = _src["resultname1"].as_string();
+			resultname2 = _src["resultname2"].as_string();
+			source1 = _src["source1"].as_string();
+			source2 = _src["source2"].as_string();
+			std::string skeys = _src["keys"].as_string();
 			keys = split(skeys, ',');
 			stage_output = _src["output"];
 		}
@@ -585,7 +585,7 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{			
 			json s = _src.query(valuepath);
-			std::string v = (std::string)s["value"];
+			std::string v = s["value"].as_string();
 			bool result = v.find(value) != std::string::npos;
 			return result;
 		}
@@ -613,8 +613,8 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
-			value = _src["value"];
+			valuepath = _src["valuepath"].as_string();
+			value = _src["value"].as_string();
 		}
 	};
 
@@ -656,7 +656,7 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
+			valuepath = _src["valuepath"].as_string();
 			value = _src["value"];
 		}
 
@@ -700,7 +700,7 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
+			valuepath = _src["valuepath"].as_string();
 			value = _src["value"];
 		}
 
@@ -744,7 +744,7 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
+			valuepath = _src["valuepath"].as_string();
 			value = _src["value"];
 		}
 	};
@@ -787,7 +787,7 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
+			valuepath = _src["valuepath"].as_string();
 			value = _src["value"];
 		}
 	};
@@ -830,7 +830,7 @@ namespace corona
 			}
 
 			query_condition::put_json(_src);
-			valuepath = _src["valuepath"];
+			valuepath = _src["valuepath"].as_string();
 			value = _src["value"];
 		}
 	};
@@ -1181,10 +1181,10 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 
-			source_name = _src["source"];
+			source_name = _src["source"].as_string();
 			projection = _src["projection"];
 
-			stage_name = _src["name"];
+			stage_name = _src["name"].as_string();
 			if (stage_name.empty()) {
 				stage_name = std::format("project_{0}", source_name);
 			}
@@ -1199,7 +1199,7 @@ namespace corona
 			if (source_name.empty()) {
 				stage_output = jp.create_object();
 				for (auto member : members) {
-					std::string path = member.second;
+					std::string path = member.second.as_string();
 					json query = jp.parse_query(path);
 					if (query.has_member("source")) {
 						json data = _src->get_data(path);
@@ -1221,7 +1221,7 @@ namespace corona
 					stage_output = jp.create_object();
 
 					for (auto member : members) {
-						std::string path = member.second;
+						std::string path = member.second.as_string();
 						json query = jp.parse_query(path);
 						if (query.has_member("source")) {
 							json data = _src->get_data(path);
@@ -1229,7 +1229,7 @@ namespace corona
 						}
 						else
 						{
-							std::string data_path = query["query_path"];
+							std::string data_path = query["query_path"].as_string();
 							json t = projection_source.query(data_path);
 							t = t["value"];
 							stage_output.put_member(member.first, t);
@@ -1242,10 +1242,10 @@ namespace corona
 					for (auto arr_item : projection_source) {
 						json new_item = jp.create_object();
 						for (auto member : members) {
-							std::string path = member.second;
+							std::string path = member.second.as_string();
 							json query = jp.parse_query(path);
 							if (query.has_member("source")) {
-								std::string data_path = query["query_path"];
+								std::string data_path = query["query_path"].as_string();
 								json data = _src->get_data(path);
 								json t = data.query(data_path);
 								t = t["value"];
@@ -1253,7 +1253,7 @@ namespace corona
 							}
 							else
 							{
-								std::string data_path = query["query_path"];
+								std::string data_path = query["query_path"].as_string();
 								json t = arr_item.query(data_path);
 								t = t["value"];
 								new_item.put_member(member.first, t);
@@ -1296,7 +1296,7 @@ namespace corona
 
 		if (_src.has_member("class_name"))
 		{
-			std::string class_name = _src["class_name"];
+			std::string class_name = _src["class_name"].as_string();
 
 			if (class_name == "filter")
 			{
@@ -1349,7 +1349,7 @@ namespace corona
 
 		if (_src.has_member("class_name"))
 		{
-			std::string class_name = _src["class_name"];
+			std::string class_name = _src["class_name"].as_string();
 
 			if (class_name == "eq")
 			{

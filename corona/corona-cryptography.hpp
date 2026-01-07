@@ -288,8 +288,8 @@ namespace corona
 
 			if (algorithm)
 			{
-				std::string modulus = _jkey["n"];
-				std::string exponent = _jkey["e"];
+				std::string modulus = _jkey["n"].as_string();
+				std::string exponent = _jkey["e"].as_string();
 
 				std::string _modulus = base64_decode(modulus);
 				std::string _exponent = base64_decode(exponent);

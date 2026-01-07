@@ -44,7 +44,7 @@ namespace corona
 			json_parser jp;
 			http_client send_grid_client;
 			std::string send_grid_url;
-			std::string user_mail = _user["Email"];
+			std::string user_mail = _user["Email"].as_string();
 			std::string authorization_header = "Authorization:Bearer " + api_key + "\n";
             std::string email_template =  R"(
 {
@@ -75,10 +75,10 @@ namespace corona
       ]
 }			
 )";
-            std::string recipient_user_name = _user[user_name_field];
-            std::string recipient_first_name = _user[user_first_name_field];
-            std::string recipient_last_name = _user[user_last_name_field];
-            std::string recipient_user_email = _user[user_email_field];
+            std::string recipient_user_name = _user[user_name_field].as_string();
+            std::string recipient_first_name = _user[user_first_name_field].as_string();
+            std::string recipient_last_name = _user[user_last_name_field].as_string();
+            std::string recipient_user_email = _user[user_email_field].as_string();
             std::string recipient_display_name;
 
             if (recipient_user_email.empty()) {

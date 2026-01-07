@@ -199,7 +199,7 @@ namespace corona
 
 		virtual void log_error(json j, const char* _file = nullptr, int _line = 0)
 		{
-			std::string msg = j["message"];
+			std::string msg = j["message"].as_string();
 			if (msg.empty())
 				msg = "Error";
 			log_warning(msg, _file, _line);

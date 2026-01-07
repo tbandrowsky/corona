@@ -39,8 +39,8 @@ namespace corona
 
 	void put_json(time_span _dest, json& _src)
 	{
-		_dest.value = _src["timespan_value"];
-		std::string units_str = _src["timespan_units"];
+		_dest.value = _src["timespan_value"].as_double();
+		std::string units_str = _src["timespan_units"].as_string();
 		auto find_time = string_to_time_model.find(units_str);
 		if (find_time != string_to_time_model.end())
 			_dest.units = find_time->second;
@@ -57,9 +57,9 @@ namespace corona
 
 	void put_json(point& _dest, json& _src)
 	{
-		_dest.x = (double)_src["x"];
-		_dest.y = (double)_src["y"];
-		_dest.z = (double)_src["z"];
+		_dest.x = _src["x"].as_double();
+		_dest.y = _src["y"].as_double();
+		_dest.z = _src["z"].as_double();
 	}
 
 	void get_json(json& _dest, measure _src)
@@ -110,7 +110,7 @@ namespace corona
 
 		if (_src.is_string())
 		{
-			std::string measure_string = (std::string)_src;
+			std::string measure_string = _src.as_string();
 			std::regex pattern(R"(([01234567890\.]+)(\s*)([\w_]+))");
 			std::smatch matches;
 			if (std::regex_search(measure_string, matches, pattern)) {
@@ -141,8 +141,8 @@ namespace corona
 		}
 		else 
 		{
-			damount = (double)_src["amount"];
-			sunits = _src["units"];
+			damount = _src["amount"].as_double();
+			sunits = _src["units"].as_string();
 		}
 
 		_dest.amount = damount;
@@ -264,10 +264,10 @@ namespace corona
 		}
 
 
-		_dest.x = (double)_src["x"];
-		_dest.y = (double)_src["y"];
-		_dest.w = (double)_src["w"];
-		_dest.h = (double)_src["h"];
+		_dest.x = _src["x"].as_double();
+		_dest.y = _src["y"].as_double();
+		_dest.w = _src["w"].as_double();
+		_dest.h = _src["h"].as_double();
 	}
 
 

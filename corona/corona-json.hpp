@@ -1421,22 +1421,22 @@ namespace corona
 					auto m = get_member(ikey);
 					if (m.is_datetime())
 					{
-						date_time dt = (date_time)(m);
+						date_time dt = m.as_date_time();
 						hash = dt.get_time_t();
 					}
 					else if (m.is_double())
 					{
-						double v = (double)m;
+						double v = m.as_double();
 						if (v < 0) v = 0;
 						hash = static_cast<short>(std::log10(v) * 1000);
 					}
 					else if (m.is_int64())
 					{
-						hash = (int64_t)m;
+						hash = m.as_int64_t();
 					}
 					else
 					{
-						std::string temp = (std::string)m;
+						std::string temp = m.as_string();
 						int sz = temp.size();
 						for (int i = 0; i < 8; i++) {
 							if (i < sz) {
@@ -1470,14 +1470,14 @@ namespace corona
 					auto m = get_member(ikey);
 					if (m.is_datetime())
 					{
-						date_time dt = (date_time)(m);
+						date_time dt = m.as_date_time();
 						LARGE_INTEGER li;
 						li.QuadPart = dt.get_time_t();
 						temp = li.HighPart;
 					}
 					else if (m.is_double())
 					{
-						double v = (double)m;
+						double v = m.as_double();
 						if (v < 0) v = 0;
 						double x = static_cast<short>(std::log10(v) * 1000);
 
@@ -1488,12 +1488,12 @@ namespace corona
 					else if (m.is_int64())
 					{
 						LARGE_INTEGER li;
-						li.QuadPart = m;
+						li.QuadPart = m.as_int64_t();
 						temp = li.HighPart;
 					}
 					else
 					{
-						std::string temps = (std::string)m;
+						std::string temps = m.as_string();
 						int sz = temps.size();
 						for (int i = 0; i < 4; i++) {
 							if (i < sz) {
@@ -1528,14 +1528,14 @@ namespace corona
 					auto m = get_member(ikey);
 					if (m.is_datetime())
 					{
-						date_time dt = (date_time)(m);
+						date_time dt = m.as_date_time();
 						LARGE_INTEGER li;
 						li.QuadPart = dt.get_time_t();
 						temp = HIWORD(li.HighPart);
 					}
 					else if (m.is_double())
 					{
-						double v = (double)m;
+						double v = m.as_double();
 						if (v < 0) v = 0;
 						double x = static_cast<short>(std::log10(v) * 1000);
 
@@ -1546,12 +1546,12 @@ namespace corona
 					else if (m.is_int64())
 					{
 						LARGE_INTEGER li;
-						li.QuadPart = m;
+						li.QuadPart = m.as_int64_t();
 						temp = HIWORD(li.HighPart);
 					}
 					else
 					{
-						std::string temps = (std::string)m;
+						std::string temps = m.as_string();
 						int sz = temps.size();
 						for (int j = 0; j < 2; j++) {
 							if (j < sz) {
@@ -1643,7 +1643,7 @@ namespace corona
 		{
 			std::string class_check;
 			if (has_member(class_name_field)) {
-                class_check = (std::string)get_member(class_name_field);
+                class_check = get_member(class_name_field).as_string();
 			}
 			return class_check == parse_error_class;
 		}
@@ -1668,7 +1668,7 @@ namespace corona
 			return string_impl()->get_value();
 		}
 
-		operator int() const
+		int as_int() const
 		{
 			if (value_base)
 				return value_base->to_int64();
@@ -1676,7 +1676,7 @@ namespace corona
 				return 0;
 		}
 
-		operator double() const
+		double as_double() const
 		{
 			if (value_base)
 				return value_base->to_double();
@@ -1684,7 +1684,7 @@ namespace corona
 				return 0.0;
 		}
 
-		operator int64_t() const
+		int64_t as_int64_t() const
 		{
 			if (value_base)
 				return value_base->to_int64();
@@ -1692,7 +1692,7 @@ namespace corona
 				return 0;
 		}
 
-		operator date_time() const
+		date_time as_date_time() const
 		{
 			if (value_base)
 				return value_base->to_datetime();
@@ -1700,7 +1700,7 @@ namespace corona
 				return 0;
 		}
 
-		operator std::string() const
+		std::string as_string() const
 		{
 			if (value_base)
 				return value_base->to_string();
@@ -1717,7 +1717,7 @@ namespace corona
 				return object_reference_type();
 		}
 
-		explicit operator bool() const
+		bool as_bool() const
 		{
 			if (value_base)
 				return value_base->to_bool();
@@ -1908,7 +1908,7 @@ namespace corona
 		{
 			bool has_value = object_impl() and object_impl()->members.contains(_key);
 			if (has_value) {
-				int64_t svalue = get_member(_key);
+				int64_t svalue = get_member(_key).as_int64_t();
 				has_value = svalue == _value;
 			}
 			return has_value;
@@ -1918,7 +1918,7 @@ namespace corona
 		{
 			bool has_value = object_impl() and object_impl()->members.contains(_key);
 			if (has_value) {
-				bool svalue = (bool)get_member(_key);
+				bool svalue = get_member(_key).as_bool();
 				has_value = svalue == _value;
 			}
 			return has_value;
@@ -1962,7 +1962,7 @@ namespace corona
 				throw std::logic_error("Not an object");
 			}
 			json jn(object_impl()->members[_key]);
-			double jnd = (double)jn;
+			double jnd = jn.as_double();
 			return jnd;
 		}
 
@@ -2016,23 +2016,23 @@ namespace corona
 				put_member_array(_key);
 			}
 			else if (_new_type == field_types::ft_string) {
-				std::string s = (std::string)get_member(_key);
+				std::string s = get_member(_key).as_string();
 				put_member(_key, s);
 			}
 			else if (_new_type == field_types::ft_int64) {
-				int64_t i64 = (int64_t)get_member(_key);
+				int64_t i64 = get_member(_key).as_int64_t();
 				put_member_i64(_key, i64);
 			}
 			else if (_new_type == field_types::ft_double) {
-				double d = (double)get_member(_key);
+				double d = get_member(_key).as_double();
 				put_member(_key, d);
 			}
 			else if (_new_type == field_types::ft_datetime) {
-				date_time dt = get_member(_key);
+				date_time dt = get_member(_key).as_date_time();
 				put_member(_key, dt);
 			}
 			else if (_new_type == field_types::ft_bool) {
-				bool b = (bool)get_member(_key);
+				bool b = get_member(_key).as_bool();
 				put_member(_key, b);
 			}
 		}
@@ -2125,26 +2125,26 @@ namespace corona
 				put_member_object(_key, _member);
 			}
 			else if (_member.is_double()) {
-				double d = _member;
+				double d = _member.as_double();
 				put_member(_key, d);
 			}
 			else if (_member.is_int64()) {
-				int64_t d = _member;
+				int64_t d = _member.as_int64_t();
 				put_member_i64(_key, d);
 			}
 			else if (_member.is_datetime()) {
-				date_time d = _member;
+				date_time d = _member.as_date_time();
 				put_member(_key, d);
 			}
 			else if (_member.object()) {
 				put_member_object(_key, _member);
 			}
 			else if (_member.is_string()) {
-				std::string d = _member;
+				std::string d = _member.as_string();
 				put_member(_key, d);
 			}
 			else if (_member.is_blob()) {
-				std::string d = _member;
+				std::string d = _member.as_string();
 				put_member(_key, d);
 			}
 			else if (_member.function()) {
@@ -2539,22 +2539,22 @@ namespace corona
 				put_element_array(_index, _element);
 			}
 			else if (_element.is_double()) {
-				double d = _element;
+				double d = _element.as_double();
 				put_element(_index, d);
 			}
 			else if (_element.is_int64()) {
-				int64_t d = _element;
+				int64_t d = _element.as_int64_t();
 				put_element(_index, d);
 			}
 			else if (_element.is_datetime()) {
-				date_time timex = _element;
+				date_time timex = _element.as_date_time();
 				put_element(_index, timex);
 			}
 			else if (_element.object()) {
 				put_element_object(_index, _element);
 			}
 			else if (_element.is_string()) {
-				std::string d = _element;
+				std::string d = _element.as_string();
 				put_element(_index, d);
 			}
 			return *this;
@@ -3920,7 +3920,7 @@ namespace corona
 			for (int i = 0; i < pieces.size(); i++)
 			{
 				std::string index_key = std::to_string(i);
-				std::string column_name = _column_map[index_key];
+				std::string column_name = _column_map[index_key].as_string();
 				bool t = _dest_template.import_member(column_name, pieces[i]);
 				if (t) r = t;
                 else _extra.put_member(column_name, pieces[i]);
@@ -4319,7 +4319,7 @@ namespace corona
 			}
 		}
 		else {
-			std::string temp = (std::string)*this;
+			std::string temp = as_string();
 			std::transform(temp.begin(), temp.end(), temp.begin(),
 				[](unsigned char c) { return std::tolower(c); });
 			std::transform(_text.begin(), _text.end(), _text.begin(),
@@ -4351,19 +4351,19 @@ namespace corona
 			return ime > iv;
 		}
 		else if (_value.is_int64()) {
-			int64_t ime = (int64_t)*this;
+			int64_t ime = as_int64_t();
 			int64_t iv = _value.int64_impl()->value;
 			return ime > iv;
 		}
 		else if (_value.is_double()) {
-			double dme = (double)*this;
+			double dme = as_double();
 			double dv = _value.double_impl()->value;
 			return dme > dv;
 		}
 		else 
 		{
-			std::string sme = (std::string)(*this);
-			std::string sv = (std::string)(_value);
+			std::string sme = as_string();
+			std::string sv = _value.as_string();
 			return sme > sv;
 		}
 	}
@@ -4388,19 +4388,19 @@ namespace corona
 			return ime < iv;
 		}
 		else if (_value.is_int64()) {
-			int64_t ime = (int64_t)*this;
+			int64_t ime = as_int64_t();
 			int64_t iv = _value.int64_impl()->value;
 			return ime < iv;
 		}
 		else if (_value.is_double()) {
-			double dme = (double)*this;
+			double dme = as_double();
 			double dv = _value.double_impl()->value;
 			return dme < dv;
 		}
 		else
 		{
-			std::string sme = (std::string)(*this);
-			std::string sv = (std::string)(_value);
+			std::string sme = as_string();
+			std::string sv = _value.as_string();
 			return sme < sv;
 		}
 	}
@@ -4425,19 +4425,19 @@ namespace corona
 			return ime == iv;
 		}
 		else if (_value.is_int64()) {
-			int64_t ime = (int64_t)*this;
+			int64_t ime = as_int64_t();
 			int64_t iv = _value.int64_impl()->value;
 			return ime == iv;
 		}
 		else if (_value.is_double()) {
-			double dme = (double)*this;
+			double dme = as_double();
 			double dv = _value.double_impl()->value;
 			return dme == dv;
 		}
 		else
 		{
-			std::string sme = (std::string)(*this);
-			std::string sv = (std::string)(_value);
+			std::string sme = as_string();
+			std::string sv = _value.as_string();
 			return sme == sv;
 		}
 	}
@@ -4495,8 +4495,8 @@ namespace corona
 		}
 		else if (_srcA.is_string() or _srcB.is_string())
 		{
-			std::string d1 = (std::string)_srcA;
-			std::string d2 = (std::string)_srcB;
+			std::string d1 = _srcA.as_string();
+			std::string d2 = _srcB.as_string();
 			std::string r = d1 + d2;
 			result = jp.from_string(r);
 		}
@@ -4569,8 +4569,8 @@ namespace corona
 		}
 		else if (_srcA.is_string() or _srcB.is_string())
 		{
-			std::string d1 = (std::string)_srcA;
-			std::string d2 = (std::string)_srcB;
+			std::string d1 = _srcA.as_string();
+			std::string d2 = _srcB.as_string();
 
 			size_t pos = d1.find(d2);
 			while (pos != std::string::npos)
@@ -4846,7 +4846,7 @@ namespace corona
 						double rsum = 0;
 						for (auto ch : start) {
 							if (ch.has_member(std::string(member_name))) {
-								double t = (double)ch[member_name];
+								double t = ch[member_name].as_double();
 								t += rsum;
 							}
 						}
@@ -4859,7 +4859,7 @@ namespace corona
 						double count = 0;
 						for (auto ch : start) {
 							if (ch.has_member(std::string(member_name))) {
-								double t = (double)ch[member_name];
+								double t = ch[member_name].as_double();
 								t += rsum;
 								count += 1.0;
 							}
@@ -4881,7 +4881,7 @@ namespace corona
 						for (auto ch : start) {
 							if (ch.has_member(std::string(member_name))) {
 								sresult += comma;
-								sresult += (std::string)ch[member_name];
+								sresult += ch[member_name].as_string();
 								comma = ", ";
 							}
 						}

@@ -57,9 +57,9 @@ namespace corona
 
         void put_json(const json& _j)
         {
-            field_id = (int32_t)_j["field_id"];
-            field_name = (std::string)_j["field_name"];
-            field_type = (field_types)(int32_t)_j["field_type"];
+            field_id = _j["field_id"].as_int();
+            field_name = _j["field_name"].as_string();
+            field_type = (field_types)(_j["field_type"].as_int());
         }
 	};
 
@@ -503,7 +503,7 @@ namespace corona
 				{
 				case field_types::ft_string:
 					{
-						std::string s = (std::string)m;
+						std::string s = m.as_string();
 						add(acol.field_id, s);
 					}
 					break;
@@ -521,25 +521,25 @@ namespace corona
 					break;
 				case field_types::ft_bool:
 					{
-						bool b8 = (bool)m;
+						bool b8 = m.as_bool();
 						add_poco<bool>(acol.field_id, b8, field_types::ft_bool);
 					}
 					break;
 				case field_types::ft_double:
 					{
-						double f8 = (double)m;
+						double f8 = m.as_double();
 						add_poco<double>(acol.field_id, f8, field_types::ft_int64);
 					}
 					break;
 				case field_types::ft_datetime:
 					{
-						date_time dt = (date_time)m;
+						date_time dt = m.as_date_time();
 						add(acol.field_id, dt);
 					}
 					break;
 				case field_types::ft_int64:
 					{
-						int64_t i8 = (int64_t)m;
+						int64_t i8 = m.as_int64_t();
 						add_poco<int64_t>(acol.field_id, i8, field_types::ft_int64);
 					}
 					break;
@@ -956,19 +956,19 @@ namespace corona
 
 		std::string ssrc, sdst;
 
-		ssrc = (std::string)jsrc["Name"];
-		sdst = (std::string)jdst["Name"];
+		ssrc = jsrc["Name"].as_string();
+		sdst = jdst["Name"].as_string();
 
 		result = ssrc == sdst;
 		_tests->test({ "rt name", result, __FILE__, __LINE__ });
 
-		result = (double)jsrc["Age"] == (double)jdst["Age"];
+		result = jsrc["Age"].as_double() == jdst["Age"].as_double();
 		_tests->test({ "rt age", result, __FILE__, __LINE__ });
 
-		result = (int64_t)jsrc["Atoms"] == (int64_t)jdst["Atoms"];
+		result = jsrc["Atoms"].as_int64_t() == jdst["Atoms"].as_int64_t();
 		_tests->test({ "rt atoms", result, __FILE__, __LINE__ });
 
-		result = (date_time)jsrc["Today"] == (date_time)jdst["Today"];
+		result = jsrc["Today"].as_date_time() == jdst["Today"].as_date_time();
 		_tests->test({ "rt today", result, __FILE__, __LINE__ });
 
 		// and with the json
@@ -979,16 +979,16 @@ namespace corona
 		readin.get_json(&columns2, jdst);
 
 		// and finally, checking our matches after the round trip
-		result = (std::string)jsrc["Name"] == (std::string)jdst["Name"];
+		result = jsrc["Name"].as_string() == jdst["Name"].as_string();
 		_tests->test({ "rts name", result, __FILE__, __LINE__ });
 
-		result = (double)jsrc["Age"] == (double)jdst["Age"];
+		result = jsrc["Age"].as_double() == jdst["Age"].as_double();
 		_tests->test({ "rts age", result, __FILE__, __LINE__ });
 
-		result = (_int64)jsrc["Atoms"] == (_int64)jdst["Atoms"];
+		result = jsrc["Atoms"].as_int64_t() == jdst["Atoms"].as_int64_t();
 		_tests->test({ "rts atoms", result, __FILE__, __LINE__ });
 
-		result = (date_time)jsrc["Today"] == (date_time)jdst["Today"];
+		result = jsrc["Today"].as_date_time() == jdst["Today"].as_date_time();
 		_tests->test({ "rts today", result, __FILE__, __LINE__ });
 
 		// and now, unit tests that simulate our indexes.

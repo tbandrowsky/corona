@@ -51,9 +51,9 @@ namespace corona
 				return;
 			}
 
-			id_field = _src.get_member("id_field");
-			text_field = _src.get_member("text_field");
-			selected_field = _src.get_member("selected_field");
+			id_field = _src.get_member("id_field").as_string();
+			text_field = _src.get_member("text_field").as_string();
+			selected_field = _src.get_member("selected_field").as_string();
 			items = _src.get_member("items");
 		}
 
@@ -90,10 +90,10 @@ namespace corona
 				return;
 			}
 
-			display_name = _src["label_text"];
-			json_field_name = _src["json_field_name"];
-			width = _src["width"];
-			format = _src["format"];
+			display_name = _src["label_text"].as_string();
+			json_field_name = _src["json_field_name"].as_string();
+			width = _src["width"].as_int();
+			format = _src["format"].as_string();
 			corona::put_json(alignment, _src, "alignment");
 		}
 
@@ -149,7 +149,7 @@ namespace corona
 				}
 			}
 
-			id_field = _src["id_field"];
+			id_field = _src["id_field"].as_string();
 			items = _src["items"];
 		}
 

@@ -691,14 +691,14 @@ namespace corona
 		virtual void put_json(json _src)
 		{
 			json_parser jp;
-			root_block.location = _src["root_location"];
-			root_block.block_type = (xblock_types)((int64_t)_src["root_type"]);
+			root_block.location = _src["root_location"].as_int64_t();
+			root_block.block_type = (xblock_types)(_src["root_type"].as_int64_t());
 			json kms = _src["key_members"];
 			key_members.put_json(kms);
 			json oms = _src["object_members"];
 			object_members.put_json(oms);
-			count = (int64_t)_src["count"];
-            next_id = (int64_t)_src["next_id"];
+			count = _src["count"].as_int64_t();
+            next_id = _src["next_id"].as_int64_t();
             for (auto m = key_members.columns.begin(); m != key_members.columns.end(); m++) {
 				if (object_id_field == (std::string)m->second.field_name) {
                     use_object_id = true;
@@ -847,7 +847,7 @@ namespace corona
 			scope_lock lockme(locker);
 
 			if (table_header->use_object_id) {
-				if (not _object.has_member(object_id_field) or (int64_t)_object[object_id_field] == 0) {
+				if (not _object.has_member(object_id_field) or _object[object_id_field].as_int64_t() == 0) {
 					int64_t new_id = get_next_object_id();
 					_object.put_member_i64(object_id_field, new_id);
 				}
@@ -1046,7 +1046,7 @@ namespace corona
 				for (auto item : _array) {
 
 					if (table_header->use_object_id) {
-						if (not item.has_member(object_id_field) or (int64_t)item[object_id_field] == 0) {
+						if (not item.has_member(object_id_field) or item[object_id_field].as_int64_t() == 0) {
 							int64_t new_id = get_next_object_id();
 							item.put_member_i64(object_id_field, new_id);
 						}

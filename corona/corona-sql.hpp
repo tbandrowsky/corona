@@ -42,10 +42,10 @@ namespace corona
 
 		virtual void put_json(validation_error_collection& _errors, json& _src)
 		{
-			corona_field_name = _src["corona_field_name"];
-			sql_field_name = _src["sql_field_name"];
-			primary_key = (bool)_src["primary_key"];
-			string_size = (int)_src["string_size"];
+			corona_field_name = _src["corona_field_name"].as_string();
+			sql_field_name = _src["sql_field_name"].as_string();
+			primary_key = _src["primary_key"].as_bool();
+			string_size = _src["string_size"].as_int();
 			is_expression = false;
 			for (auto s : sql_field_name) {
 				if (s == '(' or s == ')' or s == '*' or s == '+' or s == '/' or s == '-' or s == '!') {
@@ -96,8 +96,8 @@ namespace corona
 		virtual void put_json(validation_error_collection& _errors, json& _src)
 		{
 			mappings.clear();
-			connection_name = _src["connection_name"];
-			sql_table_name = _src["sql_table_name"];
+			connection_name = _src["connection_name"].as_string();
+			sql_table_name = _src["sql_table_name"].as_string();
 			primary_key.clear();
             all_fields.clear();
 
@@ -228,7 +228,7 @@ namespace corona
 		{
 			auto members = _values.get_members();
 			for (auto member : members) {
-				src = replace(src, member.first, (std::string)member.second);
+				src = replace(src, member.first, member.second.as_string());
 			}
 			return src;
 		}
@@ -546,14 +546,14 @@ namespace corona
 					{
 						case field_types::ft_string:
 						{
-							std::string sfield = (std::string)_statement.source_object[param.corona_field_name];
+							std::string sfield = _statement.source_object[param.corona_field_name].as_string();
 							xparams.add(col.field_id, sfield);
 						}
 						break;
 
 						case field_types::ft_double:
 						{
-							double dfield = (double)_statement.source_object[param.corona_field_name];
+							double dfield = _statement.source_object[param.corona_field_name].as_double();
 							xparams.add(col.field_id, dfield);
 
 						}
@@ -561,14 +561,14 @@ namespace corona
 
 						case field_types::ft_datetime:
 						{
-							date_time dt = (date_time)_statement.source_object[param.corona_field_name];
+							date_time dt = _statement.source_object[param.corona_field_name].as_date_time();
 							xparams.add(col.field_id, dt);
 						}
 						break;
 
 						case field_types::ft_int64:
 						{
-							int64_t i64 = (int64_t)_statement.source_object[param.corona_field_name];
+							int64_t i64 = _statement.source_object[param.corona_field_name].as_int64_t();
 							xparams.add(col.field_id, i64);
 						}
 						break;
@@ -729,7 +729,7 @@ namespace corona
 					for (auto key : _statement.result_keys)
 					{
 						std::string null_key = key + "_null";
-						int64_t null_ind = (int64_t)new_object[null_key];
+						int64_t null_ind = new_object[null_key].as_int64_t();
 						if (null_ind != SQL_NULL_DATA) {
 							std::shared_ptr<json_value> jv = new_object.get_member_value(key);
 							if (jv) {

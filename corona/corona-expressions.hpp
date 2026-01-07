@@ -215,7 +215,7 @@ namespace corona
                 if (text.empty()) continue;
                 Lexer lexer(text);
                 Parser parser(lexer);
-                int result = parser.expr();
+                int result = parser.expr().as_int();
                 std::cout << result << std::endl;
             }
             catch (const std::exception& e) {

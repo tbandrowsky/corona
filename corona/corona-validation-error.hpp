@@ -47,13 +47,13 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			class_name = _src[class_name_field];
-			field_name = _src["field_name"];
-			message = _src[message_field];
-			filename = _src["filename"];
-			line_number = _src["line_number"];
-			comments = _src["comments"];
-			count = (int)_src["count"];
+			class_name = _src[class_name_field].as_string();
+			field_name = _src["field_name"].as_string();
+			message = _src[message_field].as_string();
+			filename = _src["filename"].as_string();
+			line_number = _src["line_number"].as_int();
+			comments = _src["comments"].as_string();
+			count = _src["count"].as_int();
 		}
 
 		bool operator < (const validation_error& _src) const
