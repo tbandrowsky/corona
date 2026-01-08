@@ -812,7 +812,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 			}
 
-			join_to = _src["join_to"];
+			join_to = _src["join_to"].as_string();
             joined_by = _src["join_by"];
 		}
 	};
@@ -855,14 +855,14 @@ namespace corona
 						for (auto member : replacement->joined_by.get_members())
 						{
 							std::string src_field = member.first;
-							std::string dst_field = member.second;
+							std::string dst_field = member.second.as_string();
 							json src = jo->members[src_field];
 							filter.put_member(dst_field, src);
 						}
 						filter_request.put_member("class_name", replacement->join_to);
 						filter_request.put_member("filter", filter);
 						json apply_result = _db->query_class(user_name, filter);
-						if (apply_result[success_field]) {
+						if (apply_result[success_field].as_bool()) {
 							json result_data = apply_result["data"];
 							if (result_data.array())
 							{
@@ -915,8 +915,8 @@ namespace corona
 			// these run in order to allow for dependencies
 			for (auto from_class : from_classes)
 			{
-				std::string from_class_name = from_class[class_name_field];
-				std::string filter_source_name = from_class["name"];
+				std::string from_class_name = from_class[class_name_field].as_string();
+				std::string filter_source_name = from_class["name"].as_string();
 				json data = from_class[data_field];
 
 				std::shared_ptr<from_source> new_source = std::make_shared<from_source>();
@@ -979,7 +979,7 @@ namespace corona
 			json filter_request = jp.create_object();
 			filter_request.put_member("class_name", _source->class_name);
 
-			if (_source->filter) {
+			if (!_source->filter.empty()) {
 				join_filter = _source->filter;
 				filter_request.put_member("filter", _source->filter);
 			}
@@ -1005,7 +1005,7 @@ namespace corona
 					for (auto member : joined_by_members)
 					{
 						std::string src_field = member.first;
-						std::string dst_field = member.second;
+						std::string dst_field = member.second.as_string();
 						json src = _src[src_field];
 						join_filter.put_member(dst_field, src);
 					}
@@ -1095,17 +1095,17 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			required = (bool)_src["required"];
-            server_only = (bool)_src["server_only"];
-			read_only = (bool)_src["read_only"];
-			format = (std::string)_src["format"];
-            input_mask = (std::string)_src["input_mask"];	
-            label = (std::string)_src["label"]; 
-			description = (std::string)_src["description"];
-			grid_row = (std::string)_src["grid_row"];
-			grid_column = (std::string)_src["grid_column"];
-			display = (std::string)_src["display"];
-			tab_index = (std::string)_src["tab_index"];
+			required = _src["required"].as_bool();
+            server_only = _src["server_only"].as_bool();
+			read_only = _src["read_only"].as_bool();
+			format = _src["format"].as_string();
+            input_mask = _src["input_mask"].as_string();
+            label = _src["label"].as_string();
+			description = _src["description"].as_string();
+			grid_row = _src["grid_row"].as_string();
+			grid_column = _src["grid_column"].as_string();
+			display = _src["display"].as_string();
+			tab_index = _src["tab_index"].as_string();
 		}
 
 		virtual void init_validation() override
@@ -1196,7 +1196,7 @@ namespace corona
 
 		virtual void put_json(json& _src)  override
 		{
-			child_class_name = _src["child_class_name"];
+			child_class_name = _src["child_class_name"].as_string();
 			copy_values = _src["copy_values"];
 		}
 
@@ -1214,7 +1214,7 @@ namespace corona
 				for (auto member : members)
 				{
 					std::string _dest_key = member.first;
-					std::string _src_key = member.second;
+					std::string _src_key = member.second.as_string();
 					if (not (_src_key.empty() or _dest_key.empty()))
 					{
 						json value = _src[_src_key];
@@ -1234,7 +1234,7 @@ namespace corona
 			for (auto member : members)
 			{
 				std::string _dest_key = member.first;
-				std::string _src_key = member.second;
+				std::string _src_key = member.second.as_string();
 				if (not (_src_key.empty() or _dest_key.empty()))
 				{
 					json value = _src[_src_key];
@@ -1434,7 +1434,7 @@ namespace corona
 			field_options_base::put_json(_src);
 
 			json jctors = _src["child_objects"];
-			std::string fte = _src["fundamental_type"];
+			std::string fte = _src["fundamental_type"].as_string();
 			if (allowed_field_types.contains(fte)) {
 				fundamental_type = allowed_field_types[fte];
 			}
@@ -1537,7 +1537,7 @@ namespace corona
 						else if (bridges)
 						{
 							if (obj.object()) {
-								object_class_name = obj[class_name_field];
+								object_class_name = obj[class_name_field].as_string();
 								auto ctor = bridges->get_bridge(object_class_name);
 								if (not ctor) {
 									validation_error ve;
@@ -1763,7 +1763,7 @@ namespace corona
 				else if (bridges)
 				{
 					if (obj.object()) {
-						object_class_name = obj[class_name_field];
+						object_class_name = obj[class_name_field].as_string();
 						auto ctor = bridges->get_bridge(object_class_name);
 						if (not ctor) {
 							validation_error ve;
@@ -1861,9 +1861,9 @@ namespace corona
 		{
 			json_parser jp;
 			field_options_base::put_json(_src);
-			minimum_length = _src["min_length"];
-			maximum_length = _src["max_length"];
-			match_pattern = _src["match_pattern"];
+			minimum_length = _src["min_length"].as_int();
+			maximum_length = _src["max_length"].as_int();
+			match_pattern = _src["match_pattern"].as_string();
 			for (auto& c : match_pattern) {
                 if (c == '/') c = '\\';
 			}
@@ -1872,7 +1872,7 @@ namespace corona
 			json jallowed_values = _src["enum"];
 			if (jallowed_values.array()) {
 				for (auto s : jallowed_values) {
-					allowed_values.push_back(s);
+					allowed_values.push_back(s.as_string());
 				}
 			}
 		}
@@ -1893,7 +1893,7 @@ namespace corona
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				std::string chumpy = (std::string)_object_to_test;
+				std::string chumpy = _object_to_test.as_string();
 
 				if (chumpy.size() >= minimum_length and (maximum_length == 0 or chumpy.size() <= maximum_length))
 				{
@@ -1993,15 +1993,15 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
-			min_value = (int64_t)_src["min_value"];
-			max_value = (int64_t)_src["max_value"];
+			min_value = _src["min_value"].as_int64_t();
+			max_value = _src["max_value"].as_int64_t();
 		}
 
 		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				int64_t chumpy = (int64_t)_object_to_test;
+				int64_t chumpy = _object_to_test.as_int64_t();
 
 				if (min_value == 0 and max_value == 0)
 				{
@@ -2075,7 +2075,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
-			reference_class = _src["ref_class"];
+			reference_class = _src["ref_class"].as_string();
 			reference_class_descendants.clear();
 		}
 
@@ -2154,15 +2154,15 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
-			min_value = (date_time)_src["min_value"];
-			max_value = (date_time)_src["max_value"];
+			min_value = _src["min_value"].as_date_time();
+			max_value = _src["max_value"].as_date_time();
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				date_time chumpy = (date_time)_object_to_test;
+				date_time chumpy = _object_to_test.as_date_time();
 				date_time zero(0);
 
 				if (min_value == zero and max_value == zero)
@@ -2335,8 +2335,8 @@ namespace corona
 			json_parser jp;
 			field_options_base::put_json(_src);
 			filter = _src["filter"];
-			id_field_name = _src["id_field_name"];
-			description_field_name = _src["description_field_name"];
+			id_field_name = _src["id_field_name"].as_string();
+			description_field_name = _src["description_field_name"].as_string();
 			options = jp.create_array();
 		}
 
@@ -2370,18 +2370,18 @@ namespace corona
 					std::string object_test_id;
 					if (_object_to_test.object())
 					{
-						object_test_id = _object_to_test[id_field_name];
+						object_test_id = _object_to_test[id_field_name].as_string();
 					}
 					else if (_object_to_test.is_string())
 					{
-						object_test_id = _object_to_test;
+						object_test_id = _object_to_test.as_string();
 					}
 					else
 						return false;
 
 					for (auto option : options)
 					{
-						std::string id_field = option[id_field_name];
+						std::string id_field = option[id_field_name].as_string();
 						if (id_field == object_test_id)
 							return true;
 					}
@@ -2452,7 +2452,7 @@ namespace corona
 			this_query_body.put_member(token_field, _token);
 			json query_results, query_data_results;
 			query_results = _db->query(this_query_body);
-			if (query_results[success_field]) {
+			if (query_results[success_field].as_bool()) {
 				query_data_results = query_results[data_field];
 			}
 			else 
@@ -2583,13 +2583,13 @@ namespace corona
 
             class_interface* _classd = dynamic_cast<class_interface*>(_classdb);
 
-			std::string s = _src["field_type"];
+			std::string s = _src["field_type"].as_string();
 			auto aft = allowed_field_types.find(s);
 			if (aft != std::end(allowed_field_types)) {
 				field_type = aft->second;
 			}
-			field_name = _src["field_name"];
-			field_class = _src["field_class"];
+			field_name = _src["field_name"].as_string();
+			field_class = _src["field_class"].as_string();
 
 			if (field_type == field_types::ft_object)
 			{
@@ -2778,7 +2778,7 @@ namespace corona
 
 		virtual void put_json(validation_error_collection& _errors, json& _src) override
 		{			
-			index_name = _src["index_name"];
+			index_name = _src["index_name"].as_string();
 
 			json jindex_keys = _src["index_keys"];
 			if (jindex_keys.array())
@@ -2786,10 +2786,10 @@ namespace corona
 				index_keys.clear();
 				bool add_object_id = true;
 				for (auto key : jindex_keys) {
-					std::string key_name = key;
+					std::string key_name = key.as_string();
 					if (key_name == object_id_field)
 						add_object_id = false;
-					index_keys.push_back(key);
+					index_keys.push_back(key_name);
 				}
 				if (add_object_id) {
 					index_keys.push_back(object_id_field);
@@ -3498,30 +3498,29 @@ namespace corona
 				return;
 			}
 
-			class_name = _src[class_name_field];
-			base_class_name = _src["base_class_name"];
-			class_description = _src["class_description"];
-			grid_template_rows = _src["grid_template_rows"];
-			grid_template_columns = _src["grid_template_columns"];
-			class_color = _src["class_color"];
-			display = _src["display"];
-			card_title = _src["card_title"];
-			class_author = _src["class_author"];
-			class_version = _src["class_version"];
-
+			class_name = _src[class_name_field].as_string();
+			base_class_name = _src["base_class_name"].as_string();
+			class_description = _src["class_description"].as_string();
+			grid_template_rows = _src["grid_template_rows"].as_string();
+			grid_template_columns = _src["grid_template_columns"].as_string();
+			class_color = _src["class_color"].as_string();
+			display = _src["display"].as_string();
+			card_title = _src["card_title"].as_string();
+			class_author = _src["class_author"].as_string();
+			class_version = _src["class_version"].as_string();
 
 			parents.clear();
 			json jparents = _src["parents"];
 
 			if (jparents.is_string())
 			{
-				std::string jparento = (std::string)jparents;
+				std::string jparento = jparents.as_string();
 				parents.push_back(jparento);
 			}
 			else if (jparents.array())
 			{
 				for (auto jparent : jparents) {
-					parents.push_back((std::string)(jparent));
+					parents.push_back(jparent.as_string());
 				}
 			}
 
@@ -3530,13 +3529,13 @@ namespace corona
 
 			if (jfulltext.is_string())
 			{
-				std::string jparento = (std::string)jparents;
+				std::string jparento = jfulltext.as_string();
 				full_text_fields.push_back(jparento);
 			}
 			else if (jfulltext.array())
 			{
 				for (auto jparent : jfulltext) {
-					full_text_fields.push_back((std::string)(jparent));
+					full_text_fields.push_back(jparent.as_string());
 				}
 			}
 
@@ -3545,18 +3544,18 @@ namespace corona
 
 			if (jcard_fields.is_string())
 			{
-				std::string jparento = (std::string)jparents;
+				std::string jparento = jcard_fields.as_string();
 				card_fields.push_back(jparento);
 			}
 			else if (jcard_fields.array())
 			{
 				for (auto jparent : jcard_fields) {
-					card_fields.push_back((std::string)(jparent));
+					card_fields.push_back(jparent.as_string());
 				}
 			}
 
-			class_author = _src["class_author"];
-			class_version = _src["class_version"];
+			class_author = _src["class_author"].as_string();
+			class_version = _src["class_version"].as_string();
 
 			jtable_fields = _src["table_fields"];
 
@@ -3566,7 +3565,7 @@ namespace corona
 			{
 				for (auto jancestor : jancestors)
 				{
-					std::string ancestor = jancestor;
+					std::string ancestor = jancestor.as_string();
 					ancestors.insert_or_assign(ancestor, true);
 				}
 			}
@@ -3585,7 +3584,7 @@ namespace corona
 			{
 				for (auto jdescendant : jdescendants)
 				{
-					std::string descendant = jdescendant;
+					std::string descendant = jdescendant.as_string();
 					descendants.insert_or_assign(descendant, true);
 				}
 			}
@@ -3635,12 +3634,12 @@ namespace corona
 					}
 					else if (jfield.second.is_string()) 
 					{
-						auto fi = allowed_field_types.find(jfield.second);
+						auto fi = allowed_field_types.find(jfield.second.as_string());
 						if (fi != std::end(allowed_field_types)) {
 							field->set_field_type( fi->second);
 						}
 						else {
-							auto parse_temp = (std::string)jfield.second;
+							auto parse_temp = jfield.second.as_string();
 							cod = child_object_definition::parse_definition(parse_temp.c_str(), get_class_name());
 							if (cod.is_undefined)
 							{
@@ -3673,7 +3672,7 @@ namespace corona
 							if (jfield_grant.is_string())
 							{
 								std::shared_ptr<child_object_class> coc = std::make_shared<child_object_class>();
-                                coc->class_name = jfield_grant;
+                                coc->class_name = jfield_grant.as_string();
 								coc->copy_values.insert_or_assign(class_name, object_id_field);
 								cod.child_classes.push_back( coc );
 							}
@@ -3709,7 +3708,7 @@ namespace corona
 						validation_error ve;
 						ve.class_name = class_name;
 						ve.field_name = field->get_field_name();
-						ve.message = "Invalid field type '" + (std::string)jfield.second;
+						ve.message = "Invalid field type '" + jfield.second.as_string() + "'";
 						ve.filename = get_file_name(__FILE__);
 						ve.line_number = __LINE__;
 						_errors.push_back(ve);
@@ -3830,7 +3829,7 @@ namespace corona
 					_target.put_member(target_field_name, objects);
 					for (auto obj : objects) 
 					{
-						std::string class_name = obj[class_name_field];
+						std::string class_name = obj[class_name_field].as_string();
 						if (not class_name.empty()) {
 							if (!classes.has_member(class_name)) {
 								auto classd = _db->read_lock_class(class_name);
@@ -3912,7 +3911,7 @@ namespace corona
 			put_json(_context->errors, definition);
 			
 			if (not std::filesystem::exists(get_class_filename(_context->db))) {
-				std::string stuff = std::format("Attempt to open {0} but not created", (std::string)definition[class_name_field]);
+				std::string stuff = std::format("Attempt to open {0} but not created", definition[class_name_field].as_string());
 				throw std::logic_error(stuff);
 			}
 
@@ -4306,17 +4305,17 @@ namespace corona
                 }
                 else if (_grant.get_grant == class_grants::grant_own)
 				{
-					if ((std::string)result["created_by"] != _grant.user_name) {
+					if (result["created_by"].as_string() != _grant.user_name) {
 						result.clear();
 					}
                 }
                 else if (_grant.get_grant == class_grants::grant_team) {
-					if ((std::string)result["team"] != _grant.team_name) {
+					if (result["team"].as_string() != _grant.team_name) {
 						result.clear();
 					}
                 }
 				else if (_grant.get_grant == class_grants::grant_teamorown) {
-					if (((std::string)result["team"] != _grant.team_name) || (std::string)result["created_by"] != _grant.user_name) {
+					if (result["team"].as_string() != _grant.team_name && result["created_by"].as_string() != _grant.user_name) {
 						result.clear();
 					}
 				}
@@ -4525,7 +4524,7 @@ namespace corona
 						if (_src_obj.has_member(object_id_field))
 						{
 
-							int64_t parent_object_id = (int64_t)_src_obj[object_id_field];
+							int64_t parent_object_id = _src_obj[object_id_field].as_int64_t();
 
 							bool exists = false;
 							old_object = class_def->get_object(db, parent_object_id, grant, exists);
@@ -4574,22 +4573,22 @@ namespace corona
 						}
 						else if (grant.put_grant == class_grants::grant_own)
 						{
-							std::string owner = (std::string)write_object["created_by"];
+							std::string owner = write_object["created_by"].as_string();
 							if (grant.user_name == owner) {
 								use_write_object = true;
 							}
 						}
 						else if (grant.put_grant == class_grants::grant_team)
 						{
-							std::string team = (std::string)write_object["team"];
+							std::string team = write_object["team"].as_string();
 							if (grant.team_name == team) {
 								use_write_object = true;
 							}
 						}
 						else if (grant.put_grant == class_grants::grant_teamorown)
 						{
-							std::string owner = (std::string)write_object["created_by"];
-							std::string team = (std::string)write_object["team"];
+							std::string owner = write_object["created_by"].as_string();
+							std::string team = write_object["team"].as_string();
 							if (grant.user_name == owner or grant.team_name == team) {
 								use_write_object = true;
 							}
@@ -4607,7 +4606,7 @@ namespace corona
 										auto bridges = fld->get_bridges();
 										if (bridges) {
 											for (auto obj : array_field) {
-												std::string obj_class_name = obj[class_name_field];
+												std::string obj_class_name = obj[class_name_field].as_string();
 												auto bridge = bridges->get_bridge(obj_class_name);
 												if (bridge) {
 													bridge->copy(obj, write_object);
@@ -4623,7 +4622,7 @@ namespace corona
 								{
 									json obj = write_object[fld->get_field_name()];
 									if (obj.object() and fld->is_relational_children()) {
-										std::string obj_class_name = obj[class_name_field];
+										std::string obj_class_name = obj[class_name_field].as_string();
 										auto bridges = fld->get_bridges();
 										if (bridges) {
 											auto bridge = bridges->get_bridge(obj_class_name);
@@ -4639,12 +4638,12 @@ namespace corona
 							}
 
 							json check_result = class_def->check_single_object(compiled_object, current_date, write_object, validation_errors);
-							if (check_result[success_field]) {
+							if (check_result[success_field].as_bool()) {
 								success_object_count++;
 								put_list.push_back(write_object);
 								if (index_updates.size() > 0)
 								{
-									int64_t object_id = (int64_t)write_object[object_id_field];
+									int64_t object_id = write_object[object_id_field].as_int64_t();
 									if (old_object.object())
 									{
 										for (auto& iop : index_updates)
@@ -4703,7 +4702,7 @@ namespace corona
 
 					for (auto item : put_list) {
 
-						int64_t object_id = (int64_t)item[object_id_field];
+						int64_t object_id = item[object_id_field].as_int64_t();
 
 						std::set<std::string> record_words;
 
@@ -4713,7 +4712,7 @@ namespace corona
 
 							if (fld.get_field_type() == field_types::ft_string) {
 
-								std::string temp = (std::string)fld;
+								std::string temp = fld.as_string();
 								auto terms = ctt.tokenize(temp);
 
 								std::string word;
@@ -4833,7 +4832,7 @@ namespace corona
 			if (_key.has_member("full_text"))
 			{
 				
-				std::string full_text = _key["full_text"];
+				std::string full_text = _key["full_text"].as_string();
 
 				if (full_text.size() > 0)
 				{
@@ -4855,7 +4854,7 @@ namespace corona
 							json *pobj = &obj;
 
 							json ft_results = ftb->select(nullptr, ft_key, [&terms, &_grant, &_db, pobj, this](json& _item) -> json {
-								int64_t object_id = (int64_t)_item["object_id"];
+								int64_t object_id = _item["object_id"].as_int64_t();
 								bool exists;
 								json temp = get_object(_db, object_id, _grant, exists);
 								if (temp.object()) {
@@ -4863,7 +4862,7 @@ namespace corona
 									for (auto& tword : terms) {
 										bool found_word = false;
 										for (auto& ftx : full_text_fields) {
-											std::string str= temp[ftx];
+											std::string str= temp[ftx].as_string();
                                             std::transform(str.begin(), str.end(), str.begin(), ::tolower);
  											bool result = str.find(tword) != std::string::npos;
 											if (result) {
