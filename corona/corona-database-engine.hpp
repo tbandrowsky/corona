@@ -3468,8 +3468,8 @@ namespace corona
 
 			json jfields, jindexes, jancestors, jdescendants, jtable_fields;
 
-			std::string temp_class_name = _src[class_name_field];
-			std::string temp_base_class_name = _src["base_class_name"];
+			std::string temp_class_name = _src[class_name_field].as_string();
+			std::string temp_base_class_name = _src["base_class_name"].as_string();
 
 
 			if (temp_class_name.empty()) {
@@ -4896,17 +4896,17 @@ namespace corona
 							json result;
 							auto members = _j.get_members();
                             for (auto& mem : members) {
-								std::string str = (std::string)mem.second;
+								std::string str = mem.second.as_string();
 								if (str.find(full_text) != std::string::npos) {
 									if (_grant.get_grant & class_grants::grant_any) {
 										result = _j;
 										break;
 									}
-									else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
+									else if ((_grant.get_grant & class_grants::grant_own) && _j["created_by"].as_string() == _grant.user_name) {
 										result = _j;
 										break;
 									}
-									else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
+									else if ((_grant.get_grant & class_grants::grant_team) && _j["team"].as_string() == _grant.team_name) {
 										result = _j;
 										break;
                                     }
@@ -4917,7 +4917,7 @@ namespace corona
 				}
 			}
 			else if (_key.has_member(object_id_field)) {
-				int64_t object_id = (int64_t)_key[object_id_field];
+				int64_t object_id = _key[object_id_field].as_int64_t();
 				bool exists;
 				json temp = get_object(_db, object_id, _grant, exists);
 				obj.push_back(temp);
@@ -4943,7 +4943,7 @@ namespace corona
 						if (_key.compare(obi) != 0) {
 							continue;
 						}
-						int64_t object_id = (int64_t)obi[object_id_field];
+						int64_t object_id = obi[object_id_field].as_int64_t();
 						json bojdetail = _db->select_object(class_name, object_id, _grant);
 						json detail = bojdetail.get_first_element();
 						obj.push_back(detail);
@@ -4960,11 +4960,11 @@ namespace corona
 								if (_grant.get_grant & class_grants::grant_any) {
 									select_result = _j;
                                 }		
-								else if ((_grant.get_grant & class_grants::grant_own) && (std::string)_j["created_by"] == _grant.user_name) {
+								else if ((_grant.get_grant & class_grants::grant_own) && _j["created_by"].as_string() == _grant.user_name) {
 
 									select_result = _j;
 								}
-								else if ((_grant.get_grant & class_grants::grant_team) && (std::string)_j["team"] == _grant.team_name) {
+								else if ((_grant.get_grant & class_grants::grant_team) && _j["team"].as_string() == _grant.team_name) {
 
 									select_result = _j;
 								}
@@ -5027,7 +5027,7 @@ namespace corona
 					if (index_table)
 					{
 						ob_found = index_table->select(&max_query_result_rows, key, [this, &backing_table](json& _item) -> json {
-							int64_t object_id = (int64_t)_item[object_id_field];
+							int64_t object_id = _item[object_id_field].as_int64_t();
 							auto objfound = backing_table->get(object_id);
 							return objfound;
 						});
@@ -5051,7 +5051,7 @@ namespace corona
 					{
 						old_value = ob_found.get_first_element();
 						if (old_value.object()) {
-							object_id = (int64_t)old_value[object_id_field];
+							object_id = old_value[object_id_field].as_int64_t();
 						}
 						else 
 						{
@@ -5103,8 +5103,8 @@ namespace corona
 			for (auto _src_obj : matching_objects) 
 			{
 				if ((_permission.delete_grant == class_grants::grant_any)
-					or ((_permission.delete_grant == class_grants::grant_own || _permission.delete_grant == class_grants::grant_teamorown) and (std::string)_src_obj["created_by"] == _permission.user_name)
-					or ((_permission.delete_grant == class_grants::grant_team || _permission.delete_grant == class_grants::grant_teamorown) and (std::string)_src_obj["team"] == _permission.team_name))
+					or ((_permission.delete_grant == class_grants::grant_own || _permission.delete_grant == class_grants::grant_teamorown) and _src_obj["created_by"].as_string() == _permission.user_name)
+					or ((_permission.delete_grant == class_grants::grant_team || _permission.delete_grant == class_grants::grant_teamorown) and _src_obj["team"].as_string() == _permission.team_name))
 					{
 					tb->erase(_src_obj);
 
@@ -5227,14 +5227,14 @@ namespace corona
 				result_items.for_each_member([](const std::string& _member_name, json _member) {
 					if (_member.array()) {
 						_member.for_each_element([](json& _item) {
-							if (not _item[success_field]) {
-								std::string msg = std::format("{0}:", (std::string)_item[message_field]);
+							if (!_item[success_field].as_bool()) {
+								std::string msg = std::format("{0}:", _item[message_field].as_string());
 								system_monitoring_interface::active_mon->log_warning(msg);
 								if (_item.has_member("errors"))
 								{
 									json errors = _item["errors"];
 									errors.for_each_element([](json& _msg) {
-										std::string msg = std::format("{0}.{1} {2}", (std::string)_msg[class_name_field], (std::string)_msg["field_name"], (std::string)_msg[message_field]);
+										std::string msg = std::format("{0}.{1} {2}", _msg[class_name_field].as_string(), _msg["field_name"].as_string(), _msg[message_field].as_string());
 										system_monitoring_interface::active_mon->log_information(msg);
 										});
 								}
@@ -5288,7 +5288,7 @@ namespace corona
 
 		virtual std::shared_ptr<class_interface> put_class_impl(activity* _activity, json& _class_definition)
 		{
-			std::string class_name = _class_definition[class_name_field];
+			std::string class_name = _class_definition[class_name_field].as_string();
 			auto ci = get_class_impl(_activity, class_name);
 			if (ci) {
 				activity activio;
@@ -5407,7 +5407,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -5473,7 +5473,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -5534,7 +5534,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("sys_server put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -5563,7 +5563,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -5638,7 +5638,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_grant put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -5683,7 +5683,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_status put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -5731,7 +5731,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_ticket put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -5831,7 +5831,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_workflow put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -5895,7 +5895,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_team put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -5982,7 +5982,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_dataset put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				std::cout << response.to_json() << std::endl;
@@ -6046,7 +6046,7 @@ namespace corona
 
 			created_classes.put_member("sys_schema", true);
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -6076,7 +6076,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_item put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -6239,7 +6239,7 @@ namespace corona
 }
 )");
 
-			if (not response[success_field]) {
+			if (response[success_field].as_bool() == false) {
 				system_monitoring_interface::active_mon->log_warning("create_class sys_user put failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -6261,7 +6261,7 @@ namespace corona
 			json classes_array_response =  get_classes(gcr);
 			json classes_array = classes_array_response[data_field];
 			json classes_grouped = classes_array.group([](json& _item) -> std::string {
-				return (std::string)_item[class_name_field];
+				return _item[class_name_field].as_string();
 				});
 
 			auto members = created_classes.get_members();
@@ -6277,7 +6277,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_warning("system classes not saved", __FILE__, __LINE__);
 
 				for (auto mc : missing_classes) {
-					system_monitoring_interface::active_mon->log_information(mc, __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_information(mc.as_string(), __FILE__, __LINE__);
 				}
 
 				for (auto mc : classes_array) {
@@ -6308,7 +6308,7 @@ namespace corona
 
 			new_user_request = create_system_request(new_user_data);
 			json new_user_result =  create_user(new_user_request, true, true);
-			bool success = (bool)new_user_result[success_field];
+			bool success = new_user_result[success_field].as_bool();
 			validation_error_collection errors;
 
 			if (success) {
@@ -6345,7 +6345,7 @@ private:
 
 			json response = put_class(sys_request);
 
-			if (response.error() or response.empty() or (bool)response[success_field] == false)
+			if (response.error() or response.empty() or response[success_field].as_bool() == false)
 			{
 				system_monitoring_interface::active_mon->log_warning("Error creating class", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json(response);
@@ -6385,7 +6385,7 @@ private:
 			}
 
 			json classes_group = object_list.group([](json _item) -> std::string {
-				return _item[class_name_field];
+				return _item[class_name_field].as_string();
 				});
 
 			auto class_list = classes_group.get_members();
@@ -6607,7 +6607,7 @@ private:
 				return empty;
 			}
 
-			std::string signature = token[signature_field];
+			std::string signature = token[signature_field].as_string();
 			token.erase_member(signature_field);
 
 			std::string cipher_text = crypter.encrypt(token, get_pass_phrase(), get_iv());
@@ -6619,7 +6619,7 @@ private:
 			token.put_member(signature_field, signature);
 
 			date_time current = date_time::utc_now();
-			date_time expiration = (date_time)token[token_expires_field];
+			date_time expiration = token[token_expires_field].as_date_time();
 
 			if (current > expiration)
 			{
@@ -6636,8 +6636,8 @@ private:
 				return empty;
 			}
 
-			std::string authorization = token[authorization_field];
-			std::string user = token[user_name_field];
+			std::string authorization = token[authorization_field].as_string();
+			std::string user = token[user_name_field].as_string();
 
 			if (authorization == auth_system) {
                 return token;
@@ -6657,14 +6657,14 @@ private:
 
 		virtual bool check_message(json& _message, std::vector<std::string> _authorizations, std::string& _user_name, std::string& _token_authorization) override
 		{
-			std::string token = _message[token_field];
+			std::string token = _message[token_field].as_string();
 
 			json result = check_token(token, _authorizations);
 			bool is_ok = not result.empty();
 
 			if (is_ok) {
-				_user_name = result[user_name_field];
-                _token_authorization = result[authorization_field];
+				_user_name = result[user_name_field].as_string();
+                _token_authorization = result[authorization_field].as_string();
 			}
 
 			return is_ok;
@@ -6686,7 +6686,7 @@ private:
 			json result_list = jp.create_array();
 			if (all_classes.array()) {
 				for (auto cls : all_classes) {
-					std::string class_name = cls[class_name_field];
+					std::string class_name = cls[class_name_field].as_string();
 					auto permission = get_class_permission(user_name, class_name);
 					if (permission.get_grant != class_grants::grant_none)
 					{
@@ -6698,7 +6698,7 @@ private:
 			schema = jp.create_object();
 			for (auto items : result_list)
 			{
-				std::string class_name = items[class_name_field];
+				std::string class_name = items[class_name_field].as_string();
 				auto ptr = read_lock_class(class_name);
 				if (ptr) {
 					json class_schema = ptr->get_openapi_schema(this);
@@ -6737,7 +6737,7 @@ private:
 
 			_key.set_natural_order();
 
-			std::string class_name = _key[class_name_field];
+			std::string class_name = _key[class_name_field].as_string();
 
 			read_class_sp classd = read_lock_class(class_name);
 			if (not classd)
@@ -6770,9 +6770,9 @@ private:
 			json items = jp.create_array();
 			items.push_back(_user);
 			json request = create_system_request(items);
-			json put_result = put_object(request);			
-			if (!put_result[success_field]) {
-                
+			json put_result = put_object(request);
+			if (!put_result[success_field].as_bool()) {
+	
 			}
 		}
 
@@ -6788,7 +6788,7 @@ private:
 			error.share_member("body", _body);
             json create_object_request = create_system_request(error);
 			json response = put_object(error);
-			if (not response[success_field]) {
+			if (response[success_field].as_bool()==false) {
 				system_monitoring_interface::active_mon->log_warning("put_error failed", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json<json>(response);
 			}
@@ -6815,7 +6815,7 @@ private:
 				std::map<std::string, bool> allowed_teams;
 				json jall_allowed_teams = jp.create_array();
 
-				std::string team_name = user["team_name"];
+				std::string team_name = user["team_name"].as_string();
 				if (not team_name.empty()) {
 					if (_run_teams) {
 						json team_data = run_team(team_name, permission);
@@ -6824,7 +6824,7 @@ private:
 							json jallowed_teams = team_data["allowed_teams"];
 							if (jallowed_teams.array()) {
 								for (json jteam_name : jallowed_teams) {
-									std::string atm = (std::string)jteam_name;
+									std::string atm = jteam_name.as_string();
 									allowed_teams[atm] = true;
 									jall_allowed_teams.push_back(atm);
 								}
@@ -6832,7 +6832,7 @@ private:
 						}
 					}
 				}
-				team_name = user["home_team_name"];
+				team_name = user["home_team_name"].as_string();
 				if (not team_name.empty()) {
 					json team_data = run_team(team_name, permission);
 					if (team_data.object()) {
@@ -6840,7 +6840,7 @@ private:
 						json jallowed_teams = team_data["allowed_teams"];
 						if (jallowed_teams.array()) {
 							for (json jteam_name : jallowed_teams) {
-								std::string atm = (std::string)jteam_name;
+								std::string atm = jteam_name.as_string();
 								if (not allowed_teams.contains(atm)) {
 									allowed_teams[atm] = true;
 									jall_allowed_teams.push_back(atm);
@@ -6866,13 +6866,13 @@ private:
 			json all_teams = query_class(default_user, query_details);
 			json found_teams = jp.create_array();
 
-			if (all_teams[success_field]) {
+			if (all_teams[success_field].as_bool()) {
                 all_teams = all_teams[data_field];
 				if (all_teams.array()) {
 					for (int ix = 0; ix < all_teams.size(); ix++) {
 						json team = all_teams.get_element(ix);
-						std::string team_name = (std::string)team["team_name"];
-						std::string domains = (std::string)team["team_domain"];
+						std::string team_name = team["team_name"].as_string();
+						std::string domains = team["team_domain"].as_string();
 						if (domains.size() == 0 || domains == "NONE")
 							continue;
 						if (domains == "ANY")
@@ -6917,16 +6917,16 @@ private:
 			query_details.put_member("filter", key);
 			json all_teams = query_class(default_user, query_details);
 			json teams = jp.create_array();
-			if (all_teams[success_field]) {
+			if (all_teams[success_field].as_bool()) {
 				all_teams = all_teams[data_field];
 				if (all_teams.array()) {
 					for (int ix = 0; ix < all_teams.size(); ix++) {
 						json team = all_teams.get_element(ix);
 						json key = team.extract({ class_name_field, object_id_field });
-						std::string names = (std::string)team["team_name"];
+						std::string names = team["team_name"].as_string();
 						if (names != _team_name)
 							continue;
-                        std::string team_class_name = (std::string)key[class_name_field];
+                        std::string team_class_name = key[class_name_field].as_string();
 						auto classd = read_lock_class(team_class_name);
 						if (classd) {
 							json full_teams = classd->get_objects(this, key, true, _permission);
@@ -6948,7 +6948,7 @@ private:
             json team = get_team(_team_name, _permission);
 			if (team.object()) 
 			{
-				int64_t team_id = (int64_t)team[object_id_field];
+				int64_t team_id = team[object_id_field].as_int64_t();
 
 				json permissions = team["permissions"];
 
@@ -6965,7 +6965,7 @@ private:
 						{
 							for (auto cls : class_list) 
 							{
-								std::string class_name = (std::string)cls;
+								std::string class_name = cls.as_string();
 								auto classd = read_lock_class(class_name);
 								json descendants = jp.create_array();
 								if (classd) 								
@@ -6989,7 +6989,7 @@ private:
 								else {
 									descendants.push_back(class_name);
 								}
-								granted_all.put_member(cls, descendants);
+								granted_all.put_member(class_name, descendants);
 							}
 						}
 						grant.put_member("all_granted_classes", granted_all);
@@ -7005,15 +7005,15 @@ private:
 					for (auto wf : workflows) 
 					{
 						// read the ticket job
-						int64_t workflow_object_id = (int64_t)wf[object_id_field];
-						std::string workflow_name = (std::string)wf["workflow_name"];
-						std::string workflow_description = (std::string)wf["workflow_description"];
+						int64_t workflow_object_id = wf[object_id_field].as_int64_t();
+						std::string workflow_name = wf["workflow_name"].as_string();
+						std::string workflow_description = wf["workflow_description"].as_string();
 
 						system_monitoring_interface::active_mon->log_information(std::format("Workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
 
-						std::string workflow_schedule_type = (std::string)wf["workflow_schedule_type"];
+						std::string workflow_schedule_type = wf["workflow_schedule_type"].as_string();
 						json workflow_schedule_days = wf["workflow_schedule_days"];
-						int hour = (int64_t)wf["workflow_schedule_hour"];
+						int hour = wf["workflow_schedule_hour"].as_int();
 
 						SYSTEMTIME system_time;
 						::GetSystemTime(&system_time);
@@ -7023,7 +7023,7 @@ private:
 
 						if (workflow_schedule_type == "Month") {
 							for (auto day : workflow_schedule_days) {
-								int d = (int64_t)day;
+								int d = day.as_int();
 								if (d == system_time.wDay) {
 									matched_day = d;
 									matched_set = true;
@@ -7035,7 +7035,7 @@ private:
 						{
 							for (auto day : workflow_schedule_days) 
 							{
-								int d = (int64_t)day;
+								int d = day.as_int();
 								if (d == system_time.wDayOfWeek)
 								{
 									matched_day = d;
@@ -7045,7 +7045,7 @@ private:
 							}
 						}
 
-						double last_ran = (double)wf["last_ran"];
+						double last_ran = wf["last_ran"].as_double();
 
 						if (matched_set && (system_time.wHour >= hour && last_ran < matched_day)) 
 						{
@@ -7056,9 +7056,9 @@ private:
 							continue;
 						}
 
-						std::string ticket_class_name = (std::string)wf["ticket_class_name"];
-						std::string ticket_name = (std::string)wf["ticket_name"];
-						std::string ticket_description = (std::string)wf["ticket_description"];
+						std::string ticket_class_name = wf["ticket_class_name"].as_string();
+						std::string ticket_name = wf["ticket_name"].as_string();
+						std::string ticket_description = wf["ticket_description"].as_string()	;
 
 						if (workflow_name.empty() or ticket_class_name.empty()) 
 						{
@@ -7073,13 +7073,14 @@ private:
 						new_object.put_member("ticket_description", ticket_description);
 						json por = create_system_request(new_object);
 						json porresp = put_object(por);
-						if (porresp["success"]) 
+						if (porresp["success"].as_bool()) 
 						{
 							new_object = porresp[data_field];
-							wf.put_member("last_result", (std::string)porresp["message"]);
+							wf.put_member("last_result", porresp["message"].as_string());
+							wf.put_member("last_result", porresp["message"].as_string());
 							por = create_system_request(wf);
 							porresp = put_object(por);
-							if (not porresp["success"]) 
+							if (porresp["success"].as_bool() == false) 
 							{
 								system_monitoring_interface::active_mon->log_warning(std::format("Could not update workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
 								system_monitoring_interface::active_mon->log_json(porresp);
@@ -7165,18 +7166,18 @@ private:
 						if (class_array.array())
 						{
 							for (auto jcls : class_array) {
-								granted_classes.push_back((std::string)jcls);
+								granted_classes.push_back(jcls.as_string());
 							}
 						}
 						else {
-							granted_classes.push_back((std::string)class_array);
+							granted_classes.push_back(class_array.as_string());
 						}
 						bool granted = false;
 						for (std::string& jclass : granted_classes) {
 							auto permclass = read_lock_class(jclass);
 							if (permclass) {
 								if (permclass->get_descendants().contains(_class_name)) {
-									std::string permission = jperm[class_permission_get];
+									std::string permission = jperm[class_permission_get].as_string();
 									if (permission == "any")
 										grants.get_grant = class_grants::grant_any;
 									else if (permission == "own")
@@ -7184,7 +7185,7 @@ private:
 									else if (permission == "teamorown")
 										grants.get_grant = class_grants::grant_teamorown;
 
-									permission = jperm[class_permission_put];
+									permission = jperm[class_permission_put].as_string();
 									if (permission == "any")
 										grants.put_grant = class_grants::grant_any;
 									else if (permission == "own")
@@ -7192,7 +7193,7 @@ private:
 									else if (permission == "teamorown")
 										grants.put_grant = class_grants::grant_teamorown;
 
-									permission = jperm[class_permission_delete];
+									permission = jperm[class_permission_delete].as_string();
 									if (permission == "any")
 										grants.delete_grant = class_grants::grant_any;
 									else if (permission == "own")
@@ -7200,7 +7201,7 @@ private:
 									else if (permission == "teamorown")
 										grants.delete_grant = class_grants::grant_teamorown;
 
-									permission = jperm[class_permission_alter];
+									permission = jperm[class_permission_alter].as_string();
 									if (permission == "any")
 										grants.alter_grant = class_grants::grant_any;
 									else if (permission == "own")
@@ -7244,12 +7245,12 @@ private:
 			if (not user.empty()) 
 			{			
 				auto home_grants = grants;
-				std::string team_name = (std::string)user["home_team_name"];
+				std::string team_name = user["home_team_name"].as_string();
 				home_grants.team_name = team_name;
 				home_grants = get_team_permissions(_user_name, team_name, _class_name);
 
 				auto team_grants = grants;
-				team_name = (std::string)user["team_name"];
+				team_name = user["team_name"].as_string();
 				team_grants.team_name = team_name;
 				team_grants = get_team_permissions(_user_name, team_name, _class_name);
 
@@ -7305,7 +7306,7 @@ private:
 					email_template = R"(<html><body><h2>$EMAIL_TITLE$</h2><p>Username is $USERNAME$</p><p>Validation code <span style="background:grey;border:1px solid black;padding 8px;">$CODE$</p></body></html>)";
 				}
 
-				std::string user_name = user_info[user_name_field];
+				std::string user_name = user_info[user_name_field].as_string();
 
 				std::string email_body = replace(email_template, "$CODE$", new_code);
 				email_body = replace(email_body, "$USERNAME$", user_name);
@@ -7408,51 +7409,51 @@ private:
 			if (_system_config.has_member("SendGrid"))
 			{
 				json send_grid = _system_config["SendGrid"];
-				std::string send_grid_api_key = send_grid["ApiKey"];
-				sendgrid_sender = send_grid["SenderName"];
-				sendgrid_sender_email = send_grid["SenderEmail"];
-				user_confirmation_title = send_grid["UserConfirmationTitle"];
-				this->connections.set_connection("sendgrid", (std::string)send_grid_api_key);
+				std::string send_grid_api_key = send_grid["ApiKey"].as_string();
+				sendgrid_sender = send_grid["SenderName"].as_string();
+				sendgrid_sender_email = send_grid["SenderEmail"].as_string();
+				user_confirmation_title = send_grid["UserConfirmationTitle"].as_string();
+				this->connections.set_connection("sendgrid", send_grid_api_key);
 			}
 
 			if (_system_config.has_member("Connections"))
 			{
 				json connections = _system_config["Connections"];
 				for (auto connection : connections) {
-                    std::string conn_name = (std::string)connection["name"];
-                    std::string conn_value = (std::string)connection["connection"];	
+                    std::string conn_name = connection["name"].as_string();
+                    std::string conn_value = connection["connection"].as_string();
 					this->connections.set_connection(conn_name, conn_value);
 				}
 			}
 
 			json server = _server_config;
-			default_user = server[sys_user_name_field];
+			default_user = server[sys_user_name_field].as_string();
 			if (default_user.empty()) 			
 			{
 				default_user = "system";
             }
 
-			std::string defaultpw = server[sys_user_password_field];
+			std::string defaultpw = server[sys_user_password_field].as_string();
 
 			if (not defaultpw.empty()) {
-				default_password = server[sys_user_password_field];
+				default_password = server[sys_user_password_field].as_string();
 			}
 
-			default_email_address = server[sys_user_email_field];
+			default_email_address = server[sys_user_email_field].as_string();
 			if (default_email_address.empty()) {
 				default_email_address = std::format("dummy@example.com", default_user);
 			}
 
-			default_guest_team = server[sys_default_team_field];
-			default_api_title = server[sys_default_api_title_field];
-			default_api_description = server[sys_default_api_description_field];
-			default_api_version = server[sys_default_api_version_field];
-			default_api_author = server[sys_default_api_author_field];
-            default_onboard_email_filename = server[sys_default_onboard_email_template];
-			default_recovery_email_filename = server[sys_default_recovery_email_template];
+			default_guest_team = server[sys_default_team_field].as_string();
+			default_api_title = server[sys_default_api_title_field].as_string();
+			default_api_description = server[sys_default_api_description_field].as_string();
+			default_api_version = server[sys_default_api_version_field].as_string();
+			default_api_author = server[sys_default_api_author_field].as_string();
+            default_onboard_email_filename = server[sys_default_onboard_email_template].as_string();
+			default_recovery_email_filename = server[sys_default_recovery_email_template].as_string();
 
 			std::filesystem::path schema_path(config_path);
-			schema_file_name = server["schema_filename"];
+			schema_file_name = server["schema_filename"].as_string();
 
             if (not schema_file_name.empty()) {
 				std::filesystem::path schema_file_path(schema_file_name);
@@ -7485,7 +7486,7 @@ private:
 			}
 
 			if (server.has_member(sys_record_cache_field)) {
-				maximum_record_cache_size_bytes = (int64_t)server[sys_record_cache_field];
+				maximum_record_cache_size_bytes = server[sys_record_cache_field].as_int64_t();
 			}
 
 			system_monitoring_interface::active_mon->log_job_stop("apply_config", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
