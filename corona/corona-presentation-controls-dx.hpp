@@ -1537,7 +1537,7 @@ namespace corona
         virtual void put_json(json& _src)
         {
             draw_control::put_json(_src);
-            load_from_file(_src["image_filename"]);
+            load_from_file(_src["image_filename"].as_string());
             init();
         }
 

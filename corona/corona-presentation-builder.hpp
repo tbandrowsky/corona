@@ -164,26 +164,26 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 
-			field_id = _src["field_id"];
-			json_field_name = _src["json_field_name"];
-			label_text = _src["label_text"];
-			class_name = _src["class_name"];
-			tooltip_text = _src["tooltip_text"];
-			input_format = _src["input_format"];
-			suffix = _src["suffix"];
-			prefix = _src["prefix"];
-			read_only = (bool)_src["read_only"];
-			is_default_focus = (bool)_src["default_focus"];
-			is_default_button = (bool)_src["default_button"];
+			field_id = _src["field_id"].as_int();
+			json_field_name = _src["json_field_name"].as_string();
+			label_text = _src["label_text"].as_string();
+			class_name = _src["class_name"].as_string();
+			tooltip_text = _src["tooltip_text"].as_string();
+			input_format = _src["input_format"].as_string();
+			suffix = _src["suffix"].as_string();
+			prefix = _src["prefix"].as_string();
+			read_only = _src["read_only"].as_bool();
+			is_default_focus = _src["default_focus"].as_bool();
+			is_default_button =_src["default_button"].as_bool();
 			control_settings = _src["control_settings"];
             if (control_settings.has_member("default_focus")) {
-                is_default_focus = (bool)control_settings["default_focus"];
+                is_default_focus = control_settings["default_focus"].as_bool();
             }
 			if (control_settings.has_member("default_button")) {
-				is_default_button = (bool)control_settings["default_button"];
+				is_default_button = control_settings["default_button"].as_bool();
 			}
-			form_name = _src["form_name"];
-			wrap_break = (bool)_src["wrap_break"];
+			form_name = _src["form_name"].as_string();
+			wrap_break = _src["wrap_break"].as_bool();
 
 			json jcontainer_box = _src["box"];
 			corona::put_json(box, jcontainer_box);
@@ -1542,7 +1542,7 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			name = _src["name"];
+			name = _src["name"].as_string()	;
 			data = _src["data"];
 			json jitembox = _src["defaults"];
 			defaults.put_json(jitembox);
@@ -2384,10 +2384,10 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			container_control::put_json(_src);
-			image_file = _src["image_file"];
-			corporate_name = _src["corporate_name"];
-			title_name = _src["title_name"];
-			subtitle_name = _src["subtitle_name"];
+			image_file = _src["image_file"].as_string();
+			corporate_name = _src["corporate_name"].as_string();
+			title_name = _src["title_name"].as_string();
+			subtitle_name = _src["subtitle_name"].as_string()	;
 
 			json jtitle_start = _src["title_start"];
 			corona::put_json(title_start, jtitle_start);
@@ -2545,11 +2545,11 @@ namespace corona
 
 		json control_properties = _control_properties;
 
-		std::string class_name = control_properties["class_name"];
-		std::string field_name = control_properties["name"];
+		std::string class_name = control_properties["class_name"].as_string();
+		std::string field_name = control_properties["name"].as_string();
 		json control_data = control_properties["data"];
 
-		int id = (int)_control_properties.get_member("id");
+		int id = _control_properties.get_member("id").as_int();
 
 		int field_id = id ? id : id_counter::next();
 
@@ -3039,9 +3039,9 @@ namespace corona
 			for (int i = 0; i < count; i++)
 			{
 				json item = choices.items.get_element(i);
-				int id = item.get_member(choices.id_field);
-				std::string text = item.get_member(choices.text_field);
-				bool selected = (bool)item.get_member(choices.selected_field);
+				int id = item.get_member(choices.id_field).as_int();
+				std::string text = item.get_member(choices.text_field).as_string();
+				bool selected = item.get_member(choices.selected_field).as_bool();
 				cb.radio_button(id, text, [item, this, i](radiobutton_control& _rbc) {
 					_rbc.json_field_name = choices.selected_field;
 					_rbc.is_group = i == 0;
@@ -3079,7 +3079,7 @@ namespace corona
 					json as_object = field_items.array_to_object(
 
 						[this](json& _item)->std::string {
-							return _item.get_member(choices.id_field);
+							return _item.get_member(choices.id_field).as_string();
 						},
 						[](json& _item)->json {
 							return _item;
@@ -3140,9 +3140,9 @@ namespace corona
 			for (int i = 0; i < count; i++)
 			{
 				json item = choices.items.get_element(i);
-				int id = item.get_member(choices.id_field);
-				std::string text = item.get_member(choices.text_field);
-				bool selected = (bool)item.get_member(choices.selected_field);
+				int id = item.get_member(choices.id_field).as_int();
+				std::string text = item.get_member(choices.text_field).as_string();
+				bool selected = item.get_member(choices.selected_field).as_bool();
 				cb.checkbox(id, text, [item, this](checkbox_control& _rbc) {
 					_rbc.json_field_name = choices.selected_field;
 					_rbc.set_data(item);
@@ -3179,7 +3179,7 @@ namespace corona
 					json as_object = field_items.array_to_object(
 
 						[this](json& _item)->std::string {
-							return _item.get_member(choices.id_field);
+							return _item.get_member(choices.id_field).as_string();
 						},
 						[](json& _item)->json {
 							return _item;
@@ -3292,7 +3292,7 @@ namespace corona
 	{
 		json obj;
 		control_base* cb = {};
-		std::string property_value = context["property_value"];
+		std::string property_value	= context["property_value"].as_string();
 		if (not control_name.empty()) {
 			cb = bus->find_control(control_name);
 			if (property_value.empty()) {

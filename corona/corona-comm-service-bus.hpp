@@ -82,12 +82,12 @@ namespace corona
 
 			ready_for_polling = false;
 
-			database_schema_filename = server_config["schema_filename"];
-			database_threads = (int)server_config["database_threads"];
-			database_recreate = (bool)server_config["database_recreate"];
+			database_schema_filename = server_config["schema_filename"].as_string();
+			database_threads = server_config["database_threads"].as_int64_t();
+			database_recreate = server_config["database_recreate"].as_bool();
 
 			app = std::make_shared<application>(database_threads);
-			app->application_name = server_config["application_name"];
+			app->application_name = server_config["application_name"].as_string();
 
             std::string current_path = fs::current_path().string();
             std::filesystem::path application_path = current_path;
@@ -98,7 +98,7 @@ namespace corona
 			schema_path /= database_schema_filename;
 			database_schema_mon.filename = schema_path.string();
 
-			listen_point = server_config["listen_point"];
+			listen_point = server_config["listen_point"].as_string();
 
 			if (app->application_name.empty())
 			{
@@ -132,7 +132,7 @@ namespace corona
 
 				json create_database_response = local_db->create_database();
 
-				bool success = (bool)create_database_response[success_field];
+				bool success = create_database_response[success_field].as_bool();
 				if (!success) {
 					log_json(create_database_response);
 					change_to_folder(current_path);
@@ -249,17 +249,17 @@ namespace corona
 		std::string system_login()
 		{
 			json_parser jp;
-			std::string sa_user = server_config[sys_user_name_field];
-			std::string sa_password = server_config[sys_user_password_field];
+			std::string sa_user = server_config[sys_user_name_field].as_string();
+			std::string sa_password = server_config[sys_user_password_field].as_string();
 			json login_request = jp.create_object();
 			login_request.put_member(user_name_field, sa_user);
 			login_request.put_member(user_password_field, sa_password);
 			json login_result = local_db->login_user(login_request);
-			bool success = (bool)login_result[success_field];
+			bool success = login_result[success_field].as_bool();
 			if (not success) {
-				log_warning(login_result[message_field], __FILE__, __LINE__);
+				log_warning(login_result[message_field].as_string(), __FILE__, __LINE__);
 			}
-			return login_result[token_field];
+			return login_result[token_field].as_string();
 		}
 
 		json get_classes()
@@ -478,7 +478,7 @@ namespace corona
 
 				if (false && simulation) {
 					json result = get_data("sys_command");
-					if (result["success"]) {
+					if (result["success"].as_bool()) {
 						json data = result["data"];
 						simulation->on_frame(data);
 					}
@@ -547,8 +547,8 @@ namespace corona
 			if (server_list.array())
 			{
 				for (auto server : server_list) {
-					server_url = server["server_url"];
-					server_description = server["server_description"];
+					server_url = server["server_url"].as_string();
+					server_description = server["server_description"].as_string();
 					jserver = jp.create_object();
 					jserver.put_member("url", server_url);
 					jserver.put_member("description", server_description);
@@ -2118,7 +2118,7 @@ Bind get classes
 
 		virtual void log_error(json j, const char* _file = nullptr, int _line = 0)
 		{
-			std::string msg = j["message"];
+			std::string msg = j["message"].as_string();
 			if (msg.empty())
 				msg = "Error";
 			log_warning(msg, _file, _line);

@@ -52,7 +52,7 @@ namespace corona
 			if (colors.array()) {
 				for (int i = 0; i < colors.size(); i++)
 				{
-					std::string colori = colors.get_element(i);
+					std::string colori = colors.get_element(i).as_string();
 					color_array.push_back(colori);
 				}
 			}
@@ -635,7 +635,7 @@ namespace corona
 		{
 			scope_lock lock(me);
 
-			std::string style_sheet_name = _src["style_sheet_name"];
+			std::string style_sheet_name = _src["style_sheet_name"].as_string();
 			if (style_sheet_name.empty()) {
 				system_monitoring_interface::active_mon->log_warning("style_sheet_name must not be empty");
 			}

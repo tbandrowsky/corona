@@ -2207,19 +2207,18 @@ namespace corona
 
 	};
 
-	template <typename scalar_type> 
-	class general_field_options : public field_options_base
+	class double_field_options : public field_options_base
 	{
 	public:
-		scalar_type min_value;
-		scalar_type max_value;
+		double min_value;
+		double max_value;
 
-		general_field_options() = default;
-		general_field_options(const general_field_options& _src) = default;
-		general_field_options(general_field_options&& _src) = default;
-		general_field_options& operator = (const general_field_options& _src) = default;
-		general_field_options& operator = (general_field_options&& _src) = default;
-		virtual ~general_field_options() = default;
+		double_field_options() = default;
+		double_field_options(const double_field_options& _src) = default;
+		double_field_options(double_field_options&& _src) = default;
+		double_field_options& operator = (const double_field_options& _src) = default;
+		double_field_options& operator = (double_field_options&& _src) = default;
+		virtual ~double_field_options() = default;
 
 		virtual void get_json(json& _dest)
 		{
@@ -2231,16 +2230,16 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
-			min_value = (scalar_type)_src["min_value"];
-			max_value = (scalar_type)_src["max_value"];
+			min_value = _src["min_value"].as_double();
+			max_value = _src["max_value"].as_double();
 		}
 
 		virtual bool accepts(corona_database_interface *_db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				scalar_type chumpy = (scalar_type)_object_to_test;
-				scalar_type zero = {};
+				double chumpy = _object_to_test.as_double();
+				double zero = 0.0;
 
 				if (min_value == zero and max_value == zero)
 				{
@@ -2275,16 +2274,13 @@ namespace corona
 			json schema = jp.create_object();
 			schema.put_member("type", std::string("number"));
 
-			if constexpr (is_convertible_to_int<scalar_type>)
-			{ 	
-				int imin = min_value;
-				int imax = max_value;
-				if (imin) {
-					schema.put_member("minimum", min_value);
-				}
-				if (imax) {
-					schema.put_member("maximum", max_value);
-				}
+			double imin = min_value;
+			double imax = max_value;
+			if (imin) {
+				schema.put_member("minimum", min_value);
+			}
+			if (imax) {
+				schema.put_member("maximum", max_value);
 			}
 
 			return schema;
@@ -2603,7 +2599,7 @@ namespace corona
 			}
 			else if (field_type == field_types::ft_double)
 			{
-				options = std::make_shared<general_field_options<double>>();
+				options = std::make_shared<double_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_int64)
@@ -7626,7 +7622,7 @@ private:
 			if (jschema.object()) 
 			{
                 jschema.merge(_schema);
-				schema_id = (int64_t)_schema["object_id"];
+				schema_id = _schema["object_id"].as_int64_t();
 			}
 			else 
 			{
@@ -7639,7 +7635,7 @@ private:
 					json new_schema = result[data_field];
                     new_schema.merge(_schema);
 					jschema = new_schema;
-					schema_id = (int64_t)jschema["object_id"];
+					schema_id = jschema["object_id"].as_int64_t();
 				}
 			}
 
@@ -7665,15 +7661,15 @@ private:
 
 							if constexpr (debug_teams)
 							{
-								if ((std::string)class_definition[base_class_name_field] == "sys_team")
+								if (class_definition[base_class_name_field].as_string() == "sys_team")
 								{
 									DebugBreak();
 								}
 							}
 
-							std::string new_class_name = class_definition["class_name"];
-							std::string new_class_author = class_definition["class_author"];
-							std::string new_class_version = class_definition["class_version"];
+							std::string new_class_name = class_definition["class_name"].as_string();
+							std::string new_class_author = class_definition["class_author"].as_string();
+							std::string new_class_version = class_definition["class_version"].as_string();
 
                             auto existing_class = read_lock_class(new_class_name);
 
@@ -7691,7 +7687,7 @@ private:
 
 							if (class_result.error()) 
 							{
-								system_monitoring_interface::active_mon->log_warning(class_result, __FILE__, __LINE__);
+								system_monitoring_interface::active_mon->log_warning(class_result["message"].as_string(), __FILE__, __LINE__);
 								continue;
 							}
 
@@ -7727,10 +7723,10 @@ private:
 						timer txu;
 
 						json user_definition = user_array.get_element(i);
-						system_monitoring_interface::active_mon->log_function_start("put user", user_definition[user_name_field], start_user, __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_function_start("put user", user_definition[user_name_field].as_string(), start_user, __FILE__, __LINE__);
 						json put_user_request = create_system_request(user_definition);
 						create_user(put_user_request);
-					    system_monitoring_interface::active_mon->log_function_stop("put user", user_definition[user_name_field], txu.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					    system_monitoring_interface::active_mon->log_function_stop("put user", user_definition[user_name_field].as_string(), txu.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					}
 				}
 				system_monitoring_interface::active_mon->log_job_section_stop("", "Users", txsect.get_elapsed_seconds(), user_count, __FILE__, __LINE__);
@@ -7754,13 +7750,13 @@ private:
 
 						json new_dataset = dataset_array.get_element(i);
 						new_dataset.put_member(class_name_field, "sys_dataset"sv);
-						new_dataset.put_member_i64("sys_schema", (int64_t)jschema[object_id_field]);
-						std::string dataset_name = new_dataset["dataset_name"];
-						std::string dataset_version = new_dataset["dataset_version"];
+						new_dataset.put_member_i64("sys_schema", jschema[object_id_field].as_int64_t());
+						std::string dataset_name = new_dataset["dataset_name"].as_string();
+						std::string dataset_version = new_dataset["dataset_version"].as_string();
 
 						system_monitoring_interface::active_mon->log_job_section_start("DataSet", dataset_name + " Start", start_dataset, __FILE__, __LINE__);
 
-						bool run_on_change = (bool)new_dataset["run_on_change"];
+						bool run_on_change = new_dataset["run_on_change"].as_bool();
 						json existing_dataset = get_dataset(dataset_name, dataset_version, sys_perm);
 
 						if (not (run_on_change or existing_dataset.empty())) {
@@ -7772,7 +7768,7 @@ private:
 
 							if (new_dataset.has_member("import"))
 							{
-								new_dataset.put_member_i64("sys_schema", (int64_t)jschema[object_id_field]);
+								new_dataset.put_member_i64("sys_schema", jschema[object_id_field].as_int64_t());
 								json import_spec = new_dataset["import"];
 								std::vector<std::string> missing;
 
@@ -7786,7 +7782,7 @@ private:
 									continue;
 								}
 
-								std::string target_class = import_spec["target_class"];
+								std::string target_class = import_spec["target_class"].as_string();
 								std::string target_class_plural = target_class;
 								if (target_class_plural.ends_with("s")) {
 									target_class_plural += "es";
@@ -7794,8 +7790,8 @@ private:
 								else {
 									target_class_plural += "s";
 								}
-								std::string import_type = import_spec["type"];
-								date_time import_datatime = import_spec["import_datatime"];
+								std::string import_type = import_spec["type"].as_string();
+								date_time import_datatime = import_spec["import_datatime"].as_date_time();
 
 								if (import_type == "csv") {
 
@@ -7809,9 +7805,9 @@ private:
 										continue;
 									}
 
-									std::string filename = import_spec["filename"];							
+									std::string filename = import_spec["filename"].as_string();
 
-									std::string delimiter = import_spec["delimiter"];
+									std::string delimiter = import_spec["delimiter"].as_string();
 									if (filename.empty() or delimiter.empty()) {
 										system_monitoring_interface::active_mon->log_warning("filename and delimiter can't be blank.");
 										continue;
@@ -7834,11 +7830,11 @@ private:
 									std::string pivot_value_field_name;
 									bool pivot_lower_case = true;
 
-									if (pivot) 
+									if (pivot.object()) 
 									{
-										pivot_attribute_field_name = pivot["attribute_field"];
-										pivot_value_field_name = pivot["value_field"];
-                                        pivot_lower_case = (bool)pivot["lower_case_attribute"];
+										pivot_attribute_field_name = pivot["attribute_field"].as_string();
+										pivot_value_field_name = pivot["value_field"].as_string();
+                                        pivot_lower_case = pivot["lower_case_attribute"].as_bool();
 
 										if (pivot_attribute_field_name.empty() or pivot_value_field_name.empty())
 										{
@@ -7896,7 +7892,7 @@ private:
 												json cor = create_system_request(codata);
 												json new_object_response = create_object(cor);
 
-												if (new_object_response[success_field]) {
+												if (new_object_response[success_field].as_bool()) {
 													json new_object_template = new_object_response[data_field];												
 
 													// Read each line from the file and store it in the 'line' buffer.
@@ -7939,8 +7935,8 @@ private:
 																pivot_object.put_member(class_name_field, target_class);
 															}
 
-															std::string attribute_field_name = extra[pivot_attribute_field_name];
-															std::string attribute_value = extra[pivot_value_field_name];
+															std::string attribute_field_name = extra[pivot_attribute_field_name].as_string();
+															std::string attribute_value = extra[pivot_value_field_name].as_string();
 															if (pivot_lower_case) {
 																std::transform(attribute_field_name.begin(), attribute_field_name.end(), attribute_field_name.begin(),
 																	[](unsigned char c) { return std::tolower(c); });
@@ -7956,12 +7952,12 @@ private:
 
 															put_object_sync(cor, [this, file_size, bytes_processed, total_row_count, batch_size, &target_class_plural](json& put_result, double _exec_time) {
 																double x = batch_size / _exec_time;
-																std::string msg = put_result["message"];
+																std::string msg = put_result["message"].as_string();
 																if (file_size) {
 																	msg = msg + std::format(", {0:.2f}%, {1:.2f} / sec, {2} {3}", (double)bytes_processed / (double)file_size * 100.0, x, total_row_count, target_class_plural);
 																}
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, batch_size, __FILE__, __LINE__);
-																if (put_result[success_field]) {
+																if (put_result[success_field].as_bool()) {
 
 																}
 																else
@@ -7980,11 +7976,11 @@ private:
 														json request(datomatic);
 														json cor = create_system_request(request);
 														put_object_sync(cor, [this, total_row_count, batch_size](json& put_result, double _exec_time) {
-															if (put_result[success_field]) {
+															if (put_result[success_field].as_bool()) {
 																double x = batch_size / _exec_time;
 																std::string msg = std::format("{0} objects, {1:.2f} / sec, {2} rows total", batch_size, x, total_row_count);
 																system_monitoring_interface::active_mon->log_activity(msg, _exec_time, __FILE__, __LINE__);
-																system_monitoring_interface::active_mon->log_activity(put_result["message"], _exec_time, __FILE__, __LINE__);
+																system_monitoring_interface::active_mon->log_activity(put_result["message"].as_string(), _exec_time, __FILE__, __LINE__);
 															}
 															else
 															{
@@ -8002,12 +7998,12 @@ private:
 												new_dataset.share_member("import", import_spec);
 												json dataset_request = create_system_request(new_dataset);
 												json result = put_object(dataset_request);
-												if (result[success_field]) {
+												if (result[success_field].as_bool()) {
 													std::string msg = std::format("imported from {0}", filename);
 													system_monitoring_interface::active_mon->log_information(msg, __FILE__, __LINE__);
 												}
 												else {
-													system_monitoring_interface::active_mon->log_warning(result[message_field], __FILE__, __LINE__);
+													system_monitoring_interface::active_mon->log_warning(result[message_field].as_string(), __FILE__, __LINE__);
 
 												}
 											}
@@ -8043,8 +8039,8 @@ private:
 										json object_definition = object_list.get_element(j).clone();
 										json put_object_request = create_system_request(object_definition);
 										json create_result = put_object(put_object_request);
-										if (not create_result[success_field]) {
-											system_monitoring_interface::active_mon->log_warning(create_result[message_field]);
+										if (not create_result[success_field].as_bool()) {
+											system_monitoring_interface::active_mon->log_warning(create_result[message_field].as_string());
 										}
 										else {
                                             json result = create_result[data_field];
@@ -8052,13 +8048,13 @@ private:
                                                 json items = class_result.second;
 												if (items.array()) {
 													for (auto item : items) {
-														if (not item[success_field]) {
-															system_monitoring_interface::active_mon->log_warning(item[message_field], __FILE__, __LINE__);
+														if (not item[success_field].as_bool()) {
+															system_monitoring_interface::active_mon->log_warning(item[message_field].as_string(), __FILE__, __LINE__);
 														}
 														else {
                                                             json item_data = item[data_field];
-															std::string new_class_name = (std::string)item_data[class_name_field];
-															int64_t object_id = item_data[object_id_field];
+															std::string new_class_name = item_data[class_name_field].as_string();
+															int64_t object_id = item_data[object_id_field].as_int64_t();
 															std::string object_created = std::format("object {0} {1} saved", new_class_name, object_id);
 															system_monitoring_interface::active_mon->log_information(object_created);
 														}
@@ -8073,11 +8069,11 @@ private:
 							new_dataset.put_member("completed", completed_date);
 							json put_script_request = create_system_request(new_dataset);
 							json save_script_result = put_object(put_script_request);
-							if (not save_script_result[success_field]) {
-								system_monitoring_interface::active_mon->log_warning(save_script_result[message_field]);
+							if (not save_script_result[success_field].as_bool()) {
+								system_monitoring_interface::active_mon->log_warning(save_script_result[message_field].as_string());
 							}
 							else
-								system_monitoring_interface::active_mon->log_information(save_script_result[message_field]);
+								system_monitoring_interface::active_mon->log_information(save_script_result[message_field].as_string());
 						}
 
 						system_monitoring_interface::active_mon->log_job_section_stop("DataSet", dataset_name + " Finished", txs.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -8091,13 +8087,13 @@ private:
 			// but a change in identifier.  It's a clean way of just getting the 
 			// "new chumpy" item for ya.  
 			json put_schema_result =  put_object(put_schema_request);
-			if (put_schema_result[success_field]) {
-				std::string message = put_schema_result[message_field];
+			if (put_schema_result[success_field].as_bool()) {
+				std::string message = put_schema_result[message_field].as_string();
 				system_monitoring_interface::active_mon->log_information(message, __FILE__, __LINE__);
 			}
 			else 
 			{
-				system_monitoring_interface::active_mon->log_warning(put_schema_result[message_field], __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_warning(put_schema_result[message_field].as_string(), __FILE__, __LINE__);
 			}
 
 			system_monitoring_interface::active_mon->log_job_stop("apply_schema", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
@@ -8222,7 +8218,7 @@ private:
 		{
 			
 			if (auto obj_impl = object_to_scrub.object_impl()) {
-				std::string class_name = object_to_scrub[class_name_field];
+				std::string class_name = object_to_scrub[class_name_field].as_string();
 				auto rsp = read_lock_class(class_name);
                 auto member_set = object_to_scrub.get_members();
 				for (auto member : member_set)
@@ -8287,10 +8283,10 @@ private:
 				std::string payload = base64_decode(parts[1]);
 				json jpayload = jp.parse_object(payload);
 
-				std::string kid = jheader["kid"];
+				std::string kid = jheader["kid"].as_string();
 				json public_key;
                 for (auto key : google_keys) {
-					std::string jkid = key["kid"];
+					std::string jkid = key["kid"].as_string();
                     if (jkid == kid) {
                         public_key = key;
                         break;
@@ -8320,9 +8316,9 @@ private:
 			system_monitoring_interface::active_mon->log_function_start("login_user_local", "start", start_time, __FILE__, __LINE__);
 
 			json data = _sso_user_request[data_field];
-			std::string access_code = data["access_code"];
-			std::string user_name = data[user_name_field];
-			std::string user_email = data[user_email_field];
+			std::string access_code = data["access_code"].as_string();
+			std::string user_name = data[user_name_field].as_string();
+			std::string user_email = data[user_email_field].as_string();
 
 			if (user_name.empty()) {
 				user_name = default_user;
@@ -8387,8 +8383,8 @@ private:
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
 				{
-					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
-					existing_user.put_member("team_name", (std::string)team["team_name"]);
+					existing_user.put_member("home_team_name", team["team_name"].as_string());
+					existing_user.put_member("team_name", team["team_name"].as_string());
 				}
 
 				apply_user_team(existing_user);
@@ -8397,13 +8393,13 @@ private:
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
-				if (user_result[success_field] && (!jerrors.array() || jerrors.size() == 0))
+				if (user_result[success_field].as_bool() && (!jerrors.array() || jerrors.size() == 0))
 				{
 					existing_user = get_user(user_name);
 				}
 				else
 				{
-					std::string message = user_result[message_field];
+					std::string message = user_result[message_field].as_string();
 					system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_json(user_result);
 					response = create_user_response(_sso_user_request, false, "User not created", existing_user, jerrors, method_timer.get_elapsed_seconds());
@@ -8415,8 +8411,8 @@ private:
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
 				{
-					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
-					existing_user.put_member("team_name", (std::string)team["team_name"]);
+					existing_user.put_member("home_team_name", team["team_name"].as_string());
+					existing_user.put_member("team_name", team["team_name"].as_string());
 				}
 				apply_user_team(existing_user);
 				put_user(existing_user);
@@ -8443,9 +8439,9 @@ private:
 			system_monitoring_interface::active_mon->log_function_start("login_user_sso", "start", start_time, __FILE__, __LINE__);
 			
 			json data = _sso_user_request[data_field];
-            std::string access_code = data["code"];
-			std::string user_name = data[user_name_field];
-			std::string user_email = data[user_email_field];
+            std::string access_code = data["code"].as_string();
+			std::string user_name = data[user_name_field].as_string();
+			std::string user_email = data[user_email_field].as_string();
 
 			if (access_code.empty())
 			{
@@ -8502,7 +8498,7 @@ grant_type=authorization_code
 			}
 
 			json token_body = jp.parse_object(google_response1.response.response_body.get_ptr());
-            std::string access_token = token_body["access_token"];
+            std::string access_token = token_body["access_token"].as_string();
 
             std::string header = std::format("Authorization: Bearer {}\n", access_token);
 
@@ -8526,12 +8522,12 @@ grant_type=authorization_code
 
             json user_body = jp.parse_object(google_response.response.response_body.get_ptr());
 
-            user_name = user_body["email"];
-            user_email = user_body["email"];
+            user_name = user_body["email"].as_string();
+            user_email = user_body["email"].as_string();
 
-            std::string user_first = user_body["given_name"];
-            std::string user_last = user_body["family_name"];
-            std::string user_picture = user_body["picture"];
+            std::string user_first = user_body["given_name"].as_string();
+            std::string user_last = user_body["family_name"].as_string();
+            std::string user_picture = user_body["picture"].as_string();
 
 			data.put_member(user_name_field, user_name);
 			data.put_member(user_email_field, user_email);
@@ -8558,8 +8554,8 @@ grant_type=authorization_code
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
 				{
-					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
-					existing_user.put_member("team_name", (std::string)team["team_name"]);
+					existing_user.put_member("home_team_name", team["team_name"].as_string());
+					existing_user.put_member("team_name", team["team_name"].as_string());
 				}
 
 				apply_user_team(existing_user);
@@ -8568,12 +8564,12 @@ grant_type=authorization_code
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
 				json jerrors = user_result["errors"];
-				if (user_result[success_field]) {
+				if (user_result[success_field].as_bool()) {
 					existing_user = get_user(user_name);
 				} 				
 				else 				
 				{
-					std::string message = user_result[message_field];
+					std::string message = user_result[message_field].as_string();
 					system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_json(user_result);
 					response = create_user_response(_sso_user_request, false, "User not created", existing_user, jerrors, method_timer.get_elapsed_seconds());
@@ -8585,8 +8581,8 @@ grant_type=authorization_code
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
 				{
-					existing_user.put_member("home_team_name", (std::string)team["team_name"]);
-					existing_user.put_member("team_name", (std::string)team["team_name"]);
+					existing_user.put_member("home_team_name",team["team_name"].as_string());
+					existing_user.put_member("team_name", team["team_name"].as_string());
 				}
 				apply_user_team(existing_user);
 				put_user(existing_user);
@@ -8614,8 +8610,8 @@ grant_type=authorization_code
 
 			json data = create_user_request[data_field];
 
-			std::string user_name = data[user_name_field];
-			std::string user_email = data[user_email_field];
+			std::string user_name = data[user_name_field].as_string();
+			std::string user_email = data[user_email_field].as_string();
 
 			if (user_name.empty() and not user_email.empty()) {
 				user_name = user_email;
@@ -8641,9 +8637,9 @@ grant_type=authorization_code
 
 			data.put_member(user_name_field, user_name);
 			data.put_member(user_email_field, user_email);
-			std::string user_password1 = data["password1"];
-			std::string user_password2 = data["password2"];
-			std::string user_class = "sys_user";		
+			std::string user_password1 = data["password1"].as_string();
+			std::string user_password2 = data["password2"].as_string();
+			std::string user_class = "sys_user";	
 
 			if (user_password1 != user_password2)
 			{
@@ -8732,7 +8728,7 @@ grant_type=authorization_code
 			json user_result =  put_object(create_object_request);
 			// we have to confirm if this guy did his job.
 			json jerrors = user_result["errors"];
-			if (user_result[success_field]) {
+			if (user_result[success_field].as_bool()) {
 				json new_user_wrapper = user_result[data_field]["sys_user"].get_element(0);
 				new_user_wrapper = new_user_wrapper[data_field];
 				if (not _system_user)
@@ -8746,7 +8742,7 @@ grant_type=authorization_code
 			}
 			else
 			{
-                std::string message = user_result[message_field];
+                std::string message = user_result[message_field].as_string();
 				system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json(user_result);
 				response = create_user_response(create_user_request, false, "User not created", create_user_params, jerrors, method_timer.get_elapsed_seconds());
@@ -8771,13 +8767,13 @@ grant_type=authorization_code
 
 			system_monitoring_interface::active_mon->log_function_start("send_validation_code", "start", start_time, __FILE__, __LINE__);
 
-			std::string user_name = validation_code_request[user_name_field];
+			std::string user_name = validation_code_request[user_name_field].as_string();
 
 			if (user_name.empty()) {
 				json data = validation_code_request[data_field];
 			
 				if (data.object()) {
-					user_name = data[user_name_field];
+					user_name = data[user_name_field].as_string();
 				}
 			}
 
@@ -8830,7 +8826,7 @@ grant_type=authorization_code
 		virtual void apply_user_team(json& user, json& team)
 		{
 			json_parser jp;
-			std::string user_name = user["user_name"];
+			std::string user_name = user["user_name"].as_string();
 			json user_inventory = user["inventory"];
 			json user_inventory_classes = team["inventory_classes"];
 			if (not user_inventory.array())
@@ -8839,21 +8835,21 @@ grant_type=authorization_code
 			}
 			std::map<std::string, bool> existing_classes;
 			for (auto inv_item : user_inventory) {
-				std::string class_name = (std::string)inv_item[class_name_field];
+				std::string class_name = inv_item[class_name_field].as_string();
 				existing_classes[class_name] = true;
 			}
 			// workflow classes lets you create editable objects for a user
 			// whose methods are search
 			if (user_inventory_classes.array()) {
 				for (auto wf_class : user_inventory_classes) {
-					std::string class_name = (std::string)wf_class;
+					std::string class_name = wf_class.as_string();
 					if (existing_classes.contains(class_name))
 						continue;
 					json create_req = jp.create_object();
 					create_req.put_member(class_name_field, class_name);
 					json sys_create_req = create_system_request(create_req);
 					json result = create_object(sys_create_req);
-					if (result[success_field]) {
+					if (result[success_field].as_bool()) {
 						json obj = result[data_field];
 						obj.put_member("created_by", user_name);
 						user_inventory.push_back(obj);
@@ -8866,11 +8862,11 @@ grant_type=authorization_code
 		virtual void apply_user_team(json user)
 		{
 			json_parser jp;
-            json team = get_team(user["team_name"], get_system_permission());
+            json team = get_team(user["team_name"].as_string(), get_system_permission());
 			if (not team.empty())
 				apply_user_team(user, team);
 
-			team = get_team(user["home_team_name"], get_system_permission());
+			team = get_team(user["home_team_name"].as_string(), get_system_permission());
 			if (not team.empty())
 				apply_user_team(user, team);
 		}
@@ -8891,13 +8887,13 @@ grant_type=authorization_code
 			system_monitoring_interface::active_mon->log_function_start("confirm", "start", start_time, __FILE__, __LINE__);
 
 			json data;
-			std::string user_name = _confirm_request[user_name_field];
-			std::string user_code = _confirm_request["validation_code"];
+			std::string user_name = _confirm_request[user_name_field].as_string();
+			std::string user_code = _confirm_request["validation_code"].as_string();
 			if (user_name.empty()) {
 				data = _confirm_request[data_field];
 				if (data.object()) {
-					user_name = data[user_name_field];
-					user_code = data["validation_code"];
+					user_name = data[user_name_field].as_string();
+					user_code = data["validation_code"].as_string();
 				}
             }
 
@@ -8920,17 +8916,17 @@ grant_type=authorization_code
 				return response;
 			}
 
-			std::string sys_code = user["validation_code"];
+			std::string sys_code = user["validation_code"].as_string();
 
 			if (sys_code == user_code)
 			{
 				user.put_member("confirmed_code", 1);
-				std::string email = user[user_email_field];
+				std::string email = user[user_email_field].as_string();
 				json teams = get_team_by_email(email, sys_perm);
 				for (json team : teams) 
 				{
-					user.put_member("home_team_name", (std::string)team["team_name"]);
-					user.put_member("team_name", (std::string)team["team_name"]);					
+					user.put_member("home_team_name", team["team_name"].as_string());
+					user.put_member("team_name", team["team_name"].as_string());
 				}
 				apply_user_team(user);
 				put_user(user);
@@ -9008,8 +9004,8 @@ grant_type=authorization_code
 
 			json data = _password_request[data_field];
 			std::string user_name, user_auth;
-			std::string user_code = data["validation_code"];
-			std::string requested_user_name = data[user_name_field];
+			std::string user_code = data["validation_code"].as_string();
+			std::string requested_user_name = data[user_name_field].as_string();
 
 			auto sys_perm = get_system_permission();
 
@@ -9030,7 +9026,7 @@ grant_type=authorization_code
 				return response;
 			}
 
-			std::string sys_code = user["validation_code"];
+			std::string sys_code = user["validation_code"].as_string();
 
 			if (user_code.size()>0 and sys_code.size()>0 and sys_code == user_code)
 			{
@@ -9063,8 +9059,8 @@ grant_type=authorization_code
 				return response;
 			}
 
-			std::string user_password1 = data["password1"];
-			std::string user_password2 = data["password2"];
+			std::string user_password1 = data["password1"].as_string();
+			std::string user_password2 = data["password2"].as_string();
 
 			if (user_password1 != user_password2)
 			{
@@ -9147,11 +9143,11 @@ grant_type=authorization_code
 					json jallowed_teams = jteam["allowed_teams"];
 					if (auto ata = jallowed_teams.array_impl()) {
 						if (std::any_of(ata->elements.begin(), ata->elements.end(), [&](json _item) {
-							return (std::string)_item == (std::string)_user_set_team_request["team_name"];
+							return _item.as_string() == _user_set_team_request["team_name"].as_string();
 							})) {
-							user_details.put_member("team_name", (std::string)_user_set_team_request["team_name"]);
+							user_details.put_member("team_name", _user_set_team_request["team_name"].as_string());
 							team_set = true;
-                            ok_message = "Selected " + (std::string)_user_set_team_request["team_name"];
+                            ok_message = "Selected " + _user_set_team_request["team_name"].as_string();
 						}
 					}
 				}
@@ -9195,24 +9191,24 @@ grant_type=authorization_code
 			system_monitoring_interface::active_mon->log_function_start("login_user", "start", start_time, __FILE__, __LINE__);
 
 			json data = _login_request;
-			std::string user_name = data[user_name_field];
-			std::string user_password = data["password"];
+			std::string user_name = data[user_name_field].as_string();
+			std::string user_password = data["password"].as_string();
 			std::string hashed_user_password;
 
 			std::string hashed_pw = crypter.hash(user_password);
 
 			json user = get_user(user_name);
-			std::string pw = user["password"];
+			std::string pw = user["password"].as_string();
 
 			if (pw == hashed_pw)
 			{
-				bool confirm = (bool)user["confirmed_code"];
+				bool confirm = user["confirmed_code"].as_bool();
 
 				json workflow = user["inventory"];
 				json navigation_options = jp.create_object();
 
 				if (user_name == default_user and default_user.size() > 0) 
-				{					
+				{
 					json result = user.clone();
 					result.erase_member("password");
 					result.erase_member("confirmed_code");
@@ -9270,8 +9266,8 @@ grant_type=authorization_code
 			json edit_request_data = _run_object_request[data_field];
 			if (edit_request_data.array())
 				edit_request_data = edit_request_data.get_element(0);
-			std::string class_name = edit_request_data[class_name_field];
-			int64_t object_id = (int64_t)edit_request_data[object_id_field];
+			std::string class_name = edit_request_data[class_name_field].as_string();
+			int64_t object_id = edit_request_data[object_id_field].as_int64_t();
 			json edit_request = create_request(user_name, auth_general, edit_request_data);
             edit_request.put_member("include_children", true);
 			result = edit_object(edit_request);
@@ -9298,7 +9294,7 @@ grant_type=authorization_code
 
 			json edit_request_data = _edit_object_request[data_field];
 
-			bool include_children = (bool)_edit_object_request["include_children"];
+			bool include_children = _edit_object_request["include_children"].as_bool();
 			validation_error_collection errors;
 
 			if (not check_message(_edit_object_request, { auth_general }, user_name, user_auth))
@@ -9319,8 +9315,8 @@ grant_type=authorization_code
 
 			json token = _edit_object_request[token_field];
 			json key = edit_request_data.extract({ class_name_field, object_id_field });
-			int64_t object_id = (int64_t)key[object_id_field];
-			std::string class_name = key[class_name_field];
+			int64_t object_id = key[object_id_field].as_int64_t();
+			std::string class_name = key[class_name_field].as_string();
 
 			class_permissions perms = get_class_permission(user_name, class_name);
 			class_permissions sys_perms = get_system_permission();
@@ -9356,7 +9352,7 @@ grant_type=authorization_code
 
 				if (not jedit_object.empty() and include_children)
 				{
-					std::string token = _edit_object_request[token_field];
+					std::string token = _edit_object_request[token_field].as_string();
 					auto jchild_classes = edit_class->run_queries(this, token, class_name, jedit_object);
 					result.share_member("child_classes", jchild_classes);
 				}
@@ -9493,9 +9489,9 @@ grant_type=authorization_code
 				return result;
 			}
 
-			std::string class_name = get_class_request[class_name_field];
+			std::string class_name = get_class_request[class_name_field].as_string();
 
-			auto permission = get_class_permission( user_name, class_name);
+			auto permission = get_class_permission(user_name, class_name);
 
 			json key = jp.create_object(class_name_field, class_name);
 			key.set_natural_order();
@@ -9541,7 +9537,7 @@ grant_type=authorization_code
 			timer tx;
 
 			std::string pc_name = "put_class";
-			std::string pc_msg = (std::string)put_class_request[data_field][class_name_field];
+			std::string pc_msg = put_class_request[data_field][class_name_field].as_string();
 			std::string pc_start = pc_msg + " start";
 			std::string pc_stop = pc_msg + " stop";
 			std::string pc_failed = pc_msg + " failed";
@@ -9574,7 +9570,7 @@ grant_type=authorization_code
 
 			json token = put_class_request[token_field];
 			json jclass_definition = put_class_request[data_field];
-			std::string class_name = jclass_definition[class_name_field];
+			std::string class_name = jclass_definition[class_name_field].as_string();
 
 			if (jclass_definition.error())
 			{
@@ -9630,7 +9626,7 @@ grant_type=authorization_code
 			timer tx;
 			validation_error_collection errors;
 
-			bool include_children = (bool)query_details["include_children"];
+			bool include_children = query_details["include_children"].as_bool();
 
 			json base_class_name = query_details[class_name_field];
 			if (base_class_name.empty()) {
@@ -9638,14 +9634,14 @@ grant_type=authorization_code
 				return response;
 			}
 
-			auto permission =  get_class_permission(_user_name, base_class_name);
+			auto permission = get_class_permission(_user_name, base_class_name.as_string());
 			if (permission.get_grant == class_grants::grant_none)
 			{
 				response = create_response(_user_name, auth_general, false, "query_class denied", query_details, errors, method_timer.get_elapsed_seconds());
 				return response;
 			}
 
-			auto class_def = read_lock_class(base_class_name);
+			auto class_def = read_lock_class(base_class_name.as_string());
 
 			json object_list = jp.create_array();
 			if (not class_def) {
@@ -9669,11 +9665,11 @@ grant_type=authorization_code
 							if (permission.get_grant & class_grants::grant_any) {
 								object_list.push_back(obj);
 							}
-							else if ((permission.get_grant & class_grants::grant_own) && (std::string)obj["created_by"] == permission.user_name) {
+							else if ((permission.get_grant & class_grants::grant_own) && obj["created_by"].as_string() == permission.user_name) {
 
 								object_list.push_back(obj);
 							}
-							else if ((permission.get_grant & class_grants::grant_team) && (std::string)obj["current_team"] == permission.team_name) {
+							else if ((permission.get_grant & class_grants::grant_team) && obj["current_team"].as_string() == permission.team_name) {
 
 								object_list.push_back(obj);
 							}
@@ -9724,8 +9720,8 @@ grant_type=authorization_code
 
 				for (auto from_class : from_classes)
 				{
-					std::string from_class_name = from_class[class_name_field];
-					std::string from_name = from_class["name"];
+					std::string from_class_name = from_class[class_name_field].as_string();
+					std::string from_name = from_class["name"].as_string();
 					if (from_name.empty())
 					{
 						response = create_response(query_request, false, "from with no name", jp.create_object(), errors, tx.get_elapsed_seconds());
@@ -9797,7 +9793,7 @@ grant_type=authorization_code
 
 			json token = create_object_request[token_field];
 			json data = create_object_request[data_field];
-			std::string class_name = data[class_name_field];
+			std::string class_name = data[class_name_field].as_string();
 			json response;
 
 			std::string user_name, user_auth;
@@ -9961,12 +9957,12 @@ grant_type=authorization_code
 
 				json grouped_by_class_name = result[data_field];
 
-				std::string message = result["message"];
+				std::string message = result["message"].as_string();
 
 				int64_t success_objects = 0;
 				int64_t failed_objects = 0;
 
-				if (result[success_field])
+				if (result[success_field].as_bool())
 				{
 					auto classes_and_data = grouped_by_class_name.get_members();
 
@@ -10069,7 +10065,7 @@ grant_type=authorization_code
 				return result;
 			}
 
-			std::string class_name = object_key[class_name_field];
+			std::string class_name = object_key[class_name_field].as_string();
 
 			auto permission =  get_class_permission(user_name, class_name);
 			if (permission.get_grant == class_grants::grant_none) {
@@ -10078,7 +10074,7 @@ grant_type=authorization_code
 				return result;
 			}
 
-			bool include_children = (bool)get_object_request["include_children"];
+			bool include_children = get_object_request["include_children"].as_bool();
 			
 			json obj =  select_single_object(object_key, include_children, permission);
 			if (obj.object()) 
@@ -10087,7 +10083,7 @@ grant_type=authorization_code
 				{
 					auto edit_class = read_lock_class(class_name);
 					if (edit_class) {
-						std::string token = get_object_request[token_field];
+						std::string token = get_object_request[token_field].as_string();
 						edit_class->run_queries(this, token, class_name, obj);
 					}
 				}
@@ -10127,7 +10123,7 @@ grant_type=authorization_code
 				return response;
 			}
 
-			std::string class_name = object_key[class_name_field];
+			std::string class_name = object_key[class_name_field].as_string();
 
 			auto permission = get_class_permission(user_name, class_name);
 			if (permission.delete_grant == class_grants::grant_none) {
@@ -10176,17 +10172,17 @@ grant_type=authorization_code
 			}
 
 			json source_spec = copy_request["from"];
-			std::string source_class = source_spec[class_name_field];			
-			std::string source_path = source_spec["path"];
+			std::string source_class = source_spec[class_name_field].as_string();
+			std::string source_path = source_spec["path"].as_string();
 			json source_key = source_spec.extract({ class_name_field, object_id_field });
 
 			json dest_spec = copy_request["to"];
-			std::string dest_class = dest_spec[class_name_field];
-			std::string dest_path = dest_spec["path"];
+			std::string dest_class = dest_spec[class_name_field].as_string();
+			std::string dest_path = dest_spec["path"].as_string();
 			json dest_key = dest_spec.extract({ class_name_field, object_id_field });
 
 			json transform_spec = copy_request["transform"];
-			std::string transform_class = transform_spec[class_name_field];
+			std::string transform_class = transform_spec[class_name_field].as_string();
 
 			class_permissions src_permission, dest_permission, trans_permission;
 
@@ -10240,7 +10236,7 @@ grant_type=authorization_code
 						json new_object_result = create_object(cor);
 
 						// then we can copy the fields over
-						if (new_object_result[success_field]) {
+						if (new_object_result[success_field].as_bool()) {
 							new_object = new_object_result[data_field];
 							auto new_object_fields = new_object.get_members();
 							for (auto nof : new_object_fields) {
@@ -10265,7 +10261,7 @@ grant_type=authorization_code
 					if (object_dest_result.object()) {
 						json update_obj;
 						json target = object_dest_result["target"];
-						std::string name = object_dest_result["name"];
+						std::string name = object_dest_result["name"].as_string();
 						update_obj = object_dest_result["object"];
 						if (target.array())
 						{
@@ -10305,7 +10301,7 @@ grant_type=authorization_code
 			payload = jp.create_object();
 
 			json token = jp.create_object();
-            std::string user_name = _data[user_name_field];
+            std::string user_name = _data[user_name_field].as_string();
             if (not _override_user.empty()) {
 				user_name = _override_user;
 			}
@@ -10565,7 +10561,8 @@ grant_type=authorization_code
 
 		// Now apply the config to the database
 		db.apply_config(system_config, server_config);
-		relative_ptr_type database_location = db.create_database();
+        json create_result = db.create_database();
+		relative_ptr_type database_location	= create_result.as_int64_t();
 
 		login_success = true;
 
@@ -10587,14 +10584,14 @@ grant_type=authorization_code
 
 		login_result = db.login_user(login_negative_request);
 
-		if (login_result[success_field]) {
+		if (login_result[success_field].as_bool()) {
 			login_success = false;
 			system_monitoring_interface::active_mon->log_warning("able to login with bad account", __FILE__, __LINE__);
 		}
 
 		login_result = db.login_user(login_positive_request);
 
-		if (not login_result[success_field]) {
+		if (not login_result[success_field].as_bool()) {
 			login_success = false;
 			system_monitoring_interface::active_mon->log_warning("can't with good account", __FILE__, __LINE__);
 		}

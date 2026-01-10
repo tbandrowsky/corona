@@ -1047,10 +1047,10 @@ namespace corona {
 						if (auto win = _parent->window.lock()) {
 							auto& ctxt = _context;
 							ctxt->drawRectangle(&_bounds, "item_border", 1, nullptr);
-							std::string eline = json_object.get_member("line");
-							std::string echar = json_object.get_member("char");
-							std::string etopic = json_object.get_member("topic");
-							std::string eerror = json_object.get_member("error");
+							std::string eline = json_object.get_member("line").as_string();
+							std::string echar = json_object.get_member("char").as_string();
+							std::string etopic = json_object.get_member("topic").as_string();
+							std::string eerror = json_object.get_member("error").as_string();
 
 							std::string text = std::format("{0}: '{1}' {2} - {3}", eline, echar, etopic, eerror);
 							auto field_bounds = _bounds;
@@ -1116,10 +1116,10 @@ namespace corona {
 			for (auto pg : jpages)
 			{
 				if (pg.object()) {
-					std::string class_name = pg["class_name"];
+					std::string class_name = pg["class_name"].as_string();
 					if (class_name == "page") {
-						bool is_default = (bool)pg["default"];
-						std::string name = pg["page_name"];
+						bool is_default = pg["default"].as_bool();
+						std::string name = pg["page_name"].as_string();
 						if (name.empty()) {
 							system_monitoring_interface::active_mon->log_warning("page_name is empty for this page, skipping");
 						}

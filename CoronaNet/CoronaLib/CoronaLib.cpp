@@ -77,11 +77,11 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
     {    
         ExpandoObject^ expando = gcnew ExpandoObject();
 
-        std::string msg = result["message"];
+        std::string msg = result["message"].as_string();
 
-        baseResponse->Success = (bool)result["success"];
+        baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double();
 
         if (result.has_member("data")) {
             corona::json data = result["data"];
@@ -90,7 +90,7 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
 
         if (result.has_member("token"))
         {
-            std::string token = result["token"];
+            std::string token = result["token"].as_string();
             baseResponse->Token = gcnew System::String(token.c_str());
         }
 
@@ -128,7 +128,7 @@ bool put_response(CoronaInterface::ILoginResult^ baseResponse, corona::json resu
     try {
 
         if (baseResponse->Data != nullptr) {
-            std::string class_data = result["data"];
+            std::string class_data = result["data"].as_string() ;
             String^ sclass_data = gcnew String(class_data.c_str());
             baseResponse->User = JsonConvert::DeserializeObject<CoronaInterface::SysUser^>(sclass_data);
         }
@@ -165,7 +165,7 @@ bool put_response(CoronaInterface::IGetClassResponse^ baseResponse, corona::json
     try
     {
         if (baseResponse->Data != nullptr) {
-            std::string class_data = result["data"]["class"];
+            std::string class_data = result["data"]["class"].as_string();
             String^ sclass_data = gcnew String(class_data.c_str());
             baseResponse->CoronaClass = JsonConvert::DeserializeObject<CoronaInterface::CoronaClass^>(sclass_data);
         }
@@ -271,11 +271,11 @@ bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::js
 
         ExpandoObject^ expando = gcnew ExpandoObject();
 
-        std::string msg = result["message"];
+        std::string msg = result["message"].as_string();
 
-        baseResponse->Success = (bool)result["success"];
+        baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double() ;
 
         if (result.has_member("data")) {
             corona::json data = result["data"];
@@ -293,7 +293,7 @@ bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::js
 
         if (result.has_member("token"))
         {
-            std::string token = result["token"];
+            std::string token = result["token"].as_string();
             baseResponse->Token = gcnew System::String(token.c_str());
         }
 
@@ -332,11 +332,11 @@ bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::jso
 
         ExpandoObject^ expando = gcnew ExpandoObject();
 
-        std::string msg = result["message"];
+        std::string msg = result["message"].as_string();
 
-        baseResponse->Success = (bool)result["success"];
+        baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = (double)result["execution_time"];
+        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double();
 
         if (result.has_member("data")) {
             corona::json data = result["data"];
@@ -354,7 +354,7 @@ bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::jso
 
         if (result.has_member("token"))
         {
-            std::string token = result["token"];
+            std::string token = result["token"].as_string();
             baseResponse->Token = gcnew System::String(token.c_str());
         }
 
@@ -492,7 +492,7 @@ bool CoronaLib::CoronaDatabase::CreateDatabase(CoronaInterface::DatabaseConfigur
         m_database = new corona::corona_database(database_path, schema_path);
         m_database->apply_config(config_json);
         corona::json jresponse = m_database->create_database();
-        success = (bool)jresponse[corona::success_field];
+        success = jresponse[corona::success_field].as_bool();
         if (success) {
             m_database->apply_schema();
         }

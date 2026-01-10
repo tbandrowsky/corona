@@ -38,7 +38,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
-			text = _src["text"];
+			text = _src["text"].as_string();
 		}
 
 		virtual std::shared_ptr<control_base> clone()

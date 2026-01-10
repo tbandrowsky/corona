@@ -451,8 +451,8 @@ namespace corona
 
 			std::vector<std::string> missing;
 
-			name = _src["name"];
-			class_name = _src["class_name"];
+			name = _src["name"].as_string();
+			class_name = _src["class_name"].as_string();
 
 			if (not _src.has_members(missing, { "box" })) {
 				system_monitoring_interface::active_mon->log_warning(std::format( "control '{0}/{1}' is missing:", class_name, name), __FILE__, __LINE__);
@@ -471,10 +471,10 @@ namespace corona
 			corona::put_json(margin, jmargin);
 			corona::put_json(padding, jpadding);
 
-			tooltip_text = _src["tooltip_text"];
-			json_field_name = _src["json_field_name"];
+			tooltip_text = _src["tooltip_text"].as_string();
+			json_field_name = _src["json_field_name"].as_string();
 
-			wrap_break = (bool)_src["wrap_break"];
+			wrap_break = _src["wrap_break"].as_bool();
 
 		}
 

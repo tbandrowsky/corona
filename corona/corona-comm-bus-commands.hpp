@@ -143,11 +143,11 @@ namespace corona
 			if (jon_login_fail.object()) {
 				corona::put_json(on_fail, jon_login_fail);
 			}
-			form_name = _src["form_name"];
-			success_message_field = _src["success_message_field"];
-			status_message_field = _src["status_message_field"];	
-			error_table_field = _src["error_table_field"];
-			execution_time_field = _src["execution_time_field"];
+			form_name = _src["form_name"].as_string();
+			success_message_field = _src["success_message_field"].as_string();
+			status_message_field = _src["status_message_field"].as_string();
+			error_table_field = _src["error_table_field"].as_string();
+			execution_time_field = _src["execution_time_field"].as_string();
 		}
 
 	};
@@ -179,15 +179,15 @@ namespace corona
 			json_parser jp;
 			json user_obj = jp.create_object();
 
-			user_obj.put_member("user_name", (std::string)obj[user_name_field]);
-			user_obj.put_member("email", (std::string)obj[email_field]);
-			user_obj.put_member("password1", (std::string)obj[password1_field]);
-			user_obj.put_member("password2", (std::string)obj[password2_field]);
-			user_obj.put_member("first_name", (std::string)obj[first_name_field]);
-			user_obj.put_member("street", (std::string)obj[street_field]);
-			user_obj.put_member("city", (std::string)obj[city_field]);
-			user_obj.put_member("state", (std::string)obj[state_field]);
-			user_obj.put_member("phone", (std::string)obj[phone_field]);
+			user_obj.put_member("user_name", obj[user_name_field].as_string());
+			user_obj.put_member("email", obj[email_field].as_string());
+			user_obj.put_member("password1", obj[password1_field].as_string());
+			user_obj.put_member("password2", obj[password2_field].as_string());
+			user_obj.put_member("first_name", obj[first_name_field].as_string());
+			user_obj.put_member("street", obj[street_field].as_string());
+			user_obj.put_member("city", obj[city_field].as_string());
+			user_obj.put_member("state", obj[state_field].as_string());
+			user_obj.put_member("phone", obj[phone_field].as_string());
 			response = bus->remote_register_user(user_obj);
 			return response;
 		}
@@ -226,14 +226,14 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];
-			email_field = _src["email_field"];
-			password1_field = _src["password1_field"];
-			password2_field = _src["password2_field"];
-			first_name_field = _src["first_name_field"];
-			last_name_field = _src["last_name_field"];
-			street_field = _src["password2_field"];
-			city_field = _src["password2_field"];
+			user_name_field = _src["user_name_field"].as_string();
+			email_field = _src["email_field"].as_string();
+			password1_field = _src["password1_field"].as_string();
+			password2_field = _src["password2_field"].as_string();
+			first_name_field = _src["first_name_field"].as_string();
+			last_name_field = _src["last_name_field"].as_string();
+			street_field = _src["password2_field"].as_string();
+			city_field = _src["password2_field"].as_string();
 
 		}
 
@@ -253,8 +253,8 @@ namespace corona
 
 		virtual corona_client_response invoke(json obj, comm_bus_app_interface* bus) override
 		{
-			std::string user_name = obj[user_name_field];
-			std::string validation_field = obj[validation_code_field];
+			std::string user_name = obj[user_name_field].as_string();
+			std::string validation_field = obj[validation_code_field].as_string();
 			response = bus->remote_confirm_user(user_name, validation_field);
 			return response;
 		}
@@ -286,8 +286,8 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];
-			validation_code_field = _src["validation_code"];
+			user_name_field = _src["user_name_field"].as_string();
+			validation_code_field = _src["validation_code_field"].as_string();
 		}
 
 	};
@@ -305,7 +305,7 @@ namespace corona
 
 		virtual corona_client_response invoke(json obj, comm_bus_app_interface* bus) override
 		{
-			std::string user_name = obj[user_name_field];
+			std::string user_name = obj[user_name_field].as_string();
 			response = bus->remote_send_user(user_name);
 			return response;
 		}
@@ -336,7 +336,7 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];	
+			user_name_field = _src["user_name_field"].as_string();	
 		}
 
 	};
@@ -357,10 +357,10 @@ namespace corona
 
 		virtual corona_client_response invoke(json obj, comm_bus_app_interface* bus) override
 		{
-			std::string user_name = obj[user_name_field];
-			std::string validation_code = obj[validation_code_field];
-			std::string password1 = obj[password1_field];
-			std::string password2= obj[password2_field];
+			std::string user_name = obj[user_name_field].as_string();
+			std::string validation_code = obj[validation_code_field].as_string();
+			std::string password1 = obj[password1_field].as_string();
+			std::string password2 = obj[password2_field].as_string();
 			response = bus->remote_set_password(user_name, validation_code, password1, password2);
 			return response;
 		}
@@ -394,10 +394,10 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];
-			validation_code_field = _src["validation_code_field"];
-			password1_field = _src["password1_field"];
-			password2_field = _src["password2_field"];
+			user_name_field = _src["user_name_field"].as_string();
+			validation_code_field = _src["validation_code_field"].as_string();
+			password1_field = _src["password1_field"].as_string();
+			password2_field = _src["password2_field"].as_string();
 		}
 
 	};
@@ -416,8 +416,8 @@ namespace corona
 
 		virtual corona_client_response invoke(json obj, comm_bus_app_interface* bus) override
 		{
-			std::string user_name = obj[user_name_field];
-			std::string password = obj[user_password_field];
+			std::string user_name = obj[user_name_field].as_string();
+			std::string password = obj[user_password_field].as_string();
 			response = bus->remote_login(user_name, password);
 			return response;
 		}
@@ -451,8 +451,8 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];
-			user_password_field = _src["user_password_field"];
+			user_name_field = _src["user_name_field"].as_string();
+			user_password_field = _src["user_password_field"].as_string();
 
 		}
 
@@ -488,9 +488,9 @@ namespace corona
 					if (response.data.array()) {
 						for (auto cls : response.data) {
 							json item = jp.create_object();
-							std::string cls_name = cls[class_name_field];
-							std::string cls_description = cls["class_description"];
-							std::string cls_base = cls[base_class_name_field];
+							std::string cls_name = cls[class_name_field].as_string();
+							std::string cls_description = cls["class_description"].as_string();
+							std::string cls_base = cls[base_class_name_field].as_string();
 							item.put_member(base_class_name_field, cls_base);
 							item.put_member(class_name_field, cls_name);
 							item.put_member("class_description", cls_description);
@@ -526,7 +526,7 @@ namespace corona
 				return;
 			}
 
-			table_name = _src["table_name"];
+			table_name = _src["table_name"].as_string();
 		}
 	};
 
@@ -575,10 +575,10 @@ namespace corona
 
 		virtual corona_client_response invoke(json obj, comm_bus_app_interface* bus) override
 		{
-			std::string user_name = obj[user_name_field];
-			std::string validation_code = obj[validation_code_field];
-			std::string password1 = obj[password1_field];
-			std::string password2 = obj[password2_field];
+			std::string user_name = obj[user_name_field].as_string();
+			std::string validation_code = obj[validation_code_field].as_string();
+			std::string password1 = obj[password1_field].as_string();
+			std::string password2 = obj[password2_field].as_string();
 			response = bus->remote_set_password(user_name, validation_code, password1, password2);
 			return response;
 		}
@@ -607,10 +607,10 @@ namespace corona
 				return;
 			}
 
-			user_name_field = _src["user_name_field"];
-			validation_code_field = _src["validation_code_field"];
-			password1_field = _src["password1_field"];
-			password2_field = _src["password2_field"];
+			user_name_field = _src["user_name_field"].as_string();
+			validation_code_field = _src["validation_code_field"].as_string();
+			password1_field = _src["password1_field"].as_string();
+			password2_field = _src["password2_field"].as_string();
 		}
 
 	};
@@ -656,8 +656,8 @@ namespace corona
 				return;
 			}
 
-			create_class_name = _src["create_class_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			create_class_name = _src["create_class_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -715,12 +715,12 @@ namespace corona
 				return;
 			}
 
-			create_class_name = _src["create_class_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
-			page_to_select = _src["page_to_select"];
-			frame_to_load = _src["frame_to_load"];
-			frame_contents_page = _src["frame_contents_page"];
-			form_to_load = _src["form_to_load"];
+			create_class_name = _src["create_class_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
+			page_to_select = _src["page_to_select"].as_string();
+			frame_to_load = _src["frame_to_load"].as_string();
+			frame_contents_page = _src["frame_contents_page"].as_string();
+			form_to_load = _src["form_to_load"].as_string()	;
 
 		}
 
@@ -783,12 +783,12 @@ namespace corona
 				return;
 			}
 
-			table_name = _src["table_name"];
-			page_to_select = _src["page_to_select"];
-			frame_to_load = _src["frame_to_load"];
-			frame_contents_page = _src["frame_contents_page"];
-			form_to_load = _src["form_to_load"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			table_name = _src["table_name"].as_string();
+			page_to_select = _src["page_to_select"].as_string();
+			frame_to_load = _src["frame_to_load"].as_string();
+			frame_contents_page = _src["frame_contents_page"].as_string();
+			form_to_load = _src["form_to_load"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 	};
 
@@ -844,10 +844,10 @@ namespace corona
 				return;
 			}
 
-			table_name = _src["table_name"];
-			form_name = _src["form_name"];
-			page_name = _src["page_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			table_name = _src["table_name"].as_string();
+			form_name = _src["form_name"].as_string();
+			page_name = _src["page_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -906,9 +906,9 @@ namespace corona
 				return;
 			}
 
-			table_name = _src["table_name"];
-			form_name = _src["form_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			table_name = _src["table_name"].as_string();
+			form_name = _src["form_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -957,7 +957,7 @@ namespace corona
 
 			corona_form_command::put_json(_src);
 
-			form_name = _src["form_name"];
+			form_name = _src["form_name"].as_string();
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "form_name" })) {
 				system_monitoring_interface::active_mon->log_warning("save_object_command missing:");
@@ -968,7 +968,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -1022,9 +1022,9 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			control_name = _src["control_name"];
+			control_name = _src["control_name"].as_string();
 			object_data = _src["data"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -1074,8 +1074,8 @@ namespace corona
 				return;
 			}
 
-			control_name = _src["control_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			control_name = _src["control_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -1165,12 +1165,12 @@ namespace corona
 				return;
 			}
 
-			form_name = _src["form_name"];
-			table_name = _src["table_name"];
-			search_class_name = _src["search_class_name"];
+			form_name = _src["form_name"].as_string();
+			table_name = _src["table_name"].as_string();
+			search_class_name = _src["search_class_name"].as_string();
 			json jctx = _src["query"];
 			qctx.put_json(jctx);
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -1261,12 +1261,12 @@ namespace corona
 				return;
 			}
 
-			form_name = _src["form_name"];
-			table_name = _src["table_name"];
-			search_class_name = _src["search_class_name"];
+			form_name = _src["form_name"].as_string();
+			table_name = _src["table_name"].as_string();
+			search_class_name = _src["search_class_name"].as_string();
 			json jctx = _src["query"];
 			qctx.put_json(jctx);
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 
 	};
@@ -1337,10 +1337,10 @@ namespace corona
 					system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				}
 			}
-			page_name = _src["page_name"];
-			form_name = _src["form_name"];
-			source_name = _src["source_name"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			page_name = _src["page_name"].as_string();
+			form_name = _src["form_name"].as_string();
+			source_name = _src["source_name"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 
 		}
 	};
@@ -1400,7 +1400,7 @@ namespace corona
 				return;
 			}
 
-			control_name = _src["control_name"];
+			control_name = _src["control_name"].as_string();
 			commands.clear();
 
 			json_parser jp;
@@ -1460,9 +1460,9 @@ namespace corona
 				return;
 			}
 
-			control_name = _src["control_name"];
-			property_name = _src["property_name"];
-			value = _src["value"];
+			control_name = _src["control_name"].as_string();
+			property_name = _src["property_name"].as_string();
+			value = _src["value"].as_string();
 		}
 	};
 
@@ -1534,12 +1534,12 @@ namespace corona
 				return;
 			}
 	
-			form_to_read = _src["form_to_read"];
-			page_to_select = _src["page_to_select"];
-			frame_to_load = _src["frame_to_load"];
-			frame_contents_page = _src["frame_contents_page"];
-			message = _src["transition_message"];
-			instance = (corona_instance)((int64_t)_src["instance"]);
+			form_to_read = _src["form_to_read"].as_string();
+			page_to_select = _src["page_to_select"].as_string();
+			frame_to_load = _src["frame_to_load"].as_string();
+			frame_contents_page = _src["frame_contents_page"].as_string();
+			message = _src["transition_message"].as_string();
+			instance = (corona_instance)(_src["instance"].as_int64_t());
 		}
 	};
 
@@ -1568,7 +1568,7 @@ namespace corona
 
 		if (_src.has_member("class_name"))
 		{
-			std::string class_name = _src["class_name"];
+			std::string class_name = _src["class_name"].as_string();
 
 			if (class_name == "script")
 			{

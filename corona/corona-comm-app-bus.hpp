@@ -189,7 +189,7 @@ namespace corona
 
 				json create_database_response = local_db->create_database();
 
-				bool success = (bool)create_database_response[success_field];
+				bool success = create_database_response[success_field].as_bool();
 				if (!success) {
 					log_json(create_database_response);
 					std::filesystem::current_path(current_path);
@@ -322,8 +322,8 @@ namespace corona
 					{
 						if (jpage.object()) {
 							jpage.apply_abbreviations(abbreviations);
-							std::string class_name = jpage[class_name_field];
-							std::string file_name = jpage["file_name"];
+							std::string class_name = jpage[class_name_field].as_string();
+							std::string file_name = jpage["file_name"].as_string();
 							if (class_name == "import") 
 							{
 								json_parser jpx;
@@ -672,7 +672,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("create_user", user_information["Name"], dt);
+			log_command_start("create_user", user_information["Name"].as_string(), dt);
 			timer tx;
 			json_parser jp;
 			json request = jp.create_object();
@@ -693,12 +693,12 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("login_user", login_information["Name"], dt);
+			log_command_start("login_user", login_information["Name"].as_string(), dt);
 			timer tx;
 			json j = local_db->login_user(login_information);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("login", j["Message"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("login", j["Message"].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -708,8 +708,8 @@ namespace corona
 			json_parser jp;
 			json login_request = jp.create_object();
 			json server_config = local_db_config["Server"];
-			std::string user_name = server_config[sys_user_name_field];
-			std::string password = server_config[sys_user_password_field];
+			std::string user_name = server_config[sys_user_name_field].as_string();
+			std::string password = server_config[sys_user_password_field].as_string();
 			login_request.put_member(sys_user_name_field, user_name);
 			login_request.put_member(sys_user_password_field, password);
 			json result = local_db->login_user(login_request);
@@ -730,7 +730,7 @@ namespace corona
 			request.put_member(token_field, token);
 			request.put_member(class_name_field, class_name);
 			json j = local_db->create_object(request);
-			log_command_stop("create_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("create_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
@@ -742,7 +742,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("run_object", object_information[class_name_field], dt);
+			log_command_start("run_object", object_information[class_name_field].as_string(), dt);
 			timer tx;
 			json token = get_local_token();
 
@@ -754,7 +754,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("put_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -763,7 +763,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("put_object", object_information[class_name_field], dt);
+			log_command_start("put_object", object_information[class_name_field].as_string(), dt);
 			timer tx;
 			json token = get_local_token();
 
@@ -775,7 +775,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("put_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("put_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -785,7 +785,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("get_object", object_information[class_name_field], dt);
+			log_command_start("get_object", object_information[class_name_field].as_string(), dt);
 			timer tx;
 			json_parser jp;
 			json request = object_information.clone();
@@ -794,7 +794,7 @@ namespace corona
 			json j = local_db->get_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("get_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("get_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -813,7 +813,7 @@ namespace corona
 			json j = local_db->edit_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
-			log_command_stop("edit_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("edit_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -823,7 +823,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("delete_object", object_information[class_name_field], dt);
+			log_command_start("delete_object", object_information[class_name_field].as_string(), dt);
 			timer tx;
 			json request = object_information.clone();
 			json token = get_local_token();
@@ -832,7 +832,7 @@ namespace corona
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 
-			log_command_stop("delete_object", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("delete_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			response = j;
 			return response;
 		}
@@ -842,7 +842,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("query_objects", query_information[class_name_field], dt);
+			log_command_start("query_objects", query_information[class_name_field].as_string(), dt);
 			timer tx;
 			json_parser jp;
 			json request = jp.create_object();
@@ -857,7 +857,7 @@ namespace corona
 				std::string rr = std::format("{0} items", j.size());
 				log_information(rr);
 			}
-			log_command_stop("query_objects", j[message_field], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("query_objects", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -890,7 +890,7 @@ namespace corona
 			date_time dt;
 			dt = date_time::now();
 			timer tx;
-			log_command_start("put_object", object_information[class_name_field], dt);
+			log_command_start("put_object", object_information[class_name_field].as_string(), dt);
 			corona_client_response response;
 
 			if (_instance == corona_instance::local)
@@ -915,7 +915,7 @@ namespace corona
 			date_time dt;
 			dt = date_time::now();
 			timer tx;
-			log_command_start("run_object", object_information[class_name_field], dt);
+			log_command_start("run_object", object_information[class_name_field].as_string(), dt);
 			corona_client_response response;
 
 			if (_instance == corona_instance::local)
@@ -940,11 +940,11 @@ namespace corona
 			date_time dt;
 			dt = date_time::now();
 			timer tx;
-			log_command_start("edit_object", object_information[class_name_field], dt);
+			log_command_start("edit_object", object_information[class_name_field].as_string(), dt);
 			corona_client_response response;
 
-			std::string class_name = object_information[class_name_field];
-			int64_t object_id = (int64_t)object_information[object_id_field];
+			std::string class_name = object_information[class_name_field].as_string();
+			int64_t object_id = object_information[object_id_field].as_int64_t();
 
 			if (_instance == corona_instance::local)
 			{
@@ -967,7 +967,7 @@ namespace corona
 		{
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("get_object", object_information[class_name_field], dt);
+			log_command_start("get_object", object_information[class_name_field].as_string(), dt);
 			corona_client_response response;
 
 			if (_instance == corona_instance::local)
@@ -976,8 +976,8 @@ namespace corona
 			}
 			else
 			{
-				std::string class_name = object_information[class_name_field];
-				int64_t object_id = (int64_t)object_information[object_id_field];
+				std::string class_name = object_information[class_name_field].as_string();
+				int64_t object_id = object_information[object_id_field].as_int64_t();
 				response = remote_get_object(class_name, object_id, false);
 			}
 			if (!response.success) {
@@ -991,7 +991,7 @@ namespace corona
 		{
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("delete_object", object_information[class_name_field], dt);
+			log_command_start("delete_object", object_information[class_name_field].as_string(), dt);
 			corona_client_response response;
 
 			if (_instance == corona_instance::local)
@@ -1000,8 +1000,8 @@ namespace corona
 			}
 			else
 			{
-				std::string class_name = object_information[class_name_field];
-				int64_t object_id = (int64_t)object_information[object_id_field];
+				std::string class_name = object_information[class_name_field].as_string();
+				int64_t object_id = object_information[object_id_field].as_int64_t();
 
 				response = remote_delete_object(class_name, object_id);
 			}
@@ -1017,7 +1017,7 @@ namespace corona
 		{
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("query_objects", query_information[class_name_field], dt);
+			log_command_start("query_objects", query_information[class_name_field].as_string(), dt);
 			timer tx;
 			json_parser jp;
 			json request = jp.create_object();
@@ -1214,7 +1214,7 @@ namespace corona
 				json jcommand = jp.create_object();
 				corona::get_json(jcommand, _command);
 				date_time start_time = date_time::now();
-				log_function_start("run_command", jcommand["class_name"], start_time, __FILE__, __LINE__);
+				log_function_start("run_command", jcommand["class_name"].as_string(), start_time, __FILE__, __LINE__);
 				this->run_ui([this, jcommand]() {
 					timer tx;
 					log_json<json>(jcommand);
@@ -1225,7 +1225,7 @@ namespace corona
 					if (command) {
 						auto tranny = command->execute(context, this);
 					}
-					log_function_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					log_function_stop("run_command", jcommand["class_name"].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					});
 			}
 		}
@@ -1237,7 +1237,7 @@ namespace corona
 				json jcommand = jp.create_object();
 				corona::get_json(jcommand, _command);
 				date_time start_time = date_time::now();
-				log_user_command_start("run_command", jcommand["class_name"], start_time, __FILE__, __LINE__);
+				log_user_command_start("run_command", jcommand["class_name"].as_string(), start_time, __FILE__, __LINE__);
 				this->run_ui([this, jcommand]() {
 					timer tx;
 					log_json<json>(jcommand);
@@ -1248,7 +1248,7 @@ namespace corona
 						json context = jp2.create_object();
 						auto tranny = command->execute(context, this);
 					}
-					log_user_command_stop("run_command", jcommand["class_name"], tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					log_user_command_stop("run_command", jcommand["class_name"].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				});
 			}
 		}

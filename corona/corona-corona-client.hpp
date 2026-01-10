@@ -145,7 +145,7 @@ namespace corona
 
 			if (result.success) 
 			{
-				authorization_header = "Authorization: Bearer " + (std::string)result.data[token_field];
+				authorization_header = "Authorization: Bearer " + result.data[token_field].as_string();
 			}
 			else 
 			{

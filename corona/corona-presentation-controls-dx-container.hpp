@@ -280,7 +280,7 @@ namespace corona
 			temp = _src["item_next_space"];
 			corona::put_json(item_next_space, temp);
 
-			wrap = (bool)_src["wrap"];
+			wrap = _src["wrap"].as_bool();
 		}
 
 	};
@@ -337,7 +337,7 @@ namespace corona
 			temp = _src["item_next_space"];
 			corona::put_json(item_next_space, temp);
 
-			wrap = (bool)_src["wrap"];
+			wrap = _src["wrap"].as_bool();
 		}
 
 	};

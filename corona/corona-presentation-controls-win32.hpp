@@ -150,8 +150,8 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			control_base::put_json(_src);
-			is_default_focus = (bool)_src["default_focus"];
-			is_default_button = (bool)_src["default_button"];
+			is_default_focus = _src["default_focus"].as_bool();
+			is_default_button = _src["default_button"].as_bool();
 			json jtext_style = _src["text_style"];
 			if (jtext_style.object()) {
 				corona::put_json(text_style, jtext_style);
@@ -364,7 +364,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name];
+				std::string text = _data[json_field_name].as_string();
 				set_text(text);
 			}
 			return _data;
@@ -392,11 +392,11 @@ namespace corona
 			json jcommand = _src["change_command"];
 			corona::put_json(change_command, jcommand);
 
-			std::string temp = _src["text"];
+			std::string temp = _src["text"].as_string();
 			set_text(temp);
 
-			format = _src["format"];
-			set_format(temp);
+			format = _src["format"].as_string();
+			set_format(format);
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -605,8 +605,8 @@ namespace corona
 					for (int i = 0; i < choices.items.size(); i++)
 					{
 						auto c = choices.items.get_element(i);
-						int lid = c[choices.id_field];
-						std::string description = c[choices.text_field];
+						int lid	= c[choices.id_field].as_int();
+						std::string description = c[choices.text_field].as_string();
 						phost->addListItem(id, description, lid);
 					}
 					if (selection.size())
@@ -637,7 +637,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name];
+				std::string text = _data[json_field_name].as_string();
 				if (auto ptr = window_host.lock()) {
 					std::string existing = ptr->getListSelectedText(id);
 					if (existing != text) {
@@ -763,8 +763,8 @@ namespace corona
 					for (int i = 0; i < choices.items.size(); i++)
 					{
 						auto element = choices.items.get_element(i);
-						int lid = element[choices.id_field];
-						std::string description = element[choices.text_field];
+						int lid = element[choices.id_field].as_int();
+						std::string description = element[choices.text_field].as_string();
 						phost->addComboItem(id, description, lid);
 					}
 				}
@@ -829,7 +829,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name];
+				std::string text = _data[json_field_name].as_string();
 				if (auto ptr = window_host.lock()) {
 					std::string existing = ptr->getComboSelectedText(id);
 					if (existing != text) {
@@ -975,7 +975,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json(_src);
 			}
 
-			icon_path = _src["icon_path"];
+			icon_path = _src["icon_path"].as_string();
 
 			corona::put_json(click_command, jcommand);
 		}
@@ -1080,7 +1080,7 @@ namespace corona
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
-					int checked = _data.get_member(json_field_name);
+					int checked = _data.get_member(json_field_name).as_int();
 					ptr->setButtonChecked(id, checked);
 				}
 			}
@@ -1123,7 +1123,7 @@ namespace corona
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
-					int checked = _data.get_member(json_field_name);
+					int checked = _data.get_member(json_field_name).as_int();
 					ptr->setButtonChecked(id, checked);
 				}
 			}
@@ -1444,12 +1444,12 @@ namespace corona
 			json_parser jp;
 
 			windows_control::put_json(_src);
-			sbi.nMin = (double)_src["min"];
-			sbi.nMax = (double)_src["max"];
-			sbi.nPage = (double)_src["page"];
-			sbi.nPos = (double)_src["pos"];
-			scaleMin = (double)_src["scale_min"];
-			scaleMax = (double)_src["scale_max"];
+			sbi.nMin = _src["min"].as_double();
+			sbi.nMax = _src["max"].as_double();
+			sbi.nPage = _src["page"].as_double();
+			sbi.nPos = _src["pos"].as_double();
+			scaleMin = _src["scale_min"].as_double();
+			scaleMax = _src["scale_max"].as_double();
 			scale = (double)(sbi.nMax - sbi.nMin) / (scaleMax - scaleMin);
 			if (window) {
 				::SetScrollInfo(window, SB_CTL, &sbi, true);
@@ -1482,7 +1482,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				double pos = _data[json_field_name];
+				double pos = _data[json_field_name].as_double();
 				sbi.nPos = (pos - scaleMin) / scale + sbi.nMin;
 			}
 			return _data;
@@ -1580,8 +1580,8 @@ namespace corona
 
 			windows_control::put_json(_src);
 
-			min_date = (date_time)_src["min_date"];
-			max_date = (date_time)_src["max_date"];
+			min_date = _src["min_date"].as_date_time();
+			max_date = _src["max_date"].as_date_time();
 
 			if (window) {
 				SYSTEMTIME st[3];
@@ -1620,7 +1620,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				current_date = (date_time)_data[json_field_name];
+				current_date = _data[json_field_name].as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					DateTime_SetSystemtime(window, GDT_VALID, &st);
@@ -1700,8 +1700,8 @@ namespace corona
 
 			corona::put_json(change_command, jcommand);
 
-			min_date = (date_time)_src["min_date"];
-			max_date = (date_time)_src["max_date"];
+			min_date = _src["min_date"].as_date_time();
+			max_date = _src["max_date"].as_date_time();
 
 			if (window) {
 				SYSTEMTIME st[3];
@@ -1749,7 +1749,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			if (_data.has_member(json_field_name)) {
-				current_date = (date_time)_data[json_field_name];
+				current_date = _data[json_field_name].as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					MonthCal_SetCurSel(window, GDT_VALID, &st);
@@ -1970,8 +1970,8 @@ namespace corona
 				{
 					auto c = choices.items.get_element(i);
 					if (c.has_member(choices.id_field) and c.has_member(choices.text_field)) {
-						int lid = c[choices.id_field];
-						std::string description = c[choices.text_field];
+						int lid = c[choices.id_field].as_int();
+						std::string description = c[choices.text_field].as_string();
 
 						COMBOBOXEXITEMA cbex = {};
 						cbex.mask = CBEIF_TEXT | CBEIF_LPARAM;
