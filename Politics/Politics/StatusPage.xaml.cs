@@ -20,13 +20,25 @@ using System.Runtime.CompilerServices;
 using Windows.UI;
 using Microsoft.UI;
 using Windows.UI.ApplicationSettings;
-using Windows.ApplicationModel.VoiceCommands; // Color
+using Windows.ApplicationModel.VoiceCommands;
+using System.Collections.ObjectModel; // Color
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Politics
 {
+
+    /// <summary>
+    /// Summary of a corona class
+    /// </summary>
+    public class ClassSummary
+    {
+        public string ClassName { get; set; } = "";
+        public string ClassDescription { get; set; } = "";
+        public long RowCount { get; set; } = 0;
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -37,6 +49,9 @@ namespace Politics
             this.InitializeComponent();
             this.Loaded += Page_Loaded;
         }
+
+        public ObservableCollection<ClassSummary> ClassSummaries { get; } = new ObservableCollection<ClassSummary>();
+        public Dictionary<string, ClassSummary> CoronaClasses { get; } = new Dictionary<string, ClassSummary>();
 
         private string _activityText = "Data load status.";
         public string ActivityText { get => _activityText; set { if (_activityText != value) { _activityText = value; RaisePropertyChanged(); } } }

@@ -118,8 +118,8 @@ static void RunConsole()
 
             if (servers.array()) {
                 for (auto server : servers) {
-                    std::string listen_point = server["listen_point"];
-                    std::string server_name = server["application_name"];
+                    std::string listen_point = server["listen_point"].as_string();
+                    std::string server_name = server["application_name"].as_string();
                     std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
                     auto service = std::make_shared<corona::comm_bus_service>(
@@ -327,8 +327,8 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv)
 
         if (servers.array()) {
             for (auto server : servers) {
-                std::string listen_point = server["listen_point"];
-                std::string server_name = server["application_name"];
+                std::string listen_point = server["listen_point"].as_string();
+                std::string server_name = server["application_name"].as_string();
                 std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
                 auto service = std::make_shared<corona::comm_bus_service>(

@@ -43,6 +43,9 @@
                     </StackPanel.Resources>
                     <TextBlock Style="{StaticResource TitleTextBlockStyle}">Status</TextBlock>
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{Binding ActivityText}"></TextBlock>
+                    <ListView x:Name="DataSets">
+                        
+                    </ListView>
                     <StackPanel x:Name="UserCommandStatus" Orientation="Horizontal" Visibility="Collapsed">
                         <Rectangle Width="75" Height="20" Stroke="Black" StrokeThickness="1" Margin="0,0,10,0">
                             <Rectangle.Fill>

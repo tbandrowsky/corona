@@ -608,6 +608,7 @@ namespace corona
 		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) = 0;
 		virtual std::string								get_index_key_string() = 0;
 		virtual std::string								get_index_filename(corona_database_interface *_db) = 0;
+        virtual int64_t									get_count() = 0;
 	};
 
 	class activity;
@@ -690,6 +691,9 @@ namespace corona
 		virtual bool	any_descendants(corona_database_interface* _db) = 0;
 
 		virtual int64_t get_next_object_id(corona_database_interface* _db) = 0;
+
+		virtual int64_t get_object_count() = 0;
+		virtual int64_t get_data_count() = 0;
 	};
 
 	using read_class_sp = read_locked_sp<class_interface>;
@@ -2749,6 +2753,14 @@ namespace corona
 
 		}
 
+		int64_t get_count() override
+		{
+			if (table) {
+				return table->get_count();
+            }
+			return 0;
+		}
+
 		virtual std::string get_index_key_string() override
 		{
 			return join(index_keys, ".");
@@ -2986,6 +2998,27 @@ namespace corona
 		{
 			auto tbl = get_table(_db);
             return tbl->get_next_object_id();
+		}
+
+		virtual int64_t get_object_count() override {
+			if (table) {
+				return table->get_count();
+			}
+			return 0;
+		}
+
+		virtual int64_t get_data_count() override {
+			int64_t total_count = 0;
+			if (table) {
+				total_count += table->get_count();
+            }	
+			if (full_text_index) {
+				total_count += full_text_index->get_count();
+            }
+            for (auto idx : indexes) {
+				total_count += idx.second->get_count();
+			}
+			return total_count;
 		}
 
 		virtual bool is_server_only(const std::string& _field_name) override
