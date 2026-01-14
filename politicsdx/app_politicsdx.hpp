@@ -1,13 +1,13 @@
 
-#ifndef APP_REVOLUTION_H
-#define APP_REVOLUTION_H
+#ifndef APPLICATION_POLITICSDX_HPP
+#define APPLICATION_POLITICSDX_HPP
 
 #include "resource.h"
 #include "corona.hpp"
 
 namespace corona
 {
-	void run_christmasgames_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
+	void run_politicsdx_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
 
 	/*
 
@@ -43,11 +43,11 @@ namespace corona
 
 	/* And now, this is the application */
 
-	void run_christmasgames_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
+	void run_politicsdx_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
 		EnableGuiStdOuts();
 
-		comm_app_bus bus("christmasgames", "christmasgames" );
+		comm_app_bus bus("politicsdx", "politicsdx" );
 
 		bus.run_app_ui(hInstance, lpszCmdParam, false);
 

@@ -586,12 +586,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\config.json" />
+    <None Include="configuration\politicsdx_candidate.json" />
+    <None Include="configuration\politicsdx_committee.json" />
+    <None Include="configuration\politicsdx_donor.json" />
     <None Include="configuration\politicsdx_home.json" />
     <None Include="configuration\politicsdx_pages.json" />
-    <None Include="configuration\politicsdx_root.json" />
+    <None Include="configuration\politicsdx_search.json" />
+    <None Include="configuration\politicsdx_status.json" />
     <None Include="configuration\politicsdx_styles.json" />
     <None Include="configuration\politics_schema.json" />
-    <None Include="politicsdx_search.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="politicsdx.cpp" />

@@ -71,10 +71,19 @@
     <None Include="configuration\politicsdx_pages.json">
       <Filter>configuration</Filter>
     </None>
-    <None Include="configuration\politicsdx_root.json">
+    <None Include="configuration\politicsdx_candidate.json">
       <Filter>configuration</Filter>
     </None>
-    <None Include="politicsdx_search.json">
+    <None Include="configuration\politicsdx_committee.json">
+      <Filter>configuration</Filter>
+    </None>
+    <None Include="configuration\politicsdx_donor.json">
+      <Filter>configuration</Filter>
+    </None>
+    <None Include="configuration\politicsdx_search.json">
+      <Filter>configuration</Filter>
+    </None>
+    <None Include="configuration\politicsdx_status.json">
       <Filter>configuration</Filter>
     </None>
   </ItemGroup>

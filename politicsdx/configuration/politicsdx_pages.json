@@ -85,10 +85,6 @@
   "pages": [
     {
       "class_name": "import",
-      "file_name": "politicsdx_root.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "politicsdx_home.json"
     },
     {
