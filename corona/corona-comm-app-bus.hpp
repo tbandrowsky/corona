@@ -124,12 +124,18 @@ namespace corona
 			json _server_config, bool _database_recreate = true)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
+
+			if (system_monitoring_interface::active_mon == nullptr) {
+				system_monitoring_interface::active_mon = this;
+			}
+
+			init_xtables();
+
 			timer tx;
 			date_time t = date_time::now();
 			json_parser jp;
 
 			log_command_start("comm_app_bus", "startup", t);
-			init_xtables();
 
 			is_service = false;
 			local_db_config = _system_config;
