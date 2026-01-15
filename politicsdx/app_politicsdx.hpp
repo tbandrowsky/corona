@@ -8,6 +8,8 @@
 namespace corona
 {
 	void run_politicsdx_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
+	
+	std::string config_filename = "config.json";
 
 	/*
 
@@ -45,11 +47,32 @@ namespace corona
 
 	void run_politicsdx_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
+		std::shared_ptr<corona::comm_app_bus> service;
+
 		EnableGuiStdOuts();
 
-		comm_app_bus bus("politicsdx", "politicsdx" );
+		std::string config_contents = corona::read_all_string(config_filename);
 
-		bus.run_app_ui(hInstance, lpszCmdParam, false);
+		corona::json_parser jp;
+		corona::json config = jp.parse_object(config_contents);
+
+		corona::json servers = config["Servers"];
+
+		if (servers.array()) {
+			if (servers.size() > 0) {
+				auto server = servers.get_element(0);
+				std::string listen_point = server["listen_point"].as_string();
+				std::string server_name = server["application_name"].as_string();
+				std::cout << "launching " << server_name << " on " << listen_point << std::endl;
+
+				service = std::make_shared<corona::comm_app_bus>(
+					config,
+					server,
+					true);
+
+				service->run_app_ui(hInstance, lpszCmdParam, false);
+			}
+		}
 
 		DisableGuiStdOuts();
 	}

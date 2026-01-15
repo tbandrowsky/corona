@@ -24,13 +24,10 @@
     <ClInclude Include="app_guitar.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="app_politicsdx.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="politicsdx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="app_politics.hpp">
+    <ClInclude Include="app_politicsdx.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,11 +46,6 @@
     <CopyFileToFolders Include="assets\small_logo.png">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="politicsgames.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\config.json">

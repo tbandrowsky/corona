@@ -106,14 +106,22 @@ namespace corona
 
 		directory_checker checker;
 
+		json server_config;
+
 		std::string user_file_name;
+
+		int database_threads;
+
+		json_file_watcher database_schema_mon;
+
+		bool database_recreate;
 
 		bool ready_for_polling;
 
 		json system_proof;
 
-		comm_app_bus(std::string _application_name,
-			std::string _application_folder_name, bool _database_recreate = true)
+		comm_app_bus(json _system_config,
+			json _server_config, bool _database_recreate = true)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
 			timer tx;
@@ -123,13 +131,14 @@ namespace corona
 			log_command_start("comm_app_bus", "startup", t);
 			init_xtables();
 
-			ready_for_polling = false;
+			is_service = false;
+			local_db_config = _system_config;
+			server_config = _server_config;
 
-			app = std::make_shared<application>();
-			app->application_folder_name = _application_folder_name;
-			app->application_name = _application_name;
+			log_command_start("comm_service_bus", "startup", t);
 
-			MFStartup(MF_VERSION);
+			log_information("Country Video Games Corona Database startup");
+
 
 			factory = std::make_shared<directXAdapter>();
 
@@ -144,6 +153,9 @@ namespace corona
 			// create the presentation - this holds the data of what is on screen, for various pages.
 			presentation_layer = std::make_shared<presentation>(this, app_ui);
 
+
+            std::string _application_name = server_config["application_name"].as_string();	
+
 			app_menu = std::make_shared<menu_item>();
 
 			database_config_filename = "config.json";
@@ -151,7 +163,80 @@ namespace corona
 			pages_config_filename = _application_name + "_pages.json";
 			styles_config_filename = _application_name + "_styles.json";
 
-            auto current_path = std::filesystem::current_path();
+			ready_for_polling = false;
+
+			database_schema_filename = server_config["schema_filename"].as_string();
+			database_threads = server_config["database_threads"].as_int64_t();
+			database_recreate = server_config["database_recreate"].as_bool();
+
+			app = std::make_shared<application>(database_threads);
+			app->application_name = server_config["application_name"].as_string();
+
+			std::string current_path = std::filesystem::current_path().string();
+			std::filesystem::path application_path = current_path;
+			std::filesystem::path database_path = application_path / app->application_name;
+			change_to_folder(database_path.string());
+
+			std::filesystem::path schema_path = database_path;
+			schema_path /= database_schema_filename;
+			database_schema_mon.filename = schema_path.string();
+
+			if (app->application_name.empty())
+			{
+				change_to_folder(current_path);
+				throw std::logic_error("application_name not specified");
+			}
+
+			if (database_recreate)
+			{
+				run("del *.coronatbl");
+				run("del *.coronaclass");
+				run("del *.coronaindex");
+			}
+
+			if (not std::filesystem::exists("classes.coronatbl"))
+			{
+				try {
+					local_db = std::make_shared<corona_database>(database_path.string(), database_path.string());
+					local_db->apply_config(_system_config, _server_config);
+				}
+				catch (std::exception exc)
+				{
+					log_warning("Could not apply database config", __FILE__, __LINE__);
+				}
+
+				json create_database_response = local_db->create_database();
+
+				bool success = create_database_response[success_field].as_bool();
+				if (!success) {
+					log_json(create_database_response);
+					change_to_folder(current_path);
+					throw std::exception("Could not create database");
+				}
+
+				ready_for_polling = true;
+			}
+			else
+			{
+
+				try {
+					local_db = std::make_shared<corona_database>();
+					local_db->apply_config(_system_config, _server_config);
+					local_db->open_database();
+				}
+				catch (std::exception exc)
+				{
+					std::string mxessage = std::format("Could not apply config {}", exc.what());
+					log_warning(mxessage, __FILE__, __LINE__);
+				}
+
+
+				ready_for_polling = true;
+			}
+
+			MFStartup(MF_VERSION);
+
+#ifdef DOTNET_CLR_MAGIC
 
 			PWSTR userFolderPath = nullptr;
 			HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
@@ -169,53 +254,7 @@ namespace corona
 				log_warning("Could not get app_data folder path", __FILE__, __LINE__);
 				return;
 			}
-
-			if (_database_recreate = true)
-			{
-				run("del *.coronatbl");
-				run("del *.coronaclass");
-				run("del *.coronaindex");
-			}
-
-			if (not std::filesystem::exists("classes.coronatbl"))
-			{
-				try {
-					local_db = std::make_shared<corona_database>(database_path, database_path);
-				}
-				catch (std::exception exc)
-				{
-					log_warning("Could not apply database config", __FILE__, __LINE__);
-				}
-
-				json create_database_response = local_db->create_database();
-
-				bool success = create_database_response[success_field].as_bool();
-				if (!success) {
-					log_json(create_database_response);
-					std::filesystem::current_path(current_path);
-					throw std::exception("Could not create database");
-				}
-
-				ready_for_polling = true;
-			}
-			else
-			{
-
-				try {
-					local_db = std::make_shared<corona_database>();
-					std::filesystem::current_path(current_path);
-					local_db->open_database();
-				}
-				catch (std::exception exc)
-				{
-					std::string mxessage = std::format("Could not apply config {}", exc.what());
-					log_warning(mxessage, __FILE__, __LINE__);
-				}
-
-
-				ready_for_polling = true;
-			}
-
+#endif
 
 			json token = get_local_token();
 

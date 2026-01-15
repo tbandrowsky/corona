@@ -89,10 +89,10 @@ namespace corona
 			app = std::make_shared<application>(database_threads);
 			app->application_name = server_config["application_name"].as_string();
 
-            std::string current_path = fs::current_path().string();
-            std::filesystem::path application_path = current_path;
-            std::filesystem::path database_path = application_path / app->application_name;
-            change_to_folder(database_path.string());
+			std::string current_path = fs::current_path().string();
+			std::filesystem::path application_path = current_path;
+			std::filesystem::path database_path = application_path / app->application_name;
+			change_to_folder(database_path.string());
 
 			std::filesystem::path schema_path = database_path;
 			schema_path /= database_schema_filename;
@@ -112,7 +112,7 @@ namespace corona
 				throw std::logic_error("listen_point not specified");
 			}
 
-			if (database_recreate) 
+			if (database_recreate)
 			{
 				run("del *.coronatbl");
 				run("del *.coronaclass");

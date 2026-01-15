@@ -563,7 +563,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="app_politics.hpp" />
     <ClInclude Include="app_politicsdx.hpp" />
     <ClInclude Include="politicsdx.h" />
     <ClInclude Include="Resource.h" />
@@ -580,9 +579,6 @@
     <Image Include="politicsdx.ico" />
     <Image Include="login.ico" />
     <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="politicsgames.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\config.json" />
