@@ -120,8 +120,11 @@ namespace corona
 
 		json system_proof;
 
-		comm_app_bus(json _system_config,
-			json _server_config, bool _database_recreate = true)
+		comm_app_bus(std::string _config_path, 
+			std::string _database_path, 
+			json _system_config,
+			json _server_config, 
+			bool _database_recreate = true)
 		{
 			system_monitoring_interface::start(); // this will create the global log queue.
 
@@ -165,7 +168,6 @@ namespace corona
 			app_menu = std::make_shared<menu_item>();
 
 			database_config_filename = "config.json";
-			database_schema_filename = _application_name + "_schema.json";
 			pages_config_filename = _application_name + "_pages.json";
 			styles_config_filename = _application_name + "_styles.json";
 
@@ -242,25 +244,6 @@ namespace corona
 
 			MFStartup(MF_VERSION);
 
-#ifdef DOTNET_CLR_MAGIC
-
-			PWSTR userFolderPath = nullptr;
-			HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
-			if (result == S_OK) {
-                istring<4096> dataPath(userFolderPath);
-
-				std::filesystem::path application_path = app->application_folder_name;
-				std::filesystem::path database_path = dataPath.c_str();
-				database_path /= application_path;
-				change_to_folder(database_path.string());
-
-				CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
-			}
-			else {
-				log_warning("Could not get app_data folder path", __FILE__, __LINE__);
-				return;
-			}
-#endif
 
 			json token = get_local_token();
 

@@ -46,38 +46,36 @@
     <CopyFileToFolders Include="assets\small_logo.png">
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="configuration\config.json">
+    <CopyFileToFolders Include="configuration\config.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politics_schema.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politics_schema.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_styles.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_candidate.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_home.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_committee.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_pages.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_donor.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_candidate.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_home.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_committee.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_pages.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_donor.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_search.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_search.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_status.json">
       <Filter>configuration</Filter>
-    </None>
-    <None Include="configuration\politicsdx_status.json">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_styles.json">
       <Filter>configuration</Filter>
-    </None>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="politicsdx.cpp">

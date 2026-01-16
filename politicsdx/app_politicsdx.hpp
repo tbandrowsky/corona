@@ -47,7 +47,30 @@ namespace corona
 
 	void run_politicsdx_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
+
 		std::shared_ptr<corona::comm_app_bus> service;
+
+		// config path
+		std::filesystem::path config_path;
+		std::filesystem::current_path(config_path);
+
+		// database path
+		PWSTR userFolderPath = nullptr;
+		HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
+		std::string database_path;
+
+		if (result == S_OK) {
+			istring<4096> dataPath(userFolderPath);
+
+			std::filesystem::path application_path = "politicsdx";
+			std::filesystem::path database_path = dataPath.c_str();
+			database_path /= application_path;
+			CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
+		}
+		else {
+			log_warning("Could not get app_data folder path", __FILE__, __LINE__);
+			return;
+		}
 
 		EnableGuiStdOuts();
 
@@ -66,6 +89,8 @@ namespace corona
 				std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
 				service = std::make_shared<corona::comm_app_bus>(
+					config_path,
+					database_path,
 					config,
 					server,
 					true);
