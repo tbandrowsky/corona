@@ -24,43 +24,8 @@
         {
           "class_name": "row",
           "box": {
-            "width": "0.97 container",
-            "height": "0.86 container",
-            "y": "10 pixels"
-          },
-          "view_style": {
-            "box_fill_brush": {
-              "class_name": "solid_brush",
-              "color": "212121"
-            },
-            "box_border_brush": {
-              "class_name": "solid_brush",
-              "color": "111112"
-            },
-            "box_border_thickness": 4
-          },
-          "padding": {
-            "amount": 0,
-            "units": "pixels"
-          },
-          "content_alignment": "near",
-          "content_cross_alignment": "center",
-          "children": [
-            {
-              "class_name": "frame",
-              "name": "frame_politics_home",
-              "box": {
-                "width": "1.0 remaining",
-                "height": "1.0 container"
-              }
-            }
-          ]
-        },
-        {
-          "class_name": "row",
-          "box": {
             "width": "1.0 container",
-            "height": "50 pixels"
+            "height": "75 pixels"
           },
           "children": [
             {
@@ -116,6 +81,41 @@
               }
             }
           ]  
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "0.97 container",
+            "height": ".8 container",
+            "y": "10 pixels"
+          },
+          "view_style": {
+            "box_fill_brush": {
+              "class_name": "solid_brush",
+              "color": "212121"
+            },
+            "box_border_brush": {
+              "class_name": "solid_brush",
+              "color": "111112"
+            },
+            "box_border_thickness": 4
+          },
+          "padding": {
+            "amount": 0,
+            "units": "pixels"
+          },
+          "content_alignment": "near",
+          "content_cross_alignment": "near",
+          "children": [
+            {
+              "class_name": "frame",
+              "name": "frame_politics_home",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "1.0 container"
+              }
+            }
+          ]
         }
       ]
     }

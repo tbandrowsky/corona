@@ -78,7 +78,7 @@
       "class_name": "select_frame",
       "page_to_select": "page_politics_home",
       "frame_to_load": "frame_politics_home",
-      "frame_contents_page": "form_status",
+      "frame_contents_page": "page_politics_search",
       "message":"Status."
     }
   ],

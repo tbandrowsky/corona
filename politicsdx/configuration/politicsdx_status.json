@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_politics_search",
+  "page_name": "page_politics_status",
   "default": true,
   "children": [
     {
@@ -19,7 +19,7 @@
             "width": "1.0 container",
             "height": "1.0 container"
           },
-          "text": "Enter search term:"
+          "text": "Entesr search term:"
         },
         {
           "class_name": "edit",
@@ -75,7 +75,7 @@
           }
         }
       ]
-    },
+    }
   ]
 
 }

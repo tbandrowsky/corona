@@ -4,78 +4,93 @@
   "default": true,
   "children": [
     {
-
-      "class_name": "row",
-      "name": "search_label",
-      "box": {
-        "width": "0.9 container",
-        "height": "0.5 remaining"
-      },
+      "class_name": "column",
+      "box": "full_container",
       "children": [
         {
-          "class_name": "label",
-          "name": "search_label_text",
+          "class_name": "row",
+          "name": "search_label",
           "box": {
-            "width": "1.0 container",
-            "height": "1.0 container"
+            "width": "0.9 container",
+            "height": "100 pixels"
           },
-          "text": "Enter search term:"
-        },
-        {
-          "class_name": "edit",
-          "name": "search_input",
-          "box": {
-            "width": "0.9 container",
-            "height": "0.5 remaining"
-          }
-        },
-        {
-          "class_name": "button",
-          "name": "search_button",
-          "box": {
-            "width": "0.9 container",
-            "height": "0.5 remaining"
-          }
-        },
-        {
-          "class_name": "listview",
-          "name": "result_table",
-          "box": {
-            "width": "0.9 container",
-            "height": "0.5 remaining"
-          },
-          "table": {
-            "columns": [
-              {
-                "label_text": "Class",
-                "json_field_name": "class_name",
-                "width": 150
+          "children": [
+            {
+              "class_name": "label",
+              "name": "search_label_text",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 container"
               },
-              {
-                "label_text": "Field",
-                "json_field_name": "field_name",
-                "width": 150
-              },
-              {
-                "label_text": "Message",
-                "json_field_name": "message",
-                "width": 250
-              },
-              {
-                "label_text": "File",
-                "json_field_name": "filename",
-                "width": 50
-              },
-              {
-                "label_text": "Line",
-                "json_field_name": "line_number",
-                "width": 50
+              "text": "Enter search xx term:"
+            },
+            {
+              "class_name": "edit",
+              "name": "search_input",
+              "box": {
+                "width": "0.9 container",
+                "height": "100 pixels"
               }
-            ]
-          }
+            },
+            {
+              "class_name": "push_button",
+              "name": "search_button",
+              "box": {
+                "width": "0.9 container",
+                "height": "100 pixels"
+              }
+            }
+          ]
+        },        
+        {
+          "class_name": "row",
+          "name": "search_result",
+          "box": {
+            "width": "0.9 container",
+            "height": "0.9 remaining"
+          },
+          "children": [
+            {
+              "class_name": "listview",
+              "name": "result_table",
+              "box": {
+                "width": "0.9 container",
+                "height": "1.0 container"
+              },
+              "table": {
+                "columns": [
+                  {
+                    "label_text": "Class",
+                    "json_field_name": "class_name",
+                    "width": 150
+                  },
+                  {
+                    "label_text": "Field",
+                    "json_field_name": "field_name",
+                    "width": 150
+                  },
+                  {
+                    "label_text": "Message",
+                    "json_field_name": "message",
+                    "width": 250
+                  },
+                  {
+                    "label_text": "File",
+                    "json_field_name": "filename",
+                    "width": 50
+                  },
+                  {
+                    "label_text": "Line",
+                    "json_field_name": "line_number",
+                    "width": 50
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
-    },
-  ]
-
-}
+    }
+    ]
+  }
+  

@@ -58,6 +58,9 @@ namespace corona
 		std::string config_path = buff;
 		config_path += "\\configuration\\";
 
+		// for testiing purposes
+        config_path = "D:\\countrybit\\politicsdx\\configuration\\";
+
 		// database path
 		PWSTR userFolderPath = nullptr;
 		HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
