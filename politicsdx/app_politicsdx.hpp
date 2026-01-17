@@ -51,8 +51,12 @@ namespace corona
 		std::shared_ptr<corona::comm_app_bus> service;
 
 		// config path
-		std::filesystem::path config_path;
-		std::filesystem::current_path(config_path);
+		char buff[MAX_PATH * 2];
+		memset(buff, 0, sizeof(buff) / sizeof(char));
+		::GetModuleFileNameA(nullptr, buff, sizeof(buff) / sizeof(char));
+		::PathRemoveFileSpecA(buff);
+		std::string config_path = buff;
+		config_path += "\\configuration\\";
 
 		// database path
 		PWSTR userFolderPath = nullptr;
@@ -63,18 +67,23 @@ namespace corona
 			istring<4096> dataPath(userFolderPath);
 
 			std::filesystem::path application_path = "politicsdx";
-			std::filesystem::path database_path = dataPath.c_str();
-			database_path /= application_path;
+			std::filesystem::path database_path_path = dataPath.c_str();
+			database_path_path /= application_path;
+            database_path = database_path_path.string();
 			CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
 		}
 		else {
-			log_warning("Could not get app_data folder path", __FILE__, __LINE__);
+			log_warning("Could not get app_data folder path");
 			return;
 		}
 
+        CreateDirectoryA(database_path.c_str(), NULL);
+
 		EnableGuiStdOuts();
 
-		std::string config_contents = corona::read_all_string(config_filename);
+        std::string config_full_file = config_path + config_filename;
+
+		std::string config_contents = corona::read_all_string(config_full_file);
 
 		corona::json_parser jp;
 		corona::json config = jp.parse_object(config_contents);

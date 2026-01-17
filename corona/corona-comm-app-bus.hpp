@@ -98,6 +98,7 @@ namespace corona
 
 		int application_icon_id;
 
+		std::string config_path;
 		std::string database_path;
 		std::string database_config_filename;
 		std::string styles_config_filename;
@@ -132,6 +133,22 @@ namespace corona
 				system_monitoring_interface::active_mon = this;
 			}
 
+			if (_config_path.ends_with("\\") == false and
+				_config_path.ends_with("/") == false)
+			{
+				_config_path += "\\";
+			}
+
+			if (_database_path.ends_with("\\") == false and
+				_database_path.ends_with("/") == false)
+			{
+				_database_path += "\\";
+			}
+
+			database_path = _database_path;
+            config_path = _config_path;
+            checker.path = config_path;
+
 			init_xtables();
 
 			timer tx;
@@ -146,8 +163,7 @@ namespace corona
 
 			log_command_start("comm_service_bus", "startup", t);
 
-			log_information("Country Video Games Corona Database startup");
-
+			log_information("Corona startup");
 
 			factory = std::make_shared<directXAdapter>();
 
@@ -162,14 +178,12 @@ namespace corona
 			// create the presentation - this holds the data of what is on screen, for various pages.
 			presentation_layer = std::make_shared<presentation>(this, app_ui);
 
-
             std::string _application_name = server_config["application_name"].as_string();	
 
 			app_menu = std::make_shared<menu_item>();
-
 			database_config_filename = "config.json";
-			pages_config_filename = _application_name + "_pages.json";
-			styles_config_filename = _application_name + "_styles.json";
+			pages_config_filename = _config_path + _application_name + "_pages.json";
+			styles_config_filename = _config_path + _application_name + "_styles.json";
 
 			ready_for_polling = false;
 
@@ -180,32 +194,25 @@ namespace corona
 			app = std::make_shared<application>(database_threads);
 			app->application_name = server_config["application_name"].as_string();
 
-			std::string current_path = std::filesystem::current_path().string();
-			std::filesystem::path application_path = current_path;
-			std::filesystem::path database_path = application_path / app->application_name;
-			change_to_folder(database_path.string());
-
-			std::filesystem::path schema_path = database_path;
-			schema_path /= database_schema_filename;
-			database_schema_mon.filename = schema_path.string();
+			database_schema_mon.filename = database_path + database_schema_filename;
 
 			if (app->application_name.empty())
 			{
-				change_to_folder(current_path);
 				throw std::logic_error("application_name not specified");
 			}
 
 			if (database_recreate)
 			{
-				run("del *.coronatbl");
-				run("del *.coronaclass");
-				run("del *.coronaindex");
+                std::string delete_command = "del " + database_path;
+				run( delete_command + "*.coronatbl");
+				run( delete_command + "*.coronaclass");
+				run( delete_command + "*.coronaindex");
 			}
 
-			if (not std::filesystem::exists("classes.coronatbl"))
+			if (not std::filesystem::exists( database_path + "classes.coronatbl"))
 			{
 				try {
-					local_db = std::make_shared<corona_database>(database_path.string(), database_path.string());
+					local_db = std::make_shared<corona_database>(database_path, config_path);
 					local_db->apply_config(_system_config, _server_config);
 				}
 				catch (std::exception exc)
@@ -218,7 +225,6 @@ namespace corona
 				bool success = create_database_response[success_field].as_bool();
 				if (!success) {
 					log_json(create_database_response);
-					change_to_folder(current_path);
 					throw std::exception("Could not create database");
 				}
 
@@ -228,7 +234,7 @@ namespace corona
 			{
 
 				try {
-					local_db = std::make_shared<corona_database>();
+					local_db = std::make_shared<corona_database>(database_path, config_path);
 					local_db->apply_config(_system_config, _server_config);
 					local_db->open_database();
 				}
@@ -355,7 +361,8 @@ namespace corona
 							if (class_name == "import") 
 							{
 								json_parser jpx;
-								std::string src_page = read_all_string(file_name);
+                                std::string full_file_name = config_path + file_name;
+								std::string src_page = read_all_string(full_file_name);
 
 								if (src_page.size() > 0) {
 									log_information(std::format("loading {0}", file_name), __FILE__, __LINE__);

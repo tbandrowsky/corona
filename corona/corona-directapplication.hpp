@@ -48,8 +48,8 @@ namespace corona
 		int iconResourceId;
 
 		HFONT	controlFont,
-			labelFont,
-			titleFont;
+				labelFont,
+				titleFont;
 
 		double dpiScale;
 

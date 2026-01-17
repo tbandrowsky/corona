@@ -49,7 +49,7 @@
     <CopyFileToFolders Include="configuration\config.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\politics_schema.json">
+    <CopyFileToFolders Include="configuration\politicsdx_schema.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\politicsdx_candidate.json">

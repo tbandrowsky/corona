@@ -29,60 +29,64 @@ namespace corona
 		direct3dDevice()
 		{
 			d3d11Device = nullptr;
+			feature_level = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
 		}
 
 		~direct3dDevice()
 		{
+			if (d3d11Device)
+				d3d11Device->Release();
+			d3d11Device = nullptr;
 		}
 
 		bool setDevice(IDXGIAdapter1* _adapter)
 		{
+			// Release any existing device owned by this object.
 			if (d3d11Device)
+			{
 				d3d11Device->Release();
-			d3d11Device = nullptr;
-
-			feature_level = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_1_0_CORE;
-
-			D3D_FEATURE_LEVEL feature_levels[] = {
-				D3D_FEATURE_LEVEL_10_0,
-				D3D_FEATURE_LEVEL_10_1,
-				D3D_FEATURE_LEVEL_11_0,
-				D3D_FEATURE_LEVEL_11_1
-			};
-			
-			ID3D11Device* temp = nullptr;
-
-			HRESULT hr = E_FAIL;
-			ID3D11Device* d3d11Device = nullptr;
-			D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-
-			__try {
-				hr = D3D11CreateDevice(
-					_adapter,
-					D3D_DRIVER_TYPE_UNKNOWN,
-					NULL,
-					D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_SINGLETHREADED,
-					feature_levels,
-					4,
-					D3D11_SDK_VERSION,
-					&d3d11Device,
-					&feature_level,
-					NULL
-				);
-			}
-			__except (EXCEPTION_EXECUTE_HANDLER) {
-				// Log the exception code (GetExceptionCode()) and fail gracefully
-				hr = E_FAIL;
 				d3d11Device = nullptr;
 			}
 
-			if (SUCCEEDED(hr) && d3d11Device != nullptr) {
-				// Continue initialization
+			D3D_FEATURE_LEVEL feature_levels[] = {
+				D3D_FEATURE_LEVEL_12_1,
+				D3D_FEATURE_LEVEL_12_0,
+				D3D_FEATURE_LEVEL_11_1,
+				D3D_FEATURE_LEVEL_11_0
+			};
+
+			// If an adapter is supplied, the driver type MUST be D3D_DRIVER_TYPE_UNKNOWN.
+			// If adapter is NULL, use the hardware driver type.
+			D3D_DRIVER_TYPE driverType = (_adapter != nullptr) ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE;
+
+			ID3D11Device* createdDevice = nullptr;
+			ID3D11DeviceContext* createdContext = nullptr;
+
+			HRESULT hr = D3D11CreateDevice(
+				_adapter,                               // pAdapter
+				driverType,                             // DriverType
+				NULL,                                   // Software (only valid for D3D_DRIVER_TYPE_SOFTWARE)
+				D3D11_CREATE_DEVICE_BGRA_SUPPORT,       // Flags
+				feature_levels,                         // pFeatureLevels
+				sizeof(feature_levels) / sizeof(feature_levels[0]), // FeatureLevels
+				D3D11_SDK_VERSION,                      // SDKVersion
+				&createdDevice,                         // ppDevice
+				&feature_level,                         // pFeatureLevel
+				NULL                          // ppImmediateContext (optional)
+			);
+
+			if (SUCCEEDED(hr) && createdDevice != nullptr)
+			{
+				// Store the created device in the class member (avoid shadowing).
+				d3d11Device = createdDevice;
+				return true;
 			}
 
-			if (SUCCEEDED(hr) && d3d11Device != nullptr)
+			// Ensure partial objects are released on failure.
+			if (createdDevice)
 			{
-				return true;
+				createdDevice->Release();
+				createdDevice = nullptr;
 			}
 
 			return false;
@@ -149,7 +153,10 @@ namespace corona
 
 		bool setDevice(ID3D11Device* _d3dDevice)
 		{
-			HRESULT hr = _d3dDevice->QueryInterface(&this->dxDevice);
+			// Query IDXGIDevice from the D3D11 device safely using IID_PPV_ARGS.
+			HRESULT hr = _d3dDevice->QueryInterface(IID_PPV_ARGS(&this->dxDevice));
+			if (FAILED(hr) || this->dxDevice == nullptr)
+				return false;
 
 			hr = d2DFactory->CreateDevice(dxDevice, &d2dDevice);
 

@@ -8,8 +8,8 @@
   "Servers": [
     {
       "listen_point": "http://localhost:5678/politics/",
-      "application_name": "Politics",
-      "schema_filename": "politics_schema.json",
+      "application_name": "politicsdx",
+      "schema_filename": "politicsdx_schema.json",
       "database_threads": 20,
       "database_recreate": true,
       "new_user_default_team": "ignored",
