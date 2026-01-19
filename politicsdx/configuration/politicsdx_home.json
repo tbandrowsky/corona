@@ -1,7 +1,7 @@
 
 {
   "class_name": "page",
-  "page_name": "page_politics_home",
+  "page_name": "page_home",
   "default": true,
   "children": [
     {
@@ -35,9 +35,9 @@
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
-                "page_to_select": "home",
-                "frame_to_load": "revolution_home_frame",
-                "frame_contents_page": "academy"
+                "page_to_select": "page_home",
+                "frame_to_load": "home_frame",
+                "frame_contents_page": "search_page"
               }
             },
             {
@@ -47,9 +47,9 @@
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
-                "page_to_select": "home",
-                "frame_to_load": "revolution_home_frame",
-                "frame_contents_page": "activism"
+                "page_to_select": "page_home",
+                "frame_to_load": "home_frame",
+                "frame_contents_page": "status_page"
               }
             },
             {
@@ -59,9 +59,9 @@
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
-                "page_to_select": "home",
-                "frame_to_load": "revolution_home_frame",
-                "frame_contents_page": "bank"
+                "page_to_select": "page_home",
+                "frame_to_load": "home_frame",
+                "frame_contents_page": "help_page"
               }
             },
             {

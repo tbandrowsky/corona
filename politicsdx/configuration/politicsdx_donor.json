@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_politics_donor",
+  "page_name": "page_donor",
   "default": true,
   "children": [
     {
