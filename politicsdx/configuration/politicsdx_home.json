@@ -34,10 +34,10 @@
               "box": "button_box",
               "margin": "button_margin",
               "on_click": {
-                "class_name": "select_frame",
-                "page_to_select": "page_home",
-                "frame_to_load": "home_frame",
-                "frame_contents_page": "search_page"
+                  "class_name": "select_frame",
+                  "target_frame": "page_home.frame_home",
+                  "source_frame": "page_search",
+                  "message": "Status."
               }
             },
             {
@@ -47,9 +47,9 @@
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
-                "page_to_select": "page_home",
-                "frame_to_load": "home_frame",
-                "frame_contents_page": "status_page"
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_status",
+                "message": "Status."
               }
             },
             {
@@ -59,9 +59,8 @@
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
-                "page_to_select": "page_home",
-                "frame_to_load": "home_frame",
-                "frame_contents_page": "help_page"
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_help"
               }
             },
             {
@@ -109,7 +108,7 @@
           "children": [
             {
               "class_name": "frame",
-              "name": "frame_politics_home",
+              "name": "frame_home",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"
