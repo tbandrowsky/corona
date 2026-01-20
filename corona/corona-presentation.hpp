@@ -99,6 +99,7 @@ namespace corona {
 
 		virtual page& create_page(std::string _name, std::function<void(page& pg)> _settings = nullptr);
 		virtual bool is_current_page(const std::string& _page_name);
+
 		virtual void select_page(const std::string& _page_name);
 		virtual void select_page(const std::string& _page_name, std::function<void(page& pg)> _settings);
 		virtual void set_home_page(const std::string& _page_name) 

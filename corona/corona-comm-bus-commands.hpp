@@ -736,8 +736,8 @@ namespace corona
 					response = bus->edit_object(instance, key_data);
                     if (response.success) {
 						std::string class_name = response.data[class_name_field].as_string();
-						auto dest_it = target->class_destinations.find(class_name);
-						if (dest_it != target->class_destinations.end()) {
+						auto dest_it = targets->targets_by_class.find(class_name);
+						if (dest_it != targets->targets_by_class.end()) {
 							std::string dest_form = dest_it->second;
 							bus->select_page(dest_form, response.data);
 							return response;
@@ -1156,9 +1156,10 @@ namespace corona
 
 		virtual json execute(json context, comm_bus_app_interface* bus)
 		{
-			json obj;
+			json_parser jp;
+			json obj = jp.create_object();
 
-			bus->select_frame(target_frame, source_frame);
+			bus->select_frame(target_frame, source_frame, obj);
 
 			return obj;
 		}

@@ -1176,10 +1176,28 @@ namespace corona
 			});
 		}
 
-		virtual void select_page(std::string _page, std::string _target_control, json _obj)
+		virtual void select_page(std::string _path, json _obj)
 		{
+            std::vector<std::string> parts = split(_path, '.');
+
+			std::string _page = "";
+			std::string _target_control;
+
+            if (parts.size() > 0) {
+				_page = parts[0];
+				_target_control = "";
+			}
+			if (parts.size() > 1) {
+				_target_control = parts[1];
+			}
+
 			date_time dt = date_time::now();
 			log_function_start("select_page", _page, dt);
+
+            if (_page.empty()) {
+				log_warning("select_page called with empty page name", __FILE__, __LINE__);
+				return;
+			}
 
 			run_ui([this, _page, _target_control, _obj]() ->void {
 				timer tx;
@@ -1196,8 +1214,30 @@ namespace corona
 			});
 		}
 
-		virtual void select_page(std::string _page, std::string _target_frame, std::string _frame_contents_page, std::string _form_to_load, json _obj)
+		virtual void select_frame(std::string _dest, std::string _src, json _obj)
 		{
+		
+			std::string _page;
+			std::string _target_frame;
+			std::string _frame_contents_page;
+			std::string _form_to_load;
+
+            std::vector<std::string> dest_parts = split(_dest, '.');
+			std::vector<std::string> src_parts = split(_src, '.');
+
+			if (dest_parts.size() > 0) {
+				_page = dest_parts[0];
+            }
+			if (dest_parts.size() > 1) {
+				_target_frame = dest_parts[1];
+			}
+			if (src_parts.size() > 0) {
+				_frame_contents_page = src_parts[0];
+			}
+			if (src_parts.size() > 1) {
+				_form_to_load = src_parts[1];
+			}
+
 			date_time dt = date_time::now();
 			log_command_start("select_page", _page, dt);
 
