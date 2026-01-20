@@ -165,8 +165,9 @@ namespace corona
 		virtual void when(UINT topic, std::function<void()> _runnable) = 0;
 		virtual void when(std::string _topic, std::function<void()> _runnable) = 0;
 
-		virtual void select_page(std::string _page, std::string _target_name, json _obj) = 0;
-		virtual void select_page(std::string _page, std::string _target_name, std::string _target_page_name, std::string _form_to_load, json _obj) = 0;
+		virtual void select_page(std::string _path, json _obj) = 0;
+		virtual void select_page(std::string _path, json _obj) = 0;
+		virtual void select_frame(std::string _dest_path, std::string _src_path, json _obj) = 0;
 
 		void check_windows_queue(MSG* _msg)
 		{
