@@ -16,7 +16,7 @@
           "class_name": "label",
           "name": "search_label_text",
           "box": {
-            "width": "1.0 container",
+            "width": "300 pixels",
             "height": "1.0 container"
           },
           "text": "Entesr search term:"
@@ -24,9 +24,10 @@
         {
           "class_name": "edit",
           "name": "search_input",
+          "json_field_name": "full_text",
           "box": {
-            "width": "0.9 container",
-            "height": "0.5 remaining"
+            "width": "400 pixels",
+            "height": "1.0 container"
           }
         },
         {
