@@ -8,87 +8,44 @@
       "box": "full_container",
       "children": [
         {
-          "class_name": "row",
-          "name": "search_label",
-          "box": {
-            "width": "0.9 container",
-            "height": "30 pixels"
-          },
+          "class_name": "row", "name": "search_label",
+          "box": { "width": "1.0 container", "height": "30 pixels" },
           "children": [
             {
-              "class_name": "chaptersubtitle",
-              "name": "search_label_text",
-              "box": {
-                "width": "150 pixels",
-                "height": "1.0 container"
-              },
+              "class_name": "chaptersubtitle", "name": "search_label_text",
+              "box": { "width": "150 pixels", "height": "1.0 container" },
               "text": "Search politics:"
             },
             {
-              "class_name": "edit",
-              "name": "search_input",
-              "box": {
-                "width": "300 pixels",
-                "height": "1.0 container"
-              }
+              "class_name": "edit", "name": "search_input",
+              "box": { "width": "300 pixels", "height": "1.0 container" }
             },
             {
-              "class_name": "push_button",
-              "name": "search_button",
+              "class_name": "push_button", "name": "search_button",
               "text": "Search",
-              "box": {
-                "width": "150 pixels",
-                "height": "1.0 container"
-              }
+              "box": { "width": "150 pixels", "height": "1.0 container" }
             }
           ]
         },
         {
-          "class_name": "chaptersubtitle",
-          "name": "search_result",
+          "class_name": "chaptersubtitle", "name": "search_result",
           "text" :  "Results",
-          "box": {
-            "width": "0.9 container",
-            "height": "50.0 pixels"
-          }
+          "box": { "width": "1.0 container", "height": "50.0 pixels" }
         },
         {
-          "class_name": "row",
-          "name": "search_result",
-          "box": {
-            "width": "0.9 container",
-            "height": "0.9 remaining"
-          },
+          "class_name": "row", "name": "search_result",
+          "box": { "width": "1.0 container", "height": "1.0 remaining" },
           "children": [
             {
               "class_name": "listview",
               "name": "result_table",
-              "box": {
-                "width": "0.9 container",
-                "height": "1.0 container"
-              },
+              "box": "full_container",
               "table": {
                 "columns": [
-                  {
-                    "label_text": "Type",
-                    "json_field_name": "class_name",
-                    "width": 150
-                  },
-                  {
-                    "label_text": "Name",
-                    "json_field_name": "full_name",
-                    "width": 150
-                  },
-                  {
-                    "label_text": "City",
-                    "json_field_name": "city",
-                    "width": 250
-                  },
-                  {
-                    "label_text": "State",
-                    "json_field_name": "state",
-                    "width": 50
-                  }
+                  { "label_text": "Type", "json_field_name": "class_name", "width": 150 },
+                  { "label_text": "Name", "json_field_name": "full_name", "width": 150 },
+                  { "label_text": "City", "json_field_name": "city", "width": 250 },
+                  { "label_text": "State", "json_field_name": "state", "width": 50 }
                 ]
               }
             }
