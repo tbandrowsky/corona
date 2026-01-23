@@ -919,62 +919,60 @@ namespace corona
 	{
 		point sz;
 
-		control_base& pi = *this;
-
 		calculate_margins();
 
-		if (pi.box.width.units == measure_units::pixels)
+		if (box.width.units == measure_units::pixels)
 		{
-			sz.x = pi.box.width.amount;
+			sz.x = box.width.amount;
 		}
 		else if (box.width.units == measure_units::percent_remaining)
 		{
 			sz.x = box.width.amount * _remaining.x;
 		}
-		else if (pi.box.width.units == measure_units::percent_container)
+		else if (box.width.units == measure_units::percent_container)
 		{
-			sz.x = pi.box.width.amount * _ctx.w;
+			sz.x = box.width.amount * _ctx.w;
 		}
-		else if (pi.box.width.units == measure_units::font or pi.box.width.units == measure_units::font_golden_ratio)
+		else if (box.width.units == measure_units::font or box.width.units == measure_units::font_golden_ratio)
 		{
 			double font_height = get_font_size();
-			sz.x = font_height * pi.box.width.amount;
-			if (pi.box.width.units == measure_units::font_golden_ratio)
+			sz.x = font_height * box.width.amount;
+			if (box.width.units == measure_units::font_golden_ratio)
 			{
 				sz.x /= 1.618;
 			}
 		}
-		else if (pi.box.width.units == measure_units::text)
+		else if (box.width.units == measure_units::text)
 		{
 			double font_height = get_font_size();
-			sz.x = font_height * pi.box.width.amount;
+			sz.x = font_height * box.width.amount;
 		}
 
-		if (pi.box.height.units == measure_units::pixels)
+		if (box.height.units == measure_units::pixels)
 		{
-			sz.y = pi.box.height.amount;
+			sz.y = box.height.amount;
 		}
 		else if (box.height.units == measure_units::percent_remaining)
 		{
-			sz.y = pi.box.height.amount * _remaining.y;
+			sz.y = box.height.amount * _remaining.y;
 		}
-		else if (pi.box.height.units == measure_units::percent_container)
+		else if (box.height.units == measure_units::percent_container)
 		{
-			sz.y = pi.box.height.amount * _ctx.h;
+			sz.y = box.height.amount * _ctx.h;
 		}
-		else if (pi.box.height.units == measure_units::font or pi.box.height.units == measure_units::font_golden_ratio)
+		else if (box.height.units == measure_units::font or box.height.units == measure_units::font_golden_ratio)
 		{
 			double font_height = get_font_size();
-			sz.y = font_height * pi.box.height.amount;
-			if (pi.box.height.units == measure_units::font_golden_ratio)
+			sz.y = font_height * box.height.amount;
+			if (box.height.units == measure_units::font_golden_ratio)
 			{
 				sz.y *= 1.618;
 			}
 		}
-		else if (pi.box.height.units == measure_units::text)
+		else if (box.height.units == measure_units::text)
 		{
 			double font_height = get_font_size();
-			sz.y = font_height * pi.box.height.amount;
+			sz.y = font_height * box.height.amount;
 		}
 
 		if (box.width.units == measure_units::percent_aspect)
