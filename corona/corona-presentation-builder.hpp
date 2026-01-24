@@ -1660,8 +1660,7 @@ namespace corona
 			}
 
 			cb.apply_controls(this);
-			calculate_margins();
-			arrange(bounds);
+			arrange(&bounds);
 		}
 
 		virtual void get_json(json& _dest)
@@ -1903,30 +1902,7 @@ namespace corona
 		{
 			set_bounds(_bounds, true);
 
-			point origin = { 0, 0, 0 };
-			point remaining = { _bounds.w, _bounds.h, 0.0 };
 
-			arrange_children(bounds,
-				[this](point _remaining, const rectangle* _bounds, control_base* _item) {
-					point temp = { 0, 0, 0 };
-					temp.x = _bounds->x;
-					temp.y = _bounds->y;
-					return temp;
-				},
-				[this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					auto sz = _item->get_size(bounds, { _bounds->w, _bounds->h });
-					temp.x = _bounds->x;
-					return temp;
-				},
-				[this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					auto sz = _item->get_size(bounds, { _bounds->w, _bounds->h });
-					temp.y += sz.y;
-					temp.x = _bounds->x;
-					return temp;
-				}
-			);
 		}
 
 		virtual bool is_control_message(int _key)
@@ -3285,7 +3261,7 @@ namespace corona
 			child->on_subscribe(_presentation, _parent_page);
 		}
 
-		arrange(bounds);
+		arrange(&bounds);
 	}
 
 	json corona_set_property_command::execute(json context, comm_bus_app_interface* bus)

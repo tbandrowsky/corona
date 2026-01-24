@@ -884,7 +884,7 @@ namespace corona
             return current_camera_name;
         }
 
-        virtual void arrange(rectangle _ctx)
+        virtual void arrange(rectangle *_ctx)
         {
             draw_control::arrange(_ctx);
         }

@@ -1159,16 +1159,6 @@ namespace corona
 		}
 	}
 
-	void column_layout::arrange(rectangle *_bounds)
-	{
-		control_base::arrange(_bounds);
-
-		for (auto child : children) 
-		{
-			child->arrange(_bounds);
-		}
-	}
-
 	point frame_layout::get_remaining()
 	{
 		return remaining;

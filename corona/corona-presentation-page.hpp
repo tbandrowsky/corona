@@ -263,7 +263,7 @@ namespace corona
 				bounds.y = 0;
 				bounds.w = width;
 				bounds.h = height;
-				root->arrange(bounds);
+				root->arrange(&bounds);
 			}
 		}
 

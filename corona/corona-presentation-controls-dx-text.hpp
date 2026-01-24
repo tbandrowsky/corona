@@ -291,8 +291,8 @@ namespace corona
 					sc->set_status(_status);
 					sc->set_padding(8.0_px);
 					sc->set_size(1.0_container, 1.0_container);
-					sc->arrange(inner_bounds);
 					children.push_back(sc);
+					arrange(&bounds);
 				}
 				else
 				{
@@ -300,8 +300,8 @@ namespace corona
 					sc->set_status(_status);
 					sc->set_padding(8.0_px);
 					sc->set_size(1.0_container, 1.0_container);
-					sc->arrange(inner_bounds);
 					children.push_back(sc);
+					arrange(&bounds);
 				}
 			}
 			return status_set;
@@ -313,7 +313,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle _bounds)
+		virtual void arrange(rectangle *_bounds)
 		{
 			frame_layout::arrange(_bounds);
 			//std::cout << "status layout" << std::endl;

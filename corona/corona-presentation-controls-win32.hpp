@@ -88,7 +88,6 @@ namespace corona
 
 		virtual void set_window_size()
 		{
-			calculate_margins();
 			if (auto phost = window_host.lock()) {
 				auto cbounds = control_base::get_inner_bounds();
 				auto boundsPixels = phost->toPixelsFromDips(cbounds);
@@ -98,7 +97,6 @@ namespace corona
 				}
 			}
 		}
-
 
 		virtual bool gets_real_focus() { return true; }
 
