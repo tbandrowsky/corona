@@ -75,22 +75,6 @@ namespace corona
 
 	class camera_control;
 
-	enum control_push_property
-	{
-		cp_none = 0,
-		cp_left_bounds = 1,
-		cp_top_bounds = 2,
-		cp_right_bounds = 4,
-		cp_bottom_bounds = 8
-	};
-
-	class control_push_request
-	{
-	public:
-		int dest_control_id;
-		int properties_to_push;
-	};
-
 	template <typename T> class change_monitored_property
 	{
 		T last_value;
@@ -194,16 +178,13 @@ namespace corona
 	{
 	protected:
 
-		point get_size(rectangle _ctx, point _remaining);
-		point get_position(rectangle _ctx);
+		virtual point get_size();
+		virtual point get_remaining();
+		virtual point get_position();
+
 		double to_pixels_x(measure _margin);
 		double to_pixels_y(measure _margin);
-		virtual point get_remaining(point _ctx);
 		virtual void on_resize();
-		void arrange_children(rectangle _bounds,
-			std::function<point(point _remaining, const rectangle* _bounds, control_base*)> _initial_origin,
-			std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base*)> _align_item,
-			std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base*)> _next_origin);
 
 		rectangle				arrange_extent;
 		rectangle				bounds;
@@ -239,7 +220,6 @@ namespace corona
 			tooltip_text = _src.tooltip_text;
 
 			parent = _src.parent;
-			push_requests = _src.push_requests;
 
 			children.clear();
 			for (auto child : _src.children) {
@@ -272,8 +252,6 @@ namespace corona
 		std::string				class_name;
 		container_control_base* parent;
 		bool					wrap_break;
-
-		std::vector<control_push_request> push_requests;
 
 		std::vector<std::shared_ptr<control_base>> children;
 
@@ -492,31 +470,9 @@ namespace corona
 		point& get_padding_amount() { return padding_amount; }
 
 		rectangle& set_bounds(rectangle& _bounds, bool _clip_children = true);
-		void calculate_margins();
 
-		virtual void arrange(rectangle _ctx);
+		virtual void arrange(rectangle* _ctx);
 		bool contains(point pt);
-
-		void push(int _destination_control_id, bool _push_left, bool _push_top, bool _push_right, bool _push_bottom)
-		{
-			control_push_request cpr = {};
-
-			cpr.dest_control_id = _destination_control_id;
-			if (_push_left) {
-				cpr.properties_to_push |= cp_left_bounds;
-			}
-			if (_push_top) {
-				cpr.properties_to_push |= cp_top_bounds;
-			}
-			if (_push_right) {
-				cpr.properties_to_push |= cp_right_bounds;
-			}
-			if (_push_bottom) {
-				cpr.properties_to_push |= cp_bottom_bounds;
-			}
-
-			push_requests.push_back(cpr);
-		}
 
 		control_base* find(int _id);
 		control_base* find(std::string _name);
@@ -575,6 +531,8 @@ namespace corona
 		virtual void draw(std::shared_ptr<direct2dContext>& _context);
 		virtual void render(std::shared_ptr<direct2dContext>& _context);
 
+		// these all need to trigger a layout from the parent
+
 		control_base& set_origin(measure _x, measure _y)
 		{
 			box.x = _x;
@@ -612,14 +570,12 @@ namespace corona
 		control_base& set_padding(measure _space)
 		{
 			padding = _space;
-			calculate_margins();
 			return *this;
 		}
 
 		control_base& set_margin(measure _space)
 		{
 			margin = _space;
-			calculate_margins();
 			return *this;
 		}
 
@@ -861,28 +817,51 @@ namespace corona
 	{
 		double sz = 0.0;
 
-		control_base& pi = *this;
-
-		switch (length.units) {
-		case measure_units::pixels:
+		if (length.units == measure_units::pixels)
+		{
 			sz = length.amount;
-			break;
-		case measure_units::percent_container:
-			sz = length.amount * bounds.w;
-			break;
-		case measure_units::percent_remaining:
-			sz = length.amount * bounds.w;
-			break;
-		case measure_units::font:
-		case measure_units::font_golden_ratio:
-			double font_height = 12.0;
-			sz = font_height * pi.box.width.amount;
-			if (pi.box.width.units == measure_units::font_golden_ratio)
-			{
-				sz /= 1.618;
-			}
-			break;
 		}
+		else if (length.units == measure_units::percent_container)
+		{
+			double parent_width = 0.0;
+			if (parent)
+			{
+				auto pparent = dynamic_cast<control_base*>(parent);
+				if (pparent)
+				{
+					parent_width = pparent->inner_bounds.w;
+				}
+			}
+			sz = length.amount * parent_width;
+		}
+		else if (length.units == measure_units::percent_remaining)
+		{
+			double parent_width = 0.0;
+			if (parent)
+			{
+				auto pparent = dynamic_cast<control_base*>(parent);
+				if (pparent)
+				{
+					parent_width = pparent->get_remaining().x;
+				}
+			}
+			sz = length.amount * parent_width;
+		}
+		else if (length.units == measure_units::font)
+		{
+			double font_height = 12.0;
+			sz = font_height * box.width.amount;
+		}
+		else if (length.units == measure_units::font_golden_ratio)
+		{
+			double font_height = 12.0;
+			sz = font_height * box.width.amount / 1.618;
+		}
+		else if (length.units == measure_units::text)
+		{
+
+		}
+
 		return sz;
 	}
 
@@ -890,180 +869,92 @@ namespace corona
 	{
 		double sz = 0.0;
 
-		control_base& pi = *this;
-
-		switch (length.units) {
-		case measure_units::pixels:
+		if (length.units == measure_units::pixels)
+		{
 			sz = length.amount;
-			break;
-		case measure_units::percent_container:
-			sz = length.amount * bounds.h;
-			break;
-		case measure_units::percent_remaining:
-			sz = length.amount * bounds.h;
-			break;
-		case measure_units::font:
-		case measure_units::font_golden_ratio:
-			double font_height = 12.0;
-			sz = font_height * pi.box.height.amount;
-			if (pi.box.width.units == measure_units::font_golden_ratio)
-			{
-				sz /= 1.618;
-			}
-			break;
 		}
+		else if (length.units == measure_units::percent_container)
+		{
+			double parent_width = 0.0;
+			if (parent)
+			{
+				auto pparent = dynamic_cast<control_base*>(parent);
+				if (pparent)
+				{
+					parent_width = pparent->inner_bounds.w;
+				}
+			}
+			sz = length.amount * parent_width;
+		}
+		else if (length.units == measure_units::percent_remaining)
+		{
+			double parent_width = 0.0;
+			if (parent)
+			{
+				auto pparent = dynamic_cast<control_base*>(parent);
+				if (pparent)
+				{
+					parent_width = pparent->get_remaining().x;
+				}
+			}
+			sz = length.amount * parent_width;
+		}
+		else if (length.units == measure_units::font)
+		{
+			double font_height = 12.0;
+			sz = font_height * box.width.amount;
+		}
+		else if (length.units == measure_units::font_golden_ratio)
+		{
+			double font_height = 12.0;
+			sz = font_height * box.width.amount / 1.618;
+		}
+		else if (length.units == measure_units::text)
+		{
+
+		}
+
 		return sz;
 	}
-
-	point control_base::get_size(rectangle _ctx, point _remaining)
+ 
+	point control_base::get_size()
 	{
 		point sz;
 
-		calculate_margins();
-
-		if (box.width.units == measure_units::pixels)
-		{
-			sz.x = box.width.amount;
-		}
-		else if (box.width.units == measure_units::percent_remaining)
-		{
-			sz.x = box.width.amount * _remaining.x;
-		}
-		else if (box.width.units == measure_units::percent_container)
-		{
-			sz.x = box.width.amount * _ctx.w;
-		}
-		else if (box.width.units == measure_units::font or box.width.units == measure_units::font_golden_ratio)
-		{
-			double font_height = get_font_size();
-			sz.x = font_height * box.width.amount;
-			if (box.width.units == measure_units::font_golden_ratio)
-			{
-				sz.x /= 1.618;
-			}
-		}
-		else if (box.width.units == measure_units::text)
-		{
-			double font_height = get_font_size();
-			sz.x = font_height * box.width.amount;
-		}
-
-		if (box.height.units == measure_units::pixels)
-		{
-			sz.y = box.height.amount;
-		}
-		else if (box.height.units == measure_units::percent_remaining)
-		{
-			sz.y = box.height.amount * _remaining.y;
-		}
-		else if (box.height.units == measure_units::percent_container)
-		{
-			sz.y = box.height.amount * _ctx.h;
-		}
-		else if (box.height.units == measure_units::font or box.height.units == measure_units::font_golden_ratio)
-		{
-			double font_height = get_font_size();
-			sz.y = font_height * box.height.amount;
-			if (box.height.units == measure_units::font_golden_ratio)
-			{
-				sz.y *= 1.618;
-			}
-		}
-		else if (box.height.units == measure_units::text)
-		{
-			double font_height = get_font_size();
-			sz.y = font_height * box.height.amount;
-		}
-
-		if (box.width.units == measure_units::percent_aspect)
-		{
-			sz.x = box.width.amount * bounds.h;
-		}
-
-		if (box.height.units == measure_units::percent_aspect)
-		{
-			sz.y = box.height.amount * bounds.w;
-		}
-
-		if (sz.x < 0)
-			sz.x = 0;
-		if (sz.y < 0)
-			sz.y = 0;
+        sz.x = to_pixels_x(box.width);
+        sz.y = to_pixels_y(box.height);
 
 		return sz;
 	}
 
-	point control_base::get_position(rectangle _ctx)
+	point control_base::get_position()
 	{
-		point pos;
+		point pt;
 
-		switch (box.x.units)
-		{
-		case measure_units::percent_container:
-		case measure_units::percent_remaining:
-			pos.x = box.x.amount * _ctx.w;
-			break;
-		case measure_units::pixels:
-			pos.x = box.x.amount;
-			break;
-		case measure_units::font:
-		case measure_units::font_golden_ratio:
-		case measure_units::percent_aspect:
-		case measure_units::percent_child:
-			throw std::logic_error("font, aspect and child units cannot be used for position");
-			break;
-		default:
-			pos.x = 0;
-			break;
-		}
+        pt.x = to_pixels_x(box.x);
+		pt.y = to_pixels_y(box.y);
 
-		switch (box.y.units)
-		{
-		case measure_units::percent_container:
-		case measure_units::percent_remaining:
-			pos.y = box.y.amount * _ctx.h;
-			break;
-		case measure_units::pixels:
-			pos.y = box.y.amount;
-			break;
-		case measure_units::font:
-		case measure_units::font_golden_ratio:
-		case measure_units::percent_aspect:
-		case measure_units::percent_child:
-			throw std::logic_error("font, aspect and child units cannot be used for position");
-			break;
-		default:
-			pos.y = 0;
-			break;
-		}
-
-		return pos;
-	}
-
-	point control_base::get_remaining(point _ctx)
-	{
-		point pt = { 0.0, 0.0, 0.0 };
-		pt = _ctx - pt;
 		return pt;
 	}
+
+	point control_base::get_remaining()
+	{
+		return { 0.0, 0.0 };
+	}
+
 	bool control_base::contains(point pt)
 	{
 		return rectangle_math::contains(bounds, pt.x, pt.y);
-	}
-
-	void control_base::calculate_margins()
-	{
-		margin_amount.x = to_pixels_x(margin);
-		margin_amount.y = to_pixels_y(margin); 
-		padding_amount.x = to_pixels_x(padding);
-		padding_amount.y = to_pixels_y(padding);
 	}
 
 	rectangle& control_base::set_bounds(rectangle& _bounds, bool _clip_children)
 	{
 		bounds = _bounds;
 
-		calculate_margins();
+		margin_amount.x = to_pixels_x(margin);
+		margin_amount.y = to_pixels_y(margin);
+		padding_amount.x = to_pixels_x(padding);
+		padding_amount.y = to_pixels_y(padding);
 
 		if (parent)
 		{
@@ -1089,108 +980,43 @@ namespace corona
 
 		inner_bounds = bounds;
 
-//		std::cout << std::format("bi:{0},{1},{2},{3}", inner_bounds.x, inner_bounds.y, inner_bounds.w, inner_bounds.h) << std::endl;
-//		std::cout << std::format("b:{0},{1},{2},{3}", bounds.x, bounds.y, bounds.w, bounds.h) << std::endl;
-
 		inner_bounds.x += padding_amount.x;
 		inner_bounds.y += padding_amount.y;
 		inner_bounds.w -= (padding_amount.x * 2.0);
 		inner_bounds.h -= (padding_amount.y * 2.0);
 
 		if (inner_bounds.w < 0) inner_bounds.w = 0;
-		if (inner_bounds.h < 0) inner_bounds.h = 00;
-
-//		std::cout << std::format("{0},{1},{2},{3}", inner_bounds.x, inner_bounds.y, inner_bounds.w, inner_bounds.h) << std::endl;
-
-		for (auto pr : push_requests) {
-			auto target = find(pr.dest_control_id);
-
-			if (target) {
-				auto temp_bounds = target->bounds;
-				if (pr.properties_to_push & control_push_property::cp_left_bounds)
-				{
-					temp_bounds.x = bounds.x;
-				}
-				if (pr.properties_to_push & control_push_property::cp_top_bounds)
-				{
-					temp_bounds.y = bounds.y;
-				}
-				if (pr.properties_to_push & control_push_property::cp_right_bounds)
-				{
-					temp_bounds.x += bounds.right() - temp_bounds.right();
-				}
-				if (pr.properties_to_push & control_push_property::cp_bottom_bounds)
-				{
-					temp_bounds.x += bounds.bottom() - temp_bounds.bottom();
-				}
-				target->set_padding(padding);
-				target->arrange(temp_bounds);
-			}
-		}
-
+		if (inner_bounds.h < 0) inner_bounds.h = 0;
+	
 		on_resize();
 		return bounds;
 	}
 
-	void control_base::arrange(rectangle _bounds)
+	void control_base::arrange(rectangle *_bounds)
 	{
-		set_bounds(_bounds);
-//		system_monitoring_interface::active_mon->log_information(std::format("{0}.{1} {2},{3}-{4},{5}", class_name, name, bounds.x, bounds.y, bounds.w, bounds.h), __FILE__, __LINE__);
-	}
-
-	void control_base::arrange_children(rectangle _bounds,
-		std::function<point(point _remaining, const rectangle* _bounds, control_base*)> _initial_origin,
-		std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base*)> _align_item,
-		std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base*)> _next_origin)
-	{
-		point origin = { _bounds.x, _bounds.y, 0.0 };
-		point remaining = { _bounds.w, _bounds.h, 0.0 };
-
-		arrange_extent = { _bounds.x, _bounds.y, 0.0, 0.0 };
-
-		if (children.size()) {
-
-			auto sichild = std::begin(children);
-
-			origin = _initial_origin(remaining, &_bounds, sichild->get());
-			while (sichild != std::end(children))
+		if (!_bounds)
+		{
+			if (parent)
 			{
-				auto child = *sichild;
-				auto* c = child.get();
-				c->parent = this;
-
-				remaining.x = inner_bounds.w - arrange_extent.w;
-				remaining.y = inner_bounds.h - arrange_extent.h;
-
-				auto location  = _align_item(remaining, &origin, &inner_bounds, child.get());
-
-				auto sz = child->get_size(_bounds, remaining);
-				auto pos = child->get_position(_bounds);
-
-				rectangle new_bounds;
-				new_bounds.x = location.x + pos.x;
-				new_bounds.y = location.y + pos.y;
-				new_bounds.w = sz.x;
-				new_bounds.h = sz.y;
-
-				origin = _next_origin(remaining, &origin, &inner_bounds, child.get());
-
-				child->arrange(new_bounds);
-
-				auto dx = new_bounds.right() - arrange_extent.right();
-				auto dy = new_bounds.bottom() - arrange_extent.bottom();
-
-				if (dx > 0.0) {
-					arrange_extent.w += dx;
+				auto pparent = dynamic_cast<control_base *>(parent);
+				if (pparent)
+				{
+					auto pbounds = pparent->get_inner_bounds();
+					set_bounds(pbounds);
 				}
-
-				if (dy > 0.0) {
-					arrange_extent.h += dy;
+				else 
+				{
+                    throw std::invalid_argument("No parent and bounds not specified");
 				}
-
-				sichild++;
-
 			}
+			else 
+			{
+				throw std::invalid_argument("No parent and bounds not specified");
+			}
+		}
+		else 
+		{
+			set_bounds(*_bounds);
 		}
 	}
 

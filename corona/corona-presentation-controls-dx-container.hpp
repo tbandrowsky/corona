@@ -40,6 +40,7 @@ namespace corona
 
 		layout_rect				item_box = {};
 		measure					item_margin = {};
+		point					remaining = {};
 
 		visual_alignment		content_alignment = visual_alignment::align_near;
 		visual_alignment		content_cross_alignment = visual_alignment::align_near;
@@ -85,7 +86,7 @@ namespace corona
 				child->parent = this;
 			}
 
-			arrange(bounds);
+			arrange(&bounds);
 		}
 
 		virtual void set_contents(page_base *_contents)
@@ -99,7 +100,7 @@ namespace corona
 				children.push_back(new_child);
 			}
 
-			arrange(bounds);
+			arrange(&bounds);
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -174,14 +175,13 @@ namespace corona
 		container_control& set_margin(measure _item_space)
 		{
 			margin = _item_space;
-			calculate_margins();
 			return *this;
 		}
 
 		// default implementation for composed controls
-		virtual void arrange(rectangle _ctx)
+		virtual void arrange(rectangle* _ctx)
 		{
-			set_bounds(_ctx);
+			set_bounds(*_ctx);
 			for (auto child : children) {
 				child->arrange(_ctx);
 			}
@@ -219,12 +219,16 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle _ctx);
+		virtual void arrange(rectangle* _ctx);
 	};
 
 	class column_layout :
 		public container_control
 	{
+		virtual void calculate_remaining();
+		virtual void arrange_near(rectangle* _ctx);
+		virtual void arrange_center(rectangle* _ctx);
+		virtual void arrange_far(rectangle* _ctx);
 
 	public:
 		layout_rect item_size;
@@ -250,8 +254,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle _ctx);
-		virtual point get_remaining(point _ctx);
+		virtual void arrange(rectangle* _ctx);
+		virtual point get_remaining();
 
 		virtual void get_json(json& _dest)
 		{
@@ -289,6 +293,12 @@ namespace corona
 		public container_control
 	{
 	protected:
+
+        virtual void calculate_remaining();
+		virtual void arrange_near(rectangle *_ctx);
+		virtual void arrange_center(rectangle *_ctx);
+		virtual void arrange_far(rectangle *_ctx);
+
 	public:
 
 		measure item_start_space;
@@ -308,8 +318,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle _ctx);
-		virtual point get_remaining(point _ctx);
+		virtual void arrange(rectangle* _ctx);
+		virtual point get_remaining();
 		virtual void get_json(json& _dest)
 		{
 			container_control::get_json(_dest);
@@ -359,8 +369,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle _ctx);
-		virtual point get_remaining(point _ctx);
+		virtual void arrange(rectangle* _ctx);
+		virtual point get_remaining();
 
 		virtual void set_contents(presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
 		virtual void set_contents(std::function<void(control_base* _page)> _contents)
@@ -525,19 +535,19 @@ namespace corona
 			;
 		}
 
-		virtual void arrange(rectangle _bounds)
+		virtual void arrange(rectangle* _bounds)
 		{
-			draw_control::arrange(_bounds);
+			control_base::arrange(_bounds);
 
-			view_port.w = _bounds.w;
-			view_port.h = _bounds.h;
+			view_port.w = _bounds->w;
+			view_port.h = _bounds->h;
 
-			if (_bounds.h == 0 or _bounds.w == 0) 
+			if (_bounds->h == 0 or _bounds->w == 0) 
 			{
 				return;
 			}
 
-			double h = _bounds.h;
+			double h = _bounds->h;
 			double y = 0;
 
 			int page_index;
@@ -548,11 +558,11 @@ namespace corona
 			for (i = 0; i < sz; i++)
 			{
 				json temp;
-				auto isz = items_source.size_item(this, i, temp, _bounds);
+				auto isz = items_source.size_item(this, i, temp, *_bounds);
 				auto& r = rows[i];
 				r.bounds.x = 0;
 				r.bounds.y = y;
-				r.bounds.w = _bounds.w;
+				r.bounds.w = _bounds->w;
 				r.bounds.h = isz.y;
 				page_index = (r.bounds.bottom() / h);
 				r.page_index = page_index;
@@ -585,7 +595,7 @@ namespace corona
 				rows.push_back(gvr);
 			}
 
-			arrange(bounds);
+			arrange(&bounds);
 
 			if (rows.size() <= selected_item_index)
 			{
@@ -748,358 +758,420 @@ namespace corona
 		virtual ~absolute_view_layout() { ; }
 	};
 
-
-
-	point row_layout::get_remaining(point _ctx)
+	point row_layout::get_remaining()
 	{
-		point pt = { 0.0, 0.0, 0.0 };
-
-		for (auto child : children)
-		{
-			if (child->box.width.units != measure_units::percent_remaining)
-			{
-				auto sz = child->get_size(bounds, { 0.0, 0.0 });
-				pt.x += sz.x;
-			}
-		}
-
-		pt = _ctx - pt;
-		return pt;
+		return remaining;
 	}
 
-	point column_layout::get_remaining(point _ctx)
+	point column_layout::get_remaining()
 	{
-		point pt = { 0.0, 0.0, 0.0 };
-
-		for (auto child : children)
-		{
-			if (child->box.height.units != measure_units::percent_remaining)
-			{
-				pt.y += child->bounds.h;
-			}
-		}
-
-		pt = _ctx - pt;
-		return pt;
+		return remaining;
 	}
 
-	void absolute_layout::arrange(rectangle _bounds)
+	void absolute_layout::arrange(rectangle* _bounds)
 	{
-		set_bounds(_bounds);
+		control_base::arrange(_bounds);
 
-		point origin = { _bounds.x, _bounds.y, 0.0 };
-		point remaining = { _bounds.w, _bounds.h, 0.0 };
+		point origin = { bounds.x, bounds.y, 0.0 };
+		remaining = { bounds.w, bounds.h, 0.0 };
 
-		arrange_children(bounds,
-			[this](point _remaining, const rectangle* _bounds, control_base* _item) {
-				point temp = { _bounds->x, _bounds->y };
-				return temp;
-			},
-			[this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-				point temp = { _bounds->x, _bounds->y };
-				return temp;
-			},
-			[this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-				point temp = { _bounds->x, _bounds->y };
-				return temp;
-			}
-		);
+		for (auto child : children) {
+			auto sz = child->get_size();
+            point item_origin = origin;
+			point item_position = child->get_position();
+            item_origin.x += item_position.x;
+            item_origin.y += item_position.y;
+            rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+			child->arrange(&item_bounds);
+		}
 	}
 
-	void row_layout::arrange(rectangle _bounds)
+	void row_layout::arrange(rectangle* _bounds)
 	{
-		point origin = { 0, 0, 0 };
-		set_bounds(_bounds);
-		
-		double item_start_space_px = to_pixels_x(item_start_space);
-		double item_next_space_px = to_pixels_x(item_next_space);
+		control_base::arrange(_bounds);
 
-		std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base* _item)> align_item = [this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) -> point
+		switch (content_alignment)
 		{
-			point temp = { 0, 0, 0 };
-
-			auto sz = _item->get_size(inner_bounds, { _bounds->w, _bounds->h });
-
-			if (this->content_cross_alignment == visual_alignment::align_near)
-			{
-				temp.x = _origin->x;
-				temp.y = _origin->y;
-			}
-			else if (this->content_cross_alignment == visual_alignment::align_center)
-			{
-				temp.x = _origin->x;
-				temp.y = _origin->y + (_bounds->h - sz.y) / 2.0;
-			}
-			else if (this->content_cross_alignment == visual_alignment::align_far)
-			{
-				temp.x = _origin->x;
-				temp.y = _origin->y + (_bounds->h - sz.y);
-			}
-			else
-			{
-				temp.x = _origin->x;
-				temp.y = _origin->y;
-			}
-			return temp;
-		};
-
-		if (content_alignment == visual_alignment::align_near)
-		{
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-					point temp = { _bounds->x, _bounds->y };
-					temp.x += _item->get_margin_amount().x;
-					temp.y += _item->get_margin_amount().y;
-					temp.x += item_start_space_px;
-					return temp;
-				},
-				align_item,
-				[this, item_next_space_px, item_start_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point end_point = *_origin;
-					auto sz = _item->get_size(inner_bounds, { _bounds->w, _bounds->h });
-
-					end_point.x += sz.x + item_next_space_px;
-					end_point.x += _item->get_margin_amount().x;
-
-					double r = _bounds->right();
-					
-					if (wrap and ((end_point.x >= r) or _item->is_wrap_break())) {
-						end_point.x = _bounds->x + _item->get_margin_amount().x + item_start_space_px;
-						end_point.y = arrange_extent.bottom() + _item->get_margin_amount().y;
-					}
-					return end_point;
-				}
-			);
+			case visual_alignment::align_far:
+				arrange_far(_bounds);
+                break;
+            case visual_alignment::align_center:
+				arrange_center(_bounds);
+                break;
+            case visual_alignment::align_near:	
+				arrange_near(_bounds);
+				break;
 		}
-		else if (content_alignment == visual_alignment::align_far)
-		{
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-
-					double w = 0;
-
-					w = _item->margin.amount;
-					for (auto child : children)
-					{
-						child->calculate_margins();
-						auto sz = child->get_size(*_bounds, _remaining);
-						w += sz.x;
-						w += child->get_margin_amount().x;
-					}
-
-					point temp = { 0, 0, 0 };
-					temp.x = (_bounds->right() - w);
-					temp.x += item_start_space_px;
-					return temp;
-				},
-				align_item,
-				[this, item_next_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					//{ _bounds->w, _bounds->h }
-					auto sz = _item->get_size(bounds, _remaining);
-					temp.x += sz.x;
-					temp.x += _item->get_margin_amount().x;
-					temp.x += item_next_space_px;
-					return temp;
-				}
-			);
-		}
-		else //  DOESN'T MATTER AND ALLOWS FOR A CORRUPTION if (content_alignment == visual_alignment::align_center)
-		{
-			content_alignment = visual_alignment::align_center;
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-
-					double w = 0.0;
-					point origin = { 0, 0, 0 };
-
-					w = _item->margin.amount;
-					for (auto child : children)
-					{
-						auto sz = child->get_size(*_bounds, _remaining);
-						w += sz.x;
-						w += child->get_margin_amount().x;
-					}
-
-					origin.x = (bounds.x + bounds.w - w) / 2;
-					origin.y = bounds.y;
-					origin.x += item_start_space_px;
-
-					return origin;
-				},
-				align_item,
-				[this, item_next_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					auto sz = _item->get_size(bounds, _remaining);
-					temp.x += sz.x;
-					temp.x += get_margin_amount().x;
-					temp.x += item_next_space_px;
-					return temp;
-				}
-			);
-		} 
 	}
 
-	void column_layout::arrange(rectangle _bounds)
+	void row_layout::calculate_remaining()
 	{
-		point origin = { 0, 0, 0 };
+		int start = children.size() - 1;
+		int end = 0;
 
-		set_bounds(_bounds);
-
-		double item_start_space_px = to_pixels_y(item_start_space);
-		double item_next_space_px = to_pixels_y(item_next_space);
-
-		arrange_extent = { 0, 0, 0, 0 };
-
-		std::function<point(point _remaining, point* _origin, const rectangle* _bounds, control_base* _item)> align_item = [this](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) -> point
-		{
-			point temp = { 0, 0, 0 };
-
-			auto sz = _item->get_size(bounds, { _bounds->w, _bounds->h });
-
-			if (this->content_cross_alignment == visual_alignment::align_near)
-			{
-				temp.x = _origin->x + _item->get_margin_amount().x;
-				temp.y = _origin->y;
-			}
-			else if (this->content_cross_alignment == visual_alignment::align_center)
-			{
-				temp.x = _bounds->x + (_bounds->w + _item->get_margin_amount().x * 2 - sz.x) / 2.0;
-				temp.y = _origin->y;
-			}
-			else if (this->content_cross_alignment == visual_alignment::align_far)
-			{
-				temp.x = _bounds->x + (_bounds->w - _item->get_margin_amount().x * 2 - sz.x);
-				temp.y = _origin->y;
-			}
-
-			return temp;
-		};
-
-		if (content_alignment == visual_alignment::align_near)
-		{
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-					point temp = { 0, 0, 0 };
-					temp.x = _bounds->x + _item->get_margin_amount().x;
-					temp.y = _bounds->y + _item->get_margin_amount().y + item_start_space_px;
-					return temp;
-				},
-				align_item,
-				[this, item_start_space_px, item_next_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point end_point = *_origin;
-					auto sz = _item->get_size(bounds, _remaining);
-					end_point.y = end_point.y + sz.y;
-					end_point.y = end_point.y + _item->get_margin_amount().y + item_next_space_px;
-					double r = _bounds->bottom();
-
-					bool should_wrap = end_point.y > r;
-					bool must_wrap = _item->is_wrap_break();
-
-					if (wrap and should_wrap) {
-						end_point.x = arrange_extent.right() + _item->get_margin_amount().x;
-						end_point.y = _bounds->y + _item->get_margin_amount().y + item_start_space_px;
-					}
-					else if (wrap and must_wrap) {
-						end_point.x = arrange_extent.right() + _item->get_margin_amount().x;
-						end_point.y = _bounds->y + _item->get_margin_amount().y + item_start_space_px;
-					}
-					return end_point;
-				}
-			);
-
-		}
-		else if (content_alignment == visual_alignment::align_far)
-		{
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-					point temp = { 0, 0, 0 };
-
-					double h = 0;
-					point remaining = { };
-					remaining.x = _bounds->w;
-					remaining.y = _bounds->h;
-					remaining = this->get_remaining(remaining);
-
-					for (auto child : children)
-					{
-						auto sz = child->get_size(*_bounds, remaining);
-						h += sz.y;
-						h += child->get_margin_amount().y;
-					}
-
-					temp.x = _bounds->x;
-					temp.y = _bounds->y + _bounds->h - h + item_start_space_px;
-					auto sz = _item->get_size(bounds, { _bounds->w, _bounds->h });
-
-					return temp;
-				},
-				align_item,
-				[this, item_next_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					auto size = _item->get_size(bounds, _remaining);
-					temp.y += (size.y);
-					temp.y += _item->get_margin_amount().y;
-					temp.y += item_next_space_px;
-
-					return temp;
-				}
-			);
-		}
-		else if (content_alignment == visual_alignment::align_center)
-		{
-
-			arrange_children(inner_bounds,
-				[this, item_start_space_px](point _remaining, const rectangle* _bounds, control_base* _item) {
-
-					double h = 0.0;
-					point origin = { 0, 0, 0 };
-					point remaining = { 0, 0, 0 };
-					remaining.x = _bounds->w;
-					remaining.y = _bounds->h;
-					remaining = this->get_remaining(remaining);
-
-					for (auto child : children)
-					{
-						auto sz = child->get_size(*_bounds, remaining);
-						h += sz.y;
-						h += child->get_margin_amount().y;
-					}
-
-					origin.x = bounds.x;
-					origin.y = (bounds.y + bounds.h - h) / 2;
-					origin.y += item_start_space_px;
-					return origin;
-				},
-				align_item,
-				[this, item_next_space_px](point _remaining, point* _origin, const rectangle* _bounds, control_base* _item) {
-					point temp = *_origin;
-					auto sz = _item->get_size(bounds, _remaining);
-					temp.y += sz.y;
-					temp.y += item_next_space_px;
-					return temp;
-				}
-			);
+		if (wrap) {
+			remaining = { inner_bounds.h, inner_bounds.w, 0.0 };
 		}
 		else
 		{
-			throw std::exception("column content_alignment not set");
+			point temp_remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
+
+			for (int i = start; i >= end; i--)
+			{
+				auto child = children[i];
+				auto child_size = child->get_size();
+				temp_remaining.x -= child_size.x;
+			}
+
+			remaining = temp_remaining;
 		}
 	}
 
-	void frame_layout::arrange(rectangle _bounds)
+	void row_layout::arrange_far(rectangle* _bounds)
 	{
-		set_bounds(_bounds);
+		point current_position = { inner_bounds.right(), inner_bounds.y, 0.0 };
 
-		for (auto child : children) {
-			child->arrange(inner_bounds);
+		int start = children.size() - 1;
+		int end = 0;
+		double max_height = 0.0;
+
+		calculate_remaining();
+
+		for (int i = start; i >= end; i--)
+		{
+			auto child = children[i];
+			auto child_size = child->get_size();
+
+			if (wrap and (current_position.x < inner_bounds.x))
+			{
+				current_position.x = inner_bounds.right();
+				current_position.y += max_height + to_pixels_y(item_next_space);
+				max_height = 0.0;
+			}
+
+			rectangle child_bounds = {
+				current_position.x,
+				current_position.y,
+				child_size.x,
+				child_size.y
+			};
+
+            if (child_size.y > max_height)
+			{
+				max_height = child_size.y;
+			}
+
+			child->set_bounds(child_bounds);
+			current_position.x -= child_size.x;
+			current_position.x -= to_pixels_x(item_start_space);
+		}
+
+	}
+
+	void row_layout::arrange_center(rectangle* _bounds)
+	{
+		int start = 0;
+		int end = children.size() - 1;
+
+		point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
+
+		int start_row_index = 0;
+		int last_index = 0;
+		double max_height = 0.0;
+
+		for (int i = start; i < end; i++)
+		{
+			auto child = children[i];
+			auto child_size = child->get_size();
+
+			if (wrap and (current_position.x > inner_bounds.right()))
+			{
+				double last_x = inner_bounds.x;
+
+				if (last_index >= 0) 
+				{
+                    last_x = children[last_index]->get_bounds().right();
+				}
+
+                double line_center = (inner_bounds.right() - last_x) / 2.0;
+
+                for (int j = start_row_index; j < i; j++)
+				{
+                    auto row_child = children[j];
+					rectangle child_bounds = row_child->get_bounds();
+                    child_bounds.x += line_center;
+					row_child->set_bounds(child_bounds);
+				}
+
+				current_position.x = inner_bounds.x;
+				current_position.y += max_height + to_pixels_y(item_next_space);
+				last_index = i;
+			}
+
+			rectangle child_bounds = {
+				current_position.x,
+				current_position.y,
+				child_size.x,
+				child_size.y
+			};
+
+			child->set_bounds(child_bounds);
+			current_position.x += child_size.x;
+			current_position.x += to_pixels_x(item_start_space);
+		}
+
+		if (wrap && last_index < end)
+		{
+			double last_x = inner_bounds.x;
+
+			if (last_index >= 0)
+			{
+				last_x = children[last_index]->get_bounds().right();
+			}
+
+			double line_center = (inner_bounds.right() - last_x) / 2.0;
+
+			for (int j = last_index; j < end; j++)
+			{
+				auto row_child = children[j];
+				rectangle child_bounds = row_child->get_bounds();
+				child_bounds.x += line_center;
+				row_child->set_bounds(child_bounds);
+			}
 		}
 	}
 
-	point frame_layout::get_remaining(point _ctx)
+	void row_layout::arrange_near(rectangle *_bounds)
 	{
-		return _ctx;
+		control_base::arrange(_bounds);
+
+        point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
+
+		double max_height = 0;
+
+        for (auto child : children) 
+		{
+			auto child_size = child->get_size();
+
+			// if the element is too big
+			if (wrap and current_position.x > inner_bounds.right()) 
+			{
+				current_position.x = inner_bounds.x;
+				current_position.y += max_height + to_pixels_y(item_next_space);
+			}
+
+			rectangle child_bounds = { 
+				current_position.x, 
+				current_position.y, 
+				child_size.x, 
+				child_size.y 
+            };
+
+			if (child_size.y > max_height)
+			{
+				max_height = child_size.y;
+			}
+
+            child->set_bounds(child_bounds);
+			current_position.x += child_size.x;
+			current_position.x += to_pixels_x(item_start_space);
+		}
 	}
 
+	void column_layout::arrange(rectangle* _bounds)
+	{
+		control_base::arrange(_bounds);
+
+		switch (content_alignment)
+		{
+		case visual_alignment::align_far:
+			arrange_far(_bounds);
+			break;
+		case visual_alignment::align_center:
+			arrange_center(_bounds);
+			break;
+		case visual_alignment::align_near:
+			arrange_near(_bounds);
+			break;
+		}
+	}
+
+	void column_layout::calculate_remaining()
+	{
+		int start = children.size() - 1;
+		int end = 0;
+
+		if (wrap) {
+			remaining = { inner_bounds.h, inner_bounds.w, 0.0 };
+		}
+		else
+		{
+			point temp_remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
+
+			for (int i = start; i >= end; i--)
+			{
+				auto child = children[i];
+				auto child_size = child->get_size();
+				temp_remaining.y -= child_size.y;
+			}
+
+			remaining = temp_remaining;
+		}
+	}
+
+	void column_layout::arrange_far(rectangle* _bounds)
+	{
+		point current_position = { inner_bounds.x, inner_bounds.bottom(), 0.0 };
+
+		int start = children.size() - 1;
+		int end = 0;
+
+		calculate_remaining();
+
+		for (int i = start; i >= end; i--)
+		{
+			auto child = children[i];
+
+			auto child_size = child->get_size();
+
+			if (wrap and (current_position.x < inner_bounds.x))
+			{
+				current_position.x += child_size.x + to_pixels_x(item_next_space);
+				current_position.y = inner_bounds.bottom();
+			}
+
+			rectangle child_bounds = {
+				current_position.x,
+				current_position.y,
+				child_size.x,
+				child_size.y
+			};
+
+			child->set_bounds(child_bounds);
+			current_position.y += child_size.y;
+			current_position.y += to_pixels_y(item_start_space);
+		}
+
+	}
+
+	void column_layout::arrange_center(rectangle* _bounds)
+	{
+		int start = 0;
+		int end = children.size() - 1;
+
+		calculate_remaining();
+
+		point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
+
+		int start_row_index = 0;
+		int last_index = 0;
+
+		for (int i = start; i < end; i++)
+		{
+			auto child = children[i];
+			auto child_size = child->get_size();
+
+			if (wrap and (current_position.y > inner_bounds.bottom()))
+			{
+				double last_y = inner_bounds.y;
+
+				if (last_index >= 0)
+				{
+					last_y = children[last_index]->get_bounds().bottom();
+				}
+
+				double line_center = (inner_bounds.bottom() - last_y) / 2.0;
+
+				for (int j = start_row_index; j < i; j++)
+				{
+					auto row_child = children[j];
+					rectangle child_bounds = row_child->get_bounds();
+					child_bounds.y += line_center;
+					row_child->set_bounds(child_bounds);
+				}
+
+				current_position.y = inner_bounds.y;
+				current_position.x += child_size.x + to_pixels_x(item_next_space);
+				last_index = i;
+			}
+
+			rectangle child_bounds = {
+				current_position.x,
+				current_position.y,
+				child_size.x,
+				child_size.y
+			};
+
+			child->set_bounds(child_bounds);
+			current_position.y += child_size.y;
+			current_position.y += to_pixels_y(item_start_space);
+		}
+
+		if (wrap && last_index < end)
+		{
+			double last_x = inner_bounds.x;
+
+			if (last_index >= 0)
+			{
+				last_x = children[last_index]->get_bounds().right();
+			}
+
+			double line_center = (inner_bounds.right() - last_x) / 2.0;
+
+			for (int j = last_index; j < end; j++)
+			{
+				auto row_child = children[j];
+				rectangle child_bounds = row_child->get_bounds();
+				child_bounds.y += line_center;
+				row_child->set_bounds(child_bounds);
+			}
+		}
+	}
+
+	void column_layout::arrange_near(rectangle* _bounds)
+	{
+		control_base::arrange(_bounds);
+
+		calculate_remaining();
+
+		point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
+
+		for (auto child : children)
+		{
+			auto child_size = child->get_size();
+
+			if (wrap and (current_position.x + child_size.x > inner_bounds.right()))
+			{
+				current_position.y = inner_bounds.y;
+				current_position.y += child_size.y + to_pixels_y(item_next_space);
+			}
+
+			rectangle child_bounds = {
+				current_position.x,
+				current_position.y,
+				child_size.x,
+				child_size.y
+			};
+
+			child->set_bounds(child_bounds);
+			current_position.y += child_size.x;
+			current_position.y += to_pixels_x(item_start_space);
+		}
+	}
+
+	void column_layout::arrange(rectangle *_bounds)
+	{
+		control_base::arrange(_bounds);
+
+		for (auto child : children) 
+		{
+			child->arrange(_bounds);
+		}
+	}
+
+	point frame_layout::get_remaining()
+	{
+		return remaining;
+	}
 }
 
