@@ -1187,6 +1187,12 @@ namespace corona
 		return remaining;
 	}
 
+	void frame_layout::arrange(control_base* _parent, rectangle* _ctx)
+	{
+		control_base::arrange(_parent, _ctx);
+		arrange_children();
+	}
+
 	void frame_layout::arrange_children()
 	{
 		remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
@@ -1201,10 +1207,5 @@ namespace corona
 		}
 	}
 
-	void frame_layout::arrange(control_base* _parent, rectangle* _ctx)
-	{
-		control_base::arrange(_parent, _ctx);
-		arrange_children();
-    }
 }
 

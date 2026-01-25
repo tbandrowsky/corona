@@ -3241,16 +3241,11 @@ namespace corona
 		}
 		children.clear();
 
-		cb.column_begin(id_counter::next(), [_contents, this](column_layout& _settings) {
-			_settings.set_size(1.0_container, 1.0_container);
-			for (auto srcchild : _contents->root->children)
-			{
-				auto new_child = srcchild->clone();
-				_settings.children.push_back(new_child);
-			}
-		});
-
-		cb.apply_controls(this);
+		for (auto srcchild : _contents->root->children)
+		{
+			auto new_child = srcchild->clone();
+			children.push_back(new_child);
+		}
 
 		for (auto child : children) {
 			child->on_subscribe(_presentation, _parent_page);

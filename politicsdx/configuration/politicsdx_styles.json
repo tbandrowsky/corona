@@ -159,11 +159,6 @@
         "box_fill_brush": {
           "class_name": "solid_brush",
           "color": "00000000"
-        },
-        "box_border_thickness":  2,
-        "box_border_brush": {
-          "class_name": "solid_brush",
-          "color": "FFFFFF"
         }
       },
       "subtitle_style": {

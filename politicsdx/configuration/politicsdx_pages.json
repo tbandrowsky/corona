@@ -76,7 +76,8 @@
   "startup": [
     {
       "class_name": "select_frame",
-      "target_frame": "page_layout_test",
+      "target_frame": "page_home.frame_home",
+      "source_frame": "page_search",
       "message": "layout test."
     }
   ],
