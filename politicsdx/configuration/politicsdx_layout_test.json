@@ -31,13 +31,7 @@
               "class_name": "chaptersubtitle",
               "text": "75 px row",
               "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_search",
-                "message": "Status."
-              }
+              "margin": "button_margin"
             }
           ]
         },

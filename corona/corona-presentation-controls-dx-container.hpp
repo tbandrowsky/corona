@@ -183,7 +183,7 @@ namespace corona
 		}
 
 		// default implementation for composed controls
-		virtual void arrange(control_base* _parent, rectangle* _ctx)
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override
 		{
 			set_bounds(_parent, *_ctx);
 			for (auto child : children) {
@@ -223,7 +223,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(control_base* _parent, rectangle* _ctx);
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 	};
 
 	class column_layout :
@@ -258,8 +258,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(control_base* _parent, rectangle* _ctx);
-		virtual point get_remaining();
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
+		virtual point get_remaining(control_base* _parent) override;
 
 		virtual void get_json(json& _dest)
 		{
@@ -322,8 +322,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(control_base* _parent, rectangle* _ctx);
-		virtual point get_remaining();
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
+		virtual point get_remaining(control_base* _parent) override;
 		virtual void get_json(json& _dest)
 		{
 			container_control::get_json(_dest);
@@ -374,8 +374,8 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(control_base* _parent, rectangle* _ctx);
-		virtual point get_remaining();
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
+		virtual point get_remaining(control_base* _parent) override;
 
 		virtual void set_contents(presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
@@ -763,12 +763,12 @@ namespace corona
 		virtual ~absolute_view_layout() { ; }
 	};
 
-	point row_layout::get_remaining()
+	point row_layout::get_remaining(control_base* _parent)
 	{
 		return remaining;
 	}
 
-	point column_layout::get_remaining()
+	point column_layout::get_remaining(control_base* _parent)
 	{
 		return remaining;
 	}
@@ -815,7 +815,7 @@ namespace corona
 		int end = 0;
 
 		if (wrap) {
-			remaining = { inner_bounds.h, inner_bounds.w, 0.0 };
+			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
 		}
 		else
 		{
@@ -1007,7 +1007,7 @@ namespace corona
 		int end = 0;
 
 		if (wrap) {
-			remaining = { inner_bounds.h, inner_bounds.w, 0.0 };
+			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
 		}
 		else
 		{
@@ -1159,12 +1159,12 @@ namespace corona
 			};
 
 			child->arrange(this, &child_bounds);
-			current_position.y += child_size.x;
-			current_position.y += to_pixels_x(this, item_start_space);
+			current_position.y += child_size.y;
+			current_position.y += to_pixels_y(this, item_start_space);
 		}
 	}
 
-	point frame_layout::get_remaining()
+	point frame_layout::get_remaining(control_base* _parent) 
 	{
 		return remaining;
 	}
