@@ -889,6 +889,8 @@ namespace corona
 		int start = 0;
 		int end = children.size() - 1;
 
+		calculate_remaining();
+
 		point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
 
 		int start_row_index = 0;
@@ -953,6 +955,8 @@ namespace corona
 	void row_layout::arrange_near(control_base* _parent, rectangle *_bounds)
 	{
 		control_base::arrange(_parent, _bounds);
+
+		calculate_remaining();
 
         point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
 
@@ -1190,6 +1194,8 @@ namespace corona
 	void frame_layout::arrange(control_base* _parent, rectangle* _ctx)
 	{
 		control_base::arrange(_parent, _ctx);
+        remaining.x = inner_bounds.w;
+        remaining.y = inner_bounds.h;
 		arrange_children();
 	}
 

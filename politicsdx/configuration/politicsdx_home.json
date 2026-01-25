@@ -109,7 +109,7 @@
               "class_name": "frame",
               "name": "frame_home",
               "box": {
-                "width": "1.0 container",
+                "width": "1.0 remaining",
                 "height": "1.0 container"
               }
             }
