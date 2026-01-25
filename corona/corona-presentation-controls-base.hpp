@@ -470,6 +470,7 @@ namespace corona
 		control_base* find(std::string _name);
 		control_base* find(point p);
 		control_base* get(control_base* _root, int _id);
+		std::pair<control_base*, control_base*> get_pair(int _id);
 		control_base* get(control_base* _root, std::string _name);
 
 		template <typename control_type> std::shared_ptr<control_type> find_by_id(int _id)
@@ -516,7 +517,7 @@ namespace corona
 		}
 
 		void foreach(std::function<void(control_base* _root)> _item);
-		control_base* find_if(std::function<bool(control_base* _root)> _item);
+		std::pair<control_base*, control_base *> find_if(std::function<bool(control_base* _root)> _item);
 
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host);
 		virtual void destroy();
@@ -663,28 +664,42 @@ namespace corona
 		return result;
 	}
 
+	std::pair<control_base *, control_base *> control_base::get_pair(int _id)
+	{
+		std::pair<control_base*, control_base*> result;
+		result = find_if([_id](control_base* c) { return c->id == _id; });
+		return result;
+	}
+
 	control_base* control_base::get(control_base* _root, std::string _name)
 	{
-		control_base* result = _root->find_if([_name](control_base* c) { return c->name == _name; });
+		control_base* result = _root->find_if([_name](control_base* c) { return c->name == _name; }).second;
 		return result;
 	}
 
 	control_base* control_base::get(control_base* _root, int _id)
 	{
-		control_base* result = _root->find_if([_id](control_base* c) { return c->id == _id; });
+		control_base* result = _root->find_if([_id](control_base* c) { return c->id == _id; }).second;
 		return result;
 	}
 
-	control_base* control_base::find_if(std::function<bool(control_base* _root)> _item)
+	std::pair<control_base*, control_base *> control_base::find_if(std::function<bool(control_base* _root)> _item)
 	{
-		if (_item(this))
-			return this;
+		std::pair<control_base*, control_base*> result;
+
+        result.first = nullptr;
+		result.second = nullptr;
+
+		if (_item(this)) {
+			result.second = this;
+			return result;
+		}
 		for (auto child : children) {
 			auto result = child->find_if(_item);
-			if (result)
+			if (result.second)
 				return result;
 		}
-		return nullptr;
+		return result;
 	}
 
 	void control_base::foreach(std::function<void(control_base* _root)> _item)

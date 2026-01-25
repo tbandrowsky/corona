@@ -233,18 +233,9 @@ namespace corona {
 			if (auto ppage = current_page.lock())
 			{
 				auto& rpage = *ppage;
-				control_base* cb = rpage[_id];
-				if (cb) {
-					r = dynamic_cast<control_type*>(cb);
-					if (r and r->get_parent()) 
-					{
-						r = dynamic_cast<control_type*>(r->get_parent()->get_control());
-					}
-					else 
-					{
-						r = nullptr;
-					}
-				}
+
+				auto result = rpage.root->get_pair(_id);
+				r = static_cast<control_type*>(result.first);
 			}
 			return r;
 		}
