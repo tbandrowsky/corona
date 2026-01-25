@@ -238,9 +238,9 @@ namespace corona
 		layout_rect item_size;
 		measure item_start_space;
 		measure item_next_space;
-		bool	wrap;
+		bool	wrap = false;
 
-		column_layout() : wrap(true) { ; }
+		column_layout() { ; }
 		column_layout(const column_layout& _src) : container_control(_src) 
 		{
 			item_size = _src.item_size;
@@ -309,7 +309,7 @@ namespace corona
 		measure item_next_space;
 
 		layout_rect item_size;
-		bool		wrap;
+		bool		wrap = false;
 
 		row_layout() { ; }
 		row_layout(const row_layout& _src) = default;
@@ -793,18 +793,21 @@ namespace corona
 
 	void row_layout::arrange(control_base* _parent, rectangle* _bounds)
 	{
+		if (!children.size())
+			return;
+
 		control_base::arrange(_parent, _bounds);
 
 		switch (content_alignment)
 		{
 			case visual_alignment::align_far:
-				arrange_far(_parent, _bounds);
+				arrange_far(_parent, &bounds);
                 break;
             case visual_alignment::align_center:
-				arrange_center(_parent, _bounds);
+				arrange_center(_parent, &bounds);
                 break;
             case visual_alignment::align_near:	
-				arrange_near(_parent, _bounds);
+				arrange_near(_parent, &bounds);
 				break;
 		}
 	}
@@ -824,8 +827,15 @@ namespace corona
 			for (int i = start; i >= end; i--)
 			{
 				auto child = children[i];
-				auto child_size = child->get_size(this);
-				temp_remaining.x -= child_size.x;
+				if (child->box.width.units != measure_units::percent_remaining) {
+					auto child_size = child->get_size(this);
+					temp_remaining.x -= child_size.x;
+				}
+			}
+
+            if (temp_remaining.x < 0)
+			{
+				temp_remaining.x = 0;
 			}
 
 			remaining = temp_remaining;
@@ -854,6 +864,8 @@ namespace corona
 				max_height = 0.0;
 			}
 
+			current_position.x -= child_size.x;
+
 			rectangle child_bounds = {
 				current_position.x,
 				current_position.y,
@@ -867,7 +879,6 @@ namespace corona
 			}
 
 			child->arrange(this, &child_bounds);
-			current_position.x -= child_size.x;
 			current_position.x -= to_pixels_x(this, item_start_space);
 		}
 
@@ -884,7 +895,7 @@ namespace corona
 		int last_index = 0;
 		double max_height = 0.0;
 
-		for (int i = start; i < end; i++)
+		for (int i = start; i <= end; i++)
 		{
 			auto child = children[i];
 			auto child_size = child->get_size(this);
@@ -893,14 +904,11 @@ namespace corona
 			{
 				double last_x = inner_bounds.x;
 
-				if (last_index >= 0) 
-				{
-                    last_x = children[last_index]->get_bounds().right();
-				}
+                last_x = children[last_index]->get_bounds().right();
 
                 double line_center = (inner_bounds.right() - last_x) / 2.0;
 
-                for (int j = start_row_index; j < i; j++)
+                for (int j = start_row_index; j <= i; j++)
 				{
                     auto row_child = children[j];
 					rectangle child_bounds = row_child->get_bounds();
@@ -925,18 +933,14 @@ namespace corona
 			current_position.x += to_pixels_x(this, item_start_space);
 		}
 
-		if (wrap && last_index < end)
+		if (last_index <= end)
 		{
 			double last_x = inner_bounds.x;
 
-			if (last_index >= 0)
-			{
-				last_x = children[last_index]->get_bounds().right();
-			}
-
+			last_x = children[end]->get_bounds().right();
 			double line_center = (inner_bounds.right() - last_x) / 2.0;
 
-			for (int j = last_index; j < end; j++)
+			for (int j = last_index; j <= end; j++)
 			{
 				auto row_child = children[j];
 				rectangle child_bounds = row_child->get_bounds();
@@ -987,16 +991,19 @@ namespace corona
 	{
 		control_base::arrange(_base, _bounds);
 
+		if (!children.size())
+			return;
+
 		switch (content_alignment)
 		{
 		case visual_alignment::align_far:
-			arrange_far(_base, _bounds);
+			arrange_far(_base, &bounds);
 			break;
 		case visual_alignment::align_center:
-			arrange_center(_base, _bounds);
+			arrange_center(_base, &bounds);
 			break;
 		case visual_alignment::align_near:
-			arrange_near(_base, _bounds);
+			arrange_near(_base, &bounds);
 			break;
 		}
 	}
@@ -1016,8 +1023,15 @@ namespace corona
 			for (int i = start; i >= end; i--)
 			{
 				auto child = children[i];
-				auto child_size = child->get_size(this);
-				temp_remaining.y -= child_size.y;
+				if (child->box.height.units != measure_units::percent_remaining) {
+					auto child_size = child->get_size(this);
+					temp_remaining.y -= child_size.y;
+				}
+			}
+
+			if (temp_remaining.y < 0)
+			{
+				temp_remaining.y = 0;
 			}
 
 			remaining = temp_remaining;
@@ -1033,6 +1047,8 @@ namespace corona
 
 		calculate_remaining();
 
+		double max_width = 0.0;
+
 		for (int i = start; i >= end; i--)
 		{
 			auto child = children[i];
@@ -1041,9 +1057,12 @@ namespace corona
 
 			if (wrap and (current_position.x < inner_bounds.x))
 			{
-				current_position.x += child_size.x + to_pixels_x(this, item_next_space);
+				current_position.x += max_width + to_pixels_x(this, item_next_space);
 				current_position.y = inner_bounds.bottom();
+				max_width = 0;
 			}
+
+            current_position.y -= child_size.y;
 
 			rectangle child_bounds = {
 				current_position.x,
@@ -1052,9 +1071,13 @@ namespace corona
 				child_size.y
 			};
 
+            if (child_size.x > max_width)
+			{
+				max_width = child_size.x;
+			}
+
 			child->arrange(this, &child_bounds);
-			current_position.y += child_size.y;
-			current_position.y += to_pixels_y(this, item_start_space);
+			current_position.y -= to_pixels_y(this, item_start_space);
 		}
 
 	}
@@ -1071,7 +1094,7 @@ namespace corona
 		int start_row_index = 0;
 		int last_index = 0;
 
-		for (int i = start; i < end; i++)
+		for (int i = start; i <= end; i++)
 		{
 			auto child = children[i];
 			auto child_size = child->get_size(this);
@@ -1096,7 +1119,7 @@ namespace corona
 				}
 
 				current_position.y = inner_bounds.y;
-				current_position.x += child_size.x + to_pixels_x(this, item_next_space);
+				current_position.y += to_pixels_y(this, item_next_space);
 				last_index = i;
 			}
 
@@ -1112,18 +1135,13 @@ namespace corona
 			current_position.y += to_pixels_y(this, item_start_space);
 		}
 
-		if (wrap && last_index < end)
+		if (last_index <= end)
 		{
-			double last_x = inner_bounds.x;
+			double last_y = children[last_index]->get_bounds().bottom();
 
-			if (last_index >= 0)
-			{
-				last_x = children[last_index]->get_bounds().right();
-			}
+			double line_center = (inner_bounds.bottom() - last_y) / 2.0;
 
-			double line_center = (inner_bounds.right() - last_x) / 2.0;
-
-			for (int j = last_index; j < end; j++)
+			for (int j = last_index; j <= end; j++)
 			{
 				auto row_child = children[j];
 				rectangle child_bounds = row_child->get_bounds();

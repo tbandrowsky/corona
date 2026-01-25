@@ -6,7 +6,7 @@
     {
       "class_name": "column",
       "box": "full_container",
-      "padding": "0 pixels",
+      "padding": "6 pixels",
       "content_alignment": "near",
       "content_cross_alignment": "center",
       "children": [
@@ -91,6 +91,37 @@
             {
               "class_name": "chaptersubtitle",
               "text": "20% container row",
+              "box": "full_container"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "0.97 container",
+            "height": "40 pixels"
+          },
+          "view_style": {
+            "box_fill_brush": {
+              "class_name": "solid_brush",
+              "color": "212121"
+            },
+            "box_border_brush": {
+              "class_name": "solid_brush",
+              "color": "111112"
+            },
+            "box_border_thickness": 4
+          },
+          "padding": {
+            "amount": 0,
+            "units": "pixels"
+          },
+          "content_alignment": "near",
+          "content_cross_alignment": "near",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "40 pixel row",
               "box": "full_container"
             }
           ]

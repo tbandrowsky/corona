@@ -151,7 +151,6 @@ namespace corona
 
             if (background_name.size()) {
                 rectangle r = inner_bounds;
-                //							std::cout << std::format("{}:{} [{},{} x {},{}]", typeid(*this).name(), background_name, r.x, r.y, r.w, r.h) << std::endl;
                 _context->drawRectangle(&r, "", 0, background_name);
             }
 

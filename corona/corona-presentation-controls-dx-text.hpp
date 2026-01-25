@@ -366,8 +366,8 @@ namespace corona
 
 			if (not t->text.size()) t->text = "";
 
-			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
-			//std::cout << test_text << std::endl;
+//			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
+//			std::cout << test_text << std::endl;
 
 			if (t->view_style) {
 				_context->drawText(t->text.c_str(), &draw_bounds, t->view_style->text_style.name, t->view_style->shape_fill_brush.get_name());

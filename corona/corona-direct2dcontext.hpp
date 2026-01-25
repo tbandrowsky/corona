@@ -640,7 +640,7 @@ namespace corona
 
 		virtual void drawText(const std::string& _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush)
 		{
-			drawText(_text.c_str(), _rectangle, _textStyle, _fillBrush);
+			drawText(_text.c_str(), _rectangle, _textStyle, _fillBrush); 
 		}
 
 		virtual void drawText(const char* _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush)

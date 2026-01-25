@@ -579,10 +579,10 @@ namespace corona {
 				double border_thickness = 6;
 
 				linearGradientBrushRequest lgbr;
-				lgbr.start.x = pos.w;
-				lgbr.start.y = pos.h;
-				lgbr.stop.x = 0;
-				lgbr.stop.y = 0;
+				lgbr.start.x = 0;
+				lgbr.start.y = 0;
+				lgbr.stop.x = pos.w;
+				lgbr.stop.y = pos.h;
 				lgbr.name = "presentation_shade";
 				lgbr.gradientStops = {
 					{ toColor("#F0F0F0FF"), 0.0 },
@@ -593,23 +593,21 @@ namespace corona {
 				};
 				_ctx->setLinearGradientBrush(&lgbr);
 
-				double inner_right = pos.w - border_thickness * 2;
-				double inner_bottom = pos.h - border_thickness * 2;
-				double left_side = border_thickness - 1;
+				double offset = border_thickness / 2.0;
+
+				double right = pos.w - border_thickness * 1.5;
+				double bottom = pos.h - border_thickness * 1.5;
+				double left = offset;
+				double top = offset;
 
 				pathImmediateDto pathx;
-				pathx.fillBrushName = "presentation_shade";
 				pathx.borderBrushName = "presentation_shade";
-				pathx.strokeWidth = 2;
-				pathx.path.addLineTo(0, 0);
-				pathx.path.addLineTo(left_side, 0);
-				pathx.path.addLineTo(left_side, inner_bottom);
-				pathx.path.addLineTo(inner_right, inner_bottom);
-				pathx.path.addLineTo(inner_right, 0);
-				pathx.path.addLineTo(pos.w, 0);
-				pathx.path.addLineTo(pos.w, pos.h);
-				pathx.path.addLineTo(0, pos.h);
-				pathx.path.addLineTo(0, 0);
+				pathx.strokeWidth = border_thickness;
+				pathx.path.addLineTo(left, top);
+				pathx.path.addLineTo(left, bottom);
+				pathx.path.addLineTo(right, bottom);
+				pathx.path.addLineTo(right, top);
+				pathx.path.addLineTo(left, top);
 				pathx.closed = true;
 
 				_ctx->drawPath(&pathx);

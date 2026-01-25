@@ -2219,10 +2219,9 @@ namespace corona
 			control_builder cb;
 
 			auto main_row = cb.row_begin(id_counter::next(), [](row_layout& rl) {
-				rl.set_size(1.0_container, 100.0_px);
+				rl.set_size(1.0_container, 1.0_container);
 				rl.set_content_align(visual_alignment::align_far);
 				rl.set_content_cross_align(visual_alignment::align_center);
-				rl.set_item_margin(10.0_px);
 				rl.set_style(presentation_style_factory::get_current()->get_style()->CaptionStyle);
 				});
 
@@ -2242,38 +2241,31 @@ namespace corona
 			auto title_column = main_row.column_begin(id_counter::next(), [this](column_layout& cl) {
 				cl.set_size(1.0_remaining, 1.0_container);
 				cl.set_content_align(visual_alignment::align_center);
-				cl.set_item_margin(10.0_px);
 				})
 				.title(title_name, [this](title_control& control) {
 						control.set_nchittest(HTCAPTION);
-						control.set_size(0.8_container, 1.3_fontgr);
-						control.set_origin(title_start, 25.0_px);
+						control.set_size(1.0_container, 0.5_container);
 					}, title_id)
 				.subtitle(subtitle_name, [this](subtitle_control& control) {
 						control.set_nchittest(HTCAPTION);
-						control.set_size(0.8_container, 1.3_fontgr);
-						control.set_origin(title_start, 25.0_px);
+						control.set_size(1.0_container, 0.5_container);
 					}, subtitle_id)
 			.end();
 
-			auto frame_buttons = main_row.row_begin(id_counter::next(), [](row_layout& rl) {
-					rl.set_size(250.0_px, 1.0_container);
-					rl.set_item_margin(5.0_px);
-					rl.set_content_cross_align(visual_alignment::align_center);
-					rl.set_content_align(visual_alignment::align_far);
-				})
-				.column_begin(id_counter::next(), [](column_layout& cl) {
-					cl.set_content_align(visual_alignment::align_center);
-					cl.set_content_cross_align(visual_alignment::align_near);
-					cl.set_size(250.0_px, 1.0_container);
-					cl.set_item_margin(0.0_px);
-				})
-				.end()
-				.menu_button(menu_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); })
+			auto frame_buttons_container = main_row.column_begin(id_counter::next(), [](column_layout& rl) {
+				rl.set_size(270.0_px, 1.0_container);
+				rl.set_content_align(visual_alignment::align_center);
+				});
+
+			auto frame_buttons = frame_buttons_container.row_begin(id_counter::next(), [](row_layout& cl) {
+				cl.set_content_align(visual_alignment::align_center);
+				cl.set_size(250.0_px, 50.0_px);
+				});
+
+			frame_buttons.menu_button(menu_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); })
 				.minimize_button(min_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); })
 				.maximize_button(max_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); })
-				.close_button(close_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); })
-			.end();
+				.close_button(close_button_id, [](auto& _ctrl) { _ctrl.set_size(50.0_px, 50.0_px); });
 
 			cb.apply_controls(this);
 
@@ -2328,6 +2320,14 @@ namespace corona
 
 		void set_status(std::string _status, std::string _detail)
 		{
+		}
+
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override
+		{
+			set_bounds(_parent, *_ctx);
+			for (auto child : children) {
+				child->arrange(this, _ctx);
+			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
