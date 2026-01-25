@@ -76,15 +76,18 @@
   "startup": [
     {
       "class_name": "select_frame",
-      "target_frame": "page_politics_home.frame_politics_home",
-      "source_frame": "page_politics_search",
-      "message": "Status."
+      "target_frame": "page_layout_test",
+      "message": "layout test."
     }
   ],
   "pages": [
     {
       "class_name": "import",
       "file_name": "politicsdx_home.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_layout_test.json"
     },
     {
       "class_name": "import",

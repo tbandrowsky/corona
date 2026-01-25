@@ -228,7 +228,7 @@ namespace corona
 		{
 
 			//			std::cout << "create: row"<< std::endl;
-			auto new_row = std::make_shared<row_layout>((container_control_base*)nullptr, id);
+			auto new_row = std::make_shared<row_layout>((control_base*)nullptr, id);
 			root = new_row;
 			std::shared_ptr<container_control> build_root = std::dynamic_pointer_cast<container_control>(root);
 			control_builder builder(build_root);
@@ -238,7 +238,7 @@ namespace corona
 		control_builder column_begin(int id = id_counter::next())
 		{
 			//		std::cout << "create: column" << std::endl;
-			auto new_row = std::make_shared<column_layout>((container_control_base*)nullptr, id);
+			auto new_row = std::make_shared<column_layout>((control_base*)nullptr, id);
 			root = new_row;
 			std::shared_ptr<container_control> build_root = std::dynamic_pointer_cast<container_control>(root);
 			control_builder builder(build_root);
@@ -248,7 +248,7 @@ namespace corona
 		control_builder absolute_begin(int id = id_counter::next())
 		{
 			//			std::cout << "create: begin" << std::endl;
-			auto new_row = std::make_shared<absolute_layout>((container_control_base*)nullptr, id);
+			auto new_row = std::make_shared<absolute_layout>((control_base*)nullptr, id);
 			root = new_row;
 			std::shared_ptr<container_control> build_root = std::dynamic_pointer_cast<container_control>(root);
 			control_builder builder(build_root);
@@ -263,7 +263,7 @@ namespace corona
 				bounds.y = 0;
 				bounds.w = width;
 				bounds.h = height;
-				root->arrange(&bounds);
+				root->arrange(nullptr, &bounds);
 			}
 		}
 
@@ -280,12 +280,12 @@ namespace corona
 			if (not root) 
 				return -1;
 
+
+            // SUSPECT because this call should be made via the page's root only
 			control_base* p = root->find(_control_id);
-			while (p) {
-				if (p->gets_real_focus()) {
-					return p->id;
-				}
-				p = (control_base*)p->parent;
+
+			if (p->gets_real_focus()) {
+				return p->id;
 			}
 			return -1;
 		}

@@ -236,9 +236,9 @@ namespace corona {
 				control_base* cb = rpage[_id];
 				if (cb) {
 					r = dynamic_cast<control_type*>(cb);
-					if (r and r->parent) 
+					if (r and r->get_parent()) 
 					{
-						r = dynamic_cast<control_type*>(r->parent->get_control());
+						r = dynamic_cast<control_type*>(r->get_parent()->get_control());
 					}
 					else 
 					{

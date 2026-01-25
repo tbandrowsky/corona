@@ -82,4 +82,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="configuration\politicsdx_layout_test.json" />
+  </ItemGroup>
 </Project>

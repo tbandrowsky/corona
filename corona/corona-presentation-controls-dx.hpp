@@ -40,7 +40,6 @@ namespace corona
 
         draw_control()
         {
-            parent = nullptr;
             id = id_counter::next();
         }
 
@@ -53,9 +52,8 @@ namespace corona
             on_create = _src.on_create;
         }
 
-        draw_control(container_control_base* _parent, int _id)
+        draw_control(control_base* _parent, int _id)
         {
-            parent = _parent;
             id = _id;
         }
 
@@ -479,7 +477,7 @@ namespace corona
             init();
         }
 
-        camera_control(container_control_base* _parent, int _id) : draw_control(_parent, _id)
+        camera_control(control_base* _parent, int _id) : draw_control(_parent, _id)
         {
             pSource = nullptr;
             pSourceReader = nullptr;
@@ -884,9 +882,9 @@ namespace corona
             return current_camera_name;
         }
 
-        virtual void arrange(rectangle *_ctx)
+        virtual void arrange(control_base *_parent, rectangle *_ctx)
         {
-            draw_control::arrange(_ctx);
+            draw_control::arrange(_parent, _ctx);
         }
 
         virtual void read_frame()
@@ -1076,7 +1074,7 @@ namespace corona
 
         camera_view_control();
         camera_view_control(const camera_view_control& _src);
-        camera_view_control(container_control_base* _parent, int _id);
+        camera_view_control(control_base* _parent, int _id);
         virtual ~camera_view_control();
     };
 
@@ -1101,7 +1099,7 @@ namespace corona
         {
             border_brush = _src.border_brush;
         }
-        grid_control(container_control_base* _parent, int _id) : draw_control(_parent, _id)
+        grid_control(control_base* _parent, int _id) : draw_control(_parent, _id)
         {
             ;
         }
@@ -1157,7 +1155,7 @@ namespace corona
             sseries4 = _src.sseries4;
         }
 
-        chart_control(container_control_base* _parent, int _id) : draw_control(_parent, _id)
+        chart_control(control_base* _parent, int _id) : draw_control(_parent, _id)
         {
             ;
         }
@@ -1179,7 +1177,7 @@ namespace corona
 
         int source_object_id;
 
-        slide_control(container_control_base* _parent, int _id) : draw_control(_parent, _id) { ; }
+        slide_control(control_base* _parent, int _id) : draw_control(_parent, _id) { ; }
         virtual ~slide_control() { ; }
 
     };
@@ -1214,7 +1212,7 @@ namespace corona
             foregroundDown = _src.foregroundDown;
         }
 
-        gradient_button_control(container_control_base* _parent, int _id, std::string _base_name) : draw_control(_parent, _id)
+        gradient_button_control(control_base* _parent, int _id, std::string _base_name) : draw_control(_parent, _id)
         {
             buttonFaceNormal.name = _base_name + "_face_normal";
             buttonFaceOver.name = _base_name + "_face_over";
@@ -1329,7 +1327,7 @@ namespace corona
 
         minimize_button_control() { ; }
         minimize_button_control(const minimize_button_control& _src) : gradient_button_control(_src) { ; }
-        minimize_button_control(container_control_base* _parent, int _id);
+        minimize_button_control(control_base* _parent, int _id);
 
         virtual ~minimize_button_control();
         virtual LRESULT get_nchittest() {
@@ -1346,7 +1344,7 @@ namespace corona
 
         maximize_button_control() { ; }
         maximize_button_control(const maximize_button_control& _src) : gradient_button_control(_src) { ; }
-        maximize_button_control(container_control_base* _parent, int _id);
+        maximize_button_control(control_base* _parent, int _id);
 
         virtual ~maximize_button_control();
         virtual LRESULT get_nchittest() {
@@ -1364,7 +1362,7 @@ namespace corona
         close_button_control() { ; }
         close_button_control(const close_button_control& _src) : gradient_button_control(_src) { ; }
 
-        close_button_control(container_control_base* _parent, int _id) : gradient_button_control(_parent, _id, "close")
+        close_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "close")
         {
             auto ctrl = this;
 
@@ -1428,7 +1426,7 @@ namespace corona
         menu_button_control(const menu_button_control& _src) : gradient_button_control(_src) {
             menu = _src.menu;
         }
-        menu_button_control(container_control_base* _parent, int _id);
+        menu_button_control(control_base* _parent, int _id);
         virtual ~menu_button_control() { ; }
 
         virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
@@ -1459,7 +1457,7 @@ namespace corona
             icon_width = _src.icon_width;
             active_id = _src.active_id;
         }
-        tab_button_control(container_control_base* _parent, int _id);
+        tab_button_control(control_base* _parent, int _id);
         virtual ~tab_button_control() { ; }
 
         void init();
@@ -1524,9 +1522,9 @@ namespace corona
     public:
         image_control();
         image_control(const image_control& _src) = default;
-        image_control(container_control_base* _parent, int _id);
-        image_control(container_control_base* _parent, int _id, std::string _file_name);
-        image_control(container_control_base* _parent, int _id, int _source_control_id);
+        image_control(control_base* _parent, int _id);
+        image_control(control_base* _parent, int _id, std::string _file_name);
+        image_control(control_base* _parent, int _id, int _source_control_id);
         virtual ~image_control();
 
         virtual void get_json(json& _dest)
@@ -1558,19 +1556,19 @@ namespace corona
         init();
     }
 
-    image_control::image_control(container_control_base* _parent, int _id)
+    image_control::image_control(control_base* _parent, int _id)
         : draw_control(_parent, _id)
     {
         init();
     }
 
-    image_control::image_control(container_control_base* _parent, int _id, std::string _filename) : draw_control(_parent, _id)
+    image_control::image_control(control_base* _parent, int _id, std::string _filename) : draw_control(_parent, _id)
     {
         init();
         load_from_file(_filename);
     }
 
-    image_control::image_control(container_control_base* _parent, int _id, int _source_control_id) : draw_control(_parent, _id)
+    image_control::image_control(control_base* _parent, int _id, int _source_control_id) : draw_control(_parent, _id)
     {
         init();
         load_from_control(_source_control_id);
@@ -1699,7 +1697,7 @@ namespace corona
         init();
     }
 
-    camera_view_control::camera_view_control(container_control_base* _parent, int _id) : draw_control(_parent, _id)
+    camera_view_control::camera_view_control(control_base* _parent, int _id) : draw_control(_parent, _id)
     {
         init();
     }
@@ -1782,7 +1780,7 @@ namespace corona
         ;
     }
 
-    menu_button_control::menu_button_control(container_control_base* _parent, int _id) : gradient_button_control(_parent, _id, "menu")
+    menu_button_control::menu_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "menu")
     {
         auto ctrl = this;
 
@@ -1838,7 +1836,7 @@ namespace corona
             });
     }
 
-    minimize_button_control::minimize_button_control(container_control_base* _parent, int _id) : gradient_button_control(_parent, _id, "minimize")
+    minimize_button_control::minimize_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "minimize")
     {
         auto ctrl = this;
 
@@ -1886,7 +1884,7 @@ namespace corona
         ;
     }
 
-    maximize_button_control::maximize_button_control(container_control_base* _parent, int _id) : gradient_button_control(_parent, _id, "maximize")
+    maximize_button_control::maximize_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "maximize")
     {
         auto ctrl = this;
 
@@ -1935,7 +1933,7 @@ namespace corona
     }
 
 
-    tab_button_control::tab_button_control(container_control_base* _parent, int _id) : gradient_button_control(_parent, _id, "menu")
+    tab_button_control::tab_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "menu")
     {
         init();
     }

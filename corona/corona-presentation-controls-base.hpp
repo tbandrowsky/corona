@@ -176,27 +176,21 @@ namespace corona
 
 	class control_base : public container_control_base
 	{
+
+
 	protected:
 
-		virtual point get_size();
-		virtual point get_remaining();
-		virtual point get_position();
-
-		double to_pixels_x(measure _margin);
-		double to_pixels_y(measure _margin);
-		virtual void on_resize();
-
-		rectangle				arrange_extent;
-		rectangle				bounds;
-		rectangle				inner_bounds;
-		point					margin_amount;
-		point					padding_amount;
+		rectangle				arrange_extent = {};
+		rectangle				bounds = {};
+		rectangle				inner_bounds = {};
+		point					margin_amount = {};
+		point					padding_amount = {};
 
 		change_monitored_property<bool> mouse_over;
 		change_monitored_property<bool> mouse_left_down;
 		change_monitored_property<bool> mouse_right_down;
-		point		 mouse_relative_position;
-		std::string  name;
+		point		 mouse_relative_position = {};
+		std::string  name = {};
 
 		void copy(const control_base& _src)
 		{
@@ -219,12 +213,9 @@ namespace corona
 			padding = _src.padding;
 			tooltip_text = _src.tooltip_text;
 
-			parent = _src.parent;
-
 			children.clear();
 			for (auto child : _src.children) {
 				auto new_child = child->clone();
-				new_child->parent = this;
 				children.push_back(new_child);
 			}
 			name = _src.name;
@@ -241,17 +232,16 @@ namespace corona
 		friend class tab_view_control;
 		friend class grid_view;
 
-		int						id;
+		int						id = -1;
 
-		layout_rect				box;
-		measure					margin;
-		measure					padding;
-		std::string				tooltip_text;
-		bool					is_focused;
-		std::string				json_field_name;
-		std::string				class_name;
-		container_control_base* parent;
-		bool					wrap_break;
+		layout_rect				box = {};
+		measure					margin = {};
+		measure					padding = {};
+		std::string				tooltip_text = {};
+		bool					is_focused = false;
+		std::string				json_field_name = {};
+		std::string				class_name = {};
+		bool					wrap_break = false;
 
 		std::vector<std::shared_ptr<control_base>> children;
 
@@ -260,21 +250,15 @@ namespace corona
 		virtual LRESULT get_nchittest() { return hittest; }
 		virtual void set_nchittest(LRESULT _hittest) { hittest = _hittest; }
 
-		control_base() :
-			id(-1),
-			margin(),
-			parent(nullptr),
-			margin_amount({ 0.0, 0.0 })
+		control_base() 
 		{
 			id = id_counter::next();
 			is_focused = false;
 			wrap_break = false;
 		}
 
-		control_base(container_control_base *_parent, int _id) : control_base()
+		control_base(int _id) 
 		{
-			parent = _parent;
-
 			if (_id < 0) {
 				id = id_counter::next();
 			}
@@ -291,6 +275,14 @@ namespace corona
 		}
 
 		virtual std::string form_name() { return "no form"; }
+
+		virtual point get_size(control_base* _parent);
+		virtual point get_remaining(control_base* _parent);
+		virtual point get_position(control_base* _parent);
+
+		double to_pixels_x(control_base* _parent, measure _margin);
+		double to_pixels_y(control_base* _parent, measure _margin);
+		virtual void on_resize();
 
 		bool is_mouse_over()
 		{
@@ -469,9 +461,9 @@ namespace corona
 		point& get_margin_amount() { return margin_amount; }
 		point& get_padding_amount() { return padding_amount; }
 
-		rectangle& set_bounds(rectangle& _bounds, bool _clip_children = true);
+		rectangle& set_bounds(control_base *_parent, rectangle& _bounds, bool _clip_children = true);
 
-		virtual void arrange(rectangle* _ctx);
+		virtual void arrange(control_base *_parent, rectangle* _ctx);
 		bool contains(point pt);
 
 		control_base* find(int _id);
@@ -660,10 +652,6 @@ namespace corona
 	control_base* control_base::find(int _id)
 	{
 		control_base* root = (control_base *)this;
-		while (root->parent) 
-		{
-			root = (control_base*)root->parent;
-		}
 		control_base* result = control_base::get(root, _id);
 		return result;
 	}
@@ -671,10 +659,6 @@ namespace corona
 	control_base* control_base::find(std::string _name)
 	{
 		control_base* root = (control_base*)this;
-		while (root->parent)
-		{
-			root = (control_base*)root->parent;
-		}
 		control_base* result = control_base::get(root, _name);
 		return result;
 	}
@@ -813,7 +797,7 @@ namespace corona
 		return mouse_over;
 	}
 
-	double control_base::to_pixels_x(measure length)
+	double control_base::to_pixels_x(control_base* _parent, measure length)
 	{
 		double sz = 0.0;
 
@@ -824,9 +808,9 @@ namespace corona
 		else if (length.units == measure_units::percent_container)
 		{
 			double parent_width = 0.0;
-			if (parent)
+			if (_parent)
 			{
-				auto pparent = dynamic_cast<control_base*>(parent);
+				auto pparent = dynamic_cast<control_base*>(_parent);
 				if (pparent)
 				{
 					parent_width = pparent->inner_bounds.w;
@@ -837,12 +821,12 @@ namespace corona
 		else if (length.units == measure_units::percent_remaining)
 		{
 			double parent_width = 0.0;
-			if (parent)
+			if (_parent)
 			{
-				auto pparent = dynamic_cast<control_base*>(parent);
+				auto pparent = dynamic_cast<control_base*>(_parent);
 				if (pparent)
 				{
-					parent_width = pparent->get_remaining().x;
+					parent_width = pparent->get_remaining(this).x;
 				}
 			}
 			sz = length.amount * parent_width;
@@ -865,7 +849,7 @@ namespace corona
 		return sz;
 	}
 
-	double control_base::to_pixels_y(measure length)
+	double control_base::to_pixels_y(control_base* _parent, measure length)
 	{
 		double sz = 0.0;
 
@@ -875,39 +859,39 @@ namespace corona
 		}
 		else if (length.units == measure_units::percent_container)
 		{
-			double parent_width = 0.0;
-			if (parent)
+			double parent_height = 0.0;
+			if (_parent)
 			{
-				auto pparent = dynamic_cast<control_base*>(parent);
+				auto pparent = dynamic_cast<control_base*>(_parent);
 				if (pparent)
 				{
-					parent_width = pparent->inner_bounds.w;
+					parent_height = pparent->inner_bounds.h;
 				}
 			}
-			sz = length.amount * parent_width;
+			sz = length.amount * parent_height;
 		}
 		else if (length.units == measure_units::percent_remaining)
 		{
-			double parent_width = 0.0;
-			if (parent)
+			double parent_height = 0.0;
+			if (_parent)
 			{
-				auto pparent = dynamic_cast<control_base*>(parent);
+				auto pparent = dynamic_cast<control_base*>(_parent);
 				if (pparent)
 				{
-					parent_width = pparent->get_remaining().x;
+					parent_height = pparent->get_remaining(this).y;
 				}
 			}
-			sz = length.amount * parent_width;
+			sz = length.amount * parent_height;
 		}
 		else if (length.units == measure_units::font)
 		{
 			double font_height = 12.0;
-			sz = font_height * box.width.amount;
+			sz = font_height * box.height.amount;
 		}
 		else if (length.units == measure_units::font_golden_ratio)
 		{
 			double font_height = 12.0;
-			sz = font_height * box.width.amount / 1.618;
+			sz = font_height * box.height.amount / 1.618;
 		}
 		else if (length.units == measure_units::text)
 		{
@@ -917,27 +901,27 @@ namespace corona
 		return sz;
 	}
  
-	point control_base::get_size()
+	point control_base::get_size(control_base* _parent)
 	{
 		point sz;
 
-        sz.x = to_pixels_x(box.width);
-        sz.y = to_pixels_y(box.height);
+        sz.x = to_pixels_x(_parent, box.width);
+        sz.y = to_pixels_y(_parent, box.height);
 
 		return sz;
 	}
 
-	point control_base::get_position()
+	point control_base::get_position(control_base* _parent)
 	{
 		point pt;
 
-        pt.x = to_pixels_x(box.x);
-		pt.y = to_pixels_y(box.y);
+        pt.x = to_pixels_x(_parent, box.x);
+		pt.y = to_pixels_y(_parent, box.y);
 
 		return pt;
 	}
 
-	point control_base::get_remaining()
+	point control_base::get_remaining(control_base* _parent)
 	{
 		return { 0.0, 0.0 };
 	}
@@ -947,18 +931,18 @@ namespace corona
 		return rectangle_math::contains(bounds, pt.x, pt.y);
 	}
 
-	rectangle& control_base::set_bounds(rectangle& _bounds, bool _clip_children)
+	rectangle& control_base::set_bounds(control_base* _parent, rectangle& _bounds, bool _clip_children)
 	{
 		bounds = _bounds;
 
-		margin_amount.x = to_pixels_x(margin);
-		margin_amount.y = to_pixels_y(margin);
-		padding_amount.x = to_pixels_x(padding);
-		padding_amount.y = to_pixels_y(padding);
+		margin_amount.x = to_pixels_x(_parent, margin);
+		margin_amount.y = to_pixels_y(_parent, margin);
+		padding_amount.x = to_pixels_x(_parent, padding);
+		padding_amount.y = to_pixels_y(_parent, padding);
 
-		if (parent)
+		if (_parent)
 		{
-			auto pparent = dynamic_cast<control_base *>(parent);
+			auto pparent = dynamic_cast<control_base *>(_parent);
 			if (pparent and _clip_children) {
 				auto pbounds = pparent->get_inner_bounds();
 				if (bounds.x < pbounds.x)
@@ -992,32 +976,9 @@ namespace corona
 		return bounds;
 	}
 
-	void control_base::arrange(rectangle *_bounds)
+	void control_base::arrange(control_base* _parent, rectangle *_bounds)
 	{
-		if (!_bounds)
-		{
-			if (parent)
-			{
-				auto pparent = dynamic_cast<control_base *>(parent);
-				if (pparent)
-				{
-					auto pbounds = pparent->get_inner_bounds();
-					set_bounds(pbounds);
-				}
-				else 
-				{
-                    throw std::invalid_argument("No parent and bounds not specified");
-				}
-			}
-			else 
-			{
-				throw std::invalid_argument("No parent and bounds not specified");
-			}
-		}
-		else 
-		{
-			set_bounds(*_bounds);
-		}
+		set_bounds(_parent, *_bounds);
 	}
 
 	void control_base::on_resize()

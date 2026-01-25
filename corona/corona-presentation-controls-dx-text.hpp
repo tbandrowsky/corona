@@ -27,7 +27,7 @@ namespace corona
 
 		text_display_control(const text_display_control& _src) = default;
 		text_display_control();
-		text_display_control(container_control_base* _parent, int _id);
+		text_display_control(control_base* _parent, int _id);
 		virtual ~text_display_control() { ; }
 
 		virtual void get_json(json& _dest)
@@ -67,7 +67,7 @@ namespace corona
 	public:
 		title_control();
 		title_control(const title_control& _src) = default;
-		title_control(container_control_base* _parent, int _id);
+		title_control(control_base* _parent, int _id);
 
 		virtual void set_default_styles();
 
@@ -85,7 +85,7 @@ namespace corona
 	public:
 		subtitle_control();
 		subtitle_control(const subtitle_control& _src) = default;
-		subtitle_control(container_control_base* _parent, int _id);
+		subtitle_control(control_base* _parent, int _id);
 
 		virtual void set_default_styles();
 
@@ -103,7 +103,7 @@ namespace corona
 	public:
 		authorscredit_control();
 		authorscredit_control(const authorscredit_control& _src) = default;
-		authorscredit_control(container_control_base* _parent, int _id);
+		authorscredit_control(control_base* _parent, int _id);
 
 		virtual void set_default_styles();
 
@@ -121,7 +121,7 @@ namespace corona
 	public:
 		chaptertitle_control();
 		chaptertitle_control(const chaptertitle_control& _src) = default;
-		chaptertitle_control(container_control_base* _parent, int _id);
+		chaptertitle_control(control_base* _parent, int _id);
 		virtual void set_default_styles();
 
 		virtual std::shared_ptr<control_base> clone()
@@ -138,7 +138,7 @@ namespace corona
 	public:
 		chaptersubtitle_control();
 		chaptersubtitle_control(const chaptersubtitle_control& _src) = default;
-		chaptersubtitle_control(container_control_base* _parent, int _id);
+		chaptersubtitle_control(control_base* _parent, int _id);
 
 		virtual void set_default_styles();
 		virtual std::shared_ptr<control_base> clone()
@@ -154,7 +154,7 @@ namespace corona
 	{
 	public:
 		paragraph_control();
-		paragraph_control(container_control_base* _parent, int _id);
+		paragraph_control(control_base* _parent, int _id);
 		paragraph_control(const paragraph_control& _src) = default;
 		virtual void set_default_styles();
 		virtual std::shared_ptr<control_base> clone()
@@ -171,7 +171,7 @@ namespace corona
 	{
 	public:
 		code_control();
-		code_control(container_control_base* _parent, int _id);
+		code_control(control_base* _parent, int _id);
 		code_control(const code_control& _src) = default;
 		virtual void set_default_styles();
 		virtual std::shared_ptr<control_base> clone()
@@ -187,7 +187,7 @@ namespace corona
 	{
 	public:
 		label_control();
-		label_control(container_control_base* _parent, int _id);
+		label_control(control_base* _parent, int _id);
 		label_control(const label_control& _src) = default;
 		virtual void set_default_styles();
 		virtual std::shared_ptr<control_base> clone()
@@ -203,7 +203,7 @@ namespace corona
 	{
 	public:
 		placeholder_control();
-		placeholder_control(container_control_base* _parent, int _id);
+		placeholder_control(control_base* _parent, int _id);
 		placeholder_control(const placeholder_control& _src) = default;
 		virtual void set_default_styles();
 		virtual std::shared_ptr<control_base> clone()
@@ -223,7 +223,7 @@ namespace corona
 
 		error_control();
 		error_control(const error_control& _src) = default;
-		error_control(container_control_base* _parent, int _id);
+		error_control(control_base* _parent, int _id);
 
 		void set_status(call_status _status)
 		{
@@ -250,7 +250,7 @@ namespace corona
 
 		success_control();
 		success_control(const success_control& _src) = default;
-		success_control(container_control_base* _parent, int _id);
+		success_control(control_base* _parent, int _id);
 
 		void set_status(call_status _status)
 		{
@@ -278,7 +278,7 @@ namespace corona
 
 		status_control();
 		status_control(const status_control& _src) = default;
-		status_control(container_control_base* _parent, int _id);
+		status_control(control_base* _parent, int _id);
 
 		bool set_status(call_status _status)
 		{
@@ -292,7 +292,7 @@ namespace corona
 					sc->set_padding(8.0_px);
 					sc->set_size(1.0_container, 1.0_container);
 					children.push_back(sc);
-					arrange(&bounds);
+					arrange_children();
 				}
 				else
 				{
@@ -301,7 +301,7 @@ namespace corona
 					sc->set_padding(8.0_px);
 					sc->set_size(1.0_container, 1.0_container);
 					children.push_back(sc);
-					arrange(&bounds);
+					arrange_children();
 				}
 			}
 			return status_set;
@@ -313,9 +313,10 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle *_bounds)
+
+		virtual void arrange(control_base *_parent, rectangle *_bounds)
 		{
-			frame_layout::arrange(_bounds);
+			frame_layout::arrange(_parent, _bounds);
 			//std::cout << "status layout" << std::endl;
 			//std::cout << bounds.x << " " << bounds.y << std::endl;
 			//std::cout << inner_bounds.x << " " << inner_bounds.y << std::endl;
@@ -335,7 +336,7 @@ namespace corona
 		init();
 	}
 
-	text_display_control::text_display_control(container_control_base* _parent, int _id)
+	text_display_control::text_display_control(control_base* _parent, int _id)
 		: draw_control(_parent, _id)
 	{
 		init();
@@ -394,7 +395,7 @@ namespace corona
 		view_style = st->get_style()->TitleStyle;
 	}
 
-	title_control::title_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	title_control::title_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -417,7 +418,7 @@ namespace corona
 
 	}
 
-	subtitle_control::subtitle_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	subtitle_control::subtitle_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -439,7 +440,7 @@ namespace corona
 
 	}
 
-	authorscredit_control::authorscredit_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	authorscredit_control::authorscredit_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 
 	}
@@ -460,7 +461,7 @@ namespace corona
 		view_style = st->get_style()->ChapterTitleStyle;
 	}
 
-	chaptertitle_control::chaptertitle_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	chaptertitle_control::chaptertitle_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -482,7 +483,7 @@ namespace corona
 
 	}
 
-	chaptersubtitle_control::chaptersubtitle_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	chaptersubtitle_control::chaptersubtitle_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -503,7 +504,7 @@ namespace corona
 		view_style = st->get_style()->ParagraphStyle;
 	}
 
-	paragraph_control::paragraph_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	paragraph_control::paragraph_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		set_default_styles();
 	}
@@ -524,7 +525,7 @@ namespace corona
 		view_style = st->get_style()->CodeStyle;
 	}
 
-	code_control::code_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	code_control::code_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -550,7 +551,7 @@ namespace corona
 		
 	}
 
-	label_control::label_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	label_control::label_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -572,7 +573,7 @@ namespace corona
 		text = "Placeholder";
 	}
 
-	placeholder_control::placeholder_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	placeholder_control::placeholder_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		text = "Placeholder";
 	}
@@ -589,7 +590,7 @@ namespace corona
 		view_style = st->get_style()->ErrorStyle;
 	}
 
-	error_control::error_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	error_control::error_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 		
 	}
@@ -611,7 +612,7 @@ namespace corona
 		view_style = st->get_style()->SuccessStyle;
 	}
 
-	success_control::success_control(container_control_base* _parent, int _id) : text_display_control(_parent, _id)
+	success_control::success_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
 
 	}
@@ -625,7 +626,7 @@ namespace corona
 	{
 	}
 
-	status_control::status_control(container_control_base* _parent, int _id) : frame_layout(_parent, _id)
+	status_control::status_control(control_base* _parent, int _id) : frame_layout(_parent, _id)
 	{
 		status_set = false;
 		set_padding(0.0_px);

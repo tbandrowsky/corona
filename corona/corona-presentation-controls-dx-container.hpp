@@ -47,18 +47,16 @@ namespace corona
 
 		container_control()
 		{
-			parent = nullptr;
 			id = id_counter::next();
 		}
 
 		container_control(const container_control& _src) = default;
 
-		container_control(container_control_base *_parent, int _id)
+		container_control(control_base *_parent, int _id)
 		{
-			parent = _parent;
 			id = _id;
-			if (parent and get_nchittest() == HTCLIENT) {
-				set_nchittest(parent->get_nchittest());
+			if (_parent and get_nchittest() == HTCLIENT) {
+				set_nchittest(_parent->get_nchittest());
 			}
 		}
 
@@ -78,18 +76,14 @@ namespace corona
 			;
 		}
 
-		virtual void set_contents(std::function<void(control_base* _page)> _contents)
+		virtual void set_contents(control_base *_parent, std::function<void(control_base* _page)> _contents)
 		{
 			_contents(this);
 
-			for (auto child : children) {
-				child->parent = this;
-			}
-
-			arrange(&bounds);
+			arrange(_parent, &bounds);
 		}
 
-		virtual void set_contents(page_base *_contents)
+		virtual void set_contents(control_base *_parent, page_base *_contents)
 		{
 			auto new_root = _contents->root;
 			children.clear();
@@ -100,7 +94,17 @@ namespace corona
 				children.push_back(new_child);
 			}
 
-			arrange(&bounds);
+			remaining = { bounds.w, bounds.h, 0.0 };
+
+			for (auto child : children) {
+				auto sz = child->get_size(this);
+				point item_origin = {};
+				point item_position = child->get_position(this);
+				item_origin.x += item_position.x;
+				item_origin.y += item_position.y;
+				rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+				child->arrange(this, &item_bounds);
+			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -179,11 +183,11 @@ namespace corona
 		}
 
 		// default implementation for composed controls
-		virtual void arrange(rectangle* _ctx)
+		virtual void arrange(control_base* _parent, rectangle* _ctx)
 		{
-			set_bounds(*_ctx);
+			set_bounds(_parent, *_ctx);
 			for (auto child : children) {
-				child->arrange(_ctx);
+				child->arrange(this, _ctx);
 			}
 		}
 
@@ -210,7 +214,7 @@ namespace corona
 	public:
 		absolute_layout() { ; }
 		absolute_layout(const absolute_layout& _src) = default;
-		absolute_layout(container_control_base *_parent, int _id) : container_control(_parent, _id) { ; }
+		absolute_layout(control_base*_parent, int _id) : container_control(_parent, _id) { ; }
 		virtual ~absolute_layout() { ; }
 
 		virtual std::shared_ptr<control_base> clone()
@@ -219,16 +223,16 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle* _ctx);
+		virtual void arrange(control_base* _parent, rectangle* _ctx);
 	};
 
 	class column_layout :
 		public container_control
 	{
 		virtual void calculate_remaining();
-		virtual void arrange_near(rectangle* _ctx);
-		virtual void arrange_center(rectangle* _ctx);
-		virtual void arrange_far(rectangle* _ctx);
+		virtual void arrange_near(control_base* _parent, rectangle* _ctx);
+		virtual void arrange_center(control_base* _parent, rectangle* _ctx);
+		virtual void arrange_far(control_base* _parent, rectangle* _ctx);
 
 	public:
 		layout_rect item_size;
@@ -244,7 +248,7 @@ namespace corona
 			item_next_space = _src.item_next_space;
 			wrap = _src.wrap;
 		}
-		column_layout(container_control_base* _parent, int _id) : container_control(_parent, _id), wrap(true) { ; }
+		column_layout(control_base* _parent, int _id) : container_control(_parent, _id), wrap(true) { ; }
 
 		virtual ~column_layout() { ; }
 
@@ -254,7 +258,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle* _ctx);
+		virtual void arrange(control_base* _parent, rectangle* _ctx);
 		virtual point get_remaining();
 
 		virtual void get_json(json& _dest)
@@ -295,9 +299,9 @@ namespace corona
 	protected:
 
         virtual void calculate_remaining();
-		virtual void arrange_near(rectangle *_ctx);
-		virtual void arrange_center(rectangle *_ctx);
-		virtual void arrange_far(rectangle *_ctx);
+		virtual void arrange_near(control_base* _parent, rectangle *_ctx);
+		virtual void arrange_center(control_base* _parent, rectangle *_ctx);
+		virtual void arrange_far(control_base* _parent, rectangle *_ctx);
 
 	public:
 
@@ -309,7 +313,7 @@ namespace corona
 
 		row_layout() { ; }
 		row_layout(const row_layout& _src) = default;
-		row_layout(container_control_base* _parent, int _id) : container_control(_parent, _id) { ; }
+		row_layout(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
 		virtual ~row_layout() { ; }
 
 		virtual std::shared_ptr<control_base> clone()
@@ -318,7 +322,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle* _ctx);
+		virtual void arrange(control_base* _parent, rectangle* _ctx);
 		virtual point get_remaining();
 		virtual void get_json(json& _dest)
 		{
@@ -356,11 +360,12 @@ namespace corona
 		public container_control
 	{
 	protected:
+		void arrange_children();
 	public:
 
 		frame_layout() { ; }
 		frame_layout(const frame_layout& _src) = default;
-		frame_layout(container_control_base* _parent, int _id) : container_control(_parent, _id) { ; }
+		frame_layout(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
 		virtual ~frame_layout() { ; }
 
 		virtual std::shared_ptr<control_base> clone()
@@ -369,13 +374,13 @@ namespace corona
 			return tv;
 		}
 
-		virtual void arrange(rectangle* _ctx);
+		virtual void arrange(control_base* _parent, rectangle* _ctx);
 		virtual point get_remaining();
 
 		virtual void set_contents(presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
-		virtual void set_contents(std::function<void(control_base* _page)> _contents)
+		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
 		{
-			container_control::set_contents(_contents);
+			container_control::set_contents(_parent, _contents);
 		}
 
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
@@ -513,7 +518,7 @@ namespace corona
 			init();
 		}
 
-		grid_view(container_control_base* _parent, int _id) : draw_control(_parent, _id)
+		grid_view(control_base* _parent, int _id) : draw_control(_parent, _id)
 		{
 			view_port = {};
 			selected_item_index = 0;
@@ -535,9 +540,9 @@ namespace corona
 			;
 		}
 
-		virtual void arrange(rectangle* _bounds)
+		virtual void arrange(control_base* _parent, rectangle* _bounds)
 		{
-			control_base::arrange(_bounds);
+			control_base::arrange(_parent, _bounds);
 
 			view_port.w = _bounds->w;
 			view_port.h = _bounds->h;
@@ -595,7 +600,7 @@ namespace corona
 				rows.push_back(gvr);
 			}
 
-			arrange(&bounds);
+			arrange(this, &bounds);
 
 			if (rows.size() <= selected_item_index)
 			{
@@ -729,7 +734,7 @@ namespace corona
 	public:
 		row_view_layout() { ; }
 		row_view_layout(const row_view_layout& _src) = default;
-		row_view_layout(container_control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+		row_view_layout(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -747,7 +752,7 @@ namespace corona
 	public:
 		absolute_view_layout() { ; }
 		absolute_view_layout(const absolute_view_layout& _src) = default;
-		absolute_view_layout(container_control_base* _parent, int _id) : absolute_layout(_parent, _id) { ; }
+		absolute_view_layout(control_base* _parent, int _id) : absolute_layout(_parent, _id) { ; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -768,38 +773,38 @@ namespace corona
 		return remaining;
 	}
 
-	void absolute_layout::arrange(rectangle* _bounds)
+	void absolute_layout::arrange(control_base* _parent, rectangle* _bounds)
 	{
-		control_base::arrange(_bounds);
+		control_base::arrange(_parent, _bounds);
 
 		point origin = { bounds.x, bounds.y, 0.0 };
 		remaining = { bounds.w, bounds.h, 0.0 };
 
 		for (auto child : children) {
-			auto sz = child->get_size();
+			auto sz = child->get_size(this);
             point item_origin = origin;
-			point item_position = child->get_position();
+			point item_position = child->get_position(this);
             item_origin.x += item_position.x;
             item_origin.y += item_position.y;
             rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
-			child->arrange(&item_bounds);
+			child->arrange(this, &item_bounds);
 		}
 	}
 
-	void row_layout::arrange(rectangle* _bounds)
+	void row_layout::arrange(control_base* _parent, rectangle* _bounds)
 	{
-		control_base::arrange(_bounds);
+		control_base::arrange(_parent, _bounds);
 
 		switch (content_alignment)
 		{
 			case visual_alignment::align_far:
-				arrange_far(_bounds);
+				arrange_far(_parent, _bounds);
                 break;
             case visual_alignment::align_center:
-				arrange_center(_bounds);
+				arrange_center(_parent, _bounds);
                 break;
             case visual_alignment::align_near:	
-				arrange_near(_bounds);
+				arrange_near(_parent, _bounds);
 				break;
 		}
 	}
@@ -819,7 +824,7 @@ namespace corona
 			for (int i = start; i >= end; i--)
 			{
 				auto child = children[i];
-				auto child_size = child->get_size();
+				auto child_size = child->get_size(this);
 				temp_remaining.x -= child_size.x;
 			}
 
@@ -827,7 +832,7 @@ namespace corona
 		}
 	}
 
-	void row_layout::arrange_far(rectangle* _bounds)
+	void row_layout::arrange_far(control_base* _parent, rectangle* _bounds)
 	{
 		point current_position = { inner_bounds.right(), inner_bounds.y, 0.0 };
 
@@ -840,12 +845,12 @@ namespace corona
 		for (int i = start; i >= end; i--)
 		{
 			auto child = children[i];
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			if (wrap and (current_position.x < inner_bounds.x))
 			{
 				current_position.x = inner_bounds.right();
-				current_position.y += max_height + to_pixels_y(item_next_space);
+				current_position.y += max_height + to_pixels_y(this, item_next_space);
 				max_height = 0.0;
 			}
 
@@ -861,14 +866,14 @@ namespace corona
 				max_height = child_size.y;
 			}
 
-			child->set_bounds(child_bounds);
+			child->arrange(this, &child_bounds);
 			current_position.x -= child_size.x;
-			current_position.x -= to_pixels_x(item_start_space);
+			current_position.x -= to_pixels_x(this, item_start_space);
 		}
 
 	}
 
-	void row_layout::arrange_center(rectangle* _bounds)
+	void row_layout::arrange_center(control_base* _parent, rectangle* _bounds)
 	{
 		int start = 0;
 		int end = children.size() - 1;
@@ -882,7 +887,7 @@ namespace corona
 		for (int i = start; i < end; i++)
 		{
 			auto child = children[i];
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			if (wrap and (current_position.x > inner_bounds.right()))
 			{
@@ -900,11 +905,11 @@ namespace corona
                     auto row_child = children[j];
 					rectangle child_bounds = row_child->get_bounds();
                     child_bounds.x += line_center;
-					row_child->set_bounds(child_bounds);
+					row_child->arrange(_parent, &child_bounds);
 				}
 
 				current_position.x = inner_bounds.x;
-				current_position.y += max_height + to_pixels_y(item_next_space);
+				current_position.y += max_height + to_pixels_y(this, item_next_space);
 				last_index = i;
 			}
 
@@ -915,9 +920,9 @@ namespace corona
 				child_size.y
 			};
 
-			child->set_bounds(child_bounds);
+			child->arrange(this, &child_bounds);
 			current_position.x += child_size.x;
-			current_position.x += to_pixels_x(item_start_space);
+			current_position.x += to_pixels_x(this, item_start_space);
 		}
 
 		if (wrap && last_index < end)
@@ -936,14 +941,14 @@ namespace corona
 				auto row_child = children[j];
 				rectangle child_bounds = row_child->get_bounds();
 				child_bounds.x += line_center;
-				row_child->set_bounds(child_bounds);
+				row_child->arrange(_parent, &child_bounds);
 			}
 		}
 	}
 
-	void row_layout::arrange_near(rectangle *_bounds)
+	void row_layout::arrange_near(control_base* _parent, rectangle *_bounds)
 	{
-		control_base::arrange(_bounds);
+		control_base::arrange(_parent, _bounds);
 
         point current_position = { inner_bounds.x, inner_bounds.y, 0.0 };
 
@@ -951,13 +956,13 @@ namespace corona
 
         for (auto child : children) 
 		{
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			// if the element is too big
 			if (wrap and current_position.x > inner_bounds.right()) 
 			{
 				current_position.x = inner_bounds.x;
-				current_position.y += max_height + to_pixels_y(item_next_space);
+				current_position.y += max_height + to_pixels_y(this, item_next_space);
 			}
 
 			rectangle child_bounds = { 
@@ -972,26 +977,26 @@ namespace corona
 				max_height = child_size.y;
 			}
 
-            child->set_bounds(child_bounds);
+            child->arrange(this, &child_bounds);
 			current_position.x += child_size.x;
-			current_position.x += to_pixels_x(item_start_space);
+			current_position.x += to_pixels_x(this, item_start_space);
 		}
 	}
 
-	void column_layout::arrange(rectangle* _bounds)
+	void column_layout::arrange(control_base *_base, rectangle* _bounds)
 	{
-		control_base::arrange(_bounds);
+		control_base::arrange(_base, _bounds);
 
 		switch (content_alignment)
 		{
 		case visual_alignment::align_far:
-			arrange_far(_bounds);
+			arrange_far(_base, _bounds);
 			break;
 		case visual_alignment::align_center:
-			arrange_center(_bounds);
+			arrange_center(_base, _bounds);
 			break;
 		case visual_alignment::align_near:
-			arrange_near(_bounds);
+			arrange_near(_base, _bounds);
 			break;
 		}
 	}
@@ -1011,7 +1016,7 @@ namespace corona
 			for (int i = start; i >= end; i--)
 			{
 				auto child = children[i];
-				auto child_size = child->get_size();
+				auto child_size = child->get_size(this);
 				temp_remaining.y -= child_size.y;
 			}
 
@@ -1019,7 +1024,7 @@ namespace corona
 		}
 	}
 
-	void column_layout::arrange_far(rectangle* _bounds)
+	void column_layout::arrange_far(control_base *_parent, rectangle* _bounds)
 	{
 		point current_position = { inner_bounds.x, inner_bounds.bottom(), 0.0 };
 
@@ -1032,11 +1037,11 @@ namespace corona
 		{
 			auto child = children[i];
 
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			if (wrap and (current_position.x < inner_bounds.x))
 			{
-				current_position.x += child_size.x + to_pixels_x(item_next_space);
+				current_position.x += child_size.x + to_pixels_x(this, item_next_space);
 				current_position.y = inner_bounds.bottom();
 			}
 
@@ -1047,14 +1052,14 @@ namespace corona
 				child_size.y
 			};
 
-			child->set_bounds(child_bounds);
+			child->arrange(this, &child_bounds);
 			current_position.y += child_size.y;
-			current_position.y += to_pixels_y(item_start_space);
+			current_position.y += to_pixels_y(this, item_start_space);
 		}
 
 	}
 
-	void column_layout::arrange_center(rectangle* _bounds)
+	void column_layout::arrange_center(control_base *_parent, rectangle* _bounds)
 	{
 		int start = 0;
 		int end = children.size() - 1;
@@ -1069,7 +1074,7 @@ namespace corona
 		for (int i = start; i < end; i++)
 		{
 			auto child = children[i];
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			if (wrap and (current_position.y > inner_bounds.bottom()))
 			{
@@ -1087,11 +1092,11 @@ namespace corona
 					auto row_child = children[j];
 					rectangle child_bounds = row_child->get_bounds();
 					child_bounds.y += line_center;
-					row_child->set_bounds(child_bounds);
+					row_child->arrange(this, &child_bounds);
 				}
 
 				current_position.y = inner_bounds.y;
-				current_position.x += child_size.x + to_pixels_x(item_next_space);
+				current_position.x += child_size.x + to_pixels_x(this, item_next_space);
 				last_index = i;
 			}
 
@@ -1102,9 +1107,9 @@ namespace corona
 				child_size.y
 			};
 
-			child->set_bounds(child_bounds);
+			child->arrange(this, &child_bounds);
 			current_position.y += child_size.y;
-			current_position.y += to_pixels_y(item_start_space);
+			current_position.y += to_pixels_y(this, item_start_space);
 		}
 
 		if (wrap && last_index < end)
@@ -1123,14 +1128,14 @@ namespace corona
 				auto row_child = children[j];
 				rectangle child_bounds = row_child->get_bounds();
 				child_bounds.y += line_center;
-				row_child->set_bounds(child_bounds);
+				row_child->arrange(this, &child_bounds);
 			}
 		}
 	}
 
-	void column_layout::arrange_near(rectangle* _bounds)
+	void column_layout::arrange_near(control_base* _parent, rectangle* _bounds)
 	{
-		control_base::arrange(_bounds);
+		control_base::arrange(_parent, _bounds);
 
 		calculate_remaining();
 
@@ -1138,12 +1143,12 @@ namespace corona
 
 		for (auto child : children)
 		{
-			auto child_size = child->get_size();
+			auto child_size = child->get_size(this);
 
 			if (wrap and (current_position.x + child_size.x > inner_bounds.right()))
 			{
 				current_position.y = inner_bounds.y;
-				current_position.y += child_size.y + to_pixels_y(item_next_space);
+				current_position.y += child_size.y + to_pixels_y(this, item_next_space);
 			}
 
 			rectangle child_bounds = {
@@ -1153,9 +1158,9 @@ namespace corona
 				child_size.y
 			};
 
-			child->set_bounds(child_bounds);
+			child->arrange(this, &child_bounds);
 			current_position.y += child_size.x;
-			current_position.y += to_pixels_x(item_start_space);
+			current_position.y += to_pixels_x(this, item_start_space);
 		}
 	}
 
@@ -1163,5 +1168,25 @@ namespace corona
 	{
 		return remaining;
 	}
+
+	void frame_layout::arrange_children()
+	{
+		remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
+		for (auto child : children) {
+			auto sz = child->get_size(this);
+			point item_origin = { bounds.x, bounds.y, 0.0 };
+			point item_position = child->get_position(this);
+			item_origin.x += item_position.x;
+			item_origin.y += item_position.y;
+			rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+			child->arrange(this, &item_bounds);
+		}
+	}
+
+	void frame_layout::arrange(control_base* _parent, rectangle* _ctx)
+	{
+		control_base::arrange(_parent, _ctx);
+		arrange_children();
+    }
 }
 

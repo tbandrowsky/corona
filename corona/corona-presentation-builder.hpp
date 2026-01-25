@@ -44,7 +44,7 @@ namespace corona
 		using windows_control::enable;
 		using windows_control::disable;
 
-		corona_button_control(container_control_base* _parent, int _id) : pushbutton_control(_parent, _id)
+		corona_button_control(control_base* _parent, int _id) : pushbutton_control(_parent, _id)
 		{
 			init();
 		}
@@ -366,7 +366,6 @@ namespace corona
 				return;
 			_control->children.clear();
 			for (auto child : root->children) {
-				child->parent = _control;
 				_control->children.push_back(child);
 			}
 		}
@@ -1245,7 +1244,7 @@ namespace corona
 		}
 
 		form_field_control(const form_field_control& _src) = default;
-		form_field_control(container_control_base* _parent, int _id) : column_layout(_parent, _id)
+		form_field_control(control_base* _parent, int _id) : column_layout(_parent, _id)
 		{
 			form_id = 0;
 			field_id = id_counter::next();
@@ -1579,7 +1578,7 @@ namespace corona
 
 		form_control(const form_control& _src) = default;
 
-		form_control(container_control_base* _parent, int _id) : column_layout(_parent, _id)
+		form_control(control_base* _parent, int _id) : column_layout(_parent, _id)
 		{
 			current_presentation = nullptr;
 			current_page = nullptr;
@@ -1660,7 +1659,7 @@ namespace corona
 			}
 
 			cb.apply_controls(this);
-			arrange(&bounds);
+			arrange(this, &bounds);
 		}
 
 		virtual void get_json(json& _dest)
@@ -1862,7 +1861,6 @@ namespace corona
 
 		tab_view_control()
 		{
-			parent = nullptr;
 			id = id_counter::next();
 			current_presentation = nullptr;
 			current_page = nullptr;
@@ -1884,9 +1882,8 @@ namespace corona
 			set_border_color("#C0C0C0");
 		}
 
-		tab_view_control(container_control_base* _parent, int _id)
+		tab_view_control(control_base* _parent, int _id)
 		{
-			parent = _parent;
 			id = _id;
 			current_presentation = nullptr;
 			current_page = nullptr;
@@ -1898,11 +1895,9 @@ namespace corona
 		{
 		}
 
-		virtual void arrange(rectangle _bounds)
+		virtual void arrange(control_base *_parent, rectangle _bounds)
 		{
-			set_bounds(_bounds, true);
-
-
+			set_bounds(_parent, _bounds, true);
 		}
 
 		virtual bool is_control_message(int _key)
@@ -1961,7 +1956,7 @@ namespace corona
 						}
 						_args->children.push_back(_tp->tab_form);
 					};
-				content_frame->set_contents(cg);
+				content_frame->set_contents(this, cg);
 
 				if (current_presentation and current_page) {
 					content_frame->on_subscribe(current_presentation, current_page);
@@ -2192,7 +2187,7 @@ namespace corona
 
 		search_view_control(const search_view_control& _src) = default;
 
-		search_view_control(container_control_base* _parent, int _id) : column_layout(_parent, _id)
+		search_view_control(control_base* _parent, int _id) : column_layout(_parent, _id)
 		{
 			idc_search_text = -1;
 			idc_search_command = -1;
@@ -2307,7 +2302,7 @@ namespace corona
 
 		caption_bar_control(const caption_bar_control& _src) = default;
 
-		caption_bar_control(container_control_base *_parent, int _id) : container_control(_parent, _id)
+		caption_bar_control(control_base *_parent, int _id) : container_control(_parent, _id)
 		{
 			menu_button_id = id_counter::next();
 			image_control_id = id_counter::next();
@@ -2406,7 +2401,7 @@ namespace corona
 
 		status_bar_control() { ; }
 		status_bar_control(const status_bar_control& _src) { ; }
-		status_bar_control(container_control_base* _parent, int _id) : container_control(_parent, _id) { ; }
+		status_bar_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
 
 		std::shared_ptr<control_base> clone()
 		{
@@ -2994,7 +2989,7 @@ namespace corona
 	public:
 		radiobutton_list_control() { ; }
 		radiobutton_list_control(const radiobutton_list_control& _src) = default;
-		radiobutton_list_control(container_control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
+		radiobutton_list_control(control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -3095,7 +3090,7 @@ namespace corona
 	public:
 		checkbox_list_control() { ; }
 		checkbox_list_control(const checkbox_list_control& _src) = default;
-		checkbox_list_control(container_control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
+		checkbox_list_control(control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -3246,7 +3241,7 @@ namespace corona
 		}
 		children.clear();
 
-		cb.column_begin(id_counter::next(), [_contents](column_layout& _settings) {
+		cb.column_begin(id_counter::next(), [_contents, this](column_layout& _settings) {
 			_settings.set_size(1.0_container, 1.0_container);
 			for (auto srcchild : _contents->root->children)
 			{
@@ -3261,7 +3256,7 @@ namespace corona
 			child->on_subscribe(_presentation, _parent_page);
 		}
 
-		arrange(&bounds);
+		arrange_children();
 	}
 
 	json corona_set_property_command::execute(json context, comm_bus_app_interface* bus)
