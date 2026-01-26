@@ -1708,7 +1708,7 @@ namespace corona
 				return "";
 		}
 
-		operator object_reference_type() const
+		object_reference_type as_object_reference_type() const
 		{
 			auto value_ref = reference_impl();
 			if (value_ref)

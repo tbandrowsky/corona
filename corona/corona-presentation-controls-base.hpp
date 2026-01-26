@@ -220,6 +220,7 @@ namespace corona
 			}
 			name = _src.name;
 			wrap_break = _src.wrap_break;
+            json_field_name = _src.json_field_name;
 		}
 
 	public:
@@ -358,8 +359,15 @@ namespace corona
 
 		virtual json get_data()
 		{
-			json empty;
-			return empty;
+			json_parser jp;
+			json data = jp.create_object();
+			for (auto child : children) {
+				json child_data = child->get_data();
+				if (not child_data.empty()) {
+					data.copy_member(child->json_field_name, child_data);
+				}
+			}
+			return data;
 		}
 
 		virtual bool set_items(json _data)
@@ -369,8 +377,16 @@ namespace corona
 
 		virtual json set_data(json _data)
 		{
-			json empty;
-			return empty;
+			for (auto child : children) {
+				if (child->json_field_name.empty()) {
+					continue;
+				}
+                json child_data = _data[child->json_field_name];
+				if (not child_data.empty()) {
+					child->set_data(child_data);
+				}
+			}
+			return _data;
 		}
 
 		virtual void get_json(json& _dest)

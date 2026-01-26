@@ -108,12 +108,12 @@ namespace corona
 		}
 	};
 
-
 	enum class corona_instance
 	{
 		remote = 0,
 		local = 1
 	};
+
 
 	class comm_bus_app_interface : public system_monitoring_interface
 	{
@@ -160,6 +160,7 @@ namespace corona
 		virtual corona_client_response get_object(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response delete_object(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response query_objects(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response query(corona_instance _instance, json query_body) = 0;
 		virtual void error(json _error) = 0;
 
 		virtual void when(UINT topic, std::function<void()> _runnable) = 0;

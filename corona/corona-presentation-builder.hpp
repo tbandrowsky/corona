@@ -1603,9 +1603,6 @@ namespace corona
 
 			for (auto& ctrl : ids.fields)
 			{
-				if (ctrl.json_field_name.empty()) {
-					continue;
-				}
 				control_base *cb = find(ctrl.field_id);
 				if (cb) {
 					json field_data = cb->get_data();

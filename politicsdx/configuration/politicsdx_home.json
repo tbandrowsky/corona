@@ -24,66 +24,6 @@
         {
           "class_name": "row",
           "box": {
-            "width": "1.0 container",
-            "height": "75 pixels"
-          },
-          "children": [
-            {
-              "class_name": "push_button",
-              "text": "Search",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                  "class_name": "select_frame",
-                  "target_frame": "page_home.frame_home",
-                  "source_frame": "page_search",
-                  "message": "Status."
-              }
-            },
-            {
-              "class_name": "push_button",
-              "text": "Status",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_status",
-                "message": "Status."
-              }
-            },
-            {
-              "class_name": "push_button",
-              "text": "Help",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_help"
-              }
-            },
-            {
-              "class_name": "code",
-              "name": "call_success_message",
-              "box": {
-                "width": "300 pixels",
-                "height": "40 pixels"
-              }
-            },
-            {
-              "class_name": "code",
-              "name": "call_execution_time",
-              "box": {
-                "width": "100 pixels",
-                "height": "40 pixels"
-              }
-            }
-          ]  
-        },
-        {
-          "class_name": "row",
-          "box": {
             "width": "0.97 container",
             "height": "1.0 remaining"
           },
@@ -139,6 +79,66 @@
           "content_alignment": "near",
           "content_cross_alignment": "near",
           "children": [
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "1.0 container",
+            "height": "75 pixels"
+          },
+          "children": [
+            {
+              "class_name": "push_button",
+              "text": "Search",
+              "box": "button_box",
+              "margin": "button_margin",
+              "on_click": {
+                "class_name": "select_frame",
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_search",
+                "message": "Status."
+              }
+            },
+            {
+              "class_name": "push_button",
+              "text": "Status",
+              "box": "button_box",
+              "margin": "button_margin",
+              "on_click": {
+                "class_name": "select_frame",
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_status",
+                "message": "Status."
+              }
+            },
+            {
+              "class_name": "push_button",
+              "text": "Help",
+              "box": "button_box",
+              "margin": "button_margin",
+              "on_click": {
+                "class_name": "select_frame",
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_help"
+              }
+            },
+            {
+              "class_name": "code",
+              "name": "call_success_message",
+              "box": {
+                "width": "300 pixels",
+                "height": "40 pixels"
+              }
+            },
+            {
+              "class_name": "code",
+              "name": "call_execution_time",
+              "box": {
+                "width": "100 pixels",
+                "height": "40 pixels"
+              }
+            }
           ]
         }
       ]

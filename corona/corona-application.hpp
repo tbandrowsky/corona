@@ -211,6 +211,21 @@ namespace corona
 			return result;
 		}
 
+		std::string get_user_email()
+		{
+			std::string result = "local@localhost.com";
+			char buffer[UNLEN + 1] = {};
+			DWORD max_length = sizeof(buffer) / sizeof(char);
+			if (GetUserNameExA(NameDnsDomain, buffer, &max_length)) {
+				result = buffer;
+                auto parts = split(result, '\\');
+				if (parts.size() == 2) {
+					result = parts[1] + "@" + parts[0] + ".com";
+                }
+			}
+			return result;
+		}
+
 		file open_file(std::string filename, file_open_types _file_open_type)
 		{
 			file f(filename, _file_open_type);

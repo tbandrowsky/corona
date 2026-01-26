@@ -729,6 +729,31 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response remote_query(json query_body)
+		{
+			corona_client_response response;
+			try {
+				date_time dt;
+				dt = date_time::now();
+				log_command_start("query", "query_start", dt);
+				timer tx;
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				json query_request = jp.create_object();
+				query_request.put_member(token_field, token);
+				query_request.put_member(data_field, query_body);
+				response = client.query_objects(request);
+				log_command_stop("query", "query_complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+			return response;
+		}
+
 		virtual corona_client_response  local_create_user(json user_information)
 		{
 			corona_client_response response;
@@ -768,13 +793,13 @@ namespace corona
 		json get_local_token()
 		{
 			json_parser jp;
-			json login_request = jp.create_object();
-			json server_config = local_db_config["Server"];
-			std::string user_name = server_config[sys_user_name_field].as_string();
-			std::string password = server_config[sys_user_password_field].as_string();
-			login_request.put_member(sys_user_name_field, user_name);
-			login_request.put_member(sys_user_password_field, password);
-			json result = local_db->login_user(login_request);
+            json login_request = jp.create_object();
+			json user_data = jp.create_object();
+			user_data.put_member("access_code", app->get_machine_id());
+			user_data.put_member(user_name_field, app->get_user_display_name());
+			user_data.put_member(user_email_field, app->get_user_email());
+			login_request.put_member(data_field, user_data);
+			json result = local_db->login_user_local(login_request);
 			return result[token_field];
 		}
 
@@ -923,6 +948,30 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response  local_query(json query_body)
+		{
+			corona_client_response response;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("query", "query_start", dt);
+			timer tx;
+			json_parser jp;
+			json token = get_local_token();
+			json query_request = query_body.clone();
+			query_request.put_member(token_field, token);
+			json j = local_db->query(query_request);
+			if (j.error())
+				log_error(j, __FILE__, __LINE__);
+			response = j;
+			j = j[data_field];
+			if (j.array()) {
+				std::string rr = std::format("{0} items", j.size());
+				log_information(rr);
+			}
+			log_command_stop("query", "query_complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
 		virtual corona_client_response  create_object(corona_instance _instance, std::string class_name)
 		{
 			date_time dt;
@@ -944,6 +993,30 @@ namespace corona
 			}
 
 			log_command_stop("create_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response  query(corona_instance _instance, json _query_body)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("query", "query_start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_query(_query_body);
+			}
+			else
+			{
+				response = remote_query(_query_body);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("query", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 

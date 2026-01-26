@@ -984,6 +984,34 @@ namespace corona
 			filter_request.put_member("class_name", _source->class_name);
 
 			if (!_source->filter.empty()) {
+				auto filter_impl = _source->filter.object_impl();
+				auto& filter_members = filter_impl->members;
+                for (auto& member : filter_members)
+				{
+					std::string value = member.second->to_string();
+                    if (value.starts_with("$")) {
+						std::string source_path = value.substr(1);
+                        auto parts = split(source_path, '.');
+						if (parts.size() == 2) {
+							std::string source_name = parts[0];
+							std::string field_name = parts[1];
+							auto source_it = sources.find(source_name);
+							if (source_it != sources.end()) {
+								json source_data = source_it->second->data;
+								if (source_data.array() && source_data.size() > 0) {
+									source_data = source_data.get_element(0);
+									auto new_string = std::make_shared<json_string>();
+									auto str = source_data[field_name].as_string();
+									new_string->set_value(str.c_str());
+									member.second = new_string;
+								}
+							}
+							else {
+								system_monitoring_interface::active_mon->log_warning(std::format("Source {} not found for filter replacement", source_name), __FILE__, __LINE__);
+							}
+						}
+					}
+				}
 				join_filter = _source->filter;
 				filter_request.put_member("filter", _source->filter);
 			}
@@ -2099,7 +2127,7 @@ namespace corona
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				object_reference_type chumpy = (object_reference_type)_object_to_test;
+				object_reference_type chumpy = _object_to_test.as_object_reference_type();
 
 				if (chumpy and reference_class_descendants.contains(chumpy.class_name))
 				{

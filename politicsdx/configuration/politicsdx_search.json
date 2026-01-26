@@ -8,22 +8,66 @@
       "box": "full_container",
       "children": [
         {
-          "class_name": "row", "name": "search_label",
+          "class_name": "row", "name": "search_row",
           "box": { "width": "1.0 container", "height": "30 pixels" },
           "children": [
             {
-              "class_name": "chaptersubtitle", "name": "search_label_text",
-              "box": { "width": "150 pixels", "height": "1.0 container" },
+              "class_name": "chaptersubtitle",
+              "name": "search_label_text",
+              "box": {
+                "width": "150 pixels",
+                "height": "1.0 container"
+              },
               "text": "Search politics:"
             },
             {
-              "class_name": "edit", "name": "search_input",
-              "box": { "width": "300 pixels", "height": "1.0 container" }
+              "class_name": "edit",
+              "name": "search_input",
+              "json_field_name": "full_text",
+              "box": {
+                "width": "300 pixels",
+                "height": "1.0 container"
+              }
             },
             {
-              "class_name": "push_button", "name": "search_button",
+              "class_name": "chaptersubtitle",
+              "name": "search_space",
+              "box": {
+                "width": "10 pixels",
+                "height": "1.0 container"
+              }
+            },
+            {
+              "class_name": "push_button",
+              "name": "search_button",
               "text": "Search",
-              "box": { "width": "150 pixels", "height": "1.0 container" }
+              "box": {
+                "width": "150 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "political_object",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
             }
           ]
         },
