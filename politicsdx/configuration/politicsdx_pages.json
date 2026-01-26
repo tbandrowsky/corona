@@ -108,7 +108,7 @@
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_donor.json"
+      "file_name": "politicsdx_donation.json"
     }
   ]
 }

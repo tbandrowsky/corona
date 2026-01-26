@@ -83,14 +83,51 @@
             {
               "class_name": "listview",
               "name": "result_table",
-              "box": "full_container",
+              "box": {
+                "width": "0.5 container",
+                "height": "1.0 container"
+              },
               "table": {
                 "columns": [
-                  { "label_text": "Type", "json_field_name": "class_name", "width": 150 },
-                  { "label_text": "Name", "json_field_name": "full_name", "width": 150 },
-                  { "label_text": "City", "json_field_name": "city", "width": 250 },
-                  { "label_text": "State", "json_field_name": "state", "width": 50 }
+                  {
+                    "label_text": "Type",
+                    "json_field_name": "class_name",
+                    "width": 150
+                  },
+                  {
+                    "label_text": "Name",
+                    "json_field_name": "full_name",
+                    "width": 150
+                  },
+                  {
+                    "label_text": "City",
+                    "json_field_name": "city",
+                    "width": 250
+                  },
+                  {
+                    "label_text": "State",
+                    "json_field_name": "state",
+                    "width": 50
+                  }
                 ]
+              },
+              "select_command": {
+                "class_name": "list_select_object",
+                "target_frame": "page_home.frame_selected",
+                "table_name": "result_table",
+                "sources": {
+                  "candidate": "page_candidate",
+                  "donor": "page_donor",
+                  "committee" :  "page_committee"
+                }
+              }
+            },
+            {
+              "class_name": "frame",
+              "name": "frame_selected",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "1.0 container"
               }
             }
           ]

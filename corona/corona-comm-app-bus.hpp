@@ -636,7 +636,6 @@ namespace corona
 
 			try
 			{
-
 				return client.edit_object(_class_name, _object_id, _include_children);
 			}
 			catch (std::exception& exc)
@@ -790,6 +789,235 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response local_register_user(json _user)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+                json token = get_local_token();
+                request.copy_member(token_field, token);
+				request.put_member("data", _user);
+				json jresponse = local_db->create_user(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				data.put_member(user_name_field, _user_name);
+				data.put_member("access_code", _confirmation_code);
+				request.put_member("data", data);
+				json jresponse = local_db->user_confirm_code(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_send_user(std::string _user_name)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				data.put_member(user_name_field, _user_name);
+				request.put_member("data", data);
+				json jresponse = local_db->user_send_code(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_login(std::string _user_name, std::string _password)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				data.put_member(user_name_field, _user_name);
+				data.put_member("password1", _password);
+				data.put_member("password2", _password);
+				request.put_member("data", data);
+				json jresponse = local_db->user_confirm_code(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+
+		}
+
+		virtual corona_client_response local_login()
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				request.put_member("data", data);
+				json jresponse = local_db->login_user(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+
+		}
+
+		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				data.put_member(user_name_field, user_name);
+				data.put_member("password1", password1);
+				data.put_member("password2", password2);
+				data.put_member("validation_code", validation_code);
+				request.put_member("data", data);
+				json jresponse = local_db->set_user_password(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+
+		}
+
+		virtual corona_client_response local_get_classes()
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				request.put_member("data", data);
+				json jresponse = local_db->get_classes(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_get_class(std::string class_name)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				request.put_member("data", data);
+				json jresponse = local_db->get_class(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_put_class(json _class_definition)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				json data = jp.create_object();
+				request.put_member("data", data);
+				json jresponse = local_db->put_class(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+
 		json get_local_token()
 		{
 			json_parser jp;
@@ -895,8 +1123,12 @@ namespace corona
 			timer tx;
 			json_parser jp;
 			json request = jp.create_object();
+			json data = jp.create_object();
+			data.put_member(class_name_field, _class_name);
+			data.put_member_i64(object_id_field, _object_id);
 			json token = get_local_token();
 			request.put_member(token_field, token);
+			request.put_member(data_field, data);
 			json j = local_db->edit_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
@@ -969,6 +1201,224 @@ namespace corona
 				log_information(rr);
 			}
 			log_command_stop("query", "query_complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+
+		virtual corona_client_response register_user(corona_instance _instance, json _user)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("register_user", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_register_user(_user);
+			}
+			else
+			{
+				response = remote_register_user(_user);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("register_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+
+		}
+
+		virtual corona_client_response confirm_user(corona_instance _instance, std::string _user_name, std::string _confirmation_code)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("confirm_user", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_confirm_user(_user_name, _confirmation_code);
+			}
+			else
+			{
+				response = remote_confirm_user(_user_name, _confirmation_code);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("confirm_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response send_user(corona_instance _instance, std::string _user_name)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("send_user", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_send_user(_user_name);
+			}
+			else
+			{
+				response = remote_send_user(_user_name);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response login(corona_instance _instance, std::string _user_name, std::string _password)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("login", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_login(_user_name, _password );
+			}
+			else
+			{
+				response = remote_login(_user_name, _password);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("login", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response login(corona_instance _instance)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("login", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_login("", "");
+			}
+			else
+			{
+				response = remote_login("", "");
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response set_password(corona_instance _instance, std::string user_name, std::string validation_code, std::string password1, std::string password2)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("set_password", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_set_password(user_name, validation_code, password1, password2);
+			}
+			else
+			{
+				response = remote_set_password(user_name, validation_code, password1, password2);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response get_classes(corona_instance _instance)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("set_password", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_get_classes();
+			}
+			else
+			{
+				response = remote_get_classes();
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response get_class(corona_instance _instance, std::string class_name)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("get_class", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_get_class(class_name);
+			}
+			else
+			{
+				response = remote_get_class(class_name);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response put_class(corona_instance _instance, json _class_data)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("get_class", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_put_class(_class_data);
+			}
+			else
+			{
+				response = remote_put_class(_class_data);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -1408,22 +1858,18 @@ namespace corona
 		virtual void run_command(std::shared_ptr<corona_bus_command> _command)
 		{
 			if (_command) {
-				json_parser jp;
-				json jcommand = jp.create_object();
-				corona::get_json(jcommand, _command);
 				date_time start_time = date_time::now();
-				log_user_command_start("run_command", jcommand["class_name"].as_string(), start_time, __FILE__, __LINE__);
-				this->run_ui([this, jcommand]() {
+				log_user_command_start("run_command", _command->get_name(), start_time, __FILE__, __LINE__);
+				std::weak_ptr<corona_bus_command> command = _command;
+				this->run_ui([this, command]() {
 					timer tx;
-					log_json<json>(jcommand);
-					std::shared_ptr<corona_bus_command> command;
-					corona::put_json(command, jcommand);
-					if (command) {
+					std::shared_ptr<corona_bus_command> pcommand = command.lock();
+					if (pcommand) {
 						json_parser jp2;
 						json context = jp2.create_object();
-						auto tranny = command->execute(context, this);
+						auto tranny = pcommand->execute(context, this);
 					}
-					log_user_command_stop("run_command", jcommand["class_name"].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					log_user_command_stop("run_command", pcommand->get_name(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				});
 			}
 		}

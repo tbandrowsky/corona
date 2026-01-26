@@ -153,6 +153,16 @@ namespace corona
 		virtual corona_client_response remote_get_class(std::string class_name) = 0;
 		virtual corona_client_response remote_put_class(json _class_data) = 0;
 
+		virtual corona_client_response local_register_user(json _user) = 0;
+		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
+		virtual corona_client_response local_send_user(std::string _user_name) = 0;
+		virtual corona_client_response local_login(std::string _user_name, std::string _password) = 0;
+		virtual corona_client_response local_login() = 0;
+		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
+		virtual corona_client_response local_get_classes() = 0;
+		virtual corona_client_response local_get_class(std::string class_name) = 0;
+		virtual corona_client_response local_put_class(json _class_data) = 0;
+
 		virtual corona_client_response create_object(corona_instance _instance, std::string class_name) = 0;
 		virtual corona_client_response run_object(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response edit_object(corona_instance _instance, json object_information) = 0;
@@ -161,6 +171,17 @@ namespace corona
 		virtual corona_client_response delete_object(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response query_objects(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response query(corona_instance _instance, json query_body) = 0;
+
+		virtual corona_client_response register_user(corona_instance _instance, json _user) = 0;
+		virtual corona_client_response confirm_user(corona_instance _instance, std::string _user_name, std::string _confirmation_code) = 0;
+		virtual corona_client_response send_user(corona_instance _instance, std::string _user_name) = 0;
+		virtual corona_client_response login(corona_instance _instance, std::string _user_name, std::string _password) = 0;
+		virtual corona_client_response login(corona_instance _instance) = 0;
+		virtual corona_client_response set_password(corona_instance _instance, std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
+		virtual corona_client_response get_classes(corona_instance _instance) = 0;
+		virtual corona_client_response get_class(corona_instance _instance, std::string class_name) = 0;
+		virtual corona_client_response put_class(corona_instance _instance, json _class_data) = 0;
+
 		virtual void error(json _error) = 0;
 
 		virtual void when(UINT topic, std::function<void()> _runnable) = 0;
@@ -361,6 +382,11 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
+		}
+
+		virtual std::string get_name()
+		{
+			return "command";
 		}
 	};
 }

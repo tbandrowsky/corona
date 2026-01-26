@@ -58,7 +58,7 @@
     <CopyFileToFolders Include="configuration\politicsdx_committee.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\politicsdx_donor.json">
+    <CopyFileToFolders Include="configuration\politicsdx_donation.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\politicsdx_home.json">

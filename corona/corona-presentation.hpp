@@ -396,6 +396,12 @@ namespace corona {
 			throw std::logic_error("Cannot select a page without the window being created first.");
 		}
 
+		if (auto ppage = current_page.lock()) {
+			if (ppage->name == _page_name) {
+				return;
+			}
+        }
+
 		if (pages.contains(_page_name)) {
 			if (auto ppage = current_page.lock()) {
 				ppage->handle_unload(ppage);

@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_committee",
+  "page_name": "page_donation",
   "children": [
     {
 
@@ -18,7 +18,7 @@
             "width": "1.0 container",
             "height": "1.0 container"
           },
-          "text": "Committee"
+          "text": "Donor"
         }
       ]
     }
