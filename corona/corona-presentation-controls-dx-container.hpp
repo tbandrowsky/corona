@@ -456,57 +456,61 @@ namespace corona
 				{
 					_context->setSolidColorBrush(&selection_border);
 				};
+		}
 
-			on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
+		virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
+		{
+			_context->setSolidColorBrush(&selection_border);
+
+			auto draw_bounds = inner_bounds;
+
+			draw_bounds.x = inner_bounds.x;
+			draw_bounds.y = inner_bounds.y;
+
+			point offset = { view_port.x, view_port.y };
+
+			auto& context = _context;
+
+			if (rows.size() == 0) {
+				return;
+			}
+
+			if (not page_to_item_index.contains(selected_page_index)) {
+				std::string msg;
+				msg = std::format("selected_page_index '{0}' not found", selected_page_index);
+				system_monitoring_interface::active_mon->log_warning(msg);
+				return;
+			}
+
+			int idx = page_to_item_index[selected_page_index];
+
+			while (idx < rows.size())
+			{
+				auto& row = rows[idx];
+
+				auto rect_bounds = row.bounds;
+				rect_bounds.x = rect_bounds.x - offset.x + draw_bounds.x;
+				rect_bounds.y = rect_bounds.y - offset.y + draw_bounds.y;
+
+				if (rect_bounds.y < bounds.bottom())
 				{
-					_context->setSolidColorBrush(&selection_border);
-
-					auto draw_bounds = inner_bounds;
-
-					draw_bounds.x = inner_bounds.x;
-					draw_bounds.y = inner_bounds.y;
-
-					point offset = { view_port.x, view_port.y };
-
-					auto& context = _context;
-
-					if (not page_to_item_index.contains(selected_page_index)) {
-						std::string msg;
-						msg = std::format("selected_page_index '{0}' not found", selected_page_index);
-						system_monitoring_interface::active_mon->log_warning(msg);
-						return;
-					}
-
-					int idx = page_to_item_index[ selected_page_index ];
-
-					while (idx < rows.size())
+					if (row.control)
 					{
-						auto& row = rows[idx];
-
-						auto rect_bounds = row.bounds;
-						rect_bounds.x -= offset.x + draw_bounds.x;
-						rect_bounds.y -= offset.y + draw_bounds.y;
-
-						if (rect_bounds.y < bounds.bottom()) 
-						{
-							if (row.control) 
-							{
-								row.control->arrange(this, &rect_bounds);
-								row.control->render(_context);
-								if (selected_item_index == idx) {
-									_context->drawRectangle(&rect_bounds, selection_border.name, 2, "");
-								}
-							}
+                        row.control->set_data(row.object_data);
+						row.control->arrange(this, &rect_bounds);
+						row.control->render(_context);
+						if (selected_item_index == idx) {
+							_context->drawRectangle(&rect_bounds, selection_border.name, 2, "");
 						}
-						else 
-						{
-							break;
-						}
-
-						idx++;
 					}
-				};
+				}
+				else
+				{
+					break;
+				}
 
+				idx++;
+			};
 		}
 
 	public:
@@ -586,10 +590,11 @@ namespace corona
 			}
 		}
 
-		virtual json set_data(json _data)
+		virtual bool set_items(json _data)
 		{
 			data = _data;
 			rows.clear();
+			create_controls();
 
 			int i;
 			rectangle item_bounds;
@@ -606,7 +611,7 @@ namespace corona
 				gvr.item_id = i;
                 gvr.object_data = data.get_element(i);
                 gvr.control = nullptr;
-				std::string class_name = data[class_name_field].as_string();
+				std::string class_name = gvr.object_data[class_name_field].as_string();
 				if (page_controls.contains(class_name))
 				{
 					gvr.control = page_controls[class_name];
@@ -621,7 +626,9 @@ namespace corona
 				selected_item_index = 0;
 				check_scroll();
 			}
-			return data;
+			create_controls();
+
+			return true;
 		}
 
 		virtual void key_down(int _key)

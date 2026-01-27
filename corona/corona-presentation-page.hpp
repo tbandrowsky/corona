@@ -116,10 +116,12 @@ namespace corona
 			return std::dynamic_pointer_cast<column_layout>(root);
 		}
 
-
-
 		inline control_base* get_root() {
 			return root.get();
+		}
+
+		inline control_base* get_card() {
+			return root->children.size() ? root->children.front().get() : nullptr;
 		}
 
 		template <typename T> inline T* find(int _id) {

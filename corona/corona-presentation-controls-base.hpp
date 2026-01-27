@@ -378,14 +378,7 @@ namespace corona
 		virtual json set_data(json _data)
 		{
 			for (auto child : children) {
-				if (child->json_field_name.empty()) 
-				{
-					child->set_data(_data);
-				}
-				else 
-				{
-					child->set_data(_data);
-				}
+				child->set_data(_data);
 			}
 			return _data;
 		}

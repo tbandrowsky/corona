@@ -3,25 +3,36 @@
   "page_name": "card_donation",
   "children": [
     {
-
-      "class_name": "row",
+      "class_name": "column",
       "name": "search_label",
       "box": {
-        "width": "0.9 container",
-        "height": "0.5 remaining"
+        "width": "500 pixels",
+        "height": "80 pixels"
       },
+      "padding": "8 pixels",
       "children": [
         {
           "class_name": "chaptersubtitle",
-          "name": "subtitle",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 container"
-          },
-          "text": "Donor"
+          "name": "full_name",
+          "box": "edit_label_box_full",
+          "json_field_name": "full_name",
+          "text": "{full_name}"
+        },
+        {
+          "class_name": "paragraph",
+          "name": "location",
+          "box": "edit_label_box_full",
+          "json_field_name": "city",
+          "text": "{city} {state} ({class_name})"
+        },
+        {
+          "class_name": "paragraph",
+          "name": "transaction",
+          "box": "edit_label_box_full",
+          "json_field_name": "city",
+          "text": "${transaction_amount}"
         }
       ]
     }
   ]
-
 }

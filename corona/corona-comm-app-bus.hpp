@@ -1891,9 +1891,9 @@ namespace corona
 			auto wcontrol = comm_bus_app_interface::global_bus->as<comm_app_bus>()->get_page(control_name);
 			if (auto pcontrol = wcontrol.lock())
 			{
-				if (pcontrol->root)
+				if (pcontrol->root && pcontrol->root->children.size() > 0)
 				{
-					page_controls[control_name] = pcontrol->root->clone();
+					page_controls[class_name] = pcontrol->root->children[0]->clone();
 				}
 			}
 		}

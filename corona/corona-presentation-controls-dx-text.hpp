@@ -24,6 +24,7 @@ namespace corona
 	{
 	public:
 		std::string			text;
+		json				data;
 
 		text_display_control(const text_display_control& _src) = default;
 		text_display_control();
@@ -35,6 +36,7 @@ namespace corona
 			draw_control::get_json(_dest);
 			_dest.put_member("text", text);
 		}
+
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
@@ -52,6 +54,18 @@ namespace corona
 		virtual void set_default_styles()
 		{
 			;
+		}
+
+        virtual json set_data(json _data)
+		{
+			data = _data;
+			if (text.size() && data.object()) {
+                for (auto m : data.object_impl()->members) {
+					std::string key = "{" + m.first + "}";
+					text = replace(text, key, m.second->to_string());
+				}
+			}
+			return data;
 		}
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }

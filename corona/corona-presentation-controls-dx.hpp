@@ -162,10 +162,7 @@ namespace corona
             * that do not have backgrounds.  This is helpful for layout work and debugging.
             */
 
-            if (on_draw)
-            {
-                on_draw(_context, this);
-            }
+            call_on_draw(_context);
 
             if (border_name.size()) {
                 rectangle r = inner_bounds;
@@ -176,6 +173,14 @@ namespace corona
             for (auto& child : children)
             {
                 child->render(_context);
+            }
+        }
+
+        virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
+        {
+            if (on_draw)
+            {
+                on_draw(_context, this);
             }
         }
 
