@@ -25,7 +25,6 @@ namespace corona
 {
 
 	class tab_view_control;
-	class search_view_control;
 	class caption_bar_control;
 	class status_bar_control;
 	class form_control;
@@ -1200,7 +1199,6 @@ namespace corona
 
 		control_builder& tab_button(int _id, std::function<void(tab_button_control&)> _settings = nullptr);
 		control_builder& tab_view(int _id, std::function<void(tab_view_control&)> _settings = nullptr);
-		control_builder& search_view(int _id, std::function<void(search_view_control&)> _settings = nullptr);
 		control_builder& caption_bar(int _id, std::function<void(caption_bar_control&)> _settings = nullptr);
 		control_builder& status_bar(int _id, std::function<void(status_bar_control&)> _settings = nullptr);
 		control_builder& form(int _id, std::function<void(form_control&)> _settings = nullptr);
@@ -2142,72 +2140,6 @@ namespace corona
 		}
 	};
 
-	class search_view_control : public column_layout
-	{
-
-		void init()
-		{
-			idc_search_text = id_counter::next();
-			idc_search_command = id_counter::next();
-			idc_search_results = id_counter::next();
-
-			control_builder cb;
-
-			cb.row_begin(id_counter::next(), [](row_layout& _rl)
-				{
-					_rl.set_size(1.0_container, 75.0_px);
-				})
-				.label("Search")
-					.edit(idc_search_text)
-					.push_button(idc_search_command, "Go")
-					.end()
-					.grid_view_begin(idc_search_results, [](grid_view& _cvl) {
-					_cvl.set_size(1.0_container, 1.0_remaining);
-						})
-					.end();
-
-			cb.apply_controls(this);
-		}
-
-	public:
-
-		int idc_search_text;
-		int idc_search_command;
-		int idc_search_results;
-
-		search_view_control()
-		{
-			idc_search_text = -1;
-			idc_search_command = -1;
-			idc_search_results = -1;
-		}
-
-		search_view_control(const search_view_control& _src) = default;
-
-		search_view_control(control_base* _parent, int _id) : column_layout(_parent, _id)
-		{
-			idc_search_text = -1;
-			idc_search_command = -1;
-			idc_search_results = -1;
-		}
-
-		virtual std::shared_ptr<control_base> clone()
-		{
-			auto tv = std::make_shared<search_view_control>(*this);
-			return tv;
-		}
-
-		void set_item_source(array_data_source _item_source)
-		{
-			auto& cview = control_base::find<grid_view>(idc_search_results);
-			cview.set_item_source(_item_source);
-		}
-
-		virtual ~search_view_control()
-		{
-			;
-		}
-	};
 
 	class caption_bar_control : public container_control
 	{
@@ -2434,16 +2366,6 @@ namespace corona
 	control_builder& control_builder::tab_view(int _id, std::function<void(tab_view_control&)> _settings)
 	{
 		auto tc = create<tab_view_control>(_id);
-		apply_item_sizes(tc);
-		if (_settings) {
-			_settings(*tc);
-		}
-		return *this;
-	}
-
-	control_builder& control_builder::search_view(int _id, std::function<void(search_view_control&)> _settings)
-	{
-		auto tc = create<search_view_control>(_id);
 		apply_item_sizes(tc);
 		if (_settings) {
 			_settings(*tc);
@@ -2895,13 +2817,6 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
-		else if (class_name == "search_view")
-		{
-			search_view(field_id, [&control_properties, control_data](auto& _ctrl)->void {
-				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
-				});
-		}
 		else if (class_name == "caption_bar")
 		{
 			caption_bar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2946,7 +2861,7 @@ namespace corona
 			std::cout << "title, subtitle, chaptertitle, chaptersubtitle, paragraph, " << std::endl;
 			std::cout << "code, label, error, status, success" << std::endl;
 			std::cout << "Layout types" << class_name << std::endl;
-			std::cout << "row, column, absolute, row_view, absolute_view, grid_view, grid, slide, frame, tab_button, tab_view, search_view" << class_name << std::endl;
+			std::cout << "row, column, absolute, row_view, absolute_view, grid_view, grid, slide, frame, tab_button, tab_view" << class_name << std::endl;
 			std::cout << "Windows SDK types" << class_name << std::endl;
 			std::cout << "combobox, listbox, edit, password, listview, treeview, header, toolbar, statusbar, hotkey, animate, richedit, draglistbox, comboboxex, datetimepicker, monthcalendar, radiobutton_list, checkbox_list" << std::endl;
 			std::cout << "System Button types" << class_name << std::endl;

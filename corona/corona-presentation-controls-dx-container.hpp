@@ -361,6 +361,7 @@ namespace corona
 	{
 	protected:
 		void arrange_children();
+
 	public:
 
 		frame_layout() { ; }
@@ -378,6 +379,7 @@ namespace corona
 		virtual point get_remaining(control_base* _parent) override;
 
 		virtual void set_contents(presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
+
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
 		{
 			container_control::set_contents(_parent, _contents);
@@ -387,8 +389,6 @@ namespace corona
 		{
 			container_control::create(_context, _host);
 		}
-
-
 	};
 
 	class grid_view_row
@@ -396,15 +396,20 @@ namespace corona
 	public:
 		int item_id;
 		int page_index;
+		json object_data;
 		rectangle bounds;
+		std::shared_ptr<control_base> control;
 	};
 
 	class grid_view : public draw_control
 	{
-		array_data_source items_source;
-		std::vector<grid_view_row> rows;
-		std::map<int,int> page_to_item_index;
-		solidBrushRequest selection_border;
+		json data;
+		
+		std::shared_ptr<corona_class_page_map>					sources;
+        std::map<std::string, std::shared_ptr<control_base>>	page_controls;
+		std::vector<grid_view_row>								rows;
+		std::map<int,int>										page_to_item_index;
+		solidBrushRequest										selection_border;
 
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
@@ -449,11 +454,6 @@ namespace corona
 		{
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control *_src)
 				{
-					if (items_source.assets)
-					{
-						items_source.assets(_context, this, bounds);
-					}
-
 					_context->setSolidColorBrush(&selection_border);
 				};
 
@@ -529,6 +529,24 @@ namespace corona
 
 		grid_view(const grid_view& _src) = default;
 
+		void create_controls()
+		{
+			for (auto& class_page : sources->pages_by_class)
+			{
+				std::string control_name = class_page.second;
+				std::string class_name = class_page.first;
+
+				auto wcontrol = comm_app_bus::current->get_page(control_name);
+				if (auto pcontrol = wcontrol.lock())
+				{
+					if (pcontrol->root) 
+					{
+						page_controls[control_name] = pcontrol->root->clone();
+					}
+				}
+			}
+		}
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<grid_view>(*this);
@@ -562,8 +580,6 @@ namespace corona
 			int i;
 			for (i = 0; i < sz; i++)
 			{
-				json temp;
-				auto isz = items_source.size_item(this, i, temp, *_bounds);
 				auto& r = rows[i];
 				r.bounds.x = 0;
 				r.bounds.y = y;
@@ -579,9 +595,9 @@ namespace corona
 			}
 		}
 
-		void set_item_source(array_data_source _item_source)
+		virtual json set_data(json _data)
 		{
-			items_source = _item_source;
+			data = _data;
 			rows.clear();
 
 			int i;
@@ -591,12 +607,19 @@ namespace corona
 			item_bounds.w = 0;
 			item_bounds.h = 0;
 
-			for (i = 0; i < items_source.data.size(); i++)
+			for (i = 0; i < data.size(); i++)
 			{
 				grid_view_row gvr;
 				gvr.page_index = 0;
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
+                gvr.object_data = data.get_element(i);
+                gvr.control = nullptr;
+				std::string class_name = data[class_name_field].as_string();
+				if (page_controls.contains(class_name))
+				{
+					gvr.control = page_controls[class_name]->clone();
+                }
 				rows.push_back(gvr);
 			}
 
@@ -607,7 +630,6 @@ namespace corona
 				selected_item_index = 0;
 				check_scroll();
 			}
-
 		}
 
 		virtual void key_down(int _key)
@@ -680,7 +702,7 @@ namespace corona
 
 		void end()
 		{
-			selected_item_index = items_source.data.size() - 1;
+			selected_item_index = data.size() - 1;
 			check_scroll();
 		}
 
@@ -712,18 +734,29 @@ namespace corona
 		{
 			json j;
 			if (selected_item_index >= 0) {
-				j = items_source.data.get_element(selected_item_index);
+				j = data.get_element(selected_item_index);
 			}
 			return j;
 		}
 
-		virtual bool set_items(json _data)
+		virtual void get_json(json& _dest)
 		{
-			items_source.data = _data;
-			set_item_source(items_source);
-			return true;
+			draw_control::get_json(_dest);
+
+			if (sources) {
+				sources->get_json(_dest);
+			}
 		}
 
+		virtual void put_json(json& _src)
+		{
+			draw_control::put_json(_src);
+
+			if (_src.has_member("sources")) {
+				sources = std::make_shared<corona_class_page_map>();
+				sources->put_json(_src);
+			}
+		}
 
 	};
 

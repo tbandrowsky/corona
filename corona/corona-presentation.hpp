@@ -100,7 +100,9 @@ namespace corona {
 		virtual page& create_page(std::string _name, std::function<void(page& pg)> _settings = nullptr);
 		virtual bool is_current_page(const std::string& _page_name);
 
+
 		virtual void select_page(const std::string& _page_name);
+		virtual std::weak_ptr<page_base> get_page(const std::string& _page_name);
 		virtual void select_page(const std::string& _page_name, std::function<void(page& pg)> _settings);
 		virtual void set_home_page(const std::string& _page_name) 
 		{
@@ -315,6 +317,15 @@ namespace corona {
 		if (not current_page.lock())
 			current_page = new_page;
 		return pg;
+	}
+
+	std::weak_ptr<page_base> presentation::get_page(const std::string& _page_name)
+	{
+		std::weak_ptr<page_base> result;
+		if (pages.contains(_page_name)) {
+            result = pages[_page_name];
+		}
+		return result;
 	}
 
 	void presentation::select_page(const std::string& _page_name, std::function<void(page& pg)> _settings)

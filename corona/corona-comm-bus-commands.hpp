@@ -899,6 +899,11 @@ namespace corona
 					std::string source_form = source_it->second;
 					_bus->select_frame(target_frame, source_form, response.data);
 				}
+				control_base* cb = _bus->find_control(table_name);
+				if (cb) {
+					cb->set_focus();
+				}
+
 				response.message = "No target destination found for class '" + class_name;
 				response.success = false;
 				return response.data;

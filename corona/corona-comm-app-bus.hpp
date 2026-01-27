@@ -78,6 +78,8 @@ namespace corona
 
 	public:
 
+		static comm_app_bus* current;
+
 		std::shared_ptr<corona_database>	local_db;
 		std::shared_ptr<application>		app;
 		json								abbreviations;
@@ -134,6 +136,8 @@ namespace corona
 			if (system_monitoring_interface::active_mon == nullptr) {
 				system_monitoring_interface::active_mon = this;
 			}
+
+            comm_app_bus::current = this;
 
 			if (_config_path.ends_with("\\") == false and
 				_config_path.ends_with("/") == false)
@@ -1737,6 +1741,11 @@ namespace corona
 			});
 		}
 
+		std::weak_ptr<page_base> get_page(const std::string& _page_name)
+		{
+            return presentation_layer->get_page(_page_name);
+		}
+
 		virtual void select_frame(std::string _dest, std::string _src, json _obj)
 		{
 		
@@ -1875,5 +1884,7 @@ namespace corona
 		}
 
 	};
+
+	comm_app_bus* comm_app_bus::current = nullptr;
 }
 
