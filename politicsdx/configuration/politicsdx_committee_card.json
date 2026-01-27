@@ -1,0 +1,52 @@
+{
+  "class_name": "page",
+  "page_name": "card_committee",
+  "children": [
+    {
+
+      "class_name": "row",
+      "name": "search_label",
+      "box": {
+        "width": "0.9 container",
+        "height": "40 pixels"
+      },
+      "children": [
+        {
+          "class_name": "row",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "name": "committee_name",
+              "box": "edit_label_box",
+              "json_field_name": "committee_name"
+            },
+            {
+              "class_name": "paragraph",
+              "name": "title",
+              "box": "edit_label_box",
+              "text": "Committee"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "children": [
+            {
+              "class_name": "paragraph",
+              "name": "committee_id",
+              "box": "edit_label_box",
+              "json_field_name": "committee_id"
+            },
+            {
+              "class_name": "paragraph",
+              "name": "political_party",
+              "box": "edit_label_box",
+              "json_field_name": "political_party"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

@@ -470,7 +470,7 @@ namespace corona
 
 					auto& context = _context;
 
-					if (not page_to_item_index.contains(selected_page_index )) {
+					if (not page_to_item_index.contains(selected_page_index)) {
 						std::string msg;
 						msg = std::format("selected_page_index '{0}' not found", selected_page_index);
 						system_monitoring_interface::active_mon->log_warning(msg);
@@ -484,17 +484,19 @@ namespace corona
 						auto& row = rows[idx];
 
 						auto rect_bounds = row.bounds;
-						rect_bounds.x -= offset.x;
-						rect_bounds.y -= offset.y;
+						rect_bounds.x -= offset.x + draw_bounds.x;
+						rect_bounds.y -= offset.y + draw_bounds.y;
 
 						if (rect_bounds.y < bounds.bottom()) 
 						{
-							items_source.draw_item(_context, this, idx, items_source.data, rect_bounds);
-							if (selected_item_index == idx) 
+							if (row.control) 
 							{
-								context->drawRectangle(&rect_bounds, selection_border.name, 4, nullptr);
+								row.control->arrange(this, &rect_bounds);
+								row.control->render(_context);
+								if (selected_item_index == idx) {
+									_context->drawRectangle(&rect_bounds, selection_border.name, 2, "");
+								}
 							}
-							context->drawText("Test", &rect_bounds, "" ,selection_border.name);
 						}
 						else 
 						{
@@ -529,23 +531,7 @@ namespace corona
 
 		grid_view(const grid_view& _src) = default;
 
-		void create_controls()
-		{
-			for (auto& class_page : sources->pages_by_class)
-			{
-				std::string control_name = class_page.second;
-				std::string class_name = class_page.first;
-
-				auto wcontrol = comm_app_bus::current->get_page(control_name);
-				if (auto pcontrol = wcontrol.lock())
-				{
-					if (pcontrol->root) 
-					{
-						page_controls[control_name] = pcontrol->root->clone();
-					}
-				}
-			}
-		}
+		void create_controls();
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -562,15 +548,15 @@ namespace corona
 		{
 			control_base::arrange(_parent, _bounds);
 
-			view_port.w = _bounds->w;
-			view_port.h = _bounds->h;
+			view_port.w = bounds.w;
+			view_port.h = bounds.h;
 
-			if (_bounds->h == 0 or _bounds->w == 0) 
+			if (bounds.h == 0 or bounds.w == 0) 
 			{
 				return;
 			}
 
-			double h = _bounds->h;
+			double h = bounds.h;
 			double y = 0;
 
 			int page_index;
@@ -583,15 +569,20 @@ namespace corona
 				auto& r = rows[i];
 				r.bounds.x = 0;
 				r.bounds.y = y;
-				r.bounds.w = _bounds->w;
-				r.bounds.h = isz.y;
+				r.bounds.w = 0;
+				r.bounds.h = 0;
+				if (r.control) {
+					auto sz = r.control->get_size(this);
+					r.bounds.w = sz.x;
+					r.bounds.h = sz.y;
+				}
 				page_index = (r.bounds.bottom() / h);
 				r.page_index = page_index;
 				if (not page_to_item_index.contains(page_index))
 				{
 					page_to_item_index[page_index] = i;
 				}
-				y += isz.y;
+				y += r.bounds.h;
 			}
 		}
 
@@ -618,7 +609,7 @@ namespace corona
 				std::string class_name = data[class_name_field].as_string();
 				if (page_controls.contains(class_name))
 				{
-					gvr.control = page_controls[class_name]->clone();
+					gvr.control = page_controls[class_name];
                 }
 				rows.push_back(gvr);
 			}
@@ -630,6 +621,7 @@ namespace corona
 				selected_item_index = 0;
 				check_scroll();
 			}
+			return data;
 		}
 
 		virtual void key_down(int _key)

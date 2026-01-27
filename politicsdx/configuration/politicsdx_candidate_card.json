@@ -1,0 +1,52 @@
+{
+  "class_name": "page",
+  "page_name": "card_candidate",
+  "children": [
+    {
+
+      "class_name": "row",
+      "name": "candidate_details",
+      "box": {
+        "width": "0.9 container",
+        "height": "40 pixels"
+      },
+      "children": [
+        {
+          "class_name": "row",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "name": "full_name",
+              "box": "edit_label_box",
+              "json_field_name": "full_name"
+            },
+            {
+              "class_name": "paragraph",
+              "name": "title",
+              "box": "edit_label_box",
+              "text": "Candidate"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "children": [
+            {
+              "class_name": "paragraph",
+              "name": "city",
+              "box": "edit_label_box",
+              "json_field_name": "city"
+            },
+            {
+              "class_name": "paragraph",
+              "name": "state",
+              "box": "edit_label_box",
+              "json_field_name": "state"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

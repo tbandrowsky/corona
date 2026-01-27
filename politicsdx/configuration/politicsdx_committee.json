@@ -4,21 +4,44 @@
   "children": [
     {
 
-      "class_name": "row",
+      "class_name": "column",
       "name": "search_label",
-      "box": {
-        "width": "0.9 container",
-        "height": "0.5 remaining"
-      },
+      "box": "full_container",
       "children": [
         {
-          "class_name": "chaptersubtitle",
-          "name": "subtitle",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 container"
-          },
-          "text": "Committee"
+          "class_name": "chaptertitle",
+          "text": "Committee",
+          "box": "chaptertitle_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Committee Name:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "committee_name",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Committee ID:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "committee_id",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Political Party:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "political_party",
+          "box": "edit_field_box"
         }
       ]
     }

@@ -897,7 +897,7 @@ namespace corona
 				auto source_it = sources->pages_by_class.find(class_name);
 				if (source_it != sources->pages_by_class.end()) {
 					std::string source_form = source_it->second;
-					_bus->select_frame(target_frame, source_form, response.data);
+					_bus->select_frame(target_frame, source_form, response.data["object"]);
 				}
 				control_base* cb = _bus->find_control(table_name);
 				if (cb) {

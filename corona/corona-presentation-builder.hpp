@@ -3191,6 +3191,4 @@ namespace corona
 		}
 		return obj;
 	}
-
-
 }

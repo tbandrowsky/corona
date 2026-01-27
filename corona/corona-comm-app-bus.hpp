@@ -78,8 +78,6 @@ namespace corona
 
 	public:
 
-		static comm_app_bus* current;
-
 		std::shared_ptr<corona_database>	local_db;
 		std::shared_ptr<application>		app;
 		json								abbreviations;
@@ -136,8 +134,6 @@ namespace corona
 			if (system_monitoring_interface::active_mon == nullptr) {
 				system_monitoring_interface::active_mon = this;
 			}
-
-            comm_app_bus::current = this;
 
 			if (_config_path.ends_with("\\") == false and
 				_config_path.ends_with("/") == false)
@@ -1741,7 +1737,7 @@ namespace corona
 			});
 		}
 
-		std::weak_ptr<page_base> get_page(const std::string& _page_name)
+		virtual std::weak_ptr<page_base> get_page(const std::string& _page_name)
 		{
             return presentation_layer->get_page(_page_name);
 		}
@@ -1878,13 +1874,31 @@ namespace corona
 						json context = jp2.create_object();
 						auto tranny = pcommand->execute(context, this);
 					}
-					log_user_command_stop("run_command", pcommand->get_name(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					log_user_command_stop("run_command", "stop", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				});
 			}
 		}
 
 	};
 
-	comm_app_bus* comm_app_bus::current = nullptr;
+	void grid_view::create_controls()
+	{
+		for (auto& class_page : sources->pages_by_class)
+		{
+			std::string control_name = class_page.second;
+			std::string class_name = class_page.first;
+
+			auto wcontrol = comm_bus_app_interface::global_bus->as<comm_app_bus>()->get_page(control_name);
+			if (auto pcontrol = wcontrol.lock())
+			{
+				if (pcontrol->root)
+				{
+					page_controls[control_name] = pcontrol->root->clone();
+				}
+			}
+		}
+	}
+
+
 }
 

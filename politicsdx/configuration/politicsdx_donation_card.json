@@ -1,0 +1,27 @@
+{
+  "class_name": "page",
+  "page_name": "card_donation",
+  "children": [
+    {
+
+      "class_name": "row",
+      "name": "search_label",
+      "box": {
+        "width": "0.9 container",
+        "height": "0.5 remaining"
+      },
+      "children": [
+        {
+          "class_name": "chaptersubtitle",
+          "name": "subtitle",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "text": "Donor"
+        }
+      ]
+    }
+  ]
+
+}

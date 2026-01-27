@@ -599,6 +599,9 @@ namespace corona {
 					int job_id = (int)bytesTransferred;
 					if (compute_jobs.try_get(job_id, waiting_job)) {
 						try {
+							if (compute_jobs.erase(job_id)) {
+								::SetEvent(empty_queue_event);
+							}
 							// if waiting_job is whacked, that means the pointer for the job was actually deleted.
 							jobNotify = waiting_job->execute(this, bytesTransferred, success);
 							jobNotify.notify();
@@ -609,9 +612,6 @@ namespace corona {
 						catch (std::exception exc)
 						{
 							system_monitoring_interface::active_mon->log_warning(exc.what(), __FILE__, __LINE__);
-						}
-						if (compute_jobs.erase(job_id)) {
-							::SetEvent(empty_queue_event);
 						}
 						if (jobNotify.shouldDelete) {
 							delete waiting_job;

@@ -3,22 +3,94 @@
   "page_name": "page_donation",
   "children": [
     {
-
-      "class_name": "row",
-      "name": "search_label",
-      "box": {
-        "width": "0.9 container",
-        "height": "0.5 remaining"
-      },
+      "class_name": "column",
+      "name": "donation_details",
+      "box": "full_container",
       "children": [
         {
-          "class_name": "chaptersubtitle",
-          "name": "subtitle",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 container"
-          },
-          "text": "Donor"
+          "class_name": "chaptertitle",
+          "text": "Donation",
+          "box": "chaptertitle_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Full Name:",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "full_name",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Employer:",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "employer",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Occupation:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "occupation",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "City:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "city",
+          "box": "edit_field_large_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "State:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "state",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Zip:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "zip",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Transaction Amount:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "transaction_amount",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "Transaction Date:",
+          "box": "edit_label_box"
+        },
+        {
+          "class_name": "edit",
+          "json_field_name": "transaction_date",
+          "box": "edit_field_box"
         }
       ]
     }

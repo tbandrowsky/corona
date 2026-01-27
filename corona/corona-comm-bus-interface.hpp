@@ -139,6 +139,11 @@ namespace corona
 			}
 		}
 
+		template <typename T> T* as()
+		{
+			return dynamic_cast<T*>(this);
+        }
+
 		std::string default_page;
 
 		virtual void run_app_ui(HINSTANCE hInstance, LPSTR command_line, bool fullScreen) = 0;

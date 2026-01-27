@@ -73,15 +73,15 @@
         },
         {
           "class_name": "chaptersubtitle", "name": "search_result",
-          "text" :  "Results",
-          "box": { "width": "1.0 container", "height": "50.0 pixels" }
+          "text" :  "",
+          "box": { "width": "1.0 container", "height": "16.0 pixels" }
         },
         {
           "class_name": "row", "name": "search_result",
           "box": { "width": "1.0 container", "height": "1.0 remaining" },
           "children": [
             {
-              "class_name": "listview",
+              "class_name": "grid",
               "name": "result_table",
               "box": {
                 "width": "0.5 container",
@@ -117,7 +117,7 @@
                 "table_name": "result_table",
                 "sources": {
                   "candidate": "page_candidate",
-                  "donor": "page_donor",
+                  "donation": "page_donation",
                   "committee" :  "page_committee"
                 }
               }
@@ -125,6 +125,7 @@
             {
               "class_name": "frame",
               "name": "frame_selected",
+              "padding": "8 pixels",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"

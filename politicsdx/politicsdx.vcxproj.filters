@@ -76,6 +76,9 @@
     <CopyFileToFolders Include="configuration\politicsdx_styles.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\politicsdx_candidate_card.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_committee_card.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_donation_card.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="politicsdx.cpp">
