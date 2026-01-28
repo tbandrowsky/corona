@@ -1123,10 +1123,11 @@ namespace corona
 			timer tx;
 			json_parser jp;
 			json request = jp.create_object();
-			json data = jp.create_object();
+			json data = jp.create_object();			
 			data.put_member(class_name_field, _class_name);
 			data.put_member_i64(object_id_field, _object_id);
 			json token = get_local_token();
+            request.put_member("include_children", true);
 			request.put_member(token_field, token);
 			request.put_member(data_field, data);
 			json j = local_db->edit_object(request);

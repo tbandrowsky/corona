@@ -687,7 +687,9 @@ namespace corona
 					results.push_back(item);
 				}
 			}
-			cb_table->set_items(results);
+			if (cb_table) {
+				cb_table->set_items(results);
+			}
 
 			return response.data;
 		}
@@ -884,7 +886,6 @@ namespace corona
 			control_base* cb = _bus->find_control(table_name);
 			if (cb) {
 				json key_data = cb->get_selected_object();
-				key_data.put_member("include_children", true);
 				return key_data;
 			}
 			return jp.create_object();
