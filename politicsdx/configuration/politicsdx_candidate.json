@@ -3,114 +3,171 @@
   "page_name": "page_candidate",
   "children": [
     {
-      "class_name": "column",
-      "name": "candidate_details",
+      "class_name": "row",
+      "name": "candidate_object",
       "box": "full_container",
       "children": [
         {
-          "class_name": "chaptertitle",
-          "text": "Candidate",
-          "box": "chaptertitle_box"
+          "class_name": "column",
+          "name": "candidate_details",
+          "box": {
+            "width": "300 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Candidate",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Full Name:",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "full_name",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Candidate ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "candidate_id",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Political Party:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "political_party",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Election Year:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "election_year",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Election Year:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "election_year",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Street 1:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "street1",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Street 2:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "street2",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "City:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "city",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "State:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "state",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Zip:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "zip",
+              "box": "edit_field_box"
+            }
+          ]
         },
         {
-          "class_name": "paragraph",
-          "text": "Full Name:",
-          "box": "edit_field_box"
+          "class_name": "column",
+          "box": {
+            "width": "16 pixels",
+            "height": "1.0 container"
+          }
         },
         {
-          "class_name": "edit",
-          "json_field_name": "full_name",
-          "box": "edit_field_large_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Candidate ID:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "candidate_id",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Political Party:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "political_party",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Election Year:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "election_year",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Election Year:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "election_year",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Street 1:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "street1",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Street 2:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "street2",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "City:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "city",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "State:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "state",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "text": "Zip:",
-          "box": "edit_label_box"
-        },
-        {
-          "class_name": "edit",
-          "json_field_name": "zip",
-          "box": "edit_field_box"
+          "class_name": "column",
+          "box": {
+            "width": "1.0 remaining",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Donations",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "result_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "sources": {
+                "candidate": "card_candidate",
+                "donation": "card_donation",
+                "committee": "card_committee"
+              },
+              "select_command": {
+                "class_name": "list_select_object",
+                "target_frame": "page_home.frame_selected",
+                "table_name": "result_table",
+                "sources": {
+                  "candidate": "page_candidate",
+                  "donation": "page_donation",
+                  "committee": "page_committee"
+                }
+              }
+            }
+          ]
         }
       ]
     }

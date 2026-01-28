@@ -24,7 +24,7 @@
       "card_fields": [ "political_party", "city", "state" ],
       "grid_template_rows": "60px auto",
       "grid_template_columns": "250px 250px 250px",
-      "full_text": [ "full_name" ],
+      "full_text": [ "full_name", "city", "state", "street1", "zip", "candidate_id" ],
       "fields": {
         "full_name": {
           "field_type": "string",
@@ -88,7 +88,10 @@
                 "class_name": "committee_candidate",
                 "name": "donations",
                 "filter": {
-                  "candidate_id": "$this.candidate_id"
+                  "join_to": "this",
+                  "join_by": {
+                    "candidate_id": "candidate_id"
+                  }
                 },
                 "replace": [
                   {
@@ -126,7 +129,7 @@
       "class_version": "1.0",
       "card_title": "committee_name",
       "card_fields": [ "political_party", "committee_id" ],
-      "full_text": [ "committee_name" ],
+      "full_text": [ "committee_name", "committee_id", "political_party" ],
       "fields": {
         "committee_id": "string",
         "committee_name": "string",
@@ -238,7 +241,7 @@
         "zip": "string",
         "employer": "string",
         "occupation": "string",
-        "transaction_date": "datetime",
+        "transaction_date": "string",
         "transaction_amount": "double",
         "memo": "string",
         "committees": {

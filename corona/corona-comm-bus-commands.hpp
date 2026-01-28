@@ -104,7 +104,7 @@ namespace corona
 			return response.data;
 		}
 
-		virtual corona_client_response& set_message(corona_client_response& _src, comm_bus_app_interface* _bus);
+		virtual corona_client_response& set_message(corona_client_response _src, comm_bus_app_interface* _bus);
 
 		virtual json execute(json context, comm_bus_app_interface* bus)
 		{
@@ -122,6 +122,7 @@ namespace corona
 
 						bus->run_ui([this, response, bus]()->void {
 							handle_response(response, bus);
+							set_message(response, bus);
 							});
 					});
 				}
@@ -156,7 +157,7 @@ namespace corona
 			_dest.put_member("success_message_field", success_message_field);
 			_dest.put_member("status_message_field", status_message_field);
 			_dest.put_member("error_table_field", error_table_field);
-			_dest.put_member("execution_time_field", execution_time_field);
+			_dest.put_member(seconds_field, execution_time_field);
 			
 			corona::get_json(_dest, instance);
 		}
@@ -677,9 +678,12 @@ namespace corona
 					std::string cls_name = cls[class_name_field].as_string();
 					std::string cls_description = cls["class_description"].as_string();
 					std::string cls_base = cls[base_class_name_field].as_string();
-					item.put_member(base_class_name_field, cls_base);
-					item.put_member(class_name_field, cls_name);
-					item.put_member("class_description", cls_description);
+					item.put_member(class_name_field, std::string("corona_class"));
+					item.put_member("name", cls_name);
+					item.put_member("base_name", cls_base);
+					item.put_member("description", cls_description);
+					item.copy_member("object_count", cls);
+					item.copy_member("word_count", cls);
 					results.push_back(item);
 				}
 			}
@@ -880,6 +884,7 @@ namespace corona
 			control_base* cb = _bus->find_control(table_name);
 			if (cb) {
 				json key_data = cb->get_selected_object();
+				key_data.put_member("include_children", true);
 				return key_data;
 			}
 			return jp.create_object();
@@ -903,11 +908,8 @@ namespace corona
 				if (cb) {
 					cb->set_focus();
 				}
-
-				response.message = "No target destination found for class '" + class_name;
-				response.success = false;
-				return response.data;
 			}
+			return response.data;
 		}
 
 		virtual void get_json(json& _dest)
@@ -1303,6 +1305,14 @@ namespace corona
 					cb_table->set_items(response.data);
 				}
 			}
+			else {
+
+				json_parser jp;
+				json empty = jp.create_array();
+				if (cb_table) {
+					cb_table->set_items(empty);
+				}
+			}
 			return response.data;
 		}
 
@@ -1640,7 +1650,7 @@ namespace corona
 		}
 	}
 
-	corona_client_response& corona_form_command::set_message(corona_client_response& _src, comm_bus_app_interface* _bus)
+	corona_client_response& corona_form_command::set_message(corona_client_response _src, comm_bus_app_interface* _bus)
 	{
 		auto dest = std::make_shared<corona_set_property_command>();
 
@@ -1655,7 +1665,7 @@ namespace corona
 		dest->execute(_src.data, _bus);
 
 		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
-		dest->value = std::format("{0} secs", _src.execution_time );
+		dest->value = std::format("{0:.2f} ms", _src.execution_time * 1000.0);
 		dest->execute(_src.data, _bus);
 
 		std::string table_field = error_table_field.empty() ? "call_error_table" : error_table_field;

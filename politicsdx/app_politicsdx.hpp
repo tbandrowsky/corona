@@ -82,7 +82,7 @@ namespace corona
 
         CreateDirectoryA(database_path.c_str(), NULL);
 
-//		EnableGuiStdOuts();
+		EnableGuiStdOuts();
 
         std::string config_full_file = config_path + config_filename;
 
@@ -111,7 +111,7 @@ namespace corona
 			}
 		}
 
-//		DisableGuiStdOuts();
+		DisableGuiStdOuts();
 	}
 
 }

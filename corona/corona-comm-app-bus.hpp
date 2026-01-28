@@ -447,7 +447,7 @@ namespace corona
 		{
 			directory_checker::check_options options;
 
-			if (checker.check_changes( options)) {
+			if (checker.check_changes( options )) {
 				global_job_queue->submit_job([this, _select_default_page]()->void {
                     poll_db();
 					}, nullptr);
@@ -954,7 +954,7 @@ namespace corona
 				json_parser jp;
 				json request = jp.create_object();
 				json token = get_local_token();
-				request.copy_member(token_field, token);
+				request.put_member(token_field, token);
 				json data = jp.create_object();
 				request.put_member("data", data);
 				json jresponse = local_db->get_classes(request);
@@ -1354,7 +1354,7 @@ namespace corona
 		{
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("set_password", "start", dt);
+			log_command_start("get_classes", "start", dt);
 			corona_client_response response;
 			timer tx;
 
@@ -1370,7 +1370,7 @@ namespace corona
 				}
 			}
 
-			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("get_classes", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 

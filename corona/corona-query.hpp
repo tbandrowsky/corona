@@ -173,7 +173,7 @@ namespace corona
 			_dest.put_member("class_name", "query_stage"sv);
 			_dest.put_member("name", stage_name);
 			_dest.put_member("output", stage_output);
-			_dest.put_member("execution_time_seconds", execution_time_seconds);
+			_dest.put_member(seconds_field, execution_time_seconds);
 		}
 
 		virtual void put_json(json& _src)
@@ -545,7 +545,7 @@ namespace corona
 			_dest.put_member("source2", source2);
 			std::string skeys = join(keys, ",");
 			_dest.put_member("keys", skeys);
-			_dest.put_member("execution_time_seconds", execution_time_seconds);
+			_dest.put_member(seconds_field, execution_time_seconds);
 		}
 
 		virtual void put_json(json& _src)

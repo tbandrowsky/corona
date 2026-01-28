@@ -81,7 +81,7 @@ bool put_response_base(CoronaInterface::ICoronaBaseResponse^ baseResponse, coron
 
         baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double();
+        baseResponse->ExecutionTimeSeconds = result["seconds"].as_double();
 
         if (result.has_member("data")) {
             corona::json data = result["data"];
@@ -275,7 +275,7 @@ bool put_response(CoronaInterface::IEditObjectResponse^ baseResponse, corona::js
 
         baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double() ;
+        baseResponse->ExecutionTimeSeconds = result["seconds"].as_double() ;
 
         if (result.has_member("data")) {
             corona::json data = result["data"];
@@ -336,7 +336,7 @@ bool put_response(CoronaInterface::IRunObjectResponse^ baseResponse, corona::jso
 
         baseResponse->Success = result["success"].as_bool();
         baseResponse->Message = gcnew System::String(msg.c_str());
-        baseResponse->ExecutionTimeSeconds = result["execution_time"].as_double();
+        baseResponse->ExecutionTimeSeconds = result["seconds"].as_double();
 
         if (result.has_member("data")) {
             corona::json data = result["data"];

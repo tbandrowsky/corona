@@ -357,7 +357,6 @@ namespace corona {
 
 		if (pages.contains(_page_name)) {
 			if (auto ppage = current_page.lock()) {
-				ppage->handle_unload(ppage);
 				ppage->destroy();
 			}
 			auto ptr = pages[_page_name];
@@ -435,7 +434,6 @@ namespace corona {
 
 		if (pages.contains(_page_name)) {
 			if (auto ppage = current_page.lock()) {
-				ppage->handle_unload(ppage);
 				ppage->destroy();
 			}
 			current_page = pages[_page_name];
@@ -504,7 +502,6 @@ namespace corona {
         focus_list.clear();
 
 		if (auto ppage = current_page.lock()) {
-			ppage->handle_unload(ppage);
 			ppage->destroy();
 
 			auto root = ppage->get_root();
@@ -666,11 +663,18 @@ namespace corona {
 		return false;
 	}
 
+	time_t last_refresh = 0;
+
 	bool presentation::update(double _elapsedSeconds, double _totalSeconds)
 	{
 		auto cp = current_page.lock();
 		if (cp) {
 			cp->update(_elapsedSeconds, _totalSeconds);
+			time_t current = time(nullptr);
+			if (current > last_refresh) {
+				last_refresh = current;
+				cp->refresh();
+			}
 		}
 		return true;
 	}

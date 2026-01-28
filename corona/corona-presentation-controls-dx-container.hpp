@@ -425,10 +425,18 @@ namespace corona
 
 		void check_scroll()
 		{
+			if (rows.size()==0)
+			{
+				selected_item_index = 0;
+				selected_page_index = 0;
+				return;
+            }
+
 			if (selected_item_index >= rows.size() - 1)
 			{
 				selected_item_index = rows.size() - 1;
 			}
+
 			if (selected_item_index < 0)
 			{
 				selected_item_index = 0;
@@ -621,6 +629,20 @@ namespace corona
 			}
 		}
 
+        virtual json set_data(json _data) override
+		{
+			if (_data.array()) {
+				set_items(_data);
+			}
+			else if (_data.has_member(json_field_name)) {
+                set_items(_data[json_field_name]);
+			}
+			else {
+				data = _data;
+			}
+			return data;
+		}
+
 		virtual bool set_items(json _data)
 		{
 			data = _data;
@@ -647,7 +669,10 @@ namespace corona
 				{
 					gvr.control = page_controls[class_name]->clone();
 					gvr.control->set_data(gvr.object_data);
-                }
+				}
+				else {
+                    system_monitoring_interface::active_mon->log_warning(std::format("items_view: control for class '{0}' not found", class_name), __FILE__, __LINE__);
+				}
 				rows.push_back(gvr);
 			}
 

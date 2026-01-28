@@ -87,5 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\politicsdx_layout_test.json" />
+    <None Include="configuration\politicsdx_table_card.json" />
   </ItemGroup>
 </Project>

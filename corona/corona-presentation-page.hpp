@@ -34,14 +34,13 @@ namespace corona
 		std::map<int, std::shared_ptr<item_changed_event_binding> > item_changed_bindings;
 		std::map<int, std::shared_ptr<list_changed_event_binding> > list_changed_events;
 		std::map<int, std::shared_ptr<command_event_binding> > command_bindings;
-		std::vector<std::shared_ptr<page_unload_event_binding>> unload_bindings;
-		std::vector<std::shared_ptr<page_load_event_binding>> load_bindings;
 		std::vector<std::shared_ptr<page_select_event_binding>> select_bindings;
 		update_function update_event;
 
 		lockable binding_lock;
 
 		int current_focused = 0;
+
 
 	public:
 
@@ -75,6 +74,14 @@ namespace corona
 			destroy();
 		}
 
+		virtual void refresh() override
+		{
+			if (root) 
+			{
+				root->refresh();
+			}
+        }
+
 		void clear()
 		{
 			scope_lock locker(binding_lock);
@@ -85,8 +92,6 @@ namespace corona
 			item_changed_bindings.clear();
 			list_changed_events.clear();
 			command_bindings.clear();
-			unload_bindings.clear();
-			load_bindings.clear();
 			select_bindings.clear();
 			destroy();
 			root = std::make_shared<column_layout>();
@@ -192,9 +197,6 @@ namespace corona
 			}
 		}
 
-		double last_update_seconds = 0;
-		const double refresh_pulse_seconds = .5;
-
 		void update(double _elapsedSeconds, double _totalSeconds)
 		{
 			if (root) 
@@ -205,7 +207,6 @@ namespace corona
 			{
 				update_event(this, _elapsedSeconds, _totalSeconds);
 			}
-			last_update_seconds += _elapsedSeconds;
 		}
 		
 		void subscribe(presentation_base* _presentation)
@@ -375,21 +376,6 @@ namespace corona
 			select_bindings.push_back(plet);
 		}
 
-		virtual void on_load(std::function< void(page_load_event) > fnc)
-		{
-			scope_lock locker(binding_lock);
-			auto plet = std::make_shared<page_load_event_binding>();
-			plet->on_load = fnc;
-			load_bindings.push_back(plet);
-		}
-
-		virtual void on_unload(std::function< void(page_unload_event) > fnc)
-		{
-			scope_lock locker(binding_lock);
-			auto plet = std::make_shared<page_unload_event_binding>();
-			plet->on_unload = fnc;
-			unload_bindings.push_back(plet);
-		}
 
 		bool handle_key_up(int _control_id, key_up_event evt)
 		{
@@ -520,25 +506,7 @@ namespace corona
 		void handle_onload(std::shared_ptr<page> _pg)
 		{
 			scope_lock locker(binding_lock);
-			for (auto evt : load_bindings) {
-				page_load_event ple = {};
-				ple.pg = _pg;
-				if (evt) {
-					evt->on_load(ple);
-				}
-			}			
-		}
-
-		void handle_unload(std::shared_ptr<page> _pg)
-		{
-			scope_lock locker(binding_lock);
-			for (auto evt : unload_bindings) {
-				page_unload_event ple = {};
-				ple.pg = _pg;
-				if (evt) {
-					evt->on_unload(ple);
-				}
-			}
+			_pg->root->loaded();
 		}
 
 		friend class presentation;

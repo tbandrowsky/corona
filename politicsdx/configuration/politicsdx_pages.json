@@ -129,6 +129,10 @@
     {
       "class_name": "import",
       "file_name": "politicsdx_donation_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_table_card.json"
     }
   ]
 }

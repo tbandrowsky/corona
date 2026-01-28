@@ -225,20 +225,6 @@ namespace corona {
 		std::function< void(page_select_event) > on_select;
 	};
 
-	class page_load_event_binding
-	{
-	public:
-		int subscribed_item_id;
-		std::function< void(page_load_event) > on_load;
-	};
-
-	class page_unload_event_binding
-	{
-	public:
-		int subscribed_item_id;
-		std::function< void(page_unload_event) > on_unload;
-	};
-
 	class page_base {
 	public:
 
@@ -253,9 +239,8 @@ namespace corona {
 		virtual void on_list_changed(int _control_id, std::function< void(list_changed_event) >) = 0;
 		virtual void on_command(int _item_id, std::function< void(command_event) >) = 0;
 		virtual void on_select(std::function< void(page_select_event) >) = 0;
-		virtual void on_load(std::function< void(page_load_event) >) = 0;
-		virtual void on_unload(std::function< void(page_unload_event) >) = 0;
 		virtual void clear_events(int _item_id) = 0;
+		virtual void refresh() = 0;
 
 	};
 }

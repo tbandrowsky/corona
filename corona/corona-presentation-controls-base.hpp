@@ -174,6 +174,9 @@ namespace corona
 		return cb;
 	}
 
+	void get_json(json& _dest, std::shared_ptr<corona_bus_command>& _src);
+	void put_json(std::shared_ptr<corona_bus_command>& _dest, json _src);
+
 	class control_base : public container_control_base
 	{
 
@@ -221,6 +224,9 @@ namespace corona
 			name = _src.name;
 			wrap_break = _src.wrap_break;
             json_field_name = _src.json_field_name;
+
+            onload_command = _src.onload_command;
+            onrefresh_command = _src.onrefresh_command;
 		}
 
 	public:
@@ -243,6 +249,9 @@ namespace corona
 		std::string				json_field_name = {};
 		std::string				class_name = {};
 		bool					wrap_break = false;
+
+		std::shared_ptr<corona_bus_command> onload_command;
+		std::shared_ptr<corona_bus_command> onrefresh_command;
 
 		std::vector<std::shared_ptr<control_base>> children;
 
@@ -471,6 +480,18 @@ namespace corona
 
 			wrap_break = _src["wrap_break"].as_bool();
 
+			json jonload_command = _src["on_loaded"];
+			if (jonload_command.object()) {
+				// select command is loaded through the reference.
+				corona::put_json(onload_command, jonload_command);
+			}
+
+			json jrefresh_command = _src["on_refresh"];
+			if (jrefresh_command.object()) {
+				// select command is loaded through the reference.
+				corona::put_json(onrefresh_command, jrefresh_command);
+			}
+
 		}
 
 		virtual json get_selected_object()
@@ -654,6 +675,25 @@ namespace corona
 			system_monitoring_interface::active_mon->log_json<json>(control_json);
 		}
 
+		virtual void loaded()
+		{
+            if (onload_command) {
+                corona::comm_bus_app_interface::global_bus->run_command(onload_command);
+			}
+            for (auto child : children) {
+				child->loaded();
+			}
+		}
+
+		virtual void refresh()
+		{
+			if (onrefresh_command) {
+				corona::comm_bus_app_interface::global_bus->run_command(onrefresh_command);
+			}
+			for (auto child : children) {
+				child->refresh();
+			}
+		}
 	};
 
 	control_base* control_base::find(point p)

@@ -22,7 +22,7 @@ namespace corona
 		{
 			success = response[success_field].as_bool();
 			message = response[message_field].as_string();
-			execution_time = response["execution_time_seconds"].as_double();
+			execution_time = response[seconds_field].as_double();
 			data = response["data"];
 			errors.clear();
 			if (response.has_member("errors") and response["errors"].array())
