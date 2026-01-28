@@ -523,7 +523,6 @@ namespace corona
 				{
 					if (row.control)
 					{
-                        row.control->set_data(row.object_data);
 						row.control->arrange(this, &rect_bounds);
 						row.control->render(_context);
 						if (selected_item_index == idx) {
@@ -646,7 +645,8 @@ namespace corona
 				std::string class_name = gvr.object_data[class_name_field].as_string();
 				if (page_controls.contains(class_name))
 				{
-					gvr.control = page_controls[class_name];
+					gvr.control = page_controls[class_name]->clone();
+					gvr.control->set_data(gvr.object_data);
                 }
 				rows.push_back(gvr);
 			}
