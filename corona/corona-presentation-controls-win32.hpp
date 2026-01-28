@@ -137,6 +137,7 @@ namespace corona
 		virtual bool set_focus()
 		{
 			is_focused = true;
+			::SetFocus(window);
 			return true;
 		}
 
@@ -491,7 +492,6 @@ namespace corona
 			auto tv = std::make_shared<table_control_base>(*this);
 			return tv;
 		}
-
 
 		virtual ~table_control_base() { ; }
 

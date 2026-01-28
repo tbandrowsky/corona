@@ -464,9 +464,9 @@ namespace corona
 			return control_builder(this, cc);
 		}
 
-		control_builder grid_view_begin(int id, std::function<void(grid_view&)> _settings)
+		control_builder grid_view_begin(int id, std::function<void(items_view&)> _settings)
 		{
-			auto tc = create<grid_view>(id);
+			auto tc = create<items_view>(id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2551,7 +2551,7 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
-		else if (class_name == "grid_view")
+		else if (class_name == "items_view")
 		{
 			grid_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
@@ -2861,7 +2861,7 @@ namespace corona
 			std::cout << "title, subtitle, chaptertitle, chaptersubtitle, paragraph, " << std::endl;
 			std::cout << "code, label, error, status, success" << std::endl;
 			std::cout << "Layout types" << class_name << std::endl;
-			std::cout << "row, column, absolute, row_view, absolute_view, grid_view, grid, slide, frame, tab_button, tab_view" << class_name << std::endl;
+			std::cout << "row, column, absolute, row_view, absolute_view, items_view, grid, slide, frame, tab_button, tab_view" << class_name << std::endl;
 			std::cout << "Windows SDK types" << class_name << std::endl;
 			std::cout << "combobox, listbox, edit, password, listview, treeview, header, toolbar, statusbar, hotkey, animate, richedit, draglistbox, comboboxex, datetimepicker, monthcalendar, radiobutton_list, checkbox_list" << std::endl;
 			std::cout << "System Button types" << class_name << std::endl;

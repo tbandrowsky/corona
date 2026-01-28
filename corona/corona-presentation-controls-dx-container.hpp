@@ -391,7 +391,7 @@ namespace corona
 		}
 	};
 
-	class grid_view_row
+	class items_view_row
 	{
 	public:
 		int item_id;
@@ -401,15 +401,16 @@ namespace corona
 		std::shared_ptr<control_base> control;
 	};
 
-	class grid_view : public draw_control
+	class items_view : public draw_control
 	{
 		json data;
 		
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
-		std::vector<grid_view_row>								rows;
+		std::vector<items_view_row>								rows;
 		std::map<int,int>										page_to_item_index;
 		solidBrushRequest										selection_border;
+		solidBrushRequest										focused_border;
 
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
@@ -417,6 +418,10 @@ namespace corona
 
 		int selected_page_index;
 		int selected_item_index;
+
+		std::shared_ptr<corona_bus_command> select_command;
+
+		void update_selection();
 
 		void check_scroll()
 		{
@@ -428,12 +433,28 @@ namespace corona
 			{
 				selected_item_index = 0;
 			}
+
 			selected_page_index = rows[selected_item_index].page_index;
 			int selected_item_page_index = page_to_item_index[selected_page_index];
 			view_port.y = rows[selected_item_page_index].bounds.y;
+			update_selection();
 			std::string msg;
 			msg = std::format("selected_page_index '{0}' selected_item_index {1}, y:{2} ", selected_page_index, selected_item_page_index, view_port.y);
 			system_monitoring_interface::active_mon->log_information(msg);
+		}
+
+		void set_focused_border(solidBrushRequest _brushFill)
+		{
+			focused_border = _brushFill;
+			focused_border.name = typeid(*this).name();
+			focused_border.name += "_focused";
+		}
+
+		void set_focused_border(std::string _color)
+		{
+			focused_border.brushColor = toColor(_color.c_str());
+			focused_border.name = typeid(*this).name();
+			focused_border.name += "_focused";
 		}
 
 		void set_selection_border(solidBrushRequest _brushFill)
@@ -455,12 +476,14 @@ namespace corona
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control *_src)
 				{
 					_context->setSolidColorBrush(&selection_border);
+					_context->setSolidColorBrush(&focused_border);
 				};
 		}
 
 		virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
 		{
 			_context->setSolidColorBrush(&selection_border);
+			_context->setSolidColorBrush(&focused_border);
 
 			auto draw_bounds = inner_bounds;
 
@@ -483,6 +506,10 @@ namespace corona
 			}
 
 			int idx = page_to_item_index[selected_page_index];
+
+			if (is_focused) {
+				_context->drawRectangle(&bounds, focused_border.name, 2, "");
+			}
 
 			while (idx < rows.size())
 			{
@@ -511,42 +538,47 @@ namespace corona
 
 				idx++;
 			};
+
 		}
 
 	public:
 
-		grid_view()
+		items_view()
 		{
 			view_port = {};
 			selected_item_index = 0;
 			selected_page_index = 0;
-			set_selection_border("#000000");
+			set_selection_border("#c0c0c0");
+			set_focused_border("#000000");
 			init();
 		}
 
-		grid_view(control_base* _parent, int _id) : draw_control(_parent, _id)
+		items_view(control_base* _parent, int _id) : draw_control(_parent, _id)
 		{
 			view_port = {};
 			selected_item_index = 0;
 			selected_page_index = 0;
-			set_selection_border("#000000");
+			set_selection_border("#c0c0c0");
+			set_focused_border("#000000");
 			init();
 		}
 
-		grid_view(const grid_view& _src) = default;
+		items_view(const items_view& _src) = default;
 
 		void create_controls();
 
 		virtual std::shared_ptr<control_base> clone()
 		{
-			auto tv = std::make_shared<grid_view>(*this);
+			auto tv = std::make_shared<items_view>(*this);
 			return tv;
 		}
 
-		virtual ~grid_view()
+		virtual ~items_view()
 		{
 			;
 		}
+
+		virtual bool captures_keyboard_focus() { return true; }
 
 		virtual void arrange(control_base* _parent, rectangle* _bounds)
 		{
@@ -605,7 +637,7 @@ namespace corona
 
 			for (i = 0; i < data.size(); i++)
 			{
-				grid_view_row gvr;
+				items_view_row gvr;
 				gvr.page_index = 0;
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
@@ -741,10 +773,17 @@ namespace corona
 
 		virtual void get_json(json& _dest)
 		{
+			json_parser jp;
 			draw_control::get_json(_dest);
 
 			if (sources) {
 				sources->get_json(_dest);
+			}
+
+			if (select_command) {
+				json jcommand = jp.create_object();
+				corona::get_json(jcommand, select_command);
+				_dest.put_member("select_command", jcommand);
 			}
 		}
 
@@ -755,6 +794,12 @@ namespace corona
 			if (_src.has_member("sources")) {
 				sources = std::make_shared<corona_class_page_map>();
 				sources->put_json(_src);
+			}
+
+			json command = _src["select_command"];
+			if (command.object()) {
+				// select command is loaded through the reference.
+				corona::put_json(select_command, command);
 			}
 		}
 

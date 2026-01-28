@@ -187,6 +187,8 @@ namespace corona
 		virtual corona_client_response get_class(corona_instance _instance, std::string class_name) = 0;
 		virtual corona_client_response put_class(corona_instance _instance, json _class_data) = 0;
 
+		virtual void update_focus_list() = 0;
+
 		virtual void error(json _error) = 0;
 
 		virtual void when(UINT topic, std::function<void()> _runnable) = 0;

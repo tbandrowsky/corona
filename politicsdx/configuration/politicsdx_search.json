@@ -81,7 +81,7 @@
           "box": { "width": "1.0 container", "height": "1.0 remaining" },
           "children": [
             {
-              "class_name": "grid_view",
+              "class_name": "items_view",
               "name": "result_table",
               "box": {
                 "width": "0.5 container",

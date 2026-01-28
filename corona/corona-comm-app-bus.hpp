@@ -1733,6 +1733,7 @@ namespace corona
 						}
 					}
 				}
+				presentation_layer->update_focus_list();
 				log_function_start("select_page", _page, tx.get_elapsed_seconds());
 			});
 		}
@@ -1801,6 +1802,7 @@ namespace corona
 								formx->set_data(_obj);
 							}
 						}
+						presentation_layer->update_focus_list();
 						presentation_layer->onResize();
 					}
 				}
@@ -1879,9 +1881,14 @@ namespace corona
 			}
 		}
 
+		virtual void update_focus_list()
+		{
+			presentation_layer->update_focus_list();
+		}
+
 	};
 
-	void grid_view::create_controls()
+	void items_view::create_controls()
 	{
 		for (auto& class_page : sources->pages_by_class)
 		{
@@ -1896,6 +1903,13 @@ namespace corona
 					page_controls[class_name] = pcontrol->root->children[0]->clone();
 				}
 			}
+		}
+	}
+
+	void items_view::update_selection()
+	{
+		if (select_command) {
+			comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(select_command);
 		}
 	}
 

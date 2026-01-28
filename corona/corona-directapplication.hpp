@@ -446,8 +446,11 @@ namespace corona
 		bool navigationKey = false;
 
 		//navigationKey = ::IsDialogMessage(hwnd, msg);		
-		navigationKey = false;
 
+		if (msg->message == WM_KEYDOWN && msg->wParam == VK_TAB) {
+			currentController->keyDown(GetDlgCtrlID(hwnd), VK_TAB);
+			navigationKey = true;
+		}
 		return navigationKey;
 	}
 

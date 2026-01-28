@@ -27,7 +27,7 @@ namespace corona
 	class absolute_layout;
 	class frame_layout;
 	class row_view_layout;
-	class grid_view;
+	class items_view;
 	class absolute_view_layout;
 	class single_column_form;
 	class double_column_form;
@@ -231,7 +231,7 @@ namespace corona
 		friend class absolute_layout;
 		friend class frame_layout;
 		friend class tab_view_control;
-		friend class grid_view;
+		friend class items_view;
 
 		int						id = -1;
 

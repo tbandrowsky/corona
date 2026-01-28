@@ -41,6 +41,7 @@ namespace corona {
 		point last_mouse_position;
 		point last_mouse_click;
 		json json_pages;
+		std::vector<int> focus_list;
 
 		comm_bus_app_interface *bus;
 
@@ -66,6 +67,19 @@ namespace corona {
 			default_focus_id = 0;
 			last_mouse_position = {};
 			last_mouse_click = {};
+		}
+
+		void update_focus_list()
+		{
+			focus_list.clear();
+			if (auto cpg = current_page.lock()) {
+				cpg->root->find_if([this](control_base* c)->bool {
+					if (c->captures_keyboard_focus()) {
+						focus_list.push_back(c->id);
+					}
+					return false;
+				});
+			}
 		}
 
 		page_base* get_current_page()
@@ -353,11 +367,16 @@ namespace corona {
 
 		default_focus_id = 0;
 		default_push_button_id = 0;
+		focus_list.clear();
+		current_focused_id = 0;
 
 		if (auto ppage = current_page.lock()) {
 			ppage->handle_onselect(ppage);
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
+				if (_item->captures_keyboard_focus()) {
+					focus_list.push_back(_item->get_id());
+                }
 				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
 				if (pct and pct->is_default_button) {
 					this->default_push_button_id = pct->get_id();
@@ -424,11 +443,17 @@ namespace corona {
 
 		default_focus_id = 0;
 		default_push_button_id = 0;
+		focus_list.clear();
+		current_focused_id = 0;
 
 		if (auto ppage = current_page.lock()) {
 			ppage->handle_onselect(ppage);
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
+				if (_item->captures_keyboard_focus()) {
+					focus_list.push_back(_item->get_id());
+				}
+
 				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
 				if (pct and pct->is_default_button) {
 					this->default_push_button_id = pct->get_id();
@@ -475,6 +500,8 @@ namespace corona {
 
 		default_focus_id = 0;
 		default_push_button_id = 0;
+		current_focused_id = 0;
+        focus_list.clear();
 
 		if (auto ppage = current_page.lock()) {
 			ppage->handle_unload(ppage);
@@ -482,6 +509,10 @@ namespace corona {
 
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
+				if (_item->captures_keyboard_focus()) {
+					focus_list.push_back(_item->get_id());
+				}
+
 				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
 				if (pct and pct->is_default_button) {
 					this->default_push_button_id = pct->get_id();
@@ -705,6 +736,33 @@ namespace corona {
 		if (cp) {
 			cp->handle_key_down(_ctrl_id, kde);
 		}
+		if (_key == VK_TAB) {
+			if (focus_list.size() > 1) {
+				auto it = std::find(focus_list.begin(), focus_list.end(), _ctrl_id);
+				int index = 0;
+				if (it != focus_list.end()) {
+					index = std::distance(focus_list.begin(), it);
+				}
+				if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+					index--;
+                    if (index < 0) {
+						index = (int)focus_list.size() - 1;
+					}
+				}
+				else {
+					index++;
+					if (index >= (int)focus_list.size()) {
+						index = 0;
+					}
+				}
+                int next_id = focus_list[index];	
+				auto next_ctrl = get_control<control_base>(next_id);
+				if (next_ctrl) {
+					next_ctrl->set_focus();
+					current_focused_id = next_id;
+				}
+			}
+        }
 	}
 
 	void presentation::keyUp(int _ctrl_id, int _key)
