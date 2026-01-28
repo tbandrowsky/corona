@@ -98,7 +98,7 @@ namespace corona
 			}
 		}
 
-		virtual bool gets_real_focus() { return true; }
+		virtual bool captures_keyboard_focus() { return true; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{

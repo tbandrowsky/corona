@@ -47,6 +47,7 @@ namespace corona {
 	public:
 		int default_focus_id;
 		int default_push_button_id;
+		int current_focused_id = 0;
 
 		std::map<std::string, std::shared_ptr<page>> pages;
 		std::weak_ptr<applicationBase> window_host;
@@ -678,6 +679,9 @@ namespace corona {
 
 	void presentation::keyPress(int _ctrl_id, int _key)
 	{
+		if (_ctrl_id == 0) {
+			_ctrl_id = current_focused_id;
+		}
 		auto cp = current_page.lock();
 		key_press_event kde;
 		kde.control_id = _ctrl_id;
@@ -690,6 +694,9 @@ namespace corona {
 
 	void presentation::keyDown(int _ctrl_id, int _key)
 	{
+		if (_ctrl_id == 0) {
+            _ctrl_id = current_focused_id;
+		}
 		auto cp = current_page.lock();
 		key_down_event kde;
 		kde.control_id = _ctrl_id;
@@ -702,6 +709,10 @@ namespace corona {
 
 	void presentation::keyUp(int _ctrl_id, int _key)
 	{
+		if (_ctrl_id == 0) {
+			_ctrl_id = current_focused_id;
+		}
+
 		auto cp = current_page.lock();
 		key_up_event kde;
 		kde.control_id = _ctrl_id;
@@ -734,17 +745,19 @@ namespace corona {
 
 		if (cp) {
 			presentation* p = this;
-			SHORT keystate = ::GetKeyState(VK_CONTROL);
 
-			if (keystate < 0) 
+			control_base* cb = cp->root->find(*_point);
+
+			if (cb) 
 			{
-				control_base* cb = cp->root->find(*_point);
-
-				if (cb) 
-				{
-					system_monitoring_interface::active_mon->log_information("Control clicked");
-					cb->dump();
+				system_monitoring_interface::active_mon->log_information("Control clicked");
+				cb->dump();
+				cb->set_focus();
+				control_base* last_focused = cp->root->find(current_focused_id);
+				if (last_focused) {
+					last_focused->kill_focus();
 				}
+				this->current_focused_id = cb->get_id();
 			}
 
 			cp->root->set_mouse(*_point, &leftMouse, nullptr, [cp, p, _point](control_base* _item) {

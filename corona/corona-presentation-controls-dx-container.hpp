@@ -715,18 +715,19 @@ namespace corona
 			;
 		}
 
-		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		virtual void key_up(key_up_event evt) override
 		{
-			_page->on_key_down(id, [](key_down_event evt)
-				{
-					grid_view* gv = dynamic_cast<grid_view *>(evt.control);
-					if (gv) {
-						gv->key_down(evt.key);
-					}
-				});
-			for (auto child : children) {
-				child->on_subscribe(_presentation, _page);
-			}
+
+		}
+
+		virtual void key_down(key_down_event evt) override
+		{
+            key_down(evt.key);
+		}
+
+		virtual void key_press(key_press_event evt) override
+		{
+
 		}
 
 		virtual json get_selected_object()

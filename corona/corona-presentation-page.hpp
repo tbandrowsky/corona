@@ -27,9 +27,6 @@ namespace corona
 	class page : public page_base
 	{
 
-		std::map<int, std::shared_ptr<key_up_event_binding> > key_up_bindings;
-		std::map<int, std::shared_ptr<key_down_event_binding> > key_down_bindings;
-		std::map<int, std::shared_ptr<key_press_event_binding> > key_press_bindings;
 		std::map<int, std::shared_ptr<mouse_move_event_binding> > mouse_move_bindings;
 		std::map<int, std::shared_ptr<mouse_click_event_binding> > mouse_click_bindings;
 		std::map<int, std::shared_ptr<mouse_left_click_event_binding> > mouse_left_click_bindings;
@@ -43,6 +40,8 @@ namespace corona
 		update_function update_event;
 
 		lockable binding_lock;
+
+		int current_focused = 0;
 
 	public:
 
@@ -79,9 +78,6 @@ namespace corona
 		void clear()
 		{
 			scope_lock locker(binding_lock);
-			key_press_bindings.clear();
-			key_up_bindings.clear();
-			key_down_bindings.clear();
 			mouse_move_bindings.clear();
 			mouse_click_bindings.clear();
 			mouse_left_click_bindings.clear();
@@ -99,9 +95,6 @@ namespace corona
 		virtual void clear_events(int _control_id)
 		{
 			scope_lock locker(binding_lock);
-			key_press_bindings.erase(_control_id);
-			key_up_bindings.erase(_control_id);
-			key_down_bindings.erase(_control_id);
 			mouse_move_bindings.erase(_control_id);
 			mouse_click_bindings.erase(_control_id);
 			mouse_left_click_bindings.erase(_control_id);
@@ -277,58 +270,6 @@ namespace corona
 			}
 		}
 
-		int get_keyboard_parent(int _control_id)
-		{
-			if (not root) 
-				return -1;
-
-
-            // SUSPECT because this call should be made via the page's root only
-			control_base* p = root->find(_control_id);
-
-			if (p->gets_real_focus()) {
-				return p->id;
-			}
-			return -1;
-		}
-
-		virtual void on_key_press(int _control_id, std::function< void(key_press_event) > handler)
-		{
-			scope_lock locker(binding_lock);
-			auto evt = std::make_shared<key_press_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_key_press = handler;
-			int event_capture_id = get_keyboard_parent(_control_id);
-			if (event_capture_id > -1) {
-				key_press_bindings[event_capture_id] = evt;
-			}
-		}
-
-		virtual void on_key_up(int _control_id, std::function< void(key_up_event) > handler)
-		{
-			scope_lock locker(binding_lock);
-			auto evt = std::make_shared<key_up_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_key_up = handler;
-			int event_capture_id = get_keyboard_parent(_control_id);
-			if (event_capture_id > -1) {
-				key_up_bindings[event_capture_id] = evt;
-			}
-		}
-
-		virtual void on_key_down(int _control_id, std::function< void(key_down_event) >  handler)
-		{
-			scope_lock locker(binding_lock);
-			auto evt = std::make_shared<key_down_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_key_down = handler;
-			key_down_bindings[_control_id] = evt;
-			int event_capture_id = get_keyboard_parent(_control_id);
-			if (event_capture_id > -1) {
-				key_down_bindings[event_capture_id] = evt;
-			}
-		}
-
 		virtual void on_mouse_left_click(control_base* _base, std::function< void(mouse_left_click_event) > handler)
 		{
 			scope_lock locker(binding_lock);
@@ -454,16 +395,9 @@ namespace corona
 		{
 			scope_lock locker(binding_lock);
 			bool handled = false;
-			if (key_up_bindings.contains(_control_id)) {
-				auto sc = key_up_bindings[_control_id]->subscribed_item_id;
-				auto fnd = root->find_by_id<control_base>(sc);
-				if (fnd) {
-					evt.control = fnd.get();
-				}
-				else {
-					evt.control = nullptr;
-				}
-				key_up_bindings[_control_id]->on_key_up(evt);
+            control_base *cb = this->find(_control_id);
+			if (cb) {
+				cb->key_up(evt);
 				handled = true;
 			}
 			return handled;
@@ -472,32 +406,18 @@ namespace corona
 		void handle_key_down(int _control_id, key_down_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (key_down_bindings.contains(_control_id)) {
-				auto sc = key_down_bindings[_control_id]->subscribed_item_id;
-				auto fnd = root->find_by_id<control_base>(sc);
-				if (fnd) {
-					evt.control = fnd.get();
-				}
-				else {
-					evt.control = nullptr;
-				}
-				key_down_bindings[_control_id]->on_key_down(evt);
+			control_base* cb = this->find(_control_id);
+			if (cb) {
+				cb->key_down(evt);
 			}
 		}
 
 		void handle_key_press(int _control_id, key_press_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (key_press_bindings.contains(_control_id)) {
-				auto sc = key_press_bindings[_control_id]->subscribed_item_id;
-				auto fnd = root->find_by_id<control_base>(sc);
-				if (fnd) {
-					evt.control = fnd.get();
-				}
-				else {
-					evt.control = nullptr;
-				}
-				key_press_bindings[_control_id]->on_key_press(evt);
+			control_base* cb = this->find(_control_id);
+			if (cb) {
+				cb->key_press(evt);
 			}
 		}
 

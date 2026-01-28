@@ -318,7 +318,7 @@ namespace corona
 			;
 		}
 
-		virtual bool gets_real_focus() 
+		virtual bool captures_keyboard_focus() 
 		{ 
 			return false; 
 		}
@@ -333,6 +333,21 @@ namespace corona
 		{
 			is_focused = false;
 			return false;
+		}
+
+		virtual void key_up(key_up_event evt)
+		{
+
+		}
+
+		virtual void key_down(key_down_event evt)
+		{
+
+		}
+
+		virtual void key_press(key_press_event evt)
+		{
+
 		}
 
 		virtual bool is_control_message(int _key)
@@ -648,6 +663,10 @@ namespace corona
 		if (rectangle_math::contains(inner_bounds, p.x, p.y))
 		{
 			result = this;
+            if (this->captures_keyboard_focus())
+			{
+				return result;
+			}
 			for (auto child : children)
 			{
 				auto temp = child->find(p);

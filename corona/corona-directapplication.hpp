@@ -445,13 +445,8 @@ namespace corona
 	{
 		bool navigationKey = false;
 
-		if (currentController) {
-			navigationKey = currentController->navigationKey(msg->wParam );
-			if (navigationKey)
-				return !navigationKey;
-		}
-
-		navigationKey = ::IsDialogMessage(hwnd, msg);
+		//navigationKey = ::IsDialogMessage(hwnd, msg);		
+		navigationKey = false;
 
 		return navigationKey;
 	}
@@ -920,10 +915,10 @@ namespace corona
 				else if (currentController)
 				{
 					POINT p;
+					::SetFocus(hwnd);
 					if (GetCursorPos(&p))
 					{
 						ScreenToClient(hwnd, &p);
-						::SetFocus(hwnd);
 						point ptxo;
 						ptxo.x = p.x * dpiScale;
 						ptxo.y = p.y * dpiScale;
