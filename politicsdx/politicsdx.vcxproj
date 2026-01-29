@@ -682,8 +682,13 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </CopyFileToFolders>
+    <None Include="configuration\politicsdx_committee_summary.json" />
+    <None Include="configuration\politicsdx_committee_summary_card.json" />
+    <None Include="configuration\politicsdx_committee_transaction.json" />
+    <None Include="configuration\politicsdx_committee_transaction_card.json" />
     <None Include="configuration\politicsdx_layout_test.json" />
     <None Include="configuration\politicsdx_table_card.json" />
+    <None Include="configuration\us_elections\itcont.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

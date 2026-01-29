@@ -165,6 +165,29 @@
             ]
           }
         },
+        "summary": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee_summary",
+                "name": "summaries",
+                "filter": {
+                  "join_to": "this",
+                  "join_by": {
+                    "committee_id": "committee_id"
+                  }
+                }
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "result",
+                "source": "summaries"
+              }
+            ]
+          }
+        },
         "donations": {
           "field_type": "query",
           "query": {
@@ -189,12 +212,35 @@
           }
         }
       },
-      "indexes": {
-        "committee_committee_id_idx": {
-          "index_keys": [
-            "committee_id"
+      "transactions": {
+        "field_type": "query",
+        "query": {
+          "from": [
+            {
+              "class_name": "committee_transaction",
+              "name": "transactions",
+              "filter": {
+                "join_to": "this",
+                "join_by": {
+                  "committee_id": "committee_id"
+                }
+              }
+            }
+          ],
+          "stages": [
+            {
+              "class_name": "result",
+              "source": "transactions"
+            }
           ]
         }
+      }
+    },
+    {
+      "committee_committee_id_idx": {
+        "index_keys": [
+          "committee_id"
+        ]
       }
     },
     {
@@ -206,9 +252,15 @@
       "class_version": "1.0",
       "card_title": "commitee_id",
       "card_fields": [ "candidate_id" ],
+      "full_text": [ "committee_id", "candidate_id" ],
       "fields": {
         "committee_id": "string",
-        "candidate_id": "string"
+        "candidate_id": "string",
+        "election_year": "string",
+        "fec_election_year": "string",
+        "committee_tp": "string",
+        "committee_dsg": "string",
+        "linkage_id": "string"
       },
       "indexes": {
         "committee_candidate_committee_id_idx": {
@@ -220,6 +272,92 @@
           "index_keys": [
             "candidate_id"
           ]
+        }
+      }
+    },
+    {
+      "class_name": "committee_summary",
+      "class_description": "Committee Fiscal Summary",
+      "base_class_name": "political_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "commitee_id",
+      "card_fields": [ "candidate_id" ],
+      "full_text": [ "committee_id", "committee_name" ],
+      "fields": {
+        "committee_id": "string",
+        "committee_name": "string",
+        "committee_type": "string",
+        "committee_designation": "string",
+        "committee_filing_frequency": "string",
+        "total_receipts": "double",
+        "trans_from_affiliates": "double",
+        "individual_contributions": "double",
+        "other_pol_cmte_contrib": "double",
+        "cand_contribution": "double",
+        "cand_loans": "double",
+        "total_loans_received": "double",
+        "total_disbursements": "double",
+        "transfer_to_affiliates": "double",
+        "individual_refunds": "double",
+        "other_pol_cmte_refunds": "double",
+        "cand_loan_repay": "double",
+        "loan_repay": "double",
+        "coh_bop": "double",
+        "coh_cop": "double",
+        "debts_owed_by": "double",
+        "nonfed_trans_received": "double",
+        "contrib_to_other_cmte": "double",
+        "ind_exp": "double",
+        "pty_coord_exp": "double",
+        "nonfed_share_exp": "double",
+        "cvg_end_dt": "string"
+      },
+      "indexes": {
+        "committee_summary_committee_id_idx": {
+          "index_keys": [
+            "committee_id"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "committee_transaction",
+      "class_description": "Committee Transaction",
+      "base_class_name": "political_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "card_title": "commitee_id",
+      "card_fields": [ "candidate_id", "candidate_name" ],
+      "full_text": [ "committee_id", "name", "city", "zip", "state", "employer" ],
+      "fields": {
+        "committee_id": "string",
+        "amendment_indicator": "string",
+        "report_type": "string",
+        "transaction_election" : "string",
+        "image_num": "string",
+        "transaction_type": "string",
+        "entity_type": "string",
+        "name": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "employer": "string",
+        "occupation": "string",
+        "transaction_dt": "string",
+        "transaction_amt": "double",
+        "other_id": "string",
+        "transaction_id": "string",
+        "file_num": "string",
+        "memo_code": "string",
+        "memo_text": "string",
+        "sub_id": "string"
+      },
+      "indexes": {
+        "committee_transaction_committee_id_idx": {
+          "index_keys": [ "committee_id" ]
         }
       }
     },
@@ -243,6 +381,7 @@
         "occupation": "string",
         "transaction_date": "string",
         "transaction_amount": "double",
+        "other_id": "string",
         "memo": "string",
         "committees": {
           "field_type": "query",
@@ -373,7 +512,90 @@
         "target_class": "committee_candidate",
         "column_map": {
           "0": "candidate_id",
-          "3": "committee_id"
+          "1": "election_year",
+          "2": "fec_election_year",
+          "3": "committee_id",
+          "4": "committee_tp",
+          "5": "committee_dsg",
+          "6": "linkage_id"
+        }
+      }
+    },
+    {
+      "dataset_name": "CommitteeSummary Master",
+      "dataset_description": "Committee Summaries",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "us_elections\\weball26.csv",
+        "target_class": "donation",
+        "column_map": {
+          "0": "committee_id",
+          "1": "committee_name",
+          "2": "committee_type",
+          "3": "committee_designation",
+          "4": "committee_filing_frequency",
+          "7": "total_receipts",
+          "8": "trans_from_affiliates",
+          "9": "individual_contributions",
+          "10": "other_pol_cmte_contrib",
+          "11": "cand_contribution",
+          "12": "cand_loans",
+          "13": "total_loans_received",
+          "14": "total_disbursements",
+          "15": "transfer_to_affiliates",
+          "16": "individual_refunds",
+          "17": "other_pol_cmte_refunds",
+          "18": "cand_loan_repay",
+          "19": "loan_repay",
+          "20": "coh_bop",
+          "21": "coh_cop",
+          "22": "debts_owed_by",
+          "23": "nonfed_trans_received",
+          "24": "contrib_to_other_cmte",
+          "25": "ind_exp",
+          "26": "pty_coord_exp",
+          "27": "nonfed_share_exp",
+          "28": "cvg_end_dt"
+        }
+      }
+    },
+    {
+      "dataset_name": "Committee Transaction Master",
+      "dataset_description": "Committee Transaction",
+      "dataset_version": "1.0",
+      "dataset_author": "Federal Elections Commission",
+      "dataset_source": "https://www.fec.gov/data/browse-data/?tab=bulk-data",
+      "import": {
+        "type": "csv",
+        "delimiter": "|",
+        "filename": "us_elections\\itoth.csv",
+        "target_class": "donation",
+        "column_map": {
+          "0": "committee_id",
+          "1": "amendment_indicator",
+          "2": "report_type",
+          "3": "transaction_election",
+          "4": "image_num",
+          "5": "transaction_type",
+          "6": "entity_type",
+          "7": "name",
+          "8": "city",
+          "9": "state",
+          "10": "zip",
+          "11": "employer",
+          "12": "occupation",
+          "13": "transaction_dt",
+          "14": "transaction_amt",
+          "15": "other_id",
+          "16": "transaction_id",
+          "17": "file_num",
+          "18": "memo_code",
+          "19": "memo_text",
+          "20": "sub_id"
         }
       }
     },
@@ -398,6 +620,7 @@
           "12": "occupation",
           "13": "transaction_date",
           "14": "transaction_amount",
+          "15": "other_id",
           "19": "memo"
         }
       }

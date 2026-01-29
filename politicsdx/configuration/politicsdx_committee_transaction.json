@@ -1,0 +1,179 @@
+{
+  "class_name": "page",
+  "page_name": "page_committee_transaction",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "committee_transaction_object",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "column",
+          "name": "committee_transaction_details",
+          "box": {
+            "width": "400 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Committee",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "committee_id",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Report Type:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_type",
+              "box": "edit_field_box_large",
+              "text": "{report_type}, {transaction_election}, {image_num}, {transaction_type}, {entity_type}"
+            },
+
+            {
+              "class_name": "chaptertitle",
+              "text": "Committee",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "committee_id",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Report Type:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_type",
+              "box": "edit_field_box_large",
+              "text": "{report_type}, {transaction_election}, {image_num}, {transaction_type}, {entity_type}"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Name:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "name",
+              "box": "edit_field_box"
+            },
+
+            {
+              "class_name": "paragraph",
+              "text": "City:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "city",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "State:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "state",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Zip:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "zip",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Employer:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "employer",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Occupation:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "occupation",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Transaction Amount:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "transaction_amt",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Transaction Date:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "transaction_dt",
+              "box": "edit_field_box"
+            },
+
+            {
+              "class_name": "paragraph",
+              "text": "Other ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "other_id",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Memo Text:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "memo_text",
+              "box": "edit_field_box"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

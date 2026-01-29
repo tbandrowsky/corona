@@ -5058,10 +5058,8 @@ namespace corona
 								}
 							}
 						}
-						else if (fld->get_field_type() == field_types::ft_query)
-						{
-							fld->run_queries(_db, _grant.token, _grant.get_grant, item);
-						}
+
+						// we don't run the query at this level because we do not have the token here to do so.  happens up after this call completes
 					}
 				}
 			}

@@ -88,5 +88,10 @@
   <ItemGroup>
     <None Include="configuration\politicsdx_layout_test.json" />
     <None Include="configuration\politicsdx_table_card.json" />
+    <None Include="configuration\us_elections\itcont.csv" />
+    <None Include="configuration\politicsdx_committee_transaction.json" />
+    <None Include="configuration\politicsdx_committee_summary.json" />
+    <None Include="configuration\politicsdx_committee_summary_card.json" />
+    <None Include="configuration\politicsdx_committee_transaction_card.json" />
   </ItemGroup>
 </Project>

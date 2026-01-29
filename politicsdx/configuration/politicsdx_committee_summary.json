@@ -1,0 +1,93 @@
+{
+  "class_name": "page",
+  "page_name": "page_committee_summary",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "committee_summary_object",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "column",
+          "name": "committee_details",
+          "box": {
+            "width": "400 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Committee",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee Name:",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "committee_name",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "edit",
+              "json_field_name": "committee_id",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee Type:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_type",
+              "box": "edit_field_box",
+              "text": "{committee_type}, {committee_designation}, {committee_filing_frequency}"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee Receipts:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_receipts",
+              "box": "edit_field_large_box",
+              "text": "Total: {total_receipts}, Affiliates:{trans_from_affiliates}, Invididuals:{individual_contributions}, Committees:{other_pol_cmte_contrib}, Loans:{total_loans_received}, Cand Repaid:{cand_loan_repay}, Loan Repaid:{loan_repay}"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Committee Spending:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "total_disbursements",
+              "box": "edit_field_large_box",
+              "text": "Total: {total_disbursements}, Loans:{cand_loans}, Candidates:{cand_contributions}, Affiliates:{transfer_to_affiliates}"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Cash:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "total_disbursements",
+              "box": "edit_field_large_box",
+              "text": "Begin Period: {coh_bop}, End Period:{coh_cop}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}
