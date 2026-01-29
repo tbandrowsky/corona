@@ -6,7 +6,7 @@
       "class_name": "column",
       "name": "search_label",
       "box": {
-        "width": "500 pixels",
+        "width": "1.0 container",
         "height": "60 pixels"
       },
       "padding" : "8 pixels",

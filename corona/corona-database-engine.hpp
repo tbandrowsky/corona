@@ -5058,6 +5058,10 @@ namespace corona
 								}
 							}
 						}
+						else if (fld->get_field_type() == field_types::ft_query)
+						{
+							fld->run_queries(_db, _grant.token, _grant.get_grant, item);
+						}
 					}
 				}
 			}

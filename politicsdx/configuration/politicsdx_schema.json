@@ -232,7 +232,7 @@
       "class_version": "1.0",
       "card_title": "full_name",
       "card_fields": [ "city", "committee_id", "transaction_date", "transaction_amount" ],
-      "full_text": [ "full_name", "employer", "occupation" ],
+      "full_text": [ "full_name", "employer", "occupation", "committee_id" ],
       "fields": {
         "committee_id": "string",
         "full_name": "string",
