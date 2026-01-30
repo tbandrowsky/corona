@@ -1923,14 +1923,12 @@ namespace corona
 				scroll_knob_bounds.y = rows[selected_page_index].bounds.y * scroll_scale;
 			}
 
-			scroll_well_bounds.w = 16;
-            scroll_well_bounds.h = inner_bounds.h;
-            scroll_well_bounds.x = inner_bounds.right() - 16;
-			scroll_well_bounds.y = inner_bounds.y;			
-
 			if (select_command) {
 				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(select_command);
 			}
+		}
+		else {
+
 		}
 	}
 

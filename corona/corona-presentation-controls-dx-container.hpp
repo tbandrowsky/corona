@@ -609,11 +609,34 @@ namespace corona
 				});
 			_page->on_mouse_click(this, [this, _presentation, _page](mouse_click_event evt)
 				{
-					int temp = find_row_index(evt.relative_point);
-					if (temp != -1) {
-						selected_item_index = temp;
+					if (rectangle_math::contains(scroll_well_bounds, evt.relative_point.x, evt.relative_point.y)) {
+						int t_selected_page_index = find_page_index(evt.relative_point);
+						if (t_selected_page_index >= 0) {
+							selected_item_index = pages[t_selected_page_index].page_index;							check_scroll();
+							check_scroll();
+						}
+					}
+					else 
+					{
+						int temp = find_row_index(evt.relative_point);
+						if (temp != -1) {
+							selected_item_index = temp;
+							check_scroll();
+						}
 					}
 				});
+		}
+
+		int find_page_index(point pt)
+		{
+			int index = -1;
+			for (auto& pg : pages) {
+				if (pt.y >= pg.start_y and pt.y < pg.stop_y) {
+					index = pg.page_index;
+					break;
+                }
+			}
+			return index;
 		}
 
 		int find_row_index(point pt)
@@ -705,8 +728,8 @@ namespace corona
 				auto& page = pages[cpi];
 
 				scroll_knob_bounds.x = scroll_well_bounds.x + 1;
+				scroll_knob_bounds.y = inner_bounds.y + (scroll_scale * page.start_y) - offset.y;
 				scroll_knob_bounds.w = scroll_well_bounds.w - 2;
-				scroll_knob_bounds.y = scroll_well_bounds.y + (scroll_scale * page.start_y);
 				scroll_knob_bounds.h = scroll_scale * (page.stop_y - page.start_y);
 
                 if (page.page_index == selected_page_index)
@@ -778,16 +801,20 @@ namespace corona
 			view_port.w = bounds.w;
 			view_port.h = bounds.h;
 
+			scroll_well_bounds.w = 16;
+			scroll_well_bounds.h = inner_bounds.h;
+			scroll_well_bounds.x = inner_bounds.right() - 16;
+			scroll_well_bounds.y = inner_bounds.y;
+
 			if (bounds.h == 0 or bounds.w == 0) 
 			{
 				return;
 			}
 
 			double h = bounds.h;
-			double last_y = 0;
+			double last_page_y = 0;
 			double y = 0;
 
-			int last_page_index = 0;
 			int page_index = 0;
 			pages.clear();
 			pages.resize(1);
@@ -812,25 +839,22 @@ namespace corona
 					r.bounds.w = sz.x;
 					r.bounds.h = sz.y;
 				}
-				double pgy = y - last_y;
+				pages[page_index].stop_index = i;
+				pages[page_index].stop_y = y;
+				double pgy = r.bounds.bottom() - last_page_y;
                 if (pgy > h)
 				{
-					last_y = y;
-                    pages[last_page_index].stop_index = i;
-					pages[last_page_index].stop_y = y;
-					last_page_index = page_index;
 					page_index++;
 					pages.resize(page_index + 1);
 					pages[page_index].page_index = page_index;
 					pages[page_index].start_index = i;
 					pages[page_index].start_y = y;
                     pages[page_index].page_index = page_index;
+					last_page_y = y;
 				}
 				r.page_index = page_index;
 				y += r.bounds.h;
 			}
-			pages[page_index].stop_index = sz;
-			pages[page_index].stop_y = y;
 		}
 
         virtual json set_data(json _data) override
@@ -845,6 +869,9 @@ namespace corona
 			}
 			else {
 				data = _data;
+				arrange(this, &bounds);
+				check_scroll();
+				update_selection();
 			}
 			return data;
 		}
@@ -883,12 +910,8 @@ namespace corona
 			}
 
 			arrange(this, &bounds);
-
-			if (rows.size() <= selected_item_index)
-			{
-				selected_item_index = 0;
-				check_scroll();
-			}
+			selected_item_index = 0;
+			check_scroll();
 			create_controls();
 
 			return true;
