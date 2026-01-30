@@ -6936,7 +6936,7 @@ private:
 							continue;
 						if (domains == "ANY")
 						{
-							system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+							system_monitoring_interface::active_mon->log_information(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
 							json actual_team = get_team(team_name, _permission);
 							found_teams.push_back(actual_team);
 						}
@@ -6945,12 +6945,12 @@ private:
 							try {
 								std::regex domain_matcher(domains);
 								if (std::regex_match(_domain, domain_matcher)) {
-									system_monitoring_interface::active_mon->log_warning(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+									system_monitoring_interface::active_mon->log_information(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
 									json actual_team = get_team(team_name, _permission);
 									found_teams.push_back(actual_team);
 								}
 								else {
-									system_monitoring_interface::active_mon->log_warning(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+									system_monitoring_interface::active_mon->log_information(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
 								}
 							}
 							catch (std::exception exc)

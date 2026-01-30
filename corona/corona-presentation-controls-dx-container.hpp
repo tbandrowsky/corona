@@ -488,6 +488,39 @@ namespace corona
 				};
 		}
 
+		void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			_page->on_mouse_move(this, [this, _presentation, _page](mouse_move_event evt)
+				{
+					;
+				});
+			_page->on_mouse_click(this, [this, _presentation, _page](mouse_click_event evt)
+				{
+					int temp = find_row_index(evt.relative_point);
+					if (temp != -1) {
+						selected_item_index = temp;
+					}
+				});
+		}
+
+		int find_row_index(point pt)
+		{
+			// Find first pair where first >= targetKey
+			auto it = std::lower_bound(
+				rows.begin(), rows.end(), pt.y,
+				[](const items_view_row& p, int value) {
+					return p.bounds.y < value; // Compare only by first
+				}
+			);
+
+			if (it != rows.end()) {
+				return std::distance(rows.begin(), it)-1;
+			}
+			else {
+                return -1;
+			}
+		}
+
 		virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
 		{
 			_context->setSolidColorBrush(&selection_border);
@@ -631,6 +664,8 @@ namespace corona
 
         virtual json set_data(json _data) override
 		{
+			selected_item_index = 0;
+			selected_page_index = 0;
 			if (_data.array()) {
 				set_items(_data);
 			}

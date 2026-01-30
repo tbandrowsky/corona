@@ -332,7 +332,7 @@
       "class_version": "1.0",
       "card_title": "commitee_id",
       "card_fields": [ "candidate_id", "candidate_name" ],
-      "full_text": [ "committee_id", "name", "city", "zip", "state", "employer" ],
+      "full_text": [ "committee_id", "name", "city", "zip", "state", "employer", "memo_text" ],
       "fields": {
         "committee_id": "string",
         "amendment_indicator": "string",
@@ -371,7 +371,7 @@
       "class_version": "1.0",
       "card_title": "full_name",
       "card_fields": [ "city", "committee_id", "transaction_date", "transaction_amount" ],
-      "full_text": [ "full_name", "employer", "occupation", "committee_id" ],
+      "full_text": [ "full_name", "employer", "occupation", "committee_id", "memo" ],
       "fields": {
         "committee_id": "string",
         "full_name": "string",
