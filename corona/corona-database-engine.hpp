@@ -9485,7 +9485,7 @@ grant_type=authorization_code
 			if (object_list.array()) {
 				for (auto& item : object_list.array_impl()->elements) {
                     std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);	
-					if (jo) {
+					if (jo && jo->members.contains(class_name_field)) {
 						std::string class_name = jo->members[class_name_field]->to_string();
 						auto permission = get_class_permission(user_name, class_name);
 

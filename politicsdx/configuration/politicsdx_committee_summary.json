@@ -11,77 +11,114 @@
           "class_name": "column",
           "name": "committee_details",
           "box": {
-            "width": "400 pixels",
+            "width": "1.0 container",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Committee",
+              "text": "Committee Summary",
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Committee Name:",
-              "box": "edit_field_box"
+              "box": "chaptersubtitle_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "committee_name",
+              "box": "edit_label_box_full",
+              "text": "{committee_name}"
+            },
+            {
+              "class_name": "row",
               "box": "edit_field_large_box"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Committee ID:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "edit",
-              "json_field_name": "committee_id",
-              "box": "edit_field_box"
+              "box": "chaptersubtitle_box"
             },
             {
               "class_name": "paragraph",
+              "json_field_name": "committee_id",
+              "box": "edit_field_box",
+              "text": "{committee_id}"
+            },
+            {
+              "class_name": "row",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
               "text": "Committee Type:",
-              "box": "edit_label_box"
+              "box": "chaptersubtitle_box"
             },
             {
               "class_name": "paragraph",
               "json_field_name": "committee_type",
-              "box": "edit_field_box",
-              "text": "{committee_type}, {committee_designation}, {committee_filing_frequency}"
+              "box": "edit_label_box_full",
+              "text": "Type: {committee_type}, Dsgn: {committee_designation}, Freq: {committee_filing_frequency}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "row",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
               "text": "Committee Receipts:",
-              "box": "edit_label_box"
+              "box": "chaptersubtitle_box"
             },
             {
               "class_name": "paragraph",
               "json_field_name": "committee_receipts",
-              "box": "edit_field_large_box",
-              "text": "Total: {total_receipts}, Affiliates:{trans_from_affiliates}, Invididuals:{individual_contributions}, Committees:{other_pol_cmte_contrib}, Loans:{total_loans_received}, Cand Repaid:{cand_loan_repay}, Loan Repaid:{loan_repay}"
+              "box": "edit_label_box_full",
+              "text": "Total: {total_receipts}, Affiliates:{trans_from_affiliates}, Invididuals:{individual_contributions}, Committees:{other_pol_cmte_contrib}"
+            },
+            {
+              "class_name": "row",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "text": "Committee Loans:",
+              "box": "chaptersubtitle_box"
             },
             {
               "class_name": "paragraph",
+              "json_field_name": "total_loans_received",
+              "box": "edit_label_box_full",
+              "text": "Loans Received:{total_loans_received}, Cand Repaid:{cand_loan_repay}, Loan Repaid:{loan_repay}"
+            },
+            {
+              "class_name": "row",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
               "text": "Committee Spending:",
-              "box": "edit_label_box"
+              "box": "chaptersubtitle_box"
             },
             {
               "class_name": "paragraph",
               "json_field_name": "total_disbursements",
-              "box": "edit_field_large_box",
+              "box": "edit_label_box_full",
               "text": "Total: {total_disbursements}, Loans:{cand_loans}, Candidates:{cand_contributions}, Affiliates:{transfer_to_affiliates}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "row",
+              "box": "edit_field_large_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
               "text": "Cash:",
               "box": "edit_label_box"
             },
             {
               "class_name": "paragraph",
               "json_field_name": "total_disbursements",
-              "box": "edit_field_large_box",
+              "box": "edit_label_box_full",
               "text": "Begin Period: {coh_bop}, End Period:{coh_cop}"
             }
           ]

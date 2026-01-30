@@ -7,16 +7,16 @@
       "name": "search_label",
       "box": {
         "width": "1.0 container",
-        "height": "60 pixels"
+        "height": "80 pixels"
       },
       "padding" : "8 pixels",
       "children": [
         {
           "class_name": "chaptersubtitle",
-          "name": "committee_name",
+          "name": "committee_id",
           "box": "edit_label_box_full",
-          "json_field_name": "committee_name",
-          "text": "{committee_name} ({committee_id})"
+          "json_field_name": "committee_id",
+          "text": "{committee_id} ({class_name})"
         },
         {
           "class_name": "paragraph",
@@ -24,13 +24,13 @@
           "box": "edit_label_box_full",
           "json_field_name": "political_party",
           "text": "{name}, {city}, {state}"
-        }
+        },
         {
           "class_name": "paragraph",
           "name": "political_party",
           "box": "edit_label_box_full",
           "json_field_name": "political_party",
-          "text": "{employer} {occupation}"
+          "text": "{occupation}, {employer}"
         }
       ]
     }

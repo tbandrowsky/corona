@@ -125,6 +125,14 @@
             },
             {
               "class_name": "code",
+              "name": "space",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "40 pixels"
+              }
+            },
+            {
+              "class_name": "code",
               "name": "call_success_message",
               "box": {
                 "width": "300 pixels",
@@ -136,6 +144,14 @@
               "name": "call_execution_time",
               "box": {
                 "width": "100 pixels",
+                "height": "40 pixels"
+              }
+            },
+            {
+              "class_name": "code",
+              "name": "space",
+              "box": {
+                "width": "20 pixels",
                 "height": "40 pixels"
               }
             }

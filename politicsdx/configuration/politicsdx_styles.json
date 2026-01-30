@@ -166,7 +166,8 @@
           "font_name": "Century Gothic,Arial",
           "font_size": 18,
           "bold": false,
-          "underline": false
+          "underline": false,
+          "vertical_alignment": "far"
         },
         "shape_border_thickness": 0,
         "box_border_thickness": 0,
@@ -174,7 +175,6 @@
           "class_name": "solid_brush",
           "color": "FFFFEE"
         },
-        "vertical_alignment": "center",
         "box_fill_brush": {
           "class_name": "solid_brush",
           "color": "00000000"
@@ -184,7 +184,7 @@
         "text_style": {
           "font_name": "Century Gothic,Arial",
             "font_size": 24,
-            "vertical_alignment" :  "center"
+            "vertical_alignment" :  "far"
         },
         "shape_border_thickness": 0,
         "box_border_thickness": 0,
@@ -197,7 +197,8 @@
         "text_style": {
           "font_name": "Century Gothic,Arial",
           "font_size": 17,
-          "underline": false
+          "underline": false,
+          "vertical_alignment": "far"
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
@@ -212,7 +213,8 @@
         "text_style": {
           "font_name": "Arial",
           "font_size": 14,
-          "underline": false
+          "underline": false,
+          "vertical_alignment": "far"
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
@@ -239,11 +241,11 @@
           "font_name": "Tahoma, Arial",
           "font_size": 14,
           "underline": false,
-          "vertical_alignment": "center"
+          "vertical_alignment": "far"
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
-          "color": "FFFFEE"
+          "color": "EEEEEE"
         }
       },
       "placeholder_style": {

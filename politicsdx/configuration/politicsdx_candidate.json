@@ -21,104 +21,103 @@
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Full Name:",
               "box": "edit_field_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "full_name",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large",
+              "text": "{full_name}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Candidate ID:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "candidate_id",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{candidate_id}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Political Party:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "political_party",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{political_party}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Election Year:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
-              "json_field_name": "election_year",
-              "box": "edit_field_box"
-            },
-            {
               "class_name": "paragraph",
-              "text": "Election Year:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "edit",
               "json_field_name": "election_year",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{election_year}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Street 1:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "street1",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{street1}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Street 2:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "street2",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{street2}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "City:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "city",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{city}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "State:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "state",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{state}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Zip:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "zip",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{zip}"
             }
           ]
         },

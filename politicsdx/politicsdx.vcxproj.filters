@@ -79,6 +79,12 @@
     <CopyFileToFolders Include="configuration\politicsdx_candidate_card.json" />
     <CopyFileToFolders Include="configuration\politicsdx_committee_card.json" />
     <CopyFileToFolders Include="configuration\politicsdx_donation_card.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_committee_summary.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_committee_summary_card.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_committee_transaction.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_committee_transaction_card.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_layout_test.json" />
+    <CopyFileToFolders Include="configuration\politicsdx_table_card.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="politicsdx.cpp">
@@ -86,12 +92,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="configuration\politicsdx_layout_test.json" />
-    <None Include="configuration\politicsdx_table_card.json" />
     <None Include="configuration\us_elections\itcont.csv" />
-    <None Include="configuration\politicsdx_committee_transaction.json" />
-    <None Include="configuration\politicsdx_committee_summary.json" />
-    <None Include="configuration\politicsdx_committee_summary_card.json" />
-    <None Include="configuration\politicsdx_committee_transaction_card.json" />
   </ItemGroup>
 </Project>

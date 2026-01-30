@@ -18,28 +18,32 @@
       }
     },
     "edit_section_box": {
-      "width": "150 pixels",
+      "width": "200 pixels",
       "height": "60 pixels"
     },
     "edit_container_box": {
-      "width": "150 pixels",
+      "width": "200 pixels",
       "height": "80 pixels"
     },
     "edit_label_box": {
-      "width": "150 pixels",
+      "width": "200 pixels",
       "height": "25 pixels"
     },
     "edit_field_box": {
-      "width": "150 pixels",
+      "width": "200 pixels",
       "height": "25 pixels"
     },
     "edit_label_box_full": {
       "width": "1.0 container",
       "height": "25 pixels"
     },
-    "edit_field_large_box": {
-      "width": "300 pixels",
-      "height": "25 pixels"
+    "edit_field_box_large": {
+      "width": "1.0 container",
+      "height": "35 pixels"
+    },
+    "memo_field_box_large": {
+      "width": "1.0 container",
+      "height": "60 pixels"
     },
     "chaptertitle_box": {
       "width": {
@@ -69,6 +73,16 @@
       "height": {
         "amount": 6.2,
         "units": "text"
+      }
+    },
+    "edit_row_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": "60",
+        "units": "pixels"
       }
     },
     "button_margin": {
@@ -133,6 +147,22 @@
     {
       "class_name": "import",
       "file_name": "politicsdx_table_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_summary_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_summary.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_transaction_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_transaction.json"
     }
   ]
 }

@@ -95,6 +95,7 @@
                 },
                 "replace": [
                   {
+                    "join_to": "donations",
                     "replace_with": "donation",
                     "join_by": {
                       "committee_id": "committee_id"
@@ -210,37 +211,37 @@
               }
             ]
           }
-        }
-      },
-      "transactions": {
-        "field_type": "query",
-        "query": {
-          "from": [
-            {
-              "class_name": "committee_transaction",
-              "name": "transactions",
-              "filter": {
-                "join_to": "this",
-                "join_by": {
-                  "committee_id": "committee_id"
+        },
+        "transactions": {
+          "field_type": "query",
+          "query": {
+            "from": [
+              {
+                "class_name": "committee_transaction",
+                "name": "transactions",
+                "filter": {
+                  "join_to": "this",
+                  "join_by": {
+                    "committee_id": "committee_id"
+                  }
                 }
               }
-            }
-          ],
-          "stages": [
-            {
-              "class_name": "result",
-              "source": "transactions"
-            }
+            ],
+            "stages": [
+              {
+                "class_name": "result",
+                "source": "transactions"
+              }
+            ]
+          }
+        }
+      },
+      "indexes": {
+        "committee_committee_id_idx": {
+          "index_keys": [
+            "committee_id"
           ]
         }
-      }
-    },
-    {
-      "committee_committee_id_idx": {
-        "index_keys": [
-          "committee_id"
-        ]
       }
     },
     {
@@ -531,7 +532,7 @@
         "type": "csv",
         "delimiter": "|",
         "filename": "us_elections\\weball26.csv",
-        "target_class": "donation",
+        "target_class": "committee_summary",
         "column_map": {
           "0": "committee_id",
           "1": "committee_name",
@@ -573,7 +574,7 @@
         "type": "csv",
         "delimiter": "|",
         "filename": "us_elections\\itoth.csv",
-        "target_class": "donation",
+        "target_class": "committee_transaction",
         "column_map": {
           "0": "committee_id",
           "1": "amendment_indicator",

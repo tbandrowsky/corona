@@ -21,34 +21,37 @@
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Committee Name:",
               "box": "edit_field_box"
             },
             {
               "class_name": "edit",
               "json_field_name": "committee_name",
-              "box": "edit_field_large_box"
+              "box": "edit_field_large_box",
+              "text": "{committee_name}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Committee ID:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "committee_id",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{committee_id}"
             },
             {
-              "class_name": "paragraph",
+              "class_name": "chaptersubtitle",
               "text": "Political Party:",
               "box": "edit_label_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "political_party",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "text": "{committee_id}"
             }
           ]
         },
@@ -86,16 +89,7 @@
                 "donation": "card_donation",
                 "committee": "card_committee"
               },
-              "select_command": {
-                "class_name": "list_select_object",
-                "target_frame": "page_home.frame_selected",
-                "table_name": "result_table",
-                "sources": {
-                  "candidate": "page_candidate",
-                  "donation": "page_donation",
-                  "committee": "page_committee"
-                }
-              }
+              "json_field_name": "donations"
             }
           ]
         }

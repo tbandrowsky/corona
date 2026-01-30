@@ -627,12 +627,12 @@ namespace corona {
 			stuff(_stuff),
 			length(_length)
 		{
-			box = serialized_box_memory_implementation::create(stuff, length);
+			box = serialized_box_memory_implementation::create(stuff, (int)length);
 		}
 
 		inline_box(const inline_box& _src)
 		{
-			box = serialized_box_memory_implementation::create(_src.stuff, _src.length);
+			box = serialized_box_memory_implementation::create(_src.stuff, (int)_src.length);
 		}
 
 		virtual ~inline_box()
@@ -649,7 +649,7 @@ namespace corona {
 		inline_box& operator =(inline_box& _src)
 		{
 			size_t new_size = _src.size();
-			if (length < new_size)
+			if ((size_t)length < new_size)
 				throw std::invalid_argument("target box too small");
 			clear();
 			auto base = _src.get_object<char>(0);
@@ -691,7 +691,7 @@ namespace corona {
 			{
 				stuff = temp;
 				stuff_size = new_size;
-				box = serialized_box_memory_implementation::create(temp, stuff_size);
+				box = serialized_box_memory_implementation::create(temp, (int)stuff_size);
 			}
 			own_the_data = true;
 		}
@@ -944,7 +944,7 @@ namespace corona {
 			int i = c % 3;
 			l = b->put_object(tests[i]);
 			if (l != null_row) {
-				locations[i] = l;
+				locations[i] = (int)l;
 				c++;
 			}
 		}

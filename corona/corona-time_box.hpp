@@ -151,7 +151,7 @@ namespace corona
 			sysTime.wHour = sqlTimestamp.hour;
 			sysTime.wMinute = sqlTimestamp.minute;
 			sysTime.wSecond = sqlTimestamp.second;
-			sysTime.wMilliseconds = sqlTimestamp.fraction / 1000000i64; // Convert nanoseconds to milliseconds
+			sysTime.wMilliseconds = (WORD)(sqlTimestamp.fraction / 1000000i64); // Convert nanoseconds to milliseconds
 		}
 
 		date_time add(int _sign, time_span _span)
@@ -160,7 +160,7 @@ namespace corona
 			LARGE_INTEGER li;
 			int elapsed_months;
 			int elapsed_years;
-			int64_t span_value = _sign * _span.value;
+			int64_t span_value = (int64_t)((double)_sign * _span.value);
 
 			SYSTEMTIME system_time = {};
 
@@ -182,15 +182,15 @@ namespace corona
 				::FileTimeToSystemTime(&ft, &system_time);
 				break;
 			case time_models::months:
-				elapsed_months = span_value + system_time.wMonth - 1;
-				elapsed_years = system_time.wYear + elapsed_months / 12i64;
-				system_time.wMonth = elapsed_months % 12 + 1;
-				system_time.wYear = elapsed_years;
+				elapsed_months = (int)(span_value + system_time.wMonth - 1);
+				elapsed_years = (int)(system_time.wYear + elapsed_months / 12i64);
+				system_time.wMonth = (WORD)(elapsed_months % 12 + 1);
+				system_time.wYear = (WORD)elapsed_years;
 				break;
 			case time_models::years:
 				elapsed_months = 0;
-				elapsed_years = span_value + system_time.wYear;
-				system_time.wYear = elapsed_years;
+				elapsed_years = (int)(span_value + system_time.wYear);
+				system_time.wYear = (WORD)elapsed_years;
 				break;
 			}
 
