@@ -401,6 +401,16 @@ namespace corona
 		std::shared_ptr<control_base> control;
 	};
 
+	class items_view_page
+	{
+	public:
+		int page_index;
+		double start_y;
+		double stop_y;
+		int start_index;
+		int stop_index;
+	};
+
 	class items_view : public draw_control
 	{
 		json data;
@@ -408,9 +418,18 @@ namespace corona
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
 		std::vector<items_view_row>								rows;
-		std::map<int,int>										page_to_item_index;
+		std::vector<items_view_page>							pages;
 		solidBrushRequest										selection_border;
 		solidBrushRequest										focused_border;
+
+		solidBrushRequest										scroll_well;
+		solidBrushRequest										scroll_well_border;
+		solidBrushRequest										scroll_knob;
+		solidBrushRequest										scroll_knob_border;
+		solidBrushRequest										scroll_knob_selected;
+		solidBrushRequest										scroll_knob_border_selected;
+		rectangle                                               scroll_well_bounds;
+		rectangle                                               scroll_knob_bounds;
 
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
@@ -418,6 +437,8 @@ namespace corona
 
 		int selected_page_index;
 		int selected_item_index;
+
+		double scroll_scale = 0.0;
 
 		std::shared_ptr<corona_bus_command> select_command;
 
@@ -443,12 +464,96 @@ namespace corona
 			}
 
 			selected_page_index = rows[selected_item_index].page_index;
-			int selected_item_page_index = page_to_item_index[selected_page_index];
+			int selected_item_page_index = pages[selected_page_index].start_index;
 			view_port.y = rows[selected_item_page_index].bounds.y;
 			update_selection();
 			std::string msg;
 			msg = std::format("selected_page_index '{0}' selected_item_index {1}, y:{2} ", selected_page_index, selected_item_page_index, view_port.y);
 			system_monitoring_interface::active_mon->log_information(msg);
+		}
+
+		void set_scroll_well(solidBrushRequest _brushFill)
+		{
+			scroll_well = _brushFill;
+			scroll_well.name = typeid(*this).name();
+			scroll_well.name += "_scroll_well";
+        }
+
+        void set_scroll_well_border(solidBrushRequest _brushFill)
+		{
+			scroll_well_border = _brushFill;
+			scroll_well_border.name = typeid(*this).name();
+			scroll_well_border.name += "_scroll_well_border";
+		}
+
+		void set_scroll_knob(solidBrushRequest _brushFill)
+		{
+			scroll_knob = _brushFill;
+			scroll_knob.name = typeid(*this).name();
+			scroll_knob.name += "_scroll_knob";
+		}
+
+		void set_scroll_knob_border(solidBrushRequest _brushFill)
+		{
+			scroll_knob_border = _brushFill;
+			scroll_knob_border.name = typeid(*this).name();
+			scroll_knob_border.name += "_scroll_knob_border";
+		}
+
+		void set_scroll_knob_selected(solidBrushRequest _brushFill)
+		{
+			scroll_knob_selected = _brushFill;
+			scroll_knob_selected.name = typeid(*this).name();
+			scroll_knob_selected.name += "_scroll_knob_selected";
+		}
+
+		void set_scroll_knob_border_selected(solidBrushRequest _brushFill)
+		{
+			scroll_knob_border_selected = _brushFill;
+			scroll_knob_border_selected.name = typeid(*this).name();
+			scroll_knob_border_selected.name += "_scroll_knob_border_selected";
+		}
+
+		void set_scroll_well(std::string _brushFill)
+		{
+			scroll_well.brushColor = toColor(_brushFill);
+			scroll_well.name = typeid(*this).name();
+			scroll_well.name += "_scroll_well";
+		}
+
+		void set_scroll_well_border(std::string _brushFill)
+		{
+			scroll_well.brushColor = toColor(_brushFill);
+			scroll_well_border.name = typeid(*this).name();
+			scroll_well_border.name += "_scroll_well_border";
+		}
+
+		void set_scroll_knob(std::string _brushFill)
+		{
+			scroll_knob.brushColor = toColor(_brushFill);
+			scroll_knob.name = typeid(*this).name();
+			scroll_knob.name += "_scroll_knob";
+		}
+
+		void set_scroll_knob_border(std::string _brushFill)
+		{
+			scroll_knob_border.brushColor = toColor(_brushFill);
+			scroll_knob_border.name = typeid(*this).name();
+			scroll_knob_border.name += "_scroll_knob_border";
+		}
+
+		void set_scroll_knob_selected(std::string _brushFill)
+		{
+			scroll_knob_selected.brushColor = toColor(_brushFill);
+			scroll_knob_selected.name = typeid(*this).name();
+			scroll_knob_selected.name += "_scroll_knob_selected";
+		}
+
+		void set_scroll_knob_border_selected(std::string _brushFill)
+		{
+			scroll_knob_border_selected.brushColor = toColor(_brushFill);
+			scroll_knob_border_selected.name = typeid(*this).name();
+			scroll_knob_border_selected.name += "_scroll_knob_border_selected";
 		}
 
 		void set_focused_border(solidBrushRequest _brushFill)
@@ -485,6 +590,14 @@ namespace corona
 				{
 					_context->setSolidColorBrush(&selection_border);
 					_context->setSolidColorBrush(&focused_border);
+					_context->setSolidColorBrush(&scroll_knob);
+					_context->setSolidColorBrush(&scroll_knob_border);
+					_context->setSolidColorBrush(&scroll_knob_selected);
+					_context->setSolidColorBrush(&scroll_knob_border_selected);
+					_context->setSolidColorBrush(&scroll_well);
+					_context->setSolidColorBrush(&scroll_well_border);
+
+
 				};
 		}
 
@@ -525,6 +638,12 @@ namespace corona
 		{
 			_context->setSolidColorBrush(&selection_border);
 			_context->setSolidColorBrush(&focused_border);
+			_context->setSolidColorBrush(&scroll_knob);
+			_context->setSolidColorBrush(&scroll_knob_border);
+			_context->setSolidColorBrush(&scroll_knob_selected);
+			_context->setSolidColorBrush(&scroll_knob_border_selected);
+			_context->setSolidColorBrush(&scroll_well);
+			_context->setSolidColorBrush(&scroll_well_border);
 
 			auto draw_bounds = inner_bounds;
 
@@ -539,14 +658,14 @@ namespace corona
 				return;
 			}
 
-			if (not page_to_item_index.contains(selected_page_index)) {
+			if (pages.size() <= selected_page_index) {
 				std::string msg;
 				msg = std::format("selected_page_index '{0}' not found", selected_page_index);
 				system_monitoring_interface::active_mon->log_warning(msg);
 				return;
 			}
 
-			int idx = page_to_item_index[selected_page_index];
+			int idx = pages[selected_page_index].start_index;
 
 			if (is_focused) {
 				_context->drawRectangle(&bounds, focused_border.name, 2, "");
@@ -579,6 +698,26 @@ namespace corona
 				idx++;
 			};
 
+			_context->drawRectangle(&scroll_well_bounds, scroll_well_border.name, 1, scroll_well.name);
+
+			for (int cpi = 0; cpi < pages.size(); cpi++)
+			{
+				auto& page = pages[cpi];
+
+				scroll_knob_bounds.x = scroll_well_bounds.x + 1;
+				scroll_knob_bounds.w = scroll_well_bounds.w - 2;
+				scroll_knob_bounds.y = scroll_well_bounds.y + (scroll_scale * page.start_y);
+				scroll_knob_bounds.h = scroll_scale * (page.stop_y - page.start_y);
+
+                if (page.page_index == selected_page_index)
+				{
+					_context->drawRectangle(&scroll_knob_bounds, scroll_knob_selected.name, 2, scroll_knob_border_selected.name);
+				}
+				else 
+				{
+					_context->drawRectangle(&scroll_knob_bounds, scroll_knob.name, 2, scroll_knob_border.name);
+				}
+			}
 		}
 
 	public:
@@ -589,7 +728,13 @@ namespace corona
 			selected_item_index = 0;
 			selected_page_index = 0;
 			set_selection_border("#c0c0c0");
-			set_focused_border("#000000");
+			set_focused_border("#708090");
+            set_scroll_knob("#808080");
+			set_scroll_knob_border("#505050");
+			set_scroll_knob_selected("#B0C0E0");
+			set_scroll_knob_border_selected("#606070");
+			set_scroll_well("#404040");
+			set_scroll_well_border("#607080");
 			init();
 		}
 
@@ -599,7 +744,13 @@ namespace corona
 			selected_item_index = 0;
 			selected_page_index = 0;
 			set_selection_border("#c0c0c0");
-			set_focused_border("#000000");
+			set_focused_border("#B0C0E0");
+			set_scroll_knob("#808080");
+			set_scroll_knob_border("#909090");
+			set_scroll_knob_selected("#B0C0E0");
+			set_scroll_knob_border_selected("#C0C0C0");
+			set_scroll_well("#707070");
+			set_scroll_well_border("#708090");
 			init();
 		}
 
@@ -633,13 +784,22 @@ namespace corona
 			}
 
 			double h = bounds.h;
+			double last_y = 0;
 			double y = 0;
 
-			int page_index;
-			page_to_item_index.clear();
+			int last_page_index = 0;
+			int page_index = 0;
+			pages.clear();
+			pages.resize(1);
 
 			int sz = rows.size();
 			int i;
+
+			pages[page_index].start_index = 0;
+			pages[page_index].start_y = y;
+			pages[page_index].page_index = 0;
+
+
 			for (i = 0; i < sz; i++)
 			{
 				auto& r = rows[i];
@@ -652,14 +812,25 @@ namespace corona
 					r.bounds.w = sz.x;
 					r.bounds.h = sz.y;
 				}
-				page_index = (r.bounds.bottom() / h);
-				r.page_index = page_index;
-				if (not page_to_item_index.contains(page_index))
+				double pgy = y - last_y;
+                if (pgy > h)
 				{
-					page_to_item_index[page_index] = i;
+					last_y = y;
+                    pages[last_page_index].stop_index = i;
+					pages[last_page_index].stop_y = y;
+					last_page_index = page_index;
+					page_index++;
+					pages.resize(page_index + 1);
+					pages[page_index].page_index = page_index;
+					pages[page_index].start_index = i;
+					pages[page_index].start_y = y;
+                    pages[page_index].page_index = page_index;
 				}
+				r.page_index = page_index;
 				y += r.bounds.h;
 			}
+			pages[page_index].stop_index = sz;
+			pages[page_index].stop_y = y;
 		}
 
         virtual json set_data(json _data) override
@@ -772,16 +943,16 @@ namespace corona
 			selected_page_index--;
 			if (selected_page_index < 0)
 				selected_page_index = 0;
-			selected_item_index = page_to_item_index[selected_page_index];
+			selected_item_index = pages[selected_page_index].start_index;
 			check_scroll();
 		}
 
 		void page_down()
 		{
 			selected_page_index++;
-			if (selected_page_index >= page_to_item_index.size())
-				selected_page_index = page_to_item_index.size() - 1;
-			selected_item_index = page_to_item_index[selected_page_index];
+			if (selected_page_index >= pages.size())
+				selected_page_index = pages.size() - 1;
+			selected_item_index = pages[selected_page_index].start_index;
 			check_scroll();
 		}
 
@@ -845,6 +1016,16 @@ namespace corona
 				corona::get_json(jcommand, select_command);
 				_dest.put_member("select_command", jcommand);
 			}
+
+			corona::get_json("selection_border", _dest, selection_border);
+			corona::get_json("focused_border", _dest, focused_border);
+			corona::get_json("scroll_knob", _dest, scroll_knob);
+			corona::get_json("scroll_knob_border", _dest, scroll_knob_border);
+			corona::get_json("scroll_knob_selected", _dest, scroll_knob_selected);
+			corona::get_json("scroll_knob_border_selected", _dest, scroll_knob_border_selected);
+			corona::get_json("scroll_knob_well", _dest, scroll_knob);
+			corona::get_json("scroll_knob_well_border", _dest, scroll_knob_selected);
+
 		}
 
 		virtual void put_json(json& _src)
@@ -861,6 +1042,39 @@ namespace corona
 				// select command is loaded through the reference.
 				corona::put_json(select_command, command);
 			}
+
+			if (_src.has_member("selection_border")) {
+				corona::put_json("selection_border", selection_border, _src);
+			}
+
+			if (_src.has_member("focused_border")) {
+				corona::put_json("focused_border", focused_border, _src);
+			}
+
+			if (_src.has_member("scroll_knob")) {
+				corona::put_json("scroll_knob", scroll_knob, _src);
+			}
+
+			if (_src.has_member("scroll_knob_border")) {
+				corona::put_json("scroll_knob_border", scroll_knob_border, _src);
+			}
+
+			if (_src.has_member("scroll_knob_selected")) {
+				corona::put_json("scroll_knob_selected", scroll_knob_selected, _src);
+			}
+
+			if (_src.has_member("scroll_knob_border_selected")) {
+				corona::put_json("scroll_knob_border_selected", scroll_knob_border_selected, _src);
+			}
+
+			if (_src.has_member("scroll_knob_well")) {
+				corona::put_json("scroll_knob_well", scroll_knob, _src);
+			}
+
+			if (_src.has_member("scroll_knob_well_border")) {
+				corona::put_json("scroll_knob_well_border", scroll_knob_selected, _src);
+			}
+
 		}
 
 	};

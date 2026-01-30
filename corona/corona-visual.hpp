@@ -625,6 +625,38 @@ namespace corona {
 		}
 	};
 
+	void get_json(std::string member, json& _dest, solidBrushRequest& _src)
+	{
+
+		json_parser jp;
+
+		json obj = jp.create_object();
+		obj.put_member("name", _src.name);
+
+		json jcolor = jp.create_object();
+		get_json(jcolor, _src.brushColor);
+		obj.put_member("color", jcolor);
+
+		_dest.put_member(member, obj);
+	}
+
+	void put_json(std::string member, solidBrushRequest& _dest, json& _src)
+	{
+		json_parser jp;
+
+        _src = _src[member];
+
+		if (not _src.has_members({ "color" })) {
+			system_monitoring_interface::active_mon->log_warning("solid_brush must have color");
+			system_monitoring_interface::active_mon->log_information("source json:");
+			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+			return;
+		}
+
+		put_json(_dest.brushColor, "color", _src);
+	}
+
+
 	void get_json(json& _dest, solidBrushRequest& _src)
 	{
 		json_parser jp;
