@@ -771,12 +771,12 @@ namespace corona
 			selected_page_index = 0;
 			set_selection_border("#c0c0c0");
 			set_focused_border("#708090");
-            set_scroll_knob("#808080");
-			set_scroll_knob_border("#505050");
-			set_scroll_knob_selected("#B0C0E0");
-			set_scroll_knob_border_selected("#606070");
-			set_scroll_well("#404040");
-			set_scroll_well_border("#607080");
+			set_scroll_knob("#101025");
+			set_scroll_knob_border("#303050");
+			set_scroll_knob_selected("#606080");
+			set_scroll_knob_border_selected("#505060");
+			set_scroll_well("#202030");
+			set_scroll_well_border("#303050");
 			init();
 		}
 
@@ -786,13 +786,13 @@ namespace corona
 			selected_item_index = 0;
 			selected_page_index = 0;
 			set_selection_border("#c0c0c0");
-			set_focused_border("#B0C0E0");
-			set_scroll_knob("#808080");
-			set_scroll_knob_border("#909090");
-			set_scroll_knob_selected("#B0C0E0");
-			set_scroll_knob_border_selected("#C0C0C0");
-			set_scroll_well("#707070");
-			set_scroll_well_border("#708090");
+			set_focused_border("#708090");
+			set_scroll_knob("#101025");
+			set_scroll_knob_border("#303050");
+			set_scroll_knob_selected("#606080");
+			set_scroll_knob_border_selected("#505060");
+			set_scroll_well("#101020");
+			set_scroll_well_border("#303050");
 			init();
 		}
 
