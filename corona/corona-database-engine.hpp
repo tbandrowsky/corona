@@ -6030,6 +6030,20 @@ namespace corona
 				"grid_column":"2",
 				"label":"Run On Change"
 			},	
+			"bytes_read" : {
+				"field_name:" : "bytes_read",
+				"field_type" : "int64",		
+				"grid_row":"5",
+				"grid_column":"1",
+				"label":"Bytes Read"
+			},
+			"bytes_total" : {
+				"field_name:" : "bytes_total",
+				"field_type" : "int64",		
+				"grid_row":"5",
+				"grid_column":"1",
+				"label":"Bytes Total"
+			},
 			"objects" : "array",
 			"import" : "object"
 	},
@@ -6388,7 +6402,7 @@ namespace corona
 			file_name = class_table.string();
 			classes = std::make_shared<xtable>(file_name);
 
-			system_monitoring_interface::active_mon->log_job_stop("create_database", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			system_monitoring_interface::active_mon->log_job_stop("create_database", "completed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -7822,7 +7836,7 @@ private:
 						bool run_on_change = new_dataset["run_on_change"].as_bool();
 						json existing_dataset = get_dataset(dataset_name, dataset_version, sys_perm);
 
-						if (not (run_on_change or existing_dataset.empty())) {
+						if (!run_on_change and existing_dataset.object() and existing_dataset.has_member("completed")) {
 							system_monitoring_interface::active_mon->log_job_section_stop("DataSet", dataset_name + " Already Done", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 							continue;
 						}
@@ -7925,10 +7939,16 @@ private:
 										const auto file_modified_time = std::chrono::system_clock::to_time_t(system_file_modified);
                                         bool pivot_object_ready = false;
 										date_time file_modified_dt = date_time(file_modified_time);
+
 										if (file_modified_dt > import_datatime) {
 
 											int64_t file_size = 0;
 											int64_t bytes_processed = 0;
+											int64_t last_bytes_processed = 0;
+
+                                            if (existing_dataset.object() && existing_dataset.has_member("bytes_read")) {
+												last_bytes_processed = existing_dataset["bytes_read"].as_int64_t();
+											}
 
 											try 
 											{
@@ -7972,6 +7992,10 @@ private:
 														new_object.erase_member(object_id_field);
                                                         int64_t bytes_in_line = (int64_t)strlen(line_start);
 														bytes_processed += bytes_in_line;
+
+                                                        if (bytes_processed < last_bytes_processed) {
+															continue;
+														}
 
 														if (pivot.empty()) 
 														{
@@ -8028,6 +8052,14 @@ private:
 																	log_error_array(put_result);
 																}
 																});
+
+															new_dataset.put_member_i64("bytes_read", bytes_processed);
+															new_dataset.put_member_i64("bytes_total", file_size);
+															import_spec.put_member("import_datatime", file_modified_dt);
+															new_dataset.share_member("import", import_spec);
+															json dataset_request = create_system_request(new_dataset);
+															json result = put_object(dataset_request);
+
 
 															datomatic = jp.create_array();
 														}

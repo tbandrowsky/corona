@@ -18,32 +18,74 @@
       }
     },
     "edit_section_box": {
-      "width": "200 pixels",
-      "height": "60 pixels"
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 60,
+        "units": "pixels"
+      }
     },
     "edit_container_box": {
-      "width": "200 pixels",
-      "height": "80 pixels"
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 80.0,
+        "units": "pixels"
+      }
     },
     "edit_label_box": {
-      "width": "200 pixels",
-      "height": "25 pixels"
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 25,
+        "units": "pixels"
+      }
     },
     "edit_field_box": {
-      "width": "200 pixels",
-      "height": "25 pixels"
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 25,
+        "units": "pixels"
+      }
     },
     "edit_label_box_full": {
-      "width": "1.0 container",
-      "height": "25 pixels"
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 25.0,
+        "units": "pixels"
+      }
     },
     "edit_field_box_large": {
-      "width": "1.0 container",
-      "height": "35 pixels"
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 35,
+        "units": "pixels"
+      }
     },
     "memo_field_box_large": {
-      "width": "1.0 container",
-      "height": "60 pixels"
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 60.0,
+        "units": "pixels"
+      }
     },
     "chaptertitle_box": {
       "width": {
@@ -92,7 +134,15 @@
     "search_box": {
       "x": "32.0 pixels",
       "width": "0.25 container",
-      "height": "1.0 container"
+      "height": "1.0 container",
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 1.0,
+        "units": "container"
+      }
     }
   },
   "startup": [
