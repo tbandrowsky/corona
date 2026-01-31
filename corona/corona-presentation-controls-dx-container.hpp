@@ -620,7 +620,7 @@ namespace corona
 					if (bounds.x > 0 && rectangle_math::contains(bounds, evt.absolute_point.x, evt.absolute_point.y)) {
 						int t_selected_page_index = find_page_index(evt.absolute_point);
 						if (t_selected_page_index >= 0) {
-							selected_item_index = pages[t_selected_page_index].page_index;
+							selected_item_index = pages[t_selected_page_index].start_index;
 							check_scroll();
 						}
 					}
