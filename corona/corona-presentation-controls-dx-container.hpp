@@ -418,7 +418,7 @@ namespace corona
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
 		std::vector<items_view_row>								rows;
-		std::vector<items_view_page>							pages;
+		std::map<int, items_view_page>							pages;
 		solidBrushRequest										selection_border;
 		solidBrushRequest										focused_border;
 
@@ -429,7 +429,6 @@ namespace corona
 		solidBrushRequest										scroll_knob_selected;
 		solidBrushRequest										scroll_knob_border_selected;
 		rectangle                                               scroll_well_bounds;
-		rectangle                                               scroll_knob_bounds;
 
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
@@ -437,8 +436,6 @@ namespace corona
 
 		int selected_page_index;
 		int selected_item_index;
-
-		double scroll_scale = 0.0;
 
 		std::shared_ptr<corona_bus_command> select_command;
 
@@ -603,16 +600,26 @@ namespace corona
 
 		void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
-			_page->on_mouse_move(this, [this, _presentation, _page](mouse_move_event evt)
+			_page->on_mouse_wheel(this, [this, _presentation, _page](mouse_wheel_event evt)
 				{
-					;
+					int step = evt.delta / WHEEL_DELTA;
+					int start = step < 0 ? step : 0;
+                    int stop = step > 0 ? step : 0;
+					
+					if (step < 0) {
+						this->line_down();
+					}
+					else {
+						this->line_up();
+					}
+
 				});
 			_page->on_mouse_click(this, [this, _presentation, _page](mouse_click_event evt)
 				{
 					if (rectangle_math::contains(scroll_well_bounds, evt.relative_point.x, evt.relative_point.y)) {
 						int t_selected_page_index = find_page_index(evt.relative_point);
 						if (t_selected_page_index >= 0) {
-							selected_item_index = pages[t_selected_page_index].page_index;							check_scroll();
+							selected_item_index = pages[t_selected_page_index].page_index;
 							check_scroll();
 						}
 					}
@@ -630,9 +637,10 @@ namespace corona
 		int find_page_index(point pt)
 		{
 			int index = -1;
+			pt.y -= view_port.y;
 			for (auto& pg : pages) {
-				if (pt.y >= pg.start_y and pt.y < pg.stop_y) {
-					index = pg.page_index;
+				if (pt.y >= pg.second.start_y and pt.y < pg.second.stop_y) {
+					index = pg.second.page_index;
 					break;
                 }
 			}
@@ -723,22 +731,29 @@ namespace corona
 
 			_context->drawRectangle(&scroll_well_bounds, scroll_well_border.name, 1, scroll_well.name);
 
-			for (int cpi = 0; cpi < pages.size(); cpi++)
-			{
-				auto& page = pages[cpi];
+			if (inner_bounds.h > 0) {
 
-				scroll_knob_bounds.x = scroll_well_bounds.x + 1;
-				scroll_knob_bounds.y = inner_bounds.y + (scroll_scale * page.start_y) - offset.y;
-				scroll_knob_bounds.w = scroll_well_bounds.w - 2;
-				scroll_knob_bounds.h = scroll_scale * (page.stop_y - page.start_y);
+				double scroll_scale = inner_bounds.h / rows.back().bounds.bottom();
 
-                if (page.page_index == selected_page_index)
+				for (int cpi = 0; cpi < pages.size(); cpi++)
 				{
-					_context->drawRectangle(&scroll_knob_bounds, scroll_knob_selected.name, 2, scroll_knob_border_selected.name);
-				}
-				else 
-				{
-					_context->drawRectangle(&scroll_knob_bounds, scroll_knob.name, 2, scroll_knob_border.name);
+					auto& page = pages[cpi];
+
+					rectangle scroll_knob_bounds = {};
+
+					scroll_knob_bounds.x = scroll_well_bounds.x + 1;
+					scroll_knob_bounds.y = inner_bounds.y + scroll_scale * page.start_y;
+					scroll_knob_bounds.w = scroll_well_bounds.w - 2;
+					scroll_knob_bounds.h = scroll_scale * (page.stop_y - page.start_y);
+
+					if (page.page_index == selected_page_index)
+					{
+						_context->drawRectangle(&scroll_knob_bounds, scroll_knob_selected.name, 2, scroll_knob_border_selected.name);
+					}
+					else
+					{
+						_context->drawRectangle(&scroll_knob_bounds, scroll_knob.name, 2, scroll_knob_border.name);
+					}
 				}
 			}
 		}
@@ -817,14 +832,14 @@ namespace corona
 
 			int page_index = 0;
 			pages.clear();
-			pages.resize(1);
 
 			int sz = rows.size();
 			int i;
 
-			pages[page_index].start_index = 0;
-			pages[page_index].start_y = y;
-			pages[page_index].page_index = 0;
+			items_view_page& ivp = pages[page_index];
+			ivp.start_index = 0;
+			ivp.start_y = y;
+			ivp.page_index = 0;
 
 
 			for (i = 0; i < sz; i++)
@@ -845,7 +860,6 @@ namespace corona
                 if (pgy > h)
 				{
 					page_index++;
-					pages.resize(page_index + 1);
 					pages[page_index].page_index = page_index;
 					pages[page_index].start_index = i;
 					pages[page_index].start_y = y;
@@ -854,6 +868,11 @@ namespace corona
 				}
 				r.page_index = page_index;
 				y += r.bounds.h;
+			}
+			if (page_index > 0) {
+				page_index--;
+				pages[page_index].stop_index = i;
+				pages[page_index].stop_y = y;
 			}
 		}
 

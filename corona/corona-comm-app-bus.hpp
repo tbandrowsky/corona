@@ -1911,24 +1911,9 @@ namespace corona
 	{
 		if (rows.size() > 0) {
 
-			auto& r = rows[rows.size() - 1];
-			double data_height = r.bounds.y + r.bounds.h;
-			scroll_scale = inner_bounds.h / data_height;
-			double scroll_knob_height = rows[selected_page_index].bounds.h * scroll_scale;
-
-            if (selected_page_index + 1 >= rows.size()) {
-				scroll_knob_bounds.y = (data_height - r.bounds.y) * scroll_scale;
-			}
-			else {
-				scroll_knob_bounds.y = rows[selected_page_index].bounds.y * scroll_scale;
-			}
-
 			if (select_command) {
 				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(select_command);
 			}
-		}
-		else {
-
 		}
 	}
 

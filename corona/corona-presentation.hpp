@@ -206,6 +206,7 @@ namespace corona {
 		virtual void mouseLeftUp(point* _point);
 		virtual void mouseRightDown(point* _point);
 		virtual void mouseRightUp(point* _point);
+		virtual void mouseWheel(int _ctrl_id, int _delta);
 		virtual void pointSelected(point* _point, ccolor* _color);
 		virtual LRESULT ncHitTest(point* _point);
 		virtual void setFocus(int ddlControlId);
@@ -796,6 +797,20 @@ namespace corona {
 		if (cp) {
 			cp->handle_mouse_move(0, kde);
 			cp->root->set_mouse(*_point, nullptr, nullptr, nullptr, nullptr);
+		}
+	}
+
+	void presentation::mouseWheel(int _ctrl_id, int _delta)
+	{
+		auto cp = current_page.lock();
+		mouse_wheel_event kde;
+		kde.control_id = _ctrl_id;
+		kde.absolute_point = {};
+		kde.relative_point = {};
+        kde.delta = _delta;	
+		kde.bus = bus;
+		if (cp) {
+			cp->handle_mouse_wheel(0, kde);
 		}
 	}
 

@@ -28,6 +28,7 @@ namespace corona
 	{
 
 		std::map<int, std::shared_ptr<mouse_move_event_binding> > mouse_move_bindings;
+		std::map<int, std::shared_ptr<mouse_wheel_event_binding> > mouse_wheel_bindings;
 		std::map<int, std::shared_ptr<mouse_click_event_binding> > mouse_click_bindings;
 		std::map<int, std::shared_ptr<mouse_left_click_event_binding> > mouse_left_click_bindings;
 		std::map<int, std::shared_ptr<mouse_right_click_event_binding> > mouse_right_click_bindings;
@@ -319,6 +320,22 @@ namespace corona
 			}
 		}
 
+		virtual void on_mouse_wheel(control_base* _base, std::function< void(mouse_wheel_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<mouse_wheel_event_binding>();
+			if (auto pbase = _base)
+			{
+				if (_base->id == 0) {
+					throw std::logic_error("You need to have an id on a control to subscribe to events");
+				}
+				evt->control = pbase;
+				evt->subscribed_item_id = pbase->id;
+				evt->on_mouse_wheel = handler;
+				mouse_wheel_bindings[pbase->id] = evt;
+			}
+		}
+
 		virtual void on_mouse_click(control_base* _base, std::function< void(mouse_click_event) > handler)
 		{
 			scope_lock locker(binding_lock);
@@ -404,6 +421,20 @@ namespace corona
 			control_base* cb = this->find(_control_id);
 			if (cb) {
 				cb->key_press(evt);
+			}
+		}
+
+		void handle_mouse_wheel(int _control_id, mouse_wheel_event evt)
+		{
+			scope_lock locker(binding_lock);
+            for (auto& binding : mouse_wheel_bindings) {
+				if (auto temp = binding.second->control) {
+					evt.relative_point = {};
+					evt.absolute_point = {};
+					evt.control = temp;
+					evt.control_id = binding.second->subscribed_item_id;
+					binding.second->on_mouse_wheel(evt);
+				}
 			}
 		}
 

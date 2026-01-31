@@ -543,6 +543,15 @@ namespace corona
 				}
 			}
 			break;
+		case WM_MOUSEWHEEL:
+			if (currentController)
+			{
+				int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+				if (pcurrent_window) {
+					currentController->mouseWheel(0, zDelta);
+				}
+			}
+            break;
 		case WM_CHAR:
 			if (currentController)
 			{
@@ -870,6 +879,15 @@ namespace corona
 
 			case WM_CAPTURECHANGED:
 				colorCapture = false;
+				break;
+			case WM_MOUSEWHEEL:
+				if (currentController)
+				{
+					int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+					if (pcurrent_window) {
+						currentController->mouseWheel(0, zDelta);
+					}
+				}
 				break;
 
 			case WM_KEYDOWN:

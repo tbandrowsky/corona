@@ -773,6 +773,7 @@ namespace corona
 
 		int64_t commit_nl() 
 		{
+			scope_lock lockme(locker);
 			table_header->write(this);
 			auto root = cache->open_branch_block(table_header->root_block, true);
 			root->save();
@@ -786,6 +787,9 @@ namespace corona
 		xtable(std::string _file_name, std::shared_ptr<xtable_header> _header) :
 			table_header(_header)
 		{
+			scope_lock lockme(locker);
+
+
 			file_name = _file_name;
 			fp = std::make_shared<file>(_file_name, file_open_types::create_always);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));

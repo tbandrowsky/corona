@@ -73,6 +73,12 @@ namespace corona {
 
 	};
 
+	class mouse_wheel_event : public mouse_event
+	{
+	public:
+		double delta;
+	};
+
 	class mouse_click_event : public mouse_event
 	{
 
@@ -163,6 +169,14 @@ namespace corona {
 		std::function< void(mouse_move_event) > on_mouse_move;
 	};
 
+	class mouse_wheel_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		control_base* control;
+		std::function< void(mouse_wheel_event) > on_mouse_wheel;
+	};
+
 	class mouse_click_event_binding
 	{
 	public:
@@ -233,6 +247,7 @@ namespace corona {
 
 		virtual void on_mouse_move(control_base *_base, std::function< void(mouse_move_event) >) = 0;
 		virtual void on_mouse_click(control_base* _base, std::function< void(mouse_click_event) >) = 0;
+		virtual void on_mouse_wheel(control_base* _base, std::function< void(mouse_wheel_event) >) = 0;
 		virtual void on_mouse_left_click(control_base* _base, std::function< void(mouse_left_click_event) >) = 0;
 		virtual void on_mouse_right_click(control_base* _base, std::function< void(mouse_right_click_event) >) = 0;
 		virtual void on_item_changed(int _control_id, std::function< void(item_changed_event) >) = 0;
