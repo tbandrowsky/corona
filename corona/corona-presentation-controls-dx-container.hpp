@@ -414,7 +414,6 @@ namespace corona
 	class items_view : public draw_control
 	{
 		json data;
-		
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
 		std::vector<items_view_row>								rows;
@@ -616,8 +615,10 @@ namespace corona
 				});
 			_page->on_mouse_click(this, [this, _presentation, _page](mouse_click_event evt)
 				{
-					if (rectangle_math::contains(scroll_well_bounds, evt.relative_point.x, evt.relative_point.y)) {
-						int t_selected_page_index = find_page_index(evt.relative_point);
+					auto bounds = evt.control->get_inner_bounds();
+					bounds.x = bounds.right() - 16;
+					if (bounds.x > 0 && rectangle_math::contains(bounds, evt.absolute_point.x, evt.absolute_point.y)) {
+						int t_selected_page_index = find_page_index(evt.absolute_point);
 						if (t_selected_page_index >= 0) {
 							selected_item_index = pages[t_selected_page_index].page_index;
 							check_scroll();
@@ -637,9 +638,12 @@ namespace corona
 		int find_page_index(point pt)
 		{
 			int index = -1;
-			pt.y -= view_port.y;
+			double scroll_scale = inner_bounds.h / rows.back().bounds.bottom();
 			for (auto& pg : pages) {
-				if (pt.y >= pg.second.start_y and pt.y < pg.second.stop_y) {
+				double start = inner_bounds.y + scroll_scale * pg.second.start_y;
+				double stop = inner_bounds.y + scroll_scale * pg.second.stop_y;
+
+				if (pt.y >= start and pt.y < stop) {
 					index = pg.second.page_index;
 					break;
                 }
@@ -826,7 +830,6 @@ namespace corona
 				return;
 			}
 
-			double h = bounds.h;
 			double last_page_y = 0;
 			double y = 0;
 
@@ -857,7 +860,7 @@ namespace corona
 				pages[page_index].stop_index = i;
 				pages[page_index].stop_y = y;
 				double pgy = r.bounds.bottom() - last_page_y;
-                if (pgy > h)
+                if (pgy > bounds.h)
 				{
 					page_index++;
 					pages[page_index].page_index = page_index;
@@ -869,11 +872,8 @@ namespace corona
 				r.page_index = page_index;
 				y += r.bounds.h;
 			}
-			if (page_index > 0) {
-				page_index--;
-				pages[page_index].stop_index = i;
-				pages[page_index].stop_y = y;
-			}
+			pages[page_index].stop_index = i;
+			pages[page_index].stop_y = y;
 		}
 
         virtual json set_data(json _data) override

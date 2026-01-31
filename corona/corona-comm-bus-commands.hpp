@@ -71,10 +71,12 @@ namespace corona
 		corona_instance instance = corona_instance::local;
 
 		std::string form_name;
+		std::string topic_message_field;
 		std::string success_message_field;
 		std::string status_message_field;
 		std::string execution_time_field;
 		std::string error_table_field;
+		std::string topic;
 
 		corona_client_response response;
 
@@ -104,10 +106,14 @@ namespace corona
 			return response.data;
 		}
 
-		virtual corona_client_response& set_message(corona_client_response _src, comm_bus_app_interface* _bus);
+		virtual void start_message(comm_bus_app_interface* _bus);
+		virtual void stop_message(comm_bus_app_interface* _bus);
+		virtual corona_client_response& stop_message(corona_client_response _src, comm_bus_app_interface* _bus);
 
 		virtual json execute(json context, comm_bus_app_interface* bus)
 		{
+
+			start_message(bus);
 			json obj = bus->get_form_data(form_name);
 
 			if (obj.object()) {
@@ -122,7 +128,7 @@ namespace corona
 
 						bus->run_ui([this, response, bus]()->void {
 							handle_response(response, bus);
-							set_message(response, bus);
+							stop_message(response, bus);
 							});
 					});
 				}
@@ -220,7 +226,7 @@ namespace corona
 
 		corona_register_user_command()
 		{
-			;
+			topic = "register_user";
 		}
 
 		virtual std::string get_name()
@@ -314,7 +320,7 @@ namespace corona
 
 		corona_confirm_user_command()
 		{
-			;
+			topic = "confirm_user";
 		}
 
 		virtual std::string get_name()
@@ -381,7 +387,7 @@ namespace corona
 
 		corona_send_user_command()
 		{
-			;
+			topic = "send_user";
 		}
 
 		virtual std::string get_name()
@@ -450,7 +456,7 @@ namespace corona
 
 		corona_password_user_command()
 		{
-			;
+			topic = "set_password";
 		}
 
 		virtual std::string get_name()
@@ -526,7 +532,7 @@ namespace corona
 
 		corona_login_command()
 		{
-			;
+			topic = "login";
 		}
 
 		virtual std::string get_name()
@@ -637,7 +643,7 @@ namespace corona
 
 		corona_get_classes_command()
 		{
-			;
+			topic = "get_classes";
 		}
 
 		virtual std::string get_name()
@@ -725,7 +731,7 @@ namespace corona
 
 		corona_get_class_command()
 		{
-			;
+			topic = "get_class";
 		}
 
 		virtual json create_request(comm_bus_app_interface* _bus)
@@ -762,7 +768,7 @@ namespace corona
 
 		corona_put_class_command()
 		{
-			;
+			topic = "put_class";
 		}
 
 		virtual json create_request(comm_bus_app_interface* _bus)
@@ -799,7 +805,7 @@ namespace corona
 
 		corona_create_object_command()
 		{
-			;
+			topic = "create_object";
 		}
 
 		virtual std::string get_name()
@@ -871,7 +877,7 @@ namespace corona
 
 		corona_list_select_object_command()
 		{
-			;
+			topic = "edit";
 		}
 
 		virtual std::string get_name()
@@ -957,7 +963,7 @@ namespace corona
 
 		corona_save_object_command()
 		{
-			;
+			topic = "save_object";
 		}
 
 		virtual std::string get_name()
@@ -1029,7 +1035,7 @@ namespace corona
 
 		corona_load_object_command()
 		{
-			;
+			topic = "load_object";
 		}
 
 		virtual std::string get_name()
@@ -1095,7 +1101,7 @@ namespace corona
 
 		corona_delete_object_command()
 		{
-			;
+			topic = "delete_object";
 		}
 
 		virtual std::string get_name()
@@ -1161,7 +1167,7 @@ namespace corona
 
 		corona_run_object_command()
 		{
-			;
+			topic = "run_object";
 		}
 
 		virtual std::string get_name()
@@ -1239,7 +1245,7 @@ namespace corona
 
 		corona_query_command()
 		{
-			;
+			topic = "query";
 		}
 
 		virtual std::string get_name()
@@ -1651,18 +1657,62 @@ namespace corona
 		}
 	}
 
-	corona_client_response& corona_form_command::set_message(corona_client_response _src, comm_bus_app_interface* _bus)
+	void corona_form_command::start_message(comm_bus_app_interface* _bus)
 	{
 		auto dest = std::make_shared<corona_set_property_command>();
+		json_parser jp;
+		json obj = jp.create_object();
 
 		dest->property_name = "text";
 
 		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
-		dest->value = _src.success ? "Success" : "Failure";
+		dest->value = topic;
+		dest->execute(obj, _bus);
+
+		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
+		dest->value = "start";
+		dest->execute(obj, _bus);
+
+		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
+		dest->value = "";
+		dest->execute(obj, _bus);
+	}
+
+	void corona_form_command::stop_message(comm_bus_app_interface* _bus)
+	{
+		auto dest = std::make_shared<corona_set_property_command>();
+		json_parser jp;
+		json obj = jp.create_object();
+
+		dest->property_name = "text";
+
+		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
+		dest->value = topic;
+		dest->execute(obj, _bus);
+
+		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
+		dest->value = "stop";
+		dest->execute(obj, _bus);
+
+		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
+		dest->value = "";
+		dest->execute(obj, _bus);
+	}
+
+	corona_client_response& corona_form_command::stop_message(corona_client_response _src, comm_bus_app_interface* _bus)
+	{
+		auto dest = std::make_shared<corona_set_property_command>();
+		json_parser jp;
+        json obj = jp.create_object();	
+
+		dest->property_name = "text";
+
+		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
+		dest->value = topic;
 		dest->execute(_src.data, _bus);
 
 		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
-		dest->value = _src.message;
+		dest->value = "complete: " +	_src.message;
 		dest->execute(_src.data, _bus);
 
 		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;

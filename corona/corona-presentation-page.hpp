@@ -428,7 +428,7 @@ namespace corona
 		{
 			scope_lock locker(binding_lock);
             for (auto& binding : mouse_wheel_bindings) {
-				if (auto temp = binding.second->control) {
+				if (auto temp = this->find(binding.second->subscribed_item_id)) {
 					evt.relative_point = {};
 					evt.absolute_point = {};
 					evt.control = temp;

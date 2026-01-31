@@ -135,6 +135,14 @@
               "class_name": "code",
               "name": "call_success_message",
               "box": {
+                "width": "250 pixels",
+                "height": "40 pixels"
+              }
+            },
+            {
+              "class_name": "code",
+              "name": "call_status_message",
+              "box": {
                 "width": "300 pixels",
                 "height": "40 pixels"
               }
