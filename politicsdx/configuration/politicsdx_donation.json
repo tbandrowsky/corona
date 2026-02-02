@@ -15,23 +15,23 @@
         {
           "class_name": "chaptersubtitle",
           "text": "Full Name:",
-          "box": "edit_field_large_box"
+          "box": "edit_field_box_large"
         },
         {
           "class_name": "paragraph",
           "json_field_name": "full_name",
-          "box": "edit_field_large_box",
+          "box": "edit_field_box_large",
           "text": "{full_name}"
         },
         {
           "class_name": "chaptersubtitle",
           "text": "Employer:",
-          "box": "edit_field_large_box"
+          "box": "edit_field_box_large"
         },
         {
           "class_name": "paragraph",
           "json_field_name": "employer",
-          "box": "edit_field_large_box",
+          "box": "edit_field_box_large",
           "text": "{employer}"
         },
         {
@@ -42,7 +42,7 @@
         {
           "class_name": "paragraph",
           "json_field_name": "occupation",
-          "box": "edit_field_large_box",
+          "box": "edit_field_box_large",
           "text": "{occupation}"
         },
         {
@@ -53,7 +53,7 @@
         {
           "class_name": "paragraph",
           "json_field_name": "city",
-          "box": "edit_field_large_box",
+          "box": "edit_field_box_large",
           "text": "{city}"
         },
         {

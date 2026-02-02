@@ -33,7 +33,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",
@@ -48,7 +48,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",
@@ -63,7 +63,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",
@@ -78,7 +78,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",
@@ -93,7 +93,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",
@@ -108,7 +108,7 @@
             },
             {
               "class_name": "row",
-              "box": "edit_field_large_box"
+              "box": "edit_field_box_large"
             },
             {
               "class_name": "chaptersubtitle",

@@ -709,6 +709,7 @@ namespace corona
 			}
 
 			int idx = pages[selected_page_index].start_index;
+			int start_idx = idx;
 
 			if (is_focused) {
 				_context->drawRectangle(&bounds, focused_border.name, 2, "");
@@ -722,7 +723,7 @@ namespace corona
 				rect_bounds.x = rect_bounds.x - offset.x + draw_bounds.x;
 				rect_bounds.y = rect_bounds.y - offset.y + draw_bounds.y;
 
-				if (rect_bounds.y < bounds.bottom())
+				if (rect_bounds.bottom() <= bounds.bottom() || idx == start_idx)
 				{
 					if (row.control)
 					{

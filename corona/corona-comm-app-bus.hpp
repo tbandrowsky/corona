@@ -209,6 +209,7 @@ namespace corona
 				run( delete_command + "*.coronatbl");
 				run( delete_command + "*.coronaclass");
 				run( delete_command + "*.coronaindex");
+                run( delete_command + "*.coronatext");
 			}
 
 			if (not std::filesystem::exists( database_path + "classes.coronatbl"))

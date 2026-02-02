@@ -415,6 +415,8 @@ namespace corona
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
 		inline control_builder& error(std::string _text, std::function<void(error_control&)> _settings) { return error(_text, _settings, id_counter::next()); }
 
+		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(_text, _settings, id_counter::next()); }
+
 		inline control_builder& error(call_status _status, std::function<void(error_control&)> _settings) { return error(_status, _settings, id_counter::next()); }
 		inline control_builder& status(call_status _status, std::function<void(status_control&)> _settings) { return status(_status, _settings, id_counter::next()); }
 		inline control_builder& success(call_status _status, std::function<void(success_control&)> _settings) { return success(_status, _settings, id_counter::next()); }
@@ -464,7 +466,7 @@ namespace corona
 			return control_builder(this, cc);
 		}
 
-		control_builder grid_view_begin(int id, std::function<void(items_view&)> _settings)
+		control_builder items_view_begin(int id, std::function<void(items_view&)> _settings)
 		{
 			auto tc = create<items_view>(id);
 			apply_item_sizes(tc);
@@ -867,6 +869,16 @@ namespace corona
 		control_builder& push_button(int _id, std::function<void(pushbutton_control&)> _settings = nullptr)
 		{
 			auto tc = create<pushbutton_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& command_button(std::string text, std::function<void(command_button_control&)> _settings, int _id)
+		{
+			auto tc = create<command_button_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2460,6 +2472,13 @@ namespace corona
 				_ctrl.set_data(control_data);
 				}, field_id);
 		}
+		else if (class_name == "command_button")
+		{
+			command_button(default_text, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				}, field_id);
+		}
 		else if (class_name == "authorscredit")
 		{
 			authorscredit(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
@@ -2553,7 +2572,7 @@ namespace corona
 		}
 		else if (class_name == "items_view")
 		{
-			grid_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+			items_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});

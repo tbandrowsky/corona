@@ -1,11 +1,12 @@
 {
   "abbreviations": {
     "button_box": {
-      "width": "150 pixels",
+      "width": "100 pixels",
       "height": {
-        "amount": 40,
+        "amount": 50,
         "units": "pixels"
-      }
+      },
+      "padding": "2 pixels"
     },
     "full_container": {
       "width": {

@@ -9,14 +9,14 @@
       "children": [
         {
           "class_name": "row", "name": "search_row",
-          "box": { "width": "1.0 container", "height": "30 pixels" },
+          "box": { "width": "1.0 container", "height": "50 pixels" },
           "children": [
             {
               "class_name": "chaptersubtitle",
               "name": "search_label_text",
               "box": {
                 "width": "150 pixels",
-                "height": "1.0 container"
+                "height": "30 pixels"
               },
               "text": "Search politics:"
             },
@@ -24,9 +24,10 @@
               "class_name": "edit",
               "name": "search_input",
               "json_field_name": "full_text",
+              "padding" :  "8 pixels",
               "box": {
                 "width": "300 pixels",
-                "height": "1.0 container"
+                "height": "40 pixels"
               }
             },
             {
@@ -38,9 +39,9 @@
               }
             },
             {
-              "class_name": "push_button",
+              "class_name": "command_button",
               "name": "search_button",
-              "text": "Search",
+              "icon": "Forward",
               "box": {
                 "width": "150 pixels",
                 "height": "1.0 container"

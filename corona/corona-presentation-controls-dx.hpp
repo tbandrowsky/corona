@@ -1417,6 +1417,296 @@ namespace corona
 
     };
 
+    const std::map<std::string, std::wstring> segoeMDL2Icons = {
+        // Navigation
+        {"GlobalNavigationButton", L"\uE700"},
+        {"ChevronLeft", L"\uE76B"},
+        {"ChevronRight", L"\uE76C"},
+        {"ChevronUp", L"\uE70E"},
+        {"ChevronDown", L"\uE70D"},
+        {"Home", L"\uE80F"},
+        {"Back", L"\uE72B"},
+        {"Forward", L"\uE72A"},
+
+        // Actions
+        {"Accept", L"\uE8FB"},
+        {"Cancel", L"\uE711"},
+        {"Add", L"\uE710"},
+        {"Remove", L"\uE738"},
+        {"Delete", L"\uE74D"},
+        {"Save", L"\uE74E"},
+        {"Edit", L"\uE70F"},
+        {"More", L"\uE712"},
+        {"Refresh", L"\uE72C"},
+        {"Sync", L"\uE895"},
+        {"Download", L"\uE896"},
+        {"Upload", L"\uE898"},
+        {"ViewAll", L"\uE8A9"},
+
+        // Media
+        {"Play", L"\uE768"},
+        {"Pause", L"\uE769"},
+        {"Stop", L"\uE71A"},
+        {"Record", L"\uE7C8"},
+        {"Volume", L"\uE767"},
+        {"Mute", L"\uE74F"},
+
+        // Communication
+        {"Mail", L"\uE715"},
+        {"Send", L"\uE724"},
+        {"Phone", L"\uE717"},
+        {"Message", L"\uE8BD"},
+        {"Contact", L"\uE77B"},
+
+        // Search & View
+        {"Search", L"\uE721"},
+        {"Filter", L"\uE71C"},
+        {"Zoom", L"\uE71E"},
+        {"ZoomIn", L"\uE8A3"},
+        {"ZoomOut", L"\uE71F"},
+        {"View", L"\uE890"},
+
+        // Files & Folders
+        {"Folder", L"\uE8B7"},
+        {"OpenFile", L"\uE8E5"},
+        {"Document", L"\uE8A5"},
+        {"Page", L"\uE7C3"},
+
+        // Settings & Tools
+        {"Settings", L"\uE713"},
+        {"Repair", L"\uE90F"},
+        {"Tools", L"\uE90F"},
+
+        // Status & Info
+        {"Info", L"\uE946"},
+        {"Help", L"\uE897"},
+        {"Warning", L"\uE7BA"},
+        {"Error", L"\uE783"},
+        {"Completed", L"\uE930"},
+
+        // UI Controls
+        {"Close", L"\uE8BB"},
+        {"Minimize", L"\uE921"},
+        {"Maximize", L"\uE922"},
+        {"RestoreWindow", L"\uE923"},
+        {"FullScreen", L"\uE740"},
+        {"ExitFullScreen", L"\uE73F"},
+        {"Menu", L"\uE700"},
+
+        // Calendar & Time
+        {"Calendar", L"\uE787"},
+        {"Clock", L"\uE823"},
+        {"AlarmClock", L"\uE919"},
+
+        // Favorites & Rating
+        {"Favorite", L"\uE734"},
+        {"FavoriteStar", L"\uE735"},
+        {"UnFavorite", L"\uE8D9"},
+
+        // Security
+        {"Lock", L"\uE72E"},
+        {"Unlock", L"\uE785"},
+        {"Permissions", L"\uE8D7"},
+
+        // User & Account
+        {"Contact2", L"\uE8D4"},
+        {"People", L"\uE716"},
+        {"Account", L"\uE910"},
+
+        // Device
+        {"Camera", L"\uE722"},
+        {"Print", L"\uE749"},
+        {"Keyboard", L"\uE92E"},
+        {"Mouse", L"\uE962"},
+
+        // Cloud & Network
+        {"Cloud", L"\uE753"},
+        {"CloudDownload", L"\uE896"},
+        {"CloudUpload", L"\uE898"},
+        {"World", L"\uE774"},
+        {"Globe", L"\uE12B"},
+
+        // Lists & Tables
+        {"List", L"\uE8FD"},
+        {"BulletedList", L"\uE8FD"},
+        {"NumberedList", L"\uE8FE"},
+
+        // Sorting & Arrangement
+        {"Sort", L"\uE8CB"},
+        {"SortUp", L"\uE74A"},
+        {"SortDown", L"\uE74B"},
+
+        // Bookmarks & Tags
+        {"Bookmark", L"\uE8A4"},
+        {"Tag", L"\uE8EC"},
+
+        // Shopping & Money
+        {"Shop", L"\uE719"},
+        {"Cart", L"\uE7BF"},
+
+        // Location
+        {"MapPin", L"\uE707"},
+        {"Location", L"\uE81D"},
+
+        // Clipboard
+        {"Copy", L"\uE8C8"},
+        {"Cut", L"\uE8C6"},
+        {"Paste", L"\uE77F"},
+
+        // Arrows
+        {"Up", L"\uE74A"},
+        {"Down", L"\uE74B"},
+        {"Left", L"\uE76B"},
+        {"Right", L"\uE76C"},
+
+        // Attach & Link
+        {"Attach", L"\uE723"},
+        {"Link", L"\uE71B"},
+
+        // Video & Photo
+        {"Video", L"\uE714"},
+        {"Photo", L"\uEB9F"},
+        {"Pictures", L"\uE91B"},
+    };
+
+    class command_button_control : public gradient_button_control
+    {
+    public:
+
+        textStyleRequest	text_style;
+        std::string         icon;
+        std::shared_ptr<corona_bus_command> click_command;
+
+        command_button_control() : gradient_button_control() {
+            text_style.fontName = "Segoe MDL2 Assets";
+            text_style.name = "command_button_text_style";
+            text_style.fontSize = 25;
+            text_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
+            text_style.character_spacing = 0;
+            text_style.italics = false;
+            text_style.strike_through = false;
+            text_style.vertical_align = visual_alignment::align_center;
+            text_style.horizontal_align = visual_alignment::align_center;
+            text_style.bold = true;
+            text_style.underline = false;
+            text_style.line_spacing = 1.0f;
+            icon = "Help";
+            init();
+        }
+
+        command_button_control(const command_button_control& _src) : gradient_button_control(_src) { 
+            text_style = _src.text_style;
+            icon = _src.icon;
+            click_command = _src.click_command;
+            init();
+        }
+
+        command_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "cm_button")
+        {
+            text_style.fontName = "Segoe MDL2 Assets";
+            text_style.name = "command_button_text_style";
+            text_style.fontSize = 25;
+            text_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
+            text_style.character_spacing = 0;
+            text_style.italics = false;
+            text_style.strike_through = false;
+            text_style.vertical_align = visual_alignment::align_center;
+            text_style.horizontal_align = visual_alignment::align_center;
+            text_style.bold = true;
+            text_style.underline = false;
+            text_style.line_spacing = 1.0f;
+            icon = "Help";
+            init();
+        }
+
+        void init()
+        {
+
+            auto ctrl = this;
+
+            on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
+                {
+                    auto draw_bounds = inner_bounds;
+
+                    _context->setTextStyle(&this->text_style);
+                    std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+
+                    point shape_origin;
+                    point* porigin = &shape_origin;
+
+                    draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+                        auto icon_it = segoeMDL2Icons.find(this->icon);
+                        rectangle draw_bounds = *_bounds;
+                        draw_bounds.y += 8;
+                        if (icon_it != segoeMDL2Icons.end()) {
+                            _context->drawText(icon_it->second.c_str(), &draw_bounds, this->text_style.name, _foreground->name);
+                        }
+                    };
+
+                    draw_button(_context, draw_shape);
+                };
+
+        }
+
+        virtual ~command_button_control()
+        {
+
+        }
+
+        virtual LRESULT get_nchittest() {
+            return HTCLIENT; // we lie here 
+        }
+
+        virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+        {
+            _page->on_mouse_left_click(this, [this, _presentation, _page](mouse_left_click_event evt)
+                {
+                    command_button_control* click_button = dynamic_cast<command_button_control*>(evt.control);
+                    if (click_button && click_button->click_command) {
+                       evt.bus->run_command(click_button->click_command);
+                    }
+                });
+        }
+
+        virtual void get_json(json& _dest)
+        {
+            json_parser jp;
+            draw_control::get_json(_dest);
+
+            _dest.put_member("icon", icon);
+
+            if (click_command) {
+                json jcommand = jp.create_object();
+                corona::get_json(jcommand, click_command);
+                _dest.put_member("on_click", jcommand);
+            }
+        }
+
+        virtual void put_json(json& _src)
+        {
+            draw_control::put_json(_src);
+
+            icon = _src["icon"].as_string();
+
+            json jcommand = _src["on_click"];
+            if (jcommand.empty()) {
+                system_monitoring_interface::active_mon->log_information("command control missing on_click", __FILE__, __LINE__);
+                system_monitoring_interface::active_mon->log_json(_src);
+            }
+
+            corona::put_json(click_command, jcommand);
+
+        }
+
+        virtual std::shared_ptr<control_base> clone()
+        {
+            auto tv = std::make_shared<command_button_control>(*this);
+            return tv;
+        }
+
+
+    };
+
     class menu_button_control : public gradient_button_control
     {
     public:

@@ -5407,11 +5407,20 @@ namespace corona
 			class_data_header->object_members.columns[2] = { field_types::ft_string, 2, "class_description" };
 			class_data_header->object_members.columns[3] = { field_types::ft_string, 3, "base_class_name" };
 			class_data_header->object_members.columns[4] = { field_types::ft_array, 4, "parents" };
+			
 			class_data_header->object_members.columns[5] = { field_types::ft_object, 5, "fields" };
 			class_data_header->object_members.columns[6] = { field_types::ft_object, 6, "indexes" };
 			class_data_header->object_members.columns[7] = { field_types::ft_array, 7, "ancestors" };
 			class_data_header->object_members.columns[8] = { field_types::ft_array, 8, "descendants" };
 			class_data_header->object_members.columns[9] = { field_types::ft_object, 9, "sql" };
+			class_data_header->object_members.columns[10] = { field_types::ft_string, 10, "class_color" };
+			class_data_header->object_members.columns[11] = { field_types::ft_string, 11, "grid_template_rows" };
+			class_data_header->object_members.columns[12] = { field_types::ft_string, 12, "grid_template_columns" };
+			class_data_header->object_members.columns[13] = { field_types::ft_string, 13, "class_author" };
+			class_data_header->object_members.columns[14] = { field_types::ft_string, 14, "class_version" };
+			class_data_header->object_members.columns[15] = { field_types::ft_string, 15, "card_title" };
+			class_data_header->object_members.columns[16] = { field_types::ft_array, 16, "card_fields" };
+			class_data_header->object_members.columns[17] = { field_types::ft_array, 17, "full_text" };
 
 			std::filesystem::path class_table = data_path;
             class_table /= "classes.coronatbl";
@@ -6489,7 +6498,7 @@ private:
 					response.put_member(message_field, "empty class name"sv);
 					validation_error ve;
 					ve.count = classes_group[class_pair.first].size();
-					ve.filename = __FILE__;
+					ve.filename = get_file_name(__FILE__);
 					ve.class_name = "(empty)";
 					ve.message = "Missing classname";
 					ve.line_number = __LINE__;

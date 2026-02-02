@@ -724,6 +724,79 @@ namespace corona
 			}
 		}
 
+		virtual void drawText(const wchar_t* _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush)
+		{
+			auto style = _textStyle.size() ? textStyles[_textStyle] : nullptr;
+			auto fill = _fillBrush.size() ? brushes[_fillBrush] : nullptr;
+
+			if (not style) {
+#if TRACE_GUI
+				std::cout << "missing textStyle " << _textStyle << std::endl;
+
+#if TRACE_STYLES
+				std::cout << "styles loaded" << std::endl;
+				for (auto vs : viewStyles) {
+					std::cout << vs.first << std::endl;
+				}
+#endif
+#endif
+
+				return;
+			}
+
+			if (not fill) {
+#if TRACE_GUI
+				std::cout << "missing fillBrush " << _fillBrush << std::endl;
+#endif
+				return;
+			}
+
+			auto format = style->getFormat();
+			if (not format) {
+#if TRACE_GUI
+				std::cout << "missing format " << _textStyle << std::endl;
+#endif
+
+				return;
+			}
+
+			D2D1_RECT_F r;
+			r.left = _rectangle->x;
+			r.top = _rectangle->y;
+			r.right = _rectangle->x + _rectangle->w;
+			r.bottom = _rectangle->y + _rectangle->h;
+
+			auto brush = fill->getBrush();
+			if (_text) {
+				int l = wcslen(_text);
+
+				if (style->get_strike_through() or style->get_underline())
+				{
+					IDWriteTextLayout* textLayout = nullptr;
+
+					if (auto pfactory = getAdapter().lock()) {
+
+						pfactory->getDWriteFactory()->CreateTextLayout(_text, l, format, r.right - r.left, r.bottom - r.top, &textLayout);
+						if (textLayout != nullptr) {
+							textLayout->SetUnderline(style->get_underline(), { (UINT32)0, (UINT32)l });
+							textLayout->SetStrikethrough(style->get_strike_through(), { (UINT32)0, (UINT32)l });
+							getDeviceContext()->DrawTextLayout({ r.left, r.top }, textLayout, brush);
+							textLayout->Release();
+							textLayout = nullptr;
+						}
+						else if (brush)
+						{
+							getDeviceContext()->DrawText(_text, l, format, &r, brush);
+						}
+					}
+				}
+				else if (brush)
+				{
+					getDeviceContext()->DrawText(_text, l, format, &r, brush);
+				}
+			}
+		}
+
 		virtual rectangle getCanvasSize()
 		{
 

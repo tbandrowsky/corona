@@ -89,38 +89,39 @@
           },
           "children": [
             {
-              "class_name": "push_button",
-              "text": "Search",
+              "class_name": "command_button",
+              "icon": "Search",
               "box": "button_box",
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
                 "target_frame": "page_home.frame_home",
                 "source_frame": "page_search",
-                "message": "Status."
+                "message": "Search."
               }
             },
             {
-              "class_name": "push_button",
-              "text": "Status",
+              "class_name": "command_button",
+              "icon": "ViewAll",
               "box": "button_box",
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
                 "target_frame": "page_home.frame_home",
                 "source_frame": "page_status",
-                "message": "Status."
+                "message": "Database."
               }
             },
             {
-              "class_name": "push_button",
-              "text": "Help",
+              "class_name": "command_button",
+              "icon": "Help",
               "box": "button_box",
               "margin": "button_margin",
               "on_click": {
                 "class_name": "select_frame",
                 "target_frame": "page_home.frame_home",
-                "source_frame": "page_help"
+                "source_frame": "page_help",
+                "message": "Help."
               }
             },
             {

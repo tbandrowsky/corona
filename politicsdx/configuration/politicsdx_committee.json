@@ -28,7 +28,7 @@
             {
               "class_name": "edit",
               "json_field_name": "committee_name",
-              "box": "edit_field_large_box",
+              "box": "edit_field_box_large",
               "text": "{committee_name}"
             },
             {
