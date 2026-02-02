@@ -429,6 +429,8 @@ namespace corona
 		solidBrushRequest										scroll_knob_border_selected;
 		rectangle                                               scroll_well_bounds;
 
+        bool													keep_position_on_set_data = true;
+
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
 		rectangle view_port;
@@ -651,22 +653,28 @@ namespace corona
 			return index;
 		}
 
+		// finds the selected row index based on a point clicked on the page.
 		int find_row_index(point pt)
 		{
-			// Find first pair where first >= targetKey
-			auto it = std::lower_bound(
-				rows.begin(), rows.end(), pt.y,
-				[](const items_view_row& p, int value) {
-					return p.bounds.y < value; // Compare only by first
-				}
-			);
+			if (selected_page_index < 0 || selected_page_index >= pages.size()) {
+				return -1;
+            }
 
-			if (it != rows.end()) {
-				return std::distance(rows.begin(), it)-1;
+            int start_row_index = pages[selected_page_index].start_index;
+            if (start_row_index < 0 || start_row_index >= rows.size()) {
+				return -1;
 			}
-			else {
-                return -1;
+			pt.y += rows[start_row_index].bounds.y;
+
+			while (start_row_index < rows.size()) {
+                auto& row = rows[start_row_index];
+                if (row.bounds.y <= pt.y && row.bounds.bottom() > pt.y) {
+					return start_row_index;
+				}
+				start_row_index++;
 			}
+
+			return -1;
 		}
 
 		virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
@@ -733,7 +741,7 @@ namespace corona
 				idx++;
 			};
 
-			_context->drawRectangle(&scroll_well_bounds, scroll_well_border.name, 1, scroll_well.name);
+			_context->drawRectangle(&scroll_well_bounds, scroll_well_border.name, 2, scroll_well.name);
 
 			if (inner_bounds.h > 0) {
 
@@ -745,9 +753,9 @@ namespace corona
 
 					rectangle scroll_knob_bounds = {};
 
-					scroll_knob_bounds.x = scroll_well_bounds.x + 1;
+					scroll_knob_bounds.x = scroll_well_bounds.x + 2;
 					scroll_knob_bounds.y = inner_bounds.y + scroll_scale * page.start_y;
-					scroll_knob_bounds.w = scroll_well_bounds.w - 2;
+					scroll_knob_bounds.w = scroll_well_bounds.w - 4;
 					scroll_knob_bounds.h = scroll_scale * (page.stop_y - page.start_y);
 
 					if (page.page_index == selected_page_index)
@@ -760,6 +768,7 @@ namespace corona
 					}
 				}
 			}
+
 		}
 
 	public:
@@ -876,10 +885,12 @@ namespace corona
 			pages[page_index].stop_y = y;
 		}
 
-        virtual json set_data(json _data) override
+		virtual json set_data(json _data) override
 		{
-			selected_item_index = 0;
-			selected_page_index = 0;
+			if (!keep_position_on_set_data) {
+				selected_item_index = 0;
+				selected_page_index = 0;
+			}
 			if (_data.array()) {
 				set_items(_data);
 			}
@@ -929,7 +940,9 @@ namespace corona
 			}
 
 			arrange(this, &bounds);
-			selected_item_index = 0;
+			if (keep_position_on_set_data == false) {
+				selected_item_index = 0;
+			}
 			check_scroll();
 			create_controls();
 

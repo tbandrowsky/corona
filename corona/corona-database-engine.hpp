@@ -3983,6 +3983,7 @@ namespace corona
 			}
 
             get_table(_context->db);
+			get_full_text_index(_context->db);
 
 			return true;
 		}
@@ -5214,12 +5215,29 @@ namespace corona
 		int64_t object_id;
 	};
 
+	class progress_fence
+	{
+	public:
+		std::atomic<int> *calls_in_progress;
+
+		progress_fence(std::atomic<int>* _src) {
+			calls_in_progress = _src;
+			calls_in_progress->fetch_add(1);
+		}
+		~progress_fence() {
+			calls_in_progress->fetch_sub(1);
+		}
+	};
+
 	class corona_database : public corona_database_interface
 	{
 		shared_lockable allocation_lock,
 						class_lock,
 						database_lock,
 						key_lock;
+		
+        bool			shutdown_in_progress = false;
+        std::atomic<int>	calls_in_progress = 0;
 
 		json schema;
 
@@ -7403,6 +7421,7 @@ private:
 			return success;
 		}
 
+
 	public:
 
 		std::string default_user;
@@ -7441,6 +7460,7 @@ private:
 			default_api_description = "API Description";
 			default_api_version = "1.0";
 			default_api_author = "System";
+			shutdown_in_progress = false;
 		}
 
         corona_database(std::string _data_path, std::string _config_path) : corona_database()
@@ -7449,13 +7469,27 @@ private:
             config_path = _config_path;
 		}
 
+		void shutdown()
+		{
+			shutdown_in_progress = true;
+			while (calls_in_progress.load() != 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+            corona::global_job_queue->waitForEmptyQueue();
+        }
+
 		virtual ~corona_database()
 		{
-			
+			shutdown();
 		}
 
 		virtual void apply_config(json _system_config)
 		{
+			progress_fence progress(&calls_in_progress);
+			if (shutdown_in_progress) {
+				return;
+            }
+
 			json_parser jp;
 			json system_config, server_config;
 
@@ -7474,6 +7508,12 @@ private:
 
 		virtual void apply_config(json _system_config, json _server_config)
 		{
+			progress_fence progress(&calls_in_progress);
+
+			if (shutdown_in_progress) {
+				return;
+			}
+
 			date_time start;
 			start = date_time::now();
 			timer tx;
@@ -7606,6 +7646,8 @@ private:
 
 		virtual std::shared_ptr<class_interface> read_get_class(const std::string& _class_name) 
 		{
+			progress_fence progress(&calls_in_progress);
+
 			std::shared_ptr<class_interface> cd;
 
 			activity act;
@@ -7617,18 +7659,24 @@ private:
 
 		virtual read_class_sp read_lock_class(const std::string& _class_name) override
 		{
+			progress_fence progress(&calls_in_progress);
+
 			std::shared_ptr<class_interface> cd = read_get_class(_class_name);
 			return read_class_sp(cd);
 		}
 
 		virtual write_class_sp write_lock_class(const std::string& _class_name) override
 		{
+			progress_fence progress(&calls_in_progress);
+
 			std::shared_ptr<class_interface> cd = read_get_class(_class_name);
 			return write_class_sp(cd);
 		}
 
 		virtual json save_class(class_interface *_class_to_save)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			json_parser jp;
 			json class_def;
 
@@ -7641,6 +7689,8 @@ private:
 
 		virtual json apply_schema()
 		{
+			progress_fence progress(&calls_in_progress);
+
 			json_parser jp;
 			std::string schema = read_all_string(schema_file_name);
             if (schema.empty()) {
@@ -7662,6 +7712,16 @@ private:
 
 		virtual json apply_schema(json _schema)
 		{
+			progress_fence progress(&calls_in_progress);
+
+			if (shutdown_in_progress) {
+				json_parser jp;
+				json error = jp.create_object();
+				error.put_member(success_field, false);
+				error.put_member(message_field, std::string("Shutdown in progress"));
+				return error;
+            }
+
 			date_time start_schema = date_time::now();
 			timer tx;
 			system_monitoring_interface::active_mon->log_job_start("apply_schema", "Applying schema file", start_schema, __FILE__, __LINE__);
@@ -7825,6 +7885,10 @@ private:
 						date_time start_dataset = date_time::now();
 						timer txs;
 
+						if (shutdown_in_progress) {
+                            break;
+						}
+
 						json new_dataset = dataset_array.get_element(i);
 						new_dataset.put_member(class_name_field, "sys_dataset"sv);
 						new_dataset.put_member_i64("sys_schema", jschema[object_id_field].as_int64_t());
@@ -7981,6 +8045,11 @@ private:
 													// Read each line from the file and store it in the 'line' buffer.
 													int64_t total_row_count = 0;
 													while (fgets(line, sizeof(line)-1, fp)) {
+
+														if (shutdown_in_progress) {
+															system_monitoring_interface::active_mon->log_warning("Shutdown in progress, import aborted.", __FILE__, __LINE__);
+															break;
+                                                        }
 
 														char* line_start = line;
                                                         if (line_start[0] == '\ufeff') {
@@ -8200,6 +8269,8 @@ private:
 
 		virtual relative_ptr_type open_database()
 		{
+			progress_fence progress(&calls_in_progress);
+
 			write_scope_lock my_lock(database_lock);
 			json_parser jp;
 
@@ -8399,6 +8470,8 @@ private:
 
 		virtual json login_user_local(json _sso_user_request) override
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json response;
@@ -8692,6 +8765,8 @@ grant_type=authorization_code
 
 		virtual json create_user(json create_user_request, bool _trusted_user = false, bool _system_user = false)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json response;
@@ -8920,6 +8995,8 @@ grant_type=authorization_code
 
 		virtual void apply_user_team(json& user, json& team)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			json_parser jp;
 			std::string user_name = user["user_name"].as_string();
 			json user_inventory = user["inventory"];
@@ -9050,6 +9127,8 @@ grant_type=authorization_code
 
 		virtual json user_home(json _user_home_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 
@@ -9272,6 +9351,8 @@ grant_type=authorization_code
 		// this starts a login attempt
 		virtual json login_user(json _login_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json response;
@@ -9547,6 +9628,8 @@ grant_type=authorization_code
 
 		virtual json get_class(json get_class_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json result;
@@ -9780,6 +9863,8 @@ grant_type=authorization_code
 
 		virtual json query(json query_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer tx;
 			read_scope_lock my_lock(database_lock);
 			json_parser jp;
@@ -10009,6 +10094,8 @@ grant_type=authorization_code
 
 		virtual json put_object_nl(json put_object_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json token;
@@ -10140,6 +10227,8 @@ grant_type=authorization_code
 
 		virtual json get_object(json get_object_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			json result;
@@ -10197,6 +10286,8 @@ grant_type=authorization_code
 
 		virtual json delete_object(json delete_object_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json response;
 			json_parser jp;
@@ -10247,6 +10338,8 @@ grant_type=authorization_code
 
 		virtual json copy_object(json copy_request)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			timer method_timer;
 			json_parser jp;
 			read_scope_lock my_lock(database_lock);
@@ -10389,6 +10482,8 @@ grant_type=authorization_code
 
 		json create_system_request(json _data, std::string _override_user = "")
 		{
+			progress_fence progress(&calls_in_progress);
+
 			json_parser jp;
 
 			json payload;
@@ -10423,6 +10518,8 @@ grant_type=authorization_code
 
 		json create_request(std::string _user_name, std::string _authorization, json _data)
 		{
+			progress_fence progress(&calls_in_progress);
+
 			json_parser jp;
 
 			json payload;
@@ -10475,6 +10572,7 @@ grant_type=authorization_code
 
 	compiled_object_view::compiled_object_view(corona_database_interface *_db, class_interface* _class_definition)
 	{
+
 		database = _db;
 		class_definition = _class_definition;
 

@@ -230,7 +230,7 @@ namespace corona
 
 	directApplicationWin32::~directApplicationWin32()
 	{
-		global_job_queue->shutDown();
+		;
 	}
 
 	void directApplicationWin32::redraw()

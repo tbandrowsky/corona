@@ -260,6 +260,14 @@ namespace corona
 			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
+		virtual ~comm_app_bus()
+		{
+			if (local_db) {
+				local_db->shutdown();
+			}
+			global_job_queue->shutDown();
+		}
+
 		std::string run(const std::string& _command)
 		{
 			char buffer[4096] = {};

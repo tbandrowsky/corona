@@ -144,7 +144,7 @@ namespace corona {
 
 		std::vector<std::thread> threads;
 
-		bool shutDownOrdered;
+		bool shutDownOrdered, shutDownComplete;
 
 		HANDLE empty_queue_event;
 
@@ -372,7 +372,7 @@ namespace corona {
 
 	finish_job::finish_job() : job()
 	{
-		handle = CreateEventW(NULL, false, false, NULL);
+		handle = CreateEventA(NULL, false, false, NULL);
 	}
 
 	finish_job::~finish_job()
@@ -393,6 +393,8 @@ namespace corona {
 	job_queue::job_queue()
 	{
 		ioCompPort = NULL;
+		shutDownComplete = false;
+        shutDownOrdered = false;
 		empty_queue_event = CreateEventW(nullptr, false, false, nullptr);
 		thread_id = ::GetCurrentThreadId();
 	}
@@ -460,6 +462,8 @@ namespace corona {
 
 		::CloseHandle(ioCompPort);
 
+		shutDownComplete = true;
+
 		ioCompPort = NULL;
 	}
 
@@ -471,6 +475,10 @@ namespace corona {
 	void job_queue::submit_job(job* _jobMessage)
 	{
 		LONG result;
+
+		if (shutDownComplete)
+			return;
+
 		if (not _jobMessage)
 			return;
 
@@ -485,6 +493,10 @@ namespace corona {
 	void job_queue::submit_job(runnable _function, HANDLE handle)
 	{
 		LONG result;
+
+		if (shutDownComplete)
+			return;
+
 		general_job* _job_message = new general_job(_function, handle);
 		if (_job_message->queued(this)) {
 			do {
@@ -498,6 +510,9 @@ namespace corona {
 
 	bool job_queue::listen_job(io_job* _jobMessage)
 	{
+		if (shutDownComplete)
+			return false;
+
 		if (not _jobMessage)
 			return false;
 		
@@ -507,6 +522,9 @@ namespace corona {
 
 	void job_queue::run_jobs(std::vector<runnable> _items)
 	{
+		if (shutDownComplete)
+			return;
+
 		std::vector<HANDLE> handles;
 		
 		for (auto& item : _items) {
@@ -637,6 +655,8 @@ namespace corona {
 
 	void job_queue::waitForEmptyQueue()
 	{
+		if (shutDownComplete)
+			return;
 		WaitForSingleObject(empty_queue_event, INFINITE);
 	}
 
@@ -659,6 +679,9 @@ namespace corona {
 
 	void job_queue::add_io_job(io_job* _jobMessage)
 	{
+		if (shutDownComplete)
+			return;
+
 		std::shared_ptr<job_file_request> file_jobs;
 
 		auto file_handle = _jobMessage->get_file_handle();
@@ -679,6 +702,9 @@ namespace corona {
 
 	io_job* job_queue::find_io_job(DWORD completionKey, LPOVERLAPPED overlapped)
 	{
+		if (shutDownComplete)
+			return nullptr;
+
 		scope_lock lockme(queueLock);
 
 		io_job* my_job = nullptr;
@@ -692,6 +718,9 @@ namespace corona {
 
 	bool job_queue::remove_io_job(io_job* _jobMessage)
 	{
+		if (shutDownComplete)
+			return false;
+
 		scope_lock lockme(queueLock);
 
 		bool removed = false;
