@@ -8013,7 +8013,7 @@ private:
                                         bool pivot_object_ready = false;
 										date_time file_modified_dt = date_time(file_modified_time);
 
-										if (file_modified_dt > import_datatime) {
+										if (file_modified_dt > import_datatime || !existing_dataset.has_member("completed")) {
 
 											int64_t file_size = 0;
 											int64_t bytes_processed = 0;
@@ -8160,6 +8160,13 @@ private:
 																log_error_array(put_result);
 															}
 															});
+														new_dataset.put_member_i64("bytes_read", bytes_processed);
+														new_dataset.put_member_i64("bytes_total", file_size);
+														import_spec.put_member("import_datatime", file_modified_dt);
+														new_dataset.share_member("import", import_spec);
+														json dataset_request = create_system_request(new_dataset);
+														json result = put_object(dataset_request);
+
 														datomatic = jp.create_array();
 													}
 
@@ -8169,6 +8176,10 @@ private:
 												fclose(fp);
 												import_spec.put_member("import_datatime", file_modified_dt);
 												new_dataset.share_member("import", import_spec);
+												if (bytes_processed >= file_size) {
+													date_time completed_date = date_time::now();
+													new_dataset.put_member("completed", completed_date);
+												}
 												json dataset_request = create_system_request(new_dataset);
 												json result = put_object(dataset_request);
 												if (result[success_field].as_bool()) {
@@ -8238,8 +8249,10 @@ private:
 									}
 								}
 							}
-							date_time completed_date = date_time::now();
-							new_dataset.put_member("completed", completed_date);
+							if (!shutdown_in_progress) {
+								date_time completed_date = date_time::now();
+								new_dataset.put_member("completed", completed_date);
+							}
 							json put_script_request = create_system_request(new_dataset);
 							json save_script_result = put_object(put_script_request);
 							if (not save_script_result[success_field].as_bool()) {

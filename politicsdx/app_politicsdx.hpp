@@ -82,7 +82,6 @@ namespace corona
 
         CreateDirectoryA(database_path.c_str(), NULL);
 
-		EnableGuiStdOuts();
 
         std::string config_full_file = config_path + config_filename;
 
@@ -91,8 +90,15 @@ namespace corona
 		corona::json_parser jp;
 		corona::json config = jp.parse_object(config_contents);
 
-		corona::json servers = config["Servers"];
+		bool show_console = config["Settings"]["show_console"].as_bool();
 
+		if (show_console) {
+			EnableGuiStdOuts();
+		}
+
+		corona::json servers = config["Servers"];
+		
+	
 		if (servers.array()) {
 			if (servers.size() > 0) {
 				auto server = servers.get_element(0);
@@ -111,7 +117,9 @@ namespace corona
 			}
 		}
 
-		DisableGuiStdOuts();
+		if (show_console) {
+			DisableGuiStdOuts();
+		}
 	}
 
 }

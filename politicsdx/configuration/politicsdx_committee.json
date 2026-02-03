@@ -26,7 +26,7 @@
               "box": "edit_field_box"
             },
             {
-              "class_name": "edit",
+              "class_name": "paragraph",
               "json_field_name": "committee_name",
               "box": "edit_field_box_large",
               "text": "{committee_name}"
@@ -52,44 +52,6 @@
               "json_field_name": "political_party",
               "box": "edit_field_box",
               "text": "{committee_id}"
-            }
-          ]
-        },
-        {
-          "class_name": "column",
-          "box": {
-            "width": "16 pixels",
-            "height": "1.0 container"
-          }
-        },
-        {
-          "class_name": "column",
-          "box": {
-            "width": "1.0 remaining",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "chaptertitle",
-              "text": "Donations",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            },
-            {
-              "class_name": "items_view",
-              "name": "result_table",
-              "box": {
-                "width": "1.0 container",
-                "height": "1.0 remaining"
-              },
-              "sources": {
-                "candidate": "card_candidate",
-                "donation": "card_donation",
-                "committee": "card_committee"
-              },
-              "json_field_name": "donations"
             }
           ]
         }

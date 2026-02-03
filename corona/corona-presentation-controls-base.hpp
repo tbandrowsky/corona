@@ -399,12 +399,28 @@ namespace corona
 			return false;
 		}
 
+		virtual json get_items()
+		{
+			json_parser jp;
+			json data;
+			return data;
+		}
+
 		virtual json set_data(json _data)
 		{
 			for (auto child : children) {
 				child->set_data(_data);
 			}
 			return _data;
+		}
+
+		virtual json export_data()
+		{
+			json gi = get_items();
+			if (!gi.array()) {
+				gi = get_data();
+			}
+			return gi;
 		}
 
 		virtual void get_json(json& _dest)

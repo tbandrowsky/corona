@@ -60,10 +60,23 @@ namespace corona
 		{
 			data = _data;
 			if (text.size() && data.object()) {
-                for (auto m : data.object_impl()->members) {
+				std::string temp;
+				for (auto m : data.object_impl()->members) {
 					std::string key = "{" + m.first + "}";
 					text = replace(text, key, m.second->to_string());
 				}
+				bool skip = false;
+				for (auto c : text) {
+					if (c == '{')
+						skip = true;
+					else if (c == '}') {
+						skip = false;
+					}
+					else if (!skip) {
+						temp += c;
+					}
+                }
+				text = temp;
 			}
 			return data;
 		}

@@ -120,53 +120,6 @@
               "text": "{zip}"
             }
           ]
-        },
-        {
-          "class_name": "column",
-          "box": {
-            "width": "16 pixels",
-            "height": "1.0 container"
-          }
-        },
-        {
-          "class_name": "column",
-          "box": {
-            "width": "1.0 remaining",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "chaptertitle",
-              "text": "Donations",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            },
-            {
-              "class_name": "items_view",
-              "name": "result_table",
-              "box": {
-                "width": "1.0 container",
-                "height": "1.0 remaining"
-              },
-              "sources": {
-                "candidate": "card_candidate",
-                "donation": "card_donation",
-                "committee": "card_committee"
-              },
-              "select_command": {
-                "class_name": "list_select_object",
-                "target_frame": "page_home.frame_selected",
-                "table_name": "result_table",
-                "sources": {
-                  "candidate": "page_candidate",
-                  "donation": "page_donation",
-                  "committee": "page_committee"
-                }
-              }
-            }
-          ]
         }
       ]
     }

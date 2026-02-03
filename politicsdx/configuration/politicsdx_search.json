@@ -43,7 +43,7 @@
               "name": "search_button",
               "icon": "Forward",
               "box": {
-                "width": "150 pixels",
+                "width": "100 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -68,6 +68,19 @@
                     }
                   ]
                 }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "copy",
+              "icon": "Copy",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "copy",
+                "form_name": "result_table"
               }
             }
           ]

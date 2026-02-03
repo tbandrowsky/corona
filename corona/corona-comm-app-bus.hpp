@@ -1639,6 +1639,16 @@ namespace corona
 			return response;
 		}
 
+		virtual json export_form_data(std::string _form_name)
+		{
+			json result;
+			auto ctrl = presentation_layer->find_ptr<control_base>(_form_name);
+			if (ctrl) {
+				result = ctrl->export_data();
+			}
+			return result;
+		}
+
 		virtual json get_form_data(std::string _form_name)
 		{
 			json result;

@@ -5,6 +5,9 @@
       "connection": "Driver={ODBC Driver 17 for SQL Server};Server=YOUR SERVER HERE;Database=YOUR DATABASE NAME;Trusted_Connection=yes;TrustServerCertificate=yes"
     }
   ],
+  "Settings": {
+    "show_console":  false
+  },
   "Servers": [
     {
       "listen_point": "http://localhost:5678/politics/",

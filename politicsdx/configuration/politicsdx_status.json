@@ -4,36 +4,79 @@
   "default": true,
   "children": [
     {
-      "class_name": "column",
+      "class_name": "row",
       "box": {
-        "width": "1.0 remaining",
+        "width": "1.0 container",
         "height": "1.0 container"
       },
       "children": [
         {
-          "class_name": "chaptertitle",
-          "text": "Classes",
+          "class_name": "column",
           "box": {
-            "width": "1.0 container",
-            "height": "30 pixels"
-          }
+            "width": "400 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Loading",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "paragraph",
+              "text": "Politics is updating its databases.  Classes on the right are updated with progress.",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "paragraph",
+              "text": "You can search at any time.",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            }
+          ]
         },
         {
-          "class_name": "items_view",
-          "name": "classes_table",
+          "class_name": "column",
           "box": {
-            "width": "1.0 container",
-            "height": "1.0 remaining"
+            "width": "1.0 remaining",
+            "height": "1.0 container"
           },
-          "on_refresh": {
-            "class_name": "get_classes",
-            "table_name": "classes_table"
-          },
-          "sources": {
-            "corona_class": "card_table"
-          }
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Classes",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "classes_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "get_classes",
+                "table_name": "classes_table"
+              },
+              "sources": {
+                "corona_class": "card_table"
+              }
+            }
+          ]
         }
       ]
     }
   ]
 }
+

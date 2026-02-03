@@ -1156,6 +1156,177 @@ namespace corona
 
 	};
 
+	class corona_copy_command : public corona_form_command
+	{
+
+		// Function to copy a wide string to the clipboard
+		bool CopyTextToClipboard(const std::string& text) {
+			if (!OpenClipboard(nullptr)) {
+				std::cerr << "Failed to open clipboard.\n";
+				return false;
+			}
+
+			// Empty the clipboard before setting new data
+			if (!EmptyClipboard()) {
+				std::cerr << "Failed to empty clipboard.\n";
+				CloseClipboard();
+				return false;
+			}
+
+			// Allocate global memory for the text (must be GMEM_MOVEABLE)
+			size_t sizeInBytes = (text.size() + 1) * sizeof(char);
+			HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, sizeInBytes);
+			if (!hMem) {
+				std::cerr << "GlobalAlloc failed.\n";
+				CloseClipboard();
+				return false;
+			}
+
+			// Copy the text into the allocated memory
+			void* pMem = GlobalLock(hMem);
+			if (!pMem) {
+				std::cerr << "GlobalLock failed.\n";
+				GlobalFree(hMem);
+				CloseClipboard();
+				return false;
+			}
+			memcpy(pMem, text.c_str(), sizeInBytes);
+			GlobalUnlock(hMem);
+
+			// Set the clipboard data (system takes ownership of hMem)
+			if (!SetClipboardData(CF_TEXT, hMem)) {
+				std::cerr << "SetClipboardData failed.\n";
+				GlobalFree(hMem); // Only free if SetClipboardData fails
+				CloseClipboard();
+				return false;
+			}
+
+			CloseClipboard();
+			return true;
+		}
+
+	public:
+		std::string			form_name = "";
+		corona_instance instance = corona_instance::local;
+
+		corona_copy_command()
+		{
+			topic = "copy";
+		}
+
+		virtual std::string get_name()
+		{
+			return "copy";
+		}
+
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			json obj = _bus->export_form_data(form_name);
+
+			std::map<std::string, int> fields_to_columns;
+			std::map<int, std::string> columns_to_fields;
+			int idx = 0;
+			std::string text_to_copy = obj.to_json();
+
+			if (obj.array()) 
+			{
+				text_to_copy = "";
+				for (auto obj_item : obj)
+				{
+					for (auto member : obj_item.get_members()) 
+					{
+                        if (fields_to_columns.contains(member.first) == false)
+						{
+							fields_to_columns[member.first] = idx;
+							columns_to_fields[idx] = member.first;
+							idx++;
+						}
+					}
+				}
+
+				std::string header_text;
+
+				for (size_t i = 0; i < idx; i++)
+				{
+					std::string value = columns_to_fields[i];
+					header_text += value;
+					if (i < idx - 1)
+						header_text += "\t";
+				}
+
+				text_to_copy = header_text;
+
+                for (auto obj_item : obj)
+				{
+					std::string row_text;
+
+					if (obj_item.object()) {
+
+						for (size_t i = 0; i < idx; i++)
+						{
+							std::string value = obj_item[columns_to_fields[i]].as_string();
+							row_text += value;
+							if (i < idx - 1)
+								row_text += "\t";
+						}
+					}
+
+					text_to_copy += row_text + "\n";
+				}
+
+				CopyTextToClipboard(text_to_copy);
+			}
+
+
+			return obj;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			corona_client_response ccr;
+            ccr.message = "Copied to clipboard";
+			ccr.success = true;
+			return ccr;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			return response.data;
+		}
+
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "copy"sv);
+			_dest.put_member("form_name", form_name);
+			corona::get_json(_dest, instance);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+
+			if (not _src.has_members(missing, { "form_name" })) {
+				system_monitoring_interface::active_mon->log_warning("copy_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			form_name = _src["form_name"].as_string();
+			corona::put_json(instance, _src);
+		}
+
+	};
+
 	class corona_run_object_command : public corona_form_command
 	{
 	public:
@@ -1572,6 +1743,11 @@ namespace corona
 			if (class_name == "script")
 			{
 				_dest = std::make_shared<corona_script_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "copy")
+			{
+				_dest = std::make_shared<corona_copy_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "set_property")

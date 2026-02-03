@@ -85,7 +85,7 @@
           "class_name": "row",
           "box": {
             "width": "1.0 container",
-            "height": "75 pixels"
+            "height": "50 pixels"
           },
           "children": [
             {
@@ -129,7 +129,7 @@
               "name": "space",
               "box": {
                 "width": "1.0 remaining",
-                "height": "40 pixels"
+                "height": "1.0 container"
               }
             },
             {
@@ -137,7 +137,7 @@
               "name": "call_success_message",
               "box": {
                 "width": "250 pixels",
-                "height": "40 pixels"
+                "height": "1.0 container"
               }
             },
             {
@@ -145,7 +145,7 @@
               "name": "call_status_message",
               "box": {
                 "width": "300 pixels",
-                "height": "40 pixels"
+                "height": "1.0 container"
               }
             },
             {
@@ -153,15 +153,15 @@
               "name": "call_execution_time",
               "box": {
                 "width": "100 pixels",
-                "height": "40 pixels"
+                "height": "1.0 container"
               }
             },
             {
-              "class_name": "code",
+              "class_name": "paragraph",
               "name": "space",
               "box": {
-                "width": "20 pixels",
-                "height": "40 pixels"
+                "width": "48 pixels",
+                "height": "1.0 container"
               }
             }
           ]

@@ -950,6 +950,11 @@ namespace corona
 			return true;
 		}
 
+		virtual json get_items()
+		{
+			return data;
+		}
+
 		virtual void key_down(int _key)
 		{
 			switch (_key) {
@@ -1052,7 +1057,7 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (selected_item_index >= 0) {
+			if (selected_item_index >= 0 && data.array()) {
 				j = data.get_element(selected_item_index);
 			}
 			return j;
