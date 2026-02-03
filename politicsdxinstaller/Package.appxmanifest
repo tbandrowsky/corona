@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="790c540e-e553-4787-a0be-c70159a09d65"
-    Publisher="CN=toddb"
+    Name="27629CountryVideoGames.politicsdx"
+    Publisher="CN=8855F627-AD63-41E1-990B-4633E16CE09E"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>politicsdxinstaller</DisplayName>
-    <PublisherDisplayName>toddb</PublisherDisplayName>
+    <DisplayName>politicsdx</DisplayName>
+    <PublisherDisplayName>Country Bit</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
