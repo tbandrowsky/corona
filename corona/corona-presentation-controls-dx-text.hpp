@@ -24,6 +24,7 @@ namespace corona
 	{
 	public:
 		std::string			text;
+		std::string         hit_word;
 		json				data;
 
 		text_display_control(const text_display_control& _src) = default;
@@ -35,12 +36,14 @@ namespace corona
 		{
 			draw_control::get_json(_dest);
 			_dest.put_member("text", text);
+			_dest.put_member("hit_word", hit_word);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
 			text = _src["text"].as_string();
+			hit_word = _src["hit_word"].as_string();
 		}
 
 		virtual std::shared_ptr<control_base> clone()
@@ -83,6 +86,13 @@ namespace corona
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 		text_display_control& set_text(std::string _text);
+		virtual void set_hit_word(std::string _text)
+		{
+			hit_word = _text;
+			for (auto child : children) {
+				child->set_hit_word(_text);
+			}
+		}
 		text_display_control& set_style(viewStyleRequest request);
 
 
@@ -397,7 +407,7 @@ namespace corona
 //			std::cout << test_text << std::endl;
 
 			if (t->view_style) {
-				_context->drawText(t->text.c_str(), &draw_bounds, t->view_style->text_style.name, t->view_style->shape_fill_brush.get_name());
+				_context->drawText(t->text.c_str(), &draw_bounds, t->view_style->text_style.name, t->view_style->shape_fill_brush.get_name(), t->hit_word);
 			}
 		};
 	}

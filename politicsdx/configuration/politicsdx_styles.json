@@ -300,7 +300,8 @@
       "window_style": {
         "text_style": {
           "font_name": "Tahoma, Arial",
-          "font_size": 14,
+          "font_size": 22,
+          "bold": true,
           "underline": false,
           "vertical_alignment": "far"
         },

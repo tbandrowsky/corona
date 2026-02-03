@@ -427,7 +427,7 @@ namespace corona
                         temp.vertical_align = visual_alignment::align_center;
                         temp.horizontal_align = visual_alignment::align_center;
                         _context->setTextStyle(&temp);
-                        _context->drawText(camera_status, &draw_bounds, temp.name, st->CaptionStyle->shape_fill_brush.get_name());
+                        _context->drawText(camera_status, &draw_bounds, temp.name, st->CaptionStyle->shape_fill_brush.get_name(), "");
                     }
 
                     if (current_camera_name.size()) {
@@ -439,7 +439,7 @@ namespace corona
                         temp.horizontal_align = visual_alignment::align_center;
                         _context->setTextStyle(&temp);
                         draw_bounds.h -= 10.0;
-                        _context->drawText(current_camera_name, &draw_bounds, temp.name, st->TitleStyle->shape_fill_brush.get_name());
+                        _context->drawText(current_camera_name, &draw_bounds, temp.name, st->TitleStyle->shape_fill_brush.get_name(), "");
                     }
 
                 }
@@ -2316,7 +2316,7 @@ namespace corona
                     _bounds->x += icon_width + 4;
                     _bounds->w -= icon_width + 4;
 
-                    _context->drawText(text.c_str(), _bounds, this->text_style.name, _foreground->name);
+                    _context->drawText(text.c_str(), _bounds, this->text_style.name, _foreground->name, nullptr);
 
                     };
 

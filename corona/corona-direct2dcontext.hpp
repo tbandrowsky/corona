@@ -56,8 +56,8 @@ namespace corona
 		virtual void drawLine(point* start, point* stop, std::string  _fillBrush, double thickness) = 0;
 		virtual void drawRectangle(rectangle* _rectDto, std::string  _borderBrush, double _borderWidth, std::string  _fillBrush) = 0;
 		virtual void drawEllipse(point* center, point* radius, std::string  _borderBrush, double _borderWidth, std::string  _fillBrush) = 0;
-		virtual void drawText(const char* _text, rectangle* _rectDto, std::string  _textStyle, std::string  _fillBrush) = 0;
-		virtual void drawText(const std::string& _text, rectangle* _rectDto, std::string _textStyle, std::string _fillBrush) = 0;
+		virtual void drawText(const char* _text, rectangle* _rectDto, std::string  _textStyle, std::string  _fillBrush, const char *_hit_word) = 0;
+		virtual void drawText(const std::string& _text, rectangle* _rectDto, std::string _textStyle, std::string _fillBrush, std::string _hit_word) = 0;
 		virtual rectangle getCanvasSize() = 0;
 
 		virtual void popCamera() = 0;
@@ -638,12 +638,12 @@ namespace corona
 			}
 		}
 
-		virtual void drawText(const std::string& _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush)
+		virtual void drawText(const std::string& _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush, std::string _hit_word)
 		{
-			drawText(_text.c_str(), _rectangle, _textStyle, _fillBrush); 
+			drawText(_text.c_str(), _rectangle, _textStyle, _fillBrush, _hit_word.size() ? _hit_word.c_str() : nullptr);
 		}
 
-		virtual void drawText(const char* _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush)
+		virtual void drawText(const char* _text, rectangle* _rectangle, std::string _textStyle, std::string _fillBrush, const char *_hit_word)
 		{
 			auto style = _textStyle.size() ? textStyles[_textStyle] : nullptr;
 			auto fill = _fillBrush.size() ? brushes[_fillBrush] : nullptr;
@@ -685,36 +685,59 @@ namespace corona
 			r.right = _rectangle->x + _rectangle->w;
 			r.bottom = _rectangle->y + _rectangle->h;
 
+			iwstring<256> hit_word(_hit_word);
+
 			auto brush = fill->getBrush();
 			int len = (strlen(_text) + 1) * 2;
 			wchar_t* buff = new wchar_t[len];
 			if (buff) {
 				int ret = ::MultiByteToWideChar(CP_ACP, NULL, _text, -1, buff, len - 1);
 
-				if (style->get_strike_through() or style->get_underline())
-				{
-					int l = wcslen(buff);
-					IDWriteTextLayout* textLayout = nullptr;
+				int l = wcslen(buff);
+				IDWriteTextLayout* textLayout = nullptr;
 
-					if (auto pfactory = getAdapter().lock()) {
+				if (auto pfactory = getAdapter().lock()) {
 
-						pfactory->getDWriteFactory()->CreateTextLayout(buff, l, format, r.right - r.left, r.bottom - r.top, &textLayout);
-						if (textLayout != nullptr) {
-							textLayout->SetUnderline(style->get_underline(), { (UINT32)0, (UINT32)l });
-							textLayout->SetStrikethrough(style->get_strike_through(), { (UINT32)0, (UINT32)l });
-							getDeviceContext()->DrawTextLayout({ r.left, r.top }, textLayout, brush);
-							textLayout->Release();
-							textLayout = nullptr;
-						}
-						else if (brush)
-						{
-							getDeviceContext()->DrawText(buff, ret, format, &r, brush);
-						}
+					pfactory->getDWriteFactory()->CreateTextLayout(buff, l, format, r.right - r.left, r.bottom - r.top, &textLayout);
+					if (textLayout != nullptr) {
+						ID2D1SolidColorBrush* hit_highlight = nullptr;
+
+						getDeviceContext()->CreateSolidColorBrush(
+							D2D1::ColorF(D2D1::ColorF::IndianRed, 1.0f),
+							&hit_highlight
+						);
+
+						textLayout->SetUnderline(style->get_underline(), { (UINT32)0, (UINT32)l });
+						textLayout->SetStrikethrough(style->get_strike_through(), { (UINT32)0, (UINT32)l });
+						if (hit_word.size()) {
+							const wchar_t* s = hit_word.c_str();
+							int hl = 0;
+							const wchar_t* c = s;
+							while (*c) {
+								std::wstring temp_word = L"";
+								hl = 0;
+								while (*c && *c != L' ') {
+									temp_word += *c;
+									c++;
+									hl++;
+								}
+								if (hl > 0) {
+									int start = StrStrIW(buff, temp_word.c_str()) - buff;
+									if (start >= 0) {
+										textLayout->SetDrawingEffect(hit_highlight, { (UINT32)start, (UINT32)(hl) });
+									}
+								}
+							}
+                        }
+						getDeviceContext()->DrawTextLayout({ r.left, r.top }, textLayout, brush);
+						hit_highlight->Release();
+						textLayout->Release();
+						textLayout = nullptr;
 					}
-				}
-				else if (brush)
-				{
-					getDeviceContext()->DrawText(buff, ret, format, &r, brush);
+					else if (brush)
+					{
+						getDeviceContext()->DrawText(buff, ret, format, &r, brush);
+					}
 				}
 
 				// uncomment this to show the text borders 
@@ -770,29 +793,22 @@ namespace corona
 			if (_text) {
 				int l = wcslen(_text);
 
-				if (style->get_strike_through() or style->get_underline())
-				{
-					IDWriteTextLayout* textLayout = nullptr;
+				IDWriteTextLayout* textLayout = nullptr;
 
-					if (auto pfactory = getAdapter().lock()) {
+				if (auto pfactory = getAdapter().lock()) {
 
-						pfactory->getDWriteFactory()->CreateTextLayout(_text, l, format, r.right - r.left, r.bottom - r.top, &textLayout);
-						if (textLayout != nullptr) {
-							textLayout->SetUnderline(style->get_underline(), { (UINT32)0, (UINT32)l });
-							textLayout->SetStrikethrough(style->get_strike_through(), { (UINT32)0, (UINT32)l });
-							getDeviceContext()->DrawTextLayout({ r.left, r.top }, textLayout, brush);
-							textLayout->Release();
-							textLayout = nullptr;
-						}
-						else if (brush)
-						{
-							getDeviceContext()->DrawText(_text, l, format, &r, brush);
-						}
+					pfactory->getDWriteFactory()->CreateTextLayout(_text, l, format, r.right - r.left, r.bottom - r.top, &textLayout);
+					if (textLayout != nullptr) {
+						textLayout->SetUnderline(style->get_underline(), { (UINT32)0, (UINT32)l });
+						textLayout->SetStrikethrough(style->get_strike_through(), { (UINT32)0, (UINT32)l });
+						getDeviceContext()->DrawTextLayout({ r.left, r.top }, textLayout, brush);
+						textLayout->Release();
+						textLayout = nullptr;
 					}
-				}
-				else if (brush)
-				{
-					getDeviceContext()->DrawText(_text, l, format, &r, brush);
+					else if (brush)
+					{
+						getDeviceContext()->DrawText(_text, l, format, &r, brush);
+					}
 				}
 			}
 		}
@@ -963,7 +979,7 @@ namespace corona
 			_rect.x += vs->box_border_thickness;
 			_rect.y += vs->box_border_thickness;
 
-			drawText(_text, &_rect, vs->text_style.name, vs->shape_fill_brush.get_name());
+			drawText(_text, &_rect, vs->text_style.name, vs->shape_fill_brush.get_name(), nullptr);
 
 #if OUTLINE_GUI
 

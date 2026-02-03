@@ -14,7 +14,7 @@
         {
           "class_name": "caption_bar",
           "corporate_name": "country video games",
-          "title_name": "P O L I T I C S",
+          "title_name": "P O L I T I C S  d X",
           "title_start": "60 pixels",
           "box": {
             "width": "1.0 container",
@@ -24,7 +24,7 @@
         {
           "class_name": "row",
           "box": {
-            "width": "0.97 container",
+            "width": "1.0 container",
             "height": "1.0 remaining"
           },
           "view_style": {
@@ -39,7 +39,7 @@
             "box_border_thickness": 4
           },
           "padding": {
-            "amount": 0,
+            "amount": 8,
             "units": "pixels"
           },
           "content_alignment": "near",
@@ -58,7 +58,7 @@
         {
           "class_name": "row",
           "box": {
-            "width": "0.97 container",
+            "width": "1.0 container",
             "height": "10 pixels"
           },
           "view_style": {
@@ -73,7 +73,7 @@
             "box_border_thickness": 4
           },
           "padding": {
-            "amount": 0,
+            "amount": 8,
             "units": "pixels"
           },
           "content_alignment": "near",
@@ -85,8 +85,10 @@
           "class_name": "row",
           "box": {
             "width": "1.0 container",
-            "height": "50 pixels"
+            "height": "65 pixels"
           },
+
+          "padding" : "8 pixels",
           "children": [
             {
               "class_name": "command_button",
@@ -160,7 +162,7 @@
               "class_name": "paragraph",
               "name": "space",
               "box": {
-                "width": "48 pixels",
+                "width": "4 pixels",
                 "height": "1.0 container"
               }
             }

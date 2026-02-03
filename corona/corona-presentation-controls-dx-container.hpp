@@ -361,6 +361,7 @@ namespace corona
 	{
 	protected:
 		void arrange_children();
+		std::string hit_words;
 
 	public:
 
@@ -368,6 +369,11 @@ namespace corona
 		frame_layout(const frame_layout& _src) = default;
 		frame_layout(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
 		virtual ~frame_layout() { ; }
+
+		virtual void set_hit_word(std::string _words) override
+		{
+			hit_words = _words;
+		}
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -772,6 +778,8 @@ namespace corona
 
 		}
 
+		std::string hit_words;
+
 	public:
 
 		items_view()
@@ -822,6 +830,11 @@ namespace corona
 		}
 
 		virtual bool captures_keyboard_focus() { return true; }
+
+		virtual void set_hit_word(std::string _words) override
+		{
+			hit_words = _words;
+        }
 
 		virtual void arrange(control_base* _parent, rectangle* _bounds)
 		{
@@ -932,6 +945,7 @@ namespace corona
 				if (page_controls.contains(class_name))
 				{
 					gvr.control = page_controls[class_name]->clone();
+                    gvr.control->set_hit_word(hit_words);
 					gvr.control->set_data(gvr.object_data);
 				}
 				else {

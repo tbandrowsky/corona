@@ -789,6 +789,12 @@ namespace corona {
 
 		void copy(const char* s)
 		{
+			if (s == 0) {
+				data[0] = 0;
+				length = 0;
+				return;
+            }
+
 			int max_len = strlen(s);
 			if (max_len >= last_char)
 				max_len = last_char;
@@ -819,6 +825,12 @@ namespace corona {
 
 		void copy(const wchar_t* s, int _s_length = -1)
 		{
+			if (s == 0) {
+				data[0] = 0;
+				length = 0;
+				return;
+			}
+
 			wchar_t* d = &data[0];
 			int l = 0;
 			int end_marker = (_s_length == -1 or _s_length >= last_char) ? last_char : _s_length;

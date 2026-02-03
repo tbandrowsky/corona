@@ -16,8 +16,9 @@
               "name": "search_label_text",
               "box": {
                 "width": "150 pixels",
-                "height": "30 pixels"
+                "height": "40 pixels"
               },
+              "padding": "8 pixels",
               "text": "Search politics:"
             },
             {
@@ -27,7 +28,11 @@
               "padding" :  "8 pixels",
               "box": {
                 "width": "300 pixels",
-                "height": "40 pixels"
+                "height": "60 pixels"
+              },
+              "text_style": {
+                "font_name": "Georgia",
+                "font_size" :  24
               }
             },
             {
@@ -50,6 +55,7 @@
                 "class_name": "query",
                 "form_name": "search_row",
                 "table_name": "result_table",
+                "detail_frame": "frame_selected",
                 "query": {
                   "from": [
                     {

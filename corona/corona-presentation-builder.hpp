@@ -2179,6 +2179,12 @@ namespace corona
 					});
 			}
 
+			auto padding_column = main_row.column_begin(id_counter::next(), [this](column_layout& cl) {
+				cl.set_size(16.0_px, 1.0_container);
+				cl.set_content_align(visual_alignment::align_center);
+				})
+				.end();
+
 			auto title_column = main_row.column_begin(id_counter::next(), [this](column_layout& cl) {
 				cl.set_size(1.0_remaining, 1.0_container);
 				cl.set_content_align(visual_alignment::align_center);
@@ -2194,12 +2200,12 @@ namespace corona
 			.end();
 
 			auto frame_buttons_container = main_row.column_begin(id_counter::next(), [](column_layout& rl) {
-				rl.set_size(270.0_px, 1.0_container);
+				rl.set_size(260.0_px, 1.0_container);
 				rl.set_content_align(visual_alignment::align_center);
 				});
 
 			auto frame_buttons = frame_buttons_container.row_begin(id_counter::next(), [](row_layout& cl) {
-				cl.set_content_align(visual_alignment::align_center);
+				cl.set_content_align(visual_alignment::align_far);
 				cl.set_size(250.0_px, 50.0_px);
 				});
 
@@ -3175,6 +3181,7 @@ namespace corona
 		for (auto srcchild : _contents->root->children)
 		{
 			auto new_child = srcchild->clone();
+			new_child->set_hit_word(hit_words);
 			children.push_back(new_child);
 		}
 

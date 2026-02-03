@@ -414,6 +414,13 @@ namespace corona
 			return _data;
 		}
 
+		virtual void set_hit_word(std::string _text)
+		{
+			for(auto child : children) {
+				child->set_hit_word(_text);
+            }
+		}
+
 		virtual json export_data()
 		{
 			json gi = get_items();

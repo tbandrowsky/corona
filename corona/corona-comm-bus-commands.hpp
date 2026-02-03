@@ -1278,8 +1278,16 @@ namespace corona
 				}
 
 				CopyTextToClipboard(text_to_copy);
-			}
-
+			} 
+			else if (obj.object()) 
+			{
+				text_to_copy = "";
+				for (auto member : obj.get_members())
+				{
+					text_to_copy += member.first + "\t" + member.second.as_string() + "\n";
+				}
+				CopyTextToClipboard(text_to_copy);
+            }
 
 			return obj;
 		}
@@ -1411,8 +1419,10 @@ namespace corona
 	{
 	public:
 		std::string			table_name = "";
+        std::string         detail_frame = "";
 		json				query_body;
 		corona_instance instance = corona_instance::local;
+		std::string			hit_words = "";
 
 		corona_query_command()
 		{
@@ -1424,12 +1434,13 @@ namespace corona
 			return "query_object";
 		}
 
-
 		virtual json create_request(comm_bus_app_interface* _bus)
 		{
 			json_parser jp;
 			control_base* cb_form = {};
 			json object_data;
+
+			hit_words = "";
 
 			if (not form_name.empty())
 				cb_form = _bus->find_control(form_name);
@@ -1441,6 +1452,10 @@ namespace corona
 			if (cb_form)
 			{
 				object_data = cb_form->get_data();
+				if (object_data.has_member("full_text"))
+				{
+                    hit_words = object_data["full_text"].as_string();
+				}				
 			}
 
 			return object_data;
@@ -1480,7 +1495,14 @@ namespace corona
 			}
 			if (response.success) {
 				if (cb_table) {
+                    cb_table->set_hit_word(hit_words);
 					cb_table->set_items(response.data);
+				}
+				if (not detail_frame.empty()) {
+					control_base* cb_form = _bus->find_control(detail_frame);
+					if (cb_form) {
+						cb_form->set_hit_word(hit_words);
+					}
 				}
 			}
 			else {
@@ -1488,6 +1510,7 @@ namespace corona
 				json_parser jp;
 				json empty = jp.create_array();
 				if (cb_table) {
+					cb_table->set_hit_word(hit_words);
 					cb_table->set_items(empty);
 				}
 			}
@@ -1501,6 +1524,7 @@ namespace corona
 			_dest.put_member("class_name", "query"sv);
 			_dest.put_member("form_name", form_name);
 			_dest.put_member("table_name", table_name);
+			_dest.put_member("detail_frame", form_name);
 			_dest.put_member("query", query_body);
 			corona::get_json(_dest, instance);
 
@@ -1522,6 +1546,7 @@ namespace corona
 
 			form_name = _src["form_name"].as_string();
 			table_name = _src["table_name"].as_string();
+			detail_frame = _src["detail_frame"].as_string();
 			query_body = _src["query"];
 			corona::put_json(instance, _src);
 		}
