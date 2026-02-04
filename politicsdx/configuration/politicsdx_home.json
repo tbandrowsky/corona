@@ -115,18 +115,6 @@
               }
             },
             {
-              "class_name": "command_button",
-              "icon": "Help",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_help",
-                "message": "Help."
-              }
-            },
-            {
               "class_name": "code",
               "name": "space",
               "box": {

@@ -138,8 +138,7 @@ namespace corona
 		virtual int64_t get_count() = 0;
 	};
 
-
-	static const int xrecords_per_block = 200;
+	static const int xrecords_per_block = 100;
 
 	struct xblock_location
 	{

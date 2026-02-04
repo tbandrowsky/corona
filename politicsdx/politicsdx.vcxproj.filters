@@ -85,6 +85,7 @@
     <CopyFileToFolders Include="configuration\politicsdx_committee_transaction_card.json" />
     <CopyFileToFolders Include="configuration\politicsdx_layout_test.json" />
     <CopyFileToFolders Include="configuration\politicsdx_table_card.json" />
+    <CopyFileToFolders Include="configuration\database\database.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="politicsdx.cpp">

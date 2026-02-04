@@ -58,32 +58,30 @@ namespace corona
 		std::string config_path = buff;
 		config_path += "\\configuration\\";
 
-		// for testiing purposes
-        config_path = "D:\\countrybit\\politicsdx\\configuration\\";
+		std::string database_path = config_path + "database";
 
-		// database path
-		PWSTR userFolderPath = nullptr;
-		HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
-		std::string database_path;
+		if (false) {
+			// database path
+			PWSTR userFolderPath = nullptr;
+			HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
 
-		if (result == S_OK) {
-			istring<4096> dataPath(userFolderPath);
+			if (result == S_OK) {
+				istring<4096> dataPath(userFolderPath);
 
-			std::filesystem::path application_path = "politicsdx";
-			std::filesystem::path database_path_path = dataPath.c_str();
-			database_path_path /= application_path;
-            database_path = database_path_path.string();
-			CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
+				std::filesystem::path application_path = "politicsdx";
+				std::filesystem::path database_path_path = dataPath.c_str();
+				database_path_path /= application_path;
+				database_path = database_path_path.string();
+				CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
+			}
+			else {
+				log_warning("Could not get app_data folder path");
+				return;
+			}
+			CreateDirectoryA(database_path.c_str(), NULL);
 		}
-		else {
-			log_warning("Could not get app_data folder path");
-			return;
-		}
 
-        CreateDirectoryA(database_path.c_str(), NULL);
-
-
-        std::string config_full_file = config_path + config_filename;
+		std::string config_full_file = config_path + config_filename;
 
 		std::string config_contents = corona::read_all_string(config_full_file);
 

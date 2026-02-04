@@ -4762,7 +4762,7 @@ namespace corona
 
 						int64_t object_id = item[object_id_field].as_int64_t();
 
-						std::set<std::string> record_words;
+						std::map<std::string, int64_t> record_words;
 
 						for (auto& item_field : class_def->full_text_fields)
 						{
@@ -4777,13 +4777,16 @@ namespace corona
 								for (auto& word : terms) {
 									if (word.empty() or record_words.contains(word))
 										continue;
-									record_words.insert(word);
-									xrecord key, value;
-									key.add(1, word);
-									key.add_int64(2, object_id);
-									ftb->put_direct(key, value);
+									record_words[word] = object_id;
 								}
 							}
+						}
+
+						for (auto& rw : record_words) {
+							xrecord key, value;
+							key.add(1, rw.first);
+							key.add_int64(2, rw.second);
+							ftb->put_direct(key, value);
 						}
 					}
 					ftb->commit();

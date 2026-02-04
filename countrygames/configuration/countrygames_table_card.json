@@ -1,0 +1,38 @@
+{
+  "class_name": "page",
+  "page_name": "card_table",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "card_label",
+      "box": {
+        "width": "500 pixels",
+        "height": "80 pixels"
+      },
+      "padding": "8 pixels",
+      "children": [
+        {
+          "class_name": "chaptersubtitle",
+          "name": "name",
+          "box": "edit_label_box_full",
+          "json_field_name": "name",
+          "text": "{name} ({base_name})"
+        },
+        {
+          "class_name": "paragraph",
+          "name": "description",
+          "box": "edit_label_box_full",
+          "json_field_name": "name",
+          "text": "{description}"
+        },
+        {
+          "class_name": "paragraph",
+          "name": "counts",
+          "box": "edit_label_box_full",
+          "json_field_name": "object_count",
+          "text": "{object_count} objects, {word_count} words"
+        }
+      ]
+    }
+  ]
+}

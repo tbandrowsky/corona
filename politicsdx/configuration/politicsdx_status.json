@@ -27,7 +27,7 @@
             },
             {
               "class_name": "paragraph",
-              "text": "Politics is updating its databases.  Classes on the right are updated with progress.",
+              "text": "Classes on the right are updated with progress.",
               "box": {
                 "width": "1.0 container",
                 "height": "30 pixels"

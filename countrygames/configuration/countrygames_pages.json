@@ -1,0 +1,219 @@
+{
+  "abbreviations": {
+    "button_box": {
+      "width": "100 pixels",
+      "height": {
+        "amount": 50,
+        "units": "pixels"
+      },
+      "padding": "2 pixels"
+    },
+    "full_container": {
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 1.0,
+        "units": "container"
+      }
+    },
+    "edit_section_box": {
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 60,
+        "units": "pixels"
+      }
+    },
+    "edit_container_box": {
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 80.0,
+        "units": "pixels"
+      }
+    },
+    "edit_label_box": {
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 25,
+        "units": "pixels"
+      }
+    },
+    "edit_field_box": {
+      "width": {
+        "amount": 200,
+        "units": "pixels"
+      },
+      "height": {
+        "amount": 25,
+        "units": "pixels"
+      }
+    },
+    "edit_label_box_full": {
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 25.0,
+        "units": "pixels"
+      }
+    },
+    "edit_field_box_large": {
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 35,
+        "units": "pixels"
+      }
+    },
+    "memo_field_box_large": {
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 60.0,
+        "units": "pixels"
+      }
+    },
+    "chaptertitle_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": 34,
+        "units": "pixels"
+      }
+    },
+    "chaptersubtitle_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": 34,
+        "units": "pixels"
+      }
+    },
+    "paragraph_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": 6.2,
+        "units": "text"
+      }
+    },
+    "edit_row_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": "60",
+        "units": "pixels"
+      }
+    },
+    "button_margin": {
+      "amount": 20,
+      "units": "pixels"
+    },
+    "search_box": {
+      "x": "32.0 pixels",
+      "width": "0.25 container",
+      "height": "1.0 container",
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 1.0,
+        "units": "container"
+      }
+    }
+  },
+  "startup": [
+    {
+      "class_name": "select_frame",
+      "target_frame": "page_home.frame_home",
+      "source_frame": "page_search",
+      "message": "layout test."
+    }
+  ],
+  "pages": [
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_home.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_layout_test.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_status.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_search.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_candidate.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_donation.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_candidate_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_donation_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_table_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_summary_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_summary.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_transaction_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "politicsdx_committee_transaction.json"
+    }
+  ]
+}

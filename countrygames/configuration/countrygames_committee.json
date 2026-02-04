@@ -1,0 +1,62 @@
+{
+  "class_name": "page",
+  "page_name": "page_committee",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "committee_object",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "column",
+          "name": "committee_details",
+          "box": {
+            "width": "300 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Committee",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "text": "Committee Name:",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_name",
+              "box": "edit_field_box_large",
+              "text": "{committee_name}"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "text": "Committee ID:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "committee_id",
+              "box": "edit_field_box",
+              "text": "{committee_id}"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "text": "Political Party:",
+              "box": "edit_label_box"
+            },
+            {
+              "class_name": "paragraph",
+              "json_field_name": "political_party",
+              "box": "edit_field_box",
+              "text": "{committee_id}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

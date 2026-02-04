@@ -48,7 +48,7 @@ int __stdcall WinMain(HINSTANCE hInstance,
 		}
 		catch (std::exception& e) 
 		{
-			
+            ::MessageBoxA(nullptr, e.what(), "Application Error", MB_OK | MB_ICONERROR);
 		}
 		CoUninitialize();
 	}
