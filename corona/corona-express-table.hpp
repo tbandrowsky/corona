@@ -788,9 +788,8 @@ namespace corona
 		{
 			scope_lock lockme(locker);
 
-
 			file_name = _file_name;
-			fp = std::make_shared<file>(_file_name, file_open_types::create_always);
+			fp = std::make_shared<file>(_file_name, file_open_types::create_always, false);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 
 			table_header->append(this);
@@ -803,10 +802,10 @@ namespace corona
 			system_monitoring_interface::global_mon->log_information(std::format("create table {0}", get_file_name(file_name)), __FILE__, __LINE__);
 		}
 
-		xtable(std::string _file_name)
+		xtable(std::string _file_name, bool _read_only)
 		{			
 			file_name = _file_name;
-			fp = std::make_shared<file>(_file_name, file_open_types::open_existing);
+			fp = std::make_shared<file>(_file_name, file_open_types::open_existing, _read_only);
 			cache = std::make_shared<xblock_cache>(this, giga_to_bytes(1));
 
 			table_header = std::make_shared<xtable_header>();
@@ -1934,7 +1933,7 @@ namespace corona
 
 		system_monitoring_interface::active_mon->log_function_start("xleaf", "start", start, __FILE__, __LINE__);
 
-		std::shared_ptr<file> fp = _app->open_file_ptr("test_leaf.corona", file_open_types::create_always);
+		std::shared_ptr<file> fp = _app->open_file_ptr("test_leaf.corona", file_open_types::create_always, false);
 		buffered_file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
@@ -2012,7 +2011,7 @@ namespace corona
 
 		system_monitoring_interface::active_mon->log_function_start("xbranch", "start", start, __FILE__, __LINE__);
 
-		std::shared_ptr<file> fp = _app->open_file_ptr("test_branch.corona", file_open_types::create_always);
+		std::shared_ptr<file> fp = _app->open_file_ptr("test_branch.corona", file_open_types::create_always, false);
 		buffered_file_block fb(fp);
 
 		xblock_cache cache(&fb, giga_to_bytes(1));
@@ -2144,7 +2143,7 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_start("xtable read", "start", start, __FILE__, __LINE__);
 
 		std::shared_ptr<xtable> ptable;
-		ptable = std::make_shared<xtable>("test.corona");
+		ptable = std::make_shared<xtable>("test.corona", false);
 
 		int count52 = 0;
 		std::vector<std::string> keys = { object_id_field, "age", "weight" };

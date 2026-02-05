@@ -226,9 +226,9 @@ namespace corona
 			return result;
 		}
 
-		file open_file(std::string filename, file_open_types _file_open_type)
+		file open_file(std::string filename, file_open_types _file_open_type, bool _read_only)
 		{
-			file f(filename, _file_open_type);
+			file f(filename, _file_open_type, _read_only);
 			return f;
 		}
 
@@ -242,43 +242,43 @@ namespace corona
 			return true;
 		}
 
-		file open_file(KNOWNFOLDERID folderId, std::string filename, file_open_types _file_open_type)
+		file open_file(KNOWNFOLDERID folderId, std::string filename, file_open_types _file_open_type, bool _read_only)
 		{
-			file f(folderId, filename, _file_open_type);
+			file f(folderId, filename, _file_open_type, _read_only);
 			return f;
 		}
 
 		file create_file(KNOWNFOLDERID folderId, std::string filename)
 		{
-			return file(folderId, filename, file_open_types::create_always);
+			return file(folderId, filename, file_open_types::create_always, false);
 		}
 
 		file create_file(std::string filename)
 		{
-			return file(filename, file_open_types::create_always);
+			return file(filename, file_open_types::create_always, false);
 		}
 
-		std::shared_ptr<file> open_file_ptr(KNOWNFOLDERID folderId, std::string filename, file_open_types _file_open_type)
+		std::shared_ptr<file> open_file_ptr(KNOWNFOLDERID folderId, std::string filename, file_open_types _file_open_type, bool _read_only)
 		{
-			std::shared_ptr<file> f = std::make_shared<file>(folderId, filename, _file_open_type);
+			std::shared_ptr<file> f = std::make_shared<file>(folderId, filename, _file_open_type, _read_only);
 			return f;
 		}
 
-		std::shared_ptr<file> open_file_ptr(std::string filename, file_open_types _file_open_type)
+		std::shared_ptr<file> open_file_ptr(std::string filename, file_open_types _file_open_type, bool _read_only)
 		{
-			std::shared_ptr<file> f = std::make_shared<file>(filename, _file_open_type);
+			std::shared_ptr<file> f = std::make_shared<file>(filename, _file_open_type, _read_only);
 			return f;
 		}
 
 		std::shared_ptr<file> create_file_ptr(KNOWNFOLDERID folderId, std::string filename)
 		{
-			std::shared_ptr<file> f = std::make_shared<file>(folderId, filename, file_open_types::create_always);
+			std::shared_ptr<file> f = std::make_shared<file>(folderId, filename, file_open_types::create_always, false);
 			return f;
 		}
 
 		std::shared_ptr<file> create_file_ptr(std::string filename)
 		{
-			std::shared_ptr<file> f = std::make_shared<file>(filename, file_open_types::create_always);
+			std::shared_ptr<file> f = std::make_shared<file>(filename, file_open_types::create_always, false);
 			return f;
 		}
 

@@ -14,6 +14,7 @@ This is the core database engine for the corona database server.
 #pragma once
 
 const bool debug_teams = false;
+const bool corona_db_read_only = true;
 
 /*********************************************** 
 
@@ -2894,7 +2895,7 @@ namespace corona
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
 			if (!table)
-				table = std::make_shared<xtable>(get_index_filename(_db));
+				table = std::make_shared<xtable>(get_index_filename(_db), corona_db_read_only);
 			return table;
 		}
 
@@ -3204,7 +3205,7 @@ namespace corona
 		virtual std::shared_ptr<xtable> get_xtable(corona_database_interface* _db) override
 		{
 			if (!table) {
-				table = std::make_shared<xtable>(get_class_filename(_db));
+				table = std::make_shared<xtable>(get_class_filename(_db), corona_db_read_only);
 				full_text_index = get_full_text_index(_db);
 			}
 
@@ -3237,7 +3238,7 @@ namespace corona
 		{
 			if (full_text_fields.size() > 0) {
 				if (!full_text_index) {
-					full_text_index = std::make_shared<xtable>(get_text_index_filename(_db));
+					full_text_index = std::make_shared<xtable>(get_text_index_filename(_db), corona_db_read_only);
 				}
 			}
 			return full_text_index;
@@ -3348,7 +3349,7 @@ namespace corona
 			table = create_xtable(_db);
 			table->commit();
 			table = nullptr;
-			table = std::make_shared<xtable>(get_class_filename(_db));
+			table = std::make_shared<xtable>(get_class_filename(_db), corona_db_read_only);
 
 			// we're going to make our xtable anyway so we can slap our object id 
 			// on top of a sql server primary key
@@ -3360,6 +3361,10 @@ namespace corona
 
 		virtual std::shared_ptr<xtable_interface> create_table(corona_database_interface* _db) override
 		{
+			if (corona_db_read_only) {
+				throw std::logic_error("Can't create tables on a read only database");
+			}
+
 			if (sql)
 			{
 				stable = create_stable(_db);
@@ -3368,7 +3373,7 @@ namespace corona
 				table = create_xtable(_db);
 				table->commit();
 				table = nullptr;
-				table = std::make_shared<xtable>(get_class_filename(_db));
+				table = std::make_shared<xtable>(get_class_filename(_db),false);
 			}
 			return table;
 		}
@@ -5403,6 +5408,10 @@ namespace corona
 			using namespace std::literals;
 
 			system_monitoring_interface::active_mon->log_job_start("create_database", "start", start_time, __FILE__, __LINE__);
+
+			if (corona_db_read_only) {
+				throw std::logic_error("Can't create a read only database, create one, then open it read only");
+			}
 		
 			std::shared_ptr<xtable_header> class_data_header = std::make_shared<xtable_header>();
 
@@ -6430,7 +6439,7 @@ namespace corona
 			class_table = data_path;
 			class_table /= "classes.coronatbl";
 			file_name = class_table.string();
-			classes = std::make_shared<xtable>(file_name);
+			classes = std::make_shared<xtable>(file_name, false);
 
 			system_monitoring_interface::active_mon->log_job_stop("create_database", "completed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
@@ -8315,7 +8324,7 @@ private:
 			class_table /= "classes.coronatbl";
 			std::string file_name = class_table.string();
 
-			classes = std::make_shared<xtable>(file_name);
+			classes = std::make_shared<xtable>(file_name, corona_db_read_only);
 
             std::vector<std::string> check_classes = { "sys_object", "sys_user", "sys_team", "sys_grant", "sys_server", "sys_error", "sys_schema", "sys_dataset" };
 

@@ -93,7 +93,7 @@ namespace corona
 		// so tempting.
 		os_result		last_result;
 
-		void open(const std::string& _filename, file_open_types _file_open_type)
+		void open(const std::string& _filename, file_open_types _file_open_type, bool _read_only)
 		{
 			filename = _filename;
 
@@ -126,9 +126,15 @@ namespace corona
 			params.lpSecurityAttributes = NULL;
 			int retry_count = 10;
 
+            DWORD desired_access = GENERIC_READ;
+
+            if (!_read_only) {
+				desired_access |= GENERIC_WRITE;
+			}
+
 			do
 			{
-				hfile = ::CreateFileA(filename.c_str(), (GENERIC_READ | GENERIC_WRITE), 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr );
+				hfile = ::CreateFileA(filename.c_str(), desired_access, 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr );
 				if (hfile != INVALID_HANDLE_VALUE) {
 					break;
 				}
@@ -178,7 +184,7 @@ namespace corona
 			return *this;
 		}
 
-		file(KNOWNFOLDERID _folder_id, const file_path& _filename, file_open_types _file_open_type)
+		file(KNOWNFOLDERID _folder_id, const file_path& _filename, file_open_types _file_open_type, bool _read_only)
 			: filename(_filename), hfile(INVALID_HANDLE_VALUE)
 		{
 			wchar_t* wide_path = nullptr;
@@ -188,14 +194,14 @@ namespace corona
 				istring<2048> temp = wide_path;
 				temp += "\\";
 				temp += _filename;
-				open(temp.c_str(), _file_open_type);
+				open(temp.c_str(), _file_open_type, _read_only);
 			}
 		}
 
-		file(const std::string& _filename, file_open_types _file_open_type)
+		file(const std::string& _filename, file_open_types _file_open_type, bool _read_only)
 			: filename(_filename), hfile(INVALID_HANDLE_VALUE)
 		{
-			open(_filename, _file_open_type);
+			open(_filename, _file_open_type, _read_only);
 		}
 
 		~file()

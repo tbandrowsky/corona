@@ -117,11 +117,12 @@ namespace corona
 
 		bool database_recreate;
 
-		bool ready_for_polling;
 		bool is_db_polling = false;
 		bool is_ux_polling = false;
 
 		json system_proof;
+
+		bool poll_db_enabled = false;
 
 		comm_app_bus(std::string _config_path, 
 			std::string _database_path, 
@@ -187,8 +188,6 @@ namespace corona
 			pages_config_filename = _config_path + _application_name + "_pages.json";
 			styles_config_filename = _config_path + _application_name + "_styles.json";
 
-			ready_for_polling = false;
-
 			database_schema_filename = server_config["schema_filename"].as_string();
 			database_threads = server_config["database_threads"].as_int64_t();
 			database_recreate = server_config["database_recreate"].as_bool();
@@ -220,6 +219,9 @@ namespace corona
 				}
 				catch (std::exception exc)
 				{
+					std::cout << database_path << std::endl;
+					std::cout << config_path << std::endl;
+					std::cout << exc.what() << std::endl;
 					log_warning("Could not apply database config", __FILE__, __LINE__);
 				}
 
@@ -230,8 +232,6 @@ namespace corona
 					log_json(create_database_response);
 					throw std::exception("Could not create database");
 				}
-
-				ready_for_polling = true;
 			}
 			else
 			{
@@ -246,17 +246,12 @@ namespace corona
 					std::string mxessage = std::format("Could not apply config {}", exc.what());
 					log_warning(mxessage, __FILE__, __LINE__);
 				}
-
-
-				ready_for_polling = true;
 			}
 
 			MFStartup(MF_VERSION);
 
 
 			json token = get_local_token();
-
-			ready_for_polling = true;
 
 			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
@@ -457,9 +452,12 @@ namespace corona
 			directory_checker::check_options options;
 
 			if (checker.check_changes( options )) {
-				global_job_queue->submit_job([this, _select_default_page]()->void {
-                    poll_db();
-					}, nullptr);
+
+				if (poll_db_enabled) {
+					global_job_queue->submit_job([this, _select_default_page]()->void {
+						poll_db();
+						}, nullptr);
+				}
 				poll_pages(_select_default_page);
 			}
 		}

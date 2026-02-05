@@ -50,15 +50,17 @@ namespace corona
 
 		std::shared_ptr<corona::comm_app_bus> service;
 
-		// config path
-		char buff[MAX_PATH * 2];
-		memset(buff, 0, sizeof(buff) / sizeof(char));
-		::GetModuleFileNameA(nullptr, buff, sizeof(buff) / sizeof(char));
-		::PathRemoveFileSpecA(buff);
-		std::string config_path = buff;
+		char dir[500];
+		GetModuleFileNameA(NULL, dir, 500);
+
+        std::string config_path = std::filesystem::path(dir).parent_path().string();
+
 		config_path += "\\configuration\\";
 
 		std::string database_path = config_path + "database";
+
+        std::cout << "Config path: " << config_path << std::endl;
+		std::cout << "Database path: " << database_path << std::endl;
 
 		if (false) {
 			// database path
@@ -100,9 +102,6 @@ namespace corona
 		if (servers.array()) {
 			if (servers.size() > 0) {
 				auto server = servers.get_element(0);
-				std::string listen_point = server["listen_point"].as_string();
-				std::string server_name = server["application_name"].as_string();
-				std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
 				service = std::make_shared<corona::comm_app_bus>(
 					config_path,
