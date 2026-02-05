@@ -788,8 +788,12 @@ namespace corona
 		}
 		for (auto child : children) {
 			auto result = child->find_if(_item);
-			if (result.second)
+			if (result.second) {
+                if (result.first == nullptr) {
+					result.first = this;
+				}
 				return result;
+			}
 		}
 		return result;
 	}

@@ -114,6 +114,10 @@ namespace corona
 		{
 
 			start_message(bus);
+			bus->in_progress++;
+			bus->command_start = time(nullptr);
+			bus->command_current = bus->command_start;
+			bus->elapsed_seconds = 0;
 			json obj = bus->get_form_data(form_name);
 
 			if (obj.object()) {
@@ -127,8 +131,11 @@ namespace corona
                         corona_client_response response = execute_request(request, bus);
 
 						bus->run_ui([this, response, bus]()->void {
+							bus->command_current = time(nullptr);
+							bus->elapsed_seconds = bus->command_current - bus->command_start;
 							handle_response(response, bus);
 							stop_message(response, bus);
+							bus->in_progress--;
 							});
 					});
 				}

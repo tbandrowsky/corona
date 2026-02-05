@@ -26,6 +26,7 @@ namespace corona
 		std::string			text;
 		std::string         hit_word;
 		json				data;
+		std::string         template_text;
 
 		text_display_control(const text_display_control& _src) = default;
 		text_display_control();
@@ -35,14 +36,15 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			draw_control::get_json(_dest);
-			_dest.put_member("text", text);
+			_dest.put_member("text", template_text);
 			_dest.put_member("hit_word", hit_word);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
-			text = _src["text"].as_string();
+			template_text = _src["text"].as_string();
+			text = template_text;
 			hit_word = _src["hit_word"].as_string();
 		}
 
@@ -54,15 +56,10 @@ namespace corona
 
 		void init();
 
-		virtual void set_default_styles()
+		void update_text()
 		{
-			;
-		}
-
-        virtual json set_data(json _data)
-		{
-			data = _data;
-			if (text.size() && data.object()) {
+			if ((template_text.find('{',0) != std::string::npos) && template_text.size() && data.object()) {
+				text = template_text;
 				std::string temp;
 				for (auto m : data.object_impl()->members) {
 					std::string key = "{" + m.first + "}";
@@ -78,9 +75,19 @@ namespace corona
 					else if (!skip) {
 						temp += c;
 					}
-                }
+				}
 				text = temp;
 			}
+		}
+
+		virtual void set_default_styles()
+		{
+			;
+		}
+
+        virtual json set_data(json _data)
+		{
+			data = _data;
 			return data;
 		}
 
@@ -401,7 +408,10 @@ namespace corona
 
 			auto draw_bounds = t->inner_bounds;
 
+			t->update_text();
+
 			if (not t->text.size()) t->text = "";
+
 
 //			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
 //			std::cout << test_text << std::endl;

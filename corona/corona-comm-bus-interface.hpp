@@ -123,6 +123,11 @@ namespace corona
 
 	public:
 
+		int in_progress = 0;
+		time_t command_start = 0;
+		time_t command_current = 0;
+		time_t elapsed_seconds = 0;
+
 		static comm_bus_app_interface* global_bus;
 
 		comm_bus_app_interface()

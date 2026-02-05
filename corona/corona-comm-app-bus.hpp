@@ -451,6 +451,21 @@ namespace corona
 		{
 			directory_checker::check_options options;
 
+			// poll is called by a windows timer so this hack will work.
+
+			if (in_progress) {
+				control_base* timer_control = find_control("call_timer_seconds");
+
+				if (timer_control) {
+					json_parser jp;
+					json status = jp.create_object();
+                    command_current = time(nullptr);
+                    elapsed_seconds = command_current - command_start;
+					status.put_member("call_timer_seconds", elapsed_seconds);
+					timer_control->set_data(status);
+				}
+			}
+
 			if (checker.check_changes( options )) {
 
 				if (poll_db_enabled) {
