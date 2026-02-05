@@ -9,7 +9,7 @@
   <Identity
     Name="27629CountryVideoGames.politicsdx"
     Publisher="CN=8855F627-AD63-41E1-990B-4633E16CE09E"
-    Version="1.0.12.0" />
+    Version="1.0.13.0" />
 
   <Properties>
     <DisplayName>politicsdx</DisplayName>
