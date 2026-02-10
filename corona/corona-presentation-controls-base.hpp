@@ -223,10 +223,10 @@ namespace corona
 			}
 			name = _src.name;
 			wrap_break = _src.wrap_break;
-            json_field_name = _src.json_field_name;
+			json_field_name = _src.json_field_name;
 
-            onload_command = _src.onload_command;
-            onrefresh_command = _src.onrefresh_command;
+			onload_command = _src.onload_command;
+			onrefresh_command = _src.onrefresh_command;
 		}
 
 	public:
@@ -260,14 +260,14 @@ namespace corona
 		virtual LRESULT get_nchittest() { return hittest; }
 		virtual void set_nchittest(LRESULT _hittest) { hittest = _hittest; }
 
-		control_base() 
+		control_base()
 		{
 			id = id_counter::next();
 			is_focused = false;
 			wrap_break = false;
 		}
 
-		control_base(int _id) 
+		control_base(int _id)
 		{
 			if (_id < 0) {
 				id = id_counter::next();
@@ -314,7 +314,7 @@ namespace corona
 			return mouse_relative_position;
 		}
 
-		int get_id() { return id;  }
+		int get_id() { return id; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -327,9 +327,9 @@ namespace corona
 			;
 		}
 
-		virtual bool captures_keyboard_focus() 
-		{ 
-			return false; 
+		virtual bool captures_keyboard_focus()
+		{
+			return false;
 		}
 
 		virtual bool set_focus()
@@ -337,7 +337,7 @@ namespace corona
 			is_focused = true;
 			return false;
 		}
-		 
+
 		virtual bool kill_focus()
 		{
 			is_focused = false;
@@ -370,7 +370,7 @@ namespace corona
 			temp = std::make_shared<control_type>(this, _id);
 			if (temp) {
 				children.push_back(temp);
-//				std::cout << " " << typeid(*this).name() << " ->create:" << typeid(control_type).name() << std::endl;
+				//				std::cout << " " << typeid(*this).name() << " ->create:" << typeid(control_type).name() << std::endl;
 			}
 			apply_item_sizes(*temp);
 			return temp;
@@ -412,6 +412,29 @@ namespace corona
 				child->set_data(_data);
 			}
 			return _data;
+		}
+
+		virtual void set_error(validation_error& _errors)
+		{
+			for (auto child : children) {
+				child->set_error(_errors);
+            }
+		}
+
+		virtual void clear_error()
+		{
+
+		}
+
+		virtual void set_errors(std::vector<validation_error>& _errors)
+		{
+			for (auto error : _errors)
+			{
+                control_base* b = find_by_json_name(error.field_name);
+				if (b) {
+					b->set_error(error);
+				}
+			}
 		}
 
 		virtual void set_hit_word(std::string _text)
@@ -537,10 +560,12 @@ namespace corona
 
 		control_base* find(int _id);
 		control_base* find(std::string _name);
+		control_base* find_by_json_name(std::string _name);
 		control_base* find(point p);
 		control_base* get(control_base* _root, int _id);
 		std::pair<control_base*, control_base*> get_pair(int _id);
 		control_base* get(control_base* _root, std::string _name);
+		control_base* get_by_json_name(control_base* _root, std::string _name);
 
 		template <typename control_type> std::shared_ptr<control_type> find_by_id(int _id)
 		{
@@ -756,6 +781,13 @@ namespace corona
 		return result;
 	}
 
+	control_base* find_by_json_name(std::string _name)
+	{
+		control_base* root = (control_base*)this;
+		control_base* result = control_base::get_by_json_name(root, _name);
+		return result;
+	}
+
 	std::pair<control_base *, control_base *> control_base::get_pair(int _id)
 	{
 		std::pair<control_base*, control_base*> result;
@@ -766,6 +798,12 @@ namespace corona
 	control_base* control_base::get(control_base* _root, std::string _name)
 	{
 		control_base* result = _root->find_if([_name](control_base* c) { return c->name == _name; }).second;
+		return result;
+	}
+
+	control_base* control_base::get_by_json_name(control_base* _root, std::string _name)
+	{
+		control_base* result = _root->find_if([_name](control_base* c) { return c->json_field_name == _name; }).second;
 		return result;
 	}
 

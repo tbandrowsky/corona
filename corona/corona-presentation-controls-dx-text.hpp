@@ -324,6 +324,24 @@ namespace corona
 		status_control(const status_control& _src) = default;
 		status_control(control_base* _parent, int _id);
 
+		virtual void set_error(validation_error& _ve)
+		{
+			children.clear();
+			status_set = true;
+			std::shared_ptr<error_control> sc = std::make_shared<error_control>(this, id_counter::next());
+			sc->set_text(_ve.message);
+			sc->set_size(1.0_container, 1.0_container);
+			children.push_back(sc);
+			arrange_children();
+		}
+
+		virtual void clear_error()
+		{
+			children.clear();
+			status_set = true;
+			arrange_children();
+		}
+
 		bool set_status(call_status _status)
 		{
 			children.clear();

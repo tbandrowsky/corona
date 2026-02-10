@@ -22,12 +22,6 @@ For Future Consideration
 
 namespace corona {
 
-	enum class field_layout
-	{
-		label_on_left = 1,
-		label_on_top = 2
-	};
-
 	class presentation : public controller, public presentation_base
 	{
 	protected:
