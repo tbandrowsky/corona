@@ -14,7 +14,6 @@ This is the core database engine for the corona database server.
 #pragma once
 
 const bool debug_teams = false;
-const bool corona_db_read_only = true;
 
 /*********************************************** 
 
@@ -49,6 +48,7 @@ constexpr bool is_convertible_to_int = std::is_convertible_v<T, int>;
 
 namespace corona
 {
+	static bool corona_db_read_only = false;
 
 	const std::string class_definition_string = R"(
 {	

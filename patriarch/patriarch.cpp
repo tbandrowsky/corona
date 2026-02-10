@@ -1,11 +1,11 @@
-#define APPLICATION_ENTREPRENUER 3
-#define APPLICATION_ID APPLICATION_ENTREPRENUER
+#define APPLICATION_PATRIARCH 3
+#define APPLICATION_ID APPLICATION_PATRIARCH
 
 
 
-#if APPLICATION_ID == APPLICATION_ENTREPRENUER	
-#include "app_entrepreneur.hpp"
-#define application_function(a,b) corona::run_entrepreneur_application(a,b);
+#if APPLICATION_ID == APPLICATION_PATRIARCH	
+#include "app_patriarch.hpp"
+#define application_function(a,b) corona::run_patriarch_application(a,b);
 #endif
 
 

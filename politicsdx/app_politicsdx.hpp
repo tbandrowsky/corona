@@ -47,6 +47,7 @@ namespace corona
 
 	void run_politicsdx_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
+		corona::corona_db_read_only = true;
 
 		std::shared_ptr<corona::comm_app_bus> service;
 

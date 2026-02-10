@@ -1,14 +1,15 @@
 
-#ifndef APPLICATION_ENTREPRENEUR_HPP
-#define APPLICATION_ENTREPRENEUR_HPP
+#ifndef APPLICATION_PATRIARCH_HPP
+#define APPLICATION_PATRIARCH_HPP
 
 #include "resource.h"
 #include "corona.hpp"
 
+
 namespace corona
 {
-	void run_entrepreneur_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
-	
+	void run_patriarch_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
+
 	std::string config_filename = "config.json";
 
 	/*
@@ -45,8 +46,10 @@ namespace corona
 
 	/* And now, this is the application */
 
-	void run_entrepreneur_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
+	void run_patriarch_application(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
+
+		corona::corona_db_read_only = false;
 
 		std::shared_ptr<corona::comm_app_bus> service;
 
@@ -57,7 +60,7 @@ namespace corona
 
 		config_path += "\\configuration\\";
 
-		std::string database_path = config_path + "database";
+		std::string database_path;
 
         std::cout << "Config path: " << config_path << std::endl;
 
@@ -68,7 +71,7 @@ namespace corona
 		if (result == S_OK) {
 			istring<4096> dataPath(userFolderPath);
 
-			std::filesystem::path application_path = "entrepreneur";
+			std::filesystem::path application_path = "patriarch";
 			std::filesystem::path database_path_path = dataPath.c_str();
 			database_path_path /= application_path;
 			database_path = database_path_path.string();
@@ -103,14 +106,21 @@ namespace corona
 			if (servers.size() > 0) {
 				auto server = servers.get_element(0);
 
-				service = std::make_shared<corona::comm_app_bus>(
-					config_path,
-					database_path,
-					config,
-					server,
-					true);
+				try {
+					service = std::make_shared<corona::comm_app_bus>(
+						config_path,
+						database_path,
+						config,
+						server,
+						true);
 
-				service->run_app_ui(hInstance, lpszCmdParam, false);
+					service->run_app_ui(hInstance, lpszCmdParam, false);
+				}
+				catch (std::exception exc)
+				{
+					std::cerr << "Error:" << __FILE__ << " " << __LINE__ << " starting application failed:" << exc.what() << std::endl;
+                    log_warning(std::format("starting application failed: {0}", exc.what()));
+				}
 			}
 		}
 

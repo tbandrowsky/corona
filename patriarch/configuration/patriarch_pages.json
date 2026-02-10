@@ -134,8 +134,6 @@
     },
     "search_box": {
       "x": "32.0 pixels",
-      "width": "0.25 container",
-      "height": "1.0 container",
       "width": {
         "amount": 1.0,
         "units": "container"
@@ -157,63 +155,91 @@
   "pages": [
     {
       "class_name": "import",
-      "file_name": "politicsdx_home.json"
+      "file_name": "patriarch_styles.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_layout_test.json"
+      "file_name": "patriarch_home.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_status.json"
+      "file_name": "patriarch_layout_test.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_search.json"
+      "file_name": "patriarch_status.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_candidate.json"
+      "file_name": "patriarch_search.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee.json"
+      "file_name": "patriarch_contact.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_donation.json"
+      "file_name": "patriarch_contact_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_candidate_card.json"
+      "file_name": "patriarch_appointment.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee_card.json"
+      "file_name": "patriarch_appointment_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_donation_card.json"
+      "file_name": "patriarch_dependent.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_table_card.json"
+      "file_name": "patriarch_dependent_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee_summary_card.json"
+      "file_name": "patriarch_interaction.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee_summary.json"
+      "file_name": "patriarch_interaction_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee_transaction_card.json"
+      "file_name": "patriarch_promise.json"
     },
     {
       "class_name": "import",
-      "file_name": "politicsdx_committee_transaction.json"
+      "file_name": "patriarch_promise_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_organization.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_organization_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_table_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_reminder.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_reminder_card.json"
     }
   ]
 }
