@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="configuration">
+      <UniqueIdentifier>{b1c4cac5-5f30-47de-b158-ccab2461e5f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_guitar.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_patriarch.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="patriarch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="login.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="patriarch.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="assets\small_logo.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\config.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_contact.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_contact_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_home.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_layout_test.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_schema_blank.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_search.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_status.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_styles.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_appointment.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_appointment_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_dependent.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_dependent_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_interaction.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_interaction_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_organization.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_organization_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_pages.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_promise.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_promise_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_property.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_property_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_reminder.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_reminder_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_schema.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\patriarch_table_card.json">
+      <Filter>configuration</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="patriarch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

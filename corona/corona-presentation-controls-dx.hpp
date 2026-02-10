@@ -1428,6 +1428,9 @@ namespace corona
         {"Back", L"\uE72B"},
         {"Forward", L"\uE72A"},
 
+        {"CalendarDay", L"\uE8BF"},
+        {"CalendarWeek", L"\uE8C0"},
+
         // Actions
         {"Accept", L"\uE8FB"},
         {"Cancel", L"\uE711"},
@@ -1471,6 +1474,7 @@ namespace corona
         {"OpenFile", L"\uE8E5"},
         {"Document", L"\uE8A5"},
         {"Page", L"\uE7C3"},
+        {"PersonalFolder", L"\uEC25"},
 
         // Settings & Tools
         {"Settings", L"\uE713"},
@@ -1483,6 +1487,7 @@ namespace corona
         {"Warning", L"\uE7BA"},
         {"Error", L"\uE783"},
         {"Completed", L"\uE930"},
+        {"BibleStudy", L"\uEC25"},
 
         // UI Controls
         {"Close", L"\uE8BB"},

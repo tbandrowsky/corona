@@ -1,0 +1,344 @@
+﻿{
+  "schema_name": "Patriarch",
+  "schema_description": "Schema for Patriarch.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "TJ Bandrowsky"
+  ],
+  "classes": [
+    {
+      "class_name": "patriarch_object",
+      "base_class_name": "sys_object",
+      "class_description": "A root object of searchable things",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "reminder",
+      "class_description": "A reminder",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "parents": [ "responsibility", "contact" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "label": "Promise"
+        },
+        "when": {
+          "field_type": "string",
+          "enumeration": [ "daily", "weekly", "monthly" ],
+          "label": "When"
+        }
+      }
+    },
+    {
+      "class_name": "appointment",
+      "class_description": "An appointment",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "parents": [ "responsibility", "contact" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "label": "Promise"
+        },
+        "when": {
+          "field_type": "datetime",
+          "label": "When"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        },
+        "kept": {
+          "field_type": "datetime",
+          "label": "Kept"
+        },
+        "kept_description": {
+          "field_type": "string",
+          "label": "How Kept"
+        }
+      }
+    },
+    {
+      "class_name": "interaction",
+      "class_description": "Something you do with something",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "parents": [ "contact", "responsibility" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "label": "Text"
+        },
+        "when": {
+          "field_type": "datetime",
+          "label": "When"
+        }
+      }
+    },
+    {
+      "class_name": "promise",
+      "class_description": "A committment to someone",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "parents": [ "contact", "responsibility" ],
+      "fields": {
+        "text": {
+          "field_type": "string",
+          "label": "Promise"
+        },
+        "deadline": {
+          "field_type": "datetime",
+          "label": "Deadline"
+        },
+        "kept": {
+          "field_type": "datetime",
+          "label": "Kept"
+        },
+        "kept_description": {
+          "field_type": "string",
+          "label": "How Kept"
+        }
+      }
+    },
+    {
+      "class_description": "A person",
+      "class_name": "contact",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "first_name", "last_name", "company", "street1", "city", "state", "zip" ],
+      "fields": {
+        "first_name": {
+          "field_type": "string",
+          "label": "First Name"
+        },
+        "last_name": {
+          "field_type": "string",
+          "label": "Last Name"
+        },
+        "street1": {
+          "field_type": "string",
+          "label": "Street1"
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Street2"
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City"
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip"
+        },
+        "company": {
+          "field_type": "string",
+          "label": "Company"
+        },
+        "phone": {
+          "field_type": "string",
+          "label": "Phone"
+        },
+        "alt_phone": {
+          "field_type": "string",
+          "label": "Alt Phone"
+        },
+        "email": {
+          "field_type": "string",
+          "label": "Email"
+        },
+        "alt_email": {
+          "field_type": "string",
+          "label": "Alt Email"
+        },
+        "promises": "[promise]",
+        "reminders": "[reminder]",
+        "interactions": "[interaction]"
+      }
+    },
+    {
+      "class_name": "responsibility",
+      "class_description": "A person or property within your Patriarchy",
+      "base_class_name": "patriarch_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "grid_template_rows": "60px auto",
+      "grid_template_columns": "250px 250px 250px",
+      "full_text": [ "full_name", "city", "state", "street1", "zip", "candidate_id" ],
+      "fields": {
+        "promises": "[promise]",
+        "reminders": "[reminder]",
+        "interactions": "[interaction]",
+        "appointments": "[appointment]"
+      }
+    },
+    {
+      "class_name": "dependent",
+      "class_description": "A person counting on you",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "nick_name", "full_name", "city", "state", "street1", "zip", "candidate_id" ],
+      "fields": {
+        "nick_name": {
+          "field_type": "string",
+          "label": "Nick Name"
+        },
+        "first_name": {
+          "field_type": "string",
+          "label": "First Name"
+        },
+        "last_name": {
+          "field_type": "string",
+          "label": "Last Name"
+        },
+        "street1": {
+          "field_type": "string",
+          "label": "Street1"
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Street2"
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City"
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip"
+        },
+        "phone": {
+          "field_type": "string",
+          "label": "Phone"
+        },
+        "alt_phone": {
+          "field_type": "string",
+          "label": "Alt Phone"
+        },
+        "email": {
+          "field_type": "string",
+          "label": "Email"
+        },
+        "alt_email": {
+          "field_type": "string",
+          "label": "Alt Email"
+        },
+        "birthday": {
+          "field_type": "datetime",
+          "label": "Birthday"
+        },
+        "prescriptions": "string",
+        "allergies": "string",
+        "conditions": "string"
+      }
+    },
+    {
+      "class_name": "goal",
+      "class_description": "An obligation of self improvement and enrichment",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
+      "class_name": "property",
+      "class_description": "Home or rental property",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "street1", "street2", "city", "state" ],
+      "fields": {
+        "street1": {
+          "field_type": "string",
+          "label": "Street1"
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Street2"
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City"
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip"
+        }
+      }
+    }
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Patriarch Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "Patriarch Team",
+          "team_description": "Local security for teams",
+          "team_domain": "ANY",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "patriarch_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ] 
+}

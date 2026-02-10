@@ -1,0 +1,24 @@
+{
+  "Connections": [
+    {
+      "name": "YourServerName",
+      "connection": "Driver={ODBC Driver 17 for SQL Server};Server=YOUR SERVER HERE;Database=YOUR DATABASE NAME;Trusted_Connection=yes;TrustServerCertificate=yes"
+    }
+  ],
+  "Settings": {
+    "show_console":  true
+  },
+  "Servers": [
+    {
+      "listen_point": "http://localhost:5678/patriarch/",
+      "application_name": "patriarch",
+      "schema_filename": "patriarch_schema.json",
+      "database_threads": 20,
+      "database_recreate": false,
+      "new_user_default_team": "ignored",
+      "onboard_email_filename": "onboarding_email_template.html",
+      "recovery_email_filename": "account_recovery_email_template.html"
+    }
+  ]
+
+}
