@@ -60,9 +60,13 @@ namespace corona
 		{
             enum { in_text, in_braces } state = in_text;
 
-			std::string final_text = "";
             std::string replacement_path = "";
 			int brace_level = 0;
+
+			if (template_text.empty()) {
+				return;
+            }
+			text = "";
 
 			for (auto c : template_text) {
 				if (state == in_braces) {
@@ -77,10 +81,7 @@ namespace corona
                             json replacement_value = data.query(replacement_path);
 
                             if (replacement_value.has_member("value")) {
-								final_text += replacement_value["value"].as_string();
-							}
-							else {
-								final_text += "{" + replacement_path + "}";
+								text += replacement_value["value"].as_string();
 							}
 						} 
 						else 
@@ -91,13 +92,16 @@ namespace corona
 					else
 						replacement_path += c;
 				}
-				else if (c == '{') {
-					replacement_path = "";
-					state = in_braces;
-					brace_level = 0;
-				}
-				else {
-					final_text += c;
+				else if (state == in_text) {
+					if (c == '{') {
+						state = in_braces;
+						brace_level = 1;
+						replacement_path = "";
+                        continue;
+					}
+					else {
+                        text += c;
+					}
 				}
 			}
 		}

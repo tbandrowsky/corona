@@ -10,6 +10,8 @@ namespace corona
 {
 	void run_patriarch_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
 
+    const bool use_project_for_config = true;
+
 	std::string config_filename = "config.json";
 
 	/*
@@ -59,6 +61,10 @@ namespace corona
         std::string config_path = std::filesystem::path(dir).parent_path().string();
 
 		config_path += "\\configuration\\";
+
+		if constexpr (use_project_for_config) {
+			config_path = "D:\\countrybit\\patriarch\\configuration\\";
+		}
 
 		std::string database_path;
 
