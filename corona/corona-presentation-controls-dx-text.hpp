@@ -81,7 +81,14 @@ namespace corona
                             json replacement_value = data.query(replacement_path);
 
                             if (replacement_value.has_member("value")) {
-								text += replacement_value["value"].as_string();
+                                replacement_value = replacement_value["value"];
+								if (replacement_value.object() && replacement_value.size() > 0) {
+									text += replacement_value.as_string();
+								}
+								else if (!replacement_value.empty())
+								{
+									text += replacement_value.as_string();
+								}
 							}
 						} 
 						else 
