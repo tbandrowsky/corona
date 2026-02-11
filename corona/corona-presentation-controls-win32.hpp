@@ -1334,8 +1334,9 @@ namespace corona
 			json_parser jp;
 
 			control_base::put_json(_src);
-			json jlist_data = _src["list"];
+			json jlist_data = _src["choices"];
 			choices.put_json(jlist_data);
+
 			json command = _src["select_command"];
 			if (command.empty()) {
 				comm_bus_app_interface::global_bus->log_information("comboboxex control missing select_command", __FILE__, __LINE__);

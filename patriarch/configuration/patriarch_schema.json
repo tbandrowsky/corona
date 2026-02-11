@@ -23,9 +23,9 @@
       "full_text": [ "text" ],
       "parents": [ "responsibility", "contact" ],
       "fields": {
-        "text": {
+        "description": {
           "field_type": "string",
-          "label": "Promise"
+          "label": "Reminder"
         },
         "when": {
           "field_type": "string",
