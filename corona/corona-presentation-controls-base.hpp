@@ -781,7 +781,7 @@ namespace corona
 		return result;
 	}
 
-	control_base* find_by_json_name(std::string _name)
+	control_base* control_base::find_by_json_name(std::string _name)
 	{
 		control_base* root = (control_base*)this;
 		control_base* result = control_base::get_by_json_name(root, _name);

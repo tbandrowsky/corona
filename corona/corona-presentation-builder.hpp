@@ -79,9 +79,9 @@ namespace corona
 
 		field_layout(const field_layout& _src)
 		{
-			label = _src.label->clone();
-			field = _src.field->clone();
-			status = _src.status->clone();
+			label = std::dynamic_pointer_cast<paragraph_control>(_src.label->clone());
+			field = std::dynamic_pointer_cast<field_control>(_src.field->clone());
+			status = std::dynamic_pointer_cast<status_control>(_src.status->clone());
 
 			label_box = _src.label_box;
 			field_box = _src.field_box;
@@ -92,12 +92,12 @@ namespace corona
 			field->box = field_box;
 			status->box = status_box;
 			
-			control_base::children.add(label);
-			control_base::children.add(field);
-			control_base::children.add(status);
+			control_base::children.push_back(label);
+			control_base::children.push_back(field);
+			control_base::children.push_back(status);
 		}
 
-		field_layout(control_base* _parent, int _id) : container_control(_parent, _id)
+		field_layout(control_base* _parent, int _id) : layout_container(_parent, _id)
 		{
 			label = std::make_shared<paragraph_control>();
 			field = std::make_shared<field_control>();
@@ -114,9 +114,9 @@ namespace corona
 			field->box = field_box;
 			status->box = status_box;
 
-			control_base::children.add(label);
-			control_base::children.add(field);
-			control_base::children.add(status);
+			control_base::children.push_back(label);
+			control_base::children.push_back(field);
+			control_base::children.push_back(status);
 		}
 
 		virtual ~field_layout() { ; }
@@ -184,41 +184,32 @@ namespace corona
 
 			control_base::children.clear();
 
-			control_base::children.add(label);
-			control_base::children.add(field);
-			control_base::children.add(status);
+			control_base::children.push_back(label);
+			control_base::children.push_back(field);
+			control_base::children.push_back(status);
 
 		}
 	};
 
-	using edit_field_horizontal = field_layout<row_layout, edit_control, horizontal_field_layout>;
-	using listview_field_horizontal = field_layout<row_layout, listview_control, horizontal_field_layout>;
-	using treeview_field_horizontal = field_layout<row_layout, treeview_control, horizontal_field_layout>;
-	using header_field_horizontal = field_layout<row_layout, header_control, horizontal_field_layout>;
-	using toolbar_field_horizontal = field_layout<row_layout, toolbar_control, horizontal_field_layout>;
-	using statusbar_field_horizontal = field_layout<row_layout, statusbar_control, horizontal_field_layout>;
-	using hotkey_field_horizontal = field_layout<row_layout, hotkey_control, horizontal_field_layout>;
-	using animate_field_horizontal = field_layout<row_layout, animate_control, horizontal_field_layout>;
-	using richedit_field_horizontal = field_layout<row_layout, richedit_control, horizontal_field_layout>;
-	using draglistbox_field_horizontal = field_layout<row_layout, draglistbox_control, horizontal_field_layout>;
-	using comboboxex_field_horizontal = field_layout<row_layout, comboboxex_control, horizontal_field_layout>;
-	using datetimepicker_field_horizontal = field_layout<row_layout, datetimepicker_control, horizontal_field_layout>;
-	using monthcalendar_field_horizontal = field_layout<row_layout, monthcalendar_control, horizontal_field_layout>;
+	using default_layout = row_layout;
+	using default_field_layout = horizontal_field_layout;
 
-	using edit_field_vertical = field_layout<column_layout, edit_control, vertical_field_layout>;
-	using listview_field_vertical = field_layout<column_layout, listview_control, vertical_field_layout>;
-	using treeview_field_vertical = field_layout<column_layout, treeview_control, vertical_field_layout>;
-	using header_field_vertical = field_layout<column_layout, header_control, vertical_field_layout>;
-	using toolbar_field_vertical = field_layout<column_layout, toolbar_control, vertical_field_layout>;
-	using statusbar_field_vertical = field_layout<column_layout, statusbar_control, vertical_field_layout>;
-	using hotkey_field_vertical = field_layout<column_layout, hotkey_control, vertical_field_layout>;
-	using animate_field_vertical = field_layout<column_layout, animate_control, vertical_field_layout>;
-	using richedit_field_vertical = field_layout<column_layout, richedit_control, vertical_field_layout>;
-	using draglistbox_field_vertical = field_layout<column_layout, draglistbox_control, vertical_field_layout>;
-	using comboboxex_field_vertical = field_layout<column_layout, comboboxex_control, vertical_field_layout>;
-	using datetimepicker_field_vertical = field_layout<column_layout, datetimepicker_control, vertical_field_layout>;
-	using monthcalendar_field_vertical = field_layout<column_layout, monthcalendar_control, vertical_field_layout>;
-
+	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
+	using listview_field_control = field_layout<default_layout, listview_control, default_field_layout>;
+	using treeview_field_control = field_layout<default_layout, treeview_control, default_field_layout>;
+	using header_field_control = field_layout<default_layout, header_control, default_field_layout>;
+	using toolbar_field_control = field_layout<default_layout, toolbar_control, default_field_layout>;
+	using statusbar_field_control = field_layout<default_layout, statusbar_control, default_field_layout>;
+	using hotkey_field_control = field_layout<default_layout, hotkey_control, default_field_layout>;
+	using animate_field_control = field_layout<default_layout, animate_control, default_field_layout>;
+	using richedit_field_control = field_layout<default_layout, richedit_control, default_field_layout>;
+	using draglistbox_field_control = field_layout<default_layout, draglistbox_control, default_field_layout>;
+	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, default_field_layout>;
+	using datetimepicker_field_control = field_layout<default_layout, datetimepicker_control, default_field_layout>;
+	using monthcalendar_field_control = field_layout<default_layout, monthcalendar_control, default_field_layout>;
+	using radiobutton_list_field_control = field_layout<default_layout, radiobutton_list_control, default_field_layout>;
+	using checkbox_list_field_control = field_layout<default_layout, checkbox_list_control, default_field_layout>;
+ 
 	class corona_button_control : public pushbutton_control
 	{
 	public:
@@ -579,117 +570,135 @@ namespace corona
 			}
 			return *this;
 		}
-		control_builder& edit_field(int _id, std::function<void(edit_control&)> _settings)
+		control_builder& edit_field(int _id, std::function<void(edit_field_control&)> _settings)
 		{
-			auto tc = create<edit_control>(_id);
+			auto tc = create<edit_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& listview_field(int _id, std::function<void(listview_control&)> _settings)
+		control_builder& listview_field(int _id, std::function<void(listview_field_control&)> _settings)
 		{
-			auto tc = create<listview_control>(_id);
+			auto tc = create<listview_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& treeview_field(int _id, std::function<void(treeview_control&)> _settings)
+		control_builder& treeview_field(int _id, std::function<void(treeview_field_control&)> _settings)
 		{
-			auto tc = create<treeview_control>(_id);
+			auto tc = create<treeview_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& header_field(int _id, std::function<void(header_control&)> _settings)
+		control_builder& header_field(int _id, std::function<void(header_field_control&)> _settings)
 		{
-			auto tc = create<header_control>(_id);
+			auto tc = create<header_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& toolbar_field(int _id, std::function<void(toolbar_control&)> _settings)
+		control_builder& toolbar_field(int _id, std::function<void(toolbar_field_control&)> _settings)
 		{
-			auto tc = create<toolbar_control>(_id);
+			auto tc = create<toolbar_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& statusbar_field(int _id, std::function<void(statusbar_control&)> _settings)
+		control_builder& statusbar_field(int _id, std::function<void(statusbar_field_control&)> _settings)
 		{
-			auto tc = create<statusbar_control>(_id);
+			auto tc = create<statusbar_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& hotkey_field(int _id, std::function<void(hotkey_control&)> _settings)
+		control_builder& hotkey_field(int _id, std::function<void(hotkey_field_control&)> _settings)
 		{
-			auto tc = create<hotkey_control>(_id);
+			auto tc = create<hotkey_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& animate_field(int _id, std::function<void(animate_control&)> _settings)
+		control_builder& animate_field(int _id, std::function<void(animate_field_control&)> _settings)
 		{
-			auto tc = create<animate_control>(_id);
+			auto tc = create<animate_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& richedit_field(int _id, std::function<void(richedit_control&)> _settings)
+		control_builder& richedit_field(int _id, std::function<void(richedit_field_control&)> _settings)
 		{
-			auto tc = create<richedit_control>(_id);
+			auto tc = create<richedit_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& draglistbox_field(int _id, std::function<void(draglistbox_control&)> _settings)
+		control_builder& draglistbox_field(int _id, std::function<void(draglistbox_field_control&)> _settings)
 		{
-			auto tc = create<draglistbox_control>(_id);
+			auto tc = create<draglistbox_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& comboboxex_field(int _id, std::function<void(comboboxex_control&)> _settings)
+		control_builder& comboboxex_field(int _id, std::function<void(comboboxex_field_control&)> _settings)
 		{
-			auto tc = create<comboboxex_control>(_id);
+			auto tc = create<comboboxex_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& datetimepicker_field(int _id, std::function<void(datetimepicker_control&)> _settings)
+		control_builder& datetimepicker_field(int _id, std::function<void(datetimepicker_field_control&)> _settings)
 		{
-			auto tc = create<datetimepicker_control>(_id);
+			auto tc = create<datetimepicker_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
 			}
 			return *this;
 		}
-		control_builder& monthcalendar_field(int _id, std::function<void(monthcalendar_control&)> _settings)
+		control_builder& monthcalendar_field(int _id, std::function<void(monthcalendar_field_control&)> _settings)
 		{
-			auto tc = create<monthcalendar_control>(_id);
+			auto tc = create<monthcalendar_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& radiobutton_list_field(int _id, std::function<void(radiobutton_list_field_control&)> _settings)
+		{
+			auto tc = create<radiobutton_list_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& checkbox_list_field(int _id, std::function<void(checkbox_list_field_control&)> _settings)
+		{
+			auto tc = create<checkbox_list_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2198,6 +2207,113 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
+
+		else if (class_name == "edit_field")
+		{
+			edit_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "listview_field")
+		{
+			listview_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "treeview_field")
+		{
+			treeview_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "header_field")
+		{
+			header_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "toolbar_field")
+		{
+			toolbar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "statusbar_field")
+		{
+			statusbar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "hotkey_field")
+		{
+			hotkey_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "animate_field")
+		{
+			animate_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "richedit_field")
+		{
+			richedit_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "draglistbox_field")
+		{
+			draglistbox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "comboboxex_field")
+		{
+			comboboxex_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "datetimepicker_field")
+		{
+			datetimepicker_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "monthcalendar_field")
+		{
+			monthcalendar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "radiobutton_list_field")
+		{
+			radiobutton_list_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "checkbox_list_field")
+		{
+			checkbox_list_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+
 		else if (class_name == "minimize_button")
 		{
 			minimize_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {

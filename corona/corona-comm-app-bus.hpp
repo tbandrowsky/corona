@@ -1676,10 +1676,7 @@ namespace corona
 		{
 			control_base *ctrl = presentation_layer->find_ptr<control_base>(_form_name);
 			if (ctrl) {
-				form_control *form = dynamic_cast<form_control *>(ctrl);
-				if (form) {
-					form->set_errors(_errors);
-				}
+				ctrl->set_errors(_errors);
 			}
 		}
 

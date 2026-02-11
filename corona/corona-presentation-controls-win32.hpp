@@ -1156,6 +1156,7 @@ namespace corona
 
 		std::string format;
 
+		edit_control() { id = id_counter::next(); }
 		edit_control(control_base* _parent, int _id) : text_control_base(_parent, _id) { ; }
 		virtual ~edit_control() { ; }
 		edit_control(const edit_control& _src) = default;
@@ -1202,6 +1203,7 @@ namespace corona
 
 		number_control(control_base* _parent, int _id) : edit_control(_parent, _id) { ; }
 		virtual ~number_control() { ; }
+        number_control() { id = id_counter::next(); }
 		number_control(const number_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1238,6 +1240,7 @@ namespace corona
 	{
 	public:
 
+		listbox_control() { id = id_counter::next(); }
 		listbox_control(control_base* _parent, int _id) : list_control_base(_parent, _id) { ; }
 		virtual ~listbox_control() { ; }
 
@@ -1258,6 +1261,7 @@ namespace corona
 	{
 	public:
 
+		combobox_control() { id = id_counter::next(); }
 		combobox_control(control_base* _parent, int _id) : dropdown_control_base(_parent, _id) { ; }
 		virtual ~combobox_control() { ; }
 
@@ -1352,6 +1356,7 @@ namespace corona
 		listview_control(control_base* _parent, int _id) : table_control_base(_parent, _id) { ; }
 		virtual ~listview_control() { ; }
 
+		listview_control() { id = id_counter::next(); }
 		listview_control(const listview_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1396,6 +1401,8 @@ namespace corona
 			scaleMin = scaleMax = scale = 0;
 		}
 		virtual ~scrollbar_control() { ; }
+
+		scrollbar_control() { id = id_counter::next(); }
 
 		scrollbar_control(const scrollbar_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
@@ -1496,6 +1503,8 @@ namespace corona
 		void set_html(const std::string& _text);
 		std::string get_html();
 
+		richedit_control() { id = id_counter::next(); }
+
 		richedit_control(control_base* _parent, int _id) : text_control_base(_parent, _id) {
 			LoadLibrary(TEXT("Msftedit.dll"));
 		}
@@ -1528,6 +1537,8 @@ namespace corona
 
 		void set_text(const std::string& _text);
 		std::string get_text();
+
+		datetimepicker_control() { id = id_counter::next(); }
 
 		datetimepicker_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 
@@ -1635,6 +1646,8 @@ namespace corona
 		date_time min_date;
 		date_time max_date;
 		std::shared_ptr<corona_bus_command> change_command;
+
+		monthcalendar_control() { id = id_counter::next(); }
 
 		monthcalendar_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~monthcalendar_control() { ; }
@@ -1766,6 +1779,8 @@ namespace corona
 
 		std::shared_ptr<corona_bus_command> change_command;
 
+		animate_control() { id = id_counter::next(); }
+
 		animate_control(const animate_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1804,6 +1819,8 @@ namespace corona
 
 		std::shared_ptr<corona_bus_command> select_command;
 
+		treeview_control() { id = id_counter::next(); }
+
 		treeview_control(const treeview_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1836,6 +1853,8 @@ namespace corona
 		header_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~header_control() { ; }
 
+		header_control() { id = id_counter::next(); }
+
 		header_control(const header_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1867,6 +1886,8 @@ namespace corona
 		toolbar_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~toolbar_control() { ; }
 
+		toolbar_control() { id = id_counter::next(); }
+
 		toolbar_control(const toolbar_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1887,6 +1908,8 @@ namespace corona
 		statusbar_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~statusbar_control() { ; }
 
+		statusbar_control() { id = id_counter::next(); }
+
 		statusbar_control(const statusbar_control& _src) = default;
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1906,6 +1929,9 @@ namespace corona
 
 		hotkey_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		hotkey_control(const hotkey_control& _src) = default;
+
+        hotkey_control() { id = id_counter::next(); }
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<hotkey_control>(*this);
@@ -1926,6 +1952,9 @@ namespace corona
 
 		draglistbox_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		draglistbox_control(const draglistbox_control& _src) = default;
+
+        draglistbox_control() { id = id_counter::next(); }
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<draglistbox_control>(*this);
