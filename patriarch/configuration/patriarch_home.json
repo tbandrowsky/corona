@@ -92,7 +92,7 @@
           "children": [
             {
               "class_name": "command_button",
-              "icon": "CalenderToday",
+              "icon": "CalendarDay",
               "box": "button_box",
               "margin": "button_margin",
               "on_click": {
