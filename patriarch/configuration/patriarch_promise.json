@@ -1,15 +1,15 @@
 {
   "class_name": "page",
-  "page_name": "page_contact",
+  "page_name": "page_promise",
   "children": [
     {
       "class_name": "row",
-      "name": "contact_object",
+      "name": "promise_object",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "contact_details",
+          "name": "promise_details",
           "box": {
             "width": "300 pixels",
             "height": "1.0 container"
@@ -17,112 +17,37 @@
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Contact",
+              "text": "Promise",
               "box": "chaptertitle_box"
             },
             {
               "class_name": "chaptersubtitle",
-              "text": "First Name:",
+              "text": "\"{parents.all.nick_name}\" {parents.all.first_name} {parents.all.last_name}",
               "box": "edit_field_box"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Last Name:",
-              "box": "edit_field_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "full_name",
-              "box": "edit_field_box_large",
-              "text": "{full_name}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Candidate ID:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "candidate_id",
+              "class_name": "edit_field",
+              "text": "Description:",
               "box": "edit_field_box",
-              "text": "{candidate_id}"
+              "json_field_name": "description"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Political Party:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "political_party",
+              "class_name": "datetimepicker_field",
+              "text": "Deadline:",
               "box": "edit_field_box",
-              "text": "{political_party}"
+              "json_field_name": "deadline"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Election Year:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "election_year",
+              "class_name": "checkbox_field",
+              "text": "Kept:",
               "box": "edit_field_box",
-              "text": "{election_year}"
+              "json_field_name": "kept"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Street 1:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "street1",
-              "box": "edit_field_box",
-              "text": "{street1}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Street 2:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "street2",
-              "box": "edit_field_box",
-              "text": "{street2}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "City:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "city",
-              "box": "edit_field_box",
-              "text": "{city}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "State:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "state",
-              "box": "edit_field_box",
-              "text": "{state}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Zip:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "zip",
-              "box": "edit_field_box",
-              "text": "{zip}"
+              "class_name": "edit_field",
+              "text": "How Kept:",
+              "box": "edit_label_box",
+              "json_field_name": "kept_description"
             }
           ]
         }

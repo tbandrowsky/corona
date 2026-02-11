@@ -1,15 +1,15 @@
 {
   "class_name": "page",
-  "page_name": "page_contact",
+  "page_name": "page_dependent",
   "children": [
     {
       "class_name": "row",
-      "name": "contact_object",
+      "name": "dependent_object",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "contact_details",
+          "name": "dependent_details",
           "box": {
             "width": "300 pixels",
             "height": "1.0 container"
@@ -17,112 +17,103 @@
           "children": [
             {
               "class_name": "chaptertitle",
+              "text": "Dependent",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "chaptertitle",
               "text": "Contact",
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
+              "text": "Nick Name:",
+              "box": "edit_field_box",
+              "json_field_name": "nick_name"
+            },
+            {
+              "class_name": "edit_field",
               "text": "First Name:",
-              "box": "edit_field_box"
+              "box": "edit_field_box",
+              "json_field_name": "first_name"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
               "text": "Last Name:",
-              "box": "edit_field_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "full_name",
-              "box": "edit_field_box_large",
-              "text": "{full_name}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Candidate ID:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "candidate_id",
               "box": "edit_field_box",
-              "text": "{candidate_id}"
+              "json_field_name": "last_name"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Political Party:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "political_party",
-              "box": "edit_field_box",
-              "text": "{political_party}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Election Year:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
-              "json_field_name": "election_year",
-              "box": "edit_field_box",
-              "text": "{election_year}"
-            },
-            {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
               "text": "Street 1:",
-              "box": "edit_label_box"
+              "box": "edit_label_box",
+              "json_field_name": "street1"
             },
             {
-              "class_name": "paragraph",
-              "json_field_name": "street1",
-              "box": "edit_field_box",
-              "text": "{street1}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Street 2:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
+              "class_name": "edit_field",
               "json_field_name": "street2",
               "box": "edit_field_box",
-              "text": "{street2}"
+              "text": "Street 2:"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
               "text": "City:",
-              "box": "edit_label_box"
+              "box": "edit_label_box",
+              "json_field_name": "city"
             },
             {
-              "class_name": "paragraph",
-              "json_field_name": "city",
-              "box": "edit_field_box",
-              "text": "{city}"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "State:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
+              "class_name": "edit_field",
               "json_field_name": "state",
               "box": "edit_field_box",
-              "text": "{state}"
+              "text": "State:"
             },
             {
-              "class_name": "chaptersubtitle",
-              "text": "Zip:",
-              "box": "edit_label_box"
-            },
-            {
-              "class_name": "paragraph",
+              "class_name": "edit_field",
               "json_field_name": "zip",
               "box": "edit_field_box",
-              "text": "{zip}"
+              "text": "Zip"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "company",
+              "box": "edit_field_box",
+              "text": "Company:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "phone",
+              "box": "edit_field_box",
+              "text": "Phone:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "alt_phone",
+              "box": "edit_field_box",
+              "text": "Alt Phone:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "email",
+              "box": "edit_field_box",
+              "text": "Email:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "alt_email",
+              "box": "edit_field_box",
+              "text": "Alt Email:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "prescriptions",
+              "box": "edit_field_box",
+              "text": "Prescriptions:"
+            },
+            {
+              "class_name": "edit_field",
+              "json_field_name": "allergies",
+              "box": "edit_field_box",
+              "text": "Allergies:"
             }
           ]
         }

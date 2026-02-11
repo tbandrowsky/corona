@@ -19,7 +19,7 @@
                 "height": "40 pixels"
               },
               "padding": "8 pixels",
-              "text": "Search Patriarch:"
+              "text": "Search:"
             },
             {
               "class_name": "edit",

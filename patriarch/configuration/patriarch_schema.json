@@ -44,7 +44,7 @@
       "full_text": [ "text" ],
       "parents": [ "responsibility", "contact" ],
       "fields": {
-        "text": {
+        "description": {
           "field_type": "string",
           "label": "Promise"
         },
@@ -57,7 +57,7 @@
           "label": "Where"
         },
         "kept": {
-          "field_type": "datetime",
+          "field_type": "bool",
           "label": "Kept"
         },
         "kept_description": {
@@ -76,9 +76,9 @@
       "full_text": [ "text" ],
       "parents": [ "contact", "responsibility" ],
       "fields": {
-        "text": {
+        "description": {
           "field_type": "string",
-          "label": "Text"
+          "label": "Description"
         },
         "when": {
           "field_type": "datetime",
@@ -95,7 +95,7 @@
       "class_version": "1.0",
       "parents": [ "contact", "responsibility" ],
       "fields": {
-        "text": {
+        "description": {
           "field_type": "string",
           "label": "Promise"
         },
@@ -104,7 +104,7 @@
           "label": "Deadline"
         },
         "kept": {
-          "field_type": "datetime",
+          "field_type": "bool",
           "label": "Kept"
         },
         "kept_description": {
@@ -122,6 +122,10 @@
       "class_version": "1.0",
       "full_text": [ "first_name", "last_name", "company", "street1", "city", "state", "zip" ],
       "fields": {
+        "nick_name": {
+          "field_type": "string",
+          "label": "Nick Name"
+        },
         "first_name": {
           "field_type": "string",
           "label": "First Name"
@@ -172,7 +176,8 @@
         },
         "promises": "[promise]",
         "reminders": "[reminder]",
-        "interactions": "[interaction]"
+        "interactions": "[interaction]",
+        "appointments": "[appointment]"
       }
     },
     {
@@ -184,8 +189,12 @@
       "class_version": "1.0",
       "grid_template_rows": "60px auto",
       "grid_template_columns": "250px 250px 250px",
-      "full_text": [ "full_name", "city", "state", "street1", "zip", "candidate_id" ],
+      "full_text": [ "nick_name" ],
       "fields": {
+        "nick_name": {
+          "field_type": "string",
+          "label": "Nick Name"
+        },
         "promises": "[promise]",
         "reminders": "[reminder]",
         "interactions": "[interaction]",
@@ -201,10 +210,6 @@
       "class_version": "1.0",
       "full_text": [ "nick_name", "full_name", "city", "state", "street1", "zip", "candidate_id" ],
       "fields": {
-        "nick_name": {
-          "field_type": "string",
-          "label": "Nick Name"
-        },
         "first_name": {
           "field_type": "string",
           "label": "First Name"

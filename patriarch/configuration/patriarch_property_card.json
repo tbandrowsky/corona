@@ -1,30 +1,34 @@
 {
   "class_name": "page",
-  "page_name": "card_candidate",
+  "page_name": "card_property",
   "children": [
     {
 
       "class_name": "column",
-      "name": "candidate_details",
+      "name": "property_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
       },
-      "padding" :  "8px",
+      "padding": "8px",
       "children": [
         {
           "class_name": "chaptersubtitle",
-          "name": "full_name",
+          "name": "title",
           "box": "edit_label_box_full",
-          "json_field_name": "full_name",
-          "text": "{full_name}"
+          "text": "Property"
+        },        
+        {
+          "class_name": "paragraph",
+          "json_field_name": "street1",
+          "text": "\"{nick_name}\" {street1} {street2}",
+          "box": "edit_field_box"
         },
         {
           "class_name": "paragraph",
-          "name": "city",
-          "box": "edit_label_box_full",
           "json_field_name": "city",
-          "text": "{city}, {state} ({class_name})"
+          "text": "{city}, {state} {zip}",
+          "box": "edit_field_box"
         }
       ]
     }

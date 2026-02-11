@@ -645,6 +645,8 @@ namespace corona
 		virtual std::vector<std::string>				get_parents() const = 0;
 		virtual std::vector<std::string>				get_full_text_fields() const = 0;
 
+		virtual json									get_parent_objects(std::string _user_name, json& _reference_object, corona_database_interface* _db) const = 0;
+
 		// creates whatever table representation
 		virtual std::shared_ptr<xtable_interface>		create_table(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable_interface>		get_table(corona_database_interface* _db) = 0;
@@ -3171,6 +3173,39 @@ namespace corona
 			return table.get() != nullptr;
 		}
 
+		virtual json get_parent_objects(std::string _user_name, json& _reference_object, corona_database_interface* _db) const override
+		{
+			json_parser jp;
+			json parents_object = jp.create_object();
+			json parents_all_object = jp.create_object();
+			for (auto parent_class : parents) {
+				if (fields.find(parent_class) != std::end(fields)) {
+					auto parent_field = fields.at(parent_class);
+					if (parent_field) {
+						auto options = parent_field->get_options();
+						if (options) {
+							auto obj_options = std::dynamic_pointer_cast<object_field_options>(options);
+							if (obj_options) {
+								json parent_filter = jp.create_object();
+								parent_filter.put_member(class_name_field, parent_class);
+                                int64_t parent_object_id = _reference_object[parent_class].as_int64_t();
+								parent_filter.put_member_i64(object_id_field, parent_object_id);
+                                auto permissions = _db->get_class_permission(_user_name, parent_class);
+								auto parent_object = _db->select_single_object(parent_filter, false, permissions);
+                                parents_object.share_member(parent_class, parent_object);
+								for (auto m : parent_object.get_members())
+								{
+									parents_all_object.copy_member(m.first, parent_object);
+								}
+							}
+						}
+					}
+				}
+			}
+			parents_object.put_member("all", parents_all_object);
+            return parents_object;
+		}
+
 		virtual std::shared_ptr<xtable> create_xtable(corona_database_interface* _db) override
 		{
 			auto table_header = std::make_shared<xtable_header>();
@@ -4386,6 +4421,10 @@ namespace corona
 				{
 					std::string msg = std::format("{0} does not have permissions for {1}", _grant.user_name, class_name);
 					system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
+				}
+				else {
+					auto parent_data = get_parent_objects(_grant.user_name, result, _db);
+					result.put_member("parents", parent_data);
 				}
 			}
 			else 
@@ -9550,6 +9589,7 @@ grant_type=authorization_code
 
 				auto parents = edit_class->get_parents();
 
+                // not sure why we are doing this.... 
 				for (auto parent : parents) {
 					if (edit_request_data.has_member(parent)) {
 						jedit_object.copy_member(parent, edit_request_data);

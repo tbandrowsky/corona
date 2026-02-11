@@ -58,25 +58,47 @@ namespace corona
 
 		void update_text()
 		{
-			if ((template_text.find('{',0) != std::string::npos) && template_text.size() && data.object()) {
-				text = template_text;
-				std::string temp;
-				for (auto m : data.object_impl()->members) {
-					std::string key = "{" + m.first + "}";
-					text = replace(text, key, m.second->to_string());
-				}
-				bool skip = false;
-				for (auto c : text) {
-					if (c == '{')
-						skip = true;
+            enum { in_text, in_braces } state = in_text;
+
+			std::string final_text = "";
+            std::string replacement_path = "";
+			int brace_level = 0;
+
+			for (auto c : template_text) {
+				if (state == in_braces) {
+					if (c == '{') {
+						replacement_path += c;
+						brace_level++;
+					}
 					else if (c == '}') {
-						skip = false;
+						brace_level--;
+						if (brace_level == 0) {
+							state = in_text;
+                            json replacement_value = data.query(replacement_path);
+
+                            if (replacement_value.has_member("value")) {
+								final_text += replacement_value["value"].as_string();
+							}
+							else {
+								final_text += "{" + replacement_path + "}";
+							}
+						} 
+						else 
+						{
+							replacement_path += c;
+						}
 					}
-					else if (!skip) {
-						temp += c;
-					}
+					else
+						replacement_path += c;
 				}
-				text = temp;
+				else if (c == '{') {
+					replacement_path = "";
+					state = in_braces;
+					brace_level = 0;
+				}
+				else {
+					final_text += c;
+				}
 			}
 		}
 

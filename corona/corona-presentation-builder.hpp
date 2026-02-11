@@ -163,21 +163,32 @@ namespace corona
 
 			label = std::make_shared<paragraph_control>();
 			auto label_json = _src["label"];
-			if (!label_json.has_member("box")) {
+			if (!label_json.object()) {
+				label->box = label_box;
+			}
+			else if (!label_json.has_member("box")) {
 				label->box = label_box;
 			}
 			label->put_json(label_json);
 
+			if (_src.has_member("text")) {
+				label->set_text(_src["text"].as_string());
+            }
+
 			field = std::make_shared<field_control>();
 			auto field_json = _src["field"];
-			if (!field_json.has_member("box")) {
+			if (!label_json.object() || !field_json.has_member("box")) {
 				field->box = field_box;
 			}
 			field->put_json(field_json);
 
+			if (_src.has_member("json_field_name")) {
+				field->json_field_name = _src["json_field_name"].as_string();
+			}
+
 			status = std::make_shared<status_control>();
 			auto status_json = _src["status"];
-			if (!field_json.has_member("box")) {
+			if (!label_json.object() || !field_json.has_member("box")) {
 				status->box = status_box;
 			}
 			status->put_json(status_json);
@@ -2463,9 +2474,9 @@ namespace corona
 			std::cout << "Windows SDK types" << class_name << std::endl;
 			std::cout << "combobox, listbox, edit, password, listview, treeview, header, toolbar, statusbar, hotkey, animate, richedit, draglistbox, comboboxex, datetimepicker, monthcalendar, radiobutton_list, checkbox_list" << std::endl;
 			std::cout << "System Button types" << class_name << std::endl;
-			std::cout << "caption_bar, minimize_button, mnaximize_button, close_button, menu_button, corona_button" << std::endl;
-			std::cout << "Forms types" << class_name << std::endl;
-			std::cout << "form, form_field" << std::endl;
+			std::cout << "caption_bar, minimize_button, maximize_button, close_button, menu_button, corona_button" << std::endl;
+			std::cout << "Field types" << class_name << std::endl;
+			std::cout << "combobox_field, listbox_field, edit_field, password_field, listview_field, treeview_field, header_field, toolbar_field, statusbar_field, hotkey_field, animate_field, richedit_field, draglistbox_field, comboboxex_field, datetimepicker_field, monthcalendar_field, radiobutton_list_field, checkbox_list_field" << std::endl;
 			std::cout << "" << class_name << std::endl;
 		}
 

@@ -1,30 +1,35 @@
 {
   "class_name": "page",
-  "page_name": "card_candidate",
+  "page_name": "card_dependent",
   "children": [
     {
 
       "class_name": "column",
-      "name": "candidate_details",
+      "name": "dependent_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
       },
-      "padding" :  "8px",
+      "padding": "8px",
       "children": [
         {
           "class_name": "chaptersubtitle",
-          "name": "full_name",
+          "name": "title",
           "box": "edit_label_box_full",
-          "json_field_name": "full_name",
-          "text": "{full_name}"
+          "text": "Appointment"
         },
         {
           "class_name": "paragraph",
-          "name": "city",
+          "name": "full_name",
           "box": "edit_label_box_full",
-          "json_field_name": "city",
-          "text": "{city}, {state} ({class_name})"
+          "json_field_name": "full_name",
+          "text": "{when}, {where}, {kept}"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "first_name",
+          "text": "\"{parents.any.nick_name}\" {parents.any.first_name} {parents.any.last_name}",
+          "box": "edit_field_box"
         }
       ]
     }

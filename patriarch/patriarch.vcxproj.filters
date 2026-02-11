@@ -91,12 +91,6 @@
     <CopyFileToFolders Include="configuration\patriarch_interaction_card.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_organization.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_organization_card.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_pages.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
