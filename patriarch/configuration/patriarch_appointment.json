@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_contact",
+  "page_name": "page_appointment",
   "children": [
     {
       "class_name": "row",
@@ -17,16 +17,18 @@
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Contact",
+              "text": "Appointment",
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
+              "json_field_name": "first_name",
               "text": "First Name:",
               "box": "edit_field_box"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "edit_field",
+              "json_field_name": "last_name",
               "text": "Last Name:",
               "box": "edit_field_box"
             },
