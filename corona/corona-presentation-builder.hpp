@@ -206,6 +206,9 @@ namespace corona
 	using default_field_layout = horizontal_field_layout;
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
+	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
+	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
+	using checkbox_field_control = field_layout<default_layout, checkbox_control, default_field_layout>;
 	using listview_field_control = field_layout<default_layout, listview_control, default_field_layout>;
 	using treeview_field_control = field_layout<default_layout, treeview_control, default_field_layout>;
 	using header_field_control = field_layout<default_layout, header_control, default_field_layout>;
@@ -215,6 +218,7 @@ namespace corona
 	using animate_field_control = field_layout<default_layout, animate_control, default_field_layout>;
 	using richedit_field_control = field_layout<default_layout, richedit_control, default_field_layout>;
 	using draglistbox_field_control = field_layout<default_layout, draglistbox_control, default_field_layout>;
+	using combobox_field_control = field_layout<default_layout, combobox_control, default_field_layout>;
 	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, default_field_layout>;
 	using datetimepicker_field_control = field_layout<default_layout, datetimepicker_control, default_field_layout>;
 	using monthcalendar_field_control = field_layout<default_layout, monthcalendar_control, default_field_layout>;
@@ -590,6 +594,26 @@ namespace corona
 			}
 			return *this;
 		}
+		control_builder& password_field(int _id, std::function<void(password_field_control&)> _settings)
+		{
+			auto tc = create<password_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& number_field(int _id, std::function<void(number_field_control&)> _settings)
+		{
+			auto tc = create<number_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
 		control_builder& listview_field(int _id, std::function<void(listview_field_control&)> _settings)
 		{
 			auto tc = create<listview_field_control>(_id);
@@ -671,6 +695,15 @@ namespace corona
 			}
 			return *this;
 		}
+		control_builder& combobox_field(int _id, std::function<void(combobox_field_control	&)> _settings)
+		{
+			auto tc = create<combobox_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
 		control_builder& comboboxex_field(int _id, std::function<void(comboboxex_field_control&)> _settings)
 		{
 			auto tc = create<comboboxex_field_control>(_id);
@@ -710,6 +743,15 @@ namespace corona
 		control_builder& checkbox_list_field(int _id, std::function<void(checkbox_list_field_control&)> _settings)
 		{
 			auto tc = create<checkbox_list_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& checkbox_field(int _id, std::function<void(checkbox_field_control&)> _settings)
+		{
+			auto tc = create<checkbox_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2226,6 +2268,20 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 				}
+		else if (class_name == "password_field")
+		{
+			password_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "number_field")
+		{
+			number_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
 		else if (class_name == "listview_field")
 		{
 			listview_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2289,6 +2345,13 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 				}
+		else if (class_name == "combobox_field")
+		{
+			combobox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
 		else if (class_name == "comboboxex_field")
 		{
 			comboboxex_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2320,6 +2383,13 @@ namespace corona
 		else if (class_name == "checkbox_list_field")
 		{
 			checkbox_list_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "checkbox_field")
+		{
+			checkbox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});

@@ -155,10 +155,6 @@
   "pages": [
     {
       "class_name": "import",
-      "file_name": "patriarch_styles.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "patriarch_home.json"
     },
     {
@@ -212,14 +208,6 @@
     {
       "class_name": "import",
       "file_name": "patriarch_promise_card.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_organization.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_organization_card.json"
     },
     {
       "class_name": "import",

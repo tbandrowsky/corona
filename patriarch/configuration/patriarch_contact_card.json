@@ -28,7 +28,7 @@
         {
           "class_name": "paragraph",
           "json_field_name": "first_name",
-          "text": "\"{nick_name}\" {first_name} {last_name}",
+          "text": "'{nick_name}' {first_name} {last_name}",
           "box": "edit_field_box"
         }
       ]

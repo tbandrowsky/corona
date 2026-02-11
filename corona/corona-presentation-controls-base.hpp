@@ -504,15 +504,6 @@ namespace corona
 			name = _src["name"].as_string();
 			class_name = _src["class_name"].as_string();
 
-			if (not _src.has_members(missing, { "box" })) {
-				system_monitoring_interface::active_mon->log_warning(std::format( "control '{0}/{1}' is missing:", class_name, name), __FILE__, __LINE__);
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				return;
-			}
-
 			jbox = _src["box"];
 			jmargin = _src["margin"];
 			jpadding = _src["padding"];

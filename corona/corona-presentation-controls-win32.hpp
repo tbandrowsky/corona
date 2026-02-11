@@ -731,6 +731,7 @@ namespace corona
 
 		dropdown_control_base()
 		{
+            id = id_counter::next();
 		}
 
 		dropdown_control_base(const dropdown_control_base& _src) : windows_control(_src)
@@ -909,7 +910,7 @@ namespace corona
 
 		static_control(const static_control& _src) : text_control_base(_src)
 		{
-			
+			id = id_counter::next();
 		}
 
 		virtual std::shared_ptr<control_base> clone()
@@ -942,6 +943,9 @@ namespace corona
 			auto tv = std::make_shared<button_control<ButtonWindowStyles>>(*this);
 			return tv;
 		}
+
+
+		button_control() { icon = NULL; }
 
 		virtual ~button_control() { ; }
 		virtual const char* get_window_class() { return WC_BUTTONA; }
@@ -1051,6 +1055,12 @@ namespace corona
 
 		radiobutton_control(control_base* _parent, int _id) : button_control<RadioButtonWindowStyles>(_parent, _id) { ; }
 		radiobutton_control(const radiobutton_control& _src) = default;
+
+		radiobutton_control()
+		{
+			id = id_counter::next();
+		}
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<radiobutton_control>(*this);
@@ -1094,6 +1104,10 @@ namespace corona
 
 		checkbox_control(control_base* _parent, int _id) : button_control<CheckboxWindowStyles>(_parent, _id) { ; }
 		checkbox_control(const checkbox_control& _src) = default;
+		checkbox_control() {
+			id = id_counter::next();
+		}
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<checkbox_control>(*this);
@@ -1224,6 +1238,8 @@ namespace corona
 		password_control(control_base* _parent, int _id) : edit_control(_parent, _id) { ; }
 		virtual ~password_control() { ; }
 		password_control(const password_control& _src) = default;
+        password_control() { id = id_counter::next(); }
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<password_control>(*this);
