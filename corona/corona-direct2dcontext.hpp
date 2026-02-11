@@ -691,7 +691,7 @@ namespace corona
 			int len = (strlen(_text) + 1) * 2;
 			wchar_t* buff = new wchar_t[len];
 			if (buff) {
-				int ret = ::MultiByteToWideChar(CP_ACP, NULL, _text, -1, buff, len - 1);
+				int ret = ::MultiByteToWideChar(CP_UTF8, NULL, _text, -1, buff, len - 1);
 
 				int l = wcslen(buff);
 				IDWriteTextLayout* textLayout = nullptr;

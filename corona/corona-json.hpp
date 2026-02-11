@@ -3506,6 +3506,32 @@ namespace corona
 			return result;
 		}
 
+		int codepoint_to_utf8(uint32_t codepoint, unsigned char* out) {
+			if (codepoint <= 0x7F) {
+				out[0] = (unsigned char)codepoint;
+				return 1;
+			}
+			else if (codepoint <= 0x7FF) {
+				out[0] = 0xC0 | (codepoint >> 6);
+				out[1] = 0x80 | (codepoint & 0x3F);
+				return 2;
+			}
+			else if (codepoint <= 0xFFFF) {
+				out[0] = 0xE0 | (codepoint >> 12);
+				out[1] = 0x80 | ((codepoint >> 6) & 0x3F);
+				out[2] = 0x80 | (codepoint & 0x3F);
+				return 3;
+			}
+			else if (codepoint <= 0x10FFFF) {
+				out[0] = 0xF0 | (codepoint >> 18);
+				out[1] = 0x80 | ((codepoint >> 12) & 0x3F);
+				out[2] = 0x80 | ((codepoint >> 6) & 0x3F);
+				out[3] = 0x80 | (codepoint & 0x3F);
+				return 4;
+			}
+			return -1; // Invalid code point
+		}
+
 		bool parse_string(std::string& _result, const char* _src, const char** _modified)
 		{
 			bool result = false;
@@ -3553,6 +3579,17 @@ namespace corona
 							temp += 9;
 							break;
 						case 'u':
+							{
+							unsigned int codepoint = 0;
+							if (sscanf_s(_src + 1, "%4x", &codepoint) == 1) {
+								_src+=4;
+								unsigned char utf8[4];
+								int len = codepoint_to_utf8(codepoint, utf8);
+								for (int i = 0; i < len; i++) {
+									temp += utf8[i];
+								}
+							}
+							}
 							break;
 						}
 					}
