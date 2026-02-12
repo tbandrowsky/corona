@@ -67,7 +67,7 @@
     <CopyFileToFolders Include="configuration\patriarch_search.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_status.json">
+    <CopyFileToFolders Include="configuration\patriarch_database.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_styles.json">
@@ -123,5 +123,8 @@
     <ClCompile Include="patriarch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="configuration\patriarch_status.json" />
   </ItemGroup>
 </Project>

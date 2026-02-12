@@ -23,8 +23,6 @@ Notes
 
 For Future Consideration
 */
-
-
 namespace corona
 {
 	class console_color {
@@ -149,6 +147,8 @@ namespace corona
 		static system_monitoring_interface* global_mon;
 		static system_monitoring_interface* active_mon;
 
+		lockable log_lock;
+
 		system_monitoring_interface()
 		{
 			Logusercommand.color_background = "12;59;69";
@@ -194,6 +194,9 @@ namespace corona
 
 		void file_line(const char* _file, int _line)
 		{
+
+            scope_lock lock(log_lock);
+
 			auto &xout = get_log_file();
 
 			if (_file) {
@@ -250,6 +253,8 @@ namespace corona
 				return;
 			}
 #endif
+			scope_lock lock(log_lock);
+
 
             const char* cmessage = _message.c_str();
             const char* ccommand = _command_name.c_str();
@@ -298,6 +303,8 @@ namespace corona
 				}
 #endif
 
+				scope_lock lock(log_lock);
+
 				auto& xout = get_log_file();
 
 				xout << Logusercommand;
@@ -327,7 +334,6 @@ namespace corona
 			const char* cfilename = get_file_name(_file);
 
 			try {
-				auto& xout = get_log_file();
 
 #if defined(__cplusplus_cli)
 				if (net_reporting.get()) {
@@ -342,6 +348,10 @@ namespace corona
 					return;
 				}
 #endif
+
+				scope_lock lock(log_lock);
+
+				auto& xout = get_log_file();
 
 				xout << Logcommand;
 				xout << std::format("{0:<30}{1:<55}{2:<25}",
@@ -362,7 +372,6 @@ namespace corona
 
 		virtual void log_command_stop(std::string _command_name, std::string _message, double _elapsed_seconds, int64_t _batch_size, const char* _file = nullptr, int _line = 0)
 		{
-
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _command_name.c_str();
 			const char* cfilename = get_file_name(_file);
@@ -381,6 +390,9 @@ namespace corona
 				return;
 			}
 #endif
+
+			scope_lock lock(log_lock);
+
 
 			try {
 				auto& xout = get_log_file();
@@ -409,13 +421,11 @@ namespace corona
 
 		virtual void log_job_start(std::string _api_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
-
 			const char* cmessage = _message.c_str();
 			const char* ccommand = _api_name.c_str();
 			const char* cfilename = get_file_name(_file);
 
 			try {
-				auto& xout = get_log_file();
 
 				if (_api_name.empty())
 					_api_name = " ";
@@ -435,6 +445,10 @@ namespace corona
 					return;
 				}
 #endif
+
+				scope_lock lock(log_lock);
+
+				auto& xout = get_log_file();
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -476,6 +490,8 @@ namespace corona
 			}
 #endif
 
+			scope_lock lock(log_lock);
+
 			try {
 				auto& xout = get_log_file();
 
@@ -508,7 +524,6 @@ namespace corona
 		{
 
 			try {
-				auto& xout = get_log_file();
 
 				if (_api_name.empty())
 					_api_name = " ";
@@ -529,8 +544,9 @@ namespace corona
 				}
 #endif
 
+				scope_lock lock(log_lock);
 
-
+				auto& xout = get_log_file();
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -559,8 +575,6 @@ namespace corona
 
 
 			try {
-				auto& xout = get_log_file();
-
 				if (_api_name.empty())
 					_api_name = " ";
 				if (_message.empty())
@@ -580,6 +594,9 @@ namespace corona
 				}
 #endif
 
+				scope_lock lock(log_lock);
+
+				auto& xout = get_log_file();
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -607,7 +624,6 @@ namespace corona
 
 
 			try {
-				auto& xout = get_log_file();
 
 #if defined(__cplusplus_cli)
 				if (net_reporting.get()) {
@@ -623,6 +639,9 @@ namespace corona
 				}
 #endif
 
+				scope_lock lock(log_lock);
+
+				auto& xout = get_log_file();
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -668,6 +687,8 @@ namespace corona
 				}
 #endif
 
+				scope_lock lock(log_lock);
+
 				auto& xout = get_log_file();
 				
 				xout << Logcommand;
@@ -695,7 +716,6 @@ namespace corona
 		virtual void log_base_block_start(int _indent, std::string _function_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
 			try {
-				auto& xout = get_log_file();
 
 				std::string sindent(_indent, ' ');
 				_function_name = sindent + _function_name;
@@ -713,6 +733,9 @@ namespace corona
 					return;
 				}
 #endif
+
+				scope_lock lock(log_lock);
+				auto& xout = get_log_file();
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -737,8 +760,8 @@ namespace corona
 
 		virtual void log_base_block_stop(int _indent, std::string _function_name, std::string _message, double _elapsed_seconds, long _batch_size, const char* _file = nullptr, int _line = 0)
 		{
+
 			try {
-				auto& xout = get_log_file();
 
 #if defined(__cplusplus_cli)
 				if (net_reporting.get()) {
@@ -755,6 +778,9 @@ namespace corona
 					return;
 				}
 #endif
+
+				scope_lock lock(log_lock);
+				auto& xout = get_log_file();
 
 					std::string sindent(_indent, ' ');
 					_function_name = sindent + _function_name;
@@ -838,6 +864,7 @@ namespace corona
 
 		virtual void log_information(std::string _message, const char* _file = nullptr, int _line = 0)
 		{
+
 #if defined(__cplusplus_cli)
 			if (net_reporting.get()) {
 
@@ -849,6 +876,8 @@ namespace corona
 				return;
 			}
 #endif
+
+			scope_lock lock(log_lock);
 
 			try {
 				auto& xout = get_log_file();
@@ -895,6 +924,9 @@ namespace corona
 			}
 #endif
 
+			scope_lock lock(log_lock);
+
+
 			try {
 				auto& xout = get_log_file();
 				xout << Logactivity;
@@ -934,6 +966,9 @@ namespace corona
 				return;
 			}
 #endif
+
+			scope_lock lock(log_lock);
+
 			try {
 				auto& xout = get_log_file();
 
@@ -966,6 +1001,9 @@ namespace corona
 				return;
 
 			try {
+
+                scope_lock lock(log_lock);
+
 				auto& xout = get_log_file();
 
 				xout << Logcommand;
@@ -1002,6 +1040,9 @@ namespace corona
 				return;
 			}
 #endif
+
+			scope_lock lock(log_lock);
+
 
 			try {
 				auto& xout = get_log_file();
@@ -1049,6 +1090,9 @@ namespace corona
 			}
 #endif
 
+			scope_lock lock(log_lock);
+
+
 			try {
 				auto& xout = get_log_file();
 
@@ -1088,6 +1132,9 @@ namespace corona
 			}
 #endif
 
+			scope_lock lock(log_lock);
+
+
 
 			try {
 				auto& xout = get_log_file();
@@ -1115,6 +1162,8 @@ namespace corona
 		template <typename json_type> void log_json(json_type _src, int _indent = 2)
 		{
 			try {
+                scope_lock lock(log_lock);
+
 				auto& xout = get_log_file();
 
 			std::string sindent(_indent, ' ');

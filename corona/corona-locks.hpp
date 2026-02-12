@@ -36,8 +36,7 @@ namespace corona
 
 		lockable()
 		{
-			::InitializeCriticalSection(&section);
-			lock_count = 0;
+            initialize();
 		}
 
 		lockable(const lockable& _src) = delete;

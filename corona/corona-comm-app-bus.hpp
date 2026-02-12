@@ -130,6 +130,8 @@ namespace corona
 			json _server_config, 
 			bool _database_recreate = true)
 		{
+            poll_db_enabled = !corona::corona_db_read_only;
+
 			system_monitoring_interface::start(); // this will create the global log queue.
 
 			if (system_monitoring_interface::active_mon == nullptr) {

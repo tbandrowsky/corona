@@ -15,38 +15,40 @@
               "class_name": "chaptersubtitle",
               "name": "search_label_text",
               "box": {
-                "width": "150 pixels",
+                "width": "80 pixels",
                 "height": "40 pixels"
               },
               "padding": "8 pixels",
-              "text": "Search:"
+              "text": "\u220B Find"
             },
             {
               "class_name": "edit",
               "name": "search_input",
               "json_field_name": "full_text",
-              "padding" :  "8 pixels",
+              "padding": "8 pixels",
               "box": {
                 "width": "300 pixels",
                 "height": "60 pixels"
               },
               "text_style": {
                 "font_name": "Georgia",
-                "font_size" :  24
+                "font_size": 24
               }
             },
             {
               "class_name": "chaptersubtitle",
-              "name": "search_space",
+              "name": "search_label_text",
               "box": {
-                "width": "10 pixels",
-                "height": "1.0 container"
-              }
+                "width": "80 pixels",
+                "height": "40 pixels"
+              },
+              "padding": "8 pixels",
+              "text": "\u2208 In"
             },
             {
               "class_name": "command_button",
-              "name": "search_button",
-              "icon": "Forward",
+              "name": "search_all",
+              "icon": "ViewAll",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -78,15 +80,347 @@
             },
             {
               "class_name": "command_button",
-              "name": "copy",
-              "icon": "Copy",
+              "name": "search_contacts",
+              "icon": "Contact",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
-                "class_name": "copy",
-                "form_name": "result_table"
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "contact",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_family",
+              "icon": "Family",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "dependent",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "HomeHouse",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "property",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_label_text",
+              "box": {
+                "width": "80 pixels",
+                "height": "40 pixels"
+              },
+              "padding": "8 pixels",
+              "text": ""
+            },
+
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "Record",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "open_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "InProgressTask",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "in_progress_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "CompletedTask",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "completed_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "OnHoldTask",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "on_hold_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "BlockedTask",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "blocked_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "CancelledTask",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "cancelled_task",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
               }
             }
           ]

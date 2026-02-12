@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_status",
+  "page_name": "page_database",
   "default": true,
   "children": [
     {
@@ -13,46 +13,13 @@
         {
           "class_name": "column",
           "box": {
-            "width": "400 pixels",
+            "width": "0.166 container",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Loading",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            },
-            {
-              "class_name": "paragraph",
-              "text": "Classes on the right are updated with progress.",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            },
-            {
-              "class_name": "paragraph",
-              "text": "You can search at any time.",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            }
-          ]
-        },
-        {
-          "class_name": "column",
-          "box": {
-            "width": "1.0 remaining",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "chaptertitle",
-              "text": "Classes",
+              "text": "Not Started",
               "box": {
                 "width": "1.0 container",
                 "height": "30 pixels"
@@ -60,21 +27,323 @@
             },
             {
               "class_name": "items_view",
-              "name": "classes_table",
+              "name": "not_started_table",
               "box": {
                 "width": "1.0 container",
                 "height": "1.0 remaining"
               },
               "on_refresh": {
-                "class_name": "get_classes",
-                "table_name": "classes_table"
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "not_started_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "open_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
               },
               "sources": {
-                "corona_class": "card_table"
+                "appointment": "card_appointment",
+                "promise": "card_promise"
+              }
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "box": {
+            "width": "0.166 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "In Progress",
+              "box": {
+                "width": "150 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "in_progress_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "in_progress_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "in_progress_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              },
+              "sources": {
+                "appointment": "card_appointment",
+                "promise": "card_promise"
+              }
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "box": {
+            "width": "0.166 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Completed",
+              "box": {
+                "width": "150 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "completed_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "completed_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "completed_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              },
+              "sources": {
+                "appointment": "card_appointment",
+                "promise": "card_promise"
+              }
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "box": {
+            "width": "0.166 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Cancelled",
+              "box": {
+                "width": "150 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "cancelled_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "cancelled_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "completed_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              },
+              "sources": {
+                "appointment": "card_appointment",
+                "promise": "card_promise"
+              }
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "box": {
+            "width": "0.166 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Blocked",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "blocked_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "blocked_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "blocked_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              },
+              "sources": {
+                "appointment": "card_appointment",
+                "promise": "card_promise"
+              }
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "box": {
+            "width": "0.166 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "On Hold",
+              "box": {
+                "width": "150 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "blocked_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "blocked_table",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "blocked_task",
+                      "name": "objects"
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              },
+              "sources": {
+                "appointment": "card_appointment",
+                "promise": "card_promise"
               }
             }
           ]
         }
+
+
+
+
       ]
     }
   ]

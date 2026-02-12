@@ -112,6 +112,8 @@ namespace corona {
 #include "corona-midi_box.hpp"
 #include "corona-object_id_box.hpp"
 
+#include "corona-locks.hpp"
+
 #include "corona-system-monitor-bus.hpp"
 #include "corona-test.hpp"
 
@@ -132,7 +134,6 @@ namespace corona {
 
 // generalized json representation used as lingua fraca throughout the bus
 
-#include "corona-locks.hpp"
 #include "corona-threadsafe-map.hpp"
 #include "corona-json.hpp"
 #include "corona-validation-error.hpp"

@@ -317,6 +317,8 @@ namespace corona
 			json_parser jp;
 			json result = jp.create_array();
 
+            stage_output = jp.create_array();
+
 			if (stage_input_name.empty())
 			{
 				_src->add_error("filter", "source", "missing property 'source' for stage.", __FILE__, __LINE__);
@@ -1273,6 +1275,81 @@ namespace corona
 		}
 	};
 
+	class query_promote : public query_stage {
+	public:
+
+		std::string source_name;
+		std::string path_name;
+
+		virtual std::string term_name() { return "promote"; }
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+			_dest.put_member("class_name", "promote"sv);
+			_dest.put_member("source", source_name);
+			_dest.put_member("path", path_name);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+
+			source_name = _src["source"].as_string();
+			path_name = _src["path"].as_string();
+			stage_name = _src["name"].as_string();
+			if (stage_name.empty()) {
+				stage_name = std::format("promote_{0}", source_name);
+			}
+			stage_output = _src["output"];
+		}
+
+		virtual json process(query_context_base* _src) {
+			timer tx;
+			json_parser jp;
+
+			stage_output = jp.create_array();
+
+			if (source_name.empty()) {
+				std::string msg = "Missing source name in query_promote";
+				_src->add_error("projection", "source_name", msg, __FILE__, __LINE__);
+				comm_bus_app_interface::global_bus->log_warning(msg, __FILE__, __LINE__);
+			}
+			else
+			{
+				json projection_source = _src->get_data(source_name);
+				json process_list = jp.create_array();
+
+				if (projection_source.object())
+				{
+                    process_list.push_back(projection_source);
+				}
+				else if (projection_source.array())
+				{
+                    process_list = projection_source;
+				}
+
+				for (auto item : process_list) {
+					json t = item.query(path_name);
+					t = t["value"];
+					if (t.object()) {
+						stage_output.push_back(t);
+                    }
+					else if (t.array()) 
+					{
+                        for (int i = 0; i < t.size(); i++) {
+							json titem = t.get_element(i);
+							stage_output.push_back(titem);
+						}
+					}
+                }
+			}
+
+			execution_time_seconds = tx.get_elapsed_seconds();
+			return stage_output;
+		}
+	};
+
 	void get_json(json& _dest, std::shared_ptr<query_stage>& _src)
 	{
 		_src->get_json(_dest);
@@ -1308,6 +1385,11 @@ namespace corona
 				_dest = std::make_shared<query_project>();
 				_dest->put_json(_src);
 			}
+			else if (class_name == "promote")
+			{
+				_dest = std::make_shared<query_promote>();
+				_dest->put_json(_src);
+			}
 			else if (class_name == "join")
 			{
 				_dest = std::make_shared<query_join>();
@@ -1319,7 +1401,7 @@ namespace corona
 				_dest->put_json(_src);
 			}
 			else {
-				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'join', 'replace' or 'result'.",  class_name );
+				std::string msg = std::format("class_name {0} is not a valid query stage.  Use 'filter', 'project', 'promote', 'join', 'replace' or 'result'.",  class_name );
 				system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 			}
 		}

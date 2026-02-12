@@ -1417,7 +1417,7 @@ namespace corona
 
     };
 
-    const std::map<std::string, std::wstring> segoeMDL2Icons = {
+    std::map<std::string, std::wstring> segoeMDL2Icons = {
         // Navigation
         {"GlobalNavigationButton", L"\uE700"},
         {"ChevronLeft", L"\uE76B"},
@@ -1428,8 +1428,13 @@ namespace corona
         {"Back", L"\uE72B"},
         {"Forward", L"\uE72A"},
 
-        {"CalendarDay", L"\uE8BF"},
-        {"CalendarWeek", L"\uE8C0"},
+        // Tasks
+        {"OpenTask", L"\uE0F4"},
+        {"InProgressTask", L"\uEA3A"},
+        {"CompletedTask", L"\uE930"},
+        {"OnHoldTask", L"\uE769"},
+        {"BlockedTask", L"\uECE4"},
+        {"CancelledTask", L"\uE711"},
 
         // Actions
         {"Accept", L"\uE8FB"},
@@ -1445,6 +1450,7 @@ namespace corona
         {"Download", L"\uE896"},
         {"Upload", L"\uE898"},
         {"ViewAll", L"\uE8A9"},
+        {"Database", L"\uEC4A"},
 
         // Media
         {"Play", L"\uE768"},
@@ -1502,6 +1508,8 @@ namespace corona
         {"Calendar", L"\uE787"},
         {"Clock", L"\uE823"},
         {"AlarmClock", L"\uE919"},
+        {"CalendarDay", L"\uE8BF"},
+        {"CalendarWeek", L"\uE8C0"},
 
         // Favorites & Rating
         {"Favorite", L"\uE734"},
@@ -1517,6 +1525,10 @@ namespace corona
         {"Contact2", L"\uE8D4"},
         {"People", L"\uE716"},
         {"Account", L"\uE910"},
+        {"Family", L"\uEBDA"},
+
+        // Property
+        { "HomeHouse", L"\uE80F" },
 
         // Device
         {"Camera", L"\uE722"},
@@ -1571,7 +1583,7 @@ namespace corona
         // Video & Photo
         {"Video", L"\uE714"},
         {"Photo", L"\uEB9F"},
-        {"Pictures", L"\uE91B"},
+        {"Pictures", L"\uE91B"}
     };
 
     class command_button_control : public gradient_button_control

@@ -15,81 +15,131 @@
     },
     {
       "class_name": "reminder",
-      "class_description": "A reminder",
+      "class_description": "General things to remind yourself of for different occasions",
       "base_class_name": "patriarch_object",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "text" ],
-      "parents": [ "responsibility", "contact" ],
+      "full_text": [ "description", "occasion" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Reminder"
         },
-        "when": {
+        "occasion": {
           "field_type": "string",
-          "enumeration": [ "daily", "weekly", "monthly" ],
-          "label": "When"
+          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "halloween", "allsaints", "christmas", "weekday", "weekends", "birthdays", "anniversaries" ],
+          "label": "Occasion"
         }
+      }
+    },
+    {
+      "class_name": "status_base",
+      "base_class_name": "patriarch_object",
+      "class_description": "A base status",
+      "fields": {
+        "tasks": "[task_base]"
+      }
+    },
+    {
+      "class_name": "activity",
+      "class_description": "Something you did",
+      "base_class_name": "task_base",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "parents": [ "task_base" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
+      "class_name": "task_base",
+      "base_class_name": "patriarch_object",
+      "class_description": "A task",
+      "parents": [ "status_base" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Promise"
+        },
+        "activities": "[activity]"
+      }
+    },
+    {
+      "class_name": "open_task",
+      "base_class_name": "status_base",
+      "class_description": "Open Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "in_progress_task",
+      "base_class_name": "status_base",
+      "class_description": "In Progress Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "completed_task",
+      "base_class_name": "status_base",
+      "class_description": "Completed Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "on_hold_task",
+      "base_class_name": "status_base",
+      "class_description": "Task On Hold",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "blocked_task",
+      "base_class_name": "status_base",
+      "class_description": "Task Blocked",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "cancelled_task",
+      "base_class_name": "status_base",
+      "class_description": "Task Cancelled",
+      "fields": {
       }
     },
     {
       "class_name": "appointment",
       "class_description": "An appointment",
-      "base_class_name": "patriarch_object",
+      "base_class_name": "task_base",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "full_text": [ "text" ],
       "parents": [ "responsibility", "contact" ],
       "fields": {
-        "description": {
+        "with": {
           "field_type": "string",
-          "label": "Promise"
+          "label": "With"
         },
         "when": {
-          "field_type": "datetime",
+          "field_type": "string",
           "label": "When"
         },
         "where": {
           "field_type": "string",
           "label": "Where"
-        },
-        "kept": {
-          "field_type": "bool",
-          "label": "Kept"
-        },
-        "kept_description": {
-          "field_type": "string",
-          "label": "How Kept"
-        }
-      }
-    },
-    {
-      "class_name": "interaction",
-      "class_description": "Something you do with something",
-      "base_class_name": "patriarch_object",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "text" ],
-      "parents": [ "contact", "responsibility" ],
-      "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "when": {
-          "field_type": "datetime",
-          "label": "When"
         }
       }
     },
     {
       "class_name": "promise",
       "class_description": "A committment to someone",
-      "base_class_name": "patriarch_object",
+      "base_class_name": "task_base",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -98,18 +148,6 @@
         "description": {
           "field_type": "string",
           "label": "Promise"
-        },
-        "deadline": {
-          "field_type": "datetime",
-          "label": "Deadline"
-        },
-        "kept": {
-          "field_type": "bool",
-          "label": "Kept"
-        },
-        "kept_description": {
-          "field_type": "string",
-          "label": "How Kept"
         }
       }
     },
@@ -261,25 +299,6 @@
         "prescriptions": "string",
         "allergies": "string",
         "conditions": "string"
-      }
-    },
-    {
-      "class_name": "goal",
-      "class_description": "An obligation of self improvement and enrichment",
-      "base_class_name": "responsibility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "name", "description" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name"
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        }
       }
     },
     {
