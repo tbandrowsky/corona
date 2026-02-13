@@ -385,6 +385,7 @@ namespace corona
 		{
 			query_stage::put_json(_src);
 
+			stage_input_name = _src["source"].as_string();
 			json jcondition = _src["condition"];
 			if (not jcondition.empty()) {
 				corona::put_json(condition, jcondition);
@@ -442,6 +443,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			query_stage::put_json(_src);
+			stage_input_name = _src["source"].as_string();
 
 		}
 

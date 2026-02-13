@@ -8672,7 +8672,7 @@ private:
 			}
 
 			response = create_response(user_name, auth_system, true, "Ok", existing_user, errors, method_timer.get_elapsed_seconds());
-			system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			system_monitoring_interface::active_mon->log_function_stop("login_user_local", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
 			return response;
 		}
@@ -10015,6 +10015,7 @@ grant_type=authorization_code
 				if (context.is_error()) 
 				{
 					auto query_errors = context.get_errors();
+					log_errors(query_errors);
 					response = create_response(query_request, false, "query failed", jp.create_object(), query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					return response;
@@ -10027,12 +10028,14 @@ grant_type=authorization_code
 				json query_results = context.run();
 				if (context.is_error()) {
 					auto query_errors = context.get_errors();
+					log_errors(query_errors);
 					response = create_response(query_request, false, "query failed", query_results, query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				}
 				else 
 				{
 					auto query_errors = context.get_errors();
+					log_errors(query_errors);
 					response = create_response(query_request, true, "completed", query_results, query_errors, tx.get_elapsed_seconds());
 					system_monitoring_interface::active_mon->log_function_stop("query", "complete", tx.get_elapsed_seconds(), query_results.size(), __FILE__, __LINE__);
 				}
