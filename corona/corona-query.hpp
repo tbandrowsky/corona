@@ -110,7 +110,7 @@ namespace corona
 			return errors;
         }
 
-		virtual json get_data(std::string _query) 
+		virtual bool get_data(json& _dest, std::string _query) 
 		{
 			json_parser jp;
 			json query_s = jp.parse_query(_query);
@@ -124,21 +124,23 @@ namespace corona
 				std::string msg = std::format("{0} query data request does not have a source_name: prefix", _query);
 				add_error("get_data", _query, msg, __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_warning(msg);
+				return false;
 			}
 			else if (not sources.contains(query_si))
 			{
 				std::string msg = std::format("{0}({1}) query data source not found", _query, query_si);
 				add_error("get_data", _query, msg, __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_warning(msg);
+				return false;
 			}
 			else 
 			{
-				j = sources[query_si]->data;
-				j = j.query(query_p);
-				j = j["value"];
+				_dest = sources[query_si]->data;
+				_dest = _dest.query(query_p);
+				_dest = _dest["value"];
 			}
-	
-			return j;
+
+			return true;
 		}
 
 		virtual void set_data_source(std::string _name, json _data)
@@ -256,22 +258,25 @@ namespace corona
 			}
 		}
 
-		virtual json get_data(std::string _data_name) {
-			json j;
+		virtual bool get_data(json& _dest, std::string _data_name) override {
+			json_parser jp;
+			json result = jp.create_array();
+			bool found = false;
 
-			j = query_context_base::get_data(_data_name);
-			if (j.empty()) {
-				auto found = std::find_if(
-					stages.begin(), 
-					stages.end(), 
-					[_data_name](std::shared_ptr<query_stage>& _item) ->bool {
-						return _item->stage_name == _data_name;
-					});
-				if (found != std::end(stages)) {
-					j = found->get()->stage_output;
-				}
+			auto found_it = std::find_if(
+				stages.begin(),
+				stages.end(),
+				[_data_name](std::shared_ptr<query_stage>& _item) ->bool {
+					return _item->stage_name == _data_name;
+				});
+			if (found_it != std::end(stages)) {
+				result = found_it->get()->stage_output;
+				found = true;
 			}
-			return j;
+			else {
+				found = query_context_base::get_data(result, _data_name);
+			}
+			return found;
 		}
 
 		virtual json run()
@@ -324,8 +329,13 @@ namespace corona
 				return result;
 			}
 
-			json stage_input = _src->get_data(stage_input_name);
-			if (stage_input.object()) {
+			json stage_input;
+			
+			bool found = _src->get_data(stage_input, stage_input_name);
+			if (!found) {
+				return stage_output;
+			} 
+			else if (stage_input.object()) {
 				if (condition) {
 					if (condition->accepts(_src, stage_input)) {
 						result.push_back(stage_input);
@@ -354,11 +364,6 @@ namespace corona
 				stage_output = result;
 				return result;
 			}
-			else
-			{
-				std::string msg = std::format("source '{0}' not found", stage_input_name);
-				_src->add_error("filter", "source", msg, __FILE__, __LINE__);
-			}
 			execution_time_seconds = tx.get_elapsed_seconds();
 			return stage_output;  
 		}
@@ -374,28 +379,11 @@ namespace corona
 			}
 			using namespace std::literals;
 			_dest.put_member("class_name", "filter"sv);
-			_dest.put_member("source", stage_input_name);
 		}
 
 		virtual void put_json(json& _src)
 		{
-			std::vector<std::string> missing;
-
-			if (not _src.has_members(missing, { "class_name" })) {
-				system_monitoring_interface::active_mon->log_warning("query_filter missing:");
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-				return;
-			}
-			stage_input_name = _src["source"].as_string();
-			stage_name = _src["name"].as_string();
-			if (stage_name.empty()) {
-				stage_name = std::format("filter_{0}", stage_input_name);
-            }
-			stage_output = _src["output"];
+			query_stage::put_json(_src);
 
 			json jcondition = _src["condition"];
 			if (not jcondition.empty()) {
@@ -423,19 +411,20 @@ namespace corona
 				return stage_output;
 			}
 
-			json stage_input = _src->get_data(stage_input_name);
-			if (stage_input.object()) {
+			json stage_input;
+			bool found;
+
+			found = _src->get_data(stage_input, stage_input_name);
+            if (!found) {
+				return stage_output;
+			}
+			else if (stage_input.object()) {
 				stage_output.push_back(stage_input);
 				return stage_output;
 			}
 			else if (stage_input.array()) {
 				stage_output = stage_input;
 				return stage_output;
-			}
-			else
-			{
-				std::string msg = std::format("source '{0}' not found", stage_input_name);
-				_src->add_error("filter", "source", msg, __FILE__, __LINE__);
 			}
 			execution_time_seconds = tx.get_elapsed_seconds();
 			return stage_output;
@@ -452,24 +441,8 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			std::vector<std::string> missing;
+			query_stage::put_json(_src);
 
-			if (not _src.has_members(missing, { "class_name", "source" })) {
-				system_monitoring_interface::active_mon->log_warning("query_result missing:");
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-				return;
-			}
-
-			stage_input_name = _src["source"].as_string();
-			stage_name = _src["name"].as_string();
-			if (stage_name.empty()) {
-				stage_name = std::format("result_{0}", stage_input_name);
-			}
-			stage_output = _src["output"];
 		}
 
 	};
@@ -491,13 +464,17 @@ namespace corona
 			json_parser jp;
 			stage_output = jp.create_array();
 
-			json query1 = _src->get_data(source1);
-			if (query1.empty()) {
-				_src->add_error("join", source1, "data not found", __FILE__, __LINE__);
+			json query1;
+			json query2;
+
+			bool found = _src->get_data(query1, source1);
+			if (!found) {
+				return stage_output;
 			}
-			json query2 = _src->get_data(source2);
-			if (query2.empty()) {
-				_src->add_error("join", source2, "data not found", __FILE__, __LINE__);
+
+			found = _src->get_data(query2, source2);
+			if (!found) {
+				return stage_output;
 			}
 
 			if (query1.object()) {
@@ -909,10 +886,13 @@ namespace corona
 		{
 			json tsrcc = _src.query(src_path);
 			json srcc = tsrcc["value"];
-			json items = _qcb->get_data(items_path);
-			for (auto item : items) {
-				if (item.compare(srcc) == 0)
-					return true;
+			json items;
+			bool has_stuff = _qcb->get_data(items, items_path);
+			if (has_stuff) {
+				for (auto item : items) {
+					if (item.compare(srcc) == 0)
+						return true;
+				}
 			}
 			return false;
 		}
@@ -1195,15 +1175,20 @@ namespace corona
 			timer tx;
 			json_parser jp;
 			auto members = projection.get_members();
+			stage_output = jp.create_array();
 
+			// if there is no source, the projection is really just an object
+            // composed of multiple queries that are executed against the main source. 
+			// This allows for composition of multiple queries into a single result object 
+			// without having to have a source object to query against.
 			if (source_name.empty()) {
-				stage_output = jp.create_object();
+                json temp_object = jp.create_object();
 				for (auto member : members) {
 					std::string path = member.second.as_string();
-					json query = jp.parse_query(path);
-					if (query.has_member("source")) {
-						json data = _src->get_data(path);
-						stage_output.put_member(member.first, data);
+					json data;
+                    if (_src->get_data(data, path)) {
+						data = data["value"];
+						temp_object.put_member(member.first, data);
 					}
 					else 
 					{
@@ -1212,51 +1197,67 @@ namespace corona
 						comm_bus_app_interface::global_bus->log_warning(msg, __FILE__, __LINE__);
 					}
 				}
+                stage_output.push_back(temp_object);
 			}
+            // but, if there is a source, then, the projection is executed against the source, 
+			// and each member of the projection is a query executed against the source, 
+			// and the results are composed into the output object/array.
 			else 
 			{
-				json projection_source = _src->get_data(source_name);
-				if (projection_source.object())
-				{
-					stage_output = jp.create_object();
+				json projection_source;
+				bool found = _src->get_data(projection_source, source_name);
 
-					for (auto member : members) {
-						std::string path = member.second.as_string();
-						json query = jp.parse_query(path);
-						if (query.has_member("source")) {
-							json data = _src->get_data(path);
-							stage_output.put_member(member.first, data);
-						}
-						else
-						{
-							std::string data_path = query["query_path"].as_string();
-							json t = projection_source.query(data_path);
-							t = t["value"];
-							stage_output.put_member(member.first, t);
-						}
-					}
+				if (!found) {
+					return stage_output;
+                }
+				else if (projection_source.object())
+				{
+                    json temp_object = projection_source;
+                    projection_source = jp.create_array();
+                    projection_source.push_back(temp_object);
 				}
-				else if (projection_source.array())
+
+				if (projection_source.array())
 				{
 					stage_output = jp.create_array();
 					for (auto arr_item : projection_source) {
 						json new_item = jp.create_object();
+						// look at our projection object.
+						// for each member, 
+                        // if it is a string, 
+						// 
+						// take it as a query of the arr_item
+						// try it as a path and put the result in the output object under the member name.
+						// 
+						// if it is a non-string, apply the member directly to the object
 						for (auto member : members) {
-							std::string path = member.second.as_string();
-							json query = jp.parse_query(path);
-							if (query.has_member("source")) {
-								std::string data_path = query["query_path"].as_string();
-								json data = _src->get_data(path);
-								json t = data.query(data_path);
-								t = t["value"];
-								new_item.put_member(member.first, t);
+							if (member.second.is_string()) {
+
+								std::string path = member.second.as_string();
+								if (path.starts_with("."))
+								{
+									path = path.substr(1);
+									json data = arr_item.query(path);
+									data = data["value"];
+									new_item.put_member(member.first, data);
+								}
+								else if (path.starts_with("$")) {
+									path = path.substr(1);
+									json data = jp.create_array();
+									if (_src->get_data(data, path)) {
+										data = data["value"];
+									}
+									new_item.put_member(member.first, data);
+								}
+								else
+								{
+									new_item.put_member(member.first, member.second);
+								}
+								json data;
 							}
-							else
+							else 
 							{
-								std::string data_path = query["query_path"].as_string();
-								json t = arr_item.query(data_path);
-								t = t["value"];
-								new_item.put_member(member.first, t);
+								new_item.put_member(member.first, member.second);
 							}
 						}
 						stage_output.push_back(new_item);
@@ -1315,32 +1316,34 @@ namespace corona
 			}
 			else
 			{
-				json projection_source = _src->get_data(source_name);
-				json process_list = jp.create_array();
+				json projection_source;
+				if (_src->get_data(projection_source, source_name)) {
+					json process_list = jp.create_array();
 
-				if (projection_source.object())
-				{
-                    process_list.push_back(projection_source);
-				}
-				else if (projection_source.array())
-				{
-                    process_list = projection_source;
-				}
-
-				for (auto item : process_list) {
-					json t = item.query(path_name);
-					t = t["value"];
-					if (t.object()) {
-						stage_output.push_back(t);
-                    }
-					else if (t.array()) 
+					if (projection_source.object())
 					{
-                        for (int i = 0; i < t.size(); i++) {
-							json titem = t.get_element(i);
-							stage_output.push_back(titem);
+						process_list.push_back(projection_source);
+					}
+					else if (projection_source.array())
+					{
+						process_list = projection_source;
+					}
+
+					for (auto item : process_list) {
+						json t = item.query(path_name);
+						t = t["value"];
+						if (t.object()) {
+							stage_output.push_back(t);
+						}
+						else if (t.array())
+						{
+							for (int i = 0; i < t.size(); i++) {
+								json titem = t.get_element(i);
+								stage_output.push_back(titem);
+							}
 						}
 					}
-                }
+				}
 			}
 
 			execution_time_seconds = tx.get_elapsed_seconds();
