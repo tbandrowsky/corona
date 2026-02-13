@@ -121,6 +121,7 @@ namespace corona
 						true);
 
 					service->run_app_ui(hInstance, lpszCmdParam, false);
+					log_warning("Shutting application down");
 				}
 				catch (std::exception exc)
 				{
@@ -131,7 +132,7 @@ namespace corona
 		}
 
 		if (show_console) {
-			DisableGuiStdOuts();
+			// DisableGuiStdOuts();
 		}
 	}
 

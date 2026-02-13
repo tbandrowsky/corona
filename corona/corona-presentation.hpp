@@ -255,7 +255,7 @@ namespace corona {
 		virtual void restore_window()
 		{
 			if (auto pw = window_host.lock()) {
-
+				log_warning("Application main window restore.");
 				WINDOWPLACEMENT wp = {};
 				wp.length = sizeof(wp);
 				GetWindowPlacement(pw->getMainWindow(), &wp);
@@ -273,6 +273,7 @@ namespace corona {
 		virtual void minimize_window()
 		{
 			if (auto pw = window_host.lock()) {
+				log_warning("Application main window sc_minimize.");
 				SendMessage(pw->getMainWindow(), WM_SYSCOMMAND, SC_MINIMIZE, 0);
 			}
 		}
@@ -280,6 +281,7 @@ namespace corona {
 		virtual void close_window() 
 		{
 			if (auto pw = window_host.lock()) {
+				log_warning("Application main window sc_close.");
 				SendMessage(pw->getMainWindow(), WM_SYSCOMMAND, SC_CLOSE, 0);
 			}
 		}
@@ -288,6 +290,7 @@ namespace corona {
 		{
 			auto menu = _menu.to_menu();
 			if (auto ptr = window_host.lock()) {
+				log_warning("Application main window menu.");
 				HWND hwndMenu = ptr->getMainWindow();
 				POINT tpstart;
 				auto& bpos = _base->get_bounds();

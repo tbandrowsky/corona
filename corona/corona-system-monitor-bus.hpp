@@ -1094,9 +1094,10 @@ namespace corona
 
 			std::string message_slice = _message;
 
-            while (_message.length() > 80) {
-				message_slice = _message.substr(0, 80);
-				_message = _message.substr(80);
+            while (_message.length() > 0) {
+                int l = std::min((int)_message.length(), 80);
+				message_slice = _message.substr(0, l);
+				_message = _message.substr(l);
 				 try {
 					auto& xout = get_log_file();
 					xout << Logcommand;
@@ -1277,8 +1278,8 @@ namespace corona
 
 	void log_warning(const std::string& _src)
 	{
-		if (system_monitoring_interface::active_mon) {
-			system_monitoring_interface::active_mon->log_warning(_src);
+		if (system_monitoring_interface::global_mon) {
+			system_monitoring_interface::global_mon->log_warning(_src);
 		}
 	}
 

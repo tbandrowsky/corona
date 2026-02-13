@@ -630,6 +630,9 @@ namespace corona
 				}
 			}
 			break;
+			case WM_CLOSE:
+				log_warning("Application main window close.");
+				break;
 			case WM_TIMER:
 				if (bus) {
 					bus->poll(false);
@@ -692,6 +695,7 @@ namespace corona
 			}
 			break;
 			case WM_DESTROY:
+				log_warning("Application main window destroy.");
 				pfactory->closeWindow(hwnd);
 				PostQuitMessage(0);
 				return 0;
