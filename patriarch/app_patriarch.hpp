@@ -77,7 +77,7 @@ namespace corona
 		if (result == S_OK) {
 			istring<4096> dataPath(userFolderPath);
 
-			std::filesystem::path application_path = "patriarch";
+			std::filesystem::path application_path = "Patriarch";
 			std::filesystem::path database_path_path = dataPath.c_str();
 			database_path_path /= application_path;
 			database_path = database_path_path.string();

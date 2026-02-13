@@ -3241,7 +3241,10 @@ namespace corona
 		{
 			if (!table) {
 				table = std::make_shared<xtable>(get_class_filename(_db), corona_db_read_only);
-				full_text_index = get_full_text_index(_db);
+			}
+
+            if (!full_text_index && full_text_fields.size() > 0) {
+				full_text_index = std::make_shared<xtable>(get_text_index_filename(_db), corona_db_read_only);
 			}
 
 			return table;
@@ -5396,15 +5399,15 @@ namespace corona
 					get_activity.db = this;
 					try {
 						cdimp->open(&get_activity, class_def.get_first_element(), -1);
+						class_cache.insert(_class_name, cdimp);
 						auto perms = get_system_permission();
 						cdimp->init_validation(this, perms);
+						return cdimp;
 					}
                     catch (std::exception& ex) {
                         system_monitoring_interface::active_mon->log_warning(std::format("Exception {0} on opening class {1}", ex.what(), _class_name), __FILE__, __LINE__);
                         return nullptr;
                     }
-					cd = cdimp;
-					class_cache.insert(_class_name, cd);
 				}
 			}
 			return cd;
@@ -7503,6 +7506,7 @@ private:
 		std::string sendgrid_sender;
 		std::string sendgrid_sender_email;
 		std::string user_confirmation_title;
+		bool database_shutdown = false;
 
 		// constructing and opening a database
 
@@ -7521,22 +7525,29 @@ private:
 			default_api_version = "1.0";
 			default_api_author = "System";
 			shutdown_in_progress = false;
+			database_shutdown = false;
 		}
 
         corona_database(std::string _data_path, std::string _config_path) : corona_database()
 		{
             data_path = _data_path;
             config_path = _config_path;
+			database_shutdown = false;
 		}
 
 		void shutdown()
 		{
+			if (database_shutdown) {
+				return;
+            }
 			shutdown_in_progress = true;
 			while (calls_in_progress.load() != 0) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
             corona::global_job_queue->waitForEmptyQueue();
-        }
+            shutdown_in_progress = false;
+			database_shutdown = true;
+		}
 
 		virtual ~corona_database()
 		{
@@ -8644,7 +8655,7 @@ private:
 					system_monitoring_interface::active_mon->log_warning(std::format("Could not create user '{}': {}", user_name, message), __FILE__, __LINE__);
 					system_monitoring_interface::active_mon->log_json(user_result);
 					response = create_user_response(_sso_user_request, false, "User not created", existing_user, jerrors, method_timer.get_elapsed_seconds());
-					system_monitoring_interface::active_mon->log_function_stop("login_user_sso", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_function_stop("login_user_local", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					return response;
 				}
 			}

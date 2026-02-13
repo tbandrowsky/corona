@@ -42,6 +42,19 @@
       }
     },
     {
+      "class_name": "task_base",
+      "base_class_name": "patriarch_object",
+      "class_description": "A task",
+      "parents": [ "status_base" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Promise"
+        },
+        "activities": "[activity]"
+      }
+    },
+    {
       "class_name": "activity",
       "class_description": "Something you did",
       "base_class_name": "task_base",
@@ -55,19 +68,6 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
-    },
-    {
-      "class_name": "task_base",
-      "base_class_name": "patriarch_object",
-      "class_description": "A task",
-      "parents": [ "status_base" ],
-      "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Promise"
-        },
-        "activities": "[activity]"
       }
     },
     {

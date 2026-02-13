@@ -234,20 +234,19 @@ namespace corona
 					log_json(create_database_response);
 					throw std::exception("Could not create database");
 				}
+				local_db->shutdown();
+				local_db = nullptr;
 			}
-			else
-			{
 
-				try {
-					local_db = std::make_shared<corona_database>(database_path, config_path);
-					local_db->apply_config(_system_config, _server_config);
-					local_db->open_database();
-				}
-				catch (std::exception exc)
-				{
-					std::string mxessage = std::format("Could not apply config {}", exc.what());
-					log_warning(mxessage, __FILE__, __LINE__);
-				}
+			try {
+				local_db = std::make_shared<corona_database>(database_path, config_path);
+				local_db->apply_config(_system_config, _server_config);
+				local_db->open_database();
+			}
+			catch (std::exception exc)
+			{
+				std::string mxessage = std::format("Could not apply config {}", exc.what());
+				log_warning(mxessage, __FILE__, __LINE__);
 			}
 
 			MFStartup(MF_VERSION);
@@ -473,9 +472,14 @@ namespace corona
 				if (poll_db_enabled) {
 					global_job_queue->submit_job([this, _select_default_page]()->void {
 						poll_db();
-						}, nullptr);
+                        run_ui([this, _select_default_page]()->void {
+							poll_pages(_select_default_page);
+						});
+					}, nullptr);
 				}
-				poll_pages(_select_default_page);
+				else {
+					poll_pages(_select_default_page);
+				}
 			}
 		}
 

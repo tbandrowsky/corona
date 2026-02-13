@@ -1092,29 +1092,32 @@ namespace corona
 
 			scope_lock lock(log_lock);
 
+			std::string message_slice = _message;
 
-			try {
-				auto& xout = get_log_file();
-
-			xout << Logcommand;
-			xout << std::format("{0:<5}", " ");
-			xout << Logapi;
-			xout << std::format("{0:<5}", " ");
-			xout << Logfunction;
-			xout << std::format("{0:<20}", " ");
-			xout << Logwarning;
-			xout << std::format("{0:<80}",
-				trim(_message, 80)
-			);
-			file_line(_file, _line);
-			xout << Normal;
-			xout << std::endl;
-			}
-			catch (std::exception exc)
-			{
-				log_exception(exc, __FILE__, __LINE__);
-			}
-
+            while (_message.length() > 80) {
+				message_slice = _message.substr(0, 80);
+				_message = _message.substr(80);
+				 try {
+					auto& xout = get_log_file();
+					xout << Logcommand;
+					xout << std::format("{0:<5}", " ");
+					xout << Logapi;
+					xout << std::format("{0:<5}", " ");
+					xout << Logfunction;
+					xout << std::format("{0:<20}", " ");
+					xout << Logwarning;
+					xout << std::format("{0:<80}",
+						trim(message_slice, 80)
+					);
+					file_line(_file, _line);
+					xout << Normal;
+					xout << std::endl;
+				}
+				catch (std::exception exc)
+				{
+					log_exception(exc, __FILE__, __LINE__);
+				}
+			}		
 		}
 
 		virtual void log_exception(std::exception exc, const char* _file = nullptr, int _line = 0)
