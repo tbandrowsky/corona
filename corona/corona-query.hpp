@@ -267,9 +267,8 @@ namespace corona
 					[_data_name](std::shared_ptr<query_stage>& _item) ->bool {
 						return _item->stage_name == _data_name;
 					});
-				while (found != std::end(stages) and j.empty()) {
+				if (found != std::end(stages)) {
 					j = found->get()->stage_output;
-					found++;
 				}
 			}
 			return j;
@@ -416,18 +415,17 @@ namespace corona
 		virtual json process(query_context_base* _src) {
 			timer tx;
 			json_parser jp;
-			json result = jp.create_array();
+			stage_output = jp.create_array();			
 
 			if (stage_input_name.empty())
 			{
 				_src->add_error("result", "source", "missing property 'source' for stage.", __FILE__, __LINE__);
-				return result;
+				return stage_output;
 			}
 
 			json stage_input = _src->get_data(stage_input_name);
 			if (stage_input.object()) {
-				result.push_back(stage_input);
-				stage_output = result;
+				stage_output.push_back(stage_input);
 				return stage_output;
 			}
 			else if (stage_input.array()) {
