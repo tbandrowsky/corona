@@ -11,16 +11,6 @@
         },
         "children": [
           {
-            "class_name": "chaptertitle",
-            "text": "Dependent",
-            "box": "chaptertitle_box"
-          },
-          {
-            "class_name": "chaptertitle",
-            "text": "Contact",
-            "box": "chaptertitle_box"
-          },
-          {
             "class_name": "edit_field",
             "text": "Nick Name:",
             "box": "edit_field_box",

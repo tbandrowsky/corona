@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_relative",
+  "page_name": "card_child",
   "children": [
     {
       "class_name": "row",
@@ -17,7 +17,7 @@
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Relative",
+              "text": "Child",
               "box": "chaptertitle_box"
             },
             {

@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_dependent",
+  "page_name": "page_special",
   "children": [
     {
       "class_name": "row",
@@ -17,103 +17,16 @@
           "children": [
             {
               "class_name": "chaptertitle",
-              "text": "Dependent",
+              "text": "Special Needs / Elderly",
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "chaptertitle",
-              "text": "Contact",
-              "box": "chaptertitle_box"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Nick Name:",
-              "box": "edit_field_box",
-              "json_field_name": "nick_name"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "First Name:",
-              "box": "edit_field_box",
-              "json_field_name": "first_name"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Last Name:",
-              "box": "edit_field_box",
-              "json_field_name": "last_name"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Street 1:",
-              "box": "edit_label_box",
-              "json_field_name": "street1"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "street2",
-              "box": "edit_field_box",
-              "text": "Street 2:"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "City:",
-              "box": "edit_label_box",
-              "json_field_name": "city"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "state",
-              "box": "edit_field_box",
-              "text": "State:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "zip",
-              "box": "edit_field_box",
-              "text": "Zip"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "company",
-              "box": "edit_field_box",
-              "text": "Company:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "phone",
-              "box": "edit_field_box",
-              "text": "Phone:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "alt_phone",
-              "box": "edit_field_box",
-              "text": "Alt Phone:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "email",
-              "box": "edit_field_box",
-              "text": "Email:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "alt_email",
-              "box": "edit_field_box",
-              "text": "Alt Email:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "prescriptions",
-              "box": "edit_field_box",
-              "text": "Prescriptions:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "allergies",
-              "box": "edit_field_box",
-              "text": "Allergies:"
+              "class_name": "frame",
+              "name": "dependent_home",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "1.0 container"
+              }
             }
           ]
         }

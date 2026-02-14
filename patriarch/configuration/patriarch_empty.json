@@ -52,20 +52,107 @@
                 {
                   "class_name": "command_button",
                   "name": "search_contacts",
-                  "icon": "Contact",
-                  "text": "new contact",
+                  "icon": "Husband",
+                  "text": "new husband",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "contact",
+                    "create_class_name": "husband",
                     "target_frame": "page_home.frame_home",
-                    "source_frame": "page_contact",
+                    "source_frame": "page_husband",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Wife",
+                  "text": "new wife",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "wife",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_wife",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Child",
+                  "text": "new child",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "child",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_child",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Ancestor",
+                  "text": "new ancestor",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "ancestor",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_ancestor",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Relative",
+                  "text": "new relative",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "relative",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_relative",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "SpecialNeeds",
+                  "text": "new special needs",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "relative",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_special",
                     "message": "layout test."
                   }
                 }
+
+
               ]
             },
             {

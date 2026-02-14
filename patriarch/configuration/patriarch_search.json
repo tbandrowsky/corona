@@ -241,11 +241,18 @@
                 "height": "1.0 container"
               },
               "sources": {
-                "candidate": "card_candidate",
-                "donation": "card_donation",
-                "committee": "card_committee",
-                "committee_transaction": "card_committee_transaction",
-                "committee_summary": "card_committee_summary"
+                "ancestor": "card_ancestor",
+                "child": "card_child",
+                "godparent": "card_godparent",
+                "husband": "card_husband",
+                "relative": "card_relative",
+                "special": "card_special",
+                "wife": "card_wife",
+
+                "contact": "card_contact",
+                "property": "card_property",
+                "appointment": "card_appointment",
+                "promise": "card_promise"
               },
               "empty_text": "No items in list",
               "empty_command": {
@@ -259,11 +266,18 @@
                 "target_frame": "page_home.frame_selected",
                 "table_name": "result_table",
                 "sources": {
-                  "candidate": "page_candidate",
-                  "donation": "page_donation",
-                  "committee": "page_committee",
-                  "committee_transaction": "page_committee_transaction",
-                  "committee_summary": "page_committee_summary"
+                  "ancestor": "page_ancestor",
+                  "child": "page_child",
+                  "godparent": "page_godparent",
+                  "husband": "page_husband",
+                  "relative": "page_relative",
+                  "special": "page_special",
+                  "wife": "page_wife",
+
+                  "contact": "page_contact",
+                  "property": "page_property",
+                  "appointment": "page_appointment",
+                  "promise": "page_promise"
                 }
               }
             },

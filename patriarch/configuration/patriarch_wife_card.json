@@ -1,35 +1,34 @@
 {
   "class_name": "page",
-  "page_name": "card_dependent",
+  "page_name": "card_wife",
   "children": [
     {
-
-      "class_name": "column",
-      "name": "dependent_details",
-      "box": {
-        "width": "1.0 container",
-        "height": "60 pixels"
-      },
-      "padding": "8px",
+      "class_name": "row",
+      "name": "dependent_object",
+      "box": "full_container",
       "children": [
         {
-          "class_name": "chaptersubtitle",
-          "name": "title",
-          "box": "edit_label_box_full",
-          "text": "Appointment"
-        },
-        {
-          "class_name": "paragraph",
-          "name": "full_name",
-          "box": "edit_label_box_full",
-          "json_field_name": "full_name",
-          "text": "{when}, {where}, {kept}"
-        },
-        {
-          "class_name": "paragraph",
-          "json_field_name": "first_name",
-          "text": "\"{parents.any.nick_name}\" {parents.any.first_name} {parents.any.last_name}",
-          "box": "edit_field_box"
+          "class_name": "column",
+          "name": "dependent_details",
+          "box": {
+            "width": "300 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Wife",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "frame",
+              "name": "dependent_home",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "1.0 container"
+              }
+            }
+          ]
         }
       ]
     }
