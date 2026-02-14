@@ -1,0 +1,82 @@
+{
+  "class_name": "page",
+  "page_name": "page_empty",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "contact_object",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "column",
+          "name": "empty_details",
+          "box": {
+            "width": "300 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Contacts",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_contact",
+              "icon": "Contact",
+              "text": "new contact",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "contact",
+                "target_frame": "page_home.frame_home",
+                "source_frame": "page_contact",
+                "message": "layout test."
+              }
+            },
+            {
+              "class_name": "chaptertitle",
+              "text": "Family",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "row",
+              "box": {
+                "width": "1.0 container",
+                "height": "50 pixels"
+              },
+              "children": [
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Contact",
+                  "text": "new contact",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "contact",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                }
+              ]
+            },
+            {
+              "class_name": "chaptertitle",
+              "text": "Promises",
+              "box": "chaptertitle_box"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

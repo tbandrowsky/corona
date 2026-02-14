@@ -26,6 +26,7 @@
               "name": "search_input",
               "json_field_name": "full_text",
               "padding": "8 pixels",
+              "placholder" : "Search text",
               "box": {
                 "width": "300 pixels",
                 "height": "60 pixels"
@@ -49,6 +50,7 @@
               "class_name": "command_button",
               "name": "search_all",
               "icon": "ViewAll",
+              "text": "everything",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -82,6 +84,7 @@
               "class_name": "command_button",
               "name": "search_contacts",
               "icon": "Contact",
+              "text": "contacts",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -115,6 +118,7 @@
               "class_name": "command_button",
               "name": "search_family",
               "icon": "Family",
+              "text": "family",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -148,6 +152,7 @@
               "class_name": "command_button",
               "name": "search_button",
               "icon": "HomeHouse",
+              "text": "property",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -177,100 +182,11 @@
                 }
               }
             },
-
-            {
-              "class_name": "chaptersubtitle",
-              "name": "search_label_text",
-              "box": {
-                "width": "80 pixels",
-                "height": "40 pixels"
-              },
-              "padding": "8 pixels",
-              "text": ""
-            },
-
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "Record",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "open_task",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "InProgressTask",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "in_progress_task",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
             {
               "class_name": "command_button",
               "name": "search_button",
               "icon": "CompletedTask",
+              "text": "tasks",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -283,124 +199,7 @@
                 "query": {
                   "from": [
                     {
-                      "class_name": "completed_task",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "OnHoldTask",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "on_hold_task",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "BlockedTask",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "blocked_task",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "CancelledTask",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "cancelled_task",
+                      "class_name": "task_base",
                       "name": "objects",
                       "filter": {
                         "full_text": "$this.full_text"
@@ -447,6 +246,13 @@
                 "committee": "card_committee",
                 "committee_transaction": "card_committee_transaction",
                 "committee_summary": "card_committee_summary"
+              },
+              "empty_text": "No items in list",
+              "empty_command": {
+                "class_name": "select_frame",
+                "target_frame": "page_home.frame_selected",
+                "source_frame": "page_empty",
+                "message": "layout test."
               },
               "select_command": {
                 "class_name": "list_select_object",

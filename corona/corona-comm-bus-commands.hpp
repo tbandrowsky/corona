@@ -215,6 +215,60 @@ namespace corona
 
 	};
 
+	class corona_select_frame_command : public corona_form_command
+	{
+	public:
+		std::string		target_frame;
+		std::string		source_frame;
+
+		corona_select_frame_command()
+		{
+			;
+		}
+
+		virtual std::string get_name()
+		{
+			return "select_frame";
+		}
+
+		virtual json execute(json context, comm_bus_app_interface* bus)
+		{
+			json_parser jp;
+			json obj = jp.create_object();
+
+			bus->select_frame(target_frame, source_frame, obj);
+
+			return obj;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "select_frame"sv);
+			_dest.put_member("target_frame", target_frame);
+			_dest.put_member("source_frame", source_frame);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "target_frame" })) {
+				system_monitoring_interface::active_mon->log_warning("select_frame_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			target_frame = _src["target_frame"].as_string();
+			source_frame = _src["source_frame"].as_string();
+		}
+	};
+
 	class  corona_register_user_command : public corona_form_command
 	{
 	public:
@@ -806,13 +860,14 @@ namespace corona
 	{
 	public:
 		std::string	create_class_name = "";
-		std::string target;
 		corona_client_response response;
 
+		std::shared_ptr<corona_select_frame_command> select_frame;
 
 		corona_create_object_command()
 		{
 			topic = "create_object";
+            select_frame = std::make_shared<corona_select_frame_command>();
 		}
 
 		virtual std::string get_name()
@@ -824,9 +879,9 @@ namespace corona
 		{
 			json_parser jp;
 
-			json obj = _bus->get_form_data(form_name);
+			json request = jp.create_object();
 
-			return obj;
+			return request;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
@@ -836,6 +891,9 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (select_frame) {
+				_bus->run_command(select_frame);
+			}
 			return response.data;
 		}
 
@@ -845,9 +903,10 @@ namespace corona
 
             corona_form_command::get_json(_dest);
 
-			_dest.put_member("class_name", "create_object_frame"sv);
+			_dest.put_member("class_name", "create_object"sv);
 			_dest.put_member("create_class_name", create_class_name);
-			_dest.put_member("target", target);
+			_dest.put_member("target_frame", select_frame->target_frame);
+			_dest.put_member("source_frame", select_frame->source_frame);
 		}
 
 		virtual void put_json(json& _src)
@@ -855,6 +914,7 @@ namespace corona
 			corona_form_command::put_json(_src);
 
 			std::vector<std::string> missing;
+
 			if (not _src.has_members(missing, { "create_class_name", "form_name" })) {
 				system_monitoring_interface::active_mon->log_warning("create_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
@@ -866,8 +926,8 @@ namespace corona
 			}
 
 			create_class_name = _src["create_class_name"].as_string();
-			target = _src["target"].as_string();
-
+			select_frame->target_frame = _src["target_frame"].as_string();
+			select_frame->source_frame = _src["source_frame"].as_string();
 		}
 
 	};
@@ -1560,59 +1620,6 @@ namespace corona
 
 	};
 
-	class corona_select_frame_command : public corona_form_command
-	{
-	public:
-		std::string		target_frame;
-		std::string		source_frame;
-
-		corona_select_frame_command()
-		{
-			;
-		}
-
-		virtual std::string get_name()
-		{
-			return "select_frame";
-		}
-
-		virtual json execute(json context, comm_bus_app_interface* bus)
-		{
-			json_parser jp;
-			json obj = jp.create_object();
-
-			bus->select_frame(target_frame, source_frame, obj);
-
-			return obj;
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			using namespace std::literals;
-
-			_dest.put_member("class_name", "select_frame"sv);
-			_dest.put_member("target_frame", target_frame);
-			_dest.put_member("source_frame", source_frame);
-
-		}
-
-		virtual void put_json(json& _src)
-		{
-			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "target_frame" })) {
-				system_monitoring_interface::active_mon->log_warning("select_frame_command missing:");
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-				return;
-			}
-
-			target_frame = _src["target_frame"].as_string();
-			source_frame = _src["source_frame"].as_string();
-		}
-	};
 
 	class corona_script_command: public corona_form_command
 	{

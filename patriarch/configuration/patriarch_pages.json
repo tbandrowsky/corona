@@ -159,11 +159,19 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_empty.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_layout_test.json"
     },
     {
       "class_name": "import",
       "file_name": "patriarch_status.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_database.json"
     },
     {
       "class_name": "import",

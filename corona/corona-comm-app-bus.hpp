@@ -1949,7 +1949,9 @@ namespace corona
 			if (select_command) {
 				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(select_command);
 			}
-		}
+		} else if (empty_command) {
+			comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(empty_command);
+        }
 	}
 
 

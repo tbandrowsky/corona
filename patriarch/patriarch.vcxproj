@@ -763,6 +763,7 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <None Include="configuration\patriarch_empty.json" />
     <None Include="configuration\patriarch_status.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

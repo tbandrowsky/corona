@@ -433,7 +433,11 @@ namespace corona
 		solidBrushRequest										scroll_knob_border;
 		solidBrushRequest										scroll_knob_selected;
 		solidBrushRequest										scroll_knob_border_selected;
+		solidBrushRequest										text_color;
 		rectangle                                               scroll_well_bounds;
+
+		textStyleRequest										text_style;
+		std::string												empty_text;
 
         bool													keep_position_on_set_data = true;
 
@@ -445,6 +449,7 @@ namespace corona
 		int selected_item_index;
 
 		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_bus_command> empty_command;
 
 		void update_selection();
 
@@ -588,10 +593,39 @@ namespace corona
 			selection_border.name += "_selection";
 		}
 
+		void set_text_color(std::string _color)
+		{
+			text_color.brushColor = toColor(_color.c_str());
+			text_color.name = typeid(*this).name();
+			text_color.name += "_text";
+		}
+
 		void init()
 		{
+
+			auto st = presentation_style_factory::get_current();
+			auto view_style = st->get_style()->EmptyListStyle;
+            text_style = view_style->text_style;
+
+            empty_text = "No items in list";
+
+			view_port = {};
+			selected_item_index = 0;
+			selected_page_index = 0;
+
+			set_selection_border("#c0c0c0");
+			set_focused_border("#708090");
+			set_scroll_knob("#101025");
+			set_scroll_knob_border("#303050");
+			set_scroll_knob_selected("#606080");
+			set_scroll_knob_border_selected("#505060");
+			set_scroll_well("#202030");
+			set_scroll_well_border("#303050");
+			set_text_color("#606080");
+
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control *_src)
 				{
+					_context->setTextStyle(&text_style);
 					_context->setSolidColorBrush(&selection_border);
 					_context->setSolidColorBrush(&focused_border);
 					_context->setSolidColorBrush(&scroll_knob);
@@ -600,9 +634,8 @@ namespace corona
 					_context->setSolidColorBrush(&scroll_knob_border_selected);
 					_context->setSolidColorBrush(&scroll_well);
 					_context->setSolidColorBrush(&scroll_well_border);
-
-
-				};
+					_context->setSolidColorBrush(&text_color);
+			};
 		}
 
 		void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -693,17 +726,20 @@ namespace corona
 			_context->setSolidColorBrush(&scroll_knob_border_selected);
 			_context->setSolidColorBrush(&scroll_well);
 			_context->setSolidColorBrush(&scroll_well_border);
+			_context->setSolidColorBrush(&text_color);
 
 			auto draw_bounds = inner_bounds;
-
-			draw_bounds.x = inner_bounds.x;
-			draw_bounds.y = inner_bounds.y;
 
 			point offset = { view_port.x, view_port.y };
 
 			auto& context = _context;
 
+			if (is_focused) {
+				_context->drawRectangle(&bounds, focused_border.name, 2, "");
+			}
+
 			if (rows.size() == 0) {
+				_context->drawText(empty_text, &inner_bounds, text_style.name, text_color.name, "");
 				return;
 			}
 
@@ -716,10 +752,6 @@ namespace corona
 
 			int idx = pages[selected_page_index].start_index;
 			int start_idx = idx;
-
-			if (is_focused) {
-				_context->drawRectangle(&bounds, focused_border.name, 2, "");
-			}
 
 			while (idx < rows.size())
 			{
@@ -784,33 +816,11 @@ namespace corona
 
 		items_view()
 		{
-			view_port = {};
-			selected_item_index = 0;
-			selected_page_index = 0;
-			set_selection_border("#c0c0c0");
-			set_focused_border("#708090");
-			set_scroll_knob("#101025");
-			set_scroll_knob_border("#303050");
-			set_scroll_knob_selected("#606080");
-			set_scroll_knob_border_selected("#505060");
-			set_scroll_well("#202030");
-			set_scroll_well_border("#303050");
 			init();
 		}
 
 		items_view(control_base* _parent, int _id) : draw_control(_parent, _id)
 		{
-			view_port = {};
-			selected_item_index = 0;
-			selected_page_index = 0;
-			set_selection_border("#c0c0c0");
-			set_focused_border("#708090");
-			set_scroll_knob("#101025");
-			set_scroll_knob_border("#303050");
-			set_scroll_knob_selected("#606080");
-			set_scroll_knob_border_selected("#505060");
-			set_scroll_well("#101020");
-			set_scroll_well_border("#303050");
 			init();
 		}
 
@@ -924,6 +934,7 @@ namespace corona
 		{
 			data = _data;
 			rows.clear();
+
 			create_controls();
 
 			int i;
@@ -960,7 +971,7 @@ namespace corona
 			}
 			check_scroll();
 			create_controls();
-
+	
 			return true;
 		}
 
@@ -1092,6 +1103,12 @@ namespace corona
 				_dest.put_member("select_command", jcommand);
 			}
 
+			if (empty_command) {
+				json jcommand = jp.create_object();
+				corona::get_json(jcommand, empty_command);
+				_dest.put_member("empty_command", jcommand);
+			}
+
 			corona::get_json("selection_border", _dest, selection_border);
 			corona::get_json("focused_border", _dest, focused_border);
 			corona::get_json("scroll_knob", _dest, scroll_knob);
@@ -1100,12 +1117,15 @@ namespace corona
 			corona::get_json("scroll_knob_border_selected", _dest, scroll_knob_border_selected);
 			corona::get_json("scroll_knob_well", _dest, scroll_knob);
 			corona::get_json("scroll_knob_well_border", _dest, scroll_knob_selected);
+			_dest.put_member("empty_text", empty_text);
 
 		}
 
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
+
+            empty_text = _src["empty_text"].as_string();
 
 			if (_src.has_member("sources")) {
 				sources = std::make_shared<corona_class_page_map>();
@@ -1116,6 +1136,12 @@ namespace corona
 			if (command.object()) {
 				// select command is loaded through the reference.
 				corona::put_json(select_command, command);
+			}
+
+			command = _src["empty_command"];
+			if (command.object()) {
+				// select command is loaded through the reference.
+				corona::put_json(empty_command, command);
 			}
 
 			if (_src.has_member("selection_border")) {

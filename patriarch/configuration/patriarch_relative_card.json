@@ -3,13 +3,21 @@
   "page_name": "card_dependent",
   "children": [
     {
+
       "class_name": "column",
       "name": "dependent_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
       },
+      "padding": "8px",
       "children": [
+        {
+          "class_name": "chaptersubtitle",
+          "name": "title",
+          "box": "edit_label_box_full",
+          "text": "Appointment"
+        },
         {
           "class_name": "paragraph",
           "name": "full_name",

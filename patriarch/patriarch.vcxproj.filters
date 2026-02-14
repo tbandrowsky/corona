@@ -126,5 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\patriarch_status.json" />
+    <None Include="configuration\patriarch_empty.json" />
   </ItemGroup>
 </Project>

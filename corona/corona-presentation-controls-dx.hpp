@@ -1227,26 +1227,29 @@ namespace corona
             foregroundDown.name = _base_name + "_fore_down";
 
             std::string face_step = "#79726eff";
-            std::string light_step = "#adb3b7ff";
+            std::string light_step = "#8b8b8bff";
             std::string dark_step = "#3b413cff";
             std::string darkest_step = "#353535ff";
 
             buttonFaceNormal.gradientStops = {
                 { toColor(dark_step), 0.0 },
                 { toColor(light_step), 0.8 },
-                { toColor(dark_step), 1.0 },
+                { toColor(dark_step), 0.94 },
+                { toColor(darkest_step), 1.0 },
             };
 
             buttonFaceOver.gradientStops = {
                 { toColor(dark_step), 0.0 },
                 { toColor(light_step), 0.8 },
-                { toColor(dark_step), 1.0 },
+                { toColor(dark_step), 0.94 },
+                { toColor(darkest_step), 1.0 },
             };
 
             buttonFaceDown.gradientStops = {
                 { toColor(dark_step), 0.0 },
                 { toColor(light_step), 0.9 },
-                { toColor(dark_step), 1.0 },
+                { toColor(dark_step), .92 },
+                { toColor(darkest_step), 1.0 },
             };
 
             buttonBackLight.gradientStops = {
@@ -1590,39 +1593,54 @@ namespace corona
     {
     public:
 
-        textStyleRequest	text_style;
+        textStyleRequest	text_style, icon_style;
         std::string         icon;
+        std::string         button_text;
         std::shared_ptr<corona_bus_command> click_command;
 
         command_button_control() : gradient_button_control() {
-            text_style.fontName = "Segoe MDL2 Assets";
-            text_style.name = "command_button_text_style";
-            text_style.fontSize = 25;
-            text_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
-            text_style.character_spacing = 0;
-            text_style.italics = false;
-            text_style.strike_through = false;
-            text_style.vertical_align = visual_alignment::align_center;
-            text_style.horizontal_align = visual_alignment::align_center;
-            text_style.bold = true;
-            text_style.underline = false;
-            text_style.line_spacing = 1.0f;
+            init_text_styles();
             icon = "Help";
+            button_text = "";
             init();
         }
 
         command_button_control(const command_button_control& _src) : gradient_button_control(_src) { 
+            init_text_styles();
+            icon_style = _src.icon_style;
             text_style = _src.text_style;
             icon = _src.icon;
             click_command = _src.click_command;
+            button_text = _src.button_text;
             init();
         }
 
         command_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "cm_button")
         {
-            text_style.fontName = "Segoe MDL2 Assets";
+            init_text_styles();
+            icon = "Help";
+            button_text = "";
+            init();
+        }
+
+        void init_text_styles()
+        {
+            icon_style.fontName = "Segoe MDL2 Assets";
+            icon_style.name = "command_button_icon_style";
+            icon_style.fontSize = 25;
+            icon_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
+            icon_style.character_spacing = 0;
+            icon_style.italics = false;
+            icon_style.strike_through = false;
+            icon_style.vertical_align = visual_alignment::align_center;
+            icon_style.horizontal_align = visual_alignment::align_center;
+            icon_style.bold = true;
+            icon_style.underline = false;
+            icon_style.line_spacing = 1.0f;
+
+            text_style.fontName = "Century Gothic";
             text_style.name = "command_button_text_style";
-            text_style.fontSize = 25;
+            text_style.fontSize = 12;
             text_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
             text_style.character_spacing = 0;
             text_style.italics = false;
@@ -1632,8 +1650,6 @@ namespace corona
             text_style.bold = true;
             text_style.underline = false;
             text_style.line_spacing = 1.0f;
-            icon = "Help";
-            init();
         }
 
         void init()
@@ -1645,6 +1661,7 @@ namespace corona
                 {
                     auto draw_bounds = inner_bounds;
 
+                    _context->setTextStyle(&this->icon_style);
                     _context->setTextStyle(&this->text_style);
                     std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
 
@@ -1656,9 +1673,11 @@ namespace corona
                         rectangle draw_bounds = *_bounds;
                         draw_bounds.y += 8;
                         if (icon_it != segoeMDL2Icons.end()) {
-                            _context->drawText(icon_it->second.c_str(), &draw_bounds, this->text_style.name, _foreground->name);
+                            _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
                         }
-                    };
+                        draw_bounds.y += 8;
+                        _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                       };
 
                     draw_button(_context, draw_shape);
                 };
@@ -1691,6 +1710,7 @@ namespace corona
             draw_control::get_json(_dest);
 
             _dest.put_member("icon", icon);
+            _dest.put_member("text", button_text);
 
             if (click_command) {
                 json jcommand = jp.create_object();
@@ -1704,6 +1724,7 @@ namespace corona
             draw_control::put_json(_src);
 
             icon = _src["icon"].as_string();
+            button_text = _src["text"].as_string();
 
             json jcommand = _src["on_click"];
             if (jcommand.empty()) {
