@@ -39,6 +39,11 @@
             },
             {
               "class_name": "chaptertitle",
+              "text": "",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "chaptertitle",
               "text": "Family",
               "box": "chaptertitle_box"
             },
@@ -46,12 +51,12 @@
               "class_name": "row",
               "box": {
                 "width": "1.0 container",
-                "height": "50 pixels"
+                "height": "55 pixels"
               },
               "children": [
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
+                  "name": "new_husband",
                   "icon": "Husband",
                   "text": "new husband",
                   "box": {
@@ -68,7 +73,7 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
+                  "name": "new_wife",
                   "icon": "Wife",
                   "text": "new wife",
                   "box": {
@@ -85,7 +90,7 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
+                  "name": "new_child",
                   "icon": "Child",
                   "text": "new child",
                   "box": {
@@ -99,27 +104,19 @@
                     "source_frame": "page_child",
                     "message": "layout test."
                   }
-                },
+                }
+              ]
+            },
+            {
+              "class_name": "row",
+              "box": {
+                "width": "1.0 container",
+                "height": "50 pixels"
+              },
+              "children": [
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
-                  "icon": "Ancestor",
-                  "text": "new ancestor",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "ancestor",
-                    "target_frame": "page_home.frame_home",
-                    "source_frame": "page_ancestor",
-                    "message": "layout test."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_contacts",
+                  "name": "new_relative",
                   "icon": "Relative",
                   "text": "new relative",
                   "box": {
@@ -136,24 +133,27 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
-                  "icon": "SpecialNeeds",
-                  "text": "new special needs",
+                  "name": "new_ancestor",
+                  "icon": "Ancestor",
+                  "text": "new ancestor",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "relative",
+                    "create_class_name": "ancestor",
                     "target_frame": "page_home.frame_home",
-                    "source_frame": "page_special",
+                    "source_frame": "page_ancestor",
                     "message": "layout test."
                   }
                 }
-
-
               ]
+            },
+            {
+              "class_name": "chaptertitle",
+              "text": "",
+              "box": "chaptertitle_box"
             },
             {
               "class_name": "chaptertitle",

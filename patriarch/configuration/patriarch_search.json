@@ -15,7 +15,7 @@
               "class_name": "chaptersubtitle",
               "name": "search_label_text",
               "box": {
-                "width": "80 pixels",
+                "width": "100 pixels",
                 "height": "40 pixels"
               },
               "padding": "8 pixels",
@@ -40,7 +40,7 @@
               "class_name": "chaptersubtitle",
               "name": "search_label_text",
               "box": {
-                "width": "80 pixels",
+                "width": "250 pixels",
                 "height": "40 pixels"
               },
               "padding": "8 pixels",
@@ -237,7 +237,7 @@
               "class_name": "items_view",
               "name": "result_table",
               "box": {
-                "width": "0.5 container",
+                "width": "640 pixels",
                 "height": "1.0 container"
               },
               "sources": {

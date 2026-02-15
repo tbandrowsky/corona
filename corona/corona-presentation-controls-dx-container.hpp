@@ -679,6 +679,9 @@ namespace corona
 		int find_page_index(point pt)
 		{
 			int index = -1;
+			if (rows.size() == 0) {
+				return index;
+			}
 			double scroll_scale = inner_bounds.h / rows.back().bounds.bottom();
 			for (auto& pg : pages) {
 				double start = inner_bounds.y + scroll_scale * pg.second.start_y;
