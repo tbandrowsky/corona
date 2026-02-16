@@ -131,14 +131,10 @@
     <None Include="configuration\patriarch_ancestor_card.json" />
     <None Include="configuration\patriarch_child.json" />
     <None Include="configuration\patriarch_child_card.json" />
-    <None Include="configuration\patriarch_godparent.json" />
-    <None Include="configuration\patriarch_godparent_card.json" />
     <None Include="configuration\patriarch_husband.json" />
     <None Include="configuration\patriarch_husband_card.json" />
     <None Include="configuration\patriarch_relative.json" />
     <None Include="configuration\patriarch_relative_card.json" />
-    <None Include="configuration\patriarch_special.json" />
-    <None Include="configuration\patriarch_special_card.json" />
     <None Include="configuration\patriarch_wife.json" />
     <None Include="configuration\patriarch_wife_card.json" />
   </ItemGroup>

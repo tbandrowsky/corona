@@ -361,31 +361,6 @@
       "fields": {
       }
     },
-
-    {
-      "class_name": "godparent",
-      "class_description": "Godparent",
-      "base_class_name": "dependent",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [],
-      "fields": {
-      }
-    },
-
-    {
-      "class_name": "special",
-      "class_description": "Special Needs or Elderly",
-      "base_class_name": "dependent",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [],
-      "fields": {
-      }
-    },
-
     {
       "class_name": "property",
       "class_description": "Home or rental property",

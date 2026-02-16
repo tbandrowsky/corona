@@ -234,7 +234,7 @@
           "box": { "width": "1.0 container", "height": "1.0 remaining" },
           "children": [
             {
-              "class_name": "items_view",
+              "class_name": "items_view",                       
               "name": "result_table",
               "box": {
                 "width": "640 pixels",
@@ -250,7 +250,7 @@
                 "wife": "card_wife",
 
                 "contact": "card_contact",
-                "property": "card_property",
+                "property": "card_property",      
                 "appointment": "card_appointment",
                 "promise": "card_promise"
               },
