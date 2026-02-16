@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "empty_details",
           "box": {
-            "width": "300 pixels",
+            "width": "375 pixels",
             "height": "1.0 container"
           },
           "children": [
@@ -31,7 +31,7 @@
               "icon": "Contact",
               "text": "new contact",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "50 pixels"
               },
               "on_click": {
@@ -58,6 +58,7 @@
                 "width": "1.0 container",
                 "height": "55 pixels"
               },
+              "item_spacing"
               "children": [
                 {
                   "class_name": "command_button",
@@ -65,7 +66,7 @@
                   "icon": "Husband",
                   "text": "new husband",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -82,7 +83,7 @@
                   "icon": "Wife",
                   "text": "new wife",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -99,7 +100,7 @@
                   "icon": "Child",
                   "text": "new child",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -125,7 +126,7 @@
                   "icon": "Relative",
                   "text": "new relative",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -142,7 +143,7 @@
                   "icon": "Ancestor",
                   "text": "new ancestor",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -169,7 +170,7 @@
               "class_name": "row",
               "box": {
                 "width": "1.0 container",
-                "height": "50 pixels"
+                "height": "55 pixels"
               },
               "children": [
                 {
@@ -178,12 +179,12 @@
                   "icon": "Appointment",
                   "text": "new appointment",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "relative",
+                    "create_class_name": "appointment",
                     "target_frame": "page_home.frame_home",
                     "source_frame": "page_relative",
                     "message": "layout test."
@@ -192,20 +193,38 @@
                 {
                   "class_name": "command_button",
                   "name": "new_ancestor",
-                  "icon": "Ancestor",
-                  "text": "new ancestor",
+                  "icon": "Job",
+                  "text": "new job",
                   "box": {
-                    "width": "100 pixels",
+                    "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "ancestor",
+                    "create_class_name": "job",
                     "target_frame": "page_home.frame_home",
-                    "source_frame": "page_ancestor",
-                    "message": "layout test."
+                    "source_frame": "page_job",
+                    "message": "new job."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_reminder",
+                  "icon": "Reminder",
+                  "text": "new reminder",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "reminder",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_reminder",
+                    "message": "new reminder."
                   }
                 }
+
               ]
             }
           ]

@@ -50,7 +50,7 @@
     },
     "edit_field_box": {
       "width": {
-        "amount": 200,
+        "amount": 500,
         "units": "pixels"
       },
       "height": {

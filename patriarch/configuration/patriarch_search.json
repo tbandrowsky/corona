@@ -26,7 +26,7 @@
               "name": "search_input",
               "json_field_name": "full_text",
               "padding": "8 pixels",
-              "placholder" : "Search text",
+              "placholder": "Search text",
               "box": {
                 "width": "300 pixels",
                 "height": "60 pixels"
@@ -52,7 +52,7 @@
               "icon": "ViewAll",
               "text": "everything",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -86,7 +86,7 @@
               "icon": "Contact",
               "text": "contacts",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -120,7 +120,7 @@
               "icon": "Family",
               "text": "family",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -154,7 +154,7 @@
               "icon": "HomeHouse",
               "text": "property",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -188,7 +188,7 @@
               "icon": "CompletedTask",
               "text": "tasks",
               "box": {
-                "width": "100 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -220,6 +220,32 @@
                     }
                   ]
                 }
+              }
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_label_text",
+              "box": {
+                "width": "16 pixels",
+                "height": "40 pixels"
+              },
+              "padding": "8 pixels",
+              "text": ""
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_button",
+              "icon": "Add",
+              "text": "new item",
+              "box": {
+                "width": "125 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "select_frame",
+                "target_frame": "page_home.frame_selected",
+                "source_frame": "page_empty",
+                "message": "new item."
               }
             }
           ]

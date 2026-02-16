@@ -1,0 +1,31 @@
+{
+  "class_name": "page",
+  "page_name": "card_job",
+  "children": [
+    {
+
+      "class_name": "column",
+      "name": "appointment_details",
+      "box": {
+        "width": "1.0 container",
+        "height": "60 pixels"
+      },
+      "padding" :  "8px",
+      "children": [
+        {
+          "class_name": "chaptersubtitle",
+          "name": "title",
+          "box": "edit_label_box_full",
+          "text": "Job"
+        },
+        {
+          "class_name": "paragraph",
+          "name": "description",
+          "box": "edit_label_box_full",
+          "json_field_name": "description",
+          "text": "{description}"
+        }
+      ]
+    }
+  ]
+}

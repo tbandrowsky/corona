@@ -49,14 +49,56 @@
       "fields": {
         "description": {
           "field_type": "string",
-          "label": "Promise"
+          "label": "Description"
         },
         "activities": "[activity]"
       }
     },
     {
-      "class_name": "activity",
-      "class_description": "Something you did",
+      "class_name": "open_status",
+      "base_class_name": "status_base",
+      "class_description": "Open Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "in_progress_status",
+      "base_class_name": "status_base",
+      "class_description": "In Progress Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "completed_status",
+      "base_class_name": "status_base",
+      "class_description": "Completed Tasks",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "on_hold_status",
+      "base_class_name": "status_base",
+      "class_description": "Task On Hold",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "blocked_status",
+      "base_class_name": "status_base",
+      "class_description": "Task Blocked",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "cancelled_status",
+      "base_class_name": "status_base",
+      "class_description": "Task Cancelled",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "job",
+      "class_description": "A job to do",
       "base_class_name": "task_base",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
@@ -64,52 +106,7 @@
       "full_text": [ "text" ],
       "parents": [ "task_base" ],
       "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        }
-      }
-    },
-    {
-      "class_name": "open_task",
-      "base_class_name": "status_base",
-      "class_description": "Open Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "in_progress_task",
-      "base_class_name": "status_base",
-      "class_description": "In Progress Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "completed_task",
-      "base_class_name": "status_base",
-      "class_description": "Completed Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "on_hold_task",
-      "base_class_name": "status_base",
-      "class_description": "Task On Hold",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "blocked_task",
-      "base_class_name": "status_base",
-      "class_description": "Task Blocked",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "cancelled_task",
-      "base_class_name": "status_base",
-      "class_description": "Task Cancelled",
-      "fields": {
+
       }
     },
     {
@@ -145,10 +142,7 @@
       "class_version": "1.0",
       "parents": [ "contact", "responsibility" ],
       "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Promise"
-        }
+
       }
     },
     {

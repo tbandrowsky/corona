@@ -714,6 +714,10 @@ namespace corona
 							int hl = 0;
 							const wchar_t* c = s;
 							while (*c) {
+                                if (*c == L' ') {
+									c++;
+									continue;
+								}
 								std::wstring temp_word = L"";
 								hl = 0;
 								while (*c && *c != L' ') {

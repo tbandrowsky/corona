@@ -718,6 +718,7 @@ namespace corona
 			_context->setSolidColorBrush(&scroll_knob_border_selected);
 			_context->setSolidColorBrush(&scroll_well);
 			_context->setSolidColorBrush(&scroll_well_border);
+            _context->setViewStyle(text_style);
 
 			auto draw_bounds = inner_bounds;
 
@@ -730,7 +731,12 @@ namespace corona
 			}
 
 			if (rows.size() == 0) {
-				_context->drawText(empty_text, &inner_bounds, text_style.text_style.name, text_style.shape_fill_brush.get_name(), "");
+				auto text_bounds = inner_bounds;
+				text_bounds.y += 8;
+				text_bounds.x += 8; 
+				text_bounds.w -= 8;
+				text_bounds.h -= 8;
+				_context->drawText(empty_text, &text_bounds, text_style.text_style.name, text_style.shape_fill_brush.get_name(), "");
 				return;
 			}
 

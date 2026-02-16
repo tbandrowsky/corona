@@ -1,0 +1,35 @@
+{
+  "class_name": "page",
+  "page_name": "page_job",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "contact_object",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "column",
+          "name": "job_details",
+          "box": {
+            "width": "300 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Job/Todo",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "json_field_name": "description",
+              "text": "{description}",
+              "box": "edit_field_box"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+
+}

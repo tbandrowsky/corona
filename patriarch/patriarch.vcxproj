@@ -770,6 +770,8 @@
     <None Include="configuration\patriarch_empty.json" />
     <None Include="configuration\patriarch_husband.json" />
     <None Include="configuration\patriarch_husband_card.json" />
+    <None Include="configuration\patriarch_job.json" />
+    <None Include="configuration\patriarch_job_card.json" />
     <None Include="configuration\patriarch_relative.json" />
     <None Include="configuration\patriarch_relative_card.json" />
     <None Include="configuration\patriarch_status.json" />

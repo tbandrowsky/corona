@@ -39,7 +39,7 @@
                 "query": {
                   "from": [
                     {
-                      "class_name": "open_task",
+                      "class_name": "open_status",
                       "name": "objects"
                     }
                   ],
@@ -60,7 +60,8 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
@@ -94,7 +95,7 @@
                 "query": {
                   "from": [
                     {
-                      "class_name": "in_progress_task",
+                      "class_name": "in_progress_status",
                       "name": "objects"
                     }
                   ],
@@ -115,7 +116,8 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
@@ -149,7 +151,7 @@
                 "query": {
                   "from": [
                     {
-                      "class_name": "completed_task",
+                      "class_name": "completed_status",
                       "name": "objects"
                     }
                   ],
@@ -170,7 +172,8 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
@@ -204,7 +207,7 @@
                 "query": {
                   "from": [
                     {
-                      "class_name": "completed_task",
+                      "class_name": "cancelled_status",
                       "name": "objects"
                     }
                   ],
@@ -225,7 +228,8 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
@@ -280,7 +284,8 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
@@ -335,15 +340,12 @@
               },
               "sources": {
                 "appointment": "card_appointment",
-                "promise": "card_promise"
+                "promise": "card_promise",
+                "job": "card_job"
               }
             }
           ]
         }
-
-
-
-
       ]
     }
   ]

@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "contact_details",
           "box": {
-            "width": "300 pixels",
+            "width": "600 pixels",
             "height": "1.0 container"
           },
           "children": [
@@ -41,7 +41,7 @@
             {
               "class_name": "edit_field",
               "text": "Street 1:",
-              "box": "edit_label_box",
+              "box": "edit_field_box",
               "json_field_name": "street1"
             },
             {
@@ -53,7 +53,7 @@
             {
               "class_name": "edit_field",
               "text": "City:",
-              "box": "edit_label_box",
+              "box": "edit_field_box",
               "json_field_name": "city"
             },
             {

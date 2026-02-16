@@ -1071,7 +1071,9 @@ namespace corona
 			json_parser jp;
 			json request = jp.create_object();
 			request.put_member(token_field, token);
-			request.put_member(class_name_field, class_name);
+			json data = jp.create_object();
+			data.put_member(class_name_field, class_name);
+			request.put_member(data_field, data);
 			json j = local_db->create_object(request);
 			log_command_stop("create_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			if (j.error())
