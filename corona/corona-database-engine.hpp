@@ -7973,6 +7973,7 @@ private:
 
 						if (!run_on_change and existing_dataset.object() and existing_dataset.has_member("completed")) {
 							system_monitoring_interface::active_mon->log_job_section_stop("DataSet", dataset_name + " Already Done", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+							new_dataset.erase_member("objects");
 							continue;
 						}
 
@@ -8243,6 +8244,7 @@ private:
 													new_dataset.put_member("completed", completed_date);
 												}
 												json dataset_request = create_system_request(new_dataset);
+												new_dataset.erase_member("objects");
 												json result = put_object(dataset_request);
 												if (result[success_field].as_bool()) {
 													std::string msg = std::format("imported from {0}", filename);
@@ -8315,6 +8317,7 @@ private:
 								date_time completed_date = date_time::now();
 								new_dataset.put_member("completed", completed_date);
 							}
+                            new_dataset.erase_member("objects");
 							json put_script_request = create_system_request(new_dataset);
 							json save_script_result = put_object(put_script_request);
 							if (not save_script_result[success_field].as_bool()) {
@@ -8640,7 +8643,6 @@ private:
 				}
 
 				apply_user_team(existing_user);
-
 				json create_object_request = create_system_request(existing_user, default_user);
 				json user_result = put_object(create_object_request);
 				// we have to confirm if this guy did his job.
@@ -10243,6 +10245,9 @@ grant_type=authorization_code
 						auto cd = read_lock_class(class_pair.first);
 						if (cd) {
 							auto perms = get_class_permission(user_name, class_pair.first);
+                            if (class_pair.first.starts_with("sys_")) {
+								system_monitoring_interface::active_mon->log_information("put " + class_pair.first, __FILE__, __LINE__);
+							}
 							json put_results = cd->put_objects(this, child_objects, class_pair.second, perms, errors, success_objects, failed_objects);
                             grouped_by_class_name.put_member(class_pair.first, put_results);
 						}

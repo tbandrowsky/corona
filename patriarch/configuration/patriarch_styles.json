@@ -338,7 +338,7 @@
         "text_style": {
           "font_name": "Century Gothic,Arial",
           "font_size": 25,
-          "vertical_alignment": "center"
+          "vertical_alignment": "top"
         },
         "shape_border_thickness": 0,
         "shape_fill_brush": {

@@ -433,10 +433,9 @@ namespace corona
 		solidBrushRequest										scroll_knob_border;
 		solidBrushRequest										scroll_knob_selected;
 		solidBrushRequest										scroll_knob_border_selected;
-		solidBrushRequest										text_color;
 		rectangle                                               scroll_well_bounds;
 
-		textStyleRequest										text_style;
+		viewStyleRequest										text_style;
 		std::string												empty_text;
 
         bool													keep_position_on_set_data = true;
@@ -593,19 +592,12 @@ namespace corona
 			selection_border.name += "_selection";
 		}
 
-		void set_text_color(std::string _color)
-		{
-			text_color.brushColor = toColor(_color.c_str());
-			text_color.name = typeid(*this).name();
-			text_color.name += "_text";
-		}
-
 		void init()
 		{
 
 			auto st = presentation_style_factory::get_current();
 			auto view_style = st->get_style()->EmptyListStyle;
-            text_style = view_style->text_style;
+            text_style = *view_style;
 
             empty_text = "No items in list";
 
@@ -621,11 +613,9 @@ namespace corona
 			set_scroll_knob_border_selected("#505060");
 			set_scroll_well("#202030");
 			set_scroll_well_border("#303050");
-			set_text_color("#606080");
 
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control *_src)
 				{
-					_context->setTextStyle(&text_style);
 					_context->setSolidColorBrush(&selection_border);
 					_context->setSolidColorBrush(&focused_border);
 					_context->setSolidColorBrush(&scroll_knob);
@@ -634,7 +624,6 @@ namespace corona
 					_context->setSolidColorBrush(&scroll_knob_border_selected);
 					_context->setSolidColorBrush(&scroll_well);
 					_context->setSolidColorBrush(&scroll_well_border);
-					_context->setSolidColorBrush(&text_color);
 			};
 		}
 
@@ -729,7 +718,6 @@ namespace corona
 			_context->setSolidColorBrush(&scroll_knob_border_selected);
 			_context->setSolidColorBrush(&scroll_well);
 			_context->setSolidColorBrush(&scroll_well_border);
-			_context->setSolidColorBrush(&text_color);
 
 			auto draw_bounds = inner_bounds;
 
@@ -742,7 +730,7 @@ namespace corona
 			}
 
 			if (rows.size() == 0) {
-				_context->drawText(empty_text, &inner_bounds, text_style.name, text_color.name, "");
+				_context->drawText(empty_text, &inner_bounds, text_style.text_style.name, text_style.shape_fill_brush.get_name(), "");
 				return;
 			}
 
