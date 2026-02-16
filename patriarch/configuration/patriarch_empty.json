@@ -29,7 +29,7 @@
               "class_name": "command_button",
               "name": "new_contact",
               "icon": "Contact",
-              "text": "new contact",
+              "text": "contact",
               "box": {
                 "width": "125 pixels",
                 "height": "50 pixels"
@@ -37,7 +37,7 @@
               "on_click": {
                 "class_name": "create_object",
                 "create_class_name": "contact",
-                "target_frame": "page_home.frame_home",
+                "target_frame": "page_home.frame_selected",
                 "source_frame": "page_contact",
                 "message": "layout test."
               }
@@ -58,13 +58,12 @@
                 "width": "1.0 container",
                 "height": "55 pixels"
               },
-              "item_spacing"
               "children": [
                 {
                   "class_name": "command_button",
                   "name": "new_husband",
-                  "icon": "Husband",
-                  "text": "new husband",
+                  "icon": "Family",
+                  "text": "husband",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -72,7 +71,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "husband",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_husband",
                     "message": "layout test."
                   }
@@ -80,8 +79,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_wife",
-                  "icon": "Wife",
-                  "text": "new wife",
+                  "icon": "Family",
+                  "text": "wife",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -89,7 +88,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "wife",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_wife",
                     "message": "layout test."
                   }
@@ -97,8 +96,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_child",
-                  "icon": "Child",
-                  "text": "new child",
+                  "icon": "Family",
+                  "text": "child",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -106,7 +105,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "child",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_child",
                     "message": "layout test."
                   }
@@ -123,8 +122,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_relative",
-                  "icon": "Relative",
-                  "text": "new relative",
+                  "icon": "Family",
+                  "text": "relative",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -132,7 +131,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "relative",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_relative",
                     "message": "layout test."
                   }
@@ -140,8 +139,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_ancestor",
-                  "icon": "Ancestor",
-                  "text": "new ancestor",
+                  "icon": "Family",
+                  "text": "ancestor",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -149,7 +148,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "ancestor",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_ancestor",
                     "message": "layout test."
                   }
@@ -163,7 +162,43 @@
             },
             {
               "class_name": "chaptersubtitle",
-              "text": "Promise",
+              "text": "Property",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "row",
+              "box": {
+                "width": "1.0 container",
+                "height": "55 pixels"
+              },
+              "children": [
+                {
+                  "class_name": "command_button",
+                  "name": "new_property",
+                  "icon": "HomeHouse",
+                  "text": "home",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "appointment",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property",
+                    "message": "layout test."
+                  }
+                }
+              ]
+            },
+            {
+              "class_name": "chaptertitle",
+              "text": "",
+              "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "text": "Jobs and Todos",
               "box": "chaptertitle_box"
             },
             {
@@ -176,8 +211,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_appointment",
-                  "icon": "Appointment",
-                  "text": "new appointment",
+                  "icon": "CompletedTask",
+                  "text": "appointment",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -185,7 +220,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "appointment",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_relative",
                     "message": "layout test."
                   }
@@ -193,8 +228,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_ancestor",
-                  "icon": "Job",
-                  "text": "new job",
+                  "icon": "CompletedTask",
+                  "text": "job",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -202,7 +237,7 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "job",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_job",
                     "message": "new job."
                   }
@@ -210,8 +245,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_reminder",
-                  "icon": "Reminder",
-                  "text": "new reminder",
+                  "icon": "CompletedTask",
+                  "text": "reminder",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -219,9 +254,9 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "reminder",
-                    "target_frame": "page_home.frame_home",
+                    "target_frame": "page_home.frame_selected",
                     "source_frame": "page_reminder",
-                    "message": "new reminder."
+                    "message": "reminder."
                   }
                 }
 

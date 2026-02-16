@@ -187,19 +187,43 @@
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appointment.json"
+      "file_name": "patriarch_husband.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appointment_card.json"
+      "file_name": "patriarch_husband_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_dependent.json"
+      "file_name": "patriarch_wife.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_dependent_card.json"
+      "file_name": "patriarch_wife_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_child.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_child_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_ancestor.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_ancestor_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_relative.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_relative_card.json"
     },
     {
       "class_name": "import",
