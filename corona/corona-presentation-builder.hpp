@@ -2818,25 +2818,21 @@ namespace corona
 
 	}
 
-	json corona_set_property_command::execute(json context, comm_bus_app_interface* bus)
+	json corona_set_property_command::execute(comm_bus_app_interface* bus)
 	{
 		json obj;
 		control_base* cb = {};
-		std::string property_value	= context["property_value"].as_string();
 		if (not control_name.empty()) {
 			cb = bus->find_control(control_name);
-			if (property_value.empty()) {
-				property_value = value;
-			}
 			if (this->property_name == "text") {
 				text_control_base* tcb = dynamic_cast<text_control_base*>(cb);
 				if (tcb != nullptr) {
-					tcb->set_text(property_value);
+					tcb->set_text(value);
 				}
 				else {
 					text_display_control* tdc = dynamic_cast<text_display_control*>(cb);
 					if (tdc != nullptr) {
-						tdc->set_text(property_value);
+						tdc->set_text(value);
 					}
 				}
 			}

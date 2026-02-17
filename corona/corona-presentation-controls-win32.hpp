@@ -2030,6 +2030,9 @@ namespace corona
 		if (IsWindow(window)) {
 			if (auto phost = window_host.lock()) {
 				phost->clearComboItems(id);
+                if (!choices.items.array()) {
+					return;
+				}
 				for (int i = 0; i < choices.items.size(); i++)
 				{
 					auto c = choices.items.get_element(i);

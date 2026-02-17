@@ -393,7 +393,8 @@ namespace corona
 			;
 		}
 
-		virtual json execute(json context, comm_bus_app_interface* _bus) = 0;
+		virtual json execute(comm_bus_app_interface* _bus) = 0;
+		virtual json execute_sync(comm_bus_app_interface* _bus) = 0;
 
 		virtual void get_json(json& _dest)
 		{

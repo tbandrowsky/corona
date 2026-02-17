@@ -110,7 +110,7 @@ namespace corona
 		virtual void stop_message(comm_bus_app_interface* _bus);
 		virtual corona_client_response& stop_message(corona_client_response _src, comm_bus_app_interface* _bus);
 
-		virtual json execute(json context, comm_bus_app_interface* bus)
+		virtual json execute(comm_bus_app_interface* bus)
 		{
 
 			start_message(bus);
@@ -122,7 +122,7 @@ namespace corona
 
 			if (obj.object()) {
                 if (on_start) {
-                    on_start->execute(context, bus);
+                    on_start->execute(bus);
                 }	
 				auto request = create_request(bus);
 
@@ -141,6 +141,37 @@ namespace corona
 				}
 			}
 			else {
+				log_warning("Could not find form '" + form_name + "'");
+			}
+			return obj;
+		}
+
+		virtual json execute_sync(comm_bus_app_interface* bus)
+		{
+			start_message(bus);
+			bus->in_progress++;
+			bus->command_start = time(nullptr);
+			bus->command_current = bus->command_start;
+			bus->elapsed_seconds = 0;
+			json obj = bus->get_form_data(form_name);
+
+			if (obj.object()) {
+				if (on_start) {
+					on_start->execute(bus);
+				}
+				auto request = create_request(bus);
+
+				if (request.object()) {
+					corona_client_response response = execute_request(request, bus);
+					bus->command_current = time(nullptr);
+					bus->elapsed_seconds = bus->command_current - bus->command_start;
+					handle_response(response, bus);
+					stop_message(response, bus);
+					bus->in_progress--;
+				}
+			}
+			else 
+			{
 				log_warning("Could not find form '" + form_name + "'");
 			}
 			return obj;
@@ -220,6 +251,7 @@ namespace corona
 	public:
 		std::string		target_frame;
 		std::string		source_frame;
+        json            form_data;
 
 		corona_select_frame_command()
 		{
@@ -231,19 +263,37 @@ namespace corona
 			return "select_frame";
 		}
 
-		virtual json execute(json context, comm_bus_app_interface* bus)
+		virtual json create_request(comm_bus_app_interface* _bus) 
 		{
 			json_parser jp;
-			json obj = jp.create_object();
+			json result = jp.create_object();
 
-			bus->select_frame(target_frame, source_frame, obj);
+			if (form_data.object() || form_data.array()) {
+				result = form_data;
+			}
+			else {
+				control_base* cb = _bus->find_control(form_name);
+				if (cb != nullptr) {
+					result = cb->get_data();
+				}
+			}
 
-			return obj;
+			return result;
+		}
+
+		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		{
+			corona_client_response response = {};
+			response.success = true;
+			bus->select_frame(target_frame, source_frame, _context);
+			return response;
 		}
 
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
+
+            corona_form_command::get_json(_dest);
 
 			_dest.put_member("class_name", "select_frame"sv);
 			_dest.put_member("target_frame", target_frame);
@@ -253,6 +303,9 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
+
+			corona_form_command::put_json(_src);
+
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "target_frame" })) {
 				system_monitoring_interface::active_mon->log_warning("select_frame_command missing:");
@@ -875,18 +928,10 @@ namespace corona
 			return "create_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
-		{
-			json_parser jp;
-
-			json request = jp.create_object();
-
-			return request;
-		}
-
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->create_object(instance, create_class_name);
+            select_frame->form_data = response.data;
 			return response;
 		}
 
@@ -1637,11 +1682,11 @@ namespace corona
 			return "script";
 		}
 
-		virtual json execute(json context,  comm_bus_app_interface* bus)
+		virtual json execute(comm_bus_app_interface* bus)
 		{
 			json obj;
 			for (auto comm : commands) {
-				obj = comm->execute(context, bus);
+				obj = comm->execute(bus);
 			}
 			return obj;
 		}
@@ -1720,7 +1765,7 @@ namespace corona
 			return "set_property";
 		}
 
-		virtual json execute(json context,  comm_bus_app_interface* bus);
+		virtual json execute(comm_bus_app_interface* bus);
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
@@ -1882,15 +1927,15 @@ namespace corona
 
 		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
 		dest->value = topic;
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
 		dest->value = "start";
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
 		dest->value = "";
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 	}
 
 	void corona_form_command::stop_message(comm_bus_app_interface* _bus)
@@ -1903,15 +1948,15 @@ namespace corona
 
 		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
 		dest->value = topic;
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
 		dest->value = "stop";
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
 		dest->value = "";
-		dest->execute(obj, _bus);
+		dest->execute(_bus);
 	}
 
 	corona_client_response& corona_form_command::stop_message(corona_client_response _src, comm_bus_app_interface* _bus)
@@ -1924,15 +1969,15 @@ namespace corona
 
 		dest->control_name = success_message_field.empty() ? "call_success_message" : status_message_field;
 		dest->value = topic;
-		dest->execute(_src.data, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = status_message_field.empty() ? "call_status_message" : status_message_field;
 		dest->value = "complete: " +	_src.message;
-		dest->execute(_src.data, _bus);
+		dest->execute(_bus);
 
 		dest->control_name = execution_time_field.empty() ? "call_execution_time" : status_message_field;
 		dest->value = std::format("{0:.2f} ms", _src.execution_time * 1000.0);
-		dest->execute(_src.data, _bus);
+		dest->execute(_bus);
 
 		std::string table_field = error_table_field.empty() ? "call_error_table" : error_table_field;
 

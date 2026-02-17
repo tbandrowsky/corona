@@ -130,14 +130,6 @@
           },
           "children": [
             {
-              "class_name": "paragraph",
-              "text" : "Details Test",
-              "box": {
-                "width": "1.0 container",
-                "height": "30 pixels"
-              }
-            },
-            {
               "class_name": "frame",
               "name": "contact_details_container",
               "box": {

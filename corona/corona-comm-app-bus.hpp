@@ -1726,7 +1726,7 @@ namespace corona
 						std::shared_ptr<corona_bus_command> command;
 						corona::put_json(command, cmd);
 						if (command) {
-							run_system_command(command);
+							command->execute_sync(this);
 						}
 					}
 				}
@@ -1896,24 +1896,14 @@ namespace corona
 			app_ui->runDialog(hInstance, app->application_name.c_str(), application_icon_id, fullScreen, presentation_layer);
 		}
 
-		std::queue<std::shared_ptr<corona_bus_command>> command_queue;
-        lockable command_queue_lock;
-
-        virtual void push_command_queue(std::shared_ptr<corona_bus_command> command)
-		{
-			scope_lock lock(command_queue_lock);
-			command_queue.push(command);
-		}
-
 		virtual void run_system_command(std::shared_ptr<corona_bus_command> _command)
 		{
 			date_time start_time = date_time::now();
 			timer tx;
 
 			if (_command) {
-				push_command_queue(_command);
+				run_command(_command);
 			}
-			flush_command_queue();
 		}
 
 		virtual void run_command(std::shared_ptr<corona_bus_command> _command)
@@ -1921,35 +1911,15 @@ namespace corona
 			date_time start_time = date_time::now();
 			timer tx;
 
-			if (_command) {
-				push_command_queue(_command);
-			}
-			flush_command_queue();
-		}
+            std::weak_ptr<corona_bus_command> weak_command = _command;
 
-		virtual void flush_command_queue()
-		{
-			date_time start_time = date_time::now();
-			timer tx;
-			scope_lock lock(command_queue_lock);
-
-			log_function_start("flush_queue", "", start_time, __FILE__, __LINE__);
-			this->run_ui([this, &tx]() {
-				scope_lock lock(command_queue_lock);
-				while (!command_queue.empty()) {
-					std::shared_ptr<corona_bus_command> command = command_queue.front();
-					command_queue.pop();
-					if (command) {
-						json_parser jp2;
-						json context = jp2.create_object();
-						timer tx;
-						if (command) {
-							auto tranny = command->execute(context, this);
-						}
+			run_ui([this, weak_command, &tx]() {
+				if (auto _command = weak_command.lock()) {
+					timer tx;
+					if (_command) {
+						auto tranny = _command->execute(this);
 					}
-				}
-				log_function_stop("flush_queue", "", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				});
+				}});
 		}
 
 		virtual void update_focus_list()

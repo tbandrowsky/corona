@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "system_details",
           "box": {
-            "width": ".5 container",
+            "width": "1.0 container",
             "height": "1.0 container"
           },
           "children": [
