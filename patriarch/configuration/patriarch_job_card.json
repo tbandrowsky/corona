@@ -5,7 +5,7 @@
     {
 
       "class_name": "column",
-      "name": "appointment_details",
+      "name": "job_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"

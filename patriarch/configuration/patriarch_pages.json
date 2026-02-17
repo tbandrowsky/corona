@@ -54,7 +54,7 @@
         "units": "pixels"
       },
       "height": {
-        "amount": 25,
+        "amount": 35,
         "units": "pixels"
       }
     },
@@ -64,7 +64,7 @@
         "units": "container"
       },
       "height": {
-        "amount": 25.0,
+        "amount": 35.0,
         "units": "pixels"
       }
     },
@@ -128,6 +128,16 @@
         "units": "pixels"
       }
     },
+    "spacer_row_box": {
+      "width": {
+        "amount": 1,
+        "units": "container"
+      },
+      "height": {
+        "amount": "10",
+        "units": "pixels"
+      }
+    },
     "button_margin": {
       "amount": 20,
       "units": "pixels"
@@ -156,6 +166,10 @@
     {
       "class_name": "import",
       "file_name": "patriarch_home.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_object_details.json"
     },
     {
       "class_name": "import",

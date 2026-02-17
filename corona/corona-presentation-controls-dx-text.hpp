@@ -244,6 +244,27 @@ namespace corona
 		virtual ~paragraph_control();
 	};
 
+	class edit_label_control : public text_display_control
+	{
+	public:
+		edit_label_control();
+		edit_label_control(control_base* _parent, int _id);
+		edit_label_control(const edit_label_control& _src) = default;
+
+		virtual void set_default_styles();
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<edit_label_control>(*this);
+			return tv;
+		}
+
+		virtual ~edit_label_control()
+		{
+
+		}
+	};
+
 	class code_control : public text_display_control
 	{
 	public:
@@ -594,6 +615,25 @@ namespace corona
 	chaptersubtitle_control::~chaptersubtitle_control()
 	{
 	}
+
+
+	void edit_label_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		view_style = st->get_style()->EditLabelStyle;
+	}
+
+	edit_label_control::edit_label_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
+	{
+		set_default_styles();
+	}
+
+	edit_label_control::edit_label_control()
+	{
+		set_default_styles();
+	}
+
 
 	void paragraph_control::set_default_styles()
 	{

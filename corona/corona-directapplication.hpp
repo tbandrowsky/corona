@@ -851,9 +851,10 @@ namespace corona
 					if (auto pcontroller = dynamic_cast<presentation*>(currentController.get()))
 					{
 						if (draw_control* pdraw = pcontroller->get_parent_for_control_by_id<draw_control>(id)) {
-
-							auto cv = pdraw->view_style->box_fill_brush.getColor();
-							SetBkColor(hdcStatic, RGB(int(cv.r * 255), int(255 * cv.g), int(255 * cv.b)));
+							if (pdraw->view_style) {
+								auto cv = pdraw->view_style->box_fill_brush.getColor();
+								SetBkColor(hdcStatic, RGB(int(cv.r * 255), int(255 * cv.g), int(255 * cv.b)));
+							}
 						}
 					}
 				}

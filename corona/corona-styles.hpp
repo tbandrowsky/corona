@@ -77,6 +77,7 @@ namespace corona
 		std::shared_ptr<viewStyleRequest> ParagraphStyle;
 		std::shared_ptr<viewStyleRequest> FormStyle;
 		std::shared_ptr<viewStyleRequest> LabelStyle;
+		std::shared_ptr<viewStyleRequest> EditLabelStyle;
 		std::shared_ptr<viewStyleRequest> PlaceholderStyle;
 		std::shared_ptr<viewStyleRequest> ErrorStyle;
 		std::shared_ptr<viewStyleRequest> SuccessStyle;
@@ -96,6 +97,7 @@ namespace corona
 		json chapter_title_style = jp.create_object();
 		json chapter_subtitle_style = jp.create_object();
 		json paragraph_style = jp.create_object();
+        json edit_label_style = jp.create_object();
 		json form_style = jp.create_object();
 		json label_style = jp.create_object();
 		json placeholder_style = jp.create_object();
@@ -138,6 +140,10 @@ namespace corona
 			get_json(paragraph_style, *_src.ParagraphStyle.get());
 			_dest.put_member("paragraph_style", paragraph_style);
 		}
+		if (_src.EditLabelStyle) {
+			get_json(edit_label_style, *_src.EditLabelStyle.get());
+			_dest.put_member("edit_label_style", edit_label_style);
+		}
 		if (_src.FormStyle) {
 			get_json(form_style, *_src.FormStyle.get());
 			_dest.put_member("form_style", form_style);
@@ -170,7 +176,7 @@ namespace corona
 		if (not _src.has_members(missing, { "colors", "page_style", "caption_style",
 			"title_style", "subtitle_style", 
 			"chapter_title_style", "chapter_subtitle_style", 
-			"paragraph_style", "form_style", "label_style",
+            "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
 			"error_style", "success_style", "code_style", "empty_list_style" })) {
 			system_monitoring_interface::active_mon->log_warning("style sheet is missing");
 			std::for_each(missing.begin(), missing.end(), [](const std::string& s) { 
@@ -245,6 +251,15 @@ namespace corona
 			}
 			put_json(_dest.ParagraphStyle, paragraph_style);
 			_dest.ParagraphStyle->set_default_name("paragraph_style");
+		}
+
+		json edit_label_style = _src["edit_label_style"];
+		if (edit_label_style.object()) {
+			if (not _dest.EditLabelStyle) {
+				_dest.EditLabelStyle = std::make_shared<viewStyleRequest>();
+			}
+			put_json(_dest.EditLabelStyle, edit_label_style);
+			_dest.EditLabelStyle->set_default_name("edit_label_style");
 		}
 
 		json form_style = _src["form_style"];

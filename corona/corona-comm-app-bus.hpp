@@ -452,8 +452,6 @@ namespace corona
 		{
 			directory_checker::check_options options;
 
-			// poll is called by a windows timer so this hack will work.
-
 			if (in_progress) {
 				control_base* timer_control = find_control("call_timer_seconds");
 
@@ -1122,7 +1120,7 @@ namespace corona
 			response = j;
 			log_command_stop("put_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
-		}
+		} 
 
 
 		virtual corona_client_response  local_get_object(json object_information)
@@ -1808,7 +1806,7 @@ namespace corona
 			date_time dt = date_time::now();
 			log_command_start("select_page", _page, dt);
 
-			run_ui([this, _page, _target_frame, _frame_contents_page, _form_to_load, _obj]() ->void {
+			runnable ui_work = [this, _page, _dest, _target_frame, _frame_contents_page, _form_to_load, _obj]() ->void {
 				timer tx;
 				if (not presentation_layer->is_current_page(_page)) {
 					presentation_layer->select_page(_page);
@@ -1844,8 +1842,16 @@ namespace corona
 						presentation_layer->onResize();
 					}
 				}
-				log_command_stop("select_page", _page, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-			});
+				log_command_stop("select_page", _dest, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				};
+
+			if (is_on_ui_thread()) {
+				ui_work();
+			}
+			else 
+			{
+				run_ui(ui_work);
+			}
 		}
 
 		void when(UINT topic, std::function<void()> _runnable)
@@ -1877,46 +1883,60 @@ namespace corona
 			app_ui->runDialog(hInstance, app->application_name.c_str(), application_icon_id, fullScreen, presentation_layer);
 		}
 
+		std::queue<std::shared_ptr<corona_bus_command>> command_queue;
+        lockable command_queue_lock;
+
+        virtual void push_command_queue(std::shared_ptr<corona_bus_command> command)
+		{
+			scope_lock lock(command_queue_lock);
+			command_queue.push(command);
+		}
+
 		virtual void run_system_command(std::shared_ptr<corona_bus_command> _command)
 		{
+			date_time start_time = date_time::now();
+			timer tx;
+
 			if (_command) {
-				json_parser jp;
-				json jcommand = jp.create_object();
-				corona::get_json(jcommand, _command);
-				date_time start_time = date_time::now();
-				log_function_start("run_command", jcommand["class_name"].as_string(), start_time, __FILE__, __LINE__);
-				this->run_ui([this, jcommand]() {
-					timer tx;
-					log_json<json>(jcommand);
-					std::shared_ptr<corona_bus_command> command;
-					corona::put_json(command, jcommand);
-					json_parser jp2;
-					json context = jp2.create_object();
-					if (command) {
-						auto tranny = command->execute(context, this);
-					}
-					log_function_stop("run_command", jcommand["class_name"].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-					});
+				push_command_queue(_command);
 			}
+			flush_command_queue();
 		}
 
 		virtual void run_command(std::shared_ptr<corona_bus_command> _command)
 		{
+			date_time start_time = date_time::now();
+			timer tx;
+
 			if (_command) {
-				date_time start_time = date_time::now();
-				log_user_command_start("run_command", _command->get_name(), start_time, __FILE__, __LINE__);
-				std::weak_ptr<corona_bus_command> command = _command;
-				this->run_ui([this, command]() {
-					timer tx;
-					std::shared_ptr<corona_bus_command> pcommand = command.lock();
-					if (pcommand) {
+				push_command_queue(_command);
+			}
+			flush_command_queue();
+		}
+
+		virtual void flush_command_queue()
+		{
+			date_time start_time = date_time::now();
+			timer tx;
+			scope_lock lock(command_queue_lock);
+
+			log_function_start("flush_queue", "", start_time, __FILE__, __LINE__);
+			this->run_ui([this, &tx]() {
+				scope_lock lock(command_queue_lock);
+				while (!command_queue.empty()) {
+					std::shared_ptr<corona_bus_command> command = command_queue.front();
+					command_queue.pop();
+					if (command) {
 						json_parser jp2;
 						json context = jp2.create_object();
-						auto tranny = pcommand->execute(context, this);
+						timer tx;
+						if (command) {
+							auto tranny = command->execute(context, this);
+						}
 					}
-					log_user_command_stop("run_command", "stop", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				}
+				log_function_stop("flush_queue", "", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				});
-			}
 		}
 
 		virtual void update_focus_list()

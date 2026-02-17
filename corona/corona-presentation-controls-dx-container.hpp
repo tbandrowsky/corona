@@ -60,11 +60,6 @@ namespace corona
 			}
 		}
 
-		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
-		{
-			draw_control::create(_context, _host);
-		}
-
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<container_control>(*this);
@@ -381,6 +376,11 @@ namespace corona
 			return tv;
 		}
 
+		virtual void loaded() override
+		{
+
+		}
+
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 		virtual point get_remaining(control_base* _parent) override;
 
@@ -395,6 +395,8 @@ namespace corona
 		{
 			container_control::create(_context, _host);
 		}
+
+
 	};
 
 	class items_view_row

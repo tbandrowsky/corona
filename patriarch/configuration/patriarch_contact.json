@@ -6,12 +6,18 @@
       "class_name": "row",
       "name": "contact_object",
       "box": "full_container",
+      "on_load": {
+          "class_name": "select_frame",
+          "target_frame": "contact_details_container",
+          "source_frame": "page_object_details",
+          "message": "layout test."
+      },
       "children": [
         {
           "class_name": "column",
           "name": "contact_details",
           "box": {
-            "width": "600 pixels",
+            "width": ".5 container",
             "height": "1.0 container"
           },
           "children": [
@@ -19,6 +25,11 @@
               "class_name": "chaptertitle",
               "text": "Contact",
               "box": "chaptertitle_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "",
+              "box": "spacer_row_box"
             },
             {
               "class_name": "edit_field",
@@ -37,6 +48,11 @@
               "text": "Last Name:",
               "box": "edit_field_box",
               "json_field_name": "last_name"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "",
+              "box": "spacer_row_box"
             },
             {
               "class_name": "edit_field",
@@ -69,6 +85,11 @@
               "text": "Zip"
             },
             {
+              "class_name": "paragraph",
+              "text": "",
+              "box": "spacer_row_box"
+            },
+            {
               "class_name": "edit_field",
               "json_field_name": "company",
               "box": "edit_field_box",
@@ -97,6 +118,32 @@
               "json_field_name": "alt_email",
               "box": "edit_field_box",
               "text": "Alt Email:"
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "name": "system_details",
+          "box": {
+            "width": ".5 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "paragraph",
+              "text" : "Details Test",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "frame",
+              "name": "contact_details_container",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 container"
+              }
             }
           ]
         }

@@ -202,6 +202,12 @@ namespace corona
 		virtual void select_page(std::string _path, json _obj) = 0;
 		virtual void select_frame(std::string _dest_path, std::string _src_path, json _obj) = 0;
 
+		bool is_on_ui_thread() {
+			MSG msg;
+			// UI threads have message queues
+			return ::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
+		}
+
 		void check_windows_queue(MSG* _msg)
 		{
 			auto waiters = windows_waiters.find(_msg->message);

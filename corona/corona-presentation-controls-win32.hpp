@@ -1252,6 +1252,26 @@ namespace corona
 
 	};
 
+	class readonly_control : public edit_control
+	{
+	public:
+
+		readonly_control(control_base* _parent, int _id) : edit_control(_parent, _id) { ; }
+		virtual ~readonly_control() { ; }
+		readonly_control(const readonly_control& _src) = default;
+		readonly_control() { id = id_counter::next(); }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<readonly_control>(*this);
+			return tv;
+		}
+
+		virtual const char* get_window_class() { return WC_EDITA; }
+		virtual DWORD get_window_style() { return EditWindowStyles | ES_READONLY; }
+		virtual DWORD get_window_ex_style() { return 0; }
+	};
+
 	class listbox_control : public list_control_base
 	{
 	public:

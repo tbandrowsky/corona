@@ -33,7 +33,7 @@ namespace corona
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
 		layout_rect field_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
 		layout_rect status_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
-		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 30.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 34.0_px };
 	};
 
 	class vertical_field_layout {
@@ -47,7 +47,7 @@ namespace corona
 	template <typename layout_container, typename field_control, typename layout_strategy> class field_layout : public layout_container
 	{
 	public:
-		std::shared_ptr<paragraph_control>  label;
+		std::shared_ptr<edit_label_control>  label;
 		std::shared_ptr<field_control>		field;
 		std::shared_ptr<status_control>		status;
 
@@ -57,7 +57,7 @@ namespace corona
 
 		field_layout()
 		{
-			label = std::make_shared<paragraph_control>();
+			label = std::make_shared<edit_label_control>();
 			field = std::make_shared<field_control>();
 			status = std::make_shared<status_control>();
 
@@ -79,7 +79,7 @@ namespace corona
 
 		field_layout(const field_layout& _src)
 		{
-			label = std::dynamic_pointer_cast<paragraph_control>(_src.label->clone());
+			label = std::dynamic_pointer_cast<edit_label_control>(_src.label->clone());
 			field = std::dynamic_pointer_cast<field_control>(_src.field->clone());
 			status = std::dynamic_pointer_cast<status_control>(_src.status->clone());
 
@@ -99,7 +99,7 @@ namespace corona
 
 		field_layout(control_base* _parent, int _id) : layout_container(_parent, _id)
 		{
-			label = std::make_shared<paragraph_control>();
+			label = std::make_shared<edit_label_control>();
 			field = std::make_shared<field_control>();
 			status = std::make_shared<status_control>();
 
@@ -161,7 +161,7 @@ namespace corona
 		{
 			control_base::put_json(_src);
 
-			label = std::make_shared<paragraph_control>();
+			label = std::make_shared<edit_label_control>();
 			auto label_json = _src["label"];
 			if (!label_json.object()) {
 				label->box = label_box;
@@ -206,6 +206,7 @@ namespace corona
 	using default_field_layout = horizontal_field_layout;
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
+	using readonly_field_control = field_layout<default_layout, readonly_control, default_field_layout>;
 	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
 	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
 	using checkbox_field_control = field_layout<default_layout, checkbox_control, default_field_layout>;
@@ -588,6 +589,15 @@ namespace corona
 		control_builder& edit_field(int _id, std::function<void(edit_field_control&)> _settings)
 		{
 			auto tc = create<edit_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& readonly_field(int _id, std::function<void(readonly_field_control&)> _settings)
+		{
+			auto tc = create<readonly_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2260,10 +2270,16 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
-
 		else if (class_name == "edit_field")
 		{
 			edit_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
+		else if (class_name == "read_only_field")
+		{
+			readonly_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});
@@ -2793,11 +2809,13 @@ namespace corona
 			children.push_back(new_child);
 		}
 
+		arrange_children();
+
 		for (auto child : children) {
 			child->on_subscribe(_presentation, _parent_page);
+			child->loaded();
 		}
 
-		arrange_children();
 	}
 
 	json corona_set_property_command::execute(json context, comm_bus_app_interface* bus)

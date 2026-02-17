@@ -517,7 +517,7 @@ namespace corona
 
 			wrap_break = _src["wrap_break"].as_bool();
 
-			json jonload_command = _src["on_loaded"];
+			json jonload_command = _src["on_load"];
 			if (jonload_command.object()) {
 				// select command is loaded through the reference.
 				corona::put_json(onload_command, jonload_command);

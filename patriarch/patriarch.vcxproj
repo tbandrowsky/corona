@@ -772,6 +772,7 @@
     <None Include="configuration\patriarch_husband_card.json" />
     <None Include="configuration\patriarch_job.json" />
     <None Include="configuration\patriarch_job_card.json" />
+    <None Include="configuration\patriarch_object_details.json" />
     <None Include="configuration\patriarch_relative.json" />
     <None Include="configuration\patriarch_relative_card.json" />
     <None Include="configuration\patriarch_status.json" />
