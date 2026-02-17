@@ -1796,11 +1796,24 @@ namespace corona
 			if (dest_parts.size() > 1) {
 				_target_frame = dest_parts[1];
 			}
+
+			auto current_page = presentation_layer->get_current_page();
+						
+			if (current_page && !presentation_layer->pages.contains(_page)) {
+				_target_frame = _page;
+				_page = current_page->name;
+			}
+
 			if (src_parts.size() > 0) {
 				_frame_contents_page = src_parts[0];
 			}
 			if (src_parts.size() > 1) {
 				_form_to_load = src_parts[1];
+			}
+
+			if (current_page && !presentation_layer->pages.contains(_frame_contents_page)) {
+				_form_to_load = _frame_contents_page;
+				_frame_contents_page = current_page->name;
 			}
 
 			date_time dt = date_time::now();
