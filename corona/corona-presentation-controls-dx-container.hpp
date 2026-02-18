@@ -351,6 +351,18 @@ namespace corona
 
 	};
 
+	class frame_navigation
+	{
+	public:
+		std::string name;
+		std::vector<std::shared_ptr<control_base>> contents;
+		json data;
+
+		presentation_base* presentation = nullptr;
+		page_base* parent_page = nullptr;
+		page_base* contents_page = nullptr;
+	};
+
 	class frame_layout :
 		public container_control
 	{
@@ -359,7 +371,7 @@ namespace corona
 		std::string hit_words;
 		json data;
 		std::shared_ptr<corona_bus_command> onload_command;
-
+		std::stack<std::shared_ptr<frame_navigation>> navigation_stack;
 
 	public:
 
@@ -377,6 +389,17 @@ namespace corona
 		{
 			auto tv = std::make_shared<frame_layout>(*this);
 			return tv;
+		}
+
+		virtual void navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav);
+
+		virtual void navigate_back(int _batch_id) 
+		{
+			if (!navigation_stack.empty()) {
+				auto nav = navigation_stack.top();
+				navigation_stack.pop();
+				navigate(_batch_id, nav);
+			}
 		}
 
 		virtual void loaded(int _batch_id) override

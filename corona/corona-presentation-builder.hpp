@@ -2793,16 +2793,16 @@ namespace corona
 		set_size(100.0_px, 30.0_px);
 	}
 
-	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents)
+	void frame_layout::navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav)
 	{
 		control_builder cb;
 
 		for (auto child : children) {
-			child->on_unsubscribe(_presentation, _parent_page);
+			child->on_unsubscribe(_nav->presentation, _nav->parent_page);
 		}
 		children.clear();
 
-		for (auto srcchild : _contents->root->children)
+		for (auto srcchild : _nav->contents_page->root->children)
 		{
 			auto new_child = srcchild->clone();
 			new_child->set_hit_word(hit_words);
@@ -2812,10 +2812,29 @@ namespace corona
 		arrange_children();
 
 		for (auto child : children) {
-			child->on_subscribe(_presentation, _parent_page);
+			child->on_subscribe(_nav->presentation, _nav->parent_page);
 			child->set_data(data);
 			child->loaded(_batch_id);
 		}
+	}
+
+	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
+	{
+
+		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
+		for (auto srcchild : _contents_page->root->children)
+		{
+			auto new_child = srcchild->clone();
+			new_frame->contents.push_back(new_child);
+		}
+		new_frame->data = data;
+		new_frame->name = _contents_page->name;
+        new_frame->presentation = _presentation;
+        new_frame->parent_page = _parent_page;
+		new_frame->contents_page = _contents_page;
+        navigation_stack.push(new_frame);
+
+        navigate(_batch_id, new_frame);
 	}
 
 	json corona_set_property_command::execute(comm_bus_app_interface* bus)

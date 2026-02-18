@@ -250,26 +250,6 @@
           "field_type": "string",
           "label": "Last Name"
         },
-        "street1": {
-          "field_type": "string",
-          "label": "Street1"
-        },
-        "street2": {
-          "field_type": "string",
-          "label": "Street2"
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip"
-        },
         "phone": {
           "field_type": "string",
           "label": "Phone"
@@ -353,6 +333,26 @@
       "class_version": "1.0",
       "full_text": [],
       "fields": {
+        "street1": {
+          "field_type": "string",
+          "label": "Street1"
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Street2"
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City"
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip"
+        }
       }
     },
     {

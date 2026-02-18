@@ -27,42 +27,6 @@
           },
           {
             "class_name": "edit_field",
-            "text": "Street 1:",
-            "box": "edit_field_box",
-            "json_field_name": "street1"
-          },
-          {
-            "class_name": "edit_field",
-            "json_field_name": "street2",
-            "box": "edit_field_box",
-            "text": "Street 2:"
-          },
-          {
-            "class_name": "edit_field",
-            "text": "City:",
-            "box": "edit_field_box",
-            "json_field_name": "city"
-          },
-          {
-            "class_name": "edit_field",
-            "json_field_name": "state",
-            "box": "edit_field_box",
-            "text": "State:"
-          },
-          {
-            "class_name": "edit_field",
-            "json_field_name": "zip",
-            "box": "edit_field_box",
-            "text": "Zip"
-          },
-          {
-            "class_name": "edit_field",
-            "json_field_name": "company",
-            "box": "edit_field_box",
-            "text": "Company:"
-          },
-          {
-            "class_name": "edit_field",
             "json_field_name": "phone",
             "box": "edit_field_box",
             "text": "Phone:"
