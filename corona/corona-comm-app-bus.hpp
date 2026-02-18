@@ -1725,8 +1725,9 @@ namespace corona
 					for (auto cmd : jcommands) {
 						std::shared_ptr<corona_bus_command> command;
 						corona::put_json(command, cmd);
+                        int batch_id = start_batch();
 						if (command) {
-							command->execute_sync(this);
+							command->execute_sync(batch_id, this);
 						}
 					}
 				}
@@ -1779,7 +1780,7 @@ namespace corona
             return presentation_layer->get_page(_page_name);
 		}
 
-		virtual void select_frame(std::string _dest, std::string _src, json _obj)
+		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj)
 		{
 		
 			std::string _page;
@@ -1819,7 +1820,7 @@ namespace corona
 			date_time dt = date_time::now();
 			log_command_start("select_page", _page, dt);
 
-			runnable ui_work = [this, _page, _dest, _target_frame, _frame_contents_page, _form_to_load, _obj]() ->void {
+			runnable ui_work = [this, _batch_id, _page, _dest, _target_frame, _frame_contents_page, _form_to_load, _obj]() ->void {
 				timer tx;
 				if (not presentation_layer->is_current_page(_page)) {
 					presentation_layer->select_page(_page);
@@ -1833,7 +1834,7 @@ namespace corona
 								auto pg_src = presentation_layer->pages[_frame_contents_page];
 								auto pg_master = presentation_layer->get_current_page();
 
-								fl->set_contents(presentation_layer.get(), pg_master, pg_src.get());
+								fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
 
 								auto hwindow = this->app_ui->getWindow();
 								if (auto pwindow = hwindow.lock()) {
@@ -1841,9 +1842,9 @@ namespace corona
 									fl->create(context, app_ui);
 								}
 							}
-						}
-						if (not cb->set_items(_obj)) {
-							cb->set_data(_obj);
+							if (not fl->set_items(_obj)) {
+								fl->set_data(_obj);
+							}
 						}
 						if (not _form_to_load.empty()) {
 							control_base* formx = find_control(_form_to_load);
@@ -1896,28 +1897,28 @@ namespace corona
 			app_ui->runDialog(hInstance, app->application_name.c_str(), application_icon_id, fullScreen, presentation_layer);
 		}
 
-		virtual void run_system_command(std::shared_ptr<corona_bus_command> _command)
+		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
 		{
 			date_time start_time = date_time::now();
 			timer tx;
 
 			if (_command) {
-				run_command(_command);
+				run_command(_batch_id, _command);
 			}
 		}
 
-		virtual void run_command(std::shared_ptr<corona_bus_command> _command)
+		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
 		{
 			date_time start_time = date_time::now();
 			timer tx;
 
             std::weak_ptr<corona_bus_command> weak_command = _command;
 
-			run_ui([this, weak_command, &tx]() {
+			run_ui([this, _batch_id, weak_command, &tx]() {
 				if (auto _command = weak_command.lock()) {
 					timer tx;
 					if (_command) {
-						auto tranny = _command->execute(this);
+						auto tranny = _command->execute(_batch_id, this);
 					}
 				}});
 		}
@@ -1949,16 +1950,15 @@ namespace corona
 
 	void items_view::update_selection()
 	{
+		int batch_id = comm_bus_app_interface::global_bus->start_batch();
 		if (rows.size() > 0) {
-
 			if (select_command) {
-				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(select_command);
+				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(batch_id, select_command);
 			}
 		} else if (empty_command) {
-			comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(empty_command);
+			comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(batch_id, empty_command);
         }
 	}
-
 
 }
 

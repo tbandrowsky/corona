@@ -357,6 +357,9 @@ namespace corona
 	protected:
 		void arrange_children();
 		std::string hit_words;
+		json data;
+		std::shared_ptr<corona_bus_command> onload_command;
+		std::string last_page_loaded;
 
 	public:
 
@@ -376,15 +379,47 @@ namespace corona
 			return tv;
 		}
 
-		virtual void loaded() override
+		virtual void loaded(int _batch_id) override
 		{
-
+			if (onload_command) {
+				// this is actually a total hack.
+				onload_command->data = get_data();
+				corona::comm_bus_app_interface::global_bus->run_command(_batch_id, onload_command);
+			}
+			for (auto child : children) {
+				child->loaded(_batch_id);
+			}
 		}
 
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 		virtual point get_remaining(control_base* _parent) override;
 
-		virtual void set_contents(presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
+		virtual json set_data(json _data)
+		{
+			data = _data;
+			for (auto child : children) {
+				child->set_data(_data);
+			}
+			return _data;
+		}
+
+		virtual json get_data()
+		{
+			json temp = data.clone();
+
+            for (auto child : children) {
+				json child_data = child->get_data();
+				if (child_data.object()) {
+                    auto members = child_data.get_members();
+					for (auto& member : members) {
+						temp.put_member(member.first, member.second);
+					}
+				}
+			}
+			return temp;
+        }
+
+		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
 
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
 		{
@@ -397,6 +432,32 @@ namespace corona
 		}
 
 
+		virtual void get_json(json& _dest)
+		{
+			container_control::get_json(_dest);
+
+			json_parser jp;
+
+			if (onload_command) {
+				json temp = jp.create_object();
+				corona::get_json(temp, onload_command);
+				_dest.put_member("on_load", temp);
+			}
+		}
+
+		virtual void put_json(json& _src)
+		{
+			container_control::put_json(_src);
+
+			json jonload_command = _src["on_load"];
+			if (jonload_command.object()) {
+				// select command is loaded through the reference.
+				if (!jonload_command.has_member("target_frame")) {
+                    jonload_command.put_member("target_frame", name);
+				}
+				corona::put_json(onload_command, jonload_command);
+			}
+		}
 	};
 
 	class items_view_row

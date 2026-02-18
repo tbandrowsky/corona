@@ -6,12 +6,6 @@
       "class_name": "row",
       "name": "contact_object",
       "box": "full_container",
-      "on_load": {
-          "class_name": "select_frame",
-          "target_frame": "contact_details_container",
-          "source_frame": "page_object_details",
-          "message": "layout test."
-      },
       "children": [
         {
           "class_name": "column",
@@ -135,6 +129,11 @@
               "box": {
                 "width": "1.0 container",
                 "height": "1.0 container"
+              },
+              "on_load": {
+                "class_name": "select_frame",
+                "source_frame": "page_object_details",
+                "message": "load frame."
               }
             }
           ]

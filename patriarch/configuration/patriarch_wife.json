@@ -4,12 +4,12 @@
   "children": [
     {
       "class_name": "row",
-      "name": "dependent_object",
+      "name": "wife_object",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "dependent_details",
+          "name": "wife_details",
           "box": {
             "width": "500 pixels",
             "height": "1.0 container"
@@ -22,10 +22,15 @@
             },
             {
               "class_name": "frame",
-              "name": "dependent_home",
+              "name": "wife_dependent_home",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"
+              },
+              "on_load": {
+                "class_name": "select_frame",
+                "source_frame": "page_dependent",
+                "message": "load frame."
               }
             }
           ]

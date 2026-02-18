@@ -118,7 +118,12 @@ namespace corona
 			;
 		}
 
-        virtual json set_data(json _data)
+		virtual json get_data() override
+		{
+			return data;
+		}
+
+        virtual json set_data(json _data) override
 		{
 			data = _data;
 			return data;

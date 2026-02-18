@@ -404,7 +404,7 @@ namespace corona
 
 			if (change_command) {
 				_page->on_item_changed(id, [this](item_changed_event lce) {
-					lce.bus->run_command(change_command);
+					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
 		}
@@ -556,7 +556,7 @@ namespace corona
 			_page->on_list_changed(id, [this](list_changed_event lce) {
 				table_control_base* tcb = dynamic_cast<table_control_base*>(lce.control);
 				if (tcb and tcb->select_command) {
-					lce.bus->run_command(tcb->select_command);
+					lce.bus->run_command(lce.batch_id, tcb->select_command);
 				}
 			});
 		}
@@ -714,7 +714,7 @@ namespace corona
 		{
 			if (select_command) {
 				_page->on_list_changed(id, [this](list_changed_event lce) {
-						lce.bus->run_command(select_command);
+						lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
 		}
@@ -880,7 +880,7 @@ namespace corona
 
 			if (select_command) {
 				_page->on_list_changed(id, [this](list_changed_event lce) {
-					lce.bus->run_command(select_command);
+					lce.bus->run_command(lce.batch_id, select_command);
 					});
 			}
 		}
@@ -1456,7 +1456,7 @@ namespace corona
 		{
 			if (change_command) {
 				_page->on_item_changed(id, [this](item_changed_event lce) {
-						lce.bus->run_command(change_command);
+						lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
 		}
@@ -1597,7 +1597,7 @@ namespace corona
 		{
 			if (change_command) {
 				_page->on_item_changed(id, [this](item_changed_event lce) {
-					lce.bus->run_command(change_command);
+					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
 		}
@@ -1705,7 +1705,7 @@ namespace corona
 		{
 			if (change_command) {
 				_page->on_item_changed(id, [this](item_changed_event lce) {
-					lce.bus->run_command(change_command);
+					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
 		}
@@ -1841,7 +1841,7 @@ namespace corona
 
 			if (change_command) {
 				_page->on_item_changed(id, [this](item_changed_event lce) {
-						lce.bus->run_command(change_command);
+						lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
 		}
@@ -1875,7 +1875,7 @@ namespace corona
 
 			if (select_command) {
 				_page->on_list_changed(id, [this](list_changed_event lce) {
-					lce.bus->run_command(select_command);
+					lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
 		}
@@ -1909,7 +1909,7 @@ namespace corona
 
 			if (select_command) {
 				_page->on_list_changed(id, [this](list_changed_event lce) {
-					lce.bus->run_command(select_command);
+					lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
 		}

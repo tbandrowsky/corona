@@ -79,7 +79,8 @@ namespace corona
 		{
 			if (root) 
 			{
-				root->refresh();
+				int batch_id = corona::comm_bus_app_interface::global_bus->start_batch();
+				root->refresh(batch_id);
 			}
         }
 
@@ -537,7 +538,8 @@ namespace corona
 		void handle_onload(std::shared_ptr<page> _pg)
 		{
 			scope_lock locker(binding_lock);
-			_pg->root->loaded();
+			int batch_id = corona::comm_bus_app_interface::global_bus->start_batch();
+			_pg->root->loaded(batch_id);
 		}
 
 		friend class presentation;

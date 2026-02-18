@@ -380,21 +380,101 @@ namespace corona
 		virtual json get_form_data(std::string _form_name) = 0;
 		virtual json export_form_data(std::string _form_name) = 0;
 		virtual void poll(bool _select_default_page) = 0;
-		virtual void run_command(std::shared_ptr<corona_bus_command> _command) = 0;
+
+		int batch_id = 0;
+
+        virtual int start_batch() { 
+			int next_batch = batch_id++;
+            batch_data[next_batch] = std::make_shared<json_object>();			 
+			if (batch_data.size() > 10) {
+				batch_data.erase(batch_data.begin());
+			}
+		}
+
+		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
+		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
+
+		virtual void set_variable(int _batch_id, std::string _name, json _value)
+		{
+			auto it = batch_data.find(_batch_id);
+			if (it != std::end(batch_data)) {
+                it->second->members[_name] = _value.value();
+			}
+		}
+
+		virtual void set_variable(int _batch_id, std::string _name, std::string _value)
+		{
+			auto it = batch_data.find(_batch_id);
+			if (it != std::end(batch_data)) {
+				auto temp = std::make_shared<json_string>();
+				temp->set_value(_value.c_str());
+				it->second->members[_name] = temp;
+			}
+		}
+
+		virtual void set_variable(int _batch_id, std::string _name, double _value)
+		{
+			auto it = batch_data.find(_batch_id);
+			if (it != std::end(batch_data)) {
+				auto temp = std::make_shared<json_double>();
+				temp->value = _value;
+				it->second->members[_name] = temp;
+			}
+		}
+
+		virtual json get_variable(int _batch_id, std::string _name)
+		{
+			auto it = batch_data.find(_batch_id);
+			if (it != std::end(batch_data)) {
+				auto member_it = it->second->members.find(_name);
+				if (member_it != std::end(it->second->members)) {
+					return member_it->second;
+				}
+			}
+			return json();
+		}
+
+		virtual std::string get_variable_str(int _batch_id, std::string _name)
+		{
+            json t = get_variable(_batch_id, _name);
+
+			if (t.empty()) {
+				return "";
+			}
+			return t.as_string();
+		}
+
+		virtual double get_variable_double(int _batch_id, std::string _name)
+		{
+			json t = get_variable(_batch_id, _name);
+
+			if (t.empty()) {
+				return 0.0;
+			}
+			return t.as_double();
+		}
+
+	protected:
+
+		std::map<int, std::shared_ptr<json_object>> batch_data;
+
 	};
 
 	comm_bus_app_interface* comm_bus_app_interface::global_bus = nullptr;
 
 	class corona_bus_command : public json_serializable
 	{
+
 	public:
+		json data;
+
 		corona_bus_command()
 		{
 			;
 		}
 
-		virtual json execute(comm_bus_app_interface* _bus) = 0;
-		virtual json execute_sync(comm_bus_app_interface* _bus) = 0;
+		virtual json execute(int _batch_id, comm_bus_app_interface* _bus) = 0;
+		virtual json execute_sync(int _batch_id, comm_bus_app_interface* _bus) = 0;
 
 		virtual void get_json(json& _dest)
 		{
@@ -406,7 +486,7 @@ namespace corona
 
 		virtual std::string get_name()
 		{
-			return "command";
+			return std::string("command");
 		}
 	};
 }

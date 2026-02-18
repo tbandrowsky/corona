@@ -2793,9 +2793,14 @@ namespace corona
 		set_size(100.0_px, 30.0_px);
 	}
 
-	void frame_layout::set_contents(presentation_base* _presentation, page_base* _parent_page, page_base* _contents)
+	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents)
 	{
 		control_builder cb;
+
+		if (_contents->name != last_page_loaded) {
+			last_page_loaded = _contents->name;
+			loaded(_batch_id);
+		}
 
 		for (auto child : children) {
 			child->on_unsubscribe(_presentation, _parent_page);
@@ -2813,7 +2818,7 @@ namespace corona
 
 		for (auto child : children) {
 			child->on_subscribe(_presentation, _parent_page);
-			child->loaded();
+			child->set_data(data);
 		}
 
 	}

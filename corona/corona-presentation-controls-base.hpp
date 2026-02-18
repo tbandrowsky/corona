@@ -225,7 +225,6 @@ namespace corona
 			wrap_break = _src.wrap_break;
 			json_field_name = _src.json_field_name;
 
-			onload_command = _src.onload_command;
 			onrefresh_command = _src.onrefresh_command;
 		}
 
@@ -250,7 +249,6 @@ namespace corona
 		std::string				class_name = {};
 		bool					wrap_break = false;
 
-		std::shared_ptr<corona_bus_command> onload_command;
 		std::shared_ptr<corona_bus_command> onrefresh_command;
 
 		std::vector<std::shared_ptr<control_base>> children;
@@ -517,12 +515,6 @@ namespace corona
 
 			wrap_break = _src["wrap_break"].as_bool();
 
-			json jonload_command = _src["on_load"];
-			if (jonload_command.object()) {
-				// select command is loaded through the reference.
-				corona::put_json(onload_command, jonload_command);
-			}
-
 			json jrefresh_command = _src["on_refresh"];
 			if (jrefresh_command.object()) {
 				// select command is loaded through the reference.
@@ -714,23 +706,20 @@ namespace corona
 			system_monitoring_interface::active_mon->log_json<json>(control_json);
 		}
 
-		virtual void loaded()
+		virtual void loaded( int _batch_id )
 		{
-            if (onload_command) {
-                corona::comm_bus_app_interface::global_bus->run_command(onload_command);
-			}
             for (auto child : children) {
-				child->loaded();
+				child->loaded(_batch_id);
 			}
 		}
 
-		virtual void refresh()
+		virtual void refresh(int _batch_id)
 		{
 			if (onrefresh_command) {
-				corona::comm_bus_app_interface::global_bus->run_command(onrefresh_command);
+				corona::comm_bus_app_interface::global_bus->run_command(_batch_id, onrefresh_command);
 			}
 			for (auto child : children) {
-				child->refresh();
+				child->refresh(_batch_id);
 			}
 		}
 	};

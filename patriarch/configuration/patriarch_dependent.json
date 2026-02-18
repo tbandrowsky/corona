@@ -5,10 +5,7 @@
      {
         "class_name": "column",
         "name": "dependent_details",
-        "box": {
-          "width": "300 pixels",
-          "height": "1.0 container"
-        },
+        "box": "full_container",
         "children": [
           {
             "class_name": "edit_field",

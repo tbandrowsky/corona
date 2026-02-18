@@ -778,6 +778,7 @@ namespace corona {
 		kde.control_id = _ctrl_id;
 		kde.key = _key;
 		kde.bus = bus;
+		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_key_up(_ctrl_id, kde);
 		}
@@ -791,6 +792,7 @@ namespace corona {
 		kde.control_id = 0;
 		kde.absolute_point = *_point;
 		kde.bus = bus;
+		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_mouse_move(0, kde);
 			cp->root->set_mouse(*_point, nullptr, nullptr, nullptr, nullptr);
@@ -806,6 +808,7 @@ namespace corona {
 		kde.relative_point = {};
         kde.delta = _delta;	
 		kde.bus = bus;
+		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_mouse_wheel(0, kde);
 		}
@@ -847,6 +850,8 @@ namespace corona {
 					mcel.relative_point.z = 0;
 				}
 				mcel.bus = p->bus;
+				mcel.batch_id = comm_bus_app_interface::global_bus->start_batch();
+
 				cp->handle_mouse_left_click(_item->id, mcel);
 
 				mouse_click_event mce = {};
@@ -861,6 +866,7 @@ namespace corona {
 					mcel.relative_point.y = _point->y - _item->get_bounds().y;
 					mcel.relative_point.z = 0;
 				}
+				mce.batch_id = mcel.batch_id;
 				cp->handle_mouse_click(_item->id, mce);
 				}, nullptr);
 		}
@@ -881,6 +887,7 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
+				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
 
 				cp->handle_mouse_click(_item->id, mce);
 
@@ -891,6 +898,7 @@ namespace corona {
 				mcel.absolute_point.y = _point->y;
 				mcel.absolute_point.z = 0;
 				mcel.bus = p->bus;
+				mcel.batch_id = mce.batch_id;
 
 				cp->handle_mouse_left_click(_item->id, mcel);
 				}, nullptr);
@@ -911,6 +919,7 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
+				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
 
 				cp->handle_mouse_click(_item->id, mce);
 				});
@@ -931,6 +940,8 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
+				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
+
 				cp->handle_mouse_click(_item->id, mce);
 				mouse_right_click_event mcel;
 				mcel.control = _item;
@@ -939,6 +950,7 @@ namespace corona {
 				mcel.absolute_point.y = _point->y;
 				mcel.absolute_point.z = 0;
 				mcel.bus = p->bus;
+				mcel.batch_id = mce.batch_id;
 
 				cp->handle_mouse_right_click(_item->id, mcel);
 				});

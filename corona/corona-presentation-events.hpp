@@ -52,6 +52,7 @@ namespace corona {
 	{
 	public:
 		int control_id;
+		int batch_id;
 		control_base* control;
 		comm_bus_app_interface* bus;
 	};

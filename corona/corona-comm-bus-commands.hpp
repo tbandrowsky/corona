@@ -78,6 +78,8 @@ namespace corona
 		std::string error_table_field;
 		std::string topic;
 
+		int batch_id = 0;
+
 		corona_client_response response;
 
 		std::shared_ptr<corona_bus_command> on_start;
@@ -110,71 +112,57 @@ namespace corona
 		virtual void stop_message(comm_bus_app_interface* _bus);
 		virtual corona_client_response& stop_message(corona_client_response _src, comm_bus_app_interface* _bus);
 
-		virtual json execute(comm_bus_app_interface* bus)
+		virtual json execute(int _batch_id, comm_bus_app_interface* bus)
 		{
-
+			batch_id = _batch_id;
 			start_message(bus);
 			bus->in_progress++;
 			bus->command_start = time(nullptr);
 			bus->command_current = bus->command_start;
 			bus->elapsed_seconds = 0;
-			json obj = bus->get_form_data(form_name);
+            if (on_start) {
+                on_start->execute(_batch_id, bus);
+            }	
+			auto request = create_request(bus);
 
-			if (obj.object()) {
-                if (on_start) {
-                    on_start->execute(bus);
-                }	
-				auto request = create_request(bus);
+			if (request.object()) {
+				bus->run([this, bus, request]()->void {
+                    corona_client_response response = execute_request(request, bus);
 
-				if (request.object()) {
-					bus->run([this, bus, request]()->void {
-                        corona_client_response response = execute_request(request, bus);
-
-						bus->run_ui([this, response, bus]()->void {
-							bus->command_current = time(nullptr);
-							bus->elapsed_seconds = bus->command_current - bus->command_start;
-							handle_response(response, bus);
-							stop_message(response, bus);
-							bus->in_progress--;
-							});
-					});
-				}
+					bus->run_ui([this, response, bus]()->void {
+						bus->command_current = time(nullptr);
+						bus->elapsed_seconds = bus->command_current - bus->command_start;
+						handle_response(response, bus);
+						stop_message(response, bus);
+						bus->in_progress--;
+						});
+				});
 			}
-			else {
-				log_warning("Could not find form '" + form_name + "'");
-			}
-			return obj;
+			return request;
 		}
 
-		virtual json execute_sync(comm_bus_app_interface* bus)
+		virtual json execute_sync(int _batch_id, comm_bus_app_interface* bus)
 		{
+			batch_id = _batch_id;
 			start_message(bus);
 			bus->in_progress++;
 			bus->command_start = time(nullptr);
 			bus->command_current = bus->command_start;
 			bus->elapsed_seconds = 0;
-			json obj = bus->get_form_data(form_name);
-
-			if (obj.object()) {
-				if (on_start) {
-					on_start->execute(bus);
-				}
-				auto request = create_request(bus);
-
-				if (request.object()) {
-					corona_client_response response = execute_request(request, bus);
-					bus->command_current = time(nullptr);
-					bus->elapsed_seconds = bus->command_current - bus->command_start;
-					handle_response(response, bus);
-					stop_message(response, bus);
-					bus->in_progress--;
-				}
+			if (on_start) {
+				on_start->execute(_batch_id, bus);
 			}
-			else 
-			{
-				log_warning("Could not find form '" + form_name + "'");
+			auto request = create_request(bus);
+			if (request.object()) {
+				corona_client_response response;
+				response = execute_request(request, bus);
+				bus->command_current = time(nullptr);
+				bus->elapsed_seconds = bus->command_current - bus->command_start;
+				handle_response(response, bus);
+				stop_message(response, bus);
+				bus->in_progress--;
 			}
-			return obj;
+			return request;
 		}
 
 		virtual void get_json(json& _dest)
@@ -251,7 +239,6 @@ namespace corona
 	public:
 		std::string		target_frame;
 		std::string		source_frame;
-        json            form_data;
 
 		corona_select_frame_command()
 		{
@@ -268,8 +255,8 @@ namespace corona
 			json_parser jp;
 			json result = jp.create_object();
 
-			if (form_data.object() || form_data.array()) {
-				result = form_data;
+			if (data.object() || data.array()) {
+				result = data;
 			}
 			else {
 				control_base* cb = _bus->find_control(form_name);
@@ -931,13 +918,13 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->create_object(instance, create_class_name);
-            select_frame->form_data = response.data;
+            select_frame->data = response.data;
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
 			if (select_frame) {
-				_bus->run_command(select_frame);
+				select_frame->execute_sync(batch_id, _bus);
 			}
 			return response.data;
 		}
@@ -1686,7 +1673,7 @@ namespace corona
 		{
 			json obj;
 			for (auto comm : commands) {
-				obj = comm->execute(bus);
+				obj = comm->execute(batch_id, bus);
 			}
 			return obj;
 		}

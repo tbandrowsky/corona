@@ -1699,7 +1699,9 @@ namespace corona
                 {
                     command_button_control* click_button = dynamic_cast<command_button_control*>(evt.control);
                     if (click_button && click_button->click_command) {
-                       evt.bus->run_command(click_button->click_command);
+
+                       int batch_id = evt.bus->start_batch();
+                       evt.bus->run_command(batch_id, click_button->click_command);
                     }
                 });
         }
