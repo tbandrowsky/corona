@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "husband_details",
           "box": {
-            "width": "300 pixels",
+            "width": ".5 container",
             "height": "1.0 container"
           },
           "children": [
@@ -34,7 +34,31 @@
               }
             }
           ]
+        },
+        {
+          "class_name": "column",
+          "name": "husband_sys",
+          "box": {
+            "width": ".5 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "frame",
+              "name": "husband_sys_home",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "1.0 container"
+              },
+              "on_load": {
+                "class_name": "select_frame",
+                "source_frame": "page_object_details",
+                "message": "load frame."
+              }
+            }
+          ]
         }
+
       ]
     }
   ]
