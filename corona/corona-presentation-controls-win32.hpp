@@ -988,7 +988,7 @@ namespace corona
 
 			if (click_command) {
 				_page->on_command(id, [this](command_event lce) {
-					lce.bus->run_command(click_command);
+					lce.bus->run_command(lce.batch_id, click_command);
 					});
 			}
 		}

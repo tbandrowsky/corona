@@ -359,7 +359,7 @@ namespace corona
 		std::string hit_words;
 		json data;
 		std::shared_ptr<corona_bus_command> onload_command;
-		std::string last_page_loaded;
+
 
 	public:
 
@@ -382,12 +382,11 @@ namespace corona
 		virtual void loaded(int _batch_id) override
 		{
 			if (onload_command) {
-				// this is actually a total hack.
+				// the idea here is that the onload_command is invoked.
+				// the drag is, the command is invoked synchronously, so you don't want to do data loads on on_load, just yet.
+				// although for small objects it might well be ok.
 				onload_command->data = get_data();
-				corona::comm_bus_app_interface::global_bus->run_command(_batch_id, onload_command);
-			}
-			for (auto child : children) {
-				child->loaded(_batch_id);
+				corona::comm_bus_app_interface::global_bus->exec_command(_batch_id, onload_command);
 			}
 		}
 

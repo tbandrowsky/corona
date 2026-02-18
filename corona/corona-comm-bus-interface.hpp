@@ -200,12 +200,14 @@ namespace corona
 		virtual void when(std::string _topic, std::function<void()> _runnable) = 0;
 
 		virtual void select_page(std::string _path, json _obj) = 0;
-		virtual void select_frame(std::string _dest_path, std::string _src_path, json _obj) = 0;
+		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json _obj) = 0;
+
+		DWORD gui_thread_id = 0;
 
 		bool is_on_ui_thread() {
-			MSG msg;
+			DWORD current_thread = ::GetCurrentThreadId();
 			// UI threads have message queues
-			return ::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
+			return current_thread == gui_thread_id;
 		}
 
 		void check_windows_queue(MSG* _msg)
@@ -389,9 +391,11 @@ namespace corona
 			if (batch_data.size() > 10) {
 				batch_data.erase(batch_data.begin());
 			}
+			return next_batch;
 		}
 
 		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
+		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 
 		virtual void set_variable(int _batch_id, std::string _name, json _value)

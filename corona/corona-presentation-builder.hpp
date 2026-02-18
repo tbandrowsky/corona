@@ -2797,11 +2797,6 @@ namespace corona
 	{
 		control_builder cb;
 
-		if (_contents->name != last_page_loaded) {
-			last_page_loaded = _contents->name;
-			loaded(_batch_id);
-		}
-
 		for (auto child : children) {
 			child->on_unsubscribe(_presentation, _parent_page);
 		}
@@ -2819,8 +2814,8 @@ namespace corona
 		for (auto child : children) {
 			child->on_subscribe(_presentation, _parent_page);
 			child->set_data(data);
+			child->loaded(_batch_id);
 		}
-
 	}
 
 	json corona_set_property_command::execute(comm_bus_app_interface* bus)

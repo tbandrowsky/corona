@@ -201,6 +201,14 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_dependent.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_dependent_card.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_husband.json"
     },
     {

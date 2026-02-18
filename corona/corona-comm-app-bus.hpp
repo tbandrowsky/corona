@@ -132,6 +132,8 @@ namespace corona
 		{
             poll_db_enabled = !corona::corona_db_read_only;
 
+            gui_thread_id = GetCurrentThreadId();
+
 			system_monitoring_interface::start(); // this will create the global log queue.
 
 			if (system_monitoring_interface::active_mon == nullptr) {
@@ -1783,6 +1785,11 @@ namespace corona
 		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj)
 		{
 		
+			if (!this->is_on_ui_thread()) {
+                log_warning("select frame not on ui thread. IGNORED", __FILE__, __LINE__);
+				return;
+			}
+
 			std::string _page;
 			std::string _target_frame;
 			std::string _frame_contents_page;
@@ -1802,70 +1809,58 @@ namespace corona
 						
 			if (current_page && !presentation_layer->pages.contains(_page)) {
 				_target_frame = _page;
-				_page = current_page->name;
+                _page = current_page->name;
 			}
 
 			if (src_parts.size() > 0) {
+                // the page that will be loaded into the frame. This allows the frame to have its own page definition, with controls and commands, separate from the main page
 				_frame_contents_page = src_parts[0];
 			}
 			if (src_parts.size() > 1) {
+                // the form on the page that will be loaded with the data. This allows a specific form to be targeted on the page, rather than just loading the page and hoping it binds to the data correctly
 				_form_to_load = src_parts[1];
 			}
 
-			if (current_page && !presentation_layer->pages.contains(_frame_contents_page)) {
-				_form_to_load = _frame_contents_page;
-				_frame_contents_page = current_page->name;
-			}
-
 			date_time dt = date_time::now();
-			log_command_start("select_page", _page, dt);
+			timer tx;
+			std::string target_note = _dest + "=" + _frame_contents_page;
+			log_command_start("select_page start", target_note, dt);
 
-			runnable ui_work = [this, _batch_id, _page, _dest, _target_frame, _frame_contents_page, _form_to_load, _obj]() ->void {
-				timer tx;
-				if (not presentation_layer->is_current_page(_page)) {
-					presentation_layer->select_page(_page);
-				}
-				if (not _target_frame.empty()) {
-					control_base* cb = find_control(_target_frame);
-					if (cb) {
-						frame_layout* fl = dynamic_cast<frame_layout*>(cb);
-						if (fl) {
-							if (presentation_layer->pages.contains(_frame_contents_page)) {
-								auto pg_src = presentation_layer->pages[_frame_contents_page];
-								auto pg_master = presentation_layer->get_current_page();
+			if (not presentation_layer->is_current_page(_page)) {
+				presentation_layer->select_page(_page);
+			}
+			if (not _target_frame.empty()) {
+				control_base* cb = find_control(_target_frame);
+				if (cb) {
+					frame_layout* fl = dynamic_cast<frame_layout*>(cb);
+					if (fl) {
+						if (presentation_layer->pages.contains(_frame_contents_page)) {
+							auto pg_src = presentation_layer->pages[_frame_contents_page];
+							auto pg_master = presentation_layer->get_current_page();
 
-								fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
+							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
 
-								auto hwindow = this->app_ui->getWindow();
-								if (auto pwindow = hwindow.lock()) {
-									auto context = pwindow->getContext();
-									fl->create(context, app_ui);
-								}
-							}
-							if (not fl->set_items(_obj)) {
-								fl->set_data(_obj);
+							auto hwindow = this->app_ui->getWindow();
+							if (auto pwindow = hwindow.lock()) {
+								auto context = pwindow->getContext();
+								fl->create(context, app_ui);
 							}
 						}
-						if (not _form_to_load.empty()) {
-							control_base* formx = find_control(_form_to_load);
-							if (formx) {
-								formx->set_data(_obj);
-							}
+						if (not fl->set_items(_obj)) {
+							fl->set_data(_obj);
 						}
-						presentation_layer->update_focus_list();
-						presentation_layer->onResize();
 					}
+					if (not _form_to_load.empty()) {
+						control_base* formx = find_control(_form_to_load);
+						if (formx) {
+							formx->set_data(_obj);
+						}
+					}
+					presentation_layer->update_focus_list();
+					presentation_layer->onResize();
 				}
-				log_command_stop("select_page", _dest, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				};
-
-			if (is_on_ui_thread()) {
-				ui_work();
 			}
-			else 
-			{
-				run_ui(ui_work);
-			}
+			log_command_stop("select_page stop", target_note, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		void when(UINT topic, std::function<void()> _runnable)
@@ -1921,6 +1916,16 @@ namespace corona
 						auto tranny = _command->execute(_batch_id, this);
 					}
 				}});
+		}
+
+		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
+		{
+			date_time start_time = date_time::now();
+			timer tx;
+
+			if (_command) {
+				auto tranny = _command->execute_sync(_batch_id, this);
+			}
 		}
 
 		virtual void update_focus_list()

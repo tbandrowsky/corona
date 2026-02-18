@@ -141,7 +141,7 @@ namespace corona
 			return request;
 		}
 
-		virtual json execute_sync(int _batch_id, comm_bus_app_interface* bus)
+		virtual json execute_sync_impl(int _batch_id, comm_bus_app_interface* bus)
 		{
 			batch_id = _batch_id;
 			start_message(bus);
@@ -163,6 +163,24 @@ namespace corona
 				bus->in_progress--;
 			}
 			return request;
+		}
+
+		virtual json execute_sync(int _batch_id, comm_bus_app_interface* bus)
+		{
+            if (bus->is_on_ui_thread()) {
+                json request = execute_sync_impl(_batch_id, bus);
+				return request;
+			}
+			else {
+
+                HANDLE sync_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+				bus->run_ui([this, _batch_id, bus, sync_event]() -> void {
+					execute_sync_impl(_batch_id, bus);
+                    SetEvent(sync_event);
+                    });
+                WaitForSingleObject(sync_event, INFINITE);
+				CloseHandle(sync_event);
+			}
 		}
 
 		virtual void get_json(json& _dest)
@@ -272,9 +290,17 @@ namespace corona
 		{
 			corona_client_response response = {};
 			response.success = true;
-			bus->select_frame(target_frame, source_frame, _context);
+            response.data = _context;
 			return response;
 		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (response.success) {
+				_bus->select_frame(batch_id, target_frame, source_frame, response.data);
+			}
+			return response.data;
+		}
+
 
 		virtual void get_json(json& _dest)
 		{
@@ -1008,7 +1034,7 @@ namespace corona
 				auto source_it = sources->pages_by_class.find(class_name);
 				if (source_it != sources->pages_by_class.end()) {
 					std::string source_form = source_it->second;
-					_bus->select_frame(target_frame, source_form, response.data["object"]);
+					_bus->select_frame(batch_id, target_frame, source_form, response.data["object"]);
 				}
 				control_base* cb = _bus->find_control(table_name);
 				if (cb) {
