@@ -14,7 +14,7 @@
         {
           "class_name": "chaptersubtitle",
           "name": "name",
-          "box": "edit_label_box_full",
+          "box": "chaptersubtitle_box",
           "json_field_name": "name",
           "text": "{name} ({base_name})"
         },

@@ -15,7 +15,7 @@
         {
           "class_name": "chaptersubtitle",
           "name": "title",
-          "box": "edit_label_box_full",
+          "box": "chaptersubtitle_box",
           "text": "Reminder"
         },
         {

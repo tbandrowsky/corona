@@ -15,15 +15,8 @@
         {
           "class_name": "chaptersubtitle",
           "name": "title",
-          "box": "edit_label_box_full",
+          "box": "chaptersubtitle_box",
           "text": "Contact"
-        },
-        {
-          "class_name": "paragraph",
-          "name": "full_name",
-          "box": "edit_label_box_full",
-          "json_field_name": "full_name",
-          "text": "{when}, {where}, {kept}"
         },
         {
           "class_name": "paragraph",
