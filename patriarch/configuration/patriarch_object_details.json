@@ -66,6 +66,31 @@
               "json_field_name": "team",
               "box": "edit_field_box",
               "text": "Team:"
+            },
+            {
+              "class_name": "row",
+              "name": "system_commands",
+              "box": {
+                "width": "1.0 container",
+                "height": "50 pixels"
+              },
+              "children": [
+                {
+                  "class_name": "command_button",
+                  "name": "save_object",
+                  "icon": "Save",
+                  "text": "save",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "1.0 container"
+                  },
+                  "on_click": {
+                    "class_name": "save_object",
+                    "form_name": "current_object",
+                    "target_frame": "frame_selected"
+                  }
+                }
+              ] 
             }
           ]
         }

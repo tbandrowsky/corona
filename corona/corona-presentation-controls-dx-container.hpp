@@ -371,13 +371,24 @@ namespace corona
 		std::string hit_words;
 		json data;
 		std::shared_ptr<corona_bus_command> onload_command;
-		std::stack<std::shared_ptr<frame_navigation>> navigation_stack;
+
+		std::vector<std::shared_ptr<frame_navigation>> navigation_stack;
+		int navigation_location = 0;
 
 	public:
 
-		frame_layout() { ; }
+		frame_layout() 
+		{ 
+			json_parser jp; 
+			data = jp.create_object();
+		}
 		frame_layout(const frame_layout& _src) = default;
-		frame_layout(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
+		frame_layout(control_base* _parent, int _id) : container_control(_parent, _id) 		
+		{
+			json_parser jp;
+			data = jp.create_object();
+		}
+
 		virtual ~frame_layout() { ; }
 
 		virtual void set_hit_word(std::string _words) override
@@ -395,9 +406,17 @@ namespace corona
 
 		virtual void navigate_back(int _batch_id) 
 		{
-			if (!navigation_stack.empty()) {
-				auto nav = navigation_stack.top();
-				navigation_stack.pop();
+			if (navigation_location > 0 && navigation_stack.size() > 0) {
+				auto nav = navigation_stack[--navigation_location];
+				navigate(_batch_id, nav);
+			}
+		}
+
+		virtual void navigate_forward(int _batch_id)
+		{
+			if (navigation_location < navigation_stack.size() - 1) {
+				navigation_location++;
+				auto nav = navigation_stack[navigation_location];
 				navigate(_batch_id, nav);
 			}
 		}

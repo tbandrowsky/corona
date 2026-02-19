@@ -2802,6 +2802,8 @@ namespace corona
 		}
 		children.clear();
 
+		data = _nav->data;
+
 		for (auto srcchild : _nav->contents_page->root->children)
 		{
 			auto new_child = srcchild->clone();
@@ -2816,6 +2818,7 @@ namespace corona
 			child->set_data(data);
 			child->loaded(_batch_id);
 		}
+
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
@@ -2832,7 +2835,13 @@ namespace corona
         new_frame->presentation = _presentation;
         new_frame->parent_page = _parent_page;
 		new_frame->contents_page = _contents_page;
-        navigation_stack.push(new_frame);
+
+		if (navigation_location >= 0) 
+		{       
+			navigation_stack.resize(navigation_location);
+		}
+
+        navigation_stack.push_back(new_frame);
 
         navigate(_batch_id, new_frame);
 	}
@@ -2858,4 +2867,28 @@ namespace corona
 		}
 		return obj;
 	}
+
+
+	json corona_navigate_forward::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		if (response.success) {
+			auto control = _bus->find_control(target_frame);
+			auto frame = dynamic_cast<frame_layout*>(control);
+			if (frame) {
+				frame->navigate_forward(batch_id);
+			}
+		}
+		return response.data;
+	}
+
+	json corona_navigate_back::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		if (response.success) {
+			auto control = _bus->find_control(target_frame);
+			auto frame = dynamic_cast<frame_layout*>(control);
+			if (frame) {
+				frame->navigate_back(batch_id);
+			}
+		}
+		return response.data;
+	}
+
 }

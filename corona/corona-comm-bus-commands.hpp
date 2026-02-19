@@ -252,20 +252,19 @@ namespace corona
 
 	};
 
-	class corona_select_frame_command : public corona_form_command
+	class corona_navigate_back : public corona_form_command
 	{
 	public:
 		std::string		target_frame;
-		std::string		source_frame;
 
-		corona_select_frame_command()
+		corona_navigate_back()
 		{
 			;
 		}
 
 		virtual std::string get_name()
 		{
-			return "select_frame";
+			return "navigate_back";
 		}
 
 		virtual json create_request(comm_bus_app_interface* _bus) 
@@ -294,6 +293,155 @@ namespace corona
 			return response;
 		}
 
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+            corona_form_command::get_json(_dest);
+
+			_dest.put_member("class_name", get_name());
+			_dest.put_member("target_frame", target_frame);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+
+			corona_form_command::put_json(_src);
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "target_frame" })) {
+				system_monitoring_interface::active_mon->log_warning(get_name() + " missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			target_frame = _src["target_frame"].as_string();
+		}
+	};
+
+	class corona_navigate_forward : public corona_form_command
+	{
+	public:
+		std::string		target_frame;
+
+		corona_navigate_forward()
+		{
+			;
+		}
+
+		virtual std::string get_name()
+		{
+			return "navigate_back";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+			json result = jp.create_object();
+
+			if (data.object() || data.array()) {
+				result = data;
+			}
+			else {
+				control_base* cb = _bus->find_control(form_name);
+				if (cb != nullptr) {
+					result = cb->get_data();
+				}
+			}
+
+			return result;
+		}
+
+		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		{
+			corona_client_response response = {};
+			response.success = true;
+			response.data = _context;
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			corona_form_command::get_json(_dest);
+
+			_dest.put_member("class_name", get_name());
+			_dest.put_member("target_frame", target_frame);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+
+			corona_form_command::put_json(_src);
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "target_frame" })) {
+				system_monitoring_interface::active_mon->log_warning(get_name() + " missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			target_frame = _src["target_frame"].as_string();
+		}
+	};
+
+	class corona_select_frame_command : public corona_form_command
+	{
+	public:
+		std::string		target_frame;
+		std::string		source_frame;
+
+		corona_select_frame_command()
+		{
+			;
+		}
+
+		virtual std::string get_name()
+		{
+			return "select_frame";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+			json result = jp.create_object();
+
+			if (data.object() || data.array()) {
+				result = data;
+			}
+			else {
+				control_base* cb = _bus->find_control(form_name);
+				if (cb != nullptr) {
+					result = cb->get_data();
+				}
+			}
+
+			return result;
+		}
+
+		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		{
+			corona_client_response response = {};
+			response.success = true;
+			response.data = _context;
+			return response;
+		}
+
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
 			if (response.success) {
 				_bus->select_frame(batch_id, target_frame, source_frame, response.data);
@@ -306,7 +454,7 @@ namespace corona
 		{
 			using namespace std::literals;
 
-            corona_form_command::get_json(_dest);
+			corona_form_command::get_json(_dest);
 
 			_dest.put_member("class_name", "select_frame"sv);
 			_dest.put_member("target_frame", target_frame);
@@ -1085,6 +1233,7 @@ namespace corona
 	public:
 
 		corona_instance instance = corona_instance::local;
+		std::shared_ptr<corona_navigate_back> navigate_command;
 
 		corona_save_object_command()
 		{
@@ -1111,10 +1260,18 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->put_object(instance, request);
+			if (navigate_command) {
+				navigate_command->data = response.data;
+			}
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			control_base* cb = _bus->find_control(form_name);
+			if (cb) {
+				cb->set_data(response.data);
+			}
+
 			return response.data;
 		}
 
@@ -1127,7 +1284,9 @@ namespace corona
 			_dest.put_member("class_name", "save_object"sv);
 			_dest.put_member("form_name", form_name);
 			corona::get_json(_dest, instance);
-
+			if (navigate_command) {
+				_dest.put_member("target_frame", navigate_command->target_frame);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1147,6 +1306,14 @@ namespace corona
 				return;
 			}
 			corona::put_json(instance, _src	);
+			std::string target_frame = _src["target_frame"].as_string();
+			if (target_frame.empty()) {
+				navigate_command = nullptr;
+			}
+			else {
+				navigate_command = std::make_shared<corona_navigate_back>();
+                navigate_command->target_frame = target_frame;
+			}
 		}
 
 	};
@@ -1682,7 +1849,6 @@ namespace corona
 	class corona_script_command: public corona_form_command
 	{
 	public:
-		std::string		control_name = "";
 		std::vector<std::shared_ptr<corona_bus_command>> commands;
 
 		corona_script_command()
@@ -1699,7 +1865,7 @@ namespace corona
 		{
 			json obj;
 			for (auto comm : commands) {
-				obj = comm->execute(batch_id, bus);
+				obj = comm->execute_sync(batch_id, bus);
 			}
 			return obj;
 		}
@@ -1719,7 +1885,6 @@ namespace corona
 				jcommand_array.push_back(jcomm);
 			}
 
-			_dest.put_member("control_name", control_name);
 			_dest.put_member("commands", jcommand_array);
 
 		}
@@ -1728,7 +1893,7 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 
-			if (not _src.has_members(missing, { "control_name", "commands" })) {
+			if (not _src.has_members(missing, { "commands" })) {
 				system_monitoring_interface::active_mon->log_warning("script missing:");
 
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
@@ -1739,7 +1904,6 @@ namespace corona
 				return;
 			}
 
-			control_name = _src["control_name"].as_string();
 			commands.clear();
 
 			json_parser jp;
@@ -1855,6 +2019,16 @@ namespace corona
 			else if (class_name == "select_frame")
 			{
 				_dest = std::make_shared<corona_select_frame_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "navigate_forward")
+			{
+				_dest = std::make_shared<corona_navigate_forward>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "navigate_back")
+			{
+				_dest = std::make_shared<corona_navigate_back>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "list_select_object")
