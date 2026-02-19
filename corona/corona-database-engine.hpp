@@ -97,6 +97,7 @@ namespace corona
 		grant_none = 0,
 		grant_any = 1,
 		grant_own = 2,
+		grant_anyorown = 3,
 		grant_team = 4,
 		grant_teamorown = 6
 	};
@@ -4672,7 +4673,7 @@ namespace corona
 
 						bool use_write_object = false;
 
-						if (grant.put_grant == class_grants::grant_any)
+						if (grant.put_grant == class_grants::grant_any || grant.put_grant == class_grants::grant_anyorown)
 						{
 							use_write_object = true;
 						}

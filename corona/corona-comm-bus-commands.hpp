@@ -103,7 +103,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus)
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus)
 		{
 			return response.data;
 		}
@@ -293,7 +293,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -367,7 +367,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -442,7 +442,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			if (response.success) {
 				_bus->select_frame(batch_id, target_frame, source_frame, response.data);
 			}
@@ -535,7 +535,7 @@ namespace corona
 			return _bus->register_user(instance, request);
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -617,7 +617,7 @@ namespace corona
 			return _bus->confirm_user(instance, request[user_name_field].as_string(), request[validation_code_field].as_string());
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -685,7 +685,7 @@ namespace corona
 			return _bus->send_user(instance, request[user_name_field].as_string());
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -757,7 +757,7 @@ namespace corona
 			return _bus->set_password(instance, user_name, validation_code, password1, password2);
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -831,7 +831,7 @@ namespace corona
 			return _bus->login(instance, user_name, password);
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -941,7 +941,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			control_base* cb_table = {};
 
 			if (not table_name.empty())
@@ -1025,7 +1025,7 @@ namespace corona
 			return _bus->login(instance, user_name, password);
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -1060,7 +1060,7 @@ namespace corona
 			return _bus->put_class(instance, request);
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			return response.data;
 		}
 
@@ -1096,7 +1096,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			if (select_frame) {
 				select_frame->execute_sync(batch_id, _bus);
 			}
@@ -1176,7 +1176,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			if (response.success) {
 				std::string class_name = response.data["object"][class_name_field].as_string();
 				auto source_it = sources->pages_by_class.find(class_name);
@@ -1260,18 +1260,24 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->put_object(instance, request);
-			if (navigate_command) {
-				navigate_command->data = response.data;
+			std::string class_name = request["class_name"].as_string();
+			if (response.data.has_member(class_name)) {
+                json obj = response.data[class_name];
+				if (obj.array() && obj.size()>0) {
+					obj = obj.get_element(0);
+					response.cooked_data = obj["data"];
+				}
 			}
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
-			control_base* cb = _bus->find_control(form_name);
-			if (cb) {
-				cb->set_data(response.data);
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+			if (response.cooked_data.object()) {
+				control_base* cb = _bus->find_control(form_name);
+				if (cb) {
+					cb->set_data(response.cooked_data);
+				}
 			}
-
 			return response.data;
 		}
 
@@ -1778,7 +1784,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			control_base* cb_table = {};
 			if (not table_name.empty())
 				cb_table = _bus->find_control(table_name);

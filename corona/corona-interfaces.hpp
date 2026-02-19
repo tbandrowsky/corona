@@ -17,6 +17,7 @@ namespace corona
 		json			data;
 		validation_error_collection errors;
 		std::vector<std::shared_ptr<client_class_interface>> classes;
+        json            cooked_data;
 
 		void set(json& response)
 		{

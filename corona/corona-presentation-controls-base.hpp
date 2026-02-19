@@ -379,14 +379,27 @@ namespace corona
 			return this;
 		}
 
+		virtual void find_data(json& _parent)
+		{
+			if (json_field_name.empty()) {
+				for (auto child : children) {
+					child->find_data(_parent);
+				}
+			}
+			else 			
+			{
+                json data = get_data();
+                _parent.copy_member(json_field_name, data);
+			}
+		}
+
 		virtual json get_data()
 		{
 			json_parser jp;
 			json data = jp.create_object();
-			for (auto child : children) {
-				json child_data = child->get_data();
-				if (not child_data.empty()) {
-					data.copy_member(child->json_field_name, child_data);
+			if (json_field_name.empty()) {
+				for (auto child : children) {
+					child->find_data(data);
 				}
 			}
 			return data;
