@@ -1631,7 +1631,7 @@ namespace corona
 
 		bool scalar()  const
 		{
-			return not array() and not object() and not empty();
+			return !array() && !object();
 		}
 
 		bool empty() const
@@ -2120,7 +2120,7 @@ namespace corona
 			if (_member.array()) {
 				put_member_array(_key, _member);
 			}
-			else if (_member.empty())
+			else if (_member.object())
 			{
 				put_member_object(_key, _member);
 			}
@@ -2135,9 +2135,6 @@ namespace corona
 			else if (_member.is_datetime()) {
 				date_time d = _member.as_date_time();
 				put_member(_key, d);
-			}
-			else if (_member.object()) {
-				put_member_object(_key, _member);
 			}
 			else if (_member.is_string()) {
 				std::string d = _member.as_string();

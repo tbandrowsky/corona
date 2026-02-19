@@ -389,15 +389,18 @@ namespace corona
 			else 			
 			{
                 json data = get_data();
-                _parent.copy_member(json_field_name, data);
+				if (data.object() && data.has_member(json_field_name)) {
+					_parent.copy_member(json_field_name, data);
+				}
 			}
 		}
 
 		virtual json get_data()
 		{
 			json_parser jp;
-			json data = jp.create_object();
+			json data;
 			if (json_field_name.empty()) {
+				data = jp.create_object();
 				for (auto child : children) {
 					child->find_data(data);
 				}

@@ -120,6 +120,12 @@ namespace corona
 
 		virtual json get_data() override
 		{
+			if (json_field_name.empty()) {
+				return data;
+			}
+			else if (data.object() && data.has_member(json_field_name)) {	
+				return data[json_field_name];
+			}
 			return data;
 		}
 

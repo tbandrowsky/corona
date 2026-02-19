@@ -7,7 +7,7 @@
       "name": "card_label",
       "box": {
         "width": "500 pixels",
-        "height": "80 pixels"
+        "height": "100 pixels"
       },
       "padding": "8 pixels",
       "children": [

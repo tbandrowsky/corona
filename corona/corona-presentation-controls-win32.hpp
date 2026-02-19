@@ -348,7 +348,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -360,7 +360,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				std::string text = _data[json_field_name].as_string();
@@ -615,7 +615,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -632,7 +632,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				std::string text = _data[json_field_name].as_string();
@@ -808,7 +808,7 @@ namespace corona
 			data_changed();
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -825,7 +825,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				std::string text = _data[json_field_name].as_string();
@@ -1067,7 +1067,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -1082,7 +1082,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (not json_field_name.empty()) {
 				json_parser jp;
@@ -1114,7 +1114,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -1129,7 +1129,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (not json_field_name.empty()) {
 				json_parser jp;
@@ -1506,7 +1506,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -1521,7 +1521,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				double pos = _data[json_field_name].as_double();
@@ -1649,7 +1649,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json result;
 			if (not json_field_name.empty()) {
@@ -1663,7 +1663,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				current_date = _data[json_field_name].as_date_time();
@@ -1779,7 +1779,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json_parser jp;
 			json result = jp.create_object();
@@ -1794,7 +1794,7 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
 			if (_data.has_member(json_field_name)) {
 				current_date = _data[json_field_name].as_date_time();

@@ -260,21 +260,21 @@ namespace corona
 
 		virtual bool get_data(json& _dest, std::string _data_name) override {
 			json_parser jp;
-			json result = jp.create_array();
 			bool found = false;
 
-			auto found_it = std::find_if(
-				stages.begin(),
-				stages.end(),
-				[_data_name](std::shared_ptr<query_stage>& _item) ->bool {
-					return _item->stage_name == _data_name;
-				});
-			if (found_it != std::end(stages)) {
-				result = found_it->get()->stage_output;
-				found = true;
-			}
-			else {
-				found = query_context_base::get_data(result, _data_name);
+			found = query_context_base::get_data(_dest, _data_name);
+
+			if (!found) {
+				auto found_it = std::find_if(
+					stages.begin(),
+					stages.end(),
+					[_data_name](std::shared_ptr<query_stage>& _item) ->bool {
+						return _item->stage_name == _data_name;
+					});
+				if (found_it != std::end(stages)) {
+					_dest = found_it->get()->stage_output;
+					found = true;
+				}
 			}
 			return found;
 		}
