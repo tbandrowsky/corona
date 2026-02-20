@@ -41,7 +41,7 @@
         },
         "occasion": {
           "field_type": "string",
-          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "halloween", "allsaints", "thanksgiving", "christmas", "weekday", "weekends", "birthdays", "anniversaries" ],
+          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "memorial day", "independence day", "summer", "fall", "halloween", "allsaints", "veterans day", "thanksgiving", "christmas", "weekday", "weekend", "birthday", "anniversary" ],
           "label": "Occasion"
         }
       }
@@ -153,10 +153,6 @@
         "where": {
           "field_type": "string",
           "label": "Where"
-        },
-        "theme": {
-          "field_type": "string",
-          "label": "Theme"
         }
       }
     },
@@ -679,7 +675,7 @@
       }
     },
     {
-      "class_name": "electronics",
+      "class_name": "electronic",
       "class_description": "A household electronic item",
       "base_class_name": "responsibility",
       "class_color": "#af9d66",
@@ -694,6 +690,14 @@
         "website": {
           "field_type": "string",
           "label": "Website"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
         }
       }
     },
@@ -713,6 +717,18 @@
         "website": {
           "field_type": "string",
           "label": "Website"
+        },
+        "diamond_carats": {
+          "field_type": "string",
+          "label": "Diamond Carats"
+        },
+        "gold_content": {
+          "field_type": "string",
+          "label": "Gold Content"
+        },
+        "silver_content": {
+          "field_type": "string",
+          "label": "Silver Content"
         }
       }
     },

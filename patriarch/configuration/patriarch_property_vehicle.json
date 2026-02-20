@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_property",
+  "page_name": "page_property_vehicle",
   "children": [
     {
       "class_name": "row",
-      "name": "property_details",
+      "name": "vehicle_property_details",
       "box": "full_container",
       "children": [
         {
@@ -23,33 +23,39 @@
             },
             {
               "class_name": "edit_field",
-              "text": "Street 1:",
+              "text": "Description:",
               "box": "edit_field_box",
-              "json_field_name": "street1"
+              "json_field_name": "description"
             },
             {
               "class_name": "edit_field",
-              "text": "Street 2:",
+              "text": "Make:",
               "box": "edit_field_box",
-              "json_field_name": "street2"
+              "json_field_name": "make"
             },
             {
               "class_name": "edit_field",
-              "json_field_name": "city",
+              "text": "Model:",
               "box": "edit_field_box",
-              "text": "City:"
+              "json_field_name": "model"
             },
             {
               "class_name": "edit_field",
-              "json_field_name": "state",
+              "text": "Year:",
               "box": "edit_field_box",
-              "text": "State:"
+              "json_field_name": "year"
             },
             {
               "class_name": "edit_field",
-              "json_field_name": "zip",
+              "text": "Engine:",
               "box": "edit_field_box",
-              "text": "Zip:"
+              "json_field_name": "engine"
+            },
+            {
+              "class_name": "edit_field",
+              "text": "VIN:",
+              "box": "edit_field_box",
+              "json_field_name": "vin"
             }
           ]
         },

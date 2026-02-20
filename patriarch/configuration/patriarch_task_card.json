@@ -1,11 +1,11 @@
 {
   "class_name": "page",
-  "page_name": "card_property_appliance",
+  "page_name": "card_task",
   "children": [
     {
 
       "class_name": "column",
-      "name": "property_details",
+      "name": "task_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
@@ -16,21 +16,23 @@
           "class_name": "chaptersubtitle",
           "name": "title",
           "box": "chaptersubtitle_box",
-          "text": "Appliance"
-        },        
+          "text": "Task"
+        },
         {
           "class_name": "paragraph",
           "json_field_name": "description",
-          "text": "\"{nick_name}\" {description}",
+          "text": "{description}",
           "box": "edit_field_box"
         },
         {
           "class_name": "paragraph",
-          "json_field_name": "model_number",
-          "text": "{model_number}/{serial_number}",
+          "json_field_name": "status",
+          "text": "{status}",
           "box": "edit_field_box"
         }
+
       ]
     }
   ]
+
 }

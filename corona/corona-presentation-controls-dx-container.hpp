@@ -1456,7 +1456,7 @@ namespace corona
 			auto child = children[i];
 			auto child_size = child->get_size(this);
 
-			if (wrap and (current_position.x > inner_bounds.right()))
+			if (wrap and ((child_size.x > inner_bounds.w) or ((current_position.x + child_size.x) > inner_bounds.right())))
 			{
 				double last_x = inner_bounds.x;
 
@@ -1521,7 +1521,7 @@ namespace corona
 			auto child_size = child->get_size(this);
 
 			// if the element is too big
-			if (wrap and current_position.x > inner_bounds.right()) 
+			if (wrap and ((child_size.x > inner_bounds.w) or ((current_position.x + child_size.x) > inner_bounds.right())))
 			{
 				current_position.x = inner_bounds.x;
 				current_position.y += max_height + to_pixels_y(this, item_next_space);

@@ -781,6 +781,16 @@
     <None Include="configuration\patriarch_relative.json" />
     <None Include="configuration\patriarch_relative_card.json" />
     <None Include="configuration\patriarch_status.json" />
+    <None Include="configuration\patriarch_task.json" />
+    <None Include="configuration\patriarch_task_appointment.json" />
+    <None Include="configuration\patriarch_task_appointment_card.json" />
+    <None Include="configuration\patriarch_task_card.json" />
+    <None Include="configuration\patriarch_task_party.json" />
+    <None Include="configuration\patriarch_task_party_card.json" />
+    <None Include="configuration\patriarch_task_project.json" />
+    <None Include="configuration\patriarch_task_project_card.json" />
+    <None Include="configuration\patriarch_task_trip.json" />
+    <None Include="configuration\patriarch_task_trip_card.json" />
     <None Include="configuration\patriarch_wife.json" />
     <None Include="configuration\patriarch_wife_card.json" />
   </ItemGroup>

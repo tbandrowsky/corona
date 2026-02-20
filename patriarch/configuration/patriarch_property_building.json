@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_property",
+  "page_name": "page_property_building",
   "children": [
     {
       "class_name": "row",
@@ -23,33 +23,9 @@
             },
             {
               "class_name": "edit_field",
-              "text": "Street 1:",
+              "text": "Description:",
               "box": "edit_field_box",
-              "json_field_name": "street1"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Street 2:",
-              "box": "edit_field_box",
-              "json_field_name": "street2"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "city",
-              "box": "edit_field_box",
-              "text": "City:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "state",
-              "box": "edit_field_box",
-              "text": "State:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "zip",
-              "box": "edit_field_box",
-              "text": "Zip:"
+              "json_field_name": "description"
             }
           ]
         },

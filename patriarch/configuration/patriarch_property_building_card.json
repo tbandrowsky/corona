@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "card_property",
+  "page_name": "card_property_building",
   "children": [
     {
 
@@ -16,22 +16,15 @@
           "class_name": "chaptersubtitle",
           "name": "title",
           "box": "chaptersubtitle_box",
-          "text": "Property"
-        },        
-        {
-          "class_name": "paragraph",
-          "json_field_name": "street1",
-          "text": "\"{nick_name}\" {street1} {street2}",
-          "box": "edit_field_box"
+          "text": "Building"
         },
         {
           "class_name": "paragraph",
-          "json_field_name": "city",
-          "text": "{city}, {state} {zip}",
+          "json_field_name": "description",
+          "text": "\"{nick_name}\" {description}",
           "box": "edit_field_box"
         }
       ]
     }
   ]
-
 }

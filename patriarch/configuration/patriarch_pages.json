@@ -199,6 +199,68 @@
       "class_name": "import",
       "file_name": "patriarch_contact_card.json"
     },
+
+
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_accountant_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_broker_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_case_worker_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_church_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_club_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_doctor_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_employer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_landscaper_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_lawyer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_mechanic_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_parole_officer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_pharmacy_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_real_estate_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_school_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_utility_card.json"
+    },
     {
       "class_name": "import",
       "file_name": "patriarch_dependent.json"
@@ -257,31 +319,67 @@
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_vehicle.json"
+      "file_name": "patriarch_property_vehicle.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_vehicle_card.json"
+      "file_name": "patriarch_property_vehicle_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appliance.json"
+      "file_name": "patriarch_property_appliance.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appliance_card.json"
+      "file_name": "patriarch_property_appliance_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appliance.json"
+      "file_name": "patriarch_property_building.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_appliance_card.json"
+      "file_name": "patriarch_property_building_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_table_card.json"
+      "file_name": "patriarch_property_collectibles.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_collectibles_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_electronics.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_electronics_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_furniture.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_furniture_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_jewelry.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_jewelry_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_tool.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_property_tool_card.json"
     },
     {
       "class_name": "import",
@@ -290,6 +388,39 @@
     {
       "class_name": "import",
       "file_name": "patriarch_reminder_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_party.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_party_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_project.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_project_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_trip.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_trip_card.json"
     }
+
   ]
 }

@@ -1,11 +1,11 @@
 {
   "class_name": "page",
-  "page_name": "card_property",
+  "page_name": "card_property_tool",
   "children": [
     {
 
       "class_name": "column",
-      "name": "property_details",
+      "name": "property_tool_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
@@ -16,18 +16,24 @@
           "class_name": "chaptersubtitle",
           "name": "title",
           "box": "chaptersubtitle_box",
-          "text": "Property"
-        },        
+          "text": "Tool"
+        },
         {
           "class_name": "paragraph",
-          "json_field_name": "street1",
-          "text": "\"{nick_name}\" {street1} {street2}",
+          "json_field_name": "nick_name",
+          "text": "\"{nick_name}\"",
           "box": "edit_field_box"
         },
         {
           "class_name": "paragraph",
-          "json_field_name": "city",
-          "text": "{city}, {state} {zip}",
+          "json_field_name": "description",
+          "text": "{description}",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "description",
+          "text": "{model_number} / {serial_number}",
           "box": "edit_field_box"
         }
       ]

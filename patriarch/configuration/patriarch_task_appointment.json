@@ -1,15 +1,15 @@
 {
   "class_name": "page",
-  "page_name": "page_property_jewelry",
+  "page_name": "page_task_appointment",
   "children": [
     {
       "class_name": "row",
-      "name": "jewelry_property_details",
+      "name": "task_appointment_details",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "property_contact",
+          "name": "task_appointment_contact",
           "box": {
             "width": ".33 container",
             "height": "1.0 container"
@@ -17,34 +17,46 @@
           "children": [
             {
               "class_name": "edit_field",
-              "text": "Nick Name:",
-              "box": "edit_field_box",
-              "json_field_name": "nick_name"
-            },
-            {
-              "class_name": "edit_field",
               "text": "Description:",
               "box": "edit_field_box",
               "json_field_name": "description"
             },
             {
-              "class_name": "edit_field",
-              "text": "Diamond Carats:",
+              "class_name": "comboboxex_field",
+              "text": "Status:",
               "box": "edit_field_box",
-              "json_field_name": "diamond_carats"
+              "json_field_name": "status",
+              "choices": {
+                "id_field": "text",
+                "text_field": "text",
+                "items": [
+                  { "text": "open" },
+                  { "text": "in progress" },
+                  { "text": "completed" },
+                  { "text": "on hold" },
+                  { "text": "cancelled" },
+                  { "text": "blocked" }
+                ]
+              }
             },
-            {
-              "class_name": "edit_field",
-              "text": "Gold Content:",
-              "box": "edit_field_box",
-              "json_field_name": "gold_content"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Silver Content:",
-              "box": "edit_field_box",
-              "json_field_name": "silver_content"
-            }
+              {
+                "class_name": "edit_field",
+                "text": "With:",
+                "box": "edit_field_box",
+                "json_field_name": "with"
+              },
+              {
+                "class_name": "edit_field",
+                "text": "When:",
+                "box": "edit_field_box",
+                "json_field_name": "when"
+              },
+              {
+                "class_name": "edit_field",
+                "text": "Where:",
+                "box": "edit_field_box",
+                "json_field_name": "where"
+              }
           ]
         },
         {

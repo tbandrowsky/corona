@@ -23,33 +23,21 @@
             },
             {
               "class_name": "edit_field",
-              "text": "Street 1:",
+              "text": "Description:",
               "box": "edit_field_box",
-              "json_field_name": "street1"
+              "json_field_name": "description"
             },
             {
               "class_name": "edit_field",
-              "text": "Street 2:",
+              "text": "Model Number:",
               "box": "edit_field_box",
-              "json_field_name": "street2"
+              "json_field_name": "model_number"
             },
             {
               "class_name": "edit_field",
-              "json_field_name": "city",
+              "json_field_name": "serial_number",
               "box": "edit_field_box",
-              "text": "City:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "state",
-              "box": "edit_field_box",
-              "text": "State:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "zip",
-              "box": "edit_field_box",
-              "text": "Zip:"
+              "text": "Serial Number:"
             }
           ]
         },

@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "empty_details",
           "box": {
-            "width": "375 pixels",
+            "width": "1.0 remaining",
             "height": "1.0 container"
           },
           "children": [
@@ -22,25 +22,120 @@
             },
             {
               "class_name": "chaptersubtitle",
-              "text": "Contact",
+              "text": "Jobs and Todos",
               "box": "chaptertitle_box"
             },
             {
-              "class_name": "command_button",
-              "name": "new_contact",
-              "icon": "Contact",
-              "text": "contact",
+              "class_name": "row",
               "box": {
-                "width": "125 pixels",
-                "height": "50 pixels"
+                "width": "1.0 container",
+                "height": "55 pixels"
               },
-              "on_click": {
-                "class_name": "create_object",
-                "create_class_name": "contact",
-                "target_frame": "page_home.frame_selected",
-                "source_frame": "page_contact",
-                "message": "layout test."
-              }
+              "children": [
+                {
+                  "class_name": "command_button",
+                  "name": "new_appointment",
+                  "icon": "CompletedTask",
+                  "text": "appointment",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "appointment",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_relative",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_task",
+                  "icon": "CompletedTask",
+                  "text": "task",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "task",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_job",
+                    "message": "new task."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_party",
+                  "icon": "CompletedTask",
+                  "text": "party",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "party",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_job",
+                    "message": "new task."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_project",
+                  "icon": "CompletedTask",
+                  "text": "project",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "party",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_job",
+                    "message": "new task."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_trip",
+                  "icon": "CompletedTask",
+                  "text": "trip",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "trip",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_job",
+                    "message": "new task."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_reminder",
+                  "icon": "CompletedTask",
+                  "text": "reminder",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "reminder",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_reminder",
+                    "message": "reminder."
+                  }
+                }
+
+              ]
             },
             {
               "class_name": "chaptertitle",
@@ -56,8 +151,9 @@
               "class_name": "row",
               "box": {
                 "width": "1.0 container",
-                "height": "55 pixels"
+                "height": "60 pixels"
               },
+              "wrap": true,
               "children": [
                 {
                   "class_name": "command_button",
@@ -109,16 +205,7 @@
                     "source_frame": "page_child",
                     "message": "Add child."
                   }
-                }
-              ]
-            },
-            {
-              "class_name": "row",
-              "box": {
-                "width": "1.0 container",
-                "height": "50 pixels"
-              },
-              "children": [
+                },
                 {
                   "class_name": "command_button",
                   "name": "new_relative",
@@ -192,77 +279,251 @@
               ]
             },
             {
-              "class_name": "chaptertitle",
-              "text": "",
-              "box": "chaptertitle_box"
-            },
-            {
               "class_name": "chaptersubtitle",
-              "text": "Jobs and Todos",
+              "text": "Contact",
               "box": "chaptertitle_box"
             },
             {
               "class_name": "row",
               "box": {
-                "width": "1.0 container",
-                "height": "55 pixels"
+                "width": ".95 container",
+                "height": "160 pixels"
               },
+              "wrap": true,
               "children": [
                 {
                   "class_name": "command_button",
-                  "name": "new_appointment",
-                  "icon": "CompletedTask",
-                  "text": "appointment",
+                  "name": "new_contact",
+                  "icon": "Contact",
+                  "text": "contact",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "appointment",
+                    "create_class_name": "contact",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_relative",
+                    "source_frame": "page_contact",
                     "message": "layout test."
                   }
                 },
                 {
                   "class_name": "command_button",
-                  "name": "new_ancestor",
-                  "icon": "CompletedTask",
-                  "text": "job",
+                  "name": "new_accountant",
+                  "icon": "Contact",
+                  "text": "accountant",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "job",
+                    "create_class_name": "accountant",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_job",
-                    "message": "new job."
+                    "source_frame": "page_contact",
+                    "message": "layout test."
                   }
                 },
                 {
                   "class_name": "command_button",
-                  "name": "new_reminder",
-                  "icon": "CompletedTask",
-                  "text": "reminder",
+                  "name": "new_broker",
+                  "icon": "Contact",
+                  "text": "broker",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "reminder",
+                    "create_class_name": "broker",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_reminder",
-                    "message": "reminder."
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_case_worker",
+                  "icon": "Contact",
+                  "text": "case worker",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "case_worker",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_church",
+                  "icon": "Contact",
+                  "text": "church",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "church",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_doctor",
+                  "icon": "Contact",
+                  "text": "doctor",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "doctor",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_lawyer",
+                  "icon": "Contact",
+                  "text": "lawyer",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "lawyer",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_mechanic",
+                  "icon": "Contact",
+                  "text": "mechanic",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "mechanic",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_parole",
+                  "icon": "Contact",
+                  "text": "parole",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "parole_officer",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_pharmacy",
+                  "icon": "Contact",
+                  "text": "pharmacy",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "pharmacy",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_real_estate",
+                  "icon": "Contact",
+                  "text": "real_estate",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "real_estate",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_school",
+                  "icon": "Contact",
+                  "text": "school",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "school",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_utility",
+                  "icon": "Contact",
+                  "text": "utility",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "utility",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_contact",
+                    "message": "layout test."
                   }
                 }
-
               ]
             }
+
           ]
+        },
+        {
+          "class_name": "paragraph",
+          "box": {
+            "width": "125 pixels",
+            "height": "50 pixels"
+          },
+          "text": ""
         }
       ]
     }

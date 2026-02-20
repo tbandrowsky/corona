@@ -4,27 +4,17 @@
   "children": [
     {
       "class_name": "row",
-      "name": "current_object",
+      "name": "reminder_details",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "reminder_details",
+          "name": "reminder_lead",
           "box": {
-            "width": "300 pixels",
+            "width": ".33 container",
             "height": "1.0 container"
           },
           "children": [
-            {
-              "class_name": "chaptertitle",
-              "text": "Reminder",
-              "box": "chaptertitle_box"
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "text": "\"{parents.all.nick_name}\" {parents.all.first_name} {parents.all.last_name}",
-              "box": "edit_field_box"
-            },
             {
               "class_name": "edit_field",
               "text": "Description:",
@@ -33,23 +23,96 @@
             },
             {
               "class_name": "comboboxex_field",
-              "text": "When:",
+              "text": "Occasion:",
               "box": "edit_field_box",
-              "json_field_name": "when",
+              "json_field_name": "occasion",
               "choices": {
                 "id_field": "text",
                 "text_field": "text",
                 "items": [
                   { "text": "daily" },
                   { "text": "weekly" },
-                  { "text": "monthly" }
+                  { "text": "monthly" },
+                  { "text": "new year" },
+                  { "text": "winter" },
+                  { "text": "spring" },
+                  { "text": "easter" },
+                  { "text": "memorial day" },
+                  { "text": "summer" },
+                  { "text": "independence day" },
+                  { "text": "fall" },
+                  { "text": "halloween" },
+                  { "text": "all saints" },
+                  { "text": "veterans day" },
+                  { "text": "thanksgiving" },
+                  { "text": "christmas" },
+                  { "text": "birthday" },
+                  { "text": "anniversary" }
                 ]
               }
             }
           ]
+        },
+        {
+          "class_name": "column",
+          "name": "other_info",
+          "box": {
+            "width": ".33 container",
+            "height": "1.0 container"
+          },
+          "children": [
+          ]
+        },
+        {
+          "class_name": "column",
+          "name": "notes_column",
+          "box": {
+            "width": ".33 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "memo_field",
+              "name": "note_text_edit",
+              "json_field_name": "note_text",
+              "box": {
+                "width": "1.0 container",
+                "height": "80 pixels"
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_note",
+              "icon": "Note",
+              "text": "add note",
+              "box": {
+                "width": "125 pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "patriarch_note",
+                "source_frame": "memo_field",
+                "message": "layout test."
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "notes_table",
+              "json_field_name": "notes",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "sources": {
+                "patriarch_note": "card_note"
+              },
+              "empty_text": "No notes"
+            }
+          ]
         }
       ]
+
     }
   ]
-
 }
