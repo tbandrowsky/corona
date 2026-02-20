@@ -331,7 +331,7 @@
     },
     {
       "class_description": "A real estate agent",
-      "class_name": "realestate",
+      "class_name": "real_estate",
       "base_class_name": "contact",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",

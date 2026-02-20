@@ -399,6 +399,14 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_task_appointment.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_task_appointment_card.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_task_party.json"
     },
     {

@@ -45,7 +45,7 @@
                     "class_name": "create_object",
                     "create_class_name": "appointment",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_relative",
+                    "source_frame": "page_task_appointment",
                     "message": "layout test."
                   }
                 },
@@ -62,7 +62,7 @@
                     "class_name": "create_object",
                     "create_class_name": "task",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_job",
+                    "source_frame": "page_task",
                     "message": "new task."
                   }
                 },
@@ -79,7 +79,7 @@
                     "class_name": "create_object",
                     "create_class_name": "party",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_job",
+                    "source_frame": "page_task_party",
                     "message": "new task."
                   }
                 },
@@ -94,9 +94,9 @@
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "party",
+                    "create_class_name": "project",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_job",
+                    "source_frame": "page_task_project",
                     "message": "new task."
                   }
                 },
@@ -113,7 +113,7 @@
                     "class_name": "create_object",
                     "create_class_name": "trip",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_job",
+                    "source_frame": "page_task_trip",
                     "message": "new task."
                   }
                 },
@@ -275,7 +275,144 @@
                     "source_frame": "page_property",
                     "message": "layout test."
                   }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_appliance",
+                  "icon": "HomeHouse",
+                  "text": "appliance",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "appliance",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_appliance",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_building",
+                  "icon": "HomeHouse",
+                  "text": "building",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "appliance",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_building",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_collectible",
+                  "icon": "HomeHouse",
+                  "text": "collectible",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "collectible",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_collectible",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_electronic",
+                  "icon": "HomeHouse",
+                  "text": "electronic",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "electronic",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_electronic",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_furniture",
+                  "icon": "HomeHouse",
+                  "text": "furniture",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "furniture",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_furniture",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_jewelry",
+                  "icon": "HomeHouse",
+                  "text": "jewelry",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "jewelry",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_jewelry",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_tool",
+                  "icon": "HomeHouse",
+                  "text": "tool",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "jewelry",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_tool",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_vehicle",
+                  "icon": "HomeHouse",
+                  "text": "tool",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "vehicle",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_vehicle",
+                    "message": "layout test."
+                  }
                 }
+
               ]
             },
             {
