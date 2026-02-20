@@ -1,11 +1,11 @@
 {
   "class_name": "page",
-  "page_name": "card_relative",
+  "page_name": "card_contact_broker",
   "children": [
     {
 
       "class_name": "column",
-      "name": "relative_details",
+      "name": "contact_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
@@ -16,14 +16,27 @@
           "class_name": "chaptersubtitle",
           "name": "title",
           "box": "chaptersubtitle_box",
-          "text": "Relative"
+          "text": "Broker"
         },
         {
           "class_name": "paragraph",
           "json_field_name": "first_name",
-          "text": "\"{nick_name}\" {first_name} {last_name}",
+          "text": "'{nick_name}' {first_name} {last_name}",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "first_name",
+          "text": "{phone}",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "first_name",
+          "text": "{email}",
           "box": "edit_field_box"
         }
+
       ]
     }
   ]

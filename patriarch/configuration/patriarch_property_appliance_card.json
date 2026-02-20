@@ -1,11 +1,11 @@
 {
   "class_name": "page",
-  "page_name": "card_interaction",
+  "page_name": "card_property_appliance",
   "children": [
     {
 
       "class_name": "column",
-      "name": "interaction_details",
+      "name": "property_details",
       "box": {
         "width": "1.0 container",
         "height": "60 pixels"
@@ -16,20 +16,19 @@
           "class_name": "chaptersubtitle",
           "name": "title",
           "box": "chaptersubtitle_box",
-          "text": "Interaction"
-        },
+          "text": "Appliance"
+        },        
         {
           "class_name": "paragraph",
-          "json_field_name": "first_name",
-          "text": "\"{parents.any.nick_name}\" {parents.any.first_name} {parents.any.last_name}",
+          "json_field_name": "street1",
+          "text": "\"{nick_name}\" {street1} {street2}",
           "box": "edit_field_box"
         },
         {
           "class_name": "paragraph",
-          "name": "description",
-          "box": "edit_label_box_full",
-          "json_field_name": "description",
-          "text": "{description}"
+          "json_field_name": "city",
+          "text": "{city}, {state} {zip}",
+          "box": "edit_field_box"
         }
       ]
     }

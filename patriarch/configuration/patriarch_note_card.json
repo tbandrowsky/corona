@@ -13,17 +13,13 @@
       "padding": "8px",
       "children": [
         {
-          "class_name": "chaptersubtitle",
-          "name": "title",
-          "box": "chaptersubtitle_box",
-          "text": "Contact"
-        },
-        {
           "class_name": "paragraph",
-          "json_field_name": "first_name",
-          "text": "'{nick_name}' {first_name} {last_name}",
-          "box": "edit_field_box"
-        }
+          "json_field_name": "note_text",
+          "text": "{note_text}",
+          "box": {
+            "width": "1.0 container",
+            "height": "80 pixels" 
+          }
       ]
     }
   ]

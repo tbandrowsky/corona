@@ -50,7 +50,7 @@
     },
     "edit_field_box": {
       "width": {
-        "amount": 500,
+        "amount": 400,
         "units": "pixels"
       },
       "height": {
@@ -249,27 +249,35 @@
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_interaction.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_interaction_card.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_promise.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_promise_card.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "patriarch_property.json"
     },
     {
       "class_name": "import",
       "file_name": "patriarch_property_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_vehicle.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_vehicle_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_appliance.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_appliance_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_appliance.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_appliance_card.json"
     },
     {
       "class_name": "import",

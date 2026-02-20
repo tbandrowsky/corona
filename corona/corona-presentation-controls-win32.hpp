@@ -366,6 +366,10 @@ namespace corona
 				std::string text = _data[json_field_name].as_string();
 				set_text(text);
 			}
+			else {
+				std::string text = "";
+				set_text(text);
+			}
 			return _data;
 		}
 
@@ -643,6 +647,15 @@ namespace corona
 					}
 				}
 			}
+			else {
+				std::string text = "";
+				if (auto ptr = window_host.lock()) {
+					std::string existing = ptr->getListSelectedText(id);
+					if (existing != text) {
+						ptr->setListSelectedText(id, text.c_str());
+					}
+				}
+			}
 			return _data;
 		}
 
@@ -836,6 +849,14 @@ namespace corona
 					}
 				}
 			}
+			else if (auto ptr = window_host.lock()) {
+				std::string existing = ptr->getListSelectedText(id);
+				std::string text = "";
+				if (existing != text) {
+					ptr->setListSelectedText(id, text.c_str());
+				}
+			}
+
 			return _data;
 		}
 
@@ -1092,6 +1113,9 @@ namespace corona
 					ptr->setButtonChecked(id, checked);
 				}
 			}
+			else if (auto ptr = window_host.lock()) {
+				ptr->setButtonChecked(id, false);
+			}
 			return _data;
 		}
 
@@ -1139,9 +1163,11 @@ namespace corona
 					ptr->setButtonChecked(id, checked);
 				}
 			}
+			else if (auto ptr = window_host.lock()) {
+				ptr->setButtonChecked(id, false);
+			}
 			return _data;
 		}
-
 
 		virtual ~checkbox_control() { ; }
 	};
@@ -1205,6 +1231,56 @@ namespace corona
 
 		virtual void on_create() 
 		{ 
+			if (::IsWindow(window)) {
+				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
+			}
+		}
+	};
+
+	class memo_control : public text_control_base
+	{
+
+		using windows_control::window;
+
+	public:
+
+		std::string format;
+
+		memo_control() { id = id_counter::next(); }
+		memo_control(control_base* _parent, int _id) : text_control_base(_parent, _id) { ; }
+		virtual ~memo_control() { ; }
+		memo_control(const memo_control& _src) = default;
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<memo_control>(*this);
+			return tv;
+		}
+
+		virtual const char* get_window_class() { return WC_EDITA; }
+		virtual DWORD get_window_style() { return RichEditWindowStyles; }
+		virtual DWORD get_window_ex_style() { return 0; }
+
+		static LRESULT myEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+		{
+			LONG_PTR ptr = ::GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+			if (ptr) {
+				auto pedit = (memo_control*)ptr;
+				if (msg == WM_PAINT)
+				{
+					auto szFormat = pedit->format.c_str();
+					auto ccFormat = pedit->format.size();
+					PAINTSTRUCT ps = {};
+					BeginPaint(hWnd, &ps);
+					SetTextColor(ps.hdc, RGB(128, 128, 128));
+					DrawTextA(ps.hdc, szFormat, ccFormat, &ps.rcPaint, DT_EDITCONTROL);
+					EndPaint(hWnd, &ps);
+				}
+			}
+			return CallWindowProcW(DefWindowProcW, hWnd, msg, wParam, lParam);
+		}
+
+		virtual void on_create()
+		{
 			if (::IsWindow(window)) {
 				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
 			}
@@ -1527,6 +1603,7 @@ namespace corona
 				double pos = _data[json_field_name].as_double();
 				sbi.nPos = (pos - scaleMin) / scale + sbi.nMin;
 			}
+			sbi.nPos = sbi.nMin;
 			return _data;
 		}
 

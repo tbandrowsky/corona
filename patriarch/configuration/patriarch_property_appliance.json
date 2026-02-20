@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_property",
+  "page_name": "page_property_appliance",
   "children": [
     {
       "class_name": "row",

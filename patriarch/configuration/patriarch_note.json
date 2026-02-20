@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_husband",
+  "page_name": "page_note",
   "children": [
     {
       "class_name": "column",
@@ -22,21 +22,17 @@
               "children": [
                 {
                   "class_name": "chaptertitle",
-                  "text": "husband",
+                  "text": "note",
                   "box": "chaptertitle_box"
                 },
                 {
-                  "class_name": "frame",
+                  "class_name": "memo_field",
                   "name": "current_dependent_home",
                   "box": {
                     "width": "1.0 remaining",
                     "height": "1.0 container"
                   },
-                  "on_load": {
-                    "class_name": "select_frame",
-                    "source_frame": "page_dependent",
-                    "message": "load frame."
-                  }
+                  "json_field_name": "note_text"
                 }
               ]
             }
@@ -44,7 +40,7 @@
         },
         {
           "class_name": "row",
-          "name": "husband_sys",
+          "name": "note_sys",
           "box": {
             "width": "1.0 container",
             "height": "250 pixels"
@@ -52,7 +48,7 @@
           "children": [
             {
               "class_name": "frame",
-              "name": "husband_sys_home",
+              "name": "note_sys_home",
               "box": {
                 "width": "1.0 container",
                 "height": "1.0 container"

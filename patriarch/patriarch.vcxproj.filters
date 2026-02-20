@@ -85,19 +85,7 @@
     <CopyFileToFolders Include="configuration\patriarch_dependent_card.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_interaction.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_interaction_card.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_pages.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_promise.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_promise_card.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_property.json">
@@ -140,5 +128,38 @@
     <None Include="configuration\patriarch_job.json" />
     <None Include="configuration\patriarch_job_card.json" />
     <None Include="configuration\patriarch_object_details.json" />
+    <None Include="configuration\patriarch_note.json" />
+    <None Include="configuration\patriarch_note_card.json" />
+    <None Include="configuration\patriarch_contact_accountant_card.json" />
+    <None Include="configuration\patriarch_contact_broker_card.json" />
+    <None Include="configuration\patriarch_contact_case_worker_card.json" />
+    <None Include="configuration\patriarch_contact_church_card.json" />
+    <None Include="configuration\patriarch_contact_club_card.json" />
+    <None Include="configuration\patriarch_contact_doctor_card.json" />
+    <None Include="configuration\patriarch_contact_employer_card.json" />
+    <None Include="configuration\patriarch_contact_landscaper_card.json" />
+    <None Include="configuration\patriarch_contact_lawyer_card.json" />
+    <None Include="configuration\patriarch_contact_mechanic_card.json" />
+    <None Include="configuration\patriarch_contact_parole_officer_card.json" />
+    <None Include="configuration\patriarch_contact_pharmacy_card.json" />
+    <None Include="configuration\patriarch_contact_real_estate_card.json" />
+    <None Include="configuration\patriarch_contact_school_card.json" />
+    <None Include="configuration\patriarch_contact_utility_card.json" />
+    <None Include="configuration\patriarch_property_appliance.json" />
+    <None Include="configuration\patriarch_property_appliance_card.json" />
+    <None Include="configuration\patriarch_property_building.json" />
+    <None Include="configuration\patriarch_property_building_card.json" />
+    <None Include="configuration\patriarch_property_collectibles.json" />
+    <None Include="configuration\patriarch_property_collectibles_card.json" />
+    <None Include="configuration\patriarch_property_electronics.json" />
+    <None Include="configuration\patriarch_property_electronics_card.json" />
+    <None Include="configuration\patriarch_property_furniture.json" />
+    <None Include="configuration\patriarch_property_furniture_card.json" />
+    <None Include="configuration\patriarch_property_jewelry.json" />
+    <None Include="configuration\patriarch_property_jewelry_card.json" />
+    <None Include="configuration\patriarch_property_tool.json" />
+    <None Include="configuration\patriarch_property_tool_card.json" />
+    <None Include="configuration\patriarch_property_vehicle.json" />
+    <None Include="configuration\patriarch_property_vehicle_card.json" />
   </ItemGroup>
 </Project>

@@ -30,9 +30,9 @@ namespace corona
 
 	class horizontal_field_layout {
 	public:
-		layout_rect label_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
-		layout_rect field_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
-		layout_rect status_box = { 0.0_px, 0.0_px, 0.3_container, 30.0_px };
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.33_container, 30.0_px };
+		layout_rect field_box = { 0.0_px, 0.0_px, 0.33_container, 30.0_px };
+		layout_rect status_box = { 0.0_px, 0.0_px, 0.34_container, 30.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 34.0_px };
 	};
 
@@ -206,6 +206,7 @@ namespace corona
 	using default_field_layout = horizontal_field_layout;
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
+	using memo_field_control = field_layout<default_layout, memo_control, default_field_layout>;
 	using readonly_field_control = field_layout<default_layout, readonly_control, default_field_layout>;
 	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
 	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
@@ -589,6 +590,15 @@ namespace corona
 		control_builder& edit_field(int _id, std::function<void(edit_field_control&)> _settings)
 		{
 			auto tc = create<edit_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& memo_field(int _id, std::function<void(memo_field_control&)> _settings)
+		{
+			auto tc = create<memo_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -1095,6 +1105,15 @@ namespace corona
 		control_builder& edit(int _id, std::function<void(edit_control&)> _settings = nullptr)
 		{
 			auto tc = create<edit_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& memo(int _id, std::function<void(memo_control&)> _settings = nullptr)
+		{
+			auto tc = create<memo_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);

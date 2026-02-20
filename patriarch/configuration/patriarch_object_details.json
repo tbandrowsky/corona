@@ -11,14 +11,14 @@
           "class_name": "column",
           "name": "system_details",
           "box": {
-            "width": "1.0 container",
+            "width": ".33 container",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "text": "Object Details",
-              "box": "chaptertitle_box"
+              "text": "Object Identity (Read Only)",
+              "box": "edit_field_box"
             },
             {
               "class_name": "paragraph",
@@ -36,6 +36,21 @@
               "json_field_name": "object_id",
               "box": "edit_field_box",
               "text": "Object ID:"
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "name": "system_details",
+          "box": {
+            "width": ".33 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "box": "edit_field_box",
+              "text": ""
             },
             {
               "class_name": "read_only_field",
@@ -60,6 +75,21 @@
               "json_field_name": "updated_by",
               "box": "edit_field_box",
               "text": "Updated By:"
+            }
+          ]
+        },
+        {
+          "class_name": "column",
+          "name": "system_details",
+          "box": {
+            "width": ".34 container",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "box": "edit_field_box",
+              "text": ""
             },
             {
               "class_name": "read_only_field",
@@ -68,29 +98,24 @@
               "text": "Team:"
             },
             {
-              "class_name": "row",
-              "name": "system_commands",
+              "class_name": "paragraph",
+              "box": "edit_field_box",
+              "text": ""
+            },
+            {
+              "class_name": "command_button",
+              "name": "save_object",
+              "icon": "Save",
+              "text": "save",
               "box": {
-                "width": "1.0 container",
+                "width": "125 pixels",
                 "height": "50 pixels"
               },
-              "children": [
-                {
-                  "class_name": "command_button",
-                  "name": "save_object",
-                  "icon": "Save",
-                  "text": "save",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "1.0 container"
-                  },
-                  "on_click": {
-                    "class_name": "save_object",
-                    "form_name": "current_object",
-                    "target_frame": "frame_selected"
-                  }
-                }
-              ] 
+              "on_click": {
+                "class_name": "save_object",
+                "form_name": "current_object",
+                "target_frame": "frame_selected"
+              }
             }
           ]
         }

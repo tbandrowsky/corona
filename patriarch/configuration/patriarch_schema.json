@@ -7,10 +7,23 @@
   ],
   "classes": [
     {
+      "class_name": "patriarch_note",
+      "base_class_name": "sys_object",
+      "class_description": "A note that can be placed on an object",
+      "parents": [ "patiarch_object" ],
+      "fields": {
+        "note_text": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
       "class_name": "patriarch_object",
       "base_class_name": "sys_object",
       "class_description": "A root object of searchable things",
       "fields": {
+        "notes": "[patriarch_note]"
       }
     },
     {
@@ -28,96 +41,37 @@
         },
         "occasion": {
           "field_type": "string",
-          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "halloween", "allsaints", "christmas", "weekday", "weekends", "birthdays", "anniversaries" ],
+          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "halloween", "allsaints", "thanksgiving", "christmas", "weekday", "weekends", "birthdays", "anniversaries" ],
           "label": "Occasion"
         }
       }
     },
     {
-      "class_name": "status_base",
+      "class_name": "task",
       "base_class_name": "patriarch_object",
-      "class_description": "A base status",
-      "fields": {
-        "tasks": "[task_base]"
-      }
-    },
-    {
-      "class_name": "task_base",
-      "base_class_name": "patriarch_object",
-      "class_description": "A task",
+      "class_description": "A general job to do",
       "parents": [ "status_base" ],
+      "full_text": [ "description", "status" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
         },
-        "activities": "[activity]"
-      }
-    },
-    {
-      "class_name": "open_status",
-      "base_class_name": "status_base",
-      "class_description": "Open Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "in_progress_status",
-      "base_class_name": "status_base",
-      "class_description": "In Progress Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "completed_status",
-      "base_class_name": "status_base",
-      "class_description": "Completed Tasks",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "on_hold_status",
-      "base_class_name": "status_base",
-      "class_description": "Task On Hold",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "blocked_status",
-      "base_class_name": "status_base",
-      "class_description": "Task Blocked",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "cancelled_status",
-      "base_class_name": "status_base",
-      "class_description": "Task Cancelled",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "job",
-      "class_description": "A job to do",
-      "base_class_name": "task_base",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "text" ],
-      "parents": [ "task_base" ],
-      "fields": {
-
+        "status": {
+          "field_type": "string",
+          "enumeration": [ "open", "in progress", "completed", "on hold", "blocked", "cancelled" ],
+          "label": "Status"
+        }
       }
     },
     {
       "class_name": "appointment",
-      "class_description": "An appointment",
-      "base_class_name": "task_base",
+      "class_description": "A task to meet someone",
+      "base_class_name": "task",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "full_text": [ "text" ],
-      "parents": [ "responsibility", "contact" ],
       "fields": {
         "with": {
           "field_type": "string",
@@ -134,15 +88,76 @@
       }
     },
     {
-      "class_name": "promise",
-      "class_description": "A committment to someone",
-      "base_class_name": "task_base",
+      "class_name": "project",
+      "class_description": "A project",
+      "base_class_name": "task",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "parents": [ "contact", "responsibility" ],
+      "full_text": [ "text" ],
       "fields": {
-
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "when": {
+          "field_type": "string",
+          "label": "When"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        }
+      }
+    },
+    {
+      "class_name": "trip",
+      "class_description": "A vacation or a trip",
+      "base_class_name": "task",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "fields": {
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "when": {
+          "field_type": "string",
+          "label": "When"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        }
+      }
+    },
+    {
+      "class_name": "party",
+      "class_description": "A social gathering or get together",
+      "base_class_name": "task",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "fields": {
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "when": {
+          "field_type": "string",
+          "label": "When"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        },
+        "theme": {
+          "field_type": "string",
+          "label": "Theme"
+        }
       }
     },
     {
@@ -205,11 +220,167 @@
         "alt_email": {
           "field_type": "string",
           "label": "Alt Email"
-        },
-        "promises": "[promise]",
-        "reminders": "[reminder]",
-        "interactions": "[interaction]",
-        "appointments": "[appointment]"
+        }
+      }
+    },
+    {
+      "class_description": "A doctor",
+      "class_name": "doctor",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A mechanic",
+      "class_name": "mechanic",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A landscaper",
+      "class_name": "landscaper",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A pharmacy",
+      "class_name": "pharmacy",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A church",
+      "class_name": "church",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A school",
+      "class_name": "school",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A utility",
+      "class_name": "utility",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A club",
+      "class_name": "club",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "An employer",
+      "class_name": "employer",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "An accountant",
+      "class_name": "accountant",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "An insurance agent",
+      "class_name": "insurance",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A real estate agent",
+      "class_name": "realestate",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A stock broker",
+      "class_name": "broker",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A case worker",
+      "class_name": "case_worker",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A parole worker",
+      "class_name": "parole_officer",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_description": "A lawyer",
+      "class_name": "lawyer",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
       }
     },
     {
@@ -226,11 +397,7 @@
         "nick_name": {
           "field_type": "string",
           "label": "Nick Name"
-        },
-        "promises": "[promise]",
-        "reminders": "[reminder]",
-        "interactions": "[interaction]",
-        "appointments": "[appointment]"
+        }
       }
     },
     {
@@ -240,7 +407,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "nick_name", "full_name", "city", "state", "street1", "zip", "candidate_id" ],
+      "full_text": [ "nick_name", "first_name", "last_name", "phone", "email" ],
       "fields": {
         "first_name": {
           "field_type": "string",
@@ -270,9 +437,22 @@
           "field_type": "datetime",
           "label": "Birthday"
         },
-        "prescriptions": "string",
-        "allergies": "string",
-        "conditions": "string"
+        "medical_conditions": {
+          "field_type": "string",
+          "label": "Medical Conditions"
+        },
+        "prescriptions": {
+          "field_type": "string",
+          "label": "Prescriptions"
+        },
+        "likes": {
+          "field_type": "string",
+          "label": "Likes"
+        },
+        "dislikes": {
+          "field_type": "string",
+          "label": "Dislikes"
+        }
       }
     },
 
@@ -383,6 +563,190 @@
         "zip": {
           "field_type": "string",
           "label": "Zip"
+        }
+      }
+    },
+    {
+      "class_name": "vehicle",
+      "class_description": "A vehicle",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "engine": {
+          "field_type": "string",
+          "label": "Engine"
+        },
+        "vin": {
+          "field_type": "string",
+          "label": "Vin"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "tool",
+      "class_description": "A tool",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "appliance",
+      "class_description": "A household appliance",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "furniture",
+      "class_description": "A household furniture item",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "electronics",
+      "class_description": "A household electronic item",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "jewelry",
+      "class_description": "A household jewelry item",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "collectible",
+      "class_description": "A household collectible item",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "building",
+      "class_description": "Sheds, Shops and Stables",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
         }
       }
     }

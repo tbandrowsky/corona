@@ -3,101 +3,58 @@
   "page_name": "page_relative",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "current_object",
       "box": "full_container",
       "children": [
         {
-          "class_name": "column",
-          "name": "relative_details",
+          "class_name": "row",
+          "name": "current_details",
           "box": {
-            "width": ".33 container",
-            "height": "1.0 container"
+            "width": "1.0 container",
+            "height": "1.0 remaining"
           },
           "children": [
             {
-              "class_name": "chaptertitle",
-              "text": "Relative",
-              "box": "chaptertitle_box"
-            },
-            {
-              "class_name": "frame",
-              "name": "relative_dependent_home",
-              "box": {
-                "width": "1.0 remaining",
-                "height": "1.0 container"
-              },
-              "on_load": {
-                "class_name": "select_frame",
-                "source_frame": "page_dependent",
-                "message": "load frame."
-              }
+              "class_name": "column",
+              "name": "current_object",
+              "box": "full_container",
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "text": "relative",
+                  "box": "chaptertitle_box"
+                },
+                {
+                  "class_name": "frame",
+                  "name": "current_dependent_home",
+                  "box": {
+                    "width": "1.0 remaining",
+                    "height": "1.0 container"
+                  },
+                  "on_load": {
+                    "class_name": "select_frame",
+                    "source_frame": "page_dependent",
+                    "message": "load frame."
+                  }
+                }
+              ]
             }
           ]
         },
         {
-          "class_name": "column",
-          "name": "relative_address",
-          "box": {
-            "width": ".33 container",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "chaptersubtitle",
-              "text": "Address",
-              "box": "chaptertitle_box"
-            },
-            {
-              "class_name": "paragraph",
-              "text": "",
-              "box": "spacer_row_box"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "Street 1:",
-              "box": "edit_field_box",
-              "json_field_name": "street1"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "street2",
-              "box": "edit_field_box",
-              "text": "Street 2:"
-            },
-            {
-              "class_name": "edit_field",
-              "text": "City:",
-              "box": "edit_field_box",
-              "json_field_name": "city"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "state",
-              "box": "edit_field_box",
-              "text": "State:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "zip",
-              "box": "edit_field_box",
-              "text": "Zip"
-            }
-          ]
-        },
-        {
-          "class_name": "column",
+          "class_name": "row",
           "name": "relative_sys",
           "box": {
-            "width": ".33 container",
-            "height": "1.0 container"
+            "width": "1.0 container",
+            "height": "250 pixels"
           },
           "children": [
             {
               "class_name": "frame",
               "name": "relative_sys_home",
               "box": {
-                "width": "1.0 remaining",
+                "width": "1.0 container",
                 "height": "1.0 container"
               },
               "on_load": {

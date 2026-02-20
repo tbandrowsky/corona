@@ -10,7 +10,7 @@
         "width": "1.0 container",
         "height": "60 pixels"
       },
-      "padding" :  "8px",
+      "padding": "8px",
       "children": [
         {
           "class_name": "chaptersubtitle",
@@ -22,6 +22,18 @@
           "class_name": "paragraph",
           "json_field_name": "first_name",
           "text": "'{nick_name}' {first_name} {last_name}",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "first_name",
+          "text": "{phone}",
+          "box": "edit_field_box"
+        },
+        {
+          "class_name": "paragraph",
+          "json_field_name": "first_name",
+          "text": "{email}",
           "box": "edit_field_box"
         }
       ]

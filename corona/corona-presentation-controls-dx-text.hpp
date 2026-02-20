@@ -82,11 +82,7 @@ namespace corona
 
                             if (replacement_value.has_member("value")) {
                                 replacement_value = replacement_value["value"];
-								if (replacement_value.object() && replacement_value.size() > 0) {
-									text += replacement_value.as_string();
-								}
-								else if (!replacement_value.empty())
-								{
+								if (replacement_value.scalar()) {
 									text += replacement_value.as_string();
 								}
 							}

@@ -3,51 +3,58 @@
   "page_name": "page_child",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "current_object",
       "box": "full_container",
       "children": [
         {
-          "class_name": "column",
-          "name": "child_details",
+          "class_name": "row",
+          "name": "current_details",
           "box": {
-            "width": ".5 container",
-            "height": "1.0 container"
+            "width": "1.0 container",
+            "height": "1.0 remaining"
           },
           "children": [
             {
-              "class_name": "chaptertitle",
-              "text": "child",
-              "box": "chaptertitle_box"
-            },
-            {
-              "class_name": "frame",
-              "name": "child_dependent_home",
-              "box": {
-                "width": "1.0 remaining",
-                "height": "1.0 container"
-              },
-              "on_load": {
-                "class_name": "select_frame",
-                "source_frame": "page_dependent",
-                "message": "load frame."
-              }
+              "class_name": "column",
+              "name": "current_object",
+              "box": "full_container",
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "text": "child",
+                  "box": "chaptertitle_box"
+                },
+                {
+                  "class_name": "frame",
+                  "name": "current_dependent_home",
+                  "box": {
+                    "width": "1.0 remaining",
+                    "height": "1.0 container"
+                  },
+                  "on_load": {
+                    "class_name": "select_frame",
+                    "source_frame": "page_dependent",
+                    "message": "load frame."
+                  }
+                }
+              ]
             }
           ]
         },
         {
-          "class_name": "column",
+          "class_name": "row",
           "name": "child_sys",
           "box": {
-            "width": ".5 container",
-            "height": "1.0 container"
+            "width": "1.0 container",
+            "height": "250 pixels"
           },
           "children": [
             {
               "class_name": "frame",
               "name": "child_sys_home",
               "box": {
-                "width": "1.0 remaining",
+                "width": "1.0 container",
                 "height": "1.0 container"
               },
               "on_load": {

@@ -191,11 +191,11 @@
         "shape_border_thickness": 0,
         "shape_fill_brush": {
           "class_name": "solid_brush",
-          "color": "FFFFFFFF"
+          "color": "FFFFEE"
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "00000000"
+          "color": "00000044"
         }
       },
       "subtitle_style": {
@@ -214,7 +214,7 @@
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "00000000"
+          "color": "00000044"
         }
       },
       "chapter_title_style": {
@@ -228,6 +228,10 @@
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
         }
       },
       "chapter_subtitle_style": {

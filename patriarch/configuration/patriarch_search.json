@@ -12,24 +12,22 @@
           "box": { "width": "1.0 container", "height": "50 pixels" },
           "children": [
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "chaptertitle",
               "name": "search_label_text",
               "box": {
                 "width": "100 pixels",
                 "height": "40 pixels"
               },
-              "padding": "8 pixels",
               "text": "\u220B Find"
             },
             {
               "class_name": "edit",
               "name": "search_input",
               "json_field_name": "full_text",
-              "padding": "8 pixels",
               "placholder": "Search text",
               "box": {
                 "width": "300 pixels",
-                "height": "60 pixels"
+                "height": "40 pixels"
               },
               "text_style": {
                 "font_name": "Georgia",
@@ -37,13 +35,12 @@
               }
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "chaptertitle",
               "name": "search_label_text",
               "box": {
                 "width": "250 pixels",
                 "height": "40 pixels"
               },
-              "padding": "8 pixels",
               "text": "\u2208 In"
             },
             {
