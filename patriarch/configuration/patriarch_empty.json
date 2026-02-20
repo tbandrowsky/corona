@@ -255,9 +255,10 @@
             {
               "class_name": "row",
               "box": {
-                "width": "1.0 container",
-                "height": "55 pixels"
+                "width": ".95 container",
+                "height": "110 pixels"
               },
+              "wrap": true,
               "children": [
                 {
                   "class_name": "command_button",
@@ -399,7 +400,7 @@
                   "class_name": "command_button",
                   "name": "new_vehicle",
                   "icon": "HomeHouse",
-                  "text": "tool",
+                  "text": "vehicle",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
