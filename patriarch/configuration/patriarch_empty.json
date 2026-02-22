@@ -153,8 +153,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_husband",
-                  "icon": "Family",
                   "text": "husband",
+                  "image": "assets\\husband.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -170,8 +170,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_wife",
-                  "icon": "Family",
                   "text": "wife",
+                  "image": "assets\\wife.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -187,8 +187,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_child",
-                  "icon": "Family",
                   "text": "child",
+                  "image": "assets\\child.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -204,8 +204,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_relative",
-                  "icon": "Family",
                   "text": "relative",
+                  "image": "assets\\relative.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -221,8 +221,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_ancestor",
-                  "icon": "Family",
                   "text": "ancestor",
+                  "image": "assets\\ancestor.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -253,8 +253,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_property",
-                  "icon": "HomeHouse",
                   "text": "home",
+                  "image": "assets\\home.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -270,8 +270,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_appliance",
-                  "icon": "HomeHouse",
                   "text": "appliance",
+                  "image": "assets\\appliance.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -287,8 +287,7 @@
                 {
                   "class_name": "command_button",
                   "name": "new_building",
-                  "icon": "HomeHouse",
-                  "text": "building",
+                  "image": "assets\\building.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -304,8 +303,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_collectible",
-                  "icon": "HomeHouse",
                   "text": "collectible",
+                  "image": "assets\\collectible.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -321,8 +320,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_electronic",
-                  "icon": "HomeHouse",
                   "text": "electronic",
+                  "image": "assets\\electronic.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -338,8 +337,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_furniture",
-                  "icon": "HomeHouse",
                   "text": "furniture",
+                  "image": "assets\\furniture.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -355,8 +354,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_jewelry",
-                  "icon": "HomeHouse",
                   "text": "jewelry",
+                  "image": "assets\\jewelry.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -372,8 +371,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_tool",
-                  "icon": "HomeHouse",
                   "text": "tool",
+                  "image": "assets\\tool.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -389,8 +388,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_vehicle",
-                  "icon": "HomeHouse",
                   "text": "vehicle",
+                  "image": "assets\\vehicle.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -400,6 +399,57 @@
                     "create_class_name": "vehicle",
                     "target_frame": "page_home.frame_selected",
                     "source_frame": "page_property_vehicle",
+                    "message": "layout test."
+                  }
+                }
+                {
+                  "class_name": "command_button",
+                  "name": "new_vehicle",
+                  "text": "vehicle",
+                  "image": "assets\\vehicle.png",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "vehicle",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_vehicle",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_gun",
+                  "text": "gun",
+                  "image": "assets\\gun.png",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "gun",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_gun",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_tractor",
+                  "text": "tractor",
+                  "image": "assets\\tractor.png",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "tractor",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_property_tractor",
                     "message": "layout test."
                   }
                 }
@@ -422,8 +472,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_contact",
-                  "icon": "Contact",
                   "text": "contact",
+                  "image": "assets\\contact.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -439,7 +489,7 @@
                 {
                   "class_name": "command_button",
                   "name": "new_accountant",
-                  "icon": "Contact",
+                  "image": "assets\\accountant.png",
                   "text": "accountant",
                   "box": {
                     "width": "125 pixels",
@@ -456,8 +506,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_broker",
-                  "icon": "Contact",
                   "text": "broker",
+                  "image": "assets\\broker.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -473,8 +523,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_case_worker",
-                  "icon": "Contact",
                   "text": "case worker",
+                  "image": "assets\\case_worker.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -490,8 +540,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_church",
-                  "icon": "Contact",
                   "text": "church",
+                  "image": "assets\\church.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -507,8 +557,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_doctor",
-                  "icon": "Contact",
                   "text": "doctor",
+                  "image": "assets\\doctor.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -524,8 +574,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_lawyer",
-                  "icon": "Contact",
                   "text": "lawyer",
+                  "image": "assets\\lawyer.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -541,8 +591,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_mechanic",
-                  "icon": "Contact",
                   "text": "mechanic",
+                  "image": "assets\\mechanic.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -558,8 +608,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_parole",
-                  "icon": "Contact",
                   "text": "parole",
+                  "image": "assets\\parole_officer.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -575,8 +625,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_pharmacy",
-                  "icon": "Contact",
                   "text": "pharmacy",
+                  "image": "assets\\pharmacy.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -592,8 +642,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_real_estate",
-                  "icon": "Contact",
                   "text": "real_estate",
+                  "image": "assets\\real_estate.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -609,8 +659,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_school",
-                  "icon": "Contact",
                   "text": "school",
+                  "image": "assets\\school.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -626,8 +676,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_utility",
-                  "icon": "Contact",
                   "text": "utility",
+                  "image": "assets\\utility.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"

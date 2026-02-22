@@ -41,6 +41,129 @@
     <Image Include="patriarch.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\accountant.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\ancestor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\appliance.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\appointment.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\bar.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\broker.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\building.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\case_worker.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\child.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\church.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\collectible.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\contact.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\doctor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\electronic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\furniture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\grocery.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\home.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\husband.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\jewelry.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\lawyer.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\liquor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\museum.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\park.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\parole_officer.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\party.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\pharmacy.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\project.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\real_estate.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\relative.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\reminder.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\repair.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\restaurant.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\school.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\shapes1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\task.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\tickets.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\tool.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\trip.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\utility.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\vehicle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\wife.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\small_logo.png">
