@@ -22,7 +22,7 @@
             },
             {
               "class_name": "chaptersubtitle",
-              "text": "Jobs and Todos",
+              "text": "Tasks",
               "box": "chaptertitle_box"
             },
             {
@@ -35,8 +35,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_appointment",
-                  "icon": "CompletedTask",
                   "text": "appointment",
+                  "image": "assets\\appointment.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -52,8 +52,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_task",
-                  "icon": "CompletedTask",
                   "text": "task",
+                  "image": "assets\\task.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -69,12 +69,12 @@
                 {
                   "class_name": "command_button",
                   "name": "new_party",
-                  "icon": "CompletedTask",
                   "text": "party",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
                   },
+                  "image": "assets\\party.png",
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "party",
@@ -86,8 +86,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_project",
-                  "icon": "CompletedTask",
                   "text": "project",
+                  "image": "assets\\project.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -103,8 +103,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_trip",
-                  "icon": "CompletedTask",
                   "text": "trip",
+                  "image": "assets\\trip.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -120,8 +120,8 @@
                 {
                   "class_name": "command_button",
                   "name": "new_reminder",
-                  "icon": "CompletedTask",
                   "text": "reminder",
+                  "image": "assets\\reminder.png",
                   "box": {
                     "width": "125 pixels",
                     "height": "50 pixels"
@@ -138,13 +138,8 @@
               ]
             },
             {
-              "class_name": "chaptertitle",
-              "text": "",
-              "box": "chaptertitle_box"
-            },
-            {
               "class_name": "chaptersubtitle",
-              "text": "Family Member",
+              "text": "Family",
               "box": "chaptertitle_box"
             },
             {
@@ -241,11 +236,6 @@
                   }
                 }
               ]
-            },
-            {
-              "class_name": "chaptertitle",
-              "text": "",
-              "box": "chaptertitle_box"
             },
             {
               "class_name": "chaptersubtitle",

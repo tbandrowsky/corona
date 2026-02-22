@@ -21,6 +21,13 @@ For Future Consideration
 namespace corona
 {
 
+    enum draw_children_order {
+        draw_first,
+        draw_after_background,
+        draw_after_middleground,
+        draw_after_foreground
+    };
+
     class draw_control : public control_base
     {
 
@@ -37,6 +44,7 @@ namespace corona
         lockable camera_access_lock;
 
         bool needs_create = true;
+        draw_children_order child_draw_order = draw_children_order::draw_after_foreground;
 
         draw_control()
         {
@@ -139,6 +147,13 @@ namespace corona
                 _context->setViewStyle(vs);
             }
 
+            if (child_draw_order == draw_children_order::draw_first) {
+                for (auto& child : children)
+                {
+                    child->render(_context);
+                }
+            }
+
             if (view_style and view_style->box_border_brush.get_name())
             {
                 border_name = view_style->box_border_brush.get_name();
@@ -152,6 +167,14 @@ namespace corona
             if (background_name.size()) {
                 rectangle r = inner_bounds;
                 _context->drawRectangle(&r, "", 0, background_name);
+            }
+
+
+            if (child_draw_order == draw_children_order::draw_after_background) {
+                for (auto& child : children)
+                {
+                    child->render(_context);
+                }
             }
 
             /*
@@ -170,9 +193,11 @@ namespace corona
                 _context->drawRectangle(&r, border_name, view_style->box_border_thickness, "");
             }
 
-            for (auto& child : children)
-            {
-                child->render(_context);
+            if (child_draw_order == draw_children_order::draw_after_foreground) {
+                for (auto& child : children)
+                {
+                    child->render(_context);
+                }
             }
         }
 
@@ -1199,6 +1224,8 @@ namespace corona
         solidBrushRequest foregroundOver;
         solidBrushRequest foregroundDown;
 
+        bool button_down = false;
+
         gradient_button_control()
         {
             ;
@@ -1306,18 +1333,21 @@ namespace corona
 
                 if (mouse_left_down.value())
                 {
+                    button_down = true;
                     _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceDown.name);
                     auto face_bounds = rectangle_math::deflate(draw_bounds, { 8, 8, 8, 8 });
                     draw_shape(_context, this, &face_bounds, &foregroundDown);
                 }
                 else if (mouse_over.value())
                 {
+                    button_down = false;
                     _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceOver.name);
                     auto face_bounds = rectangle_math::deflate(draw_bounds, { 8, 8, 8, 16 });
                     draw_shape(_context, this, &face_bounds, &foregroundOver);
                 }
                 else
                 {
+                    button_down = false;
                     _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceNormal.name);
                     auto face_bounds = rectangle_math::deflate(draw_bounds, { 8, 8, 8, 16 });
                     draw_shape(_context, this, &face_bounds, &foregroundNormal);
@@ -1419,6 +1449,193 @@ namespace corona
         }
 
     };
+
+
+    class image_control : public draw_control
+    {
+
+        enum image_modes {
+            no_image,
+            use_filename,
+            use_control_id,
+            use_resource_id
+        };
+
+        bitmapInstanceDto instance;
+
+        image_modes		image_mode;
+
+        std::string		image_filename;
+        int				image_control_id;
+        DWORD			image_resource_id;
+        std::string		image_name;
+
+        void init();
+
+    public:
+        image_control();
+        image_control(const image_control& _src) = default;
+        image_control(control_base* _parent, int _id);
+        image_control(control_base* _parent, int _id, std::string _file_name);
+        image_control(control_base* _parent, int _id, int _source_control_id);
+        virtual ~image_control();
+
+        virtual void get_json(json& _dest)
+        {
+            draw_control::get_json(_dest);
+            _dest.put_member("image_filename", image_filename);
+        }
+        virtual void put_json(json& _src)
+        {
+            draw_control::put_json(_src);
+            load_from_file(_src["image_filename"].as_string());
+            init();
+        }
+
+        void load_from_file(std::string _name);
+        void load_from_resource(DWORD _resource_id);
+        void load_from_control(int _control_id);
+
+        virtual std::shared_ptr<control_base> clone()
+        {
+            auto tv = std::make_shared<image_control>(*this);
+            return tv;
+        }
+
+    };
+
+    image_control::image_control()
+    {
+        init();
+    }
+
+    image_control::image_control(control_base* _parent, int _id)
+        : draw_control(_parent, _id)
+    {
+        init();
+    }
+
+    image_control::image_control(control_base* _parent, int _id, std::string _filename) : draw_control(_parent, _id)
+    {
+        init();
+        load_from_file(_filename);
+    }
+
+    image_control::image_control(control_base* _parent, int _id, int _source_control_id) : draw_control(_parent, _id)
+    {
+        init();
+        load_from_control(_source_control_id);
+    }
+
+    void image_control::load_from_file(std::string _name)
+    {
+        image_mode = image_modes::use_filename;
+        image_filename = _name;
+        instance.bitmapName = std::format("bitmap_file_{0}", _name);
+    }
+
+    void image_control::load_from_resource(DWORD _resource_id)
+    {
+        image_mode = image_modes::use_resource_id;
+        image_resource_id = _resource_id;
+        instance.bitmapName = std::format("bitmap_resource_{0}", _resource_id);
+    }
+
+    void image_control::load_from_control(int _control_id)
+    {
+        image_mode = image_modes::use_control_id;
+        image_control_id = _control_id;
+        instance.bitmapName = std::format("bitmap_control_{0}_{1}", id, _control_id);
+    }
+
+    void image_control::init()
+    {
+
+        on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+            {
+                auto draw_bounds = _src->get_inner_bounds();
+
+                instance.copyId = 0;
+                instance.selected = false;
+                instance.x = draw_bounds.x;
+                instance.y = draw_bounds.y;
+                instance.width = draw_bounds.w;
+                instance.height = draw_bounds.h;
+                instance.alpha = 1.0;
+
+                //                system_monitoring_interface::active_mon->log_information("image on_create", __FILE__, __LINE__);
+                solidBrushRequest sbr;
+                sbr.brushColor = toColor("FFFF00");
+                sbr.name = "image_control_test";
+                _context->setSolidColorBrush(&sbr);
+
+                switch (image_mode) {
+                case image_modes::use_control_id:
+                    break;
+                case image_modes::use_resource_id:
+                {
+                    bitmapRequest request = {};
+                    request.resource_id = image_resource_id;
+                    request.name = instance.bitmapName;
+                    request.cropEnabled = false;
+                    point pt = { inner_bounds.w, inner_bounds.h };
+                    request.sizes.push_back(pt);
+                    _context->setBitmap(&request);
+                    break;
+                }
+                break;
+                case image_modes::use_filename:
+                {
+
+                    if (image_filename.size() == 0)
+                        throw std::logic_error("Missing file name for image");
+                    bitmapRequest request = {};
+                    request.filename = image_filename;
+                    request.name = instance.bitmapName;
+                    request.cropEnabled = false;
+                    point pt = { inner_bounds.w, inner_bounds.h };
+                    request.sizes.push_back(pt);
+
+                    _context->setBitmap(&request);
+                    auto szfound = std::begin(request.sizes);
+                    if (szfound != std::end(request.sizes)) {
+                        instance.width = request.sizes.begin()->x;
+                        instance.height = request.sizes.begin()->y;
+                    }
+                    else
+                    {
+                        instance.width = 0;
+                        instance.height = 0;
+                    }
+                    break;
+                }
+                }
+            };
+
+        on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+            {
+                auto draw_bounds = _src->get_inner_bounds();
+
+                if (image_mode == image_modes::use_filename)
+                {
+                    instance.copyId = 0;
+                    instance.selected = false;
+                    instance.x = draw_bounds.x;
+                    instance.y = draw_bounds.y;
+                    instance.width = draw_bounds.w;
+                    instance.height = draw_bounds.h;
+                    instance.alpha = 1.0;
+
+                    _context->drawBitmap(&instance);
+                }
+            };
+
+    }
+
+    image_control::~image_control()
+    {
+        ;
+    }
 
     std::map<std::string, std::wstring> segoeMDL2Icons = {
         // Navigation
@@ -1597,10 +1814,11 @@ namespace corona
         std::string         icon;
         std::string         button_text;
         std::shared_ptr<corona_bus_command> click_command;
+        std::shared_ptr<image_control> image;
 
         command_button_control() : gradient_button_control() {
             init_text_styles();
-            icon = "Help";
+            icon = "";
             button_text = "";
             init();
         }
@@ -1618,7 +1836,7 @@ namespace corona
         command_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "cm_button")
         {
             init_text_styles();
-            icon = "Help";
+            icon = "";
             button_text = "";
             init();
         }
@@ -1656,9 +1874,12 @@ namespace corona
         {
 
             auto ctrl = this;
+            child_draw_order = draw_children_order::draw_after_middleground;
 
             on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
                 {
+
+                    _item->arrange(nullptr, &bounds);
                     auto draw_bounds = inner_bounds;
 
                     _context->setTextStyle(&this->icon_style);
@@ -1669,12 +1890,31 @@ namespace corona
                     point* porigin = &shape_origin;
 
                     draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+
+                        if (child_draw_order == draw_children_order::draw_after_middleground) {
+                            for (auto child : children) {
+                                auto child_bounds = child->get_bounds();
+                                if (this->button_down) {
+                                    child_bounds.y += 4;
+                                    child->arrange(nullptr, &child_bounds);
+                                    child->render(_context);
+                                    child_bounds.y -= 4;
+                                    child->arrange(nullptr, &child_bounds);
+                                }
+                                else {
+                                    child->render(_context);
+                                }
+                            }
+                        }
+
                         auto icon_it = segoeMDL2Icons.find(this->icon);
                         rectangle draw_bounds = *_bounds;
                         draw_bounds.y += 8;
+
                         if (icon_it != segoeMDL2Icons.end()) {
                             _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
                         }
+
                         draw_bounds.y += 8;
                         _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                        };
@@ -1687,6 +1927,24 @@ namespace corona
         virtual ~command_button_control()
         {
 
+        }
+
+        // this sort of thing is why MS went down the path of light and truth and had great
+        // templating with WinUI.   Rest assured, since I'm just an old hack, you get this slop 
+        // instead, which gets the job done.
+        virtual void arrange(control_base* _parent, rectangle* _ctx) override
+        {
+            set_bounds(_parent, *_ctx);
+            for (auto child : children) {
+                rectangle child_pos;
+                auto sz = child->get_size(this);
+                auto pos = child->get_position(this);
+                child_pos.x = pos.x + inner_bounds.x;
+                child_pos.y = pos.y + inner_bounds.y;
+                child_pos.h = sz.y;
+                child_pos.w = sz.x;
+                child->arrange(this, &child_pos);
+            }
         }
 
         virtual LRESULT get_nchittest() {
@@ -1727,6 +1985,8 @@ namespace corona
 
             icon = _src["icon"].as_string();
             button_text = _src["text"].as_string();
+            image = nullptr;
+            children.clear();
 
             json jcommand = _src["on_click"];
             if (jcommand.empty()) {
@@ -1735,6 +1995,23 @@ namespace corona
             }
 
             corona::put_json(click_command, jcommand);
+
+            if (_src.has_member("image")) {
+                image = std::make_shared<image_control>();
+                json_parser jp;
+                json jimage = jp.create_object();
+                jimage.put_member("image_filename", _src["image"].as_string());
+                image->put_json(jimage);
+
+                layout_rect image_box;
+                image_box.height = .67_container;
+                image_box.width = 0.4_container;
+                image_box.x = 0.3_container;
+                image_box.y = -0.1_container;
+                image->set_box(image_box);
+
+                children.push_back(image);
+            }
 
         }
 
@@ -1831,192 +2108,6 @@ namespace corona
         }
 
     };
-
-    class image_control : public draw_control
-    {
-
-        enum image_modes {
-            no_image,
-            use_filename,
-            use_control_id,
-            use_resource_id
-        };
-
-        bitmapInstanceDto instance;
-
-        image_modes		image_mode;
-
-        std::string		image_filename;
-        int				image_control_id;
-        DWORD			image_resource_id;
-        std::string		image_name;
-
-        void init();
-
-    public:
-        image_control();
-        image_control(const image_control& _src) = default;
-        image_control(control_base* _parent, int _id);
-        image_control(control_base* _parent, int _id, std::string _file_name);
-        image_control(control_base* _parent, int _id, int _source_control_id);
-        virtual ~image_control();
-
-        virtual void get_json(json& _dest)
-        {
-            draw_control::get_json(_dest);
-            _dest.put_member("image_filename", image_filename);
-        }
-        virtual void put_json(json& _src)
-        {
-            draw_control::put_json(_src);
-            load_from_file(_src["image_filename"].as_string());
-            init();
-        }
-
-        void load_from_file(std::string _name);
-        void load_from_resource(DWORD _resource_id);
-        void load_from_control(int _control_id);
-
-        virtual std::shared_ptr<control_base> clone()
-        {
-            auto tv = std::make_shared<image_control>(*this);
-            return tv;
-        }
-
-    };
-
-    image_control::image_control()
-    {
-        init();
-    }
-
-    image_control::image_control(control_base* _parent, int _id)
-        : draw_control(_parent, _id)
-    {
-        init();
-    }
-
-    image_control::image_control(control_base* _parent, int _id, std::string _filename) : draw_control(_parent, _id)
-    {
-        init();
-        load_from_file(_filename);
-    }
-
-    image_control::image_control(control_base* _parent, int _id, int _source_control_id) : draw_control(_parent, _id)
-    {
-        init();
-        load_from_control(_source_control_id);
-    }
-
-    void image_control::load_from_file(std::string _name)
-    {
-        image_mode = image_modes::use_filename;
-        image_filename = _name;
-        instance.bitmapName = std::format("bitmap_file_{0}", _name);
-    }
-
-    void image_control::load_from_resource(DWORD _resource_id)
-    {
-        image_mode = image_modes::use_resource_id;
-        image_resource_id = _resource_id;
-        instance.bitmapName = std::format("bitmap_resource_{0}", _resource_id);
-    }
-
-    void image_control::load_from_control(int _control_id)
-    {
-        image_mode = image_modes::use_control_id;
-        image_control_id = _control_id;
-        instance.bitmapName = std::format("bitmap_control_{0}_{1}", id, _control_id);
-    }
-
-    void image_control::init()
-    {
-
-        on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-            {
-                auto draw_bounds = _src->get_inner_bounds();
-
-                instance.copyId = 0;
-                instance.selected = false;
-                instance.x = draw_bounds.x;
-                instance.y = draw_bounds.y;
-                instance.width = draw_bounds.w;
-                instance.height = draw_bounds.h;
-                instance.alpha = 1.0;
-
-//                system_monitoring_interface::active_mon->log_information("image on_create", __FILE__, __LINE__);
-                solidBrushRequest sbr;
-                sbr.brushColor = toColor("FFFF00");
-                sbr.name = "image_control_test";
-                _context->setSolidColorBrush(&sbr);
-
-                switch (image_mode) {
-                case image_modes::use_control_id:
-                    break;
-                case image_modes::use_resource_id:
-                {
-                    bitmapRequest request = {};
-                    request.resource_id = image_resource_id;
-                    request.name = instance.bitmapName;
-                    request.cropEnabled = false;
-                    point pt = { inner_bounds.w, inner_bounds.h };
-                    request.sizes.push_back(pt);
-                    _context->setBitmap(&request);
-                    break;
-                }
-                break;
-                case image_modes::use_filename:
-                {
-
-                    if (image_filename.size() == 0)
-                        throw std::logic_error("Missing file name for image");
-                    bitmapRequest request = {};
-                    request.filename = image_filename;
-                    request.name = instance.bitmapName;
-                    request.cropEnabled = false;
-                    point pt = { inner_bounds.w, inner_bounds.h };
-                    request.sizes.push_back(pt);
-
-                    _context->setBitmap(&request);
-                    auto szfound = std::begin(request.sizes);
-                    if (szfound != std::end(request.sizes)) {
-                        instance.width = request.sizes.begin()->x;
-                        instance.height = request.sizes.begin()->y;
-                    }
-                    else
-                    {
-                        instance.width = 0;
-                        instance.height = 0;
-                    }
-                    break;
-                }
-            }
-        };
-
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src) 
-            {
-                    auto draw_bounds = _src->get_inner_bounds();
-
-                    if (image_mode == image_modes::use_filename)
-                    {
-                        instance.copyId = 0;
-                        instance.selected = false;
-                        instance.x = draw_bounds.x;
-                        instance.y = draw_bounds.y;
-                        instance.width = draw_bounds.w;
-                        instance.height = draw_bounds.h;
-                        instance.alpha = 1.0;
-
-                        _context->drawBitmap(&instance);
-                    }
-            };
-
-    }
-
-    image_control::~image_control()
-    {
-        ;
-    }
 
     camera_view_control::camera_view_control()
     {
