@@ -196,12 +196,6 @@
     <CopyFileToFolders Include="configuration\patriarch_styles.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_appointment.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_appointment_card.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_dependent.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
@@ -248,8 +242,6 @@
     <None Include="configuration\patriarch_relative_card.json" />
     <None Include="configuration\patriarch_wife.json" />
     <None Include="configuration\patriarch_wife_card.json" />
-    <None Include="configuration\patriarch_job.json" />
-    <None Include="configuration\patriarch_job_card.json" />
     <None Include="configuration\patriarch_object_details.json" />
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
@@ -294,5 +286,20 @@
     <None Include="configuration\patriarch_task_project_card.json" />
     <None Include="configuration\patriarch_task_trip.json" />
     <None Include="configuration\patriarch_task_trip_card.json" />
+    <None Include="configuration\patriarch_create.json" />
+    <None Include="configuration\patriarch_contact_accountant.json" />
+    <None Include="configuration\patriarch_contact_broker.json" />
+    <None Include="configuration\patriarch_contact_case_worker.json" />
+    <None Include="configuration\patriarch_contact_church.json" />
+    <None Include="configuration\patriarch_contact_club.json" />
+    <None Include="configuration\patriarch_contact_doctor.json" />
+    <None Include="configuration\patriarch_contact_employer.json" />
+    <None Include="configuration\patriarch_contact_landscaper.json" />
+    <None Include="configuration\patriarch_contact_lawyer.json" />
+    <None Include="configuration\patriarch_contact_mechanic.json" />
+    <None Include="configuration\patriarch_contact_parole_officer.json" />
+    <None Include="configuration\patriarch_contact_real_estate.json" />
+    <None Include="configuration\patriarch_contact_school.json" />
+    <None Include="configuration\patriarch_contact_utility.json" />
   </ItemGroup>
 </Project>

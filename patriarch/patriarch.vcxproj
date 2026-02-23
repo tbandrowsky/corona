@@ -1017,20 +1017,6 @@
     <ClCompile Include="patriarch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="configuration\patriarch_appointment.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_appointment_card.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_dependent.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
@@ -1100,26 +1086,39 @@
     <None Include="configuration\patriarch_ancestor_card.json" />
     <None Include="configuration\patriarch_child.json" />
     <None Include="configuration\patriarch_child_card.json" />
+    <None Include="configuration\patriarch_contact_accountant.json" />
     <None Include="configuration\patriarch_contact_accountant_card.json" />
+    <None Include="configuration\patriarch_contact_broker.json" />
     <None Include="configuration\patriarch_contact_broker_card.json" />
+    <None Include="configuration\patriarch_contact_case_worker.json" />
     <None Include="configuration\patriarch_contact_case_worker_card.json" />
+    <None Include="configuration\patriarch_contact_church.json" />
     <None Include="configuration\patriarch_contact_church_card.json" />
+    <None Include="configuration\patriarch_contact_club.json" />
     <None Include="configuration\patriarch_contact_club_card.json" />
+    <None Include="configuration\patriarch_contact_doctor.json" />
     <None Include="configuration\patriarch_contact_doctor_card.json" />
+    <None Include="configuration\patriarch_contact_employer.json" />
     <None Include="configuration\patriarch_contact_employer_card.json" />
+    <None Include="configuration\patriarch_contact_landscaper.json" />
     <None Include="configuration\patriarch_contact_landscaper_card.json" />
+    <None Include="configuration\patriarch_contact_lawyer.json" />
     <None Include="configuration\patriarch_contact_lawyer_card.json" />
+    <None Include="configuration\patriarch_contact_mechanic.json" />
     <None Include="configuration\patriarch_contact_mechanic_card.json" />
+    <None Include="configuration\patriarch_contact_parole_officer.json" />
     <None Include="configuration\patriarch_contact_parole_officer_card.json" />
     <None Include="configuration\patriarch_contact_pharmacy_card.json" />
+    <None Include="configuration\patriarch_contact_real_estate.json" />
     <None Include="configuration\patriarch_contact_real_estate_card.json" />
+    <None Include="configuration\patriarch_contact_school.json" />
     <None Include="configuration\patriarch_contact_school_card.json" />
+    <None Include="configuration\patriarch_contact_utility.json" />
     <None Include="configuration\patriarch_contact_utility_card.json" />
+    <None Include="configuration\patriarch_create.json" />
     <None Include="configuration\patriarch_empty.json" />
     <None Include="configuration\patriarch_husband.json" />
     <None Include="configuration\patriarch_husband_card.json" />
-    <None Include="configuration\patriarch_job.json" />
-    <None Include="configuration\patriarch_job_card.json" />
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
     <None Include="configuration\patriarch_object_details.json" />

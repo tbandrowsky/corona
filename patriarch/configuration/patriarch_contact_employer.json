@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_contact",
+  "page_name": "page_contact_employer",
   "children": [
     {
       "class_name": "column",
@@ -36,7 +36,7 @@
                   "children": [
                     {
                       "class_name": "image",
-                      "image_filename": "assets\\project.png",
+                      "image_filename": "assets\\employer.png",
                       "box": {
                         "width": "50 pixels",
                         "height": "50 pixels"

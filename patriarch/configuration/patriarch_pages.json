@@ -200,10 +200,17 @@
       "file_name": "patriarch_contact_card.json"
     },
 
-
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_accountant.json"
+    },
     {
       "class_name": "import",
       "file_name": "patriarch_contact_accountant_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_broker.json"
     },
     {
       "class_name": "import",
@@ -211,7 +218,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_case_worker.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_case_worker_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_church.json"
     },
     {
       "class_name": "import",
@@ -219,7 +234,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_club.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_club_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_doctor.json"
     },
     {
       "class_name": "import",
@@ -227,7 +250,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_employer.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_employer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_landscaper.json"
     },
     {
       "class_name": "import",
@@ -235,7 +266,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_lawyer.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_lawyer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_mechanic.json"
     },
     {
       "class_name": "import",
@@ -243,7 +282,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_parole_officer.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_parole_officer_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_pharmacy.json"
     },
     {
       "class_name": "import",
@@ -251,7 +298,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_real_estate.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_real_estate_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_contact_school.json"
     },
     {
       "class_name": "import",
@@ -259,7 +314,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_contact_utility.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_contact_utility_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_create.json"
     },
     {
       "class_name": "import",
