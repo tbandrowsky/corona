@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_property_tool",
+  "page_name": "page_property_gun",
   "children": [
     {
       "class_name": "row",
-      "name": "tool_property_details",
+      "name": "gun_property_details",
       "box": "full_container",
       "children": [
         {
@@ -25,7 +25,7 @@
               "children": [
                 {
                   "class_name": "image",
-                  "image_filename": "assets\\tool.png",
+                  "image_filename": "assets\\gun.png",
                   "box": {
                     "width": "50 pixels",
                     "height": "50 pixels"
@@ -53,21 +53,21 @@
             },
             {
               "class_name": "edit_field",
-              "text": "Model Number:",
+              "text": "Diamond Carats:",
               "box": "edit_field_box",
-              "json_field_name": "model_number"
+              "json_field_name": "diamond_carats"
             },
             {
               "class_name": "edit_field",
-              "text": "Serial Number:",
+              "text": "Gold Content:",
               "box": "edit_field_box",
-              "json_field_name": "serial_number"
+              "json_field_name": "gold_content"
             },
             {
               "class_name": "edit_field",
-              "text": "Web Site:",
+              "text": "Silver Content:",
               "box": "edit_field_box",
-              "json_field_name": "website"
+              "json_field_name": "silver_content"
             }
           ]
         },

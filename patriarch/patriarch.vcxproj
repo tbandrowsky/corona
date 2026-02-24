@@ -1132,10 +1132,14 @@
     <None Include="configuration\patriarch_property_electronics_card.json" />
     <None Include="configuration\patriarch_property_furniture.json" />
     <None Include="configuration\patriarch_property_furniture_card.json" />
+    <None Include="configuration\patriarch_property_gun.json" />
+    <None Include="configuration\patriarch_property_gun_card.json" />
     <None Include="configuration\patriarch_property_jewelry.json" />
     <None Include="configuration\patriarch_property_jewelry_card.json" />
     <None Include="configuration\patriarch_property_tool.json" />
     <None Include="configuration\patriarch_property_tool_card.json" />
+    <None Include="configuration\patriarch_property_tractor.json" />
+    <None Include="configuration\patriarch_property_tractor_card.json" />
     <None Include="configuration\patriarch_property_vehicle.json" />
     <None Include="configuration\patriarch_property_vehicle_card.json" />
     <None Include="configuration\patriarch_relative.json" />

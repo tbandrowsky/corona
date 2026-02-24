@@ -681,15 +681,19 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "model_number", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
         },
-        "website": {
+        "manufacturer": {
           "field_type": "string",
-          "label": "Website"
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
         },
         "model_number": {
           "field_type": "string",
@@ -698,6 +702,10 @@
         "serial_number": {
           "field_type": "string",
           "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
         }
       }
     },
@@ -708,7 +716,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "model", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -729,7 +737,12 @@
         "silver_content": {
           "field_type": "string",
           "label": "Silver Content"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
         }
+
       }
     },
     {
@@ -739,7 +752,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "model", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -748,7 +761,12 @@
         "website": {
           "field_type": "string",
           "label": "Website"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
         }
+
       }
     },
     {
@@ -765,7 +783,95 @@
           "label": "Description"
         }
       }
+    },
+    {
+      "class_name": "gun",
+      "class_description": "Swords, Bows and Firepower for Freedom",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model", "serial_number" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "form_factor": {
+          "field_type": "string",
+          "label": "Form Factor"
+        },
+        "caliber": {
+          "field_type": "string",
+          "label": "Caliber"
+        },
+        "capacity": {
+          "field_type": "string",
+          "label": "Capacity"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
+    },
+    {
+      "class_name": "tractor",
+      "class_description": "Tractors, Farm & Construction Equipment",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "serial_number" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "form_factor": {
+          "field_type": "string",
+          "label": "Form Factor"
+        },
+        "fuel": {
+          "field_type": "string",
+          "label": "Fuel"
+        }
+      }
     }
+
+
   ],
   "users": [
 
