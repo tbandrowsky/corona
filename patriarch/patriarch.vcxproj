@@ -1108,6 +1108,7 @@
     <None Include="configuration\patriarch_contact_mechanic_card.json" />
     <None Include="configuration\patriarch_contact_parole_officer.json" />
     <None Include="configuration\patriarch_contact_parole_officer_card.json" />
+    <None Include="configuration\patriarch_contact_pharmacy.json" />
     <None Include="configuration\patriarch_contact_pharmacy_card.json" />
     <None Include="configuration\patriarch_contact_real_estate.json" />
     <None Include="configuration\patriarch_contact_real_estate_card.json" />
@@ -1122,6 +1123,7 @@
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
     <None Include="configuration\patriarch_object_details.json" />
+    <None Include="configuration\patriarch_object_edit_template.json" />
     <None Include="configuration\patriarch_property_appliance.json" />
     <None Include="configuration\patriarch_property_appliance_card.json" />
     <None Include="configuration\patriarch_property_building.json" />

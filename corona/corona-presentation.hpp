@@ -39,6 +39,9 @@ namespace corona {
 
 		comm_bus_app_interface *bus;
 
+		json apply_template(json& _page_data);
+		std::map<std::string, json> pages_json;
+
 	public:
 		int default_focus_id;
 		int default_push_button_id;
@@ -443,6 +446,7 @@ namespace corona {
 		current_focused_id = 0;
 
 		if (auto ppage = current_page.lock()) {
+
 			ppage->handle_onselect(ppage);
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
@@ -1126,6 +1130,33 @@ namespace corona {
 			pg->hardware_scan();
 		}
 	}
+
+	json presentation::apply_template(json& _page_data)
+	{
+		json result = _page_data.clone();
+		json using_clause = _page_data["using"];
+		if (using_clause.object()) {
+			json parameters = using_clause["parameters"];
+			std::string source_page = using_clause["page_name"].as_string();
+            auto found_source = pages_json.find(source_page);
+            if (found_source != pages_json.end()) {
+				if (found_source->second.object()) {
+					json_parser jp;
+                    json template_copy = found_source->second.clone();
+					result.erase_member("using");
+					json children = template_copy["children"];
+					if (children.array()) {
+						children.apply_abbreviations(parameters);
+						result.put_member("children", children);
+					}
+					else {
+						log_warning(std::format("The page {0} does not have children to apply the using clause to.", source_page));
+					}
+				}
+			}
+		}
+		return result;
+	}
 	
 	std::string presentation::setPresentation(json _json_pages)
 	{
@@ -1150,7 +1181,21 @@ namespace corona {
 		
 		if (jpages.array())
 		{
+			for (auto pg : jpages) {
+				if (pg.object()) {
+					std::string page_name = pg["page_name"].as_string();
+					std::string class_name = pg["class_name"].as_string();
+					if (class_name == "page") {
+						this->pages_json.insert_or_assign(page_name, pg);
+					}
+				}
+			}
+		}
+
+		if (jpages.array())
+		{
 			std::string current_page_name;
+
 			if (auto cp = current_page.lock()) {
 				current_page_name = cp->name;
 			}
@@ -1171,6 +1216,7 @@ namespace corona {
 						if (is_default or default_page_name.empty()) {
 							default_page_name = name;
 						}
+                        pg = apply_template(pg);
 						create_page(name, [&pg, this](page& _settings)->void
 							{
 								json_parser jp;
@@ -1185,6 +1231,8 @@ namespace corona {
 								obj.copy_member("padding", pg);
 								obj.copy_member("content_alignment", pg);
 								obj.copy_member("content_cross_alignment", pg);
+                                _settings.using_clause = pg["using"];
+								
 								if (obj.has_member("box")) {
 									_settings.put_json(obj);
 								}
@@ -1205,6 +1253,7 @@ namespace corona {
 					}
 				}
 			}
+
 			if (not current_page_name.empty() and pages.contains(current_page_name)) {
 				default_page_name = current_page_name;
 				current_page = pages[current_page_name];

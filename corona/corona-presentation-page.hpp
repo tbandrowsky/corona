@@ -42,8 +42,9 @@ namespace corona
 
 		int current_focused = 0;
 
-
 	public:
+
+		json using_clause;
 
 		std::shared_ptr<menu_item> menu;
 		presentation* parent;

@@ -305,5 +305,7 @@
     <None Include="configuration\patriarch_property_gun_card.json" />
     <None Include="configuration\patriarch_property_tractor.json" />
     <None Include="configuration\patriarch_property_tractor_card.json" />
+    <None Include="configuration\patriarch_contact_pharmacy.json" />
+    <None Include="configuration\patriarch_object_edit_template.json" />
   </ItemGroup>
 </Project>

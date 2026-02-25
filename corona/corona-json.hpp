@@ -3155,7 +3155,13 @@ namespace corona
 			{
 				for (auto& member : object_impl()->members)
 				{
-					if (member.second->get_field_type() == field_types::ft_string)
+					if (member.second.get() == nullptr)
+						continue;
+
+					if (abbrev->members.contains(member.first)) {
+						member.second = abbrev->members[member.first]->clone();
+					}					
+					else if (member.second->get_field_type() == field_types::ft_string)
 					{
 						std::shared_ptr<json_string> js = std::dynamic_pointer_cast<json_string>(member.second);
 						if (js)
@@ -3173,28 +3179,49 @@ namespace corona
 					}
 					else if (member.second->get_field_type() == field_types::ft_array)
 					{
-						std::shared_ptr<json_array> js = std::dynamic_pointer_cast<json_array>(member.second);
-						if (js)
-						{
-							for (auto item : js->elements)
-							{
-								if (item->get_field_type() == field_types::ft_object)
-								{
-									json obj = item;
-									obj.apply_abbreviations(_abbreviations);
-								}
-							}
-						}
+						json j = member.second;
+						j.apply_abbreviations(_abbreviations);
 					}
 				}
 			}
 			else if (array())
 			{
-				for (auto element : array_impl()->elements)
-				{
-					json temp(element);
-					temp.apply_abbreviations(_abbreviations);
+				std::vector<std::shared_ptr<json_value>> new_elements;
+				auto aimpl = array_impl();
+				for (int i = 0; i < aimpl->elements.size(); i++) {
+					auto item = aimpl->elements[i];
+					if (item->get_field_type() == field_types::ft_string)
+					{
+						std::string name = item->to_string();
+						auto ifound = abbrev->members.find(name);
+
+						if (ifound != std::end(abbrev->members)) {
+							std::shared_ptr<json_array> spa = std::dynamic_pointer_cast<json_array>(ifound->second);
+							if (spa) {
+								for (int i = 0; i < spa->elements.size(); i++) {
+									new_elements.push_back(spa->elements[i]);
+								}
+							}
+							else 
+							{
+								new_elements.push_back(ifound->second);
+							}
+						}
+						else {
+							new_elements.push_back(item);
+						}
+					}
+					else if (item->get_field_type() == field_types::ft_object)
+					{
+						json j = item;
+						j.apply_abbreviations(_abbreviations);
+						new_elements.push_back(j.value());
+					}
+					else {
+						new_elements.push_back(item);
+					}
 				}
+				aimpl->elements = new_elements;
 			}
 		}
 
