@@ -1142,7 +1142,7 @@ namespace corona {
             if (found_source != pages_json.end()) {
 				if (found_source->second.object()) {
 					json_parser jp;
-                    json template_copy = found_source->second.clone();
+                    json template_copy = apply_template(found_source->second);
 					result.erase_member("using");
 					json children = template_copy["children"];
 					if (children.array()) {

@@ -1,5 +1,24 @@
 {
   "abbreviations": {
+    "header_row_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 18,
+          "bold": false,
+          "underline": false,
+          "vertical_alignment": "far"
+        },
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "000000"
+        }
+    },
     "button_box": {
       "width": "100 pixels",
       "height": {

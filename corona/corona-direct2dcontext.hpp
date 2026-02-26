@@ -913,6 +913,21 @@ namespace corona
 			}
 		}
 
+        virtual void pushClip(const rectangle& _rect)
+		{
+			D2D1_RECT_F rect;
+			rect.left = _rect.x;
+			rect.top = _rect.y;
+			rect.right = _rect.x + _rect.w;
+			rect.bottom = _rect.y + _rect.h;
+			getDeviceContext()->PushAxisAlignedClip(rect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+		}
+
+		virtual void popClip()
+		{
+			getDeviceContext()->PopAxisAlignedClip();
+		}
+
 		virtual void popCamera()
 		{
 			if (transforms.empty())
@@ -1017,6 +1032,27 @@ namespace corona
 		friend class path;
 
 		friend class direct2dWindow;
+	};
+
+	class direct_clipper {
+		direct2dContext* context;
+
+	public:
+
+		direct_clipper(std::shared_ptr<direct2dContext>& _context, const rectangle& _rect)
+		{
+			context = _context.get();
+			context->pushClip(_rect);
+		}
+		direct_clipper(direct2dContext* _context, const rectangle& _rect)
+		{
+			context = _context;
+			context->pushClip(_rect);
+		}
+		~direct_clipper()
+		{
+			context->popClip();
+        }
 	};
 
 }

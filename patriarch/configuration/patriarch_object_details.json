@@ -28,15 +28,23 @@
             {
               "class_name": "read_only_field",
               "json_field_name": "class_name",
-              "box": "edit_field_box",
               "text": "Class Name:"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "object_id",
-              "box": "edit_field_box",
               "text": "Object ID:"
             }
+          ]
+        },
+        {
+          "class_name": "column",
+          "name": "filler1",
+          "box": {
+            "width": "8 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
           ]
         },
         {
@@ -49,58 +57,68 @@
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "box": "edit_field_box",
-              "text": ""
+              "text": "",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "",
+              "box": "spacer_row_box"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "created",
-              "box": "edit_field_box",
               "text": "Created:"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "create_by",
-              "box": "edit_field_box",
               "text": "Created By:"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "updated",
-              "box": "edit_field_box",
               "text": "Updated:"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "updated_by",
-              "box": "edit_field_box",
               "text": "Updated By:"
             }
           ]
         },
         {
           "class_name": "column",
+          "name": "filler1",
+          "box": {
+            "width": "8 pixels",
+            "height": "1.0 container"
+          },
+          "children": [
+          ]
+        },
+        {
+          "class_name": "column",
           "name": "system_details",
           "box": {
-            "width": ".34 container",
+            "width": ".9 remaining",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "box": "edit_field_box",
-              "text": ""
+              "text": "",
+              "box": "edit_field_box"
+            },
+            {
+              "class_name": "paragraph",
+              "text": "",
+              "box": "spacer_row_box"
             },
             {
               "class_name": "read_only_field",
               "json_field_name": "team",
-              "box": "edit_field_box",
               "text": "Team:"
-            },
-            {
-              "class_name": "paragraph",
-              "box": "edit_field_box",
-              "text": ""
             },
             {
               "class_name": "command_button",
@@ -120,6 +138,6 @@
           ]
         }
       ]
-    }
+        }
   ]
 }

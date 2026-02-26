@@ -8,39 +8,33 @@
       "$details_contents": [
         {
           "class_name": "edit_field",
-          "text": "Nick Name:",
+          "text": "Description:",
           "box": "edit_field_box",
-          "json_field_name": "nick_name"
+          "json_field_name": "description"
         },
         {
           "class_name": "edit_field",
-          "text": "Street 1:",
+          "json_field_name": "website",
           "box": "edit_field_box",
-          "json_field_name": "street1"
+          "text": "Website:"
         },
         {
           "class_name": "edit_field",
-          "text": "Street 2:",
+          "json_field_name": "diamond_carats",
           "box": "edit_field_box",
-          "json_field_name": "street2"
+          "text": "Carats:"
         },
         {
           "class_name": "edit_field",
-          "json_field_name": "city",
+          "json_field_name": "gold_content",
           "box": "edit_field_box",
-          "text": "City:"
+          "text": "Gold:"
         },
         {
           "class_name": "edit_field",
-          "json_field_name": "state",
+          "json_field_name": "silver_content",
           "box": "edit_field_box",
-          "text": "State:"
-        },
-        {
-          "class_name": "edit_field",
-          "json_field_name": "zip",
-          "box": "edit_field_box",
-          "text": "Zip:"
+          "text": "Website:"
         }
       ]
     }

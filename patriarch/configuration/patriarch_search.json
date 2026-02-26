@@ -63,7 +63,7 @@
                 "width": "200 pixels",
                 "height": "40 pixels"
               },
-              "text": "\u220B Create New"
+              "text": "\u220B Add New"
             },
             {
               "class_name": "command_button",
@@ -84,7 +84,7 @@
           ]
         },
         {
-          "class_name": "chaptersubtitle",
+          "class_name": "placeholder",
           "name": "search_result",
           "text": "",
           "box": {

@@ -4,7 +4,7 @@
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\property.png",
+      "$icon_image_file": "assets\\home.png",
       "$details_contents": [
         {
           "class_name": "edit_field",

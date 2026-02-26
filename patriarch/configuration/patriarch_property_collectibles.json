@@ -8,39 +8,23 @@
       "$details_contents": [
         {
           "class_name": "edit_field",
-          "text": "Nick Name:",
-          "box": "edit_field_box",
-          "json_field_name": "nick_name"
+          "text": "Description:",
+          "json_field_name": "description"
         },
         {
           "class_name": "edit_field",
-          "text": "Street 1:",
-          "box": "edit_field_box",
-          "json_field_name": "street1"
+          "text": "Web Site:",
+          "json_field_name": "website"
         },
         {
           "class_name": "edit_field",
-          "text": "Street 2:",
-          "box": "edit_field_box",
-          "json_field_name": "street2"
+          "text": "Serial #:",
+          "json_field_name": "serial_number"
         },
         {
           "class_name": "edit_field",
-          "json_field_name": "city",
-          "box": "edit_field_box",
-          "text": "City:"
-        },
-        {
-          "class_name": "edit_field",
-          "json_field_name": "state",
-          "box": "edit_field_box",
-          "text": "State:"
-        },
-        {
-          "class_name": "edit_field",
-          "json_field_name": "zip",
-          "box": "edit_field_box",
-          "text": "Zip:"
+          "text": "Certificate:",
+          "json_field_name": "certificate"
         }
       ]
     }

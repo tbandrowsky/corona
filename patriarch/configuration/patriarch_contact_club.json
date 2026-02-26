@@ -1,210 +1,25 @@
 {
   "class_name": "page",
   "page_name": "page_contact_club",
-  "children": [
-    {
-      "class_name": "column",
-      "name": "current_object",
-      "box": {
-        "width": "1.0 container",
-        "height": "1.0 remaining"
-      },
-      "children": [
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\club.png",
+      "$details_contents": [
         {
-          "class_name": "row",
-          "name": "current_object",
+          "class_name": "frame",
+          "name": "current_dependent_home",
           "box": {
-            "width": "1.0 container",
+            "width": "1.0 remaining",
             "height": "1.0 remaining"
           },
-          "children": [
-            {
-              "class_name": "column",
-              "name": "contact_details",
-              "box": {
-                "width": ".33 container",
-                "height": "1.0 container"
-              },
-              "children": [
-                {
-                  "class_name": "row",
-                  "name": "current_object",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "50 pixels"
-                  },
-                  "children": [
-                    {
-                      "class_name": "image",
-                      "image_filename": "assets\\club.png",
-                      "box": {
-                        "width": "50 pixels",
-                        "height": "50 pixels"
-                      }
-                    },
-                    {
-                      "class_name": "chaptertitle",
-                      "text": "{class_name}",
-                      "box": "chaptertitle_box"
-                    }
-                  ]
-                },
-                {
-                  "class_name": "paragraph",
-                  "text": "",
-                  "box": "spacer_row_box"
-                },
-                {
-                  "class_name": "edit_field",
-                  "text": "Nick Name:",
-                  "box": "edit_field_box",
-                  "json_field_name": "nick_name"
-                },
-                {
-                  "class_name": "edit_field",
-                  "text": "First Name:",
-                  "box": "edit_field_box",
-                  "json_field_name": "first_name"
-                },
-                {
-                  "class_name": "edit_field",
-                  "text": "Last Name:",
-                  "box": "edit_field_box",
-                  "json_field_name": "last_name"
-                }
-              ]
-            },
-            {
-              "class_name": "column",
-              "name": "contact_details",
-              "box": {
-                "width": ".33 container",
-                "height": "1.0 container"
-              },
-              "children": [
-                {
-                  "class_name": "chaptersubtitle",
-                  "text": "address",
-                  "box": "chaptertitle_box"
-                },
-                {
-                  "class_name": "paragraph",
-                  "text": "",
-                  "box": "spacer_row_box"
-                },
-                {
-                  "class_name": "edit_field",
-                  "text": "Street 1:",
-                  "box": "edit_field_box",
-                  "json_field_name": "street1"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "street2",
-                  "box": "edit_field_box",
-                  "text": "Street 2:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "text": "City:",
-                  "box": "edit_field_box",
-                  "json_field_name": "city"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "state",
-                  "box": "edit_field_box",
-                  "text": "State:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "zip",
-                  "box": "edit_field_box",
-                  "text": "Zip"
-                },
-                {
-                  "class_name": "paragraph",
-                  "text": "",
-                  "box": "spacer_row_box"
-                }
-              ]
-            },
-            {
-              "class_name": "column",
-              "name": "contact_details",
-              "box": {
-                "width": ".33 container",
-                "height": "1.0 container"
-              },
-              "children": [
-                {
-                  "class_name": "chaptersubtitle",
-                  "text": "electronic",
-                  "box": "chaptertitle_box"
-                },
-                {
-                  "class_name": "paragraph",
-                  "text": "",
-                  "box": "spacer_row_box"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "company",
-                  "box": "edit_field_box",
-                  "text": "Company:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "phone",
-                  "box": "edit_field_box",
-                  "text": "Phone:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "alt_phone",
-                  "box": "edit_field_box",
-                  "text": "Alt Phone:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "email",
-                  "box": "edit_field_box",
-                  "text": "Email:"
-                },
-                {
-                  "class_name": "edit_field",
-                  "json_field_name": "alt_email",
-                  "box": "edit_field_box",
-                  "text": "Alt Email:"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "class_name": "row",
-          "name": "system_details",
-          "box": {
-            "width": "1.0 container",
-            "height": "250 pixels"
-          },
-          "children": [
-            {
-              "class_name": "frame",
-              "name": "contact_details_container",
-              "box": {
-                "width": "1.0 container",
-                "height": "1.0 container"
-              },
-              "on_load": {
-                "class_name": "select_frame",
-                "source_frame": "page_object_details",
-                "message": "load frame."
-              }
-            }
-          ]
+          "on_load": {
+            "class_name": "select_frame",
+            "source_frame": "page_contact",
+            "message": "load frame."
+          }
         }
       ]
     }
-  ]
+  }
 }

@@ -1085,28 +1085,6 @@ namespace corona
 		padding_amount.x = to_pixels_x(_parent, padding);
 		padding_amount.y = to_pixels_y(_parent, padding);
 
-		if (_parent)
-		{
-			auto pparent = dynamic_cast<control_base *>(_parent);
-			if (pparent and _clip_children) {
-				auto pbounds = pparent->get_inner_bounds();
-				if (bounds.x < pbounds.x)
-					bounds.x = pbounds.x;
-				if (bounds.y < pbounds.y)
-					bounds.y = pbounds.y;
-				if (bounds.right() > pbounds.right())
-				{
-					bounds.w -= (bounds.right() - pbounds.right());
-				}
-				if (bounds.bottom() > pbounds.bottom())
-				{
-					bounds.h -= (bounds.bottom() - pbounds.bottom());
-				}
-				if (bounds.w < 0) bounds.w = 0;
-				if (bounds.h < 0) bounds.h = 0;
-			}
-		}
-
 		inner_bounds = bounds;
 
 		inner_bounds.x += padding_amount.x;

@@ -16,13 +16,35 @@
           },
           "children": [
             {
+              "class_name": "chaptersubtitle",
+              "text": "Todo",
+              "box": "chaptertitle_box"
+            },
+            {
               "class_name": "row",
               "box": {
                 "width": "1.0 container",
-                "height": "110 pixels"
+                "height": "50 pixels"
               },
               "wrap": true,
               "children": [
+                {
+                  "class_name": "command_button",
+                  "name": "new_project",
+                  "text": "project",
+                  "image": "assets\\task.png",
+                  "box": {
+                    "width": "125 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "project",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_task_project",
+                    "message": "new task."
+                  }
+                },
                 {
                   "class_name": "command_button",
                   "name": "new_appointment",
@@ -42,23 +64,6 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "new_task",
-                  "text": "task",
-                  "image": "assets\\task.png",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "task",
-                    "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_task",
-                    "message": "new task."
-                  }
-                },
-                {
-                  "class_name": "command_button",
                   "name": "new_party",
                   "text": "party",
                   "box": {
@@ -71,23 +76,6 @@
                     "create_class_name": "party",
                     "target_frame": "page_home.frame_selected",
                     "source_frame": "page_task_party",
-                    "message": "new task."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_project",
-                  "text": "project",
-                  "image": "assets\\project.png",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "project",
-                    "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_task_project",
                     "message": "new task."
                   }
                 },
@@ -137,7 +125,7 @@
               "class_name": "row",
               "box": {
                 "width": "1.0 container",
-                "height": "60 pixels"
+                "height": "50 pixels"
               },
               "wrap": true,
               "children": [
@@ -237,7 +225,7 @@
               "class_name": "row",
               "box": {
                 "width": ".95 container",
-                "height": "160 pixels"
+                "height": "100 pixels"
               },
               "wrap": true,
               "children": [
@@ -393,7 +381,7 @@
                     "source_frame": "page_property_vehicle",
                     "message": "layout test."
                   }
-                }
+                },
                 {
                   "class_name": "command_button",
                   "name": "new_tractor",
@@ -461,23 +449,6 @@
               },
               "wrap": true,
               "children": [
-                {
-                  "class_name": "command_button",
-                  "name": "new_contact",
-                  "text": "contact",
-                  "image": "assets\\contact.png",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "contact",
-                    "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_contact",
-                    "message": "layout test."
-                  }
-                },
                 {
                   "class_name": "command_button",
                   "name": "new_accountant",
@@ -686,14 +657,6 @@
             }
 
           ]
-        },
-        {
-          "class_name": "paragraph",
-          "box": {
-            "width": "125 pixels",
-            "height": "50 pixels"
-          },
-          "text": ""
         }
       ]
     }

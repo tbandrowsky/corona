@@ -30,10 +30,18 @@ namespace corona
 
 	class horizontal_field_layout {
 	public:
-		layout_rect label_box = { 0.0_px, 0.0_px, 0.33_container, 30.0_px };
-		layout_rect field_box = { 0.0_px, 0.0_px, 0.33_container, 30.0_px };
-		layout_rect status_box = { 0.0_px, 0.0_px, 0.34_container, 30.0_px };
-		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 34.0_px };
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.40_container, 20.0_px };
+		layout_rect field_box = { 0.40_container, 0.0_px, 0.60_container, 25.0_px };
+		layout_rect status_box = { 0.0_px, 25.0_px, 0.40_container, 15.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
+	};
+
+	class horizontal_memo_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.40_container, 20.0_px };
+		layout_rect field_box = { 0.40_container, 0.0_px, 0.60_container, 150.0_px };
+		layout_rect status_box = { 0.0_px, 20.0_px, 0.40_container, 15.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 195.0_px };
 	};
 
 	class vertical_field_layout {
@@ -41,7 +49,7 @@ namespace corona
 		layout_rect label_box = { 0.0_px, 0.0_px, 1.0_container, 30.0_px };
 		layout_rect field_box = { 0.0_px, 0.0_px, 1.0_container, 30.0_px };
 		layout_rect status_box = { 0.0_px, 0.0_px, 1.0_container, 30.0_px };
-		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 90.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 100.0_px };
 	};
 
 	template <typename layout_container, typename field_control, typename layout_strategy> class field_layout : public layout_container
@@ -202,7 +210,7 @@ namespace corona
 		}
 	};
 
-	using default_layout = row_layout;
+	using default_layout = absolute_layout;
 	using default_field_layout = horizontal_field_layout;
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
@@ -2184,6 +2192,13 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
+		else if (class_name == "memo")
+		{
+			memo(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+				}
 		else if (class_name == "listview")
 		{
 			listview(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2295,7 +2310,14 @@ namespace corona
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});
-				}
+		}
+		else if (class_name == "memo_field")
+		{
+			memo_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
 		else if (class_name == "read_only_field")
 		{
 			readonly_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2888,23 +2910,17 @@ namespace corona
 	}
 
 
-	json corona_navigate_forward::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+	json corona_navigate_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
 		if (response.success) {
 			auto control = _bus->find_control(target_frame);
 			auto frame = dynamic_cast<frame_layout*>(control);
 			if (frame) {
-				frame->navigate_forward(batch_id);
-			}
-		}
-		return response.data;
-	}
-
-	json corona_navigate_back::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
-		if (response.success) {
-			auto control = _bus->find_control(target_frame);
-			auto frame = dynamic_cast<frame_layout*>(control);
-			if (frame) {
-				frame->navigate_back(batch_id);
+				if (forward) {
+					frame->navigate_forward(batch_id);
+                }
+				else {
+					frame->navigate_back(batch_id);
+				}
 			}
 		}
 		return response.data;

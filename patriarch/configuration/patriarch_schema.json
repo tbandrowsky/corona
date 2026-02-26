@@ -96,17 +96,9 @@
       "class_version": "1.0",
       "full_text": [ "text" ],
       "fields": {
-        "with": {
+        "plans": {
           "field_type": "string",
-          "label": "With"
-        },
-        "when": {
-          "field_type": "string",
-          "label": "When"
-        },
-        "where": {
-          "field_type": "string",
-          "label": "Where"
+          "label": "Plans"
         }
       }
     },
@@ -119,17 +111,9 @@
       "class_version": "1.0",
       "full_text": [ "text" ],
       "fields": {
-        "with": {
+        "destination": {
           "field_type": "string",
-          "label": "With"
-        },
-        "when": {
-          "field_type": "string",
-          "label": "When"
-        },
-        "where": {
-          "field_type": "string",
-          "label": "Where"
+          "label": "Destination"
         }
       }
     },
@@ -142,17 +126,9 @@
       "class_version": "1.0",
       "full_text": [ "text" ],
       "fields": {
-        "with": {
+        "theme": {
           "field_type": "string",
-          "label": "With"
-        },
-        "when": {
-          "field_type": "string",
-          "label": "When"
-        },
-        "where": {
-          "field_type": "string",
-          "label": "Where"
+          "label": "Theme"
         }
       }
     },
@@ -205,17 +181,9 @@
           "field_type": "string",
           "label": "Phone"
         },
-        "alt_phone": {
-          "field_type": "string",
-          "label": "Alt Phone"
-        },
         "email": {
           "field_type": "string",
           "label": "Email"
-        },
-        "alt_email": {
-          "field_type": "string",
-          "label": "Alt Email"
         }
       }
     },
@@ -569,7 +537,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "make", "model", "year", "engine", "vin", "website" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -608,11 +576,19 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
         },
         "model_number": {
           "field_type": "string",
@@ -635,11 +611,19 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
         },
         "model_number": {
           "field_type": "string",
@@ -662,11 +646,27 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
         },
         "website": {
           "field_type": "string",
@@ -681,7 +681,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model_number", "serial_number" ],
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -752,7 +752,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model", "serial_number" ],
+      "full_text": [ "description", "model", "serial_number", "certificate" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -765,8 +765,11 @@
         "serial_number": {
           "field_type": "string",
           "label": "Serial Number"
+        },
+        "certificate": {
+          "field_type": "string",
+          "label": "Certificate"
         }
-
       }
     },
     {
@@ -776,11 +779,19 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model" ],
+      "full_text": [ "description", "construction"],
       "fields": {
         "description": {
           "field_type": "string",
           "label": "Description"
+        },
+        "construction": {
+          "field_type": "string",
+          "label": "Construction"
+        },
+        "year_built": {
+          "field_type": "string",
+          "label": "Year Built"
         }
       }
     },
@@ -791,7 +802,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "model", "serial_number" ],
+      "full_text": [ "description", "manufacturer", "model", "year", "form_factor", "caliber", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -809,17 +820,9 @@
           "field_type": "string",
           "label": "Year"
         },
-        "form_factor": {
-          "field_type": "string",
-          "label": "Form Factor"
-        },
         "caliber": {
           "field_type": "string",
           "label": "Caliber"
-        },
-        "capacity": {
-          "field_type": "string",
-          "label": "Capacity"
         },
         "serial_number": {
           "field_type": "string",
@@ -834,7 +837,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "manufacturer", "make", "model", "serial_number" ],
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -859,14 +862,6 @@
         "serial_number": {
           "field_type": "string",
           "label": "Serial Number"
-        },
-        "form_factor": {
-          "field_type": "string",
-          "label": "Form Factor"
-        },
-        "fuel": {
-          "field_type": "string",
-          "label": "Fuel"
         }
       }
     }

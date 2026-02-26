@@ -133,6 +133,8 @@ namespace corona
 
             D2D1_COLOR_F color = {};
 
+            direct_clipper clipper(_context, inner_bounds);
+
             std::string border_name;
             std::string background_name;
 

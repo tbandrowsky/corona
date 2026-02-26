@@ -11,50 +11,43 @@
           "class_name": "column",
           "name": "dependent_contact",
           "box": {
-            "width": ".33 container",
+            "width": ".5 container",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "edit_field",
               "text": "Nick Name:",
-              "box": "edit_field_box",
               "json_field_name": "nick_name"
             },
             {
               "class_name": "edit_field",
               "text": "First Name:",
-              "box": "edit_field_box",
               "json_field_name": "first_name"
             },
             {
               "class_name": "edit_field",
               "text": "Last Name:",
-              "box": "edit_field_box",
               "json_field_name": "last_name"
             },
             {
               "class_name": "edit_field",
               "json_field_name": "phone",
-              "box": "edit_field_box",
               "text": "Phone:"
             },
             {
               "class_name": "edit_field",
               "json_field_name": "alt_phone",
-              "box": "edit_field_box",
               "text": "Alt Phone:"
             },
             {
               "class_name": "edit_field",
               "json_field_name": "email",
-              "box": "edit_field_box",
               "text": "Email:"
             },
             {
               "class_name": "edit_field",
               "json_field_name": "alt_email",
-              "box": "edit_field_box",
               "text": "Alt Email:"
             }
           ]
@@ -63,98 +56,33 @@
           "class_name": "column",
           "name": "medical_info",
           "box": {
-            "width": ".33 container",
+            "width": ".5 container",
             "height": "1.0 container"
           },
           "children": [
             {
               "class_name": "memo_field",
               "json_field_name": "medical_conditions",
-              "box": {
-                "width": "1.0 container",
-                "height": ".25 container"
-              },
               "text": "Medical Conditions:"
             },
             {
               "class_name": "memo_field",
               "json_field_name": "prescriptions",
-              "box": {
-                "width": "1.0 container",
-                "height": ".25 container"
-              },
               "text": "Prescriptions:"
             },
             {
               "class_name": "memo_field",
               "json_field_name": "likes",
-              "box": {
-                "width": "1.0 container",
-                "height": ".25 container"
-              },
               "text": "Likes:"
             },
             {
               "class_name": "memo_field",
               "json_field_name": "dislikes",
-              "box": {
-                "width": "1.0 container",
-                "height": ".25 container"
-              },
               "text": "Dislikes:"
-            }
-          ]
-        },
-        {
-          "class_name": "column",
-          "name": "notes_column",
-          "box": {
-            "width": ".33 container",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "memo_field",
-              "name": "note_text_edit",
-              "json_field_name": "note_text",
-              "box": {
-                "width": "1.0 container",
-                "height": "80 pixels"
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "new_note",
-              "icon": "Note",
-              "text": "add note",
-              "box": {
-                "width": "125 pixels",
-                "height": "50 pixels"
-              },
-              "on_click": {
-                "class_name": "create_object",
-                "create_class_name": "contact",
-                "source_frame": "memo_field",
-                "message": "layout test."
-              }
-            },
-            {
-              "class_name": "items_view",
-              "name": "notes_table",
-              "json_field_name": "notes",
-              "box": {
-                "width": "1.0 container",
-                "height": "1.0 remaining"
-              },
-              "sources": {
-                "patriarch_note": "card_note"
-              },
-              "empty_text": "No notes"
             }
           ]
         }
       ]
-
     }
   ]
 }
