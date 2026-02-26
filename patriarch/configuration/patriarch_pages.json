@@ -196,6 +196,10 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_note.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_layout_test.json"
     },
     {

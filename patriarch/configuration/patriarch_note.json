@@ -1,69 +1,17 @@
 {
   "class_name": "page",
   "page_name": "page_note",
-  "children": [
-    {
-      "class_name": "column",
-      "name": "current_object",
-      "box": "full_container",
-      "children": [
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\note.png",
+      "$details_contents": [
         {
-          "class_name": "row",
-          "name": "current_details",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 remaining"
-          },
-          "children": [
-            {
-              "class_name": "column",
-              "name": "current_object",
-              "box": "full_container",
-              "children": [
-                {
-                  "class_name": "chaptertitle",
-                  "text": "note",
-                  "box": "chaptertitle_box"
-                },
-                {
-                  "class_name": "memo_field",
-                  "name": "current_dependent_home",
-                  "box": {
-                    "width": "1.0 remaining",
-                    "height": "1.0 container"
-                  },
-                  "json_field_name": "note_text"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "class_name": "row",
-          "name": "note_sys",
-          "box": {
-            "width": "1.0 container",
-            "height": "250 pixels"
-          },
-          "children": [
-            {
-              "class_name": "frame",
-              "name": "note_sys_home",
-              "box": {
-                "width": "1.0 container",
-                "height": "1.0 container"
-              },
-              "on_load": {
-                "class_name": "select_frame",
-                "source_frame": "page_object_details",
-                "message": "load frame."
-              }
-            }
-          ]
+          "class_name": "memo_field",
+          "text": "Note:",
+          "json_field_name": "note_text"
         }
-
       ]
     }
-  ]
-
+  }
 }

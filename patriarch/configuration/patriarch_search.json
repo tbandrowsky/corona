@@ -25,36 +25,189 @@
               "text": "\u220B Find"
             },
             {
-              "class_name": "edit",
-              "name": "search_input",
-              "json_field_name": "full_text",
-              "placholder": "Search text",
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "CompletedTask",
+              "text": "tasks",
               "box": {
-                "width": "300 pixels",
-                "height": "40 pixels"
+                "width": "100 pixels",
+                "height": "1.0 container"
               },
-              "text_style": {
-                "font_name": "Georgia",
-                "font_size": 24
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "task_base",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "promote",
+                      "source": "objects",
+                      "path": "tasks",
+                      "name": "get_children"
+                    },
+                    {
+                      "class_name": "result",
+                      "source": "get_children",
+                      "name": "results"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_family",
+              "icon": "Family",
+              "text": "family",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "dependent",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_button",
+              "icon": "HomeHouse",
+              "text": "property",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "property",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_contacts",
+              "icon": "Contact",
+              "text": "contacts",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "contact",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "search_all",
+              "icon": "ViewAll",
+              "text": "everything",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "on_click": {
+                "class_name": "query",
+                "form_name": "search_row",
+                "table_name": "result_table",
+                "detail_frame": "frame_selected",
+                "query": {
+                  "from": [
+                    {
+                      "class_name": "patriarch_object",
+                      "name": "objects",
+                      "filter": {
+                        "full_text": "$this.full_text"
+                      }
+                    }
+                  ],
+                  "stages": [
+                    {
+                      "class_name": "result",
+                      "source": "objects",
+                      "name": "objects"
+                    }
+                  ]
+                }
               }
             },
             {
               "class_name": "chaptertitle",
-              "name": "search_label_text",
+              "name": "search_placxe",
+              "text": "",
               "box": {
-                "width": "250 pixels",
-                "height": "40 pixels"
-              },
-              "text": "\u2208 In"
-            },
-            {
-              "class_name": "chaptertitle",
-              "name": "search_label_text",
-              "box": {
-                "width": "50 pixels",
-                "height": "40 pixels"
-              },
-              "text": ""
+                "width": "100 pixels",
+                "height": "16.0 pixels"
+              }
             },
             {
               "class_name": "chaptertitle",
@@ -71,7 +224,7 @@
               "icon": "Add",
               "text": "new item",
               "box": {
-                "width": "125 pixels",
+                "width": "100 pixels",
                 "height": "1.0 container"
               },
               "on_click": {
@@ -79,6 +232,23 @@
                 "target_frame": "page_home.frame_selected",
                 "source_frame": "page_create",
                 "message": "new item."
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_note",
+              "icon": "New",
+              "text": "add note",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "patriarch_note",
+                "source_frame": "page_note",
+                "target_frame": "frame_selected",
+                "message": "layout test."
               }
             }
           ]
@@ -109,197 +279,11 @@
               },
               "children": [
                 {
-                  "class_name": "row",
-                  "name": "search_result",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "50 pixels"
-                  },
-                  "children": [
-                    {
-                      "class_name": "command_button",
-                      "name": "search_button",
-                      "icon": "CompletedTask",
-                      "text": "tasks",
-                      "box": {
-                        "width": "125 pixels",
-                        "height": "1.0 container"
-                      },
-                      "on_click": {
-                        "class_name": "query",
-                        "form_name": "search_row",
-                        "table_name": "result_table",
-                        "detail_frame": "frame_selected",
-                        "query": {
-                          "from": [
-                            {
-                              "class_name": "task_base",
-                              "name": "objects",
-                              "filter": {
-                                "full_text": "$this.full_text"
-                              }
-                            }
-                          ],
-                          "stages": [
-                            {
-                              "class_name": "promote",
-                              "source": "objects",
-                              "path": "tasks",
-                              "name": "get_children"
-                            },
-                            {
-                              "class_name": "result",
-                              "source": "get_children",
-                              "name": "results"
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "class_name": "command_button",
-                      "name": "search_family",
-                      "icon": "Family",
-                      "text": "family",
-                      "box": {
-                        "width": "125 pixels",
-                        "height": "1.0 container"
-                      },
-                      "on_click": {
-                        "class_name": "query",
-                        "form_name": "search_row",
-                        "table_name": "result_table",
-                        "detail_frame": "frame_selected",
-                        "query": {
-                          "from": [
-                            {
-                              "class_name": "dependent",
-                              "name": "objects",
-                              "filter": {
-                                "full_text": "$this.full_text"
-                              }
-                            }
-                          ],
-                          "stages": [
-                            {
-                              "class_name": "result",
-                              "source": "objects",
-                              "name": "objects"
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "class_name": "command_button",
-                      "name": "search_button",
-                      "icon": "HomeHouse",
-                      "text": "property",
-                      "box": {
-                        "width": "125 pixels",
-                        "height": "1.0 container"
-                      },
-                      "on_click": {
-                        "class_name": "query",
-                        "form_name": "search_row",
-                        "table_name": "result_table",
-                        "detail_frame": "frame_selected",
-                        "query": {
-                          "from": [
-                            {
-                              "class_name": "property",
-                              "name": "objects",
-                              "filter": {
-                                "full_text": "$this.full_text"
-                              }
-                            }
-                          ],
-                          "stages": [
-                            {
-                              "class_name": "result",
-                              "source": "objects",
-                              "name": "objects"
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "class_name": "command_button",
-                      "name": "search_contacts",
-                      "icon": "Contact",
-                      "text": "contacts",
-                      "box": {
-                        "width": "125 pixels",
-                        "height": "1.0 container"
-                      },
-                      "on_click": {
-                        "class_name": "query",
-                        "form_name": "search_row",
-                        "table_name": "result_table",
-                        "detail_frame": "frame_selected",
-                        "query": {
-                          "from": [
-                            {
-                              "class_name": "contact",
-                              "name": "objects",
-                              "filter": {
-                                "full_text": "$this.full_text"
-                              }
-                            }
-                          ],
-                          "stages": [
-                            {
-                              "class_name": "result",
-                              "source": "objects",
-                              "name": "objects"
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "class_name": "command_button",
-                      "name": "search_all",
-                      "icon": "ViewAll",
-                      "text": "everything",
-                      "box": {
-                        "width": "125 pixels",
-                        "height": "1.0 container"
-                      },
-                      "on_click": {
-                        "class_name": "query",
-                        "form_name": "search_row",
-                        "table_name": "result_table",
-                        "detail_frame": "frame_selected",
-                        "query": {
-                          "from": [
-                            {
-                              "class_name": "patriarch_object",
-                              "name": "objects",
-                              "filter": {
-                                "full_text": "$this.full_text"
-                              }
-                            }
-                          ],
-                          "stages": [
-                            {
-                              "class_name": "result",
-                              "source": "objects",
-                              "name": "objects"
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
                   "class_name": "items_view",
                   "name": "result_table",
                   "box": {
                     "width": "640 pixels",
-                    "height": "1.0 container"
+                    "height": "1.0 remaining"
                   },
                   "sources": {
                     "ancestor": "card_ancestor",
@@ -376,6 +360,39 @@
 
                     }
                   }
+                },
+                {
+                  "class_name": "row",
+                  "name": "search_row",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "50 pixels"
+                  },
+                  "children": [
+                    {
+                      "class_name": "chaptertitle",
+                      "name": "search_label_text",
+                      "box": {
+                        "width": "200 pixels",
+                        "height": "40 pixels"
+                      },
+                      "text": "Filter:"
+                    },
+                    {
+                      "class_name": "edit",
+                      "name": "search_input",
+                      "json_field_name": "full_text",
+                      "placholder": "Search text",
+                      "box": {
+                        "width": "300 pixels",
+                        "height": "40 pixels"
+                      },
+                      "text_style": {
+                        "font_name": "Georgia",
+                        "font_size": 24
+                      }
+                    }
+                  ]
                 }
               ]
             },

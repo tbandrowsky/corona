@@ -83,7 +83,7 @@
                 "width": ".33 container",
                 "height": "1.0 container"
               },
-              "children": [                
+              "children": [
                 {
                   "class_name": "items_view",
                   "name": "notes_table",
@@ -96,35 +96,6 @@
                     "patriarch_note": "card_note"
                   },
                   "empty_text": "No notes"
-                },
-                {
-                  "class_name": "memo_field",
-                  "name": "new_note",
-                  "json_field_name": "text",
-                  "icon": "Note",
-                  "text": "add note",
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "patriarch_note",
-                    "source_frame": "memo_field",
-                    "message": "layout test."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_note",
-                  "icon": "Note",
-                  "text": "add note",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "patriarch_note",
-                    "source_frame": "memo_field",
-                    "message": "layout test."
-                  }
                 }
               ]
             }

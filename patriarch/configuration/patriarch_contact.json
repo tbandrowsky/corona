@@ -14,7 +14,7 @@
           "class_name": "column",
           "name": "contact_details",
           "box": {
-            "width": ".5 container",
+            "width": ".49 container",
             "height": "1.0 container"
           },
           "children": [
@@ -65,7 +65,7 @@
           "class_name": "column",
           "name": "contact_details",
           "box": {
-            "width": ".45 container",
+            "width": ".49 container",
             "height": "1.0 container"
           },
           "children": [

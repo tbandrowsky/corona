@@ -38,9 +38,9 @@ namespace corona
 
 	class horizontal_memo_layout {
 	public:
-		layout_rect label_box = { 0.0_px, 0.0_px, 0.40_container, 20.0_px };
-		layout_rect field_box = { 0.40_container, 0.0_px, 0.60_container, 150.0_px };
-		layout_rect status_box = { 0.0_px, 20.0_px, 0.40_container, 15.0_px };
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.50_container, 20.0_px };
+		layout_rect field_box = { 0.0_px, 20.0_px, 1.0_container, 150.0_px };
+		layout_rect status_box = { 0.50_container, 00.0_px, 0.50_container, 15.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 195.0_px };
 	};
 
@@ -212,9 +212,10 @@ namespace corona
 
 	using default_layout = absolute_layout;
 	using default_field_layout = horizontal_field_layout;
+	using default_memo_layout = horizontal_memo_layout;
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
-	using memo_field_control = field_layout<default_layout, memo_control, default_field_layout>;
+	using memo_field_control = field_layout<default_layout, memo_control, default_memo_layout>;
 	using readonly_field_control = field_layout<default_layout, readonly_control, default_field_layout>;
 	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
 	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
