@@ -415,25 +415,7 @@
                     "source_frame": "page_property_gun",
                     "message": "layout test."
                   }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_tractor",
-                  "text": "tractor",
-                  "image": "assets\\tractor.png",
-                  "box": {
-                    "width": "125 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "tractor",
-                    "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_property_tractor",
-                    "message": "layout test."
-                  }
                 }
-
               ]
             },
             {

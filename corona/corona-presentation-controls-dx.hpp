@@ -1703,6 +1703,7 @@ namespace corona
         {"Document", L"\uE8A5"},
         {"Page", L"\uE7C3"},
         {"PersonalFolder", L"\uEC25"},
+        {"Note", L"\uE70B" },
 
         // Settings & Tools
         {"Settings", L"\uE713"},

@@ -119,25 +119,10 @@
               "class_name": "read_only_field",
               "json_field_name": "team",
               "text": "Team:"
-            },
-            {
-              "class_name": "command_button",
-              "name": "save_object",
-              "icon": "Save",
-              "text": "save",
-              "box": {
-                "width": "125 pixels",
-                "height": "50 pixels"
-              },
-              "on_click": {
-                "class_name": "save_object",
-                "form_name": "current_object",
-                "target_frame": "frame_selected"
-              }
             }
           ]
         }
       ]
-        }
+    }
   ]
 }

@@ -1004,6 +1004,8 @@ namespace corona
 	public:
 		std::string	create_class_name = "";
 		corona_client_response response;
+		std::string constructor_frame;
+		json constructor_copy;
 
 		std::shared_ptr<corona_select_frame_command> select_frame;
 
@@ -1026,6 +1028,20 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+
+			if (!constructor_frame.empty() && constructor_copy.object()) {
+				auto ctrl = _bus->find_control(constructor_frame);
+
+				if (ctrl) {
+					json data = ctrl->get_data();
+					auto members = constructor_copy.get_members();
+					for (auto member : members) {
+						json temp = data[member.second.as_string()];
+						response.data.put_member(member.first, temp);
+					}
+				}
+			}
+
 			if (select_frame) {
 				select_frame->execute_sync(batch_id, _bus);
 			}
@@ -1039,7 +1055,8 @@ namespace corona
             corona_form_command::get_json(_dest);
 
 			_dest.put_member("class_name", "create_object"sv);
-			_dest.put_member("create_class_name", create_class_name);
+			_dest.put_member("constructor_frame", constructor_frame);
+			_dest.put_member("constructor_copy", constructor_copy);
 			_dest.put_member("target_frame", select_frame->target_frame);
 			_dest.put_member("source_frame", select_frame->source_frame);
 		}
@@ -1060,6 +1077,8 @@ namespace corona
 				return;
 			}
 
+			constructor_frame = _src["constructor_frame"].as_string();
+			constructor_copy = _src["constructor_copy"];
 			create_class_name = _src["create_class_name"].as_string();
 			select_frame->target_frame = _src["target_frame"].as_string();
 			select_frame->source_frame = _src["source_frame"].as_string();

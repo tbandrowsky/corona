@@ -10,7 +10,7 @@
       "class_name": "patriarch_note",
       "base_class_name": "sys_object",
       "class_description": "A note that can be placed on an object",
-      "parents": [ "patiarch_object" ],
+      "parents": [ "patriarch_object" ],
       "fields": {
         "note_text": {
           "field_type": "string",
@@ -50,7 +50,6 @@
       "class_name": "task",
       "base_class_name": "patriarch_object",
       "class_description": "A general job to do",
-      "parents": [ "status_base" ],
       "full_text": [ "description", "status" ],
       "fields": {
         "description": {

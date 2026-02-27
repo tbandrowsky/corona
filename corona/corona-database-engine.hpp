@@ -758,6 +758,7 @@ namespace corona
 		virtual std::shared_ptr<class_interface> put_class_impl(activity* _activity, json& _class_definition) = 0;
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name) = 0;
 
+        virtual std::vector<std::string> get_class_descendants(const std::string& _class_name) = 0;
 		virtual json query_class(std::string _user_name, json query_details) = 0;
 		virtual void scrub_object(json& object_to_scrub) = 0;
 		virtual json create_user(json create_user_request, bool _trusted_user, bool _system_user) = 0;
@@ -1361,12 +1362,9 @@ namespace corona
 		{
 			all_constructors.clear();
 			for (auto class_name_pair : base_constructors) {
-				auto ci = _db->read_lock_class(class_name_pair.first);
-				if (ci) {
-					auto descendants = ci->get_descendants();
-					for (auto descendant : descendants) {
-						all_constructors.insert_or_assign(descendant.first, class_name_pair.second);
-					}
+				auto descendants = _db->get_class_descendants(class_name_pair.first);
+				for (auto descendant : descendants) {
+					all_constructors.insert_or_assign(descendant, class_name_pair.second);
 				}
 			}
 		}
@@ -1382,16 +1380,15 @@ namespace corona
 			for (auto class_name_pair : all_constructors) 
 			{
 				json key = class_name_pair.second->get_key(_parent_object);
-				read_class_sp classy = _db->read_lock_class(class_name_pair.first);
-                auto& derived_classes = classy->get_descendants();
+				auto derived_classes = _db->get_class_descendants(class_name_pair.first);
 
                 for (auto derived_class : derived_classes) {
-                    if (read_classes.find(derived_class.first) != read_classes.end()) {
+                    if (read_classes.find(derived_class) != read_classes.end()) {
                         continue;
                     }
-                    read_class_sp dclassy = _db->read_lock_class(derived_class.first);
+                    read_class_sp dclassy = _db->read_lock_class(derived_class);
                     if (dclassy) {
-                        read_classes[derived_class.first] = true;
+                        read_classes[derived_class] = true;
                         json temp_array = dclassy->get_objects(_db, key, true, _permissions);
                         if (temp_array.array()) {
                             for (auto obj : temp_array) {
@@ -2118,12 +2115,9 @@ namespace corona
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
 		{
 			reference_class_descendants.clear();
-			auto ci = _db->read_lock_class(reference_class);
-			if (ci) {
-				auto descendants = ci->get_descendants();
-				for (auto descendant : descendants) {
-					reference_class_descendants.insert_or_assign(descendant.first, true);
-				}
+			auto descendants = _db->get_class_descendants(reference_class);
+			for (auto descendant : descendants) {
+				reference_class_descendants.insert_or_assign(descendant, true);
 			}
 		}
 
@@ -5304,6 +5298,7 @@ namespace corona
 		std::string config_path;
 
 		long import_batch_size = 2500;
+
 		/*
 		* authorizations in tokens, methods and progressions
 		* 
@@ -6509,6 +6504,31 @@ private:
 			return response;
 		}
 
+		virtual std::vector<std::string> get_class_descendants(const std::string& _class_name)
+		{
+            std::map<std::string, bool> visited;
+			get_class_descendants(visited, _class_name);
+			std::vector<std::string> results;
+            for (auto pair : visited) {
+				results.push_back(pair.first);
+			}
+			return results;
+		}
+
+		virtual void get_class_descendants(std::map<std::string, bool>& _visited, const std::string& _class_name)
+		{
+			_visited[_class_name] = true;
+			auto classdef = read_lock_class(_class_name);
+			if (classdef) {
+				auto descendants = classdef->get_descendants();
+				for (auto desc : descendants) {
+					if (!_visited.contains(desc.first)) {
+                        get_class_descendants(_visited, desc.first);
+					}
+				}
+			}
+		}
+
 		json check_object(json object_load, std::string _user_name, validation_error_collection& validation_errors, std::string _authorization)
 		{
 			timer method_timer;
@@ -7121,29 +7141,14 @@ private:
 							for (auto cls : class_list) 
 							{
 								std::string class_name = cls.as_string();
-								auto classd = read_lock_class(class_name);
 								json descendants = jp.create_array();
-								if (classd) 								
-								{
-									class_colors.put_member(class_name, classd->get_class_color());
-									auto desc = classd->get_descendants();
-									for (auto d : desc) 
-									{
-										descendants.push_back(d.first);
-                                        auto sub_classd = read_lock_class(d.first);
-										if (sub_classd) {
-											if (sub_classd->get_parents().size() == 0) {
-												root_classes.push_back(d.first);
-											}
-											if (sub_classd->get_descendants().size() == 1) {
-												leaf_classes.push_back(d.first);
-											}
-										}
-									}
+
+								auto tempdescendants = get_class_descendants(class_name);
+
+                                for (auto tempdesc : tempdescendants) {
+									descendants.push_back(tempdesc);
 								}
-								else {
-									descendants.push_back(class_name);
-								}
+
 								granted_all.put_member(class_name, descendants);
 							}
 						}
@@ -7328,10 +7333,14 @@ private:
 							granted_classes.push_back(class_array.as_string());
 						}
 						bool granted = false;
+                        std::map<std::string, bool> visited;
 						for (std::string& jclass : granted_classes) {
 							auto permclass = read_lock_class(jclass);
 							if (permclass) {
-								if (permclass->get_descendants().contains(_class_name)) {
+
+								get_class_descendants(visited, jclass);
+
+								if (visited.contains(_class_name)) {
 									std::string permission = jperm[class_permission_get].as_string();
 									if (permission == "any")
 										grants.get_grant = class_grants::grant_any;
@@ -9920,9 +9929,10 @@ grant_type=authorization_code
 				filter = jp.create_object();
 			}
 
-			for (auto class_pair : class_def->get_descendants())
+            auto class_descendants = get_class_descendants(base_class_name.as_string());
+			for (auto class_pair : class_descendants)
 			{
-				read_class_sp classd = read_lock_class(class_pair.first);
+				read_class_sp classd = read_lock_class(class_pair);
 				if (classd) {
 					json objects = classd->get_objects(this, filter, include_children, permission);
 

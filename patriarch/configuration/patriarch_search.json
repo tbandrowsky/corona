@@ -237,7 +237,7 @@
             {
               "class_name": "command_button",
               "name": "new_note",
-              "icon": "New",
+              "icon": "Note",
               "text": "add note",
               "box": {
                 "width": "100 pixels",
@@ -250,7 +250,23 @@
                 "target_frame": "frame_selected",
                 "message": "layout test."
               }
+            },
+            {
+              "class_name": "command_button",
+              "name": "save_object",
+              "icon": "Save",
+              "text": "save",
+              "box": {
+                "width": "100  pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "save_object",
+                "form_name": "frame_selected",
+                "target_frame": "frame_selected"
+              }
             }
+
           ]
         },
         {
@@ -292,7 +308,6 @@
                     "relative": "card_relative",
                     "wife": "card_wife",
 
-                    "contact": "card_contact",
                     "accountant": "card_contact_accountant",
                     "broker": "card_contact_broker",
                     "case_worker": "card_contact_case_worker",
@@ -306,6 +321,7 @@
                     "parole_officer": "card_contact_parole_officer",
                     "pharmacy": "card_contact_pharmacy",
                     "real_estate": "card_contact_real_estate",
+                    "school": "card_contact_real_school",
                     "utility": "card_contact_utility",
 
                     "property": "card_property",
@@ -316,12 +332,16 @@
                     "jewelry": "card_property_jewelry",
                     "collectible": "card_property_collectible",
                     "building": "card_property_building",
+                    "furniture": "card_property_furniture",
+                    "tractor": "card_property_tractor",
+                    "gun": "card_property_gun",
 
                     "task": "card_task",
                     "appointment": "card_task_appointment",
                     "party": "card_task_party",
                     "project": "card_task_project",
-                    "trip": "card_task_trip"
+                    "trip": "card_task_trip",
+                    "reminder": "card_reminder"
                   },
                   "empty_text": "No items in list",
                   "empty_command": {
@@ -341,7 +361,21 @@
                       "relative": "page_relative",
                       "wife": "page_wife",
 
-                      "contact": "page_contact",
+                      "accountant": "page_contact_accountant",
+                      "broker": "page_contact_broker",
+                      "case_worker": "page_contact_case_worker",
+                      "church": "page_contact_church",
+                      "club": "page_contact_club",
+                      "doctor": "page_contact_doctor",
+                      "employer": "page_contact_employer",
+                      "landscaper": "page_contact_landscaper",
+                      "lawyer": "page_contact_lawyer",
+                      "mechanic": "page_contact_mechanic",
+                      "parole_officer": "page_contact_parole_officer",
+                      "pharmacy": "page_contact_pharmacy",
+                      "real_estate": "page_contact_real_estate",
+                      "school": "page_contact_real_school",
+                      "utility": "page_contact_utility",
 
                       "property": "page_property",
                       "vehicle": "page_property_vehicle",
@@ -351,13 +385,16 @@
                       "jewelry": "page_property_jewelry",
                       "collectible": "page_property_collectible",
                       "building": "page_property_building",
+                      "furniture": "page_property_furniture",
+                      "tractor": "page_property_tractor",
+                      "gun": "page_property_gun",
 
                       "task": "page_task",
                       "appointment": "page_task_appointment",
                       "party": "page_task_party",
                       "project": "page_task_project",
-                      "trip": "page_task_trip"
-
+                      "trip": "page_task_trip",
+                      "reminder": "page_reminder"
                     }
                   }
                 },
