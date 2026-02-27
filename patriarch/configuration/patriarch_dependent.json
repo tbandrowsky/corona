@@ -37,18 +37,8 @@
             },
             {
               "class_name": "edit_field",
-              "json_field_name": "alt_phone",
-              "text": "Alt Phone:"
-            },
-            {
-              "class_name": "edit_field",
               "json_field_name": "email",
               "text": "Email:"
-            },
-            {
-              "class_name": "edit_field",
-              "json_field_name": "alt_email",
-              "text": "Alt Email:"
             }
           ]
         },

@@ -1748,7 +1748,37 @@ namespace corona
 			return stuffed;
 		}
 
+		json find_object_with_member(std::string _member)
+		{
+			json empty;
 
+			if (auto oipl = object_impl()) {
+				if (oipl->members.contains(_member)) {
+					json jn = value();
+					return jn;
+				}
+				else {
+					for (auto& member : oipl->members) {
+						json jn(member.second);
+						json result = jn.find_object_with_member(_member);
+						if (not result.empty()) {
+							return result;
+						}
+					}
+				}
+            }
+            else if (auto aipl = array_impl()) {
+				for (auto& element : aipl->elements) {
+					json jn(element);
+					json result = jn.find_object_with_member(_member);
+					if (not result.empty()) {
+						return result;
+					}
+				}
+			}
+
+			return empty;
+		}
 
 		bool contains_text(std::string _text);
 
@@ -4800,8 +4830,29 @@ namespace corona
 		std::vector<std::string> items = split(_path, '.');
 		json start = *this;
 
-		for (auto item : items)
+		for (int item_idx = 0; item_idx < items.size(); item_idx++)
 		{
+			auto item = items[item_idx];
+			if (item == "any") {
+				if (item_idx < items.size() - 1) {
+					std::string next_item = items[item_idx + 1];
+					json chumpy = find_object_with_member(std::string(next_item));
+					if (chumpy.empty()) {
+						return result;
+					}
+					else {
+						start = chumpy[next_item];
+						result.put_member("target", start);
+						result.put_member("object", start);
+						result.put_member("value", start);
+						item_idx++;
+						continue;
+                    }
+				}
+				else {
+					continue;
+				}
+			}
 			result.put_member("name", item);
 			if (start.object())
 			{

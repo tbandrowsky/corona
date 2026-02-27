@@ -12,13 +12,6 @@
       "children": [
         {
           "class_name": "paragraph",
-          "name": "full_name",
-          "box": "edit_label_box_full",
-          "json_field_name": "full_name",
-          "text": "{when}, {where}, {kept}"
-        },
-        {
-          "class_name": "paragraph",
           "json_field_name": "first_name",
           "text": "\"{parents.any.nick_name}\" {parents.any.first_name} {parents.any.last_name}",
           "box": "edit_field_box"

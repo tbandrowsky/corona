@@ -84,7 +84,7 @@ namespace corona
                                 replacement_value = replacement_value["value"];
 								if (replacement_value.scalar()) {
 									text += replacement_value.as_string();
-								}
+								} 
 							}
 						} 
 						else 

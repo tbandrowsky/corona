@@ -1,23 +1,35 @@
 {
   "abbreviations": {
     "header_row_style": {
-        "text_style": {
-          "font_name": "Century Gothic,Arial",
-          "font_size": 18,
-          "bold": false,
-          "underline": false,
-          "vertical_alignment": "far"
+      "text_style": {
+        "font_name": "Century Gothic,Arial",
+        "font_size": 18,
+        "bold": false,
+        "underline": false,
+        "vertical_alignment": "far"
+      },
+      "shape_border_thickness": 0,
+      "box_border_thickness": 0,
+      "shape_fill_brush": {
+        "class_name": "solid_brush",
+        "color": "FFFFEE"
+      },
+      "box_fill_brush": {
+        "class_name": "solid_brush",
+        "color": "000000"
+      }
+    },
+    "$card_text_box": {
+      "box": {
+        "width": {
+          "amount": 1.0,
+          "units": "container"
         },
-        "shape_border_thickness": 0,
-        "box_border_thickness": 0,
-        "shape_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "FFFFEE"
-        },
-        "box_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "000000"
+        "height": {
+          "amount": 120.0,
+          "units": "pixels"
         }
+      }
     },
     "button_box": {
       "width": "100 pixels",

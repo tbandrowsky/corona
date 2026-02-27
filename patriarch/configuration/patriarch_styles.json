@@ -259,7 +259,7 @@
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
-          "color": "FFFFEE"
+          "color": "FFFFEE44"
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
