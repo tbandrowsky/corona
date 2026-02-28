@@ -1,0 +1,37 @@
+{
+  "class_name": "page",
+  "page_name": "page_property_boat",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\boat.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Manufacturer:",
+          "json_field_name": "manufacturer"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Model:",
+          "json_field_name": "model"
+        },
+        {
+          "class_name": "edit_field",
+          "json_field_name": "year",
+          "text": "Year:"
+        },
+        {
+          "class_name": "edit_field",
+          "json_field_name": "serial_number",
+          "text": "Serial #:"
+        }
+      ]
+    }
+  }
+}

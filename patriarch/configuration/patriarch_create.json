@@ -142,7 +142,7 @@
                     "class_name": "create_object",
                     "create_class_name": "husband",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_husband",
+                    "source_frame": "page_member_husband",
                     "message": "Add husband."
                   }
                 },
@@ -159,7 +159,7 @@
                     "class_name": "create_object",
                     "create_class_name": "wife",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_wife",
+                    "source_frame": "page_member_wife",
                     "message": "Add wife."
                   }
                 },
@@ -176,7 +176,7 @@
                     "class_name": "create_object",
                     "create_class_name": "child",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_child",
+                    "source_frame": "page_member_child",
                     "message": "Add child."
                   }
                 },
@@ -193,7 +193,7 @@
                     "class_name": "create_object",
                     "create_class_name": "relative",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_relative",
+                    "source_frame": "page_member_relative",
                     "message": "Add relative."
                   }
                 },
@@ -210,7 +210,7 @@
                     "class_name": "create_object",
                     "create_class_name": "ancestor",
                     "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_ancestor",
+                    "source_frame": "page_member_ancestor",
                     "message": "Add ancestor."
                   }
                 }

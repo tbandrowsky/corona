@@ -317,6 +317,16 @@
       }
     },
     {
+      "class_description": "A marina",
+      "class_name": "marina",
+      "base_class_name": "contact",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
       "class_description": "A case worker",
       "class_name": "case_worker",
       "base_class_name": "contact",
@@ -364,7 +374,7 @@
       }
     },
     {
-      "class_name": "dependent",
+      "class_name": "member",
       "class_description": "A person counting on you",
       "base_class_name": "responsibility",
       "class_color": "#af9d66",
@@ -422,7 +432,7 @@
     {
       "class_name": "husband",
       "class_description": "Husband",
-      "base_class_name": "dependent",
+      "base_class_name": "member",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -434,7 +444,7 @@
     {
       "class_name": "wife",
       "class_description": "Wife",
-      "base_class_name": "dependent",
+      "base_class_name": "member",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -446,7 +456,7 @@
     {
       "class_name": "child",
       "class_description": "Child",
-      "base_class_name": "dependent",
+      "base_class_name": "member",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -458,7 +468,7 @@
     {
       "class_name": "ancestor",
       "class_description": "Ancestor",
-      "base_class_name": "dependent",
+      "base_class_name": "member",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -470,7 +480,7 @@
     {
       "class_name": "relative",
       "class_description": "Relative",
-      "base_class_name": "dependent",
+      "base_class_name": "member",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -778,7 +788,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "description", "construction"],
+      "full_text": [ "description", "construction" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -862,8 +872,43 @@
           "field_type": "string",
           "label": "Serial Number"
         }
+      },
+      {
+        "class_name": "boat",
+        "class_description": "Boats and Watercraft",
+        "base_class_name": "responsibility",
+        "class_color": "#af9d66",
+        "class_author": "TJ Bandrowsky",
+        "class_version": "1.0",
+        "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+        "fields": {
+          "description": {
+            "field_type": "string",
+            "label": "Description"
+          },
+          "manufacturer": {
+            "field_type": "string",
+            "label": "Manufacturer"
+          },
+          "make": {
+            "field_type": "string",
+            "label": "Make"
+          },
+          "model": {
+            "field_type": "string",
+            "label": "Model"
+          },
+          "year": {
+            "field_type": "string",
+            "label": "Year"
+          },
+          "serial_number": {
+            "field_type": "string",
+            "label": "Serial Number"
+          }
+        }
+
       }
-    }
 
 
   ],

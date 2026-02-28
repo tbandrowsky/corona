@@ -10,7 +10,7 @@
         {
           "class_name": "paragraph",
           "json_field_name": "description",
-          "text": "\"{nick_name}\" {description}",
+          "text": "{description}",
           "box": "card_text_box"
         },
         {

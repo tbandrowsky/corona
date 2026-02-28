@@ -1,16 +1,16 @@
 {
   "class_name": "page",
-  "page_name": "card_property_collectible",
+  "page_name": "card_contact_marina",
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
-      "$icon_image_file": "assets\\collectible.png",
+      "$icon_image_file": "assets\\marina.png",
       "$card_height": "75 pixels",
       "$details_contents": [
         {
           "class_name": "paragraph",
-          "json_field_name": "description",
-          "text": "{description}",
+          "json_field_name": "first_name",
+          "text": "'{nick_name}' {first_name} {last_name}",
           "box": "card_text_box"
         }
       ]

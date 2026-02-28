@@ -1082,6 +1082,8 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <None Include="configuration\patriarch_contact_marina.json" />
+    <None Include="configuration\patriarch_contact_marina_card.json" />
     <None Include="configuration\patriarch_member_ancestor.json" />
     <None Include="configuration\patriarch_member_ancestor_card.json" />
     <None Include="configuration\patriarch_member_child.json" />
@@ -1127,6 +1129,8 @@
     <None Include="configuration\patriarch_object_edit_template.json" />
     <None Include="configuration\patriarch_property_appliance.json" />
     <None Include="configuration\patriarch_property_appliance_card.json" />
+    <None Include="configuration\patriarch_property_boat.json" />
+    <None Include="configuration\patriarch_property_boat_card.json" />
     <None Include="configuration\patriarch_property_building.json" />
     <None Include="configuration\patriarch_property_building_card.json" />
     <None Include="configuration\patriarch_property_collectibles.json" />

@@ -1,21 +1,21 @@
 {
   "class_name": "page",
-  "page_name": "page_member_relative",
+  "page_name": "page_contact_marina",
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\relative.png",
+      "$icon_image_file": "assets\\marina.png",
       "$details_contents": [
         {
           "class_name": "frame",
-          "name": "current_member_home",
+          "name": "current_dependent_home",
           "box": {
             "width": "1.0 remaining",
             "height": "1.0 remaining"
           },
           "on_load": {
             "class_name": "select_frame",
-            "source_frame": "page_member",
+            "source_frame": "page_contact",
             "message": "load frame."
           }
         }

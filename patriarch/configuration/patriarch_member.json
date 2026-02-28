@@ -11,7 +11,7 @@
           "class_name": "column",
           "name": "member_contact",
           "box": {
-            "width": ".5 container",
+            "width": ".66 container",
             "height": "1.0 container"
           },
           "children": [
@@ -39,36 +39,6 @@
               "class_name": "edit_field",
               "json_field_name": "email",
               "text": "Email:"
-            }
-          ]
-        },
-        {
-          "class_name": "column",
-          "name": "medical_info",
-          "box": {
-            "width": ".5 container",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "memo_field",
-              "json_field_name": "medical_conditions",
-              "text": "Medical Conditions:"
-            },
-            {
-              "class_name": "memo_field",
-              "json_field_name": "prescriptions",
-              "text": "Prescriptions:"
-            },
-            {
-              "class_name": "memo_field",
-              "json_field_name": "likes",
-              "text": "Likes:"
-            },
-            {
-              "class_name": "memo_field",
-              "json_field_name": "dislikes",
-              "text": "Dislikes:"
             }
           ]
         }

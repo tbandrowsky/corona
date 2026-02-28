@@ -27,7 +27,7 @@
 
             {
               "class_name": "column",
-              "name": "search_row",
+              "name": "button_row",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -111,7 +111,7 @@
                     "query": {
                       "from": [
                         {
-                          "class_name": "dependent",
+                          "class_name": "member",
                           "name": "objects",
                           "filter": {
                             "full_text": "$this.full_text"
@@ -248,7 +248,7 @@
               "class_name": "column",
               "name": "search_result",
               "box": {
-                "width": "500 pixels",
+                "width": "400 pixels",
                 "height": "1.0 remaining"
               },
               "children": [
@@ -285,6 +285,7 @@
                     "employer": "card_contact_employer",
                     "landscaper": "card_contact_landscaper",
                     "lawyer": "card_contact_lawyer",
+                    "marina": "card_contact_marina",
                     "mechanic": "card_contact_mechanic",
                     "parole_officer": "card_contact_parole_officer",
                     "pharmacy": "card_contact_pharmacy",
@@ -293,6 +294,7 @@
                     "utility": "card_contact_utility",
 
                     "property": "card_property",
+                    "boat": "card_property_boat",
                     "vehicle": "card_property_vehicle",
                     "tool": "card_property_tool",
                     "appliance": "card_property_appliance",
@@ -344,6 +346,7 @@
                       "real_estate": "page_contact_real_estate",
                       "school": "page_contact_real_school",
                       "utility": "page_contact_utility",
+                      "marina": "page_contact_marina",
 
                       "property": "page_property",
                       "vehicle": "page_property_vehicle",
@@ -356,6 +359,7 @@
                       "furniture": "page_property_furniture",
                       "tractor": "page_property_tractor",
                       "gun": "page_property_gun",
+                      "boat": "page_property_boat",
 
                       "task": "page_task",
                       "appointment": "page_task_appointment",
@@ -501,12 +505,23 @@
                   "text": ""
                 },
                 {
-                  "class_name": "frame",
-                  "name": "frame_selected",
+                  "class_name": "column",
+                  "name": "search_row3",
                   "box": {
                     "width": "1.0 container",
                     "height": "1.0 remaining"
-                  }
+                  },
+                  "padding": "8 pixels",
+                  "children": [
+                    {
+                      "class_name": "frame",
+                      "name": "frame_selected",
+                      "box": {
+                        "width": "1.0 container",
+                        "height": "1.0 remaining"
+                      }
+                    }
+                  ]
                 }
               ]
             }
