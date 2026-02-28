@@ -1,38 +1,27 @@
 {
   "class_name": "page",
   "page_name": "card_table",
-  "children": [
-    {
-      "class_name": "column",
-      "name": "card_label",
-      "box": {
-        "width": "500 pixels",
-        "height": "100 pixels"
-      },
-      "padding": "8 pixels",
-      "children": [
-        {
-          "class_name": "chaptersubtitle",
-          "name": "name",
-          "box": "chaptersubtitle_box",
-          "json_field_name": "name",
-          "text": "{name} ({base_name})"
-        },
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\database.png",
+      "$card_height": "75 pixels",
+      "$details_contents": [
         {
           "class_name": "paragraph",
           "name": "description",
-          "box": "edit_label_box_full",
+          "box": "card_text_box",
           "json_field_name": "name",
           "text": "{description}"
         },
         {
           "class_name": "paragraph",
           "name": "counts",
-          "box": "edit_label_box_full",
+          "box": "card_text_box",
           "json_field_name": "object_count",
           "text": "{object_count} objects, {word_count} words"
         }
       ]
     }
-  ]
+  }
 }

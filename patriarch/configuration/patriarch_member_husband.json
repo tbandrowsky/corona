@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_wife",
+  "page_name": "page_member_husband",
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\wife.png",
+      "$icon_image_file": "assets\\husband.png",
       "$details_contents": [
         {
           "class_name": "frame",
@@ -15,7 +15,7 @@
           },
           "on_load": {
             "class_name": "select_frame",
-            "source_frame": "page_dependent",
+            "source_frame": "page_member",
             "message": "load frame."
           }
         }

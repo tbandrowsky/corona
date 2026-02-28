@@ -4,7 +4,7 @@
   "using": {
     "page_name": "page_task",
     "parameters": {
-      "$task_image": "assets\\relative.png",
+      "$task_image": "assets\\appointment.png",
       "$task_details": [
         {
           "class_name": "edit_field",

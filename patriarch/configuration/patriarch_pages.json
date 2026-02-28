@@ -19,17 +19,15 @@
         "color": "000000"
       }
     },
-    "$card_text_box": {
-      "box": {
+    "card_text_box": {
         "width": {
           "amount": 1.0,
           "units": "container"
         },
         "height": {
-          "amount": 120.0,
-          "units": "pixels"
+          "amount": 14.0,
+          "units": "pixels" 
         }
-      }
     },
     "button_box": {
       "width": "100 pixels",
@@ -155,7 +153,7 @@
         "units": "container"
       },
       "height": {
-        "amount": "60",
+        "amount": 60,
         "units": "pixels"
       }
     },
@@ -165,7 +163,7 @@
         "units": "container"
       },
       "height": {
-        "amount": "10",
+        "amount": 10,
         "units": "pixels"
       }
     },
@@ -361,55 +359,59 @@
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_dependent.json"
+      "file_name": "patriarch_member.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_dependent_card.json"
+      "file_name": "patriarch_member_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_husband.json"
+      "file_name": "patriarch_member_husband.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_husband_card.json"
+      "file_name": "patriarch_member_husband_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_wife.json"
+      "file_name": "patriarch_member_wife.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_wife_card.json"
+      "file_name": "patriarch_member_wife_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_child.json"
+      "file_name": "patriarch_member_child.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_child_card.json"
+      "file_name": "patriarch_member_child_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_ancestor.json"
+      "file_name": "patriarch_member_ancestor.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_ancestor_card.json"
+      "file_name": "patriarch_member_ancestor_card.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_relative.json"
+      "file_name": "patriarch_member_relative.json"
     },
     {
       "class_name": "import",
-      "file_name": "patriarch_relative_card.json"
+      "file_name": "patriarch_member_relative_card.json"
     },
     {
       "class_name": "import",
       "file_name": "patriarch_object_edit_template.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "patriarch_object_card_template.json"
     },
     {
       "class_name": "import",

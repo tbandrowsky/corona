@@ -239,7 +239,7 @@
           "font_name": "Century Gothic,Arial",
           "font_size": 17,
           "underline": false,
-          "vertical_alignment": "far"
+          "vertical_alignment": "near"
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
@@ -247,7 +247,7 @@
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "00000044"
+          "color": "000000"
         }
       },
       "paragraph_style": {
@@ -259,7 +259,7 @@
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
-          "color": "FFFFEE44"
+          "color": "FFFFEE"
         },
         "box_fill_brush": {
           "class_name": "solid_brush",

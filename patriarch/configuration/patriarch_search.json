@@ -8,268 +8,6 @@
       "box": "full_container",
       "children": [
         {
-          "class_name": "row",
-          "name": "search_row",
-          "box": {
-            "width": "1.0 container",
-            "height": "50 pixels"
-          },
-          "children": [
-            {
-              "class_name": "chaptertitle",
-              "name": "search_label_text",
-              "box": {
-                "width": "100 pixels",
-                "height": "40 pixels"
-              },
-              "text": "\u220B Find"
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "CompletedTask",
-              "text": "tasks",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "task_base",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "promote",
-                      "source": "objects",
-                      "path": "tasks",
-                      "name": "get_children"
-                    },
-                    {
-                      "class_name": "result",
-                      "source": "get_children",
-                      "name": "results"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_family",
-              "icon": "Family",
-              "text": "family",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "dependent",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "result",
-                      "source": "objects",
-                      "name": "objects"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_button",
-              "icon": "HomeHouse",
-              "text": "property",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "property",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "result",
-                      "source": "objects",
-                      "name": "objects"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_contacts",
-              "icon": "Contact",
-              "text": "contacts",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "contact",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "result",
-                      "source": "objects",
-                      "name": "objects"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "search_all",
-              "icon": "ViewAll",
-              "text": "everything",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "query",
-                "form_name": "search_row",
-                "table_name": "result_table",
-                "detail_frame": "frame_selected",
-                "query": {
-                  "from": [
-                    {
-                      "class_name": "patriarch_object",
-                      "name": "objects",
-                      "filter": {
-                        "full_text": "$this.full_text"
-                      }
-                    }
-                  ],
-                  "stages": [
-                    {
-                      "class_name": "result",
-                      "source": "objects",
-                      "name": "objects"
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "class_name": "chaptertitle",
-              "name": "search_placxe",
-              "text": "",
-              "box": {
-                "width": "100 pixels",
-                "height": "16.0 pixels"
-              }
-            },
-            {
-              "class_name": "chaptertitle",
-              "name": "search_label_text",
-              "box": {
-                "width": "200 pixels",
-                "height": "40 pixels"
-              },
-              "text": "\u220B Add New"
-            },
-            {
-              "class_name": "command_button",
-              "name": "new_button",
-              "icon": "Add",
-              "text": "new item",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_selected",
-                "source_frame": "page_create",
-                "message": "new item."
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "new_note",
-              "icon": "Note",
-              "text": "add note",
-              "box": {
-                "width": "100 pixels",
-                "height": "50 pixels"
-              },
-              "on_click": {
-                "class_name": "create_object",
-                "create_class_name": "patriarch_note",
-                "source_frame": "page_note",
-                "target_frame": "frame_selected",
-                "message": "layout test."
-              }
-            },
-            {
-              "class_name": "command_button",
-              "name": "save_object",
-              "icon": "Save",
-              "text": "save",
-              "box": {
-                "width": "100  pixels",
-                "height": "50 pixels"
-              },
-              "on_click": {
-                "class_name": "save_object",
-                "form_name": "frame_selected",
-                "target_frame": "frame_selected"
-              }
-            }
-
-          ]
-        },
-        {
           "class_name": "placeholder",
           "name": "search_result",
           "text": "",
@@ -286,27 +24,257 @@
             "height": "1.0 remaining"
           },
           "children": [
+
+            {
+              "class_name": "column",
+              "name": "search_row",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "view_style": {
+                "box_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111121"
+                },
+                "box_border_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111112"
+                },
+                "box_border_thickness": 4
+              },
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "Find"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_button",
+                  "icon": "CompletedTask",
+                  "text": "tasks",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "task_base",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "promote",
+                          "source": "objects",
+                          "path": "tasks",
+                          "name": "get_children"
+                        },
+                        {
+                          "class_name": "result",
+                          "source": "get_children",
+                          "name": "results"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_family",
+                  "icon": "Family",
+                  "text": "family",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "dependent",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_button",
+                  "icon": "HomeHouse",
+                  "text": "property",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "property",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_contacts",
+                  "icon": "Contact",
+                  "text": "contacts",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "contact",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_all",
+                  "icon": "ViewAll",
+                  "text": "everything",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "patriarch_object",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_placxe",
+                  "text": "",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "16.0 pixels"
+                  }
+                }
+              ]
+            },
             {
               "class_name": "column",
               "name": "search_result",
               "box": {
-                "width": "700 pixels",
+                "width": "500 pixels",
                 "height": "1.0 remaining"
               },
               "children": [
                 {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "40 pixels"
+                  },
+                  "text": "List"
+                },
+                {
                   "class_name": "items_view",
                   "name": "result_table",
                   "box": {
-                    "width": "640 pixels",
+                    "width": "400 pixels",
                     "height": "1.0 remaining"
                   },
+                  "padding": "2 pixels",
                   "sources": {
-                    "ancestor": "card_ancestor",
-                    "child": "card_child",
-                    "husband": "card_husband",
-                    "relative": "card_relative",
-                    "wife": "card_wife",
+                    "ancestor": "card_member_ancestor",
+                    "child": "card_member_child",
+                    "husband": "card_member_husband",
+                    "relative": "card_member_relative",
+                    "wife": "card_member_wife",
 
                     "accountant": "card_contact_accountant",
                     "broker": "card_contact_broker",
@@ -355,11 +323,11 @@
                     "target_frame": "page_home.frame_selected",
                     "table_name": "result_table",
                     "sources": {
-                      "ancestor": "page_ancestor",
-                      "child": "page_child",
-                      "husband": "page_husband",
-                      "relative": "page_relative",
-                      "wife": "page_wife",
+                      "ancestor": "page_member_ancestor",
+                      "child": "page_member_child",
+                      "husband": "page_member_husband",
+                      "relative": "page_member_relative",
+                      "wife": "page_member_wife",
 
                       "accountant": "page_contact_accountant",
                       "broker": "page_contact_broker",
@@ -410,10 +378,10 @@
                       "class_name": "chaptertitle",
                       "name": "search_label_text",
                       "box": {
-                        "width": "200 pixels",
+                        "width": "100 pixels",
                         "height": "40 pixels"
                       },
-                      "text": "Filter:"
+                      "text": "Filter"
                     },
                     {
                       "class_name": "edit",
@@ -434,12 +402,113 @@
               ]
             },
             {
-              "class_name": "frame",
-              "name": "frame_selected",
+              "class_name": "column",
+              "name": "search_row2",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "view_style": {
+                "box_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111121"
+                },
+                "box_border_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111112"
+                },
+                "box_border_thickness": 4
+              },
+
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "200 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "Edit"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_button",
+                  "icon": "Add",
+                  "text": "new item",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "select_frame",
+                    "target_frame": "page_home.frame_selected",
+                    "source_frame": "page_create",
+                    "message": "new item."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_note",
+                  "icon": "Note",
+                  "text": "add note",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "patriarch_note",
+                    "source_frame": "page_note",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "save_object",
+                  "icon": "Save",
+                  "text": "save",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "save_object",
+                    "form_name": "frame_selected",
+                    "target_frame": "frame_selected"
+                  }
+                }
+
+              ]
+            },
+            {
+              "class_name": "column",
+              "name": "search_row2",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"
-              }
+              },
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "40 pixels"
+                  },
+                  "text": ""
+                },
+                {
+                  "class_name": "frame",
+                  "name": "frame_selected",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "1.0 remaining"
+                  }
+                }
+              ]
             }
           ]
         }

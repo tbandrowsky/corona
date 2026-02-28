@@ -1,27 +1,19 @@
 {
   "class_name": "page",
-  "page_name": "card_ancestor",
-  "children": [
-    {
-
-      "class_name": "column",
-      "name": "contact_details",
-      "box": {
-        "width": "1.0 container",
-        "height": "60 pixels"
-      },
-      "padding": "8px",
-      "children": [
+  "page_name": "card_note",
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\note.png",
+      "$card_height": "75 pixels",
+      "$details_contents": [
         {
           "class_name": "paragraph",
-          "json_field_name": "note_text",
+          "json_field_name": "description",
           "text": "{note_text}",
-          "box": {
-            "width": "1.0 container",
-            "height": "80 pixels" 
-          }
+          "box": "card_text_box"
+        }
       ]
     }
-  ]
-
+  }
 }

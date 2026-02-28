@@ -196,10 +196,10 @@
     <CopyFileToFolders Include="configuration\patriarch_styles.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_dependent.json">
+    <CopyFileToFolders Include="configuration\patriarch_member.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_dependent_card.json">
+    <CopyFileToFolders Include="configuration\patriarch_member_card.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_pages.json">
@@ -232,16 +232,16 @@
   <ItemGroup>
     <None Include="configuration\patriarch_status.json" />
     <None Include="configuration\patriarch_empty.json" />
-    <None Include="configuration\patriarch_ancestor.json" />
-    <None Include="configuration\patriarch_ancestor_card.json" />
-    <None Include="configuration\patriarch_child.json" />
-    <None Include="configuration\patriarch_child_card.json" />
-    <None Include="configuration\patriarch_husband.json" />
-    <None Include="configuration\patriarch_husband_card.json" />
-    <None Include="configuration\patriarch_relative.json" />
-    <None Include="configuration\patriarch_relative_card.json" />
-    <None Include="configuration\patriarch_wife.json" />
-    <None Include="configuration\patriarch_wife_card.json" />
+    <None Include="configuration\patriarch_member_ancestor.json" />
+    <None Include="configuration\patriarch_member_ancestor_card.json" />
+    <None Include="configuration\patriarch_member_child.json" />
+    <None Include="configuration\patriarch_member_child_card.json" />
+    <None Include="configuration\patriarch_member_husband.json" />
+    <None Include="configuration\patriarch_member_husband_card.json" />
+    <None Include="configuration\patriarch_member_relative.json" />
+    <None Include="configuration\patriarch_member_relative_card.json" />
+    <None Include="configuration\patriarch_member_wife.json" />
+    <None Include="configuration\patriarch_member_wife_card.json" />
     <None Include="configuration\patriarch_object_details.json" />
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
@@ -307,5 +307,6 @@
     <None Include="configuration\patriarch_property_tractor_card.json" />
     <None Include="configuration\patriarch_contact_pharmacy.json" />
     <None Include="configuration\patriarch_object_edit_template.json" />
+    <None Include="configuration\patriarch_object_card_template.json" />
   </ItemGroup>
 </Project>

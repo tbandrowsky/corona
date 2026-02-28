@@ -1,15 +1,15 @@
 {
   "class_name": "page",
-  "page_name": "page_dependent",
+  "page_name": "page_member",
   "children": [
     {
       "class_name": "row",
-      "name": "dependent_details",
+      "name": "member_details",
       "box": "full_container",
       "children": [
         {
           "class_name": "column",
-          "name": "dependent_contact",
+          "name": "member_contact",
           "box": {
             "width": ".5 container",
             "height": "1.0 container"

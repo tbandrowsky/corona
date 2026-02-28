@@ -1,29 +1,12 @@
 {
   "class_name": "page",
   "page_name": "card_task_party",
-  "children": [
-    {
-
-      "class_name": "column",
-      "name": "task_party_details",
-      "box": {
-        "width": "1.0 container",
-        "height": "60 pixels"
-      },
-      "padding": "8px",
-      "children": [
-        {
-          "class_name": "chaptersubtitle",
-          "name": "title",
-          "box": "chaptersubtitle_box",
-          "text": "Party"
-        },
-        {
-          "class_name": "paragraph",
-          "json_field_name": "description",
-          "text": "{description}",
-          "box": "edit_field_box"
-        },
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\party.png",
+      "$card_height": "75 pixels",
+      "$details_contents": [
         {
           "class_name": "paragraph",
           "json_field_name": "status",
@@ -36,9 +19,7 @@
           "text": "{with} {when} {where}",
           "box": "edit_field_box"
         }
-
       ]
     }
-  ]
-
+  }
 }

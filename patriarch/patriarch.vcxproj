@@ -1017,14 +1017,14 @@
     <ClCompile Include="patriarch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="configuration\patriarch_dependent.json">
+    <CopyFileToFolders Include="configuration\patriarch_member.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_dependent_card.json">
+    <CopyFileToFolders Include="configuration\patriarch_member_card.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <FileType>Document</FileType>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
@@ -1082,10 +1082,10 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <None Include="configuration\patriarch_ancestor.json" />
-    <None Include="configuration\patriarch_ancestor_card.json" />
-    <None Include="configuration\patriarch_child.json" />
-    <None Include="configuration\patriarch_child_card.json" />
+    <None Include="configuration\patriarch_member_ancestor.json" />
+    <None Include="configuration\patriarch_member_ancestor_card.json" />
+    <None Include="configuration\patriarch_member_child.json" />
+    <None Include="configuration\patriarch_member_child_card.json" />
     <None Include="configuration\patriarch_contact_accountant.json" />
     <None Include="configuration\patriarch_contact_accountant_card.json" />
     <None Include="configuration\patriarch_contact_broker.json" />
@@ -1118,10 +1118,11 @@
     <None Include="configuration\patriarch_contact_utility_card.json" />
     <None Include="configuration\patriarch_create.json" />
     <None Include="configuration\patriarch_empty.json" />
-    <None Include="configuration\patriarch_husband.json" />
-    <None Include="configuration\patriarch_husband_card.json" />
+    <None Include="configuration\patriarch_member_husband.json" />
+    <None Include="configuration\patriarch_member_husband_card.json" />
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
+    <None Include="configuration\patriarch_object_card_template.json" />
     <None Include="configuration\patriarch_object_details.json" />
     <None Include="configuration\patriarch_object_edit_template.json" />
     <None Include="configuration\patriarch_property_appliance.json" />
@@ -1144,8 +1145,8 @@
     <None Include="configuration\patriarch_property_tractor_card.json" />
     <None Include="configuration\patriarch_property_vehicle.json" />
     <None Include="configuration\patriarch_property_vehicle_card.json" />
-    <None Include="configuration\patriarch_relative.json" />
-    <None Include="configuration\patriarch_relative_card.json" />
+    <None Include="configuration\patriarch_member_relative.json" />
+    <None Include="configuration\patriarch_member_relative_card.json" />
     <None Include="configuration\patriarch_status.json" />
     <None Include="configuration\patriarch_task.json" />
     <None Include="configuration\patriarch_task_appointment.json" />
@@ -1157,8 +1158,8 @@
     <None Include="configuration\patriarch_task_project_card.json" />
     <None Include="configuration\patriarch_task_trip.json" />
     <None Include="configuration\patriarch_task_trip_card.json" />
-    <None Include="configuration\patriarch_wife.json" />
-    <None Include="configuration\patriarch_wife_card.json" />
+    <None Include="configuration\patriarch_member_wife.json" />
+    <None Include="configuration\patriarch_member_wife_card.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

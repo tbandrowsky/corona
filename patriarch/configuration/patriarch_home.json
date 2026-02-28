@@ -46,6 +46,61 @@
           "content_cross_alignment": "near",
           "children": [
             {
+              "class_name": "column",
+              "box": {
+                "width": "150 pixels",
+                "height": "1.0 container"
+              },
+              "children": [
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": ""
+                },
+                {
+                  "class_name": "command_button",
+                  "icon": "CalendarDay",
+                  "box": "button_box",
+                  "margin": "button_margin",
+                  "on_click": {
+                    "class_name": "select_frame",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_status",
+                    "message": "Status."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "icon": "Search",
+                  "box": "button_box",
+                  "margin": "button_margin",
+                  "on_click": {
+                    "class_name": "select_frame",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_search",
+                    "message": "Search."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "icon": "Database",
+                  "box": "button_box",
+                  "margin": "button_margin",
+                  "on_click": {
+                    "class_name": "select_frame",
+                    "target_frame": "page_home.frame_home",
+                    "source_frame": "page_database",
+                    "message": "Database."
+                  }
+                }
+
+              ]
+            },
+            {
               "class_name": "frame",
               "name": "frame_home",
               "box": {
@@ -90,42 +145,6 @@
 
           "padding" : "8 pixels",
           "children": [
-            {
-              "class_name": "command_button",
-              "icon": "CalendarDay",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_status",
-                "message": "Status."
-              }
-            },
-            {
-              "class_name": "command_button",
-              "icon": "Search",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_search",
-                "message": "Search."
-              }
-            },
-            {
-              "class_name": "command_button",
-              "icon": "Database",
-              "box": "button_box",
-              "margin": "button_margin",
-              "on_click": {
-                "class_name": "select_frame",
-                "target_frame": "page_home.frame_home",
-                "source_frame": "page_database",
-                "message": "Database."
-              }
-            },
             {
               "class_name": "code",
               "name": "space",

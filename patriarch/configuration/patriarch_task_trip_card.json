@@ -1,44 +1,23 @@
 {
   "class_name": "page",
   "page_name": "card_task_trip",
-  "children": [
-    {
-
-      "class_name": "column",
-      "name": "task_trip_details",
-      "box": {
-        "width": "1.0 container",
-        "height": "60 pixels"
-      },
-      "padding": "8px",
-      "children": [
-        {
-          "class_name": "chaptersubtitle",
-          "name": "title",
-          "box": "chaptersubtitle_box",
-          "text": "Task"
-        },
-        {
-          "class_name": "paragraph",
-          "json_field_name": "description",
-          "text": "{description}",
-          "box": "edit_field_box"
-        },
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\trip.png",
+      "$card_height": "75 pixels",
+      "$details_contents": [
         {
           "class_name": "paragraph",
           "json_field_name": "status",
-          "text": "{status}",
-          "box": "edit_field_box"
+          "text": "{status}"
         },
         {
           "class_name": "paragraph",
-          "json_field_name": "due_date",
-          "text": "{due_date}",
-          "box": "edit_field_box"
+          "json_field_name": "with",
+          "text": "{with} {when} {where}"
         }
-
       ]
     }
-  ]
-
+  }
 }

@@ -1,44 +1,19 @@
 {
   "class_name": "page",
   "page_name": "card_contact_real_estate",
-  "children": [
-    {
-
-      "class_name": "column",
-      "name": "contact_details",
-      "box": {
-        "width": "1.0 container",
-        "height": "60 pixels"
-      },
-      "padding" :  "8px",
-      "children": [
-        {
-          "class_name": "chaptersubtitle",
-          "name": "title",
-          "box": "chaptersubtitle_box",
-          "text": "Real Estate"
-        },
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\real_estate.png",
+      "$card_height": "75 pixels",
+      "$details_contents": [
         {
           "class_name": "paragraph",
           "json_field_name": "first_name",
           "text": "'{nick_name}' {first_name} {last_name}",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "json_field_name": "first_name",
-          "text": "{phone}",
-          "box": "edit_field_box"
-        },
-        {
-          "class_name": "paragraph",
-          "json_field_name": "first_name",
-          "text": "{email}",
-          "box": "edit_field_box"
+          "box": "card_text_box"
         }
-
       ]
     }
-  ]
-
+  }
 }
