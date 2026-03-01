@@ -1472,8 +1472,8 @@ namespace corona
 	void directApplicationWin32::setComboSelectedText(int ddlControlId, const char* _text)
 	{
 		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int index_lists = ::SendMessage(control, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)_text);
-		::SendMessage(control, CB_SETCURSEL, index_lists, NULL);
+		auto index_lists = ::SendMessage(control, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)_text);
+		auto result = ::SendMessage(control, CB_SETCURSEL, index_lists, NULL);
 	}
 
 	void directApplicationWin32::setComboSelectedValue(int ddlControlId, int value)

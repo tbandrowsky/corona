@@ -12,13 +12,14 @@
           "json_field_name": "description"
         },
         {
-          "class_name": "comboboxex_field",
+          "class_name": "combobox_field",
           "text": "Status:",
           "json_field_name": "status",
           "field": {
             "choices": {
               "id_field": "text",
               "text_field": "text",
+              "selected_field": "text",
               "items": [
                 { "text": "open" },
                 { "text": "in progress" },

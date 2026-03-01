@@ -58,7 +58,6 @@
         },
         "status": {
           "field_type": "string",
-          "enumeration": [ "open", "in progress", "completed", "on hold", "blocked", "cancelled" ],
           "label": "Status"
         }
       }

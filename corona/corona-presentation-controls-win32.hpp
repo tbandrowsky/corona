@@ -89,7 +89,7 @@ namespace corona
 		virtual void set_window_size()
 		{
 			if (auto phost = window_host.lock()) {
-				auto cbounds = control_base::get_inner_bounds();
+				auto cbounds = get_window_bounds();
 				auto boundsPixels = phost->toPixelsFromDips(cbounds);
 
 				if (windows_control::window != nullptr) {
@@ -190,7 +190,8 @@ namespace corona
 			window_host = _host;
 
 			if (auto phost = window_host.lock()) {
-				auto boundsPixels = phost->toPixelsFromDips(inner_bounds);
+				rectangle win_bounds = get_window_bounds();
+				auto boundsPixels = phost->toPixelsFromDips(win_bounds);
 
 				if (window == nullptr) {
 					HWND parent = phost->getMainWindow();
@@ -268,6 +269,10 @@ namespace corona
 				window = nullptr;
 			}
 		}
+
+		virtual rectangle get_window_bounds() {
+			return bounds;
+		};
 
 		virtual ~windows_control()
 		{
@@ -595,7 +600,6 @@ namespace corona
 			return tv;
 		}
 
-
 		virtual ~list_control_base() { ; }
 
 		void data_changed()
@@ -713,12 +717,15 @@ namespace corona
 			json jlist_data = _src["list"];
 			choices.put_json(jlist_data);
 			json command = _src["select_command"];
+
 			if (command.empty()) {
 				system_monitoring_interface::active_mon->log_information("list control missing select_command", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_json(_src);
 			}
-
-			corona::put_json(select_command, command);
+			else 
+			{
+				corona::put_json(select_command, command);
+			}
 
 			data_changed();
 		}
@@ -765,6 +772,13 @@ namespace corona
 
 		virtual ~dropdown_control_base() { ; }
 
+		virtual rectangle get_window_bounds() {
+			auto winbounds = bounds;
+			winbounds.h = get_dropdown_size();
+			return winbounds;
+		};
+
+
 		void data_changed()
 		{
 			if (auto phost = window_host.lock()) {
@@ -784,6 +798,34 @@ namespace corona
 			}
 		}
 
+		int get_dropdown_size()
+		{
+			int sz = 150;
+			if (window == nullptr) return sz;
+			if (choices.items.array() && choices.items.size()) {
+				int x = choices.items.size();
+				if (x > 10) x = 10;
+				int ii = 10;
+				HFONT current_font = (HFONT)::SendMessage(window, WM_GETFONT, 0, 0);
+				if (current_font) {
+					LOGFONT lf;
+					int count = GetObject(current_font, sizeof(lf), &lf);
+					if (count > 0) {
+						ii = lf.lfHeight;
+						if (ii < 0) ii = -ii;
+					}
+				}
+				sz = x * ii;
+			}
+
+			if (auto phost = window_host.lock()) {
+				sz = phost->toDipsFromPixels(sz);
+			}
+
+			return sz;
+		}
+
+
 		virtual json get_selected_object()
 		{
 			json j;
@@ -801,20 +843,7 @@ namespace corona
 			choices = _choices;
 			data_changed();
 		}
-
-		virtual void set_window_size()
-		{
-			if (auto phost = window_host.lock()) {
-				auto boundsPixels = phost->toPixelsFromDips(control_base::get_inner_bounds());
-
-				if (windows_control::window != nullptr) {
-					int h = windows_control::text_style.fontSize * 8;
-
-					::MoveWindow(windows_control::window, boundsPixels.x, boundsPixels.y, boundsPixels.w, h, TRUE);
-				}
-			}
-		}
-
+		
 		virtual void on_create()
 		{
 			on_resize();
@@ -1391,8 +1420,9 @@ namespace corona
 
 	};
 
-	class comboboxex_control : public windows_control
+	class comboboxex_control : public dropdown_control_base
 	{
+
 	public:
 		using control_base::id;
 		using windows_control::window_host;
@@ -1408,9 +1438,9 @@ namespace corona
 			auto tv = std::make_shared<comboboxex_control>(*this);
 			return tv;
 		}
-		virtual void set_window_size();
 
 		virtual ~comboboxex_control() { ; }
+
 		void data_changed();
 		void set_list(list_data& _choices);
 		virtual void on_create();
@@ -1419,46 +1449,6 @@ namespace corona
 		virtual DWORD get_window_style() { return ComboWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 
-		virtual json get_selected_object()
-		{
-			json j;
-			if (auto ptr = window_host.lock()) {
-				int index_lists = ptr->getComboSelectedIndex(id);
-				if (index_lists >= 0) {
-					j = choices.items.get_element(index_lists);
-				}
-			}
-			return j;
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-
-			control_base::get_json(_dest);
-			json jlist_data = jp.create_object();
-			choices.get_json(jlist_data);
-			_dest.put_member("choices", jlist_data);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			json_parser jp;
-
-			control_base::put_json(_src);
-			json jlist_data = _src["choices"];
-			choices.put_json(jlist_data);
-
-			json command = _src["select_command"];
-			if (command.empty()) {
-				comm_bus_app_interface::global_bus->log_information("comboboxex control missing select_command", __FILE__, __LINE__);
-				comm_bus_app_interface::global_bus->log_json(_src);
-			}
-
-			corona::put_json(select_command, command);
-
-			data_changed();
-		}
 
 	};
 
@@ -2086,7 +2076,7 @@ namespace corona
 	void combobox_control::set_window_size()
 	{
 		if (auto phost = window_host.lock()) {
-			auto boundsPixels = phost->toPixelsFromDips(get_inner_bounds());
+			auto boundsPixels = phost->toPixelsFromDips(get_window_bounds());
 
 			if (windows_control::window) {
 				MoveWindow(window, boundsPixels.x, boundsPixels.y, boundsPixels.w, windows_control::text_style.fontSize * 8, TRUE);
@@ -2098,7 +2088,7 @@ namespace corona
 	{
 	}
 
-	comboboxex_control::comboboxex_control(control_base* _parent, int _id) : windows_control(_parent, _id)
+	comboboxex_control::comboboxex_control(control_base* _parent, int _id) : dropdown_control_base(_parent, _id)
 	{
 	}
 
@@ -2129,6 +2119,7 @@ namespace corona
 					}
 				}
 			}
+			set_window_size();
 		}
 	}
 
@@ -2140,19 +2131,7 @@ namespace corona
 
 	void comboboxex_control::on_create()
 	{
-		set_window_size();
 		data_changed();
-	}
-
-	void comboboxex_control::set_window_size()
-	{
-		if (auto phost = window_host.lock()) {
-			auto boundsPixels = phost->toPixelsFromDips(get_inner_bounds());
-
-			if (windows_control::window) {
-				MoveWindow(window, boundsPixels.x, boundsPixels.y, boundsPixels.w, windows_control::text_style.fontSize * 8, TRUE);
-			}
-		}
 	}
 
 	void richedit_control::set_html(const std::string& _text)
