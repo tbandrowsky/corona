@@ -882,7 +882,7 @@ namespace corona
 				std::string existing = ptr->getListSelectedText(id);
 				std::string text = "";
 				if (existing != text) {
-					ptr->setListSelectedText(id, text.c_str());
+					ptr->setComboSelectedText(id, text.c_str());
 				}
 			}
 
@@ -896,7 +896,7 @@ namespace corona
 			control_base::get_json(_dest);
 			json jlist_data = jp.create_object();
 			choices.get_json(jlist_data);
-			_dest.put_member("list", jlist_data);
+			_dest.put_member("choices", jlist_data);
 		}
 
 		virtual void put_json(json& _src)
@@ -904,7 +904,7 @@ namespace corona
 			json_parser jp;
 
 			control_base::put_json(_src);
-			json jlist_data = _src["list"];
+			json jlist_data = _src["choices"];
 			choices.put_json(jlist_data);
 			json command = _src["select_command"];
 			if (command.empty()) {

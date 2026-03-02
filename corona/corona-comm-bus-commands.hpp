@@ -2055,6 +2055,8 @@ namespace corona
 
 	void corona_form_command::start_message(comm_bus_app_interface* _bus)
 	{
+		return;
+
 		auto dest = std::make_shared<corona_set_property_command>();
 		json_parser jp;
 		json obj = jp.create_object();

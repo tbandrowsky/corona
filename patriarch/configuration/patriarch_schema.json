@@ -508,9 +508,20 @@
       }
     },
     {
+      "class_name": "asset",
+      "class_description": "An asset",
+      "base_class_name": "responsibility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [  ],
+      "fields": {
+      }
+    },
+    {
       "class_name": "property",
       "class_description": "Home or rental property",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -541,7 +552,7 @@
     {
       "class_name": "vehicle",
       "class_description": "A vehicle",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -580,7 +591,7 @@
     {
       "class_name": "tool",
       "class_description": "A tool",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -615,7 +626,7 @@
     {
       "class_name": "appliance",
       "class_description": "A household appliance",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -650,7 +661,7 @@
     {
       "class_name": "furniture",
       "class_description": "A household furniture item",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -685,7 +696,7 @@
     {
       "class_name": "electronic",
       "class_description": "A household electronic item",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -720,7 +731,7 @@
     {
       "class_name": "jewelry",
       "class_description": "A household jewelry item",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -756,7 +767,7 @@
     {
       "class_name": "collectible",
       "class_description": "A household collectible item",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -783,7 +794,7 @@
     {
       "class_name": "building",
       "class_description": "Sheds, Shops and Stables",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -806,7 +817,7 @@
     {
       "class_name": "gun",
       "class_description": "Swords, Bows and Firepower for Freedom",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -841,7 +852,7 @@
     {
       "class_name": "tractor",
       "class_description": "Tractors, Farm & Construction Equipment",
-      "base_class_name": "responsibility",
+      "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -875,7 +886,7 @@
       {
         "class_name": "boat",
         "class_description": "Boats and Watercraft",
-        "base_class_name": "responsibility",
+        "base_class_name": "asset",
         "class_color": "#af9d66",
         "class_author": "TJ Bandrowsky",
         "class_version": "1.0",
