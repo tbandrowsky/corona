@@ -514,8 +514,11 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [  ],
       "fields": {
+        "price": {
+          "field_type": "double",
+          "label": "Price"
+        }
       }
     },
     {
@@ -882,43 +885,44 @@
           "field_type": "string",
           "label": "Serial Number"
         }
-      },
-      {
-        "class_name": "boat",
-        "class_description": "Boats and Watercraft",
-        "base_class_name": "asset",
-        "class_color": "#af9d66",
-        "class_author": "TJ Bandrowsky",
-        "class_version": "1.0",
-        "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
-        "fields": {
-          "description": {
-            "field_type": "string",
-            "label": "Description"
-          },
-          "manufacturer": {
-            "field_type": "string",
-            "label": "Manufacturer"
-          },
-          "make": {
-            "field_type": "string",
-            "label": "Make"
-          },
-          "model": {
-            "field_type": "string",
-            "label": "Model"
-          },
-          "year": {
-            "field_type": "string",
-            "label": "Year"
-          },
-          "serial_number": {
-            "field_type": "string",
-            "label": "Serial Number"
-          }
-        }
-
       }
+    },
+    {
+      "class_name": "boat",
+      "class_description": "Boats and Watercraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
+
+    }
 
 
   ],
@@ -953,5 +957,5 @@
         }
       ]
     }
-  ] 
+  ]
 }

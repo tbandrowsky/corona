@@ -558,6 +558,8 @@ namespace corona
 
 		void check_scroll()
 		{
+            int last_selected_index = selected_item_index;
+
 			if (rows.size()==0)
 			{
 				selected_item_index = 0;
@@ -578,10 +580,13 @@ namespace corona
 			selected_page_index = rows[selected_item_index].page_index;
 			int selected_item_page_index = pages[selected_page_index].start_index;
 			view_port.y = rows[selected_item_page_index].bounds.y;
-			update_selection();
-			std::string msg;
-			msg = std::format("selected_page_index '{0}' selected_item_index {1}, y:{2} ", selected_page_index, selected_item_page_index, view_port.y);
-			system_monitoring_interface::active_mon->log_information(msg);
+
+			if (selected_item_index != last_selected_index) {
+				update_selection();
+				std::string msg;
+				msg = std::format("selected_page_index '{0}' selected_item_index {1}, y:{2} ", selected_page_index, selected_item_page_index, view_port.y);
+				system_monitoring_interface::active_mon->log_information(msg);
+			}
 		}
 
 		void set_scroll_well(solidBrushRequest _brushFill)
@@ -756,6 +761,7 @@ namespace corona
 						if (t_selected_page_index >= 0) {
 							selected_item_index = pages[t_selected_page_index].start_index;
 							check_scroll();
+							update_selection();
 						}
 					}
 					else 
@@ -764,6 +770,7 @@ namespace corona
 						if (temp != -1) {
 							selected_item_index = temp;
 							check_scroll();
+							update_selection();
 						}
 					}
 				});
@@ -1033,7 +1040,10 @@ namespace corona
 
 		virtual bool set_items(json _data)
 		{
+            json current_selected_object = get_selected_object();
+
 			data = _data;
+
 			rows.clear();
 
 			create_controls();
@@ -1045,6 +1055,9 @@ namespace corona
 			item_bounds.w = 0;
 			item_bounds.h = 0;
 
+
+			int matching_index = -1;
+
 			for (i = 0; i < data.size(); i++)
 			{
 				items_view_row gvr;
@@ -1052,6 +1065,12 @@ namespace corona
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
                 gvr.object_data = data.get_element(i);
+				if (!current_selected_object.empty()) {
+                    if (gvr.object_data[class_name_field].as_string() == current_selected_object[class_name_field].as_string() &&
+						gvr.object_data[object_id_field].as_int64_t() == current_selected_object[object_id_field].as_int64_t()) {
+						matching_index = i;
+					}
+				}
                 gvr.control = nullptr;
 				std::string class_name = gvr.object_data[class_name_field].as_string();
 				if (page_controls.contains(class_name))
@@ -1069,8 +1088,17 @@ namespace corona
 			arrange(this, &bounds);
 			if (keep_position_on_set_data == false) {
 				selected_item_index = 0;
+				check_scroll();
+				update_selection();
 			}
-			check_scroll();
+			else if (matching_index >= 0) {
+                selected_item_index = matching_index;
+				check_scroll();
+			}
+			else {
+				check_scroll();
+				update_selection();
+			}
 			create_controls();
 	
 			return true;
@@ -1183,7 +1211,7 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (selected_item_index >= 0 && data.array()) {
+			if (selected_item_index >= 0 && data.array() && data.size() > selected_item_index) {
 				j = data.get_element(selected_item_index);
 			}
 			return j;
