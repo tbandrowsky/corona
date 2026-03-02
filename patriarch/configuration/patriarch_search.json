@@ -372,6 +372,10 @@
                   "on_click": {
                     "class_name": "create_object",
                     "create_class_name": "patriarch_note",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "patriarch_object": "object_id"
+                    },
                     "source_frame": "page_note",
                     "target_frame": "frame_selected",
                     "message": "layout test."
