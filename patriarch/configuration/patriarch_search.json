@@ -350,7 +350,6 @@
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
-
                   },
                   "on_click": {
                     "class_name": "select_frame",
@@ -396,8 +395,37 @@
                     "form_name": "frame_selected",
                     "target_frame": "frame_selected"
                   }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "back_object",
+                  "icon": "Back",
+                  "text": "back",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward":  false,
+                    "target_frame": "frame_selected"
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "next_object",
+                  "icon": "Forward",
+                  "text": "forward",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward": true,
+                    "target_frame": "frame_selected"
+                  }
                 }
-
               ]
             },
             {

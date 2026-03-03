@@ -200,7 +200,7 @@ namespace corona
 		virtual void when(std::string _topic, std::function<void()> _runnable) = 0;
 
 		virtual void select_page(std::string _path, json _obj) = 0;
-		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json _obj) = 0;
+		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json _obj, bool _reset_nav = false) = 0;
 
 		DWORD gui_thread_id = 0;
 

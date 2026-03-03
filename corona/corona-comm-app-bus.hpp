@@ -1782,7 +1782,7 @@ namespace corona
             return presentation_layer->get_page(_page_name);
 		}
 
-		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj)
+		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj, bool _reset_nav)
 		{
 		
 			if (!this->is_on_ui_thread()) {
@@ -1838,6 +1838,9 @@ namespace corona
 							auto pg_src = presentation_layer->pages[_frame_contents_page];
 							auto pg_master = presentation_layer->get_current_page();
 
+							if (_reset_nav) {
+								fl->navigate_clear(_batch_id);
+                            }
 							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
 
 							auto hwindow = this->app_ui->getWindow();

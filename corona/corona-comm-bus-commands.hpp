@@ -373,7 +373,7 @@ namespace corona
 
 		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
 			if (response.success) {
-				_bus->select_frame(batch_id, target_frame, source_frame, response.data);
+				_bus->select_frame(batch_id, target_frame, source_frame, response.data, false);
 			}
 			return response.data;
 		}
@@ -1023,7 +1023,6 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->create_object(instance, create_class_name);
-            select_frame->data = response.data;
 			return response;
 		}
 
@@ -1043,6 +1042,7 @@ namespace corona
 			}
 
 			if (select_frame) {
+				select_frame->data = response.data;
 				select_frame->execute_sync(batch_id, _bus);
 			}
 			return response.data;
@@ -1130,7 +1130,7 @@ namespace corona
 				auto source_it = sources->pages_by_class.find(class_name);
 				if (source_it != sources->pages_by_class.end()) {
 					std::string source_form = source_it->second;
-					_bus->select_frame(batch_id, target_frame, source_form, response.data["object"]);
+					_bus->select_frame(batch_id, target_frame, source_form, response.data["object"], true);
 				}
 				control_base* cb = _bus->find_control(table_name);
 				if (cb) {

@@ -4530,6 +4530,7 @@ namespace corona
 				results = jp.create_array();
                 child_objects = jp.create_array();
                 source_list = jp.create_array();
+				current_date = date_time::now();
 
                 for (auto& idx : class_def->get_indexes()) {
 					index_object_pair iop;
@@ -4590,7 +4591,6 @@ namespace corona
 
 				try {
 					validate();
-
 				}
                 catch (const std::exception& ex) 
 				{
@@ -8678,7 +8678,7 @@ private:
 					return response;
 				}
 			}
-			else {
+			else if (!existing_user.has_member("team_name") || !existing_user.has_member("home_team_name")) {
 				json teams = get_team_by_email(user_email, sys_perm);
 				for (json team : teams)
 				{
@@ -10187,6 +10187,13 @@ grant_type=authorization_code
 				}
 				int64_t new_id = class_def->get_next_object_id(this);
 				new_object.put_member_i64("object_id", new_id);
+
+                date_time cxnow = date_time::now();
+                new_object.put_member("created_by", user_name);
+				new_object.put_member("updated_by", user_name);
+				new_object.put_member("created", cxnow);
+				new_object.put_member("updated", cxnow);
+
 				response = create_response(create_object_request, true, "Object created", new_object, errors, method_timer.get_elapsed_seconds());
 				system_monitoring_interface::active_mon->log_function_stop("create_object", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			}

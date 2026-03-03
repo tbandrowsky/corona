@@ -72,8 +72,8 @@
             },
             {
               "class_name": "read_only_field",
-              "json_field_name": "create_by",
-              "text": "Created By:"
+              "json_field_name": "created_by",
+              "text": "By:"
             },
             {
               "class_name": "read_only_field",
@@ -83,7 +83,7 @@
             {
               "class_name": "read_only_field",
               "json_field_name": "updated_by",
-              "text": "Updated By:"
+              "text": "By:"
             }
           ]
         },

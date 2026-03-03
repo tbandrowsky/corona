@@ -7,23 +7,24 @@
   ],
   "classes": [
     {
-      "class_name": "patriarch_note",
-      "base_class_name": "sys_object",
-      "class_description": "A note that can be placed on an object",
-      "parents": [ "patriarch_object" ],
-      "fields": {
-        "note_text": {
-          "field_type": "string",
-          "label": "Description"
-        }
-      }
-    },
-    {
       "class_name": "patriarch_object",
       "base_class_name": "sys_object",
       "class_description": "A root object of searchable things",
       "fields": {
         "notes": "[patriarch_note]"
+      }
+    },
+    {
+      "class_name": "patriarch_note",
+      "base_class_name": "patriarch_object",
+      "class_description": "A note that can be placed on an object",
+      "parents": [ "patriarch_object" ],
+      "full_text": [ "note_text" ],
+      "fields": {
+        "note_text": {
+          "field_type": "string",
+          "label": "Description"
+        }
       }
     },
     {
@@ -76,8 +77,12 @@
           "label": "With"
         },
         "when": {
-          "field_type": "string",
+          "field_type": "datetime",
           "label": "When"
+        },
+        "duration": {
+          "field_type": "string",
+          "label": "Length"
         },
         "where": {
           "field_type": "string",

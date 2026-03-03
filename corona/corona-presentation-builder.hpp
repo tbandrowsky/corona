@@ -2861,12 +2861,16 @@ namespace corona
 	{
 		control_builder cb;
 
-		for (auto child : children) {
-			child->on_unsubscribe(_nav->presentation, _nav->parent_page);
+		if (current_presentation && current_page) {
+			for (auto child : children) {
+				child->on_unsubscribe(current_presentation, current_page);
+			}
 		}
-		children.clear();
 
-		data = _nav->data;
+        current_presentation = _nav->presentation;
+        current_page = _nav->parent_page;
+
+		children.clear();
 
 		for (auto srcchild : _nav->contents_page->root->children)
 		{
@@ -2877,9 +2881,10 @@ namespace corona
 
 		arrange_children();
 
+		set_data(_nav->data);
+
 		for (auto child : children) {
-			child->on_subscribe(_nav->presentation, _nav->parent_page);
-			child->set_data(data);
+			child->on_subscribe(current_presentation, current_page);
 			child->loaded(_batch_id);
 		}
 
@@ -2900,12 +2905,10 @@ namespace corona
         new_frame->parent_page = _parent_page;
 		new_frame->contents_page = _contents_page;
 
-		if (navigation_location >= 0) 
-		{       
-			navigation_stack.resize(navigation_location);
-		}
+		log_warning("Navigate to -> " + new_frame->name);
 
-        navigation_stack.push_back(new_frame);
+		navigation_location++;
+		navigation_stack[navigation_location] = new_frame;
 
         navigate(_batch_id, new_frame);
 	}

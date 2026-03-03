@@ -372,8 +372,10 @@ namespace corona
 		json data;
 		std::shared_ptr<corona_bus_command> onload_command;
 
-		std::vector<std::shared_ptr<frame_navigation>> navigation_stack;
+		std::map<int, std::shared_ptr<frame_navigation>> navigation_stack;
 		int navigation_location = 0;
+        presentation_base* current_presentation = nullptr;
+        page_base* current_page = nullptr;
 
 	public:
 
@@ -404,20 +406,45 @@ namespace corona
 
 		virtual void navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav);
 
+		virtual void navigate_clear(int _batch_id)
+		{
+			navigation_location = 0;
+			if (navigation_stack.contains(navigation_location)) {
+				auto nav = navigation_stack[navigation_location];
+				navigation_stack.clear();
+				navigate(_batch_id, nav);
+				log_warning("Navigate empty -> " + nav->name);
+			}
+		}
+
 		virtual void navigate_back(int _batch_id) 
 		{
-			if (navigation_location > 0 && navigation_stack.size() > 0) {
-				auto nav = navigation_stack[--navigation_location];
+			navigation_location--;
+            if (navigation_location < 0) {
+				navigation_location = 0;
+			}
+			if (navigation_stack.contains(navigation_location)) {
+				auto nav = navigation_stack[navigation_location];
 				navigate(_batch_id, nav);
+				log_warning("Navigate back -> " + nav->name);
 			}
 		}
 
 		virtual void navigate_forward(int _batch_id)
 		{
-			if (navigation_location < navigation_stack.size() - 1) {
-				navigation_location++;
+			navigation_location++;
+			if (navigation_stack.contains(navigation_location)) {
 				auto nav = navigation_stack[navigation_location];
 				navigate(_batch_id, nav);
+				log_warning("Navigate foward -> " + nav->name);
+
+                std::map<int, std::shared_ptr<frame_navigation>> new_stack;
+                for (auto& item : navigation_stack) {
+					if (item.first <= navigation_location) {
+						new_stack[item.first] = item.second;
+					}
+				}
+                navigation_stack = new_stack;
 			}
 		}
 
@@ -437,6 +464,10 @@ namespace corona
 
 		virtual json set_data(json _data)
 		{
+            if (navigation_stack.contains(navigation_location)) {
+				auto nav = navigation_stack[navigation_location];
+				nav->data = _data;
+			}
 			data = _data;
 			for (auto child : children) {
 				child->set_data(_data);
