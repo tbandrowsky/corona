@@ -92,9 +92,7 @@
                     "width": "1.0 container",
                     "height": "1.0 remaining"
                   },
-                  "sources": {
-                    "patriarch_note": "card_note"
-                  },
+                  "sources": "card_sources",
                   "empty_text": "No notes"
                 }
               ]
