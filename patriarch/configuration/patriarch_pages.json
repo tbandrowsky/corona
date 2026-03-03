@@ -509,6 +509,10 @@
     },
     {
       "class_name": "import",
+      "file_name": "patriarch_object_card_small_template.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "patriarch_property.json"
     },
     {

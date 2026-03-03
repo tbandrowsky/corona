@@ -339,6 +339,22 @@
           "color": "FFFFEE"
         }
       },
+      "note_style": {
+        "text_style": {
+          "font_name": "Consolas, CourierNew",
+          "font_size": 16,
+          "underline": false,
+          "vertical_alignment": "top"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "aaaaaa"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "000000"
+        }
+      },
       "code_style": {
         "text_style": {
           "font_name": "Consolas, CourierNew",

@@ -221,6 +221,7 @@ namespace corona
 						else if (*_src == 0 || *_src == ']')
 						{
                             if (cod.fundamental_type == field_types::ft_none) {
+								new_class->copy_values.insert_or_assign(_default_target_field + "_class", "class_name");
 								new_class->copy_values.insert_or_assign(_default_target_field, "object_id");
 							}
 							cod.child_classes.push_back(new_class);
@@ -252,18 +253,21 @@ namespace corona
 						{
 							_src++;
 							status = parsing_dst_field;
+							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 						}
 						else if (*_src == ';')
 						{
 							_src++;
 							status = parsing_class_name;
+							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 							cod.child_classes.push_back(new_class);
 							new_class = std::make_shared<child_object_class>();
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
+							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
@@ -3711,6 +3715,8 @@ namespace corona
 				else {
 					std::string parent_name = (std::string)parent;
 					jfields.put_member(parent_name, std::string("int64"));
+					std::string parent_class_name = parent_name + "_class";
+					jfields.put_member(parent_class_name, std::string("string"));
 				}
 			}
 
@@ -3842,6 +3848,7 @@ namespace corona
 					new_index.put_member("index_name", index_name);
 					json new_index_keys = jp.create_array();
 					new_index_keys.push_back(parent);
+					new_index_keys.push_back(parent + "_class");
 					new_index.share_member("index_keys", new_index_keys);
 					jindexes.share_member(index_name, new_index);
 				}
@@ -9611,8 +9618,9 @@ grant_type=authorization_code
 				}
 
 				auto parents = edit_class->get_parents();
-
                 // not sure why we are doing this.... 
+				// so we have the parent objects when we edit this one
+				// so a user agent can edit around this one with context.
 				for (auto parent : parents) {
 					if (edit_request_data.has_member(parent)) {
 						jedit_object.copy_member(parent, edit_request_data);

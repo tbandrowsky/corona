@@ -599,17 +599,20 @@ namespace corona {
 						// if waiting_job is whacked, that means the pointer for the job was actually deleted.
 						// this is the case where, Windows has completed the IO operation and we are handling the results
 						jobNotify = completed_io->execute(this, bytesTransferred, success);
-						jobNotify.notify();
 					}
 					catch (std::exception exc)
 					{
 						system_monitoring_interface::active_mon->log_warning(exc.what(), __FILE__, __LINE__);
 					}
+					if (jobNotify.shouldDelete) {
+						jobNotify.notify();
+						delete waiting_job;
+					}
+					else {
+						jobNotify.notify();
+					}
 					if (remove_io_job(completed_io)) {
 						::SetEvent(empty_queue_event);
-					}
-					if (jobNotify.shouldDelete) {
-						delete waiting_job;
 					}
 				}
 				else if (compKey == completion_key_compute)
@@ -622,7 +625,6 @@ namespace corona {
 							}
 							// if waiting_job is whacked, that means the pointer for the job was actually deleted.
 							jobNotify = waiting_job->execute(this, bytesTransferred, success);
-							jobNotify.notify();
 							if (jobNotify.repost and (!wasShutDownOrdered())) {
 								submit_job(waiting_job);
 							}
@@ -632,7 +634,11 @@ namespace corona {
 							system_monitoring_interface::active_mon->log_warning(exc.what(), __FILE__, __LINE__);
 						}
 						if (jobNotify.shouldDelete) {
+							jobNotify.notify();
 							delete waiting_job;
+						}
+						else {
+							jobNotify.notify();
 						}
 					}
 				}

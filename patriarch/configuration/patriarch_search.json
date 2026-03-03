@@ -374,7 +374,8 @@
                     "create_class_name": "patriarch_note",
                     "constructor_frame": "frame_selected",
                     "constructor_copy": {
-                      "patriarch_object": "object_id"
+                      "patriarch_object": "object_id",
+                      "patriarch_object_class": "class_name"
                     },
                     "source_frame": "page_note",
                     "target_frame": "frame_selected",

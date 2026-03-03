@@ -83,6 +83,7 @@
                 "width": ".33 container",
                 "height": "1.0 container"
               },
+              "padding": "8 pixels",
               "children": [
                 {
                   "class_name": "items_view",

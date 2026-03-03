@@ -146,6 +146,25 @@ namespace corona
 
 	};
 
+
+	class note_control : public text_display_control
+	{
+	public:
+		note_control();
+		note_control(const note_control& _src) = default;
+		note_control(control_base* _parent, int _id);
+
+		virtual void set_default_styles();
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<note_control>(*this);
+			return tv;
+		}
+
+		virtual ~note_control();
+	};
+
 	class title_control : public text_display_control
 	{
 	public:
@@ -512,6 +531,27 @@ namespace corona
 		view_style = std::make_shared<viewStyleRequest>(request);
 
 		return *this;
+	}
+
+	void note_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		view_style = st->get_style()->NoteStyle;
+	}
+
+	note_control::note_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
+	{
+
+	}
+
+	note_control::note_control()
+	{
+
+	}
+
+	note_control::~note_control()
+	{
 	}
 
 	void title_control::set_default_styles()

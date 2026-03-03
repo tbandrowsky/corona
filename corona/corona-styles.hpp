@@ -74,6 +74,7 @@ namespace corona
 		std::shared_ptr<viewStyleRequest> ChapterTitleStyle;
 		std::shared_ptr<viewStyleRequest> ChapterSubTitleStyle;
 		std::shared_ptr<viewStyleRequest> AuthorsCreditStyle;
+		std::shared_ptr<viewStyleRequest> NoteStyle;
 		std::shared_ptr<viewStyleRequest> ParagraphStyle;
 		std::shared_ptr<viewStyleRequest> FormStyle;
 		std::shared_ptr<viewStyleRequest> LabelStyle;
@@ -96,6 +97,7 @@ namespace corona
 		json subtitle_style = jp.create_object();
 		json chapter_title_style = jp.create_object();
 		json chapter_subtitle_style = jp.create_object();
+		json note_style = jp.create_object();
 		json paragraph_style = jp.create_object();
         json edit_label_style = jp.create_object();
 		json form_style = jp.create_object();
@@ -140,6 +142,10 @@ namespace corona
 			get_json(paragraph_style, *_src.ParagraphStyle.get());
 			_dest.put_member("paragraph_style", paragraph_style);
 		}
+		if (_src.NoteStyle) {
+			get_json(note_style, *_src.NoteStyle.get());
+			_dest.put_member("note_style", note_style);
+		}
 		if (_src.EditLabelStyle) {
 			get_json(edit_label_style, *_src.EditLabelStyle.get());
 			_dest.put_member("edit_label_style", edit_label_style);
@@ -176,7 +182,7 @@ namespace corona
 		if (not _src.has_members(missing, { "colors", "page_style", "caption_style",
 			"title_style", "subtitle_style", 
 			"chapter_title_style", "chapter_subtitle_style", 
-            "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
+            "note_style", "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
 			"error_style", "success_style", "code_style", "empty_list_style" })) {
 			system_monitoring_interface::active_mon->log_warning("style sheet is missing");
 			std::for_each(missing.begin(), missing.end(), [](const std::string& s) { 
@@ -242,6 +248,15 @@ namespace corona
 			}
 			put_json(_dest.ChapterSubTitleStyle, chapter_subtitle_style);
 			_dest.ChapterSubTitleStyle->set_default_name("chapter_subtitle_style");
+		}
+
+		json note_style = _src["note_style"];
+		if (note_style.object()) {
+			if (not _dest.NoteStyle) {
+				_dest.NoteStyle = std::make_shared<viewStyleRequest>();
+			}
+			put_json(_dest.NoteStyle, note_style);
+			_dest.NoteStyle->set_default_name("note_style");
 		}
 
 		json paragraph_style = _src["paragraph_style"];

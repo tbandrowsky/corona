@@ -446,6 +446,7 @@ namespace corona
 		inline control_builder& subtitle(std::string _text) { return subtitle(_text, nullptr, id_counter::next()); }
 		inline control_builder& chaptertitle(std::string _text) { return chaptertitle(_text, nullptr, id_counter::next()); }
 		inline control_builder& chaptersubtitle(std::string _text) { return chaptersubtitle(_text, nullptr, id_counter::next()); }
+		inline control_builder& note(std::string _text) { return note(_text, nullptr, id_counter::next()); }
 		inline control_builder& paragraph(std::string _text) { return paragraph(_text, nullptr, id_counter::next()); }
 		inline control_builder& code(std::string _text) { return code(_text, nullptr, id_counter::next()); }
 		inline control_builder& label(std::string _text) { return label(_text, nullptr, id_counter::next()); }
@@ -458,6 +459,7 @@ namespace corona
 		inline control_builder& subtitle(int _id, std::string _text) { return subtitle(_text, nullptr, _id); }
 		inline control_builder& chaptertitle(int _id, std::string _text) { return chaptertitle(_text, nullptr, _id); }
 		inline control_builder& chaptersubtitle(int _id, std::string _text) { return chaptersubtitle(_text, nullptr, _id); }
+		inline control_builder& note(int _id, std::string _text) { return note(_text, nullptr, _id); }
 		inline control_builder& paragraph(int _id, std::string _text) { return paragraph(_text, nullptr, _id); }
 		inline control_builder& code(int _id, std::string _text) { return code(_text, nullptr, _id); }
 		inline control_builder& label(int _id, std::string _text) { return label(_text, nullptr, _id); }
@@ -468,6 +470,7 @@ namespace corona
 		inline control_builder& authorscredit(int _id, std::function<void(authorscredit_control&)> _settings) { return authorscredit("", _settings, _id); }
 		inline control_builder& chaptertitle(int _id, std::function<void(chaptertitle_control&)> _settings) { return chaptertitle("", _settings, _id); }
 		inline control_builder& chaptersubtitle(int _id, std::function<void(chaptersubtitle_control&)> _settings) { return chaptersubtitle("", _settings, _id); }
+		inline control_builder& note(int _id, std::function<void(note_control&)> _settings) { return note("", _settings, _id); }
 		inline control_builder& paragraph(int _id, std::function<void(paragraph_control&)> _settings) { return paragraph("", _settings, _id); }
 		inline control_builder& code(int _id, std::function<void(code_control&)> _settings) { return code("", _settings, _id); }
 		inline control_builder& label(int _id, std::function<void(label_control&)> _settings) { return label("", _settings, _id); }
@@ -478,6 +481,7 @@ namespace corona
 		inline control_builder& authorscredit(std::string _text, std::function<void(authorscredit_control&)> _settings) { return authorscredit(_text, _settings, id_counter::next()); }
 		inline control_builder& chaptertitle(std::string _text, std::function<void(chaptertitle_control&)> _settings) { return chaptertitle(_text, _settings, id_counter::next()); }
 		inline control_builder& chaptersubtitle(std::string _text, std::function<void(chaptersubtitle_control&)> _settings) { return chaptersubtitle(_text, _settings, id_counter::next()); }
+		inline control_builder& note(std::string _text, std::function<void(note_control&)> _settings) { return note(_text, _settings, id_counter::next()); }
 		inline control_builder& paragraph(std::string _text, std::function<void(paragraph_control&)> _settings) { return paragraph(_text, _settings, id_counter::next()); }
 		inline control_builder& code(std::string _text, std::function<void(code_control&)> _settings) { return code(_text, _settings, id_counter::next()); }
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
@@ -898,6 +902,17 @@ namespace corona
 		control_builder& chaptersubtitle(std::string text, std::function<void(chaptersubtitle_control&)> _settings, int _id)
 		{
 			auto tc = create<chaptersubtitle_control>(_id);
+			apply_item_sizes(tc);
+			tc->text = text;
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& note(std::string text, std::function<void(note_control&)> _settings, int _id)
+		{
+			auto tc = create<note_control>(_id);
 			apply_item_sizes(tc);
 			tc->text = text;
 			if (_settings) {
@@ -2070,6 +2085,13 @@ namespace corona
 		else if (class_name == "chaptersubtitle")
 		{
 			chaptersubtitle(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				}, field_id);
+		}
+		else if (class_name == "note")
+		{
+			note(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				}, field_id);
