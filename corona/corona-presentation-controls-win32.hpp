@@ -1710,13 +1710,16 @@ namespace corona
 				st[0] = current_date;
 				st[1] = min_date;
 				st[2] = max_date;
-				DateTime_SetRange(window, GDTR_MIN | GDTR_MAX, &st[1]);
+				if (min_date != max_date) {
+					DateTime_SetRange(window, GDTR_MIN | GDTR_MAX, &st[1]);
+				}
 				DateTime_SetSystemtime(window, GDT_VALID, &st[0]);
 			}
 		}
 
 		virtual json get_data() override
 		{
+			json_parser jp;
 			json result;
 			if (not json_field_name.empty()) {
 				if (window) {
@@ -1724,6 +1727,7 @@ namespace corona
 					DateTime_GetSystemtime(window, &st);
 					current_date = st;
 				}
+				result = jp.create_object();
 				result.put_member(json_field_name, current_date);
 			}
 			return result;

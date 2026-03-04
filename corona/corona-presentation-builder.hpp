@@ -147,19 +147,20 @@ namespace corona
 
 		virtual void get_json(json& _dest)
 		{
+			json_parser jp;
 			control_base::get_json(_dest);
 			if (label) {
-				json label_json;
+				json label_json = jp.create_object();
 				label->get_json(label_json);
 				_dest.put_member("label", label_json);
 			}
 			if (field) {
-				json field_json;
+				json field_json = jp.create_object();
 				field->get_json(field_json);
 				_dest.put_member("field", field_json);
 			}
 			if (status) {
-				json status_json;
+				json status_json = jp.create_object();
 				status->get_json(status_json);
 				_dest.put_member("status", status_json);
 			}

@@ -80,11 +80,15 @@ namespace corona
 							state = in_text;
                             json replacement_value = data.query(replacement_path);
 
-                            if (replacement_value.has_member("value")) {
-                                replacement_value = replacement_value["value"];
-								if (replacement_value.scalar()) {
-									text += replacement_value.as_string();
+							if (replacement_value.has_member("value")) {
+								replacement_value = replacement_value["value"];
+								if (replacement_value.is_datetime()) {
+                                    date_time dt = replacement_value.as_date_time();
+									text += dt.short_date();
 								} 
+								else if (replacement_value.scalar()) {
+									text += replacement_value.as_string();
+								}
 							}
 						} 
 						else 
