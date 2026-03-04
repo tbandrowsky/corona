@@ -1026,7 +1026,10 @@ namespace corona
 				r.bounds.h = 0;
 				if (r.control) {
 					auto sz = r.control->get_size(this);
-					r.bounds.w = sz.x;
+					r.bounds.w = sz.x - 16;
+                    if (r.bounds.w < 0) {
+						r.bounds.w = 0;
+					}
 					r.bounds.h = sz.y;
 				}
 				pages[page_index].stop_index = i;

@@ -1124,6 +1124,7 @@
     <None Include="configuration\patriarch_member_husband_card.json" />
     <None Include="configuration\patriarch_note.json" />
     <None Include="configuration\patriarch_note_card.json" />
+    <None Include="configuration\patriarch_object_card_small_template.json" />
     <None Include="configuration\patriarch_object_card_template.json" />
     <None Include="configuration\patriarch_object_details.json" />
     <None Include="configuration\patriarch_object_edit_template.json" />

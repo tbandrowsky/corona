@@ -9622,8 +9622,15 @@ grant_type=authorization_code
 				// so we have the parent objects when we edit this one
 				// so a user agent can edit around this one with context.
 				for (auto parent : parents) {
-					if (edit_request_data.has_member(parent)) {
-						jedit_object.copy_member(parent, edit_request_data);
+					json parent_request = jp.create_object();
+					std::string class_name = jedit_object[parent + "_class"].as_string();
+					int64_t object_id = jedit_object[parent].get_int64();
+					parent_request.put_member("class_name", class_name);
+					parent_request.put_member_i64("object_id", object_id);
+					class_permissions parent_perms = get_class_permission(user_name, class_name);
+					json parent_object = this->select_single_object(parent_request, false, parent_perms);
+					if (parent_object.object()) {
+						jedit_object.put_member(parent + "_object", parent_object);
 					}
 				}
 

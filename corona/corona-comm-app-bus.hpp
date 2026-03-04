@@ -1688,12 +1688,12 @@ namespace corona
 			}
 		}
 
-		virtual control_base* find_control(std::string _name)
+		virtual control_base* find_control(std::string _name) override
 		{
 			return presentation_layer->find_ptr<control_base>(_name);
 		}
 
-		virtual control_base* find_control(int _id)
+		virtual control_base* find_control(int _id) override
 		{
 			return presentation_layer->find_ptr<control_base>(_id);
 		}
@@ -1738,7 +1738,7 @@ namespace corona
 			});
 		}
 
-		virtual void select_page(std::string _path, json _obj)
+		virtual void select_page(std::string _path, json _obj) override
 		{
             std::vector<std::string> parts = split(_path, '.');
 
@@ -1782,7 +1782,7 @@ namespace corona
             return presentation_layer->get_page(_page_name);
 		}
 
-		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj, bool _reset_nav)
+		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj, bool _reset_nav) override
 		{
 		
 			if (!this->is_on_ui_thread()) {
@@ -1890,12 +1890,22 @@ namespace corona
 			_runnable();
 		}
 
-		virtual void run_app_ui(HINSTANCE hInstance, LPSTR command_line, bool fullScreen)
+		virtual HINSTANCE get_instance() override
+		{
+			return app_ui->getHInstance();
+        }
+
+		virtual std::string get_application_name() override
+		{
+			return app->application_name;
+        }
+
+		virtual void run_app_ui(HINSTANCE hInstance, LPSTR command_line, bool fullScreen) override
 		{
 			app_ui->runDialog(hInstance, app->application_name.c_str(), application_icon_id, fullScreen, presentation_layer);
 		}
 
-		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
+		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;
@@ -1905,7 +1915,7 @@ namespace corona
 			}
 		}
 
-		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
+		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;
@@ -1921,7 +1931,7 @@ namespace corona
 				}});
 		}
 
-		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command)
+		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;

@@ -341,19 +341,24 @@
       },
       "note_style": {
         "text_style": {
-          "font_name": "Consolas, CourierNew",
-          "font_size": 16,
+          "font_name": "Franklin Gothic",
+          "font_size": 17,
           "underline": false,
           "vertical_alignment": "top"
         },
-        "shape_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "aaaaaa"
-        },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "000000"
-        }
+          "color": "111122"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "f8f4f1"
+        },
+        "box_border_brush": {
+          "class_name": "solid_brush",
+          "color": "050505"
+        },
+        "box_border_thickness": "1"
       },
       "code_style": {
         "text_style": {

@@ -1181,7 +1181,7 @@ namespace corona
 	public:
 
 		corona_instance instance = corona_instance::local;
-		std::shared_ptr<corona_bus_command> navigate_command;
+		std::shared_ptr<corona_bus_command> post_save;
 
 		corona_save_object_command()
 		{
@@ -1226,8 +1226,8 @@ namespace corona
 					cb->set_data(response.cooked_data);
 				}
 			}
-			if (response.success && navigate_command) {
-				navigate_command->execute_sync(batch_id, _bus);
+			if (response.success && post_save) {
+				post_save->execute_sync(batch_id, _bus);
 			}
 			return response.data;
 		}
@@ -1243,15 +1243,14 @@ namespace corona
 			_dest.put_member("form_name", form_name);
 			corona::get_json(_dest, instance);
             json temp = jp.create_object();
-			if (navigate_command) {
-				navigate_command->get_json(temp);
+			if (post_save) {
+				post_save->get_json(temp);
 				_dest.put_member("after_save", temp);
 			}
 		}
 
 		virtual void put_json(json& _src)
 		{
-
 			corona_form_command::put_json(_src);
 
 			form_name = _src["form_name"].as_string();
@@ -1267,7 +1266,7 @@ namespace corona
 			}
 			corona::put_json(instance, _src	);
 			json jafter_save = _src["after_save"];
-			corona::put_json(navigate_command, jafter_save);
+			corona::put_json(post_save, jafter_save);
 		}
 
 	};
@@ -1344,6 +1343,7 @@ namespace corona
 	public:
 		std::string		control_name = "";
 		corona_instance instance = corona_instance::local;
+		std::shared_ptr<corona_bus_command> post_delete;
 
 		corona_delete_object_command()
 		{
@@ -1361,16 +1361,47 @@ namespace corona
 
 			json obj = _bus->get_form_data(form_name);
 
+
+            std::string application_name = _bus->get_application_name();
+
+			std::string object_class = obj[class_name_field].as_string();
+			int64_t object_id = obj[object_id_field].as_int64_t();
+
+			std::string message = std::format("Delete {0} #{1}", object_class, object_id);
+
+			iwstring<512> wtitle;
+			wtitle = application_name;
+
+			iwstring<512> wmessage;
+			wmessage = message;
+
+			int nButtonPressed = 0;
+			TaskDialog(NULL, _bus->get_instance(), 
+				wtitle.c_str(),
+				wmessage.c_str(),
+				L"This will delete the object permanently.",
+				TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON,
+				TD_WARNING_ICON,
+				&nButtonPressed);
+
 			return obj;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
-			auto response = _bus->delete_object(instance, request);
+			corona_client_response response;
+			response.success = false;
+			if (request.object() && request.has_member("object_id") && request.has_member("class_name"))
+			{
+				response = _bus->delete_object(instance, request);
+			}
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (response.success && post_delete) {
+				post_delete->execute_sync(batch_id, _bus);
+			}
 			return response.data;
 		}
 
@@ -1380,7 +1411,11 @@ namespace corona
 			_dest.put_member("class_name", "delete_object"sv);
 			_dest.put_member("control_name", control_name);
 			corona::get_json(_dest, instance);
-
+            json temp = json_parser().create_object();
+			if (post_delete) {
+				post_delete->get_json(temp);
+				_dest.put_member("after_delete", temp);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1398,6 +1433,10 @@ namespace corona
 
 			control_name = _src["control_name"].as_string();
 			corona::put_json(instance, _src);
+
+			json jafter_save = _src["after_delete"];
+			corona::put_json(post_delete, jafter_save);
+
 		}
 
 	};

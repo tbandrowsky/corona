@@ -312,5 +312,6 @@
     <None Include="configuration\patriarch_contact_marina_card.json" />
     <None Include="configuration\patriarch_property_boat.json" />
     <None Include="configuration\patriarch_property_boat_card.json" />
+    <None Include="configuration\patriarch_object_card_small_template.json" />
   </ItemGroup>
 </Project>

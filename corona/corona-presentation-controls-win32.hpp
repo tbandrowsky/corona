@@ -1669,7 +1669,6 @@ namespace corona
 			}
 		}
 
-
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;

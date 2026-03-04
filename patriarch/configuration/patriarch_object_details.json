@@ -17,7 +17,7 @@
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "text": "Object Identity (Read Only)",
+              "text": "Object (Read Only)",
               "box": "edit_field_box"
             },
             {
@@ -34,6 +34,11 @@
               "class_name": "read_only_field",
               "json_field_name": "object_id",
               "text": "Object ID:"
+            },
+            {
+              "class_name": "read_only_field",
+              "json_field_name": "team",
+              "text": "Team:"
             }
           ]
         },
@@ -95,31 +100,6 @@
             "height": "1.0 container"
           },
           "children": [
-          ]
-        },
-        {
-          "class_name": "column",
-          "name": "system_details",
-          "box": {
-            "width": ".9 remaining",
-            "height": "1.0 container"
-          },
-          "children": [
-            {
-              "class_name": "chaptersubtitle",
-              "text": "",
-              "box": "edit_field_box"
-            },
-            {
-              "class_name": "paragraph",
-              "text": "",
-              "box": "spacer_row_box"
-            },
-            {
-              "class_name": "read_only_field",
-              "json_field_name": "team",
-              "text": "Team:"
-            }
           ]
         }
       ]

@@ -425,7 +425,22 @@
                     "forward": true,
                     "target_frame": "frame_selected"
                   }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "next_object",
+                  "icon": "Forward",
+                  "text": "forward",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "delete_object",
+                    "target_frame": "frame_selected"
+                  }
                 }
+
               ]
             },
             {

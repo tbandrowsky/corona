@@ -8,7 +8,7 @@
       "$card_height": "65 pixels",
       "$details_contents": [
         {
-          "class_name": "code",
+          "class_name": "note",
           "json_field_name": "description",
           "text": "{note_text}",
           "box": {

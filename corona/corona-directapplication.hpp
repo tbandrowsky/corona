@@ -65,6 +65,7 @@ namespace corona
 
 		ccolor backgroundColor;
 
+        HINSTANCE getHInstance() { return hinstance; }
 		HWND getMainWindow() { return hwndRoot; }
 		HWND getTooltipWindow() { return tooltip; }
 		HWND createWindow(DWORD window_id, LPCTSTR		lpClassName, LPCTSTR		lpWindowName, DWORD       dwStyle, rectangle bounds, LPVOID		lpParam, HFONT		font);
