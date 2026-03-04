@@ -1367,22 +1367,36 @@ namespace corona
 			std::string object_class = obj[class_name_field].as_string();
 			int64_t object_id = obj[object_id_field].as_int64_t();
 
-			std::string message = std::format("Delete {0} #{1}", object_class, object_id);
+			if (object_id > 0) 
+			{
 
-			iwstring<512> wtitle;
-			wtitle = application_name;
+				std::string message = std::format("Delete {0} #{1}", object_class, object_id);
 
-			iwstring<512> wmessage;
-			wmessage = message;
+				iwstring<512> wtitle;
+				wtitle = application_name;
 
-			int nButtonPressed = 0;
-			TaskDialog(NULL, _bus->get_instance(), 
-				wtitle.c_str(),
-				wmessage.c_str(),
-				L"This will delete the object permanently.",
-				TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON,
-				TD_WARNING_ICON,
-				&nButtonPressed);
+				iwstring<512> wmessage;
+				wmessage = message;
+
+				int nButtonPressed = 0;
+				TaskDialog(NULL, _bus->get_instance(),
+					wtitle.c_str(),
+					wmessage.c_str(),
+					L"This will delete the object permanently.",
+					TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON,
+					TD_WARNING_ICON,
+					&nButtonPressed);
+
+
+				if (IDOK != nButtonPressed)
+				{
+					obj = jp.create_object();
+				}
+			}
+			else 
+			{
+				obj = jp.create_object();
+			}
 
 			return obj;
 		}

@@ -428,9 +428,9 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "next_object",
-                  "icon": "Forward",
-                  "text": "forward",
+                  "name": "delete_object",
+                  "icon": "Delete",
+                  "text": "delete",
                   "box": {
                     "width": "100  pixels",
                     "height": "50 pixels"

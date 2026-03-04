@@ -1178,7 +1178,7 @@ namespace corona
 			json request = object_information.clone();
 			json token = get_local_token();
 			request.put_member(token_field, token);
-			json j = local_db->put_object(request);
+			json j = local_db->delete_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 
