@@ -1181,7 +1181,6 @@ namespace corona
 	public:
 
 		corona_instance instance = corona_instance::local;
-		std::shared_ptr<corona_bus_command> post_save;
 
 		corona_save_object_command()
 		{
@@ -1224,10 +1223,8 @@ namespace corona
 				control_base* cb = _bus->find_control(form_name);
 				if (cb) {
 					cb->set_data(response.cooked_data);
+					_bus->object_updated(response.cooked_data);
 				}
-			}
-			if (response.success && post_save) {
-				post_save->execute_sync(batch_id, _bus);
 			}
 			return response.data;
 		}
@@ -1243,10 +1240,6 @@ namespace corona
 			_dest.put_member("form_name", form_name);
 			corona::get_json(_dest, instance);
             json temp = jp.create_object();
-			if (post_save) {
-				post_save->get_json(temp);
-				_dest.put_member("after_save", temp);
-			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1265,8 +1258,6 @@ namespace corona
 				return;
 			}
 			corona::put_json(instance, _src	);
-			json jafter_save = _src["after_save"];
-			corona::put_json(post_save, jafter_save);
 		}
 
 	};
@@ -1343,7 +1334,6 @@ namespace corona
 	public:
 		std::string		control_name = "";
 		corona_instance instance = corona_instance::local;
-		std::shared_ptr<corona_bus_command> post_delete;
 
 		corona_delete_object_command()
 		{
@@ -1413,8 +1403,8 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
-			if (response.success && post_delete) {
-				post_delete->execute_sync(batch_id, _bus);
+			if (response.success) {
+				_bus->object_deleted(response.cooked_data);
 			}
 			return response.data;
 		}
@@ -1426,10 +1416,6 @@ namespace corona
 			_dest.put_member("control_name", control_name);
 			corona::get_json(_dest, instance);
             json temp = json_parser().create_object();
-			if (post_delete) {
-				post_delete->get_json(temp);
-				_dest.put_member("after_delete", temp);
-			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1447,9 +1433,6 @@ namespace corona
 
 			control_name = _src["control_name"].as_string();
 			corona::put_json(instance, _src);
-
-			json jafter_save = _src["after_delete"];
-			corona::put_json(post_delete, jafter_save);
 
 		}
 

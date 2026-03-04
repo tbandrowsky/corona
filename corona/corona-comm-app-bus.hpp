@@ -1688,6 +1688,16 @@ namespace corona
 			}
 		}
 
+		virtual void object_updated(json _data)
+		{
+			presentation_layer->object_updated(_data);
+		}
+
+		virtual void object_deleted(json _data)
+		{
+			presentation_layer->object_deleted(_data);
+		}
+
 		virtual control_base* find_control(std::string _name) override
 		{
 			return presentation_layer->find_ptr<control_base>(_name);

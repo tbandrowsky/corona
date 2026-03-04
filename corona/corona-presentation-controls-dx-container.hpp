@@ -1072,6 +1072,40 @@ namespace corona
 			return data;
 		}
 
+		virtual void object_deleted(json _item) override
+		{
+			if (!data.array()) {
+				return;
+			}
+			int i;
+			for (i = 0; i < data.size(); i++)
+			{
+				json item = data.get_element(i);
+				if (item[object_id_field].as_int64_t() == _item[object_id_field].as_int64_t() &&
+					item[class_name_field].as_string() == _item[class_name_field].as_string()) {
+					data.remove_element(i);
+					set_items(data);
+				}
+			}
+		}
+
+		virtual void object_updated(json _item) override
+		{
+			if (!data.array()) {
+				return;
+			}
+			int i;
+			for (i = 0; i < data.size(); i++)
+			{
+				json item = data.get_element(i);
+				if (item[object_id_field].as_int64_t() == _item[object_id_field].as_int64_t() &&
+					item[class_name_field].as_string() == _item[class_name_field].as_string()) {
+					data.put_element(i, _item);
+					set_items(data);
+				}
+			}
+        }
+
 		virtual bool set_items(json _data)
 		{
             json current_selected_object = get_selected_object();

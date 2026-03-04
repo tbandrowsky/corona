@@ -122,6 +122,20 @@ namespace corona {
 		}
 		virtual void load_page();
 
+		virtual void object_updated(json _data)
+		{
+			if (auto cp = current_page.lock()) {
+				cp->root->object_updated(_data);
+			}
+		}
+
+		virtual void object_deleted(json _data)
+		{
+			if (auto cp = current_page.lock()) {
+				cp->root->object_deleted(_data);
+			}
+		}
+
 		template <typename control_type> control_type& find(int _id)
 		{
 			if (auto cp = current_page.lock()) {

@@ -382,6 +382,10 @@ namespace corona
 
 		virtual control_base* find_control(int _id) = 0;
 		virtual control_base* find_control(std::string _name) = 0;
+
+		virtual void object_updated(json _data) = 0;
+		virtual void object_deleted(json _data) = 0;
+
 		virtual json get_form_data(std::string _form_name) = 0;
 		virtual json export_form_data(std::string _form_name) = 0;
 		virtual void poll(bool _select_default_page) = 0;

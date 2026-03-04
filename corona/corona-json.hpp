@@ -2556,6 +2556,20 @@ namespace corona
 			return put_element(-1, et);
 		}
 
+		json remove_element(int _index)
+		{
+			if (not array_impl()) {
+				throw std::logic_error("Not an array");
+			}
+
+			if (_index < 0 or _index >= array_impl()->elements.size()) {
+				throw std::out_of_range("Index out of range");
+			}
+
+			array_impl()->elements.erase(array_impl()->elements.begin() + _index);
+			return *this;
+		}
+
 		json put_element(int _index, json &_element)
 		{
 			if (not array_impl()) {

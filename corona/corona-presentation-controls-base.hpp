@@ -420,6 +420,20 @@ namespace corona
 			return data;
 		}
 
+		virtual void object_updated(json _data)
+		{
+			for (auto child : children) {
+				child->object_updated(_data);
+			}
+		}
+
+		virtual void object_deleted(json _data)
+		{
+			for (auto child : children) {
+				child->object_deleted(_data);
+			}
+		}
+
 		virtual json set_data(json _data)
 		{
 			for (auto child : children) {
