@@ -164,6 +164,27 @@
     <Image Include="assets\wife.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\tractor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\note.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\mechanic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\member.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\gun.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\database.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\boat.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\small_logo.png">
