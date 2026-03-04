@@ -10,7 +10,7 @@ namespace corona
 {
 	void run_patriarch_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
 
-    const bool use_project_for_config = true;
+    const bool use_project_for_config = false;
 
 	std::string config_filename = "config.json";
 

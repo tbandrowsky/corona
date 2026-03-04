@@ -1334,6 +1334,7 @@ namespace corona
 	public:
 		std::string		control_name = "";
 		corona_instance instance = corona_instance::local;
+		json deleted_object;
 
 		corona_delete_object_command()
 		{
@@ -1397,6 +1398,7 @@ namespace corona
 			response.success = false;
 			if (request.object() && request.has_member("object_id") && request.has_member("class_name"))
 			{
+				deleted_object = request;
 				response = _bus->delete_object(instance, request);
 			}
 			return response;
@@ -1404,7 +1406,7 @@ namespace corona
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
 			if (response.success) {
-				_bus->object_deleted(response.cooked_data);
+				_bus->object_deleted(deleted_object);
 			}
 			return response.data;
 		}
