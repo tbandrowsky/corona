@@ -55,6 +55,50 @@
                 },
                 {
                   "class_name": "command_button",
+                  "name": "search_all",
+                  "icon": "ViewAll",
+                  "text": "everything",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "patriarch_object",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "paragraph",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": ""
+                },
+
+                {
+                  "class_name": "command_button",
                   "name": "search_button",
                   "icon": "CompletedTask",
                   "text": "tasks",
@@ -192,7 +236,14 @@
                     }
                   }
                 },
-
+                {
+                  "class_name": "paragraph",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": ""
+                },
                 {
                   "class_name": "command_button",
                   "icon": "CalendarDay",
@@ -299,41 +350,6 @@
                   }
                 },
 
-                {
-                  "class_name": "command_button",
-                  "name": "search_all",
-                  "icon": "ViewAll",
-                  "text": "everything",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "patriarch_object",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
                 {
                   "class_name": "chaptertitle",
                   "name": "search_placxe",
@@ -467,6 +483,45 @@
                 },
                 {
                   "class_name": "command_button",
+                  "name": "back_object",
+                  "icon": "Back",
+                  "text": "back",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward": false,
+                    "target_frame": "frame_selected"
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "next_object",
+                  "icon": "Forward",
+                  "text": "forward",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward": true,
+                    "target_frame": "frame_selected"
+                  }
+                },
+
+                {
+                  "class_name": "paragraph",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": ""
+                },
+                {
+                  "class_name": "command_button",
                   "name": "new_note",
                   "icon": "Note",
                   "text": "add note",
@@ -500,36 +555,6 @@
                   "on_click": {
                     "class_name": "save_object",
                     "form_name": "frame_selected",
-                    "target_frame": "frame_selected"
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "back_object",
-                  "icon": "Back",
-                  "text": "back",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward":  false,
-                    "target_frame": "frame_selected"
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "next_object",
-                  "icon": "Forward",
-                  "text": "forward",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward": true,
                     "target_frame": "frame_selected"
                   }
                 },
