@@ -7,11 +7,6 @@
       "$task_image": "assets\\appointment.png",
       "$task_details": [
         {
-          "class_name": "datetimepicker_field",
-          "text": "When:",
-          "json_field_name": "when"
-        },
-        {
           "class_name": "edit_field",
           "text": "Where:",
           "json_field_name": "where"

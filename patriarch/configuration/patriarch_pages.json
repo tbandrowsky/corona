@@ -224,7 +224,6 @@
       "party": "card_task_party",
       "project": "card_task_project",
       "trip": "card_task_trip",
-      "reminder": "card_reminder",
 
       "patriarch_note": "card_note"
     },
@@ -270,7 +269,6 @@
       "party": "page_task_party",
       "project": "page_task_project",
       "trip": "page_task_trip",
-      "reminder": "page_reminder",
       "patriarch_note": "page_note"
     }
   },
@@ -306,10 +304,6 @@
     {
       "class_name": "import",
       "file_name": "patriarch_layout_test.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_status.json"
     },
     {
       "class_name": "import",
@@ -599,14 +593,6 @@
     {
       "class_name": "import",
       "file_name": "patriarch_property_tractor_card.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_reminder.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "patriarch_reminder_card.json"
     },
     {
       "class_name": "import",

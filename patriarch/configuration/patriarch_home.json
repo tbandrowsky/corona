@@ -63,19 +63,6 @@
                 },
                 {
                   "class_name": "command_button",
-                  "icon": "CalendarDay",
-                  "box": "button_box",
-                  "margin": "button_margin",
-                  "text": "today",
-                  "on_click": {
-                    "class_name": "select_frame",
-                    "target_frame": "page_home.frame_home",
-                    "source_frame": "page_status",
-                    "message": "Status."
-                  }
-                },
-                {
-                  "class_name": "command_button",
                   "icon": "Search",
                   "box": "button_box",
                   "margin": "button_margin",

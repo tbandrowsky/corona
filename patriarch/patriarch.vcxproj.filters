@@ -232,12 +232,6 @@
     <CopyFileToFolders Include="configuration\patriarch_property_card.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_reminder.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="configuration\patriarch_reminder_card.json">
-      <Filter>configuration</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="configuration\patriarch_schema.json">
       <Filter>configuration</Filter>
     </CopyFileToFolders>
@@ -317,7 +311,6 @@
     <CopyFileToFolders Include="configuration\patriarch_property_tractor_card.json" />
     <CopyFileToFolders Include="configuration\patriarch_property_vehicle.json" />
     <CopyFileToFolders Include="configuration\patriarch_property_vehicle_card.json" />
-    <CopyFileToFolders Include="configuration\patriarch_status.json" />
     <CopyFileToFolders Include="configuration\patriarch_task.json" />
     <CopyFileToFolders Include="configuration\patriarch_task_appointment.json" />
     <CopyFileToFolders Include="configuration\patriarch_task_appointment_card.json" />

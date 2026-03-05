@@ -28,26 +28,6 @@
       }
     },
     {
-      "class_name": "reminder",
-      "class_description": "General things to remind yourself of for different occasions",
-      "base_class_name": "patriarch_object",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "description", "occasion" ],
-      "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Reminder"
-        },
-        "occasion": {
-          "field_type": "string",
-          "enumeration": [ "daily", "weekly", "monthly", "new year", "winter", "spring", "easter", "memorial day", "independence day", "summer", "fall", "halloween", "allsaints", "veterans day", "thanksgiving", "christmas", "weekday", "weekend", "birthday", "anniversary" ],
-          "label": "Occasion"
-        }
-      }
-    },
-    {
       "class_name": "task",
       "base_class_name": "patriarch_object",
       "class_description": "A general job to do",
@@ -60,6 +40,10 @@
         "status": {
           "field_type": "string",
           "label": "Status"
+        },
+        "task_date": {
+          "field_type": "datetime",
+          "label": "Task Date"
         }
       }
     },
@@ -75,10 +59,6 @@
         "with": {
           "field_type": "string",
           "label": "With"
-        },
-        "when": {
-          "field_type": "datetime",
-          "label": "When"
         },
         "duration": {
           "field_type": "string",
@@ -132,6 +112,10 @@
         "theme": {
           "field_type": "string",
           "label": "Theme"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
         }
       }
     },

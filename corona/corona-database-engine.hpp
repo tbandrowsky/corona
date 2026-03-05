@@ -999,25 +999,26 @@ namespace corona
 				{
 					std::string value = member.second->to_string();
                     if (value.starts_with("$")) {
+
 						std::string source_path = value.substr(1);
-                        auto parts = split(source_path, '.');
-						if (parts.size() == 2) {
-							std::string source_name = parts[0];
-							std::string field_name = parts[1];
-							auto source_it = sources.find(source_name);
-							if (source_it != sources.end()) {
-								json source_data = source_it->second->data;
-								if (source_data.array() && source_data.size() > 0) {
-									source_data = source_data.get_element(0);
-									auto new_string = std::make_shared<json_string>();
-									auto str = source_data[field_name].as_string();
-									new_string->set_value(str.c_str());
-									member.second = new_string;
-								}
+
+						json jxquery = jp.parse_query(source_path);
+
+						std::string source_name = jxquery["source_name"].as_string();
+						std::string query_path = jxquery["query_path"].as_string();
+						auto source_it = sources.find(source_name);
+
+						if (source_it != sources.end()) {
+							json source_data = source_it->second->data;
+							if (source_data.array() && source_data.size() > 0) {
+								source_data = source_data.get_element(0);
+                                json result = source_data.query(query_path);
+								member.second = result["value"].value();
 							}
-							else {
-								system_monitoring_interface::active_mon->log_warning(std::format("Source {} not found for filter replacement", source_name), __FILE__, __LINE__);
-							}
+						}
+						else 
+						{
+							system_monitoring_interface::active_mon->log_warning(std::format("Source {} not found for filter replacement", source_name), __FILE__, __LINE__);
 						}
 					}
 				}
@@ -10057,8 +10058,9 @@ grant_type=authorization_code
 				if (context.is_error()) {
 					auto query_errors = context.get_errors();
 					log_errors(query_errors);
-					response = create_response(query_request, false, "query failed", query_results, query_errors, tx.get_elapsed_seconds());
-					system_monitoring_interface::active_mon->log_function_stop("query", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+                    std::string msg = query_errors.begin() != query_errors.end() ? query_errors.begin()->message : "query failed with unknown error";
+					response = create_response(query_request, false, msg, query_results, query_errors, tx.get_elapsed_seconds());
+					system_monitoring_interface::active_mon->log_function_stop("query", msg, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				}
 				else 
 				{

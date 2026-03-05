@@ -1,4 +1,3 @@
-
 /*
 CORONA
 C++ Low Code Performance Applications for Windows SDK
@@ -110,7 +109,7 @@ namespace corona
 			return errors;
         }
 
-		virtual bool get_data(json& _dest, std::string _query) 
+		virtual bool get_data(json& _dest, std::string _query, bool _warn_as_error = true) 
 		{
 			json_parser jp;
 			json query_s = jp.parse_query(_query);
@@ -121,15 +120,19 @@ namespace corona
 
 			if (query_si.empty()) 
 			{
-				std::string msg = std::format("{0} query data request does not have a source_name: prefix", _query);
-				add_error("get_data", _query, msg, __FILE__, __LINE__);
+				std::string msg = std::format("{0} query data request does not have a source_name:", _query);
+				if (_warn_as_error) {
+					add_error("get_data", _query, msg, __FILE__, __LINE__);
+				}
 				system_monitoring_interface::active_mon->log_warning(msg);
 				return false;
 			}
 			else if (not sources.contains(query_si))
 			{
 				std::string msg = std::format("{0}({1}) query data source not found", _query, query_si);
-				add_error("get_data", _query, msg, __FILE__, __LINE__);
+				if (_warn_as_error) {
+					add_error("get_data", _query, msg, __FILE__, __LINE__);
+				}
 				system_monitoring_interface::active_mon->log_warning(msg);
 				return false;
 			}
@@ -141,6 +144,27 @@ namespace corona
 			}
 
 			return true;
+		}
+
+		virtual json get_value(json _query)
+		{
+			json_parser jp;
+			json result;
+			if (!_query.is_string()) {
+				result = _query;
+			}
+			else {
+                std::string qry = _query.as_string();
+				if (qry.starts_with("$")) {
+					qry = qry.substr(1);
+					result = jp.create_object();
+					get_data(result, qry);
+				}
+				else {
+					result = jp.from_string(qry);
+				}
+			}
+			return result;
 		}
 
 		virtual void set_data_source(std::string _name, json _data)
@@ -258,11 +282,11 @@ namespace corona
 			}
 		}
 
-		virtual bool get_data(json& _dest, std::string _data_name) override {
+		virtual bool get_data(json& _dest, std::string _data_name, bool _warning_as_error) override {
 			json_parser jp;
 			bool found = false;
 
-			found = query_context_base::get_data(_dest, _data_name);
+			found = query_context_base::get_data(_dest, _data_name, false);
 
 			if (!found) {
 				auto found_it = std::find_if(
@@ -274,6 +298,14 @@ namespace corona
 				if (found_it != std::end(stages)) {
 					_dest = found_it->get()->stage_output;
 					found = true;
+				}
+				else 
+				{
+					std::string msg = std::format("{0} query data source not found", _data_name);
+					if (_warning_as_error) {
+						add_error("get_data", _data_name, msg, __FILE__, __LINE__);
+					}
+                    system_monitoring_interface::active_mon->log_warning(msg);
 				}
 			}
 			return found;
@@ -339,15 +371,13 @@ namespace corona
 				if (condition) {
 					if (condition->accepts(_src, stage_input)) {
 						result.push_back(stage_input);
-						stage_output = result;
-						return stage_output;
 					}
 				}
 				else {
 					result.push_back(stage_input);
-					stage_output = result;
-					return stage_output;
 				}
+				stage_output = result;
+				return stage_output;
 			}
 			else if (stage_input.array()) {
 				if (condition) {
@@ -364,6 +394,7 @@ namespace corona
 				stage_output = result;
 				return result;
 			}
+
 			execution_time_seconds = tx.get_elapsed_seconds();
 			return stage_output;  
 		}
@@ -563,9 +594,13 @@ namespace corona
 
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{			
+			json_parser jp;
+            json jv = jp.from_string(value);
 			json s = _src.query(valuepath);
 			std::string v = s["value"].as_string();
-			bool result = v.find(value) != std::string::npos;
+            json vv = _qcb->get_value(jv);
+			std::string sv = vv.as_string();
+			bool result = v.find(sv) != std::string::npos;
 			return result;
 		}
 
@@ -609,7 +644,8 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
 			json s = _src.query(valuepath);
-			return s["value"].gt(value);
+			json vv = _qcb->get_value(value);
+			return s["value"].gt(vv);
 		}
 
 		virtual void get_json(json& _dest)
@@ -653,7 +689,8 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
 			json s = _src.query(valuepath);
-			return s["value"].lt(value);
+			json vv = _qcb->get_value(value);
+			return s["value"].lt(vv);
 		}
 
 		virtual void get_json(json& _dest)
@@ -697,7 +734,8 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
 			json s = _src.query(valuepath);
-			return s["value"].eq(value);
+			json vv = _qcb->get_value(value);
+			return s["value"].eq(vv);
 		}
 
 		virtual void get_json(json& _dest)
@@ -740,7 +778,9 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
 			json s = _src.query(valuepath);
-			return s["value"].gt(value) or s["value"].eq(value);
+			json vv = _qcb->get_value(value);
+			bool accepted = s["value"].gt(vv) or s["value"].eq(vv);
+			return accepted;
 		}
 
 		virtual void get_json(json& _dest)
@@ -783,7 +823,10 @@ namespace corona
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
 			json s = _src.query(valuepath);
-			return s["value"].gt(value) or s["value"].eq(value);
+			json vv = _qcb->get_value(value);
+            json sv = s["value"];
+			bool accepted = sv.lt(vv) or sv.eq(vv);
+			return accepted;
 		}
 
 		virtual void get_json(json& _dest)
@@ -938,10 +981,11 @@ namespace corona
 
 		virtual bool accepts(query_context_base* _qcb, json _src)
 		{
-			return std::all_of(conditions.begin(), conditions.end(), [_qcb, _src](std::shared_ptr<query_condition>& _condition)-> bool
+			bool results = std::all_of(conditions.begin(), conditions.end(), [_qcb, _src](std::shared_ptr<query_condition>& _condition)-> bool
 				{
 					return _condition->accepts(_qcb, _src);
 				});
+			return results;
 		}
 
 		virtual void get_json(json& _dest)
@@ -1245,7 +1289,7 @@ namespace corona
 								}
 								else if (path.starts_with("$")) {
 									path = path.substr(1);
-									json data = jp.create_array();
+									json data = jp.create_object();
 									if (_src->get_data(data, path)) {
 										data = data["value"];
 									}

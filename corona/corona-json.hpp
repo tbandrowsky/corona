@@ -3855,19 +3855,26 @@ namespace corona
 			json_parser jp;
 			json j = jp.create_object();
 
-			std::vector<std::string> path_components;
-			path_components = split(_path, ':');
-			if (path_components.size() == 2)
+			std::string source_name;
+			std::string source_path;
+			int i = 0;
+
+            while (i < _path.size())
 			{
-				j.put_member("source_name", path_components[0]);
-				j.put_member("query_path", path_components[1]);
+				if (_path[i] == '.') {
+					i++;
+					break;
+				}
+				else {
+					source_name += _path[i];
+				}
+				i++;
 			}
-			else if (_path.find(':') != std::string::npos) {
-				j.put_member("source_name", path_components[0]);
-			}
-			else {
-				j.put_member("source_name", path_components[0]);
-			}
+
+            std::string query_path = _path.substr(i);
+
+			j.put_member("source_name", source_name);
+			j.put_member("query_path", query_path);
 
 			return j;
 		}
@@ -4842,7 +4849,18 @@ namespace corona
 		}
 
 		std::vector<std::string> items = split(_path, '.');
-		json start = *this;
+		json start;
+
+		if (object())
+		{
+			start = *this;
+		}
+		else if (array() && size()>0) 
+		{			
+			start = get_element(0);
+		}
+        else 
+			return result;
 
 		for (int item_idx = 0; item_idx < items.size(); item_idx++)
 		{

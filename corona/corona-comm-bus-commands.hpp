@@ -1704,6 +1704,8 @@ namespace corona
 	public:
 		std::string			table_name = "";
         std::string         detail_frame = "";
+		std::string			query_defaults_field = "common";
+		json				query_defaults;
 		json				query_body;
 		corona_instance instance = corona_instance::local;
 		std::string			hit_words = "";
@@ -1759,6 +1761,12 @@ namespace corona
 					// this adds us as an input source
 					json new_from = jp.create_object();
 					json thisobj = request.clone();
+
+					if (query_defaults_field.size()>0)
+					{
+						thisobj.put_member(query_defaults_field, query_defaults);
+					}
+
 					new_from.put_member(data_field, thisobj);
 					new_from.put_member(class_name_field, std::string("sys_object"));
 					new_from.put_member("name", std::string("this"));
@@ -1810,6 +1818,7 @@ namespace corona
 			_dest.put_member("table_name", table_name);
 			_dest.put_member("detail_frame", form_name);
 			_dest.put_member("query", query_body);
+            _dest.put_member("defaults_field", query_defaults_field);
 			corona::get_json(_dest, instance);
 
 		}
@@ -1817,6 +1826,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
+			json_parser jp;
 
 			if (not _src.has_members(missing, { "form_name", "table_name", "query"})) {
 				system_monitoring_interface::active_mon->log_warning("search_objects_command missing:");
@@ -1832,6 +1842,24 @@ namespace corona
 			table_name = _src["table_name"].as_string();
 			detail_frame = _src["detail_frame"].as_string();
 			query_body = _src["query"];
+            query_defaults_field = _src["defaults_field"].as_string();
+			if (query_defaults_field.size() == 0) {
+                query_defaults_field = "common";
+			}
+			query_defaults = jp.create_object();
+
+			json dates = jp.create_object();
+			std::vector<std::string> defaults = { "yesterday", "today", "tomorrow", "this_week", "this_month", "this_year" };
+
+			for (auto s : defaults) {
+				json jdt = jp.create_object();
+				auto dr = date_time::get_range(s);
+				jdt.put_member("start", dr.first);
+				jdt.put_member("stop", dr.second);
+				dates.put_member(s, jdt);
+			}
+			query_defaults.put_member("dates", dates);
+			
 			corona::put_json(instance, _src);
 		}
 

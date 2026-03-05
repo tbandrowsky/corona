@@ -27,6 +27,8 @@ namespace corona
 	{
 	protected:
 
+		lockable login_lock;
+
 		std::multimap<UINT, windows_event_waiter> windows_waiters;
 		std::multimap<std::string, topic_event_waiter> topic_waiters;
 
@@ -1045,18 +1047,27 @@ namespace corona
 			return response;
 		}
 
+		time_t next_token_cache_check = 0;
+		json local_token_cache;
 
 		json get_local_token()
 		{
-			json_parser jp;
-            json login_request = jp.create_object();
-			json user_data = jp.create_object();
-			user_data.put_member("access_code", app->get_machine_id());
-			user_data.put_member(user_name_field, app->get_user_display_name());
-			user_data.put_member(user_email_field, app->get_user_email());
-			login_request.put_member(data_field, user_data);
-			json result = local_db->login_user_local(login_request);
-			return result[token_field];
+			scope_lock lockme(login_lock);
+			time_t current_time = time(nullptr);
+			if (current_time > next_token_cache_check) {
+				json_parser jp;
+				json login_request = jp.create_object();
+				json user_data = jp.create_object();
+				user_data.put_member("access_code", app->get_machine_id());
+				user_data.put_member(user_name_field, app->get_user_display_name());
+				user_data.put_member(user_email_field, app->get_user_email());
+				login_request.put_member(data_field, user_data);
+				json result = local_db->login_user_local(login_request);
+                local_token_cache = result[token_field];
+                next_token_cache_check = current_time + 60; // cache for 60 seconds
+				return result[token_field];
+			}
+			return local_token_cache;
 		}
 
 		virtual corona_client_response  local_create_object(std::string class_name)

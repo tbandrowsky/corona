@@ -538,7 +538,23 @@ namespace corona
 
 			return system_time;
 		}
-		
+
+		int day_of_week()
+		{
+			FILETIME ft;
+			SYSTEMTIME system_time;
+			LARGE_INTEGER li;
+
+			sql_time_to_system_time(sql_date_time, system_time);
+			::SystemTimeToFileTime(&system_time, &ft);
+			li.LowPart = ft.dwLowDateTime;
+			li.HighPart = ft.dwHighDateTime;
+			ft.dwLowDateTime = li.LowPart;
+			ft.dwHighDateTime = li.HighPart;
+			::FileTimeToSystemTime(&ft, &system_time);
+			return system_time.wDayOfWeek;
+		}
+
 		int year() const
 		{
 			return sql_date_time.year;
@@ -586,7 +602,8 @@ namespace corona
 
 		std::strong_ordering operator <=>(const date_time& _src) const
 		{
-			return sql_date_time <=> _src.sql_date_time;
+			auto temp = std::tie(sql_date_time.year, sql_date_time.month, sql_date_time.day, sql_date_time.hour, sql_date_time.minute, sql_date_time.second, sql_date_time.fraction) <=> std::tie(_src.sql_date_time.year, _src.sql_date_time.month, _src.sql_date_time.day, _src.sql_date_time.hour, _src.sql_date_time.minute, _src.sql_date_time.second, _src.sql_date_time.fraction);
+			return temp;
 		}
 
         bool operator==(const date_time& _src) const
@@ -654,6 +671,69 @@ namespace corona
 			return get_time_t() >= b;
 		}
 
+		static std::pair<date_time, date_time> get_range(const std::string& _name)
+		{
+			if (_name == "today")
+			{
+				date_time start = date_time::now();
+				date_time end = start;
+				start = date_time(start.year(), start.month(), start.day());
+				end = date_time(end.year(), end.month(), end.day(), 23, 59, 59, 999);
+				return { start, end };
+			}
+			else if (_name == "tomorrow")
+			{
+				auto range = get_range("today");
+				range.first = range.first + time_span(1, time_models::days);
+				range.second = range.second + time_span(1, time_models::days);
+				return range;
+			}
+			else if (_name == "yesterday")
+			{
+				auto range = get_range("today");
+				range.first = range.first - time_span(1, time_models::days);
+				range.second = range.second - time_span(1, time_models::days);
+				return range;
+			}
+			else if (_name == "this_week")
+			{
+				date_time start = date_time::now();
+				date_time end = start;
+				start = date_time(start.year(), start.month(), start.day());
+				end = date_time(end.year(), end.month(), end.day(), 23, 59, 59, 999);
+				int day_of_week = start.day_of_week();
+				start = start - time_span(day_of_week - 1, time_models::days); // Move to Monday
+				end = end + time_span(7 - day_of_week, time_models::days); // Move to Sunday
+				return { start, end };
+			}
+			else if (_name == "next_week")
+			{
+                auto range = get_range("this_week");
+                range.first = range.first + time_span(7, time_models::days);
+                range.second = range.second + time_span(7, time_models::days);
+				return range;
+			}
+			else if (_name == "this_month")
+			{
+				date_time start = date_time::utc_now();
+				date_time end = start;
+				start = date_time(start.year(), start.month(), 1); // Move to first day of month
+				end = date_time(end.year(), end.month() + 1, 1) - time_span(1, time_models::milliseconds); // Move to last day of month
+				return { start, end };
+			}
+			else if (_name == "this_year")
+			{
+				date_time start = date_time::utc_now();
+				date_time end = start;
+				start = date_time(start.year(), 1, 1); // Move to first day of year
+				end = date_time(end.year() + 1, 1, 1) - time_span(1, time_models::milliseconds); // Move to last day of year
+				return { start, end };
+			}
+			else
+			{
+				throw std::invalid_argument("Invalid range name: " + _name);
+            }
+		}
 
 	};
 

@@ -12,6 +12,11 @@
           "json_field_name": "description"
         },
         {
+          "class_name": "datetimepicker_field",
+          "text": "Date:",
+          "json_field_name": "task_date"
+        },
+        {
           "class_name": "combobox_field",
           "text": "Status:",
           "json_field_name": "status",
