@@ -1006,7 +1006,6 @@ namespace corona
 		corona_client_response response;
 		std::string constructor_frame;
 		json constructor_copy;
-		json copied_data;
 
 		std::shared_ptr<corona_select_frame_command> select_frame;
 
@@ -1026,7 +1025,18 @@ namespace corona
 			json_parser jp;
 			json parent_key = jp.create_object();
 
-			copied_data = jp.create_object();
+			return parent_key;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->create_object(instance, create_class_name);
+
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+
 			if (!constructor_frame.empty() && constructor_copy.object()) {
 				auto ctrl = _bus->find_control(constructor_frame);
 
@@ -1036,37 +1046,13 @@ namespace corona
 					for (auto member : members) {
 						std::string src_name = member.second.as_string();
 						json temp = data[src_name];
-						copied_data.put_member(member.first, temp);
+						response.data.put_member(member.first, temp);
 						if (src_name == object_id_field) {
-							parent_key.put_member(src_name, temp);
-						}
-						else if (src_name == class_name_field)
-						{
-							parent_key.put_member(src_name, temp);
+							response.data.put_member(src_name + "_object", data);
 						}
 					}
 				}
 			}
-
-			return parent_key;
-		}
-
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			auto response = _bus->create_object(instance, create_class_name);
-
-			if (response.success) 
-			{
-				if (request.object() && request.has_member(class_name_field) && request.has_member(object_id_field)) {
-					auto get_response = _bus->get_object(instance, request);
-				}
-			}
-
-			return response;
-		}
-
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
-
 
 			if (select_frame) {
 				select_frame->data = response.data;
