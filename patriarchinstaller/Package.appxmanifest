@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="72c9cc00-3334-4c2e-9c82-c67604316aa2"
-    Publisher="CN=toddb"
-    Version="1.0.0.0" />
+    Name="27629CountryVideoGames.Patriarch"
+    Publisher="CN=8855F627-AD63-41E1-990B-4633E16CE09E"
+    Version="1.0.1.0" />
 
   <Properties>
     <DisplayName>Patriarch</DisplayName>
-    <PublisherDisplayName>toddb</PublisherDisplayName>
+    <PublisherDisplayName>Country Bit</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
