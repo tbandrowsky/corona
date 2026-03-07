@@ -280,9 +280,29 @@
                                 "value": "$this.common.dates.today.start"
                               },
                               {
-                                "class_name": "lte",
-                                "valuepath": "task_date",
-                                "value": "$this.common.dates.today.stop"
+                                "class_name": "any",
+                                "conditions": [
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "open"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "in progress"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "on hold"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "blocked"
+                                  }
+                                ]
                               }
                             ]
                           }
@@ -332,9 +352,29 @@
                                 "value": "$this.common.dates.this_week.start"
                               },
                               {
-                                "class_name": "lte",
-                                "valuepath": "task_date",
-                                "value": "$this.common.dates.this_week.stop"
+                                "class_name": "any",
+                                "conditions": [
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "open"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "in progress"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "on hold"
+                                  },
+                                  {
+                                    "class_name": "eq",
+                                    "valuepath": "status",
+                                    "value": "blocked"
+                                  }
+                                ]
                               }
                             ]
                           },
