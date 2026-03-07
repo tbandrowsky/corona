@@ -38,150 +38,6 @@
     <Image Include="patriarch.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\accountant.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\ancestor.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\appliance.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\appointment.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\bar.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\broker.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\building.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\case_worker.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\child.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\church.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\collectible.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\contact.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\doctor.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\electronic.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\furniture.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\grocery.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\home.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\husband.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\jewelry.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\lawyer.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\liquor.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\museum.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\park.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\parole_officer.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\party.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\pharmacy.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\project.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\real_estate.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\relative.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\reminder.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\repair.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\restaurant.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\school.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\shapes1.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\task.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\tickets.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\tool.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\trip.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\utility.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\vehicle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\wife.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\tractor.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\note.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\mechanic.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\member.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\gun.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\database.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\boat.png">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="assets\small_logo.png">
@@ -317,6 +173,150 @@
     <CopyFileToFolders Include="configuration\patriarch_task_project.json" />
     <CopyFileToFolders Include="configuration\patriarch_task_project_card.json" />
     <CopyFileToFolders Include="configuration\patriarch_task_trip.json" />
+    <CopyFileToFolders Include="assets\accountant.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\ancestor.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\appliance.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\appointment.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\bar.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\boat.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\broker.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\building.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\case_worker.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\child.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\church.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\collectible.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\contact.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\database.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\doctor.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\electronic.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\furniture.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\grocery.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\gun.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\home.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\husband.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\jewelry.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\lawyer.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\liquor.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\mechanic.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\member.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\museum.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\note.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\park.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\parole_officer.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\party.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\pharmacy.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\project.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\real_estate.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\relative.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\reminder.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\repair.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\restaurant.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\school.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\shapes1.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\task.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\tickets.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\tool.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\tractor.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\trip.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\utility.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\vehicle.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="assets\wife.png">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="patriarch.cpp">
