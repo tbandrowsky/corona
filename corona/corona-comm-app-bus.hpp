@@ -23,7 +23,7 @@ For Future Consideration
 namespace corona
 {
 
-	class comm_app_bus : public comm_bus_app_interface
+	class desktop_app_bus : public comm_bus_app_interface
 	{
 	protected:
 
@@ -126,7 +126,7 @@ namespace corona
 
 		bool poll_db_enabled = false;
 
-		comm_app_bus(std::string _config_path, 
+		desktop_app_bus(std::string _config_path, 
 			std::string _database_path, 
 			json _system_config,
 			json _server_config, 
@@ -164,7 +164,7 @@ namespace corona
 			date_time t = date_time::now();
 			json_parser jp;
 
-			log_command_start("comm_app_bus", "startup", t);
+			log_command_start("desktop_app_bus", "startup", t);
 
 			is_service = false;
 			local_db_config = _system_config;
@@ -258,16 +258,17 @@ namespace corona
 
 			json token = get_local_token();
 
-			log_command_stop("comm_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("desktop_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
-		virtual ~comm_app_bus()
+		virtual ~desktop_app_bus()
 		{
 			if (local_db) {
 				local_db->shutdown();
 			}
 			global_job_queue->shutDown();
 		}
+
 
 		std::string run(const std::string& _command)
 		{
@@ -1976,7 +1977,7 @@ namespace corona
 			std::string control_name = class_page.second;
 			std::string class_name = class_page.first;
 
-			auto wcontrol = comm_bus_app_interface::global_bus->as<comm_app_bus>()->get_page(control_name);
+			auto wcontrol = comm_bus_app_interface::global_bus->as<desktop_app_bus>()->get_page(control_name);
 			if (auto pcontrol = wcontrol.lock())
 			{
 				if (pcontrol->root && pcontrol->root->children.size() > 0)
@@ -1992,10 +1993,10 @@ namespace corona
 		int batch_id = comm_bus_app_interface::global_bus->start_batch();
 		if (rows.size() > 0) {
 			if (select_command) {
-				comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(batch_id, select_command);
+				comm_bus_app_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, select_command);
 			}
 		} else if (empty_command) {
-			comm_bus_app_interface::global_bus->as<comm_app_bus>()->run_command(batch_id, empty_command);
+			comm_bus_app_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, empty_command);
         }
 	}
 

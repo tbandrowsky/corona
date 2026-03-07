@@ -49,7 +49,7 @@ namespace corona
 	{
 		corona::corona_db_read_only = true;
 
-		std::shared_ptr<corona::comm_app_bus> service;
+		std::shared_ptr<corona::desktop_app_bus> service;
 
 		char dir[500];
 		GetModuleFileNameA(NULL, dir, 500);
@@ -104,7 +104,7 @@ namespace corona
 			if (servers.size() > 0) {
 				auto server = servers.get_element(0);
 
-				service = std::make_shared<corona::comm_app_bus>(
+				service = std::make_shared<corona::desktop_app_bus>(
 					config_path,
 					database_path,
 					config,

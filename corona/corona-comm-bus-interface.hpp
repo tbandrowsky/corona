@@ -144,6 +144,11 @@ namespace corona
 			}
 		}
 
+		static comm_bus_app_interface* get_service()
+		{
+			return global_bus;
+		}
+
 		template <typename T> T* as()
 		{
 			return dynamic_cast<T*>(this);

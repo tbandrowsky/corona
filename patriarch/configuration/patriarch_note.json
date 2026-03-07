@@ -13,7 +13,7 @@
         },
         {
           "class_name": "paragraph",
-          "text": "For: {patriarch_object_object.class_name}, {patriarch_object_object.description}",
+          "text": "For: {patriarch_object_class} #{patriarch_object}",
           "json_field_name": "note_text",
           "box": "card_text_box"
         }

@@ -10,7 +10,7 @@ namespace corona
 {
 	void run_patriarch_application(HINSTANCE hInstance, LPSTR  lpszCmdParam);
 
-    const bool use_project_for_config = true;
+    const bool use_project_for_config = false;
 
 	std::string config_filename = "config.json";
 
@@ -26,6 +26,7 @@ namespace corona
 	These are general constants, and they are used to identify specific controls.
 	The presentation system lets you use win32 controls and your own dx based controls interchangably.
 
+	this is old.
 	*/
 
 	// important general
@@ -53,7 +54,7 @@ namespace corona
 
 		corona::corona_db_read_only = false;
 
-		std::shared_ptr<corona::comm_app_bus> service;
+		std::shared_ptr<corona::desktop_app_bus> service;
 
 		char dir[500];
 		GetModuleFileNameA(NULL, dir, 500);
@@ -113,12 +114,14 @@ namespace corona
 				auto server = servers.get_element(0);
 
 				try {
-					service = std::make_shared<corona::comm_app_bus>(
+					service = std::make_shared<corona::desktop_app_bus>(
 						config_path,
 						database_path,
 						config,
 						server,
 						true);
+
+					service->application_icon_id = IDI_PATRIARCH;
 
 					service->run_app_ui(hInstance, lpszCmdParam, false);
 					log_warning("Shutting application down");

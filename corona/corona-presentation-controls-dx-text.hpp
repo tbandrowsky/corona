@@ -78,20 +78,36 @@ namespace corona
 						brace_level--;
 						if (brace_level == 0) {
 							state = in_text;
-                            json replacement_value = data.query(replacement_path);
+							json replacement_value;
+							
+							if (!replacement_path.starts_with("ux.")) {
+								replacement_value = data.query(replacement_path);
 
-							if (replacement_value.has_member("value")) {
-								replacement_value = replacement_value["value"];
-								if (replacement_value.is_datetime()) {
-                                    date_time dt = replacement_value.as_date_time();
-									text += dt.short_date();
-								} 
-								else if (replacement_value.scalar()) {
-									text += replacement_value.as_string();
+								if (replacement_value.has_member("value")) {
+									replacement_value = replacement_value["value"];
+									if (replacement_value.is_datetime()) {
+										date_time dt = replacement_value.as_date_time();
+										text += dt.short_date();
+									}
+									else if (replacement_value.scalar()) {
+										text += replacement_value.as_string();
+									}
 								}
 							}
-						} 
-						else 
+							else {
+								std::vector<std::string> controls = split(replacement_path, '.' );
+								if (controls.size() >= 3) {
+									std::string control_name = controls[1];
+									std::string value_name = controls[2];
+									auto ctrl = comm_bus_app_interface::get_service()->find_control(control_name);
+									if (ctrl) {
+										auto dta = ctrl->get_data();
+										text += dta[value_name].as_string();
+									}
+								}	
+							}
+						}
+						else
 						{
 							replacement_path += c;
 						}
