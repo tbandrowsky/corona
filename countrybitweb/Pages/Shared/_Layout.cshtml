@@ -3,11 +3,30 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - countrybitweb</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/countrybitweb.styles.css" asp-append-version="true" />
+
+    <!-- Dynamic Title -->
+    <title>@(ViewData["Title"] ?? "CountryBit")</title>
+    
+    <!-- Meta Description -->
+    <meta name="description" content="@(ViewData["Description"] ?? "Web page")" />
+    <meta name="keywords" content="@(ViewData["Keywords"] ?? "country video games")" />
+    <meta name="author" content="CountryBit" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@(ViewData["Title"] ?? "CountryBit")" />
+    <meta name="twitter:description" content="@(ViewData["Description"] ?? "CountryBit - Your description here")" />
+    <meta name="twitter:image" content="@(ViewData["OgImage"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}/images/og-default.jpg")" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="@(ViewData["CanonicalUrl"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+        
+    @await RenderSectionAsync("Styles", required: false)
+    @await RenderSectionAsync("MetaTags", required: false)
 </head>
 <body>
     <header>
@@ -43,6 +62,7 @@
             </div>
         </nav>
     </header>
+    
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -54,11 +74,8 @@
             &copy; 2026 - countrybitweb - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
