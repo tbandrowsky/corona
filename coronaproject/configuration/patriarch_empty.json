@@ -1,0 +1,12 @@
+{
+  "class_name": "page",
+  "page_name": "page_empty",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "contact_object",
+      "box": "full_container",
+      "children": []
+    }
+  ]
+}

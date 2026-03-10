@@ -1,0 +1,27 @@
+{
+  "class_name": "page",
+  "page_name": "page_property_building",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\building.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Construction:",
+          "json_field_name": "construction"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Year Built:",
+          "json_field_name": "year_built"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "class_name": "page",
+  "page_name": "card_note",
+  "using": {
+    "page_name": "page_object_card_small_template",
+    "parameters": {
+      "$icon_image_file": "assets\\note.png",
+      "$card_height": "65 pixels",
+      "$details_contents": [
+        {
+          "class_name": "note",
+          "json_field_name": "description",
+          "text": "{note_text}",
+          "box": {
+            "width": "1.0 container",
+            "height": "60 pixels"
+          }
+        }
+      ]
+    }
+  }
+}

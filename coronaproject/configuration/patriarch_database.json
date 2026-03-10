@@ -1,0 +1,49 @@
+{
+  "class_name": "page",
+  "page_name": "page_database",
+  "default": true,
+  "children": [
+    {
+      "class_name": "row",
+      "box": {
+        "width": "1.0 container",
+        "height": "1.0 container"
+      },
+      "children": [
+        {
+          "class_name": "column",
+          "box": {
+            "width": "1.0 remaining",
+            "height": "1.0 container"
+          },
+          "children": [
+            {
+              "class_name": "chaptertitle",
+              "text": "Classes",
+              "box": {
+                "width": "1.0 container",
+                "height": "30 pixels"
+              }
+            },
+            {
+              "class_name": "items_view",
+              "name": "classes_table",
+              "box": {
+                "width": "1.0 container",
+                "height": "1.0 remaining"
+              },
+              "on_refresh": {
+                "class_name": "get_classes",
+                "table_name": "classes_table"
+              },
+              "sources": {
+                "corona_class": "card_table"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

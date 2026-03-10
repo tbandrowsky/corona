@@ -1,0 +1,48 @@
+{
+  "class_name": "page",
+  "page_name": "page_property_furniture",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\furniture.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Manufacturer:",
+          "box": "edit_field_box",
+          "json_field_name": "manufacturer"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Product:",
+          "box": "edit_field_box",
+          "json_field_name": "product"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Model #:",
+          "box": "edit_field_box",
+          "json_field_name": "model_number"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Serial #:",
+          "box": "edit_field_box",
+          "json_field_name": "serial_number"
+        },
+        {
+          "class_name": "edit_field",
+          "json_field_name": "website",
+          "box": "edit_field_box",
+          "text": "Website:"
+        }
+      ]
+    }
+  }
+}

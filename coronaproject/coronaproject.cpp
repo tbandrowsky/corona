@@ -1,0 +1,54 @@
+#define APPLICATION_MY_APP 3
+#define APPLICATION_ID APPLICATION_MY_APP
+
+#if APPLICATION_ID == APPLICATION_MY_APP	
+#include "my_app.hpp"
+#define application_function(a,b) corona::my_app(a,b);
+#endif
+
+int __stdcall WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR  lpszCmdParam,
+	int    nCmdShow)
+{
+
+	auto dpiResult = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+	HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+
+    if (SUCCEEDED(hr))
+	{
+		INITCOMMONCONTROLSEX ice;
+		ZeroMemory(&ice, sizeof(ice));
+		ice.dwSize = sizeof(ice);
+		ice.dwICC = ICC_LISTVIEW_CLASSES |
+			ICC_TREEVIEW_CLASSES |
+			ICC_BAR_CLASSES |
+			ICC_TAB_CLASSES |
+			ICC_UPDOWN_CLASS |
+			ICC_PROGRESS_CLASS |
+			ICC_HOTKEY_CLASS |
+			ICC_ANIMATE_CLASS |
+			ICC_WIN95_CLASSES |
+			ICC_DATE_CLASSES |
+			ICC_USEREX_CLASSES |
+			ICC_COOL_CLASSES |
+			ICC_INTERNET_CLASSES |
+			ICC_NATIVEFNTCTL_CLASS |
+			ICC_LINK_CLASS;
+
+		BOOL result = ::InitCommonControlsEx(&ice);
+
+		try 
+		{
+			application_function(hInstance, lpszCmdParam);
+		}
+		catch (std::exception& e) 
+		{
+            ::MessageBoxA(nullptr, e.what(), my_application_name.c_str(), MB_OK | MB_ICONERROR);
+		}
+		CoUninitialize();
+	}
+
+}
+

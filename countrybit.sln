@@ -23,6 +23,8 @@ Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "patriarchinstaller", "patri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "countrybitweb", "countrybitweb\countrybitweb.csproj", "{C3DB116C-E9BF-4D06-ADFA-405342A2E639}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "coronaproject", "coronaproject\coronaproject.vcxproj", "{754E6CFC-1863-468B-88C6-A76C15821AD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -395,6 +397,46 @@ Global
 		{C3DB116C-E9BF-4D06-ADFA-405342A2E639}.RelWithDebInfo|x64.Build.0 = Debug|Any CPU
 		{C3DB116C-E9BF-4D06-ADFA-405342A2E639}.RelWithDebInfo|x86.ActiveCfg = Debug|Any CPU
 		{C3DB116C-E9BF-4D06-ADFA-405342A2E639}.RelWithDebInfo|x86.Build.0 = Debug|Any CPU
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|Any CPU.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|ARM.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|ARM.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|ARM64.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|ARM64.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|x64.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|x64.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|x86.ActiveCfg = Debug|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Debug|x86.Build.0 = Debug|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|Any CPU.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|Any CPU.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|ARM.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|ARM.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|ARM64.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|ARM64.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|x64.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|x64.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|x86.ActiveCfg = Release|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.MinSizeRel|x86.Build.0 = Release|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|Any CPU.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|Any CPU.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|ARM.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|ARM.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|ARM64.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|ARM64.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|x64.ActiveCfg = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|x64.Build.0 = Release|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|x86.ActiveCfg = Release|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.Release|x86.Build.0 = Release|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|Any CPU.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|Any CPU.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|ARM.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|ARM.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|ARM64.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|ARM64.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|x64.ActiveCfg = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|x64.Build.0 = Debug|x64
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|x86.ActiveCfg = Debug|Win32
+		{754E6CFC-1863-468B-88C6-A76C15821AD5}.RelWithDebInfo|x86.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -408,6 +450,7 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		corona\corona.vcxitems*{452d538a-8559-48cc-8acc-a8dff6cec6b5}*SharedItemsImports = 4
+		corona\corona.vcxitems*{754e6cfc-1863-468b-88c6-a76c15821ad5}*SharedItemsImports = 4
 		corona\corona.vcxitems*{c12de1f8-9a25-4e3b-af11-93f4b3aceee9}*SharedItemsImports = 9
 		corona\corona.vcxitems*{c51546d5-e40a-4c62-93e2-0351352fb4a5}*SharedItemsImports = 4
 		corona\corona.vcxitems*{ea9a9997-816a-44e7-ae25-ee0a8d41038d}*SharedItemsImports = 4

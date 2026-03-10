@@ -1,0 +1,132 @@
+{
+  "class_name": "page",
+  "page_name": "page_layout_test",
+  "default": true,
+  "children": [
+    {
+      "class_name": "column",
+      "box": "full_container",
+      "padding": "6 pixels",
+      "content_alignment": "near",
+      "content_cross_alignment": "center",
+      "children": [
+        {
+          "class_name": "caption_bar",
+          "corporate_name": "country video games",
+          "title_name": "LAYOUT TEST",
+          "title_start": "60 pixels",
+          "box": {
+            "width": "1.0 container",
+            "height": "80 pixels"
+          }
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "1.0 container",
+            "height": "75 pixels"
+          },
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "75 px row",
+              "box": "button_box",
+              "margin": "button_margin"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "1.0 container",
+            "height": ".5 remaining"
+          },
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "half remaining row",
+              "box": "full_container"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "1.0 container",
+            "height": ".5 remaining"
+          },
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "other half remaining row",
+              "box": "full_container"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "0.97 container",
+            "height": ".2 container",
+            "y": "10 pixels"
+          },
+          "view_style": {
+            "box_fill_brush": {
+              "class_name": "solid_brush",
+              "color": "212121"
+            },
+            "box_border_brush": {
+              "class_name": "solid_brush",
+              "color": "111112"
+            },
+            "box_border_thickness": 4
+          },
+          "padding": {
+            "amount": 0,
+            "units": "pixels"
+          },
+          "content_alignment": "near",
+          "content_cross_alignment": "near",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "20% container row",
+              "box": "full_container"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "box": {
+            "width": "0.97 container",
+            "height": "40 pixels"
+          },
+          "view_style": {
+            "box_fill_brush": {
+              "class_name": "solid_brush",
+              "color": "212121"
+            },
+            "box_border_brush": {
+              "class_name": "solid_brush",
+              "color": "111112"
+            },
+            "box_border_thickness": 4
+          },
+          "padding": {
+            "amount": 0,
+            "units": "pixels"
+          },
+          "content_alignment": "near",
+          "content_cross_alignment": "near",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "text": "40 pixel row",
+              "box": "full_container"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
