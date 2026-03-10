@@ -15,7 +15,7 @@ namespace corona
 
     const bool use_project_for_config = false;
 
-	std::string config_filename = "config.json";
+	std::string config_filename = "app_config.json";
 
 	/*
 
@@ -124,7 +124,7 @@ namespace corona
 						server,
 						true);
 
-					service->application_icon_id = IDI_PATRIARCH;
+					service->application_icon_id = IDI_CORONAPROJECT;
 
 					service->run_app_ui(hInstance, lpszCmdParam, false);
 					log_warning("Shutting "+ my_application_name+" down");

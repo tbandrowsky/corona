@@ -1,0 +1,18 @@
+{
+  "class_name": "page",
+  "page_name": "page_product_product",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\product.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        }
+      ]
+    }
+  }
+}

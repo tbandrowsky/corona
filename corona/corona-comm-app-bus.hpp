@@ -102,7 +102,6 @@ namespace corona
 
 		std::string config_path;
 		std::string database_path;
-		std::string database_config_filename;
 		std::string styles_config_filename;
 		std::string pages_config_filename;
 		std::string database_schema_filename;
@@ -190,7 +189,6 @@ namespace corona
             std::string _application_name = server_config["application_name"].as_string();	
 
 			app_menu = std::make_shared<menu_item>();
-			database_config_filename = "config.json";
 			pages_config_filename = _config_path + _application_name + "_pages.json";
 			styles_config_filename = _config_path + _application_name + "_styles.json";
 

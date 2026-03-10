@@ -1,0 +1,28 @@
+{
+  "class_name": "page",
+  "page_name": "page_note",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\note.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "memo_field",
+          "text": "Note:",
+          "json_field_name": "note_text"
+        },
+        {
+          "class_name": "paragraph",
+          "text": "For: {app_object_class} #{app_object}",
+          "json_field_name": "note_text",
+          "box": "card_text_box"
+        }
+      ]
+    }
+  }
+}

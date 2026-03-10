@@ -1,0 +1,240 @@
+﻿{
+  "schema_name": "My Application",
+  "schema_description": "Schema for My Application.",
+  "schema_version": "1.0",
+  "schema_authors": [
+    "My Name"
+  ],
+  "classes": [
+    {
+      "class_name": "app_object",
+      "base_class_name": "sys_object",
+      "class_description": "A root object of searchable things",
+      "fields": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "notes": "[app_note]"
+      }
+    },
+    {
+      "class_name": "app_note",
+      "base_class_name": "app_object",
+      "class_description": "A note that can be placed on an object",
+      "parents": [ "app_object" ],
+      "full_text": [ "note_text" ],
+      "fields": {
+        "note_text": {
+          "field_type": "string",
+          "label": "Text"
+        }
+      }
+    },
+    {
+      "class_name": "product",
+      "base_class_name": "app_object",
+      "class_description": "A general job to do",
+      "full_text": [ "description", "status" ],
+      "fields": {
+        "projects": "[project]",
+        "requests": "[request]",
+        "assets": "[asset]",
+        "environments": "[environment]"
+      }
+    },
+    {
+      "class_name": "request",
+      "base_class_name": "app_object",
+      "class_description": "A request for a product",
+      "parents": [ "product" ],
+      "fields": {
+        "details": {
+          "field_type": "string",
+          "label": "Details"
+        }
+      }
+    },
+    {
+      "class_name": "project",
+      "base_class_name": "app_product",
+      "class_description": "A general job to do",
+      "full_text": [ "description", "status" ],
+      "parents": [ "product" ],
+      "fields": {
+        "status": {
+          "field_type": "string",
+          "label": "Status"
+        },
+        "charter": {
+          "field_type": "string",
+          "label": "Charter"
+        },
+        "delivery_date": {
+          "field_type": "datetime",
+          "label": "Delivery Date"
+        },
+        "tasks": "[task]"
+      }
+    },
+    {
+      "class_name": "asset",
+      "base_class_name": "app_object",
+      "class_description": "An asset used on a project",
+      "parents": [ "product" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "asset",
+      "class_description": "A person",
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "title": "string",
+        "skills": "string"
+      }
+    },
+    {
+      "class_name": "server",
+      "base_class_name": "asset",
+      "class_description": "A server",
+      "fields": {
+        "url": "string",
+        "unc": "string",
+        "cpu": "string",
+        "cores": "string",
+        "memory": "string"
+      }
+    },
+    {
+      "class_name": "reference",
+      "base_class_name": "asset",
+      "class_description": "A reference or resource",
+      "fields": {
+        "url": "string",
+        "synopsis": "string"
+      }
+    },
+    {
+      "class_name": "license",
+      "base_class_name": "asset",
+      "class_description": "A server",
+      "fields": {
+        "product_name": "string",
+        "url": "string",
+        "license_key": "string"
+      }
+    },
+    {
+      "class_name": "network",
+      "base_class_name": "asset",
+      "class_description": "A server",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "environment",
+      "base_class_name": "app_object",
+      "class_description": "An environment for test",
+      "full_text": [ "status" ],
+      "parents": [ "product" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "url": {
+          "field_type": "string",
+          "label": "URL"
+        },
+        "status": {
+          "field_type": "string",
+          "label": "Status"
+        }
+      }
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "app_object",
+      "class_description": "A general job to do",
+      "full_text": [ "description", "status" ],
+      "fields": {
+        "status": {
+          "field_type": "string",
+          "label": "Status"
+        },
+        "task_date": {
+          "field_type": "datetime",
+          "label": "Task Date"
+        }
+      }
+    },
+    {
+      "class_name": "develop",
+      "base_class_name": "app_object",
+      "class_description": "A general job to do",
+      "full_text": [ "description", "status" ],
+      "fields": {
+        "assigned_to": "string",
+        "repository": "string"
+      }
+    },
+    {
+      "class_name": "meeting",
+      "class_description": "A task to meet someone",
+      "base_class_name": "develop",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "text" ],
+      "fields": {
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "duration": {
+          "field_type": "string",
+          "label": "Length"
+        },
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        }
+      }
+    }
+  ],
+  "users": [
+
+  ],
+  "datasets": [
+    {
+      "dataset_name": "App Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "App Team",
+          "team_description": "Local security for teams",
+          "team_domain": "ANY",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "app_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
