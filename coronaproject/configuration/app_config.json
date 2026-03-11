@@ -6,7 +6,7 @@
     }
   ],
   "Settings": {
-    "show_console":  false
+    "show_console":  true
   },
   "Servers": [
     {
@@ -17,7 +17,9 @@
       "database_recreate": false,
       "new_user_default_team": "ignored",
       "onboard_email_filename": "onboarding_email_template.html",
-      "recovery_email_filename": "account_recovery_email_template.html"
+      "recovery_email_filename": "account_recovery_email_template.html",
+      "pages_filename": "app_pages.json",
+      "styles_filename": "app_styles.json"
     }
   ]
 

@@ -1,6 +1,6 @@
 
-#ifndef APPLICATION_PATRIARCH_HPP
-#define APPLICATION_PATRIARCH_HPP
+#ifndef APPLICATION_MY_APP_HPP
+#define APPLICATION_MY_APP_HPP
 
 #include "resource.h"
 #include "corona.hpp"
@@ -13,7 +13,21 @@ namespace corona
 
 	void my_app(HINSTANCE hInstance, LPSTR  lpszCmdParam);
 
-    const bool use_project_for_config = false;
+	/****************************
+	KEY BIT TO FLIP, RIGHT HERE
+
+	if use_project_for_config is true, then, this C++ project will use the configuration folder
+	in the project directory to get things like the pages and the schema.
+	This means you can use Visual Studio or any other favorite editor - Code is good too,
+	to edit both the database schema and the pages for it. 
+
+	if use_project_for_config is false, then, it will use the configuration folder underneath where the EXE
+	lives, which is good, for if it is really deployed.
+
+	don't forget to set the default directory
+	*****************************/
+
+    const bool use_project_for_config = true;
 
 	std::string config_filename = "app_config.json";
 
@@ -67,7 +81,7 @@ namespace corona
 		config_path += "\\configuration\\";
 
 		if constexpr (use_project_for_config) {
-			config_path = "D:\\countrybit\\" + my_application_name + "\\configuration\\";
+			config_path = "D:\\countrybit\\coronaproject\\configuration\\";
 		}
 
 		std::string database_path;

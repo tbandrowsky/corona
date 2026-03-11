@@ -189,8 +189,44 @@ namespace corona
             std::string _application_name = server_config["application_name"].as_string();	
 
 			app_menu = std::make_shared<menu_item>();
-			pages_config_filename = _config_path + _application_name + "_pages.json";
-			styles_config_filename = _config_path + _application_name + "_styles.json";
+
+			pages_config_filename = server_config["pages_filename"].as_string();
+
+            if (pages_config_filename.empty())
+			{
+				pages_config_filename = _config_path + _application_name + "_pages.json";
+			}
+			else {
+				pages_config_filename = _config_path + pages_config_filename;
+				log_information(std::format("Using pages config filename {0}", pages_config_filename));
+				if (not app->file_exists(pages_config_filename)) {
+					log_warning(std::format("Pages config file {0} does not exist, falling back to default", pages_config_filename), __FILE__, __LINE__);
+					pages_config_filename = _config_path + _application_name + "_pages.json";
+				}
+				else
+				{
+					log_information(std::format("Pages config file {0} exists, using it", pages_config_filename));
+                }
+			}
+
+			styles_config_filename = server_config["styles_filename"].as_string();
+
+			if (styles_config_filename.empty())
+			{
+				styles_config_filename = _config_path + _application_name + "_styles.json";
+			}
+			else {
+				styles_config_filename = _config_path + styles_config_filename;
+				log_information(std::format("Using styles config filename {0}", styles_config_filename));
+				if (not app->file_exists(styles_config_filename)) {
+					log_warning(std::format("Styles config file {0} does not exist, falling back to default", styles_config_filename), __FILE__, __LINE__);
+					styles_config_filename = _config_path + _application_name + "_styles.json";
+				}
+				else
+				{
+					log_information(std::format("Styles config file {0} exists, using it", styles_config_filename));
+				}
+			}
 
 			database_schema_filename = server_config["schema_filename"].as_string();
 			database_threads = server_config["database_threads"].as_int64_t();

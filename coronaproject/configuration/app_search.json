@@ -133,9 +133,9 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_family",
-                  "icon": "Family",
-                  "text": "family",
+                  "name": "search_product",
+                  "icon": "Product",
+                  "text": "product",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
@@ -149,7 +149,7 @@
                     "query": {
                       "from": [
                         {
-                          "class_name": "member",
+                          "class_name": "product",
                           "name": "objects",
                           "filter": {
                             "full_text": "$this.full_text"
@@ -168,9 +168,9 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_button",
-                  "icon": "HomeHouse",
-                  "text": "asset",
+                  "name": "search_project",
+                  "icon": "Project",
+                  "text": "project",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
@@ -184,7 +184,7 @@
                     "query": {
                       "from": [
                         {
-                          "class_name": "asset",
+                          "class_name": "project",
                           "name": "objects",
                           "filter": {
                             "full_text": "$this.full_text"
@@ -203,9 +203,9 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_contacts",
-                  "icon": "Contact",
-                  "text": "contacts",
+                  "name": "search_person",
+                  "icon": "Person",
+                  "text": "person",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
@@ -219,7 +219,77 @@
                     "query": {
                       "from": [
                         {
-                          "class_name": "contact",
+                          "class_name": "person",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_request",
+                  "icon": "Request",
+                  "text": "request",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "request",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_server",
+                  "icon": "Server",
+                  "text": "server",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "server",
                           "name": "objects",
                           "filter": {
                             "full_text": "$this.full_text"
