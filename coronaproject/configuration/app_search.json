@@ -55,268 +55,7 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "search_all",
-                  "icon": "ViewAll",
-                  "text": "everything",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "patriarch_object",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "paragraph",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "25 pixels"
-                  },
-                  "text": ""
-                },
-
-                {
-                  "class_name": "command_button",
-                  "name": "search_button",
-                  "icon": "CompletedTask",
-                  "text": "tasks",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "task",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_product",
-                  "icon": "Product",
-                  "text": "product",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "product",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_project",
-                  "icon": "Project",
-                  "text": "project",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "project",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_person",
-                  "icon": "Person",
-                  "text": "person",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "person",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_request",
-                  "icon": "Request",
-                  "text": "request",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "request",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_server",
-                  "icon": "Server",
-                  "text": "server",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "server",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "paragraph",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "25 pixels"
-                  },
-                  "text": ""
-                },
-                {
-                  "class_name": "command_button",
-                  "icon": "CalendarDay",
+                  "image": "assets\\day.png",
                   "box": "button_box",
                   "margin": "button_margin",
                   "text": "today",
@@ -389,7 +128,7 @@
 
                 {
                   "class_name": "command_button",
-                  "icon": "CalendarWeek",
+                  "image": "assets\\week.png",
                   "box": "button_box",
                   "margin": "button_margin",
                   "text": "week",
@@ -454,6 +193,266 @@
                           "class_name": "result",
                           "source": "filtered",
                           "name": "output"
+                        }
+                      ]
+                    }
+                  }
+                },
+
+                {
+                  "class_name": "command_button",
+                  "name": "search_all",
+                  "image": "assets\\viewall.png",
+                  "text": "everything",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "patriarch_object",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "paragraph",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": ""
+                },
+
+                {
+                  "class_name": "command_button",
+                  "name": "search_product",
+                  "image": "assets\\product.png",
+                  "text": "products",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "product",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_project",
+                  "image": "assets\\project.png",
+                  "text": "projects",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "project",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_request",
+                  "image": "assets\\request.png",
+                  "text": "requests",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "request",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_button",
+                  "image": "assets\\task.png",
+                  "text": "tasks",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "task",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "paragraph",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": ""
+                },
+
+                {
+                  "class_name": "command_button",
+                  "name": "search_person",
+                  "image": "assets\\people.png",
+                  "text": "people",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "person",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_server",
+                  "image": "assets\\server.png",
+                  "text": "servers",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "server",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
                         }
                       ]
                     }
@@ -548,7 +547,7 @@
             },
             {
               "class_name": "column",
-              "name": "search_row2",
+              "name": "object_edit_bar",
               "box": {
                 "width": "100 pixels",
                 "height": "1.0 container"
@@ -575,88 +574,11 @@
                   },
                   "text": "Edit"
                 },
-                {
-                  "class_name": "command_button",
-                  "name": "new_button",
-                  "icon": "Add",
-                  "text": "new item",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "select_frame",
-                    "target_frame": "page_home.frame_selected",
-                    "source_frame": "page_create",
-                    "message": "new item."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "back_object",
-                  "icon": "Back",
-                  "text": "back",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward": false,
-                    "target_frame": "frame_selected"
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "next_object",
-                  "icon": "Forward",
-                  "text": "forward",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward": true,
-                    "target_frame": "frame_selected"
-                  }
-                },
 
-                {
-                  "class_name": "paragraph",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "25 pixels"
-                  },
-                  "text": ""
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_note",
-                  "icon": "Note",
-                  "text": "add note",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "patriarch_note",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "patriarch_object": "object_id",
-                      "patriarch_object_class": "class_name"
-                    },
-                    "source_frame": "page_note",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  }
-                },
                 {
                   "class_name": "command_button",
                   "name": "save_object",
-                  "icon": "Save",
+                  "image": "assets\\save.png",
                   "text": "save",
                   "box": {
                     "width": "100  pixels",
@@ -671,7 +593,7 @@
                 {
                   "class_name": "command_button",
                   "name": "delete_object",
-                  "icon": "Delete",
+                  "image": "assets\\trash.png",
                   "text": "delete",
                   "box": {
                     "width": "100  pixels",
@@ -681,13 +603,215 @@
                     "class_name": "delete_object",
                     "target_frame": "frame_selected"
                   }
+                },
+
+                {
+                  "class_name": "command_button",
+                  "name": "back_object",
+                  "image": "assets\\back.png",
+                  "text": "back",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward": false,
+                    "target_frame": "frame_selected"
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "next_object",
+                  "image": "assets\\forward.png",
+                  "text": "forward",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "navigate",
+                    "forward": true,
+                    "target_frame": "frame_selected"
+                  }
+                },
+                {
+                  "class_name": "chaptersubtitle",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": "Add"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_note",
+                  "image": "assets\\note.png",
+                  "text": "note",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "app_note",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "app_object": "object_id",
+                      "app_object_class": "class_name"
+                    },
+                    "source_frame": "page_note",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_product",
+                  "image": "assets\\product.png",
+                  "text": "product",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "product",
+                    "constructor_frame": "frame_selected",
+                    "source_frame": "page_product_product",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_project",
+                  "image": "assets\\project.png",
+                  "text": "project",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "project",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "product": "object_id",
+                      "product_class": "class_name"
+                    },
+                    "source_frame": "page_product_project",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "product"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_task",
+                  "image": "assets\\task.png",
+                  "text": "task",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "task",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "task": "object_id",
+                      "task_class": "class_name"
+                    },
+                    "source_frame": "page_product_task",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "project"
+
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_person",
+                  "image": "assets\\people.png",
+                  "text": "person",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "person",
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "person",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "product": "object_id",
+                      "product_class": "class_name"
+                    },
+                    "source_frame": "page_product_person",
+                    "target_frame": "frame_selected",
+                    "message": "layout test.",
+                    "enable_source_frame": "frame_selected",
+                    "enable_class_name": "project"
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_environment",
+                  "image": "assets\\environments.png",
+                  "text": "environment",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "product",
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "environment",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "task": "object_id",
+                      "task_class": "class_name"
+                    },
+                    "source_frame": "page_product_server",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_server",
+                  "image": "assets\\server.png",
+                  "text": "server",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "server",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "product": "object_id",
+                      "product_class": "class_name"
+                    },
+                    "source_frame": "page_product_server",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "product"
                 }
 
               ]
             },
             {
               "class_name": "column",
-              "name": "search_row2",
+              "name": "frame_bar",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"
@@ -714,6 +838,7 @@
                     {
                       "class_name": "frame",
                       "name": "frame_selected",
+                      "edit_bars": [ "object_edit_bar" ],
                       "box": {
                         "width": "1.0 container",
                         "height": "1.0 remaining"

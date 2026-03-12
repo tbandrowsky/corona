@@ -568,6 +568,14 @@ namespace corona
 
 		rectangle& set_bounds(control_base *_parent, rectangle& _bounds, bool _clip_children = true);
 
+		// default implementation for composed controls
+		virtual void arrange() 
+		{
+			for (auto child : children) {
+				child->arrange(this, &inner_bounds);
+			}
+		}
+
 		virtual void arrange(control_base *_parent, rectangle* _ctx);
 		bool contains(point pt);
 

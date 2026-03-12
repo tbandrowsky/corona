@@ -1809,6 +1809,7 @@ namespace corona
         {"Pictures", L"\uE91B"}
     };
 
+
     class command_button_control : public gradient_button_control
     {
     public:
@@ -1819,10 +1820,15 @@ namespace corona
         std::shared_ptr<corona_bus_command> click_command;
         std::shared_ptr<image_control> image;
 
+        std::string         enable_source_frame;
+        std::string         enable_class_name;
+
         command_button_control() : gradient_button_control() {
             init_text_styles();
             icon = "";
             button_text = "";
+            enable_source_frame = "";
+            enable_class_name = "";
             init();
         }
 
@@ -1833,6 +1839,8 @@ namespace corona
             icon = _src.icon;
             click_command = _src.click_command;
             button_text = _src.button_text;
+            enable_source_frame = _src.enable_source_frame;
+            enable_class_name = _src.enable_class_name;
             init();
         }
 
@@ -1841,7 +1849,26 @@ namespace corona
             init_text_styles();
             icon = "";
             button_text = "";
+            enable_source_frame = "";
+            enable_class_name = "";
             init();
+        }
+
+        bool is_enabled() 
+        {
+            if (enable_source_frame.empty() || enable_class_name.empty()) {
+                return true; // No enabling conditions, always enabled
+            }
+            auto* bus = comm_bus_app_interface::get_service();
+            auto frame = bus->find_control(enable_source_frame);
+            if (frame) {
+                auto target = frame->get_data();
+                if (target.object()) {
+                    bool is_class = target[class_name_field].as_string() == enable_class_name;
+                    return is_class;
+                }
+            }   
+            return false;
         }
 
         void init_text_styles()
@@ -1873,6 +1900,9 @@ namespace corona
             text_style.line_spacing = 1.0f;
         }
 
+        const bool shrink_image_more = true;
+        const bool add_circle_backlight = true;
+
         void init()
         {
 
@@ -1881,6 +1911,10 @@ namespace corona
 
             on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
                 {
+
+                    if (bounds.w <= 0 or bounds.h <= 0) {
+                        return;
+                    }
 
                     _item->arrange(nullptr, &bounds);
                     auto draw_bounds = inner_bounds;
@@ -1893,6 +1927,24 @@ namespace corona
                     point* porigin = &shape_origin;
 
                     draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+
+                        if (add_circle_backlight)
+                        {
+                            auto dc = _context->getDeviceContext();
+                            ID2D1SolidColorBrush* backlight_brush;
+                            dc->CreateSolidColorBrush(toColor("#00000020"), &backlight_brush);
+
+                            if (backlight_brush) {
+                                D2D1_ELLIPSE ellipse;
+
+                                ellipse.point.x = rectangle_math::center(*_bounds).x;
+                                ellipse.point.y = rectangle_math::center(*_bounds).y;
+                                ellipse.radiusX = _bounds->w / 3.3f;
+                                ellipse.radiusY = _bounds->h / 3.3f;
+                                dc->FillEllipse(ellipse, backlight_brush);
+                                backlight_brush->Release();
+                            }
+                        }
 
                         if (child_draw_order == draw_children_order::draw_after_middleground) {
                             for (auto child : children) {
@@ -1930,6 +1982,16 @@ namespace corona
         virtual ~command_button_control()
         {
 
+        }
+
+        virtual point get_size(control_base* _parent) override
+        {
+            point sz = draw_control::get_size(_parent);
+            if (!is_enabled()) {
+                sz.y = 0;
+                sz.x = 0;
+            }
+            return sz;
         }
 
         // this sort of thing is why MS went down the path of light and truth and had great
@@ -1980,7 +2042,11 @@ namespace corona
                 corona::get_json(jcommand, click_command);
                 _dest.put_member("on_click", jcommand);
             }
+
+            _dest.put_member("enable_source_frame", enable_source_frame);
+            _dest.put_member("enable_class_name", enable_class_name);
         }
+        
 
         virtual void put_json(json& _src)
         {
@@ -2006,15 +2072,27 @@ namespace corona
                 jimage.put_member("image_filename", _src["image"].as_string());
                 image->put_json(jimage);
 
-                layout_rect image_box;
-                image_box.height = .67_container;
-                image_box.width = 0.4_container;
-                image_box.x = 0.3_container;
-                image_box.y = -0.1_container;
-                image->set_box(image_box);
+                if (shrink_image_more) {
+                    layout_rect image_box;
+                    image_box.height = .57_container;
+                    image_box.width = 0.3_container;
+                    image_box.x = 0.35_container;
+                    image->set_box(image_box);
+                }
+                else {
+                    layout_rect image_box;
+                    image_box.height = .67_container;
+                    image_box.width = 0.4_container;
+                    image_box.x = 0.3_container;
+                    image_box.y = -0.1_container;
+                    image->set_box(image_box);
+                }
 
                 children.push_back(image);
             }
+
+            enable_source_frame = _src["enable_source_frame"].as_string();
+            enable_class_name = _src["enable_class_name"].as_string();
 
         }
 

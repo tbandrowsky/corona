@@ -2889,6 +2889,17 @@ namespace corona
 			child->loaded(_batch_id);
 		}
 
+        if (edit_bars.size() > 0) {
+			for (auto edit_bar_name : edit_bars) {
+				if (edit_bar_name.size() > 0) {
+                    auto edit_bar = comm_bus_app_interface::get_service()->find_control(edit_bar_name);
+					if (edit_bar) {
+						edit_bar->arrange();
+					}
+				}
+			}
+		}
+
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)

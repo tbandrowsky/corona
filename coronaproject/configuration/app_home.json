@@ -63,7 +63,7 @@
                 },
                 {
                   "class_name": "command_button",
-                  "icon": "Search",
+                  "image": "assets\\search.png",
                   "box": "button_box",
                   "margin": "button_margin",
                   "text": "search",

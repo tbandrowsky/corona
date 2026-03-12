@@ -376,6 +376,7 @@ namespace corona
 		int navigation_location = 0;
         presentation_base* current_presentation = nullptr;
         page_base* current_page = nullptr;
+		std::vector<std::string> edit_bars;
 
 	public:
 
@@ -515,6 +516,12 @@ namespace corona
 				corona::get_json(temp, onload_command);
 				_dest.put_member("on_load", temp);
 			}
+
+			json jedit_bars = jp.create_array();
+			for (auto sbar : edit_bars) {
+				jedit_bars.push_back(sbar);
+			}
+			_dest.put_member("edit_bars", jedit_bars);
 		}
 
 		virtual void put_json(json& _src)
@@ -528,6 +535,16 @@ namespace corona
                     jonload_command.put_member("target_frame", name);
 				}
 				corona::put_json(onload_command, jonload_command);
+			}
+
+			edit_bars.clear();
+			json jedit_bars = _src["edit_bars"];
+			if (jedit_bars.array()) {
+				for (int i = 0; i < jedit_bars.size(); i++) {
+					json jbar = jedit_bars.get_element(i);
+					std::string sbar = jbar.as_string();
+					edit_bars.push_back(sbar);
+				}
 			}
 		}
 	};
