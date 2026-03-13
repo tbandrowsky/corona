@@ -1416,8 +1416,6 @@ namespace corona
 	{
 	public:
 		tab_pane					  pane;
-		std::shared_ptr<container_control> tab_form;
-		json						  tab_form_data;
 	};
 
 	class tab_view_control : public windows_control
@@ -1575,7 +1573,16 @@ namespace corona
 
 		virtual void get_json(json& _dest)
 		{
+			json_parser jp;
 
+			json tabs = jp.create_array();
+            for (auto tb : tab_panes) {
+				json jtb = jp.create_object();
+				tb.pane.get_json(jtb);
+				tabs.push_back(jtb);
+			}			
+			_dest.put_member("tabs", tabs);
+            _dest.put_member("content_frame_name", content_frame_name);
 		}
 
 		virtual void put_json(json& _src)
@@ -1591,6 +1598,7 @@ namespace corona
 				}
 				set_tabs(new_panes);
 			}
+			content_frame_name = _src["content_frame_name"].as_string();
 		}
 
 		void tab_selected(std::vector<tab_pane_instance>::iterator tbi)
