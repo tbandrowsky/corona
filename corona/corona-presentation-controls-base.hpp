@@ -292,6 +292,11 @@ namespace corona
 		double to_pixels_y(control_base* _parent, measure _margin);
 		virtual void on_resize();
 
+		void set_name(std::string _name)
+		{
+			name = _name;
+        }
+
 		bool is_mouse_over()
 		{
 			return mouse_over;

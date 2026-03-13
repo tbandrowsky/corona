@@ -64,7 +64,7 @@
               "class_name": "column",
               "name": "object_details",
               "box": {
-                "width": ".66 container",
+                "width": ".50 container",
                 "height": "1.0 container"
               },
               "children": [
@@ -78,24 +78,14 @@
             },
             {
               "class_name": "column",
-              "name": "notes_column",
+              "name": "child_column",
               "box": {
-                "width": ".33 container",
+                "width": ".50 container",
                 "height": "1.0 container"
               },
               "padding": "8 pixels",
               "children": [
-                {
-                  "class_name": "items_view",
-                  "name": "notes_table",
-                  "json_field_name": "notes",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "1.0 remaining"
-                  },
-                  "sources": "card_sources",
-                  "empty_text": "No notes"
-                }
+                "$child_contents"
               ]
             }
           ]

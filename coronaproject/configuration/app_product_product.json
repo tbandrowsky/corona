@@ -12,6 +12,42 @@
           "box": "edit_field_box",
           "json_field_name": "description"
         }
+      ],
+      "$child_contents": [
+        {
+          "class_name": "items_view",
+          "name": "notes_table",
+          "json_field_name": "notes",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "No notes"
+        },
+        {
+          "class_name": "items_view",
+          "name": "notes_table",
+          "json_field_name": "notes",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "No notes"
+        },
+        {
+          "class_name": "items_view",
+          "name": "notes_table",
+          "json_field_name": "notes",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "No notes"
+        }
+
       ]
     }
   }

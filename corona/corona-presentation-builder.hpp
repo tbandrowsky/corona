@@ -1391,8 +1391,25 @@ namespace corona
 	public:
 		int id;
 		std::string name;
-		std::vector<json> create_objects;
-		std::vector<json> create_classes;
+		std::string page_name;
+		std::string member_name;
+
+        virtual void get_json(json& _j)	 const
+		{
+			_j.put_member("id", id);
+			_j.put_member("name", name);
+			_j.put_member("page_name", page_name);
+			_j.put_member("member_name", member_name);
+		}
+
+		virtual void put_json(json _j)
+		{
+            id = _j.get_member("id").as_int();
+            name = _j.get_member("name").as_string();
+            page_name = _j.get_member("page_name").as_string();
+            member_name = _j.get_member("member_name").as_string();
+		}
+
 	};
 
 	class tab_pane_instance
@@ -1410,6 +1427,7 @@ namespace corona
 		presentation_base* current_presentation;
 		page_base* current_page;
 		int active_id;
+		std::string content_frame_name;
 
 		void init()
 		{
@@ -1437,6 +1455,7 @@ namespace corona
 
 			auto froot = frame_row.get_root();
 			content_frame = std::dynamic_pointer_cast<frame_layout>(froot);
+            content_frame->set_name(content_frame_name);
 
 			for (int i = 0; i < tab_panes.size(); i++)
 			{
@@ -1448,7 +1467,7 @@ namespace corona
 				}
 
 				tab_row.tab_button(dat.pane.id, [this, dat](tab_button_control& _tb) {
-					_tb.text = dat.pane.id;
+					_tb.text = dat.pane.name;
 					_tb.active_id = &active_id;
 					_tb.tab_selected = [this](tab_button_control& _src)->void
 						{
@@ -1459,6 +1478,8 @@ namespace corona
 
 			main.apply_controls(this);
 		}
+
+		json data;
 
 	public:
 
@@ -1552,34 +1573,66 @@ namespace corona
 			tab_selected(active_id);
 		}
 
+		virtual void get_json(json& _dest)
+		{
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			json_parser jp;
+			json tabs = _src["tabs"];
+			if (tabs.array()) {
+				std::vector<tab_pane> new_panes;
+				for (int i = 0; i < tabs.size(); i++) {
+					tab_pane tp;
+					tp.put_json(tabs.get_element(i));
+					new_panes.push_back(tp);
+				}
+				set_tabs(new_panes);
+			}
+		}
+
 		void tab_selected(std::vector<tab_pane_instance>::iterator tbi)
 		{
+			json_parser jp;
 			if (tbi != tab_panes.end())
 			{
-				active_id = tbi->pane.id;
-
-				contents_generator<tab_pane_instance*> cg;
-
-				// set contents will clone this for us.
-                // this all has been rather fixed or should be so we should not need a contents generator here 
-				// but this is the only way to get the data to the content frame without making it a member of the tab view control 
-				// which would be a nightmare to manage.
-                // that AI comment is from the future and I have no idea what it means but I am leaving it here for posterity.
-				cg.data = &*tbi;
-				cg.generator = [this](tab_pane_instance* _tp, control_base* _args)
-					{
-						_args->children.clear();
-/*						if (not _tp->tab_form) {
-							_tp->tab_form = std::make_shared<form_control>(this, active_id);
-							_tp->tab_form->set_model(_tp->pane.form);
+                if (active_id >= 0 && active_id < tab_panes.size()) {
+					auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
+						return _tb.pane.id == this->active_id;
+						});
+					if (current_tab != tab_panes.end()) {
+						json data_d = content_frame->get_data();
+						if (current_tab->pane.member_name == "" || current_tab->pane.member_name == ".") {
+							auto dmembers = data_d.get_members();
+							for (auto dm : dmembers) {
+                                auto ft = dm.second->get_field_type();
+								if (ft == field_types::ft_object || ft == field_types::ft_array) {
+									continue;
+								}
+								else {
+									data.put_member(dm.first, dm.second);
+                                }
+							}
 						}
-						_args->children.push_back(_tp->tab_form);
-	*/				};
-				content_frame->set_contents(this, cg);
-
-				if (current_presentation and current_page) {
-					content_frame->on_subscribe(current_presentation, current_page);
+						else {
+                            data.put_member(current_tab->pane.member_name, data_d);
+						}
+					}
 				}
+
+				active_id = tbi->pane.id;
+				auto bus = comm_bus_app_interface::get_service();
+				int batch = bus->start_batch();
+				json data_member;
+                if (tbi->pane.member_name == "" || tbi->pane.member_name == ".") {
+					data_member = data;
+				}
+				else {
+                    data_member = data[tbi->pane.member_name];
+				}
+				bus->select_frame(batch, content_frame_name, tbi->pane.page_name, data_member);
 			}
 			else if (tab_panes.size()>0) {
 				tab_selected(tab_panes.begin());

@@ -258,7 +258,14 @@
       "class_name": "import",
       "file_name": "app_product_environment_card.json"
     },
-
+    {
+      "class_name": "import",
+      "file_name": "app_product_product.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_product_product_card.json"
+    },
     {
       "class_name": "import",
       "file_name": "app_product_person.json"

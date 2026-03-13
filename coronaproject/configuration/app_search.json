@@ -645,28 +645,6 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "new_note",
-                  "image": "assets\\note.png",
-                  "text": "note",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "app_note",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "app_object": "object_id",
-                      "app_object_class": "class_name"
-                    },
-                    "source_frame": "page_note",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  }
-                },
-                {
-                  "class_name": "command_button",
                   "name": "new_product",
                   "image": "assets\\product.png",
                   "text": "product",
@@ -805,6 +783,28 @@
                   },
                   "enable_source_frame": "frame_selected",
                   "enable_class_name": "product"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_note",
+                  "image": "assets\\note.png",
+                  "text": "note",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "app_note",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "app_object": "object_id",
+                      "app_object_class": "class_name"
+                    },
+                    "source_frame": "page_note",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
                 }
 
               ]
