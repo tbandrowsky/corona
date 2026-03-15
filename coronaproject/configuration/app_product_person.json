@@ -7,36 +7,30 @@
       "$icon_image_file": "assets\\people.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "First Name:",
-          "box": "edit_field_box",
-          "json_field_name": "first_name"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Last Name:",
-          "box": "edit_field_box",
-          "json_field_name": "last_name"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Title:",
-          "box": "edit_field_box",
-          "json_field_name": "title"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Skills:",
-          "box": "edit_field_box",
-          "json_field_name": "skills"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Person",
+              "page_name": "tab_person",
+              "member_name": "."
+            },
+            {
+              "name": "Activities",
+              "page_name": "tab_activities",
+              "member_name": "activities"
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            }
+          ],
+          "content_frame_name": "product_details"
         }
-
       ]
     }
   }

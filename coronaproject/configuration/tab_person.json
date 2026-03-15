@@ -1,0 +1,43 @@
+{
+  "class_name": "page",
+  "page_name": "tab_person",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "object_stuff",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "edit_field",
+          "text": "First Name:",
+          "box": "edit_field_box",
+          "json_field_name": "first_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Last Name:",
+          "box": "edit_field_box",
+          "json_field_name": "last_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Title:",
+          "box": "edit_field_box",
+          "json_field_name": "title"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Skills:",
+          "box": "edit_field_box",
+          "json_field_name": "skills"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        }
+      ]
+    }
+  ]
+}

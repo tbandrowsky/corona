@@ -1,0 +1,24 @@
+{
+  "class_name": "page",
+  "page_name": "tab_activities",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "object_stuff",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "items_view",
+          "name": "activity_table",
+          "json_field_name": "activities",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "No activities"
+        }
+      ]
+    }
+  ]
+}

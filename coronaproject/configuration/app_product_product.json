@@ -7,45 +7,39 @@
       "$icon_image_file": "assets\\product.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
-        }
-      ],
-      "$child_contents": [
-        {
-          "class_name": "items_view",
-          "name": "notes_table",
-          "json_field_name": "notes",
+          "class_name": "tab_view",
           "box": {
             "width": "1.0 container",
-            "height": "1.0 remaining"
+            "height": "1.0 container"
           },
-          "sources": "card_sources",
-          "empty_text": "No notes"
-        },
-        {
-          "class_name": "items_view",
-          "name": "notes_table",
-          "json_field_name": "notes",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 remaining"
-          },
-          "sources": "card_sources",
-          "empty_text": "No notes"
-        },
-        {
-          "class_name": "items_view",
-          "name": "notes_table",
-          "json_field_name": "notes",
-          "box": {
-            "width": "1.0 container",
-            "height": "1.0 remaining"
-          },
-          "sources": "card_sources",
-          "empty_text": "No notes"
+          "tabs": [
+            {
+              "name": "Product",
+              "page_name": "tab_product",
+              "member_name": "."
+            },
+            {
+              "name": "Projects",
+              "page_name": "tab_projects",
+              "member_name": "projects"
+            },
+            {
+              "name": "Milestones",
+              "page_name": "tab_milestones",
+              "member_name": "milestones"
+            },
+            {
+              "name": "Assets",
+              "page_name": "tab_assets",
+              "member_name": "assets"
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            }
+          ],
+          "content_frame_name": "product_details"
         }
 
       ]

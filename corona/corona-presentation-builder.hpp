@@ -1405,427 +1405,13 @@ namespace corona
 		virtual void put_json(json _j)
 		{
             id = _j.get_member("id").as_int();
+            if (id == 0) { id = id_counter::next(); }
             name = _j.get_member("name").as_string();
             page_name = _j.get_member("page_name").as_string();
             member_name = _j.get_member("member_name").as_string();
 		}
 
 	};
-
-	class tab_pane_instance
-	{
-	public:
-		tab_pane					  pane;
-	};
-
-	class tab_view_control : public windows_control
-	{
-		std::vector<tab_pane_instance> tab_panes;
-		std::shared_ptr<frame_layout> content_frame;
-		presentation_base* current_presentation;
-		page_base* current_page;
-		int active_id;
-		std::string content_frame_name;
-
-		void init()
-		{
-			children.clear();
-
-			control_builder builder;
-
-			on_create = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-				{
-					_context->setBrush(border_brush.get(), &inner_bounds);
-				};
-
-			auto main = builder.column_begin(id_counter::next(), [this](column_layout& _settings) {
-				_settings.set_size(1.0_container, 1.0_container);
-				_settings.set_item_size(1.0_container, 1.0_container);
-				});
-
-			auto tab_row = main.row_begin(id_counter::next(), [](row_layout& _settings) {
-				_settings.set_size(1.0_container, 40.0_px);
-				});
-
-			auto frame_row = main.frame_begin(id_counter::next(), [this](frame_layout& _settings) {
-				_settings.set_size(1.0_container, 1.0_remaining);
-				});
-
-			auto froot = frame_row.get_root();
-			content_frame = std::dynamic_pointer_cast<frame_layout>(froot);
-            content_frame->set_name(content_frame_name);
-
-			for (int i = 0; i < tab_panes.size(); i++)
-			{
-				auto dat = tab_panes[i];
-
-				if (not i and active_id <= 0)
-				{
-					active_id = dat.pane.id;
-				}
-
-				tab_row.tab_button(dat.pane.id, [this, dat](tab_button_control& _tb) {
-					_tb.text = dat.pane.name;
-					_tb.active_id = &active_id;
-					_tb.tab_selected = [this](tab_button_control& _src)->void
-						{
-							tab_selected(_src);
-						};
-				});
-			}
-
-			main.apply_controls(this);
-		}
-
-		json data;
-
-	public:
-
-		virtual const char* get_window_class() { return "Corona2dControl"; }
-		virtual DWORD get_window_style() { return DefaultWindowStyles; }
-		virtual DWORD get_window_ex_style() { return WS_EX_LAYERED; }
-
-		std::shared_ptr<generalBrushRequest>	background_brush;
-		std::shared_ptr<generalBrushRequest>	border_brush;
-
-		std::weak_ptr<applicationBase> host;
-		std::weak_ptr<direct2dChildWindow> window;
-		std::function<void(std::shared_ptr<direct2dContext>& _context, tab_view_control*)> on_draw;
-		std::function<void(std::shared_ptr<direct2dContext>& _context, tab_view_control*)> on_create;
-
-		tab_view_control()
-		{
-			id = id_counter::next();
-			current_presentation = nullptr;
-			current_page = nullptr;
-			set_border_color("#C0C0C0");
-			active_id = 0;
-		}
-
-		tab_view_control(const tab_view_control& _src)
-		{
-			tab_panes = _src.tab_panes;
-			background_brush = _src.background_brush;
-			border_brush = _src.border_brush;
-			on_draw = _src.on_draw;
-			on_create = _src.on_create;
-			current_presentation = nullptr;
-			current_page = nullptr;
-			active_id = 0;
-
-			set_border_color("#C0C0C0");
-		}
-
-		tab_view_control(control_base* _parent, int _id)
-		{
-			id = _id;
-			current_presentation = nullptr;
-			current_page = nullptr;
-
-			set_border_color("#C0C0C0");
-		}
-
-		virtual ~tab_view_control()
-		{
-		}
-
-		virtual void arrange(control_base *_parent, rectangle _bounds)
-		{
-			set_bounds(_parent, _bounds, true);
-		}
-
-		virtual bool is_control_message(int _key)
-		{
-			bool is_message = is_focused and 
-				(_key == VK_TAB or 
-					_key == VK_LEFT or _key == VK_RIGHT or 
-					_key == VK_UP or _key == VK_DOWN or 
-					_key == VK_PRIOR or _key == VK_NEXT or 
-					_key == VK_HOME or _key == VK_END ||
-					_key == VK_DELETE or _key == VK_INSERT ||
-					_key == VK_RETURN or _key == VK_DELETE);
-			return is_message;
-		}
-
-		virtual point get_remaining(point _ctx)
-		{
-			return _ctx;
-		}
-
-
-		virtual std::shared_ptr<control_base> clone()
-		{
-			auto tv = std::make_shared<tab_view_control>(*this);
-			return tv;
-		}
-
-		void set_tabs(std::vector<tab_pane> _new_panes)
-		{
-			tab_panes.clear();
-			for (auto tp : _new_panes) {
-				tab_pane_instance tpi;
-				tpi.pane = tp;
-				tab_panes.push_back(tpi);
-			}
-			init();
-			tab_selected(active_id);
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-
-			json tabs = jp.create_array();
-            for (auto tb : tab_panes) {
-				json jtb = jp.create_object();
-				tb.pane.get_json(jtb);
-				tabs.push_back(jtb);
-			}			
-			_dest.put_member("tabs", tabs);
-            _dest.put_member("content_frame_name", content_frame_name);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			json_parser jp;
-			json tabs = _src["tabs"];
-			if (tabs.array()) {
-				std::vector<tab_pane> new_panes;
-				for (int i = 0; i < tabs.size(); i++) {
-					tab_pane tp;
-					tp.put_json(tabs.get_element(i));
-					new_panes.push_back(tp);
-				}
-				set_tabs(new_panes);
-			}
-			content_frame_name = _src["content_frame_name"].as_string();
-		}
-
-		void tab_selected(std::vector<tab_pane_instance>::iterator tbi)
-		{
-			json_parser jp;
-			if (tbi != tab_panes.end())
-			{
-                if (active_id >= 0 && active_id < tab_panes.size()) {
-					auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-						return _tb.pane.id == this->active_id;
-						});
-					if (current_tab != tab_panes.end()) {
-						json data_d = content_frame->get_data();
-						if (current_tab->pane.member_name == "" || current_tab->pane.member_name == ".") {
-							auto dmembers = data_d.get_members();
-							for (auto dm : dmembers) {
-                                auto ft = dm.second->get_field_type();
-								if (ft == field_types::ft_object || ft == field_types::ft_array) {
-									continue;
-								}
-								else {
-									data.put_member(dm.first, dm.second);
-                                }
-							}
-						}
-						else {
-                            data.put_member(current_tab->pane.member_name, data_d);
-						}
-					}
-				}
-
-				active_id = tbi->pane.id;
-				auto bus = comm_bus_app_interface::get_service();
-				int batch = bus->start_batch();
-				json data_member;
-                if (tbi->pane.member_name == "" || tbi->pane.member_name == ".") {
-					data_member = data;
-				}
-				else {
-                    data_member = data[tbi->pane.member_name];
-				}
-				bus->select_frame(batch, content_frame_name, tbi->pane.page_name, data_member);
-			}
-			else if (tab_panes.size()>0) {
-				tab_selected(tab_panes.begin());
-			}
-		}
-
-		void tab_selected(int _active_id)
-		{
-			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-				return _tb.pane.id == this->active_id;
-				});
-			tab_selected(tbi);
-		}
-
-		void tab_selected(tab_button_control& _tab)
-		{
-			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-				return _tb.pane.id == this->active_id;
-				});
-			tab_selected(tbi);
-		}
-
-		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
-		{
-			current_presentation = _presentation;
-			current_page = _page;
-			for (auto child : children) {
-				child->on_subscribe(_presentation, _page);
-			}
-		}
-
-
-
-		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
-		{
-			host = _host;
-			if (auto phost = _host.lock()) {
-				if (inner_bounds.x < 0 or inner_bounds.y < 0 or inner_bounds.w < 0 or inner_bounds.h < 0) {
-					throw std::logic_error("inner bounds not initialized");
-				}
-				window = phost->createDirect2Window(id, inner_bounds);
-			}
-			if (on_create) {
-				on_create(_context, this);
-			}
-			for (auto child : children) {
-				child->create(_context, _host);
-			}
-			windows_control::create(_context, _host);
-		}
-
-		void destroy()
-		{
-			for (auto child : children) {
-				child->destroy();
-			}
-		}
-
-		void on_resize()
-		{
-			auto ti = typeid(*this).name();
-
-			if (auto pwindow = window.lock())
-			{
-				pwindow->moveWindow(inner_bounds.x, inner_bounds.y, inner_bounds.w, inner_bounds.h);
-			}
-		}
-
-		virtual void draw_impl(std::shared_ptr<direct2dContext>& _context)
-		{
-			bool adapter_blown_away = false;
-
-			auto& context = _context;
-			const char* border_name = nullptr;
-			const char* background_name = nullptr;
-
-			if (border_brush->get_name())
-			{
-				_context->setBrush(border_brush.get(), &inner_bounds);
-				auto dc = _context->getDeviceContext();
-				border_name = border_brush->get_name();
-			}
-
-			if (background_brush->get_name())
-			{
-				_context->setBrush(background_brush.get(), &inner_bounds);
-				auto dc = _context->getDeviceContext();
-				background_name = background_brush->get_name();
-			}
-
-			if (background_name) {
-				rectangle r = inner_bounds;
-				_context->drawRectangle(&r, "", 0.0, background_name);
-			}
-
-			if (on_draw)
-			{
-				on_draw(_context, this);
-			} 
-
-			if (is_focused and border_name) 
-			{
-				rectangle r = inner_bounds;
-				_context->drawRectangle(&r, border_name, 4, "");
-			}
-
-			for (auto& child : children) {
-				try {
-					child->draw(_context);
-				}
-				catch (std::exception exc)
-				{
-					system_monitoring_interface::active_mon->log_exception(exc);
-				}
-			}
-		}
-
-		virtual void draw(std::shared_ptr<direct2dContext>& _dest)
-		{
-
-		}
-
-		virtual void render(std::shared_ptr<direct2dContext>& _dest)
-		{
-			draw_impl(_dest);
-		}
-
-		tab_view_control& set_origin(measure _x, measure _y)
-		{
-			box.x = _x;
-			box.y = _y;
-			return *this;
-		}
-
-		tab_view_control& set_size(measure _width, measure _height)
-		{
-			box.width = _width;
-			box.height = _height;
-			return *this;
-		}
-
-		tab_view_control& set_background_color(solidBrushRequest _brushFill)
-		{
-			background_brush = std::make_shared<generalBrushRequest>(_brushFill);
-			background_brush->set_name(typeid(*this).name() );
-			return *this;
-		}
-
-		tab_view_control& set_background_color(std::string _color)
-		{
-			background_brush = std::make_shared<generalBrushRequest>();
-			background_brush->setColor(_color);
-			background_brush->set_name(typeid(*this).name());
-			return *this;
-		}
-
-		tab_view_control& set_border_color(solidBrushRequest _brushFill)
-		{
-			border_brush = std::make_shared<generalBrushRequest>(_brushFill);
-			border_brush->set_name(typeid(*this).name());
-			return *this;
-		}
-
-		tab_view_control& set_border_color(std::string _color)
-		{
-			border_brush = std::make_shared<generalBrushRequest>();
-			border_brush->setColor(_color);
-			border_brush->set_name( typeid(*this).name() );
-			return *this;
-		}
-
-		tab_view_control& set_position(layout_rect _new_layout)
-		{
-			box = _new_layout;
-			return *this;
-		}
-
-		tab_view_control& set_margin(measure _item_space)
-		{
-			margin = _item_space;
-			return *this;
-		}
-	};
-
-
 	class caption_bar_control : public container_control
 	{
 		void init()
@@ -1986,6 +1572,7 @@ namespace corona
 
 	};
 
+
 	class status_bar_control : public container_control
 	{
 	public:
@@ -2030,7 +1617,272 @@ namespace corona
 		}
 
 		virtual ~status_bar_control() { ; }
+	
+	
 	};
+
+
+	class tab_pane_instance
+	{
+	public:
+		tab_pane					  pane;
+	};
+
+	class tab_view_control : public container_control
+	{
+		std::vector<tab_pane_instance> tab_panes;
+		std::shared_ptr<frame_layout> content_frame;
+		int active_id;
+		std::string content_frame_name;
+
+		void init()
+		{
+			children.clear();
+
+			control_builder builder;
+
+			on_create = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
+				{
+					;
+				};
+
+			auto main = builder.column_begin(id_counter::next(), [this](column_layout& _settings) {
+				_settings.set_size(1.0_container, 1.0_container);
+				_settings.set_item_size(1.0_container, 1.0_container);
+				});
+
+			auto tab_row = main.row_begin(id_counter::next(), [](row_layout& _settings) {
+				_settings.set_size(1.0_container, 40.0_px);
+				});
+
+			auto frame_row = main.frame_begin(id_counter::next(), [this](frame_layout& _settings) {
+				_settings.set_size(1.0_container, 1.0_remaining);
+				_settings.set_name(content_frame_name);
+				});
+
+			auto froot = frame_row.get_root();
+			content_frame = std::dynamic_pointer_cast<frame_layout>(froot);
+
+			for (int i = 0; i < tab_panes.size(); i++)
+			{
+				auto dat = tab_panes[i];
+
+				if (not i and active_id <= 0)
+				{
+					active_id = dat.pane.id;
+				}
+
+				tab_row.tab_button(dat.pane.id, [this, dat](tab_button_control& _tb) {
+					_tb.text = dat.pane.name;
+					_tb.active_id = &active_id;
+					_tb.tab_selected = [this](tab_button_control& _src)->void
+						{
+							tab_selected(_src);
+						};
+					});
+			}
+
+			main.apply_controls(this);
+
+		}
+
+		json data;
+
+	public:
+
+
+		tab_view_control()
+		{
+			id = id_counter::next();
+			active_id = 0;
+			init();
+		}
+
+		tab_view_control(const tab_view_control& _src) : container_control(_src)
+		{
+			tab_panes = _src.tab_panes;
+			active_id = 0;
+			content_frame = _src.content_frame;
+			init();
+		}
+
+		tab_view_control(control_base* _parent, int _id)
+		{
+			active_id = 0;
+			id = _id;
+			init();
+		}
+
+		virtual ~tab_view_control()
+		{
+		}
+
+		virtual bool is_control_message(int _key)
+		{
+			bool is_message = is_focused and
+				(_key == VK_TAB or
+					_key == VK_LEFT or _key == VK_RIGHT or
+					_key == VK_UP or _key == VK_DOWN or
+					_key == VK_PRIOR or _key == VK_NEXT or
+					_key == VK_HOME or _key == VK_END ||
+					_key == VK_DELETE or _key == VK_INSERT ||
+					_key == VK_RETURN or _key == VK_DELETE);
+			return is_message;
+		}
+
+		virtual point get_remaining(point _ctx)
+		{
+			return _ctx;
+		}
+
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<tab_view_control>(*this);
+			return tv;
+		}
+
+		void set_tabs(std::vector<tab_pane> _new_panes)
+		{
+			tab_panes.clear();
+			for (auto tp : _new_panes) {
+				tab_pane_instance tpi;
+				tpi.pane = tp;
+				tab_panes.push_back(tpi);
+			}
+			init();
+			tab_selected(active_id);
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+			draw_control::get_json(_dest);
+			json tabs = jp.create_array();
+			for (auto tb : tab_panes) {
+				json jtb = jp.create_object();
+				tb.pane.get_json(jtb);
+				tabs.push_back(jtb);
+			}
+			_dest.put_member("tabs", tabs);
+			_dest.put_member("content_frame_name", content_frame_name);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			draw_control::put_json(_src);
+			json_parser jp;
+			json tabs = _src["tabs"];
+			if (tabs.array()) {
+				std::vector<tab_pane> new_panes;
+				for (int i = 0; i < tabs.size(); i++) {
+					tab_pane tp;
+					tp.put_json(tabs.get_element(i));
+					new_panes.push_back(tp);
+				}
+				set_tabs(new_panes);
+			}
+			content_frame_name = _src["content_frame_name"].as_string();
+		}
+
+		void tab_selected(std::vector<tab_pane_instance>::iterator tbi)
+		{
+			json_parser jp;
+			if (tbi != tab_panes.end())
+			{
+				if (active_id >= 0 && active_id < tab_panes.size()) {
+					auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
+						return _tb.pane.id == this->active_id;
+						});
+					if (current_tab != tab_panes.end()) {
+						json data_d = content_frame->get_data();
+						if (current_tab->pane.member_name == "" || current_tab->pane.member_name == ".") {
+							auto dmembers = data_d.get_members();
+							for (auto dm : dmembers) {
+								auto ft = dm.second->get_field_type();
+								if (ft == field_types::ft_object || ft == field_types::ft_array) {
+									continue;
+								}
+								else {
+									data.put_member(dm.first, dm.second);
+								}
+							}
+						}
+						else {
+							data.put_member(current_tab->pane.member_name, data_d);
+						}
+					}
+				}
+
+				active_id = tbi->pane.id;
+				auto bus = comm_bus_app_interface::get_service();
+				int batch = bus->start_batch();
+				json data_member;
+				if (tbi->pane.member_name == "" || tbi->pane.member_name == ".") {
+					data_member = data;
+				}
+				else {
+					data_member = data[tbi->pane.member_name];
+				}
+				bus->select_frame(batch, content_frame_name, tbi->pane.page_name, data_member);
+			}
+			else if (tab_panes.size() > 0) {
+				tab_selected(tab_panes.begin());
+			}
+		}
+
+		void tab_selected(int _active_id)
+		{
+			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
+				return _tb.pane.id == this->active_id;
+				});
+			tab_selected(tbi);
+		}
+
+		void tab_selected(tab_button_control& _tab)
+		{
+			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
+				return _tb.pane.id == this->active_id;
+				});
+			tab_selected(tbi);
+		}
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			for (auto child : children) {
+				child->on_subscribe(_presentation, _page);
+			}
+		}
+
+		tab_view_control& set_origin(measure _x, measure _y)
+		{
+			box.x = _x;
+			box.y = _y;
+			return *this;
+		}
+
+		tab_view_control& set_size(measure _width, measure _height)
+		{
+			box.width = _width;
+			box.height = _height;
+			return *this;
+		}
+
+		tab_view_control& set_position(layout_rect _new_layout)
+		{
+			box = _new_layout;
+			return *this;
+		}
+
+		tab_view_control& set_margin(measure _item_space)
+		{
+			margin = _item_space;
+			return *this;
+		}
+	};
+
+
+
 
 	// implementation
 

@@ -179,14 +179,6 @@ namespace corona
                 }
             }
 
-            /*
-            * this is commented out because it is helpful for debugging.
-            * a parent is always the background of its children,
-            * so, what this does is slightly alter a nasty pink
-            * color so you can see what the shape of all the things are
-            * that do not have backgrounds.  This is helpful for layout work and debugging.
-            */
-
             call_on_draw(_context);
 
             if (border_name.size()) {

@@ -1,9 +1,9 @@
 ﻿{
   "schema_name": "My Application",
-  "schema_description": "Schema for My Application.",
+  "schema_description": "Schema for Sample SDLC Application.",
   "schema_version": "1.0",
   "schema_authors": [
-    "My Name"
+    "TJ Bandrowsky"
   ],
   "classes": [
     {
@@ -32,15 +32,49 @@
       }
     },
     {
+      "class_name": "dated_item",
+      "class_description": "An appointment to meet someone",
+      "base_class_name": "app_object",
+      "class_color": "#af9d66",
+      "full_text": [ "text" ],
+      "fields": {
+        "item_date": {
+          "field_type": "datetime",
+          "label": "Date"
+        }
+      }
+    },
+    {
+      "class_name": "meeting",
+      "class_description": "An appointment to meet someone",
+      "base_class_name": "dated_item",
+      "class_color": "#af9d66",
+      "full_text": [ "text" ],
+      "fields": {
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "duration": {
+          "field_type": "string",
+          "label": "Length"
+        },
+        "meeting_time": "string",
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        }
+      }
+    },
+    {
       "class_name": "product",
       "base_class_name": "app_object",
       "class_description": "A general job to do",
       "full_text": [ "description", "status" ],
       "fields": {
         "projects": "[project]",
-        "requests": "[request]",
         "assets": "[asset]",
-        "environments": "[environment]"
+        "milestones": "[milestone]"
       }
     },
     {
@@ -57,7 +91,7 @@
     },
     {
       "class_name": "project",
-      "base_class_name": "app_product",
+      "base_class_name": "dated_item",
       "class_description": "A general job to do",
       "full_text": [ "description", "status" ],
       "parents": [ "product" ],
@@ -70,11 +104,22 @@
           "field_type": "string",
           "label": "Charter"
         },
-        "delivery_date": {
-          "field_type": "datetime",
-          "label": "Delivery Date"
-        },
-        "tasks": "[task]"
+        "tasks": "[task]",
+        "milestones": "[milestone]"
+      }
+    },
+    {
+      "class_name": "milestone",
+      "class_description": "A checkpoint and progress marker",
+      "base_class_name": "dated_item",
+      "class_color": "#af9d66",
+      "full_text": [ "text" ],
+      "parents": [ "product", "project" ],
+      "fields": {
+        "status": {
+          "field_type": "string",
+          "label": "Status"
+        }
       }
     },
     {
@@ -93,7 +138,9 @@
         "first_name": "string",
         "last_name": "string",
         "title": "string",
-        "skills": "string"
+        "skills": "string",
+        "username": "string",
+        "activities": "[activity]"
       }
     },
     {
@@ -114,24 +161,18 @@
       "class_description": "A reference or resource",
       "fields": {
         "url": "string",
+        "isbn": "string",
         "synopsis": "string"
       }
     },
     {
       "class_name": "license",
       "base_class_name": "asset",
-      "class_description": "A server",
+      "class_description": "A license",
       "fields": {
         "product_name": "string",
         "url": "string",
         "license_key": "string"
-      }
-    },
-    {
-      "class_name": "network",
-      "base_class_name": "asset",
-      "class_description": "A server",
-      "fields": {
       }
     },
     {
@@ -157,51 +198,84 @@
     },
     {
       "class_name": "task",
-      "base_class_name": "app_object",
+      "base_class_name": "dated_item",
       "class_description": "A general job to do",
+      "parents": [ "product", "project", "person" ],
       "full_text": [ "description", "status" ],
       "fields": {
         "status": {
           "field_type": "string",
           "label": "Status"
         },
-        "task_date": {
-          "field_type": "datetime",
-          "label": "Task Date"
+        "activities": "[activity]"
+      }
+    },
+    {
+      "class_name": "activity",
+      "base_class_name": "dated_item",
+      "class_description": "An activity",
+      "parents": [ "task", "person" ],
+      "fields": {
+        "hours": {
+          "field_type": "double",
+          "label": "Hours"
         }
       }
     },
     {
-      "class_name": "develop",
-      "base_class_name": "app_object",
-      "class_description": "A general job to do",
-      "full_text": [ "description", "status" ],
+      "class_name": "requirements",
+      "base_class_name": "activity",
+      "class_description": "Defining the desired outcome",
       "fields": {
-        "assigned_to": "string",
-        "repository": "string"
       }
     },
     {
-      "class_name": "meeting",
-      "class_description": "A task to meet someone",
-      "base_class_name": "develop",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "text" ],
+      "class_name": "plan",
+      "base_class_name": "activity",
+      "class_description": "Planning for achieving the outcome",
       "fields": {
-        "with": {
-          "field_type": "string",
-          "label": "With"
-        },
-        "duration": {
-          "field_type": "string",
-          "label": "Length"
-        },
-        "where": {
-          "field_type": "string",
-          "label": "Where"
-        }
+      }
+    },
+    {
+      "class_name": "build",
+      "base_class_name": "activity",
+      "class_description": "Building and testing",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "delivery",
+      "base_class_name": "activity",
+      "class_description": "Delivering the final product",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "documentation",
+      "base_class_name": "activity",
+      "class_description": "Creating and maintaining documentation",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "support",
+      "base_class_name": "activity",
+      "class_description": "Providing support and assistance",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "quickchange",
+      "base_class_name": "activity",
+      "class_description": "Making a quick change to a system for bugs",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "training",
+      "base_class_name": "activity",
+      "class_description": "Training and education",
+      "fields": {
       }
     }
   ],

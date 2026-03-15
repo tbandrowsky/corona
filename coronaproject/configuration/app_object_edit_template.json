@@ -64,7 +64,7 @@
               "class_name": "column",
               "name": "object_details",
               "box": {
-                "width": ".50 container",
+                "width": "1.0 container",
                 "height": "1.0 container"
               },
               "children": [
@@ -74,18 +74,6 @@
                   "box": "spacer_row_box"
                 },
                 "$details_contents"
-              ]
-            },
-            {
-              "class_name": "column",
-              "name": "child_column",
-              "box": {
-                "width": ".50 container",
-                "height": "1.0 container"
-              },
-              "padding": "8 pixels",
-              "children": [
-                "$child_contents"
               ]
             }
           ]

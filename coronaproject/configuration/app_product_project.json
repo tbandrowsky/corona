@@ -7,28 +7,34 @@
       "$icon_image_file": "assets\\project.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Status:",
-          "box": "edit_field_box",
-          "json_field_name": "status"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Charter:",
-          "box": "edit_field_box",
-          "json_field_name": "charter"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Delivery Date:",
-          "box": "edit_field_box",
-          "json_field_name": "delivery_date"
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Project",
+              "page_name": "tab_project",
+              "member_name": "."
+            },
+            {
+              "name": "Tasks",
+              "page_name": "tab_tasks",
+              "member_name": "tasks"
+            },
+            {
+              "name": "Milestones",
+              "page_name": "tab_milestones",
+              "member_name": "milestones"
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            }
+          ],
+          "content_frame_name": "project_details"
         }
       ]
     }

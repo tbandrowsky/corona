@@ -1,0 +1,24 @@
+{
+  "class_name": "page",
+  "page_name": "page_request",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\request.png",
+      "$details_contents": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "memo_field",
+          "text": "Details:",
+          "box": "edit_field_box",
+          "json_field_name": "charter"
+        }
+      ]
+    }
+  }
+}

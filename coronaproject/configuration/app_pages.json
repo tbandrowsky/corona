@@ -184,24 +184,42 @@
     },
     "card_sources": {
       "environment": "card_product_environment",
-      "meeting": "card_product_meeting",
+      "meeting": "card_meeting",
       "person": "card_product_person",
       "product": "card_product_product",
       "project": "card_product_project",
-      "request": "card_product_request",
       "server": "card_product_server",
-      "task": "card_product_task",
+      "license": "card_product_license",
+      "reference": "card_product_reference",
+      "task": "card_task",
+      "request": "card_request",
+      "build": "card_task_build",
+      "delivery": "card_task_delivery",
+      "documentation": "card_task_documentation",
+      "quickchange": "card_task_quickchange",
+      "requirements": "card_task_requirements",
+      "support": "card_task_support",
+      "training": "card_task_training",
       "app_note": "card_note"
     },
     "form_sources": {
       "environment": "page_product_environment",
-      "meeting": "page_product_meeting",
+      "meeting": "page_meeting",
       "person": "page_product_person",
       "product": "page_product_product",
       "project": "page_product_project",
-      "request": "page_product_request",
       "server": "page_product_server",
-      "task": "page_product_task",
+      "license": "page_product_license",
+      "reference": "page_product_reference",
+      "task": "page_task",
+      "request": "page_request",
+      "build": "page_task_build",
+      "delivery": "page_task_delivery",
+      "documentation": "page_task_documentation",
+      "quickchange": "page_task_quickchange",
+      "requirements": "page_task_requirements",
+      "support": "page_task_support",
+      "training": "page_task_training",
       "app_note": "page_note"
     }
   },
@@ -284,11 +302,11 @@
     },
     {
       "class_name": "import",
-      "file_name": "app_product_request.json"
+      "file_name": "app_request.json"
     },
     {
       "class_name": "import",
-      "file_name": "app_product_request_card.json"
+      "file_name": "app_request_card.json"
     },
     {
       "class_name": "import",
@@ -300,11 +318,63 @@
     },
     {
       "class_name": "import",
-      "file_name": "app_product_task.json"
+      "file_name": "app_product_license.json"
     },
     {
       "class_name": "import",
-      "file_name": "app_product_task_card.json"
+      "file_name": "app_product_license_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_product_reference.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_product_reference_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_notes.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_assets.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_milestones.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_person.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_project.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_product.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_projects.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_tasks.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_milestones.json"
     }
   ]
 }

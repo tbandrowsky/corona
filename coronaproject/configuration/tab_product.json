@@ -1,0 +1,19 @@
+{
+  "class_name": "page",
+  "page_name": "tab_product",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "object_stuff",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        }
+      ]
+    }
+  ]
+}

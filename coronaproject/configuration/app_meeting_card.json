@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "card_product_meeting",
+  "page_name": "card_meeting",
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
@@ -15,8 +15,8 @@
         },
         {
           "class_name": "paragraph",
-          "json_field_name": "task_date",
-          "text": "{task_date}",
+          "json_field_name": "item_date",
+          "text": "{item_date} {meeting_time}",
           "box": "card_text_box"
         }
       ]

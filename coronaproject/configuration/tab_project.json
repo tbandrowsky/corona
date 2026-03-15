@@ -1,0 +1,37 @@
+{
+  "class_name": "page",
+  "page_name": "tab_project",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "object_stuff",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Status:",
+          "box": "edit_field_box",
+          "json_field_name": "status"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Charter:",
+          "box": "edit_field_box",
+          "json_field_name": "charter"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Delivery Date:",
+          "box": "edit_field_box",
+          "json_field_name": "delivery_date"
+        }
+      ]
+    }
+  ]
+}
