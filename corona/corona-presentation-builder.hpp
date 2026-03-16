@@ -1663,9 +1663,9 @@ namespace corona
 			for (int i = 0; i < tab_panes.size(); i++)
 			{
 				auto dat = tab_panes[i];
-
-                std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>();
+                std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
 				btn->set_size(100.00_px, 50.0_px);
+				btn->button_text = dat.pane.name;
                 auto cmd = std::make_shared<corona_select_frame_command>();
                 cmd->target_frame = content_frame_name;
 				cmd->source_frame = dat.pane.page_name;
@@ -1743,12 +1743,15 @@ namespace corona
 			return tv;
 		}
 
-		void set_tabs(std::vector<tab_pane> _new_panes)
+		void set_tabs(const std::vector<tab_pane>& _new_panes)
 		{
 			tab_panes.clear();
 			for (auto tp : _new_panes) {
 				tab_pane_instance tpi;
 				tpi.pane = tp;
+				if (tpi.pane.id == 0) {
+					tpi.pane.id = id_counter::next();
+				}
 				tab_panes.push_back(tpi);
 			}
 			init();
