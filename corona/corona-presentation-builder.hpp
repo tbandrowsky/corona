@@ -488,7 +488,7 @@ namespace corona
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
 		inline control_builder& error(std::string _text, std::function<void(error_control&)> _settings) { return error(_text, _settings, id_counter::next()); }
 
-		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(_text, _settings, id_counter::next()); }
+		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(id_counter::next(), _text, _settings ); }
 
 		inline control_builder& error(call_status _status, std::function<void(error_control&)> _settings) { return error(_status, _settings, id_counter::next()); }
 		inline control_builder& status(call_status _status, std::function<void(status_control&)> _settings) { return status(_status, _settings, id_counter::next()); }
@@ -1034,10 +1034,11 @@ namespace corona
 			return *this;
 		}
 
-		control_builder& command_button(std::string text, std::function<void(command_button_control&)> _settings, int _id)
+		control_builder& command_button(int _id, std::string text, std::function<void(command_button_control&)> _settings = nullptr)
 		{
 			auto tc = create<command_button_control>(_id);
 			apply_item_sizes(tc);
+            tc->button_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1632,58 +1633,48 @@ namespace corona
 	{
 		std::vector<tab_pane_instance> tab_panes;
 		std::shared_ptr<frame_layout> content_frame;
-		int active_id;
 		std::string content_frame_name;
 
 		void init()
 		{
 			children.clear();
 
-			control_builder builder;
+			if (content_frame_name.empty()) {
+				content_frame_name = "tab_content_frame_" + std::to_string(id);
+            }
 
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
 				{
 					;
 				};
 
-			auto main = builder.column_begin(id_counter::next(), [this](column_layout& _settings) {
-				_settings.set_size(1.0_container, 1.0_container);
-				_settings.set_item_size(1.0_container, 1.0_container);
-				});
+            std::shared_ptr<column_layout> main = std::make_shared<column_layout>();
+			main->set_size(1.0_container, 1.0_container);
 
-			auto tab_row = main.row_begin(id_counter::next(), [](row_layout& _settings) {
-				_settings.set_size(1.0_container, 40.0_px);
-				});
+			std::shared_ptr<row_layout> tab_row = std::make_shared<row_layout>();
+            tab_row->set_size(1.0_container, 50.0_px);
+            main->children.push_back(tab_row);
 
-			auto frame_row = main.frame_begin(id_counter::next(), [this](frame_layout& _settings) {
-				_settings.set_size(1.0_container, 1.0_remaining);
-				_settings.set_name(content_frame_name);
-				});
-
-			auto froot = frame_row.get_root();
-			content_frame = std::dynamic_pointer_cast<frame_layout>(froot);
+            content_frame = std::make_shared<frame_layout>();
+			content_frame->set_size(1.0_container, 1.0_remaining);
+			content_frame->set_name(content_frame_name);
+			main->children.push_back(content_frame);
 
 			for (int i = 0; i < tab_panes.size(); i++)
 			{
 				auto dat = tab_panes[i];
 
-				if (not i and active_id <= 0)
-				{
-					active_id = dat.pane.id;
-				}
-
-				tab_row.tab_button(dat.pane.id, [this, dat](tab_button_control& _tb) {
-					_tb.text = dat.pane.name;
-					_tb.active_id = &active_id;
-					_tb.tab_selected = [this](tab_button_control& _src)->void
-						{
-							tab_selected(_src);
-						};
-					});
+                std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>();
+				btn->set_size(100.00_px, 50.0_px);
+                auto cmd = std::make_shared<corona_select_frame_command>();
+                cmd->target_frame = content_frame_name;
+				cmd->source_frame = dat.pane.page_name;
+				btn->click_command = cmd;
+                tab_row->children.push_back(btn);
 			}
 
-			main.apply_controls(this);
-
+			children.push_back(main);
+			arrange_children();
 		}
 
 		json data;
@@ -1694,21 +1685,18 @@ namespace corona
 		tab_view_control()
 		{
 			id = id_counter::next();
-			active_id = 0;
 			init();
 		}
 
 		tab_view_control(const tab_view_control& _src) : container_control(_src)
 		{
 			tab_panes = _src.tab_panes;
-			active_id = 0;
 			content_frame = _src.content_frame;
 			init();
 		}
 
 		tab_view_control(control_base* _parent, int _id)
 		{
-			active_id = 0;
 			id = _id;
 			init();
 		}
@@ -1735,6 +1723,19 @@ namespace corona
 			return _ctx;
 		}
 
+		void arrange_children()
+		{
+			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
+			for (auto child : children) {
+				auto sz = child->get_size(this);
+				point item_origin = { bounds.x, bounds.y, 0.0 };
+				point item_position = child->get_position(this);
+				item_origin.x += item_position.x;
+				item_origin.y += item_position.y;
+				rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+				child->arrange(this, &item_bounds);
+			}
+		}
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -1751,7 +1752,6 @@ namespace corona
 				tab_panes.push_back(tpi);
 			}
 			init();
-			tab_selected(active_id);
 		}
 
 		virtual void get_json(json& _dest)
@@ -1783,68 +1783,7 @@ namespace corona
 				set_tabs(new_panes);
 			}
 			content_frame_name = _src["content_frame_name"].as_string();
-		}
-
-		void tab_selected(std::vector<tab_pane_instance>::iterator tbi)
-		{
-			json_parser jp;
-			if (tbi != tab_panes.end())
-			{
-				if (active_id >= 0 && active_id < tab_panes.size()) {
-					auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-						return _tb.pane.id == this->active_id;
-						});
-					if (current_tab != tab_panes.end()) {
-						json data_d = content_frame->get_data();
-						if (current_tab->pane.member_name == "" || current_tab->pane.member_name == ".") {
-							auto dmembers = data_d.get_members();
-							for (auto dm : dmembers) {
-								auto ft = dm.second->get_field_type();
-								if (ft == field_types::ft_object || ft == field_types::ft_array) {
-									continue;
-								}
-								else {
-									data.put_member(dm.first, dm.second);
-								}
-							}
-						}
-						else {
-							data.put_member(current_tab->pane.member_name, data_d);
-						}
-					}
-				}
-
-				active_id = tbi->pane.id;
-				auto bus = comm_bus_app_interface::get_service();
-				int batch = bus->start_batch();
-				json data_member;
-				if (tbi->pane.member_name == "" || tbi->pane.member_name == ".") {
-					data_member = data;
-				}
-				else {
-					data_member = data[tbi->pane.member_name];
-				}
-				bus->select_frame(batch, content_frame_name, tbi->pane.page_name, data_member);
-			}
-			else if (tab_panes.size() > 0) {
-				tab_selected(tab_panes.begin());
-			}
-		}
-
-		void tab_selected(int _active_id)
-		{
-			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-				return _tb.pane.id == this->active_id;
-				});
-			tab_selected(tbi);
-		}
-
-		void tab_selected(tab_button_control& _tab)
-		{
-			auto tbi = std::find_if(tab_panes.begin(), tab_panes.end(), [this](tab_pane_instance& _tb) {
-				return _tb.pane.id == this->active_id;
-				});
-			tab_selected(tbi);
+			init();
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -1977,10 +1916,10 @@ namespace corona
 		}
 		else if (class_name == "command_button")
 		{
-			command_button(default_text, [&control_properties, control_data](auto& _ctrl)->void {
+			command_button(field_id, default_text, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
-				}, field_id);
+				});
 		}
 		else if (class_name == "authorscredit")
 		{

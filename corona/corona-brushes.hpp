@@ -186,21 +186,23 @@ namespace corona
 				if (!ptarget->getDeviceContext())
 					return false;
 
-				hr = ptarget->getDeviceContext()->CreateGradientStopCollection(&stops[0], stops.size(), &pGradientStops);
+				if (stops.size() > 0) {
+					hr = ptarget->getDeviceContext()->CreateGradientStopCollection(&stops[0], stops.size(), &pGradientStops);
 
-				if (SUCCEEDED(hr))
-				{
-					if (asset) {
-						asset->Release();
-						asset = nullptr;
+					if (SUCCEEDED(hr))
+					{
+						if (asset) {
+							asset->Release();
+							asset = nullptr;
+						}
+						hr = ptarget->getDeviceContext()->CreateRadialGradientBrush(
+							radialProperties,
+							D2D1::BrushProperties(),
+							pGradientStops,
+							&asset
+						);
+						pGradientStops->Release();
 					}
-					hr = ptarget->getDeviceContext()->CreateRadialGradientBrush(
-						radialProperties,
-						D2D1::BrushProperties(),
-						pGradientStops,
-						&asset
-					);
-					pGradientStops->Release();
 				}
 			}
 			return SUCCEEDED(hr);

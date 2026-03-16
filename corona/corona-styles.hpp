@@ -84,6 +84,7 @@ namespace corona
 		std::shared_ptr<viewStyleRequest> SuccessStyle;
 		std::shared_ptr<viewStyleRequest> CodeStyle;
 		std::shared_ptr<viewStyleRequest> EmptyListStyle;
+		std::shared_ptr<viewStyleRequest> TabStyle;
 	};
 
 	void get_json(json& _dest, presentation_style& _src)
@@ -107,6 +108,7 @@ namespace corona
 		json success_style = jp.create_object();
 		json code_style = jp.create_object();
 		json empty_list_style = jp.create_object();
+		json tab_style = jp.create_object();
 
 		_dest.put_member("primary_font", _src.PrimaryFont);
 		get_json(_dest, "primary_alignment", _src.PrimaryAlignment);
@@ -174,6 +176,11 @@ namespace corona
 			get_json(empty_list_style, *_src.EmptyListStyle.get());
 			_dest.put_member("empty_list_style", empty_list_style);
 		}
+		if (_src.TabStyle) {
+			get_json(tab_style, *_src.TabStyle.get());
+			_dest.put_member("tab_style", tab_style);
+		}
+
 	}
 
 	void put_json(presentation_style& _dest, json& _src)
@@ -181,7 +188,7 @@ namespace corona
 		std::vector<std::string> missing;
 		if (not _src.has_members(missing, { "colors", "page_style", "caption_style",
 			"title_style", "subtitle_style", 
-			"chapter_title_style", "chapter_subtitle_style", 
+			"chapter_title_style", "tab_style", "chapter_subtitle_style", 
             "note_style", "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
 			"error_style", "success_style", "code_style", "empty_list_style" })) {
 			system_monitoring_interface::active_mon->log_warning("style sheet is missing");
@@ -329,6 +336,15 @@ namespace corona
 			}
 			put_json(_dest.CodeStyle, code_style);
 			_dest.CodeStyle->set_default_name("code_style");
+		}
+
+		json tab_style = _src["tab_style"];
+		if (tab_style.object()) {
+			if (not _dest.TabStyle) {
+				_dest.TabStyle = std::make_shared<viewStyleRequest>();
+			}
+			put_json(_dest.TabStyle, tab_style);
+			_dest.TabStyle->set_default_name("tab_style");
 		}
 
 		json empty_list_style = _src["empty_list_style"];
