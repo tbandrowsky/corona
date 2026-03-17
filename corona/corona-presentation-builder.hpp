@@ -1634,6 +1634,7 @@ namespace corona
 		std::vector<tab_pane_instance> tab_panes;
 		std::shared_ptr<frame_layout> content_frame;
 		std::string content_frame_name;
+		std::string current_tab_name;
 
 		void init()
 		{
@@ -1666,9 +1667,9 @@ namespace corona
                 std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
 				btn->set_size(100.00_px, 50.0_px);
 				btn->button_text = dat.pane.name;
-                auto cmd = std::make_shared<corona_select_frame_command>();
-                cmd->target_frame = content_frame_name;
-				cmd->source_frame = dat.pane.page_name;
+                auto cmd = std::make_shared<corona_select_tab_command>();
+                cmd->tab_control = name;
+				cmd->tab_name = dat.pane.name;
 				btn->click_command = cmd;
                 tab_row->children.push_back(btn);
 			}
@@ -1741,10 +1742,111 @@ namespace corona
 		{
 			auto tv = std::make_shared<tab_view_control>(*this);
 			return tv;
+		}	
+
+		virtual json set_data(json _data) override
+		{
+			json_parser jp;
+			json tab_data;
+
+			data = _data;
+
+            if (data.empty()) {
+				return data;
+			}
+
+			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+				return tp.pane.name == this->current_tab_name;
+				});
+
+			if (current_tab != tab_panes.end()) {
+
+				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
+					auto members = data.get_members();
+					json child_data = jp.create_object();
+					for (auto member : members) {
+						if (member.second.object() || member.second.array())
+							continue;
+						child_data.put_member(member.first, member.second);
+					}
+					tab_data = child_data;
+				}
+				else {
+					tab_data = data[current_tab->pane.member_name];
+				}
+
+				content_frame->set_data(tab_data);
+			}
+
+			return data;
+        }
+
+		virtual json get_data() override
+		{
+			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+				return tp.pane.name == this->current_tab_name;
+				});
+
+
+			return data;
+		}
+
+		void select_tab(std::string _name)
+		{
+			json_parser jp;
+
+			if (data.empty()) {
+				data = jp.create_object();
+            }
+
+			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+				return tp.pane.name == this->current_tab_name;
+				});
+
+            auto new_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [_name](const tab_pane_instance& tp) {
+                return tp.pane.name == _name;
+            });		
+
+            if (current_tab != tab_panes.end()) {
+				json tab_data = content_frame->get_data();
+				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
+                    auto members = tab_data.get_members();
+					for (auto member : members) {
+						if (member.second.object() || member.second.array())
+							continue;
+						data.put_member(member.first, member.second);
+					}
+				}
+				else {
+					data.put_member(current_tab->pane.member_name, tab_data);
+				}
+			}
+
+            if (new_tab != tab_panes.end()) {
+				current_tab_name = new_tab->pane.name;
+				auto service = comm_bus_app_interface::get_service();
+				int batch_id = service->start_batch();
+				json tab_data = jp.create_object();
+				if (new_tab->pane.member_name.empty() || new_tab->pane.member_name == ".") {
+					auto members = data.get_members();
+					json child_data = jp.create_object();
+					for (auto member : members) {
+						if (member.second.object() || member.second.array())
+							continue;
+						child_data.put_member(member.first, member.second);
+					}
+					tab_data = child_data;
+				}
+				else {
+					tab_data = data[new_tab->pane.member_name];
+				}
+				service->select_frame(batch_id, content_frame_name, new_tab->pane.page_name, tab_data);
+			}
 		}
 
 		void set_tabs(const std::vector<tab_pane>& _new_panes)
 		{
+            current_tab_name = "";
 			tab_panes.clear();
 			for (auto tp : _new_panes) {
 				tab_pane_instance tpi;
@@ -1755,6 +1857,7 @@ namespace corona
 				tab_panes.push_back(tpi);
 			}
 			init();
+			select_tab(tab_panes[0].pane.name);
 		}
 
 		virtual void get_json(json& _dest)
@@ -1775,6 +1878,16 @@ namespace corona
 		{
 			draw_control::put_json(_src);
 			json_parser jp;
+
+			if (id == 0) {
+				id = id_counter::next();
+			}
+
+			if (name.empty()) {
+				name = "tab_view_control_" + std::to_string(id);
+            }
+
+			content_frame_name = _src["content_frame_name"].as_string();
 			json tabs = _src["tabs"];
 			if (tabs.array()) {
 				std::vector<tab_pane> new_panes;
@@ -1785,8 +1898,10 @@ namespace corona
 				}
 				set_tabs(new_panes);
 			}
-			content_frame_name = _src["content_frame_name"].as_string();
-			init();
+			else 
+			{
+				init();
+			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -2754,7 +2869,6 @@ namespace corona
 				}
 			}
 		}
-
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
@@ -2818,5 +2932,23 @@ namespace corona
 		}
 		return response.data;
 	}
+
+	json corona_select_tab_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		if (response.success) {
+			auto found_control = _bus->find_control(tab_control);
+			if (found_control) {
+				auto tab_control_ptr = dynamic_cast<tab_view_control*>(found_control);
+				if (tab_control_ptr) {
+					tab_control_ptr->select_tab(tab_name);
+				}
+			}
+			else {
+				system_monitoring_interface::active_mon->log_warning("select_tab_command could not find control: " + tab_control);
+			}
+
+		}
+		return response.data;
+	}
+
 
 }

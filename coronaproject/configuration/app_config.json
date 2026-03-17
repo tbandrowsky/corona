@@ -10,7 +10,7 @@
   },
   "Servers": [
     {
-      "listen_point": "http://localhost:5678/my_app/",
+      "listen_point": "http://localhost:5678/productmanager/",
       "application_name": "Product Manager",
       "schema_filename": "app_schema.json",
       "database_threads": 20,

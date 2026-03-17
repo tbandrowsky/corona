@@ -752,10 +752,10 @@
                     "create_class_name": "environment",
                     "constructor_frame": "frame_selected",
                     "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
+                      "product": "object_id",
+                      "product_class": "class_name"
                     },
-                    "source_frame": "page_product_server",
+                    "source_frame": "page_product_environment",
                     "target_frame": "frame_selected",
                     "message": "layout test."
                   }

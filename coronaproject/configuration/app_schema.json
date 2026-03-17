@@ -177,7 +177,7 @@
     },
     {
       "class_name": "environment",
-      "base_class_name": "app_object",
+      "base_class_name": "asset",
       "class_description": "An environment for test",
       "full_text": [ "status" ],
       "parents": [ "product" ],

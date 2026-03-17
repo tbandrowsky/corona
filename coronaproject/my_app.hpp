@@ -88,7 +88,22 @@ namespace corona
 
         std::cout << "Config path: " << config_path << std::endl;
 
-			// database path
+		std::string config_full_file = config_path + config_filename;
+		std::string config_contents = corona::read_all_string(config_full_file);
+
+        json config_json = corona::json_parser().parse_object(config_contents);
+		if (config_json.has_member("Servers")) {
+			json servers = config_json["Servers"];
+			if (servers.array() && servers.size() > 0) {
+				json jserver = servers.get_element(0);
+                std::string application_name = jserver["application_name"].as_string();
+				if (application_name.size() > 0) {
+					my_application_name = application_name;
+				}
+            }
+		}
+
+		// database path
 		PWSTR userFolderPath = nullptr;
 		HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
 
@@ -111,9 +126,6 @@ namespace corona
 
 		CreateDirectoryA(database_path.c_str(), NULL);
 
-		std::string config_full_file = config_path + config_filename;
-
-		std::string config_contents = corona::read_all_string(config_full_file);
 
 		corona::json_parser jp;
 		corona::json config = jp.parse_object(config_contents);

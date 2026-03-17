@@ -428,6 +428,17 @@ namespace corona
 				auto nav = navigation_stack[navigation_location];
 				navigate(_batch_id, nav);
 				log_warning("Navigate back -> " + nav->name);
+				if (nav->data.object() && nav->data.has_member(class_name_field) && nav->data.has_member(object_id_field))
+				{
+					json key = nav->data.extract({ class_name_field, object_id_field });
+					auto response = comm_bus_app_interface::get_service()->get_object(corona_instance::local, key);
+					if (response.success) {
+						nav->data = response.data;
+						set_data(nav->data);
+					}
+				}
+
+
 			}
 		}
 
@@ -479,6 +490,9 @@ namespace corona
 		virtual json get_data()
 		{
 			json temp = data.clone();
+			if (temp.empty()) {
+				temp = json_parser().create_object();
+			}
 
             for (auto child : children) {
 				json child_data = child->get_data();
