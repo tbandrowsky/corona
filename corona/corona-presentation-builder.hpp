@@ -1402,7 +1402,7 @@ namespace corona
 			_j.put_member("name", name);
 			_j.put_member("page_name", page_name);
 			_j.put_member("member_name", member_name);
-			_j.put_member("image_name", image_name);
+			_j.put_member("image", image_name);
 		}
 
 		virtual void put_json(json _j)
@@ -1412,7 +1412,7 @@ namespace corona
             name = _j.get_member("name").as_string();
             page_name = _j.get_member("page_name").as_string();
             member_name = _j.get_member("member_name").as_string();
-			image_name = _j.get_member("image_name").as_string();
+			image_name = _j.get_member("image").as_string();
 		}
 
 	};
@@ -1668,10 +1668,15 @@ namespace corona
 			for (int i = 0; i < tab_panes.size(); i++)
 			{
 				auto& dat = tab_panes[i];
+                if (dat.pane.id == 0) {
+					dat.pane.id = id_counter::next();
+                }
                 std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
 				btn->set_size(100.00_px, 50.0_px);
 				btn->button_text = dat.pane.name;
-				
+				if (dat.pane.image_name.size()) {
+					btn->set_image(dat.pane.image_name);
+				}
 				btn->selected_state_enabled = true;
                 auto cmd = std::make_shared<corona_select_tab_command>();
                 cmd->tab_control = name;
