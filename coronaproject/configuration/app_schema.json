@@ -70,8 +70,11 @@
       "class_name": "product",
       "base_class_name": "app_object",
       "class_description": "A general job to do",
-      "full_text": [ "description", "status" ],
+      "full_text": [ "story" ],
       "fields": {
+        "official_name": "string",
+        "common_name": "string",
+        "public_name": "string",
         "projects": "[project]",
         "assets": "[asset]",
         "milestones": "[milestone]"

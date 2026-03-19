@@ -820,7 +820,12 @@ namespace corona
 
 	control_base* control_base::get(control_base* _root, std::string _name)
 	{
-		control_base* result = _root->find_if([_name](control_base* c) { return c->name == _name; }).second;
+		control_base* result = _root->find_if(
+			[_name](control_base* c) { 
+				return c->name == _name; 
+			}
+		).second;
+
 		return result;
 	}
 

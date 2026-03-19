@@ -1886,7 +1886,7 @@ namespace corona
 				presentation_layer->select_page(_page);
 			}
 			if (not _target_frame.empty()) {
-				control_base* cb = find_control(_target_frame);
+				control_base* cb = current_page->root->find(_target_frame);
 				if (cb) {
 					frame_layout* fl = dynamic_cast<frame_layout*>(cb);
 					if (fl) {
@@ -1894,9 +1894,6 @@ namespace corona
 							auto pg_src = presentation_layer->pages[_frame_contents_page];
 							auto pg_master = presentation_layer->get_current_page();
 
-							if (_reset_nav) {
-								fl->navigate_clear(_batch_id);
-                            }
 							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
 
 							auto hwindow = this->app_ui->getWindow();

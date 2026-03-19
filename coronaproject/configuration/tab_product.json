@@ -3,10 +3,28 @@
   "page_name": "tab_product",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "object_stuff",
       "box": "full_container",
       "children": [
+        {
+          "class_name": "edit_field",
+          "text": "Common Name:",
+          "box": "edit_field_box",
+          "json_field_name": "common_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Public Name:",
+          "box": "edit_field_box",
+          "json_field_name": "public_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Official Name:",
+          "box": "edit_field_box",
+          "json_field_name": "official_name"
+        },
         {
           "class_name": "edit_field",
           "text": "Description:",

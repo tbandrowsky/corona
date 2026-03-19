@@ -34,7 +34,7 @@
               "member_name": "notes"
             }
           ],
-          "content_frame_name": "project_details"
+          "content_frame_name": "project_object_details"
         }
       ]
     }

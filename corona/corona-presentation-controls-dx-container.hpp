@@ -409,13 +409,6 @@ namespace corona
 
 		virtual void navigate_clear(int _batch_id)
 		{
-			navigation_location = 0;
-			if (navigation_stack.contains(navigation_location)) {
-				auto nav = navigation_stack[navigation_location];
-				navigation_stack.clear();
-				navigate(_batch_id, nav);
-				log_warning("Navigate empty -> " + nav->name);
-			}
 		}
 
 		virtual void navigate_back(int _batch_id) 
@@ -428,17 +421,6 @@ namespace corona
 				auto nav = navigation_stack[navigation_location];
 				navigate(_batch_id, nav);
 				log_warning("Navigate back -> " + nav->name);
-				if (nav->data.object() && nav->data.has_member(class_name_field) && nav->data.has_member(object_id_field))
-				{
-					json key = nav->data.extract({ class_name_field, object_id_field });
-					auto response = comm_bus_app_interface::get_service()->get_object(corona_instance::local, key);
-					if (response.success) {
-						nav->data = response.data;
-						set_data(nav->data);
-					}
-				}
-
-
 			}
 		}
 

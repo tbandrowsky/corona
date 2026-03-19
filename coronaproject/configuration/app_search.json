@@ -572,39 +572,8 @@
                     "width": "100 pixels",
                     "height": "40 pixels"
                   },
-                  "text": "Edit"
+                  "text": "Nav"
                 },
-
-                {
-                  "class_name": "command_button",
-                  "name": "save_object",
-                  "image": "assets\\save.png",
-                  "text": "save",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "save_object",
-                    "form_name": "frame_selected",
-                    "target_frame": "frame_selected"
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "delete_object",
-                  "image": "assets\\trash.png",
-                  "text": "delete",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "delete_object",
-                    "target_frame": "frame_selected"
-                  }
-                },
-
                 {
                   "class_name": "command_button",
                   "name": "back_object",
@@ -804,9 +773,48 @@
                     "source_frame": "page_note",
                     "target_frame": "frame_selected",
                     "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "app_object"
+                },
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "Edit"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "save_object",
+                  "image": "assets\\save.png",
+                  "text": "save",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "save_object",
+                    "form_name": "frame_selected",
+                    "target_frame": "frame_selected"
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "delete_object",
+                  "image": "assets\\trash.png",
+                  "text": "delete",
+                  "box": {
+                    "width": "100  pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "delete_object",
+                    "target_frame": "frame_selected"
                   }
                 }
-
               ]
             },
             {

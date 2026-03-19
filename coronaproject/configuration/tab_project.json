@@ -3,7 +3,7 @@
   "page_name": "tab_project",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "object_stuff",
       "box": "full_container",
       "children": [

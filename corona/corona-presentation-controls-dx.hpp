@@ -1219,6 +1219,8 @@ namespace corona
         solidBrushRequest foregroundDown;
 
         bool button_down = false;
+        bool selected_state_enabled = false;
+        bool selected_state = false;
 
         gradient_button_control()
         {
@@ -1325,7 +1327,15 @@ namespace corona
 
                 auto& context = _context;
 
-                if (mouse_left_down.value())
+                if (selected_state_enabled and selected_state) {
+                    _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceDown.name);
+                    auto face_bounds = rectangle_math::deflate(draw_bounds, { 8, 8, 8, 8 });
+                    draw_shape(_context, this, &face_bounds, &foregroundDown);
+                    if (mouse_left_down.value()) {
+                        button_down = true;
+                    }
+                }
+                else if (mouse_left_down.value())
                 {
                     button_down = true;
                     _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceDown.name);
@@ -2028,6 +2038,7 @@ namespace corona
 
             _dest.put_member("icon", icon);
             _dest.put_member("text", button_text);
+            _dest.put_member("selected_state_enabled", selected_state_enabled);
 
             if (click_command) {
                 json jcommand = jp.create_object();
@@ -2047,7 +2058,8 @@ namespace corona
             icon = _src["icon"].as_string();
             button_text = _src["text"].as_string();
             image = nullptr;
-            children.clear();
+            selected_state_enabled = _src["selected_state_enabled"].as_bool();
+            selected_state = false;
 
             json jcommand = _src["on_click"];
             if (jcommand.empty()) {
@@ -2058,29 +2070,11 @@ namespace corona
             corona::put_json(click_command, jcommand);
 
             if (_src.has_member("image")) {
-                image = std::make_shared<image_control>();
-                json_parser jp;
-                json jimage = jp.create_object();
-                jimage.put_member("image_filename", _src["image"].as_string());
-                image->put_json(jimage);
-
-                if (shrink_image_more) {
-                    layout_rect image_box;
-                    image_box.height = .57_container;
-                    image_box.width = 0.3_container;
-                    image_box.x = 0.35_container;
-                    image->set_box(image_box);
-                }
-                else {
-                    layout_rect image_box;
-                    image_box.height = .67_container;
-                    image_box.width = 0.4_container;
-                    image_box.x = 0.3_container;
-                    image_box.y = -0.1_container;
-                    image->set_box(image_box);
-                }
-
-                children.push_back(image);
+                set_image(_src["image"].as_string());
+            }
+            else {
+                image = nullptr;
+                children.clear();
             }
 
             enable_source_frame = _src["enable_source_frame"].as_string();
@@ -2094,7 +2088,37 @@ namespace corona
             return tv;
         }
 
+        void set_image(std::string _name)
+        {
+            children.clear();
 
+            image = std::make_shared<image_control>();
+            json_parser jp;
+            json jimage = jp.create_object();
+            jimage.put_member("image_filename", _name);
+            image->put_json(jimage);
+
+            if (shrink_image_more) {
+                layout_rect image_box;
+                image_box.height = .57_container;
+                image_box.width = 0.3_container;
+                image_box.x = 0.35_container;
+                image->set_box(image_box);
+            }
+            else {
+                layout_rect image_box;
+                image_box.height = .67_container;
+                image_box.width = 0.4_container;
+                image_box.x = 0.3_container;
+                image_box.y = -0.1_container;
+                image->set_box(image_box);
+            }
+
+            children.push_back(image);
+
+            rectangle new_bounds = bounds;
+            arrange(nullptr, &new_bounds);
+        }
     };
 
     class menu_button_control : public gradient_button_control
