@@ -16,27 +16,32 @@
             {
               "name": "Product",
               "page_name": "tab_product",
+              "image": "assets\\product.png",
               "member_name": "."
             },
             {
               "name": "Projects",
               "page_name": "tab_projects",
+              "image": "assets\\project.png",
               "member_name": "projects"
             },
             {
               "name": "Milestones",
               "page_name": "tab_milestones",
+              "image": "assets\\milestone.png",
               "member_name": "milestones"
             },
             {
               "name": "Assets",
               "page_name": "tab_assets",
-              "member_name": "assets"
+              "member_name": "assets",
+              "image": "assets\\server.png"
             },
             {
               "name": "Notes",
               "page_name": "tab_notes",
-              "member_name": "notes"
+              "member_name": "notes",
+              "image": "assets\\note.png"
             }
           ],
           "content_frame_name": "product_object_details"
