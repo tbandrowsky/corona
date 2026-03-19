@@ -16,7 +16,13 @@
             "height": "1.0 remaining"
           },
           "sources": "card_sources",
-          "empty_text": "No activities"
+          "empty_text": "No activities",
+          "select_command": {
+            "class_name": "list_select_object",
+            "target_frame": "page_home.frame_selected",
+            "table_name": "asset_table",
+            "sources": "form_sources"
+          }
         }
       ]
     }

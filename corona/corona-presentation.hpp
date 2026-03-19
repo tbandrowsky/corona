@@ -177,7 +177,6 @@ namespace corona {
 				control_base* temp = cp->root->find(_name);
 				if (temp == nullptr)
 				{
-					auto str = std::format("Control {0} not found ", _name);
 					return nullptr;
 				}
 				control_type* citem = dynamic_cast<control_type*>(temp);
@@ -845,8 +844,10 @@ namespace corona {
 
 			if (cb) 
 			{
-				system_monitoring_interface::active_mon->log_information("Control clicked");
-				cb->dump();
+				system_monitoring_interface::active_mon->log_information(std::format("Control clicked {0}:{1}", cb->class_name, cb->get_name()));
+				if (false) {
+					cb->dump();
+				}
 				cb->set_focus();
 				control_base* last_focused = cp->root->find(current_focused_id);
 				if (last_focused) {

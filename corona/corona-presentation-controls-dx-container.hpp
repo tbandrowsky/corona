@@ -377,6 +377,7 @@ namespace corona
         presentation_base* current_presentation = nullptr;
         page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
+		bool save_on_unload = false;
 
 	public:
 
@@ -456,7 +457,7 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 		virtual point get_remaining(control_base* _parent) override;
 
-		virtual json set_data(json _data)
+		virtual json set_data(json _data) override
 		{
             if (navigation_stack.contains(navigation_location)) {
 				auto nav = navigation_stack[navigation_location];
@@ -469,7 +470,7 @@ namespace corona
 			return _data;
 		}
 
-		virtual json get_data()
+		virtual json get_data() override
 		{
 			json temp = data.clone();
 			if (temp.empty()) {
@@ -518,6 +519,7 @@ namespace corona
 				jedit_bars.push_back(sbar);
 			}
 			_dest.put_member("edit_bars", jedit_bars);
+            _dest.put_member("save_on_unload", save_on_unload);
 		}
 
 		virtual void put_json(json& _src)
@@ -542,6 +544,7 @@ namespace corona
 					edit_bars.push_back(sbar);
 				}
 			}
+            save_on_unload = _src["save_on_unload"].as_bool();
 		}
 	};
 
@@ -626,7 +629,6 @@ namespace corona
 			view_port.y = rows[selected_item_page_index].bounds.y;
 
 			if (selected_item_index != last_selected_index) {
-				update_selection();
 				std::string msg;
 				msg = std::format("selected_page_index '{0}' selected_item_index {1}, y:{2} ", selected_page_index, selected_item_page_index, view_port.y);
 				system_monitoring_interface::active_mon->log_information(msg);
@@ -1080,7 +1082,6 @@ namespace corona
 				data = _data;
 				arrange(this, &bounds);
 				check_scroll();
-				update_selection();
 			}
 			return data;
 		}
@@ -1170,7 +1171,6 @@ namespace corona
 			if (keep_position_on_set_data == false) {
 				selected_item_index = 0;
 				check_scroll();
-				update_selection();
 			}
 			else if (matching_index >= 0) {
                 selected_item_index = matching_index;
@@ -1178,7 +1178,6 @@ namespace corona
 			}
 			else {
 				check_scroll();
-				update_selection();
 			}
 			create_controls();
 	
@@ -1266,7 +1265,7 @@ namespace corona
 
 		void navigate_selected()
 		{
-			;
+			update_selection();
 		}
 
 		void delete_selected()

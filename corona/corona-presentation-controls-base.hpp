@@ -297,6 +297,11 @@ namespace corona
 			name = _name;
         }
 
+		std::string get_name()
+		{
+			return name;
+        }
+
 		bool is_mouse_over()
 		{
 			return mouse_over;

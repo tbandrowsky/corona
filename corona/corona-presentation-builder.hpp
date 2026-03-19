@@ -1803,10 +1803,28 @@ namespace corona
 
 		virtual json get_data() override
 		{
+			json_parser jp;
+			json tab_data;
+
 			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
 				return tp.pane.name == this->current_tab_name;
 				});
 
+			if (current_tab != tab_panes.end()) {
+				json tab_data = content_frame->get_data();
+				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
+					auto members = tab_data.get_members();
+					for (auto member : members) {
+						if (member.second.object() || member.second.array())
+							continue;
+						data.put_member(member.first, member.second);
+					}
+				}
+				else 
+				{
+					data.put_member(current_tab->pane.member_name, tab_data);
+				}
+			}
 
 			return data;
 		}
@@ -2870,7 +2888,7 @@ namespace corona
 
 		auto service = comm_bus_app_interface::get_service();
 
-		if (data.object()) {
+		if (data.object() && save_on_unload) {
 			service->put_object(corona_instance::local, data);
 		}
 

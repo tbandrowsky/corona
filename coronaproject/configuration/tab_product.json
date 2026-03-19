@@ -15,21 +15,21 @@
         },
         {
           "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
           "text": "Public Name:",
           "box": "edit_field_box",
           "json_field_name": "public_name"
         },
         {
           "class_name": "edit_field",
-          "text": "Official Name:",
+          "text": "Charter Name:",
           "box": "edit_field_box",
-          "json_field_name": "official_name"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
+          "json_field_name": "charter_name"
         }
       ]
     }

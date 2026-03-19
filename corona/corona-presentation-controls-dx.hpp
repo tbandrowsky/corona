@@ -1535,7 +1535,7 @@ namespace corona
     {
         image_mode = image_modes::use_filename;
         image_filename = _name;
-        instance.bitmapName = std::format("bitmap_file_{0}", _name);
+        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, id);
     }
 
     void image_control::load_from_resource(DWORD _resource_id)
@@ -1951,7 +1951,7 @@ namespace corona
                         if (child_draw_order == draw_children_order::draw_after_middleground) {
                             for (auto child : children) {
                                 auto child_bounds = child->get_bounds();
-                                if (this->button_down) {
+                                if (this->button_down || (this->selected_state_enabled && this->selected_state)) {
                                     child_bounds.y += 4;
                                     child->arrange(nullptr, &child_bounds);
                                     child->render(_context);
@@ -2092,7 +2092,7 @@ namespace corona
         {
             children.clear();
 
-            image = std::make_shared<image_control>();
+            image = std::make_shared<image_control>(nullptr, id_counter::next());
             json_parser jp;
             json jimage = jp.create_object();
             jimage.put_member("image_filename", _name);
@@ -2116,8 +2116,10 @@ namespace corona
 
             children.push_back(image);
 
-            rectangle new_bounds = bounds;
-            arrange(nullptr, &new_bounds);
+            if (bounds.w > 0 and bounds.h > 0) {
+                rectangle new_bounds = bounds;
+                arrange(nullptr, &new_bounds);
+            }
         }
     };
 

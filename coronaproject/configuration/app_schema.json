@@ -72,8 +72,8 @@
       "class_description": "A general job to do",
       "full_text": [ "story" ],
       "fields": {
-        "official_name": "string",
         "common_name": "string",
+        "charter_name": "string",
         "public_name": "string",
         "projects": "[project]",
         "assets": "[asset]",
