@@ -1395,14 +1395,22 @@ namespace corona
 		std::string page_name;
 		std::string member_name;
 		std::string image_name;
+		std::vector<std::string> accept_classes;
 
         virtual void get_json(json& _j)	 const
 		{
+			json_parser jp;
 			_j.put_member("id", id);
 			_j.put_member("name", name);
 			_j.put_member("page_name", page_name);
 			_j.put_member("member_name", member_name);
 			_j.put_member("image", image_name);
+			json accept_classes_json = jp.create_array();
+            for (auto &ac : accept_classes) {
+				json jstr = jp.from_string(ac);
+				accept_classes_json.push_back(jstr);
+			}
+            _j.put_member("accept_classes", accept_classes_json);
 		}
 
 		virtual void put_json(json _j)
@@ -1413,9 +1421,17 @@ namespace corona
             page_name = _j.get_member("page_name").as_string();
             member_name = _j.get_member("member_name").as_string();
 			image_name = _j.get_member("image").as_string();
+			json accept_classes_json = _j.get_member("accept_classes");
+			accept_classes.clear();
+			if (accept_classes_json.array()) {
+				for (size_t i = 0; i < accept_classes_json.size(); i++) {
+					accept_classes.push_back(accept_classes_json.get_element(i).as_string());
+				}
+			}
 		}
 
 	};
+
 	class caption_bar_control : public container_control
 	{
 		void init()
@@ -1930,7 +1946,7 @@ namespace corona
 
 			if (name.empty()) {
 				name = "tab_view_control_" + std::to_string(id);
-            }
+			}
 
 			content_frame_name = _src["content_frame_name"].as_string();
 			json tabs = _src["tabs"];
@@ -1943,7 +1959,7 @@ namespace corona
 				}
 				set_tabs(new_panes);
 			}
-			else 
+			else
 			{
 				init();
 			}
@@ -1981,6 +1997,66 @@ namespace corona
 			margin = _item_space;
 			return *this;
 		}
+
+		virtual void object_updated(json _data)
+		{
+			std::string my_class_name = data[class_name_field].as_string();
+			int64_t my_object_id = data[object_id_field].as_int();
+
+			std::string updated_class = _data[class_name_field].as_string();
+			int64_t updated_id = _data[object_id_field].as_int();
+
+
+			// check to see if this update is for a child of this object.
+			if (_data.has_member(my_class_name) &&
+				_data.has_member(object_id_field) &&
+				_data[my_class_name].as_int() == my_object_id) {
+
+				std::string updated_class = _data[class_name_field].as_string();
+				for (auto& tp : tab_panes) {
+					if (std::find_if(tp.pane.accept_classes.begin(), tp.pane.accept_classes.end(), [&](const std::string& ac) {
+						return updated_class == ac;
+						}) != tp.pane.accept_classes.end()) {
+
+						json members = data[tp.pane.member_name];
+						if (members.array()) {
+							bool found = false;
+							for (size_t i = 0; i < members.size(); i++) {
+								json member = members.get_element(i);
+								if (member.object()) {
+
+									std::string member_class_name = member[class_name_field].as_string();
+									int64_t member_object_id = member[object_id_field].as_int();
+									if (member_class_name == updated_class && member_object_id == updated_id) {
+										auto src_members = _data.get_members();
+										for (auto src_member : src_members) {
+											member.put_member(src_member.first, src_member.second);
+										}
+										found = true;
+										break;
+									}
+								}
+							}
+							if (!found) {
+								members.push_back(_data);
+							}
+						}
+						else if (members.empty())
+						{
+							json_parser jp;
+							members = jp.create_array();
+                            members.push_back(_data);
+                            data.put_member(tp.pane.member_name, members);
+						}
+					}
+				}				
+            }
+		}
+
+		virtual void object_deleted(json _data)
+		{
+		}
+
 	};
 
 

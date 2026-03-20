@@ -579,11 +579,11 @@ namespace corona
 		rectangle& set_bounds(control_base *_parent, rectangle& _bounds, bool _clip_children = true);
 
 		// default implementation for composed controls
+        // this basically says, "arrange your children within the bounds you have"
 		virtual void arrange() 
 		{
-			for (auto child : children) {
-				child->arrange(this, &inner_bounds);
-			}
+			rectangle new_bounds = bounds;
+			arrange(nullptr, &new_bounds);
 		}
 
 		virtual void arrange(control_base *_parent, rectangle* _ctx);

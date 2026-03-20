@@ -700,9 +700,7 @@
                     },
                     "source_frame": "page_product_person",
                     "target_frame": "frame_selected",
-                    "message": "layout test.",
-                    "enable_source_frame": "frame_selected",
-                    "enable_class_name": "project"
+                    "message": "layout test."
                   }
                 },
                 {
