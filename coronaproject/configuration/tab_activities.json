@@ -20,7 +20,7 @@
           "select_command": {
             "class_name": "list_select_object",
             "target_frame": "page_home.frame_selected",
-            "table_name": "asset_table",
+            "table_name": "activity_table",
             "sources": "form_sources"
           }
         }

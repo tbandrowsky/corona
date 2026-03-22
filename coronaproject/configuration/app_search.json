@@ -216,7 +216,7 @@
                     "query": {
                       "from": [
                         {
-                          "class_name": "patriarch_object",
+                          "class_name": "app_object",
                           "name": "objects",
                           "filter": {
                             "full_text": "$this.full_text"
@@ -580,7 +580,7 @@
                   "image": "assets\\back.png",
                   "text": "back",
                   "box": {
-                    "width": "100  pixels",
+                    "width": "100 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
@@ -668,6 +668,31 @@
                     "create_class_name": "task",
                     "constructor_frame": "frame_selected",
                     "constructor_copy": {
+                      "project": "object_id",
+                      "project_class": "class_name"
+                    },
+                    "source_frame": "page_task",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "project"
+
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_build_activity",
+                  "image": "assets\\build.png",
+                  "text": "build",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "build",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
                       "task": "object_id",
                       "task_class": "class_name"
                     },
@@ -676,8 +701,81 @@
                     "message": "layout test."
                   },
                   "enable_source_frame": "frame_selected",
-                  "enable_class_name": "project"
+                  "enable_class_name": "task"
 
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_documentation_activity",
+                  "image": "assets\\documentation.png",
+                  "text": "document",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "task",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "task": "object_id",
+                      "task_class": "class_name"
+                    },
+                    "source_frame": "page_product_task",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "task"
+                },
+
+                {
+                  "class_name": "command_button",
+                  "name": "new_delivery_activity",
+                  "image": "assets\\delivery.png",
+                  "text": "delivery",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "delivery",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "task": "object_id",
+                      "task_class": "class_name"
+                    },
+                    "source_frame": "page_product_task",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "task"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_plan_activity",
+                  "image": "assets\\plan.png",
+                  "text": "plan",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "task",
+                    "constructor_frame": "frame_selected",
+                    "constructor_copy": {
+                      "task": "object_id",
+                      "task_class": "class_name"
+                    },
+                    "source_frame": "page_product_task",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  },
+                  "enable_source_frame": "frame_selected",
+                  "enable_class_name": "task"
                 },
                 {
                   "class_name": "command_button",
