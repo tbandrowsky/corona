@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_product_task",
+  "page_name": "page_task_training",
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
@@ -11,7 +11,20 @@
           "text": "Description:",
           "box": "edit_field_box",
           "json_field_name": "description"
+        },
+        {
+          "class_name": "datetimepicker",
+          "text": "Date:",
+          "box": "edit_field_box",
+          "json_field_name": "item_date"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Hours:",
+          "box": "edit_field_box",
+          "json_field_name": "hours"
         }
+
       ]
     }
   }

@@ -342,6 +342,70 @@
     },
     {
       "class_name": "import",
+      "file_name": "app_task_build.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_build_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_delivery.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_delivery_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_documentation.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_documentation_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_plan.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_plan_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_quickchange.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_quickchange_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_requirements.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_requirements_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_support.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_support_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_training.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_task_training_card.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "tab_notes.json"
     },
     {
@@ -367,6 +431,10 @@
     {
       "class_name": "import",
       "file_name": "tab_projects.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_task.json"
     },
     {
       "class_name": "import",
