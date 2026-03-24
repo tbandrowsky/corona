@@ -8,6 +8,10 @@
       "box": "full_container",
       "children": [
         {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
           "class_name": "edit_field",
           "text": "Common Name:",
           "box": "edit_field_box",

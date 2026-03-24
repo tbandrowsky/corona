@@ -3,10 +3,14 @@
   "page_name": "tab_person",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "object_stuff",
       "box": "full_container",
       "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
         {
           "class_name": "edit_field",
           "text": "First Name:",

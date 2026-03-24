@@ -3,10 +3,14 @@
   "page_name": "tab_milestones",
   "children": [
     {
-      "class_name": "row",
+      "class_name": "column",
       "name": "object_stuff",
       "box": "full_container",
       "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
         {
           "class_name": "items_view",
           "name": "milestones_table",
