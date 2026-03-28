@@ -7,22 +7,29 @@
       "$icon_image_file": "assets\\training.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
-        },
-        {
-          "class_name": "datetimepicker",
-          "text": "Date:",
-          "box": "edit_field_box",
-          "json_field_name": "item_date"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Hours:",
-          "box": "edit_field_box",
-          "json_field_name": "hours"
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Training",
+              "page_name": "tab_training",
+              "member_name": "."
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            },
+            {
+              "name": "Details",
+              "page_name": "tab_object",
+              "member_name": "."
+            }
+          ],
+          "content_frame_name": "person_object_details"
         }
 
       ]

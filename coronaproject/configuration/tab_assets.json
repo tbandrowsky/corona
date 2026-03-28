@@ -12,6 +12,89 @@
           "box": "card_text_box"
         },
         {
+          "class_name": "row",
+          "name": "tab_activity_commands",
+          "box": {
+            "width": "1.0 container",
+            "height": "50 pixels"
+          },
+          "children": [
+            {
+              "class_name": "command_button",
+              "name": "new_person",
+              "image": "assets\\people.png",
+              "text": "person",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "enable_source_frame": "frame_selected",
+              "enable_class_name": "person",
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "person",
+                "constructor_frame": "frame_selected",
+                "constructor_copy": {
+                  "product": "object_id",
+                  "product_class": "class_name"
+                },
+                "source_frame": "page_product_person",
+                "target_frame": "frame_selected",
+                "message": "layout test."
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_environment",
+              "image": "assets\\environments.png",
+              "text": "environment",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "enable_source_frame": "frame_selected",
+              "enable_class_name": "product",
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "environment",
+                "constructor_frame": "frame_selected",
+                "constructor_copy": {
+                  "product": "object_id",
+                  "product_class": "class_name"
+                },
+                "source_frame": "page_product_environment",
+                "target_frame": "frame_selected",
+                "message": "layout test."
+              }
+            },
+            {
+              "class_name": "command_button",
+              "name": "new_server",
+              "image": "assets\\server.png",
+              "text": "server",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "server",
+                "constructor_frame": "frame_selected",
+                "constructor_copy": {
+                  "product": "object_id",
+                  "product_class": "class_name"
+                },
+                "source_frame": "page_product_server",
+                "target_frame": "frame_selected",
+                "message": "layout test."
+              },
+              "enable_source_frame": "frame_selected",
+              "enable_class_name": "product"
+            }
+          ]
+        },
+
+        {
           "class_name": "items_view",
           "name": "asset_table",
           "json_field_name": "assets",

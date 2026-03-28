@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_task",
+  "page_name": "page_client",
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\task.png",
+      "$icon_image_file": "assets\\client.png",
       "$details_contents": [
         {
           "class_name": "tab_view",
@@ -14,27 +14,22 @@
           },
           "tabs": [
             {
-              "name": "Task",
-              "page_name": "tab_task",
+              "name": "Client",
+              "page_name": "tab_client",
               "member_name": "."
             },
             {
-              "name": "Activities",
-              "page_name": "tab_activities",
-              "member_name": "activities"
+              "name": "Products",
+              "page_name": "tab_products",
+              "member_name": "products"
             },
             {
               "name": "Notes",
               "page_name": "tab_notes",
               "member_name": "notes"
-            },
-            {
-              "name": "Details",
-              "page_name": "tab_object",
-              "member_name": "."
             }
           ],
-          "content_frame_name": "person_object_details"
+          "content_frame_name": "client_object_details"
         }
       ]
     }

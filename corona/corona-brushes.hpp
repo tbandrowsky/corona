@@ -73,6 +73,18 @@ namespace corona
 		{
 			return asset;
 		}
+
+		virtual std::string get_string() override
+		{
+			std::string value;
+            if (bm.expired()) {
+				value = "empty bitmap brush";
+			}
+			else if (auto pbm = bm.lock()) {
+                value = "bitmap:"+ pbm->get_string();
+			}
+			return value;
+		}
 	};
 
 	class solidColorBrush : public deviceDependentAsset<ID2D1SolidColorBrush*>, brush {
@@ -119,6 +131,11 @@ namespace corona
 			return asset;
 		}
 
+		virtual std::string get_string() override
+		{
+			std::string value = std::format("solid:{0},{1},{2},{3}", color.r, color.g, color.b, color.a);
+			return value;
+		}
 	};
 
 	class linearGradientBrush : public deviceDependentAsset<ID2D1LinearGradientBrush*>, brush {
@@ -168,6 +185,21 @@ namespace corona
 			return asset;
 		}
 
+		virtual std::string get_string() override
+		{
+			std::string value = std::format("linear:start({0},{1}),stop({2},{3})", 
+				start.x, start.y, stop.x, stop.y);
+
+			for (size_t i = 0; i < stops.size(); i++) {
+				value += std::format(",stop[{0}]:pos={1},rgba({2},{3},{4},{5})",
+					i, stops[i].position, 
+					stops[i].color.r, stops[i].color.g, 
+					stops[i].color.b, stops[i].color.a);
+			}
+
+			return value;
+		}
+
 	};
 
 	class radialGradientBrush : public deviceDependentAsset<ID2D1RadialGradientBrush*>, brush {
@@ -212,6 +244,24 @@ namespace corona
 		{
 			return asset;
 		}
+
+		virtual std::string get_string() override
+		{
+			std::string value = std::format("radial:center({0},{1}),offset({2},{3}),radius({4},{5})", 
+				radialProperties.center.x, radialProperties.center.y,
+				radialProperties.gradientOriginOffset.x, radialProperties.gradientOriginOffset.y,
+				radialProperties.radiusX, radialProperties.radiusY);
+
+			for (size_t i = 0; i < stops.size(); i++) {
+				value += std::format(",stop[{0}]:pos={1},rgba({2},{3},{4},{5})",
+					i, stops[i].position, 
+					stops[i].color.r, stops[i].color.g, 
+					stops[i].color.b, stops[i].color.a);
+			}
+
+			return value;
+		}
+
 
 	};
 }

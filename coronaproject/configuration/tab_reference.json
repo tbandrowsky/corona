@@ -1,0 +1,16 @@
+{
+  "class_name": "page",
+  "page_name": "tab_reference",
+  "children": [
+    {
+      "class_name": "paragraph",
+      "box": "card_text_box"
+    },
+    {
+      "class_name": "edit_field",
+      "text": "Description:",
+      "box": "edit_field_box",
+      "json_field_name": "description"
+    }
+  ]
+}

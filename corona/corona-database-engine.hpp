@@ -6940,6 +6940,8 @@ private:
 			return result;
 		}
 
+		thread_safe_map<std::string, json> user_cache;
+
 		void put_user(json _user)
 		{
 			json_parser jp;
@@ -6957,6 +6959,7 @@ private:
 			if (!put_result[success_field].as_bool()) {
 	
 			}
+            user_cache.erase(_user[user_name_field].as_string());
 		}
 
 		void put_error(std::string _system, std::string _message, json& _body, std::string _file, int _line)
@@ -6980,6 +6983,11 @@ private:
 		json get_user(std::string _user_name, bool _run_teams = true)
 		{
 			json_parser jp;
+			json value;
+
+            if (user_cache.try_get(_user_name, value)) {
+				return value;
+			}
 
 			json key = jp.create_object();
 			key.put_member(user_name_field, _user_name);
@@ -7034,6 +7042,7 @@ private:
 				}
 				user.share_member("allowed_teams", jall_allowed_teams);
 			}
+            user_cache.insert(_user_name, user);
 
 			return user;
 		}
@@ -7310,8 +7319,17 @@ private:
 			return grants;
 		}
 
+        thread_safe_map<std::string, class_permissions> permissions_cache;
+
 		virtual class_permissions get_team_permissions(std::string user_name, std::string team_name, std::string _class_name)
 		{
+
+			class_permissions value;
+
+            if (permissions_cache.try_get(team_name, value)) {
+                value.user_name = user_name;
+				return value;
+			}
 
 			auto sys_perm = get_system_permission();
 			json jteam = get_team(team_name, sys_perm);
@@ -7389,6 +7407,8 @@ private:
 					}
 				}
 			}
+
+            permissions_cache.insert(team_name, grants);
 			return grants;
 		}
 
@@ -7430,7 +7450,8 @@ private:
 				grants.team_name = team_name;
 				grants.user_name = _user_name;
 			}
-			else {
+			else 
+			{
                 grants.alter_grant = class_grants::grant_none;
                 grants.delete_grant = class_grants::grant_none;
                 grants.get_grant = class_grants::grant_none;
@@ -10285,6 +10306,11 @@ grant_type=authorization_code
 							}
 							json put_results = cd->put_objects(this, child_objects, class_pair.second, perms, errors, success_objects, failed_objects);
                             grouped_by_class_name.put_member(class_pair.first, put_results);
+                            auto ancestors = cd->get_ancestors();
+                            if (cd->get_class_name
+								() == "sys_team" || ancestors.find("sys_team") != ancestors.end()) {
+								permissions_cache.clear();
+							}
 						}
 					}
 

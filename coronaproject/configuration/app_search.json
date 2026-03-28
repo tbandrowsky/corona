@@ -314,6 +314,40 @@
                 },
                 {
                   "class_name": "command_button",
+                  "name": "search_client",
+                  "image": "assets\\client.png",
+                  "text": "clients",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "client",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
                   "name": "search_request",
                   "image": "assets\\request.png",
                   "text": "requests",
@@ -614,45 +648,21 @@
                 },
                 {
                   "class_name": "command_button",
-                  "name": "new_product",
-                  "image": "assets\\product.png",
-                  "text": "product",
+                  "name": "new_client",
+                  "image": "assets\\client.png",
+                  "text": "client",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
                   },
                   "on_click": {
                     "class_name": "create_object",
-                    "create_class_name": "product",
+                    "create_class_name": "client",
                     "constructor_frame": "frame_selected",
-                    "source_frame": "page_product_product",
+                    "source_frame": "page_client",
                     "target_frame": "frame_selected",
                     "message": "layout test."
                   }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_project",
-                  "image": "assets\\project.png",
-                  "text": "project",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "project",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "product": "object_id",
-                      "product_class": "class_name"
-                    },
-                    "source_frame": "page_product_project",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "product"
                 },
                 {
                   "class_name": "command_button",
@@ -678,249 +688,6 @@
                   "enable_source_frame": "frame_selected",
                   "enable_class_name": "project"
 
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_quickchange_activity",
-                  "image": "assets\\quickchange.png",
-                  "text": "quickchange",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "task",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_requirements_activity",
-                  "image": "assets\\requirements.png",
-                  "text": "requirements",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "task",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-
-                {
-                  "class_name": "command_button",
-                  "name": "new_plan_activity",
-                  "image": "assets\\plan.png",
-                  "text": "plan",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "task",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-
-                {
-                  "class_name": "command_button",
-                  "name": "new_build_activity",
-                  "image": "assets\\build.png",
-                  "text": "build",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "build",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_documentation_activity",
-                  "image": "assets\\documentation.png",
-                  "text": "document",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "task",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_delivery_activity",
-                  "image": "assets\\delivery.png",
-                  "text": "delivery",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "delivery",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_product_task",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_support_activity",
-                  "image": "assets\\support.png",
-                  "text": "support",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "support",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "task": "object_id",
-                      "task_class": "class_name"
-                    },
-                    "source_frame": "page_task_support",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "task"
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_person",
-                  "image": "assets\\people.png",
-                  "text": "person",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "person",
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "person",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "product": "object_id",
-                      "product_class": "class_name"
-                    },
-                    "source_frame": "page_product_person",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_environment",
-                  "image": "assets\\environments.png",
-                  "text": "environment",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "product",
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "environment",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "product": "object_id",
-                      "product_class": "class_name"
-                    },
-                    "source_frame": "page_product_environment",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "new_server",
-                  "image": "assets\\server.png",
-                  "text": "server",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "create_object",
-                    "create_class_name": "server",
-                    "constructor_frame": "frame_selected",
-                    "constructor_copy": {
-                      "product": "object_id",
-                      "product_class": "class_name"
-                    },
-                    "source_frame": "page_product_server",
-                    "target_frame": "frame_selected",
-                    "message": "layout test."
-                  },
-                  "enable_source_frame": "frame_selected",
-                  "enable_class_name": "product"
                 },
                 {
                   "class_name": "command_button",

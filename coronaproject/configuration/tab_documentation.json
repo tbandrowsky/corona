@@ -1,28 +1,28 @@
 {
   "class_name": "page",
-  "page_name": "tab_task",
+  "page_name": "tab_documentation",
   "children": [
     {
       "class_name": "paragraph",
       "box": "card_text_box"
     },
     {
-      "class_name": "edit_field",
+      "class_name": "memo_field",
       "text": "Description:",
-      "box": "edit_field_box",
+      "box": "memo_field_box_large",
       "json_field_name": "description"
     },
     {
-      "class_name": "datetimepicker_field",
-      "text": "Task Date:",
+      "class_name": "datetimepicker",
+      "text": "Date:",
       "box": "edit_field_box",
       "json_field_name": "item_date"
     },
     {
       "class_name": "edit_field",
-      "text": "Status:",
+      "text": "Hours:",
       "box": "edit_field_box",
-      "json_field_name": "status"
+      "json_field_name": "hours"
     }
   ]
 }

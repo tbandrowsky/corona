@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_object_details",
+  "page_name": "tab_object",
   "children": [
     {
       "class_name": "row",
@@ -104,6 +104,5 @@
         }
       ]
     }
-
   ]
 }

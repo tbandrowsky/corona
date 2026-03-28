@@ -640,7 +640,6 @@ namespace corona
 			return std::make_shared<bitmap>(_src, this);
 		}
 
-
 		virtual bool applyFilters(direct2dContextBase* _target)
 		{
 			filter();
@@ -783,6 +782,25 @@ namespace corona
 		void setFilter(std::function<bool(point, int, int, char* bytes)> _filter)
 		{
 			filterFunction = _filter;
+		}
+
+		virtual std::string get_string() override
+		{
+			std::string value = "";
+
+			if (useFile) {
+				value = filename;
+			}
+			else if (useResource)
+			{
+				value = std::to_string(resource_id);
+			}
+			else if (useBitmap)
+			{
+                value = std::to_string((UINT_PTR)hbitmap);
+			}
+
+			return value;
 		}
 
 		void filter()

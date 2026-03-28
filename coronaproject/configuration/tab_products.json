@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "tab_projects",
+  "page_name": "tab_products",
   "children": [
     {
       "class_name": "column",
@@ -13,7 +13,7 @@
         },
         {
           "class_name": "row",
-          "name": "tab_project_commands",
+          "name": "tab_product_commands",
           "box": {
             "width": "1.0 container",
             "height": "50 pixels"
@@ -21,21 +21,19 @@
           "children": [
             {
               "class_name": "command_button",
-              "name": "new_task",
-              "image": "assets\\project.png",
-              "text": "add project",
+              "name": "new_product",
+              "image": "assets\\product.png",
+              "text": "product",
               "box": {
                 "width": "100 pixels",
                 "height": "50 pixels"
               },
               "on_click": {
                 "class_name": "create_object",
-                "create_class_name": "project",
+                "create_class_name": "product",
                 "constructor_frame": "frame_selected",
-                "constructor_copy": {
-                  "product": "object_id",
-                  "product_class": "class_name"
-                },
+                "source_frame": "page_product_product",
+                "target_frame": "frame_selected",
                 "message": "layout test."
               }
             }
@@ -43,18 +41,18 @@
         },
         {
           "class_name": "items_view",
-          "name": "project_table",
-          "json_field_name": "projects",
+          "name": "products_table",
+          "json_field_name": "products",
           "box": {
             "width": "1.0 container",
             "height": "1.0 remaining"
           },
           "sources": "card_sources",
-          "empty_text": "No projects",
+          "empty_text": "No products",
           "select_command": {
             "class_name": "list_select_object",
             "target_frame": "page_home.frame_selected",
-            "table_name": "project_table",
+            "table_name": "products_table",
             "sources": "form_sources"
           }
         }

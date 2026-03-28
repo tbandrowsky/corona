@@ -163,6 +163,17 @@ namespace corona
 				bm = std::make_shared<bitmap>(filename, sizes);
 			}
 
+			if (bitmaps.contains(name)) {
+				auto br = bitmaps[name];
+
+				std::string canonical_name1 = br->get_string();
+				std::string canonical_name2 = bm->get_string();
+				if (canonical_name1 == canonical_name2)
+				{
+					return name;
+				}
+			}
+
 			bitmaps[name] = bm;
 			bm->create(this);
 
@@ -268,7 +279,21 @@ namespace corona
 			auto brush = std::make_shared<solidColorBrush>();
 			brush->stock = false;
 			brush->color = toColor(_solidBrushDto->brushColor);
-			brushes[_solidBrushDto->name.c_str()] = brush;
+
+			const char* name = _solidBrushDto->name.c_str();
+
+			if (brushes.contains(name)) {
+				auto br = brushes[name];
+
+				std::string canonical_name1 = br->get_string();
+				std::string canonical_name2 = brush->get_string();
+				if (canonical_name1 == canonical_name2)
+				{
+					return name;
+				}
+			}
+
+			brushes[name] = brush;
 			brush->create(this);
 			return _solidBrushDto->name.c_str();
 		}
@@ -298,9 +323,22 @@ namespace corona
 				brush->stops.push_back(gradientStop);
 			}
 
-			brushes[_linearGradientBrushDto->name.c_str()] = brush;
+            const char* name = _linearGradientBrushDto->name.c_str();
+
+            if (brushes.contains(name)) {
+				auto br = brushes[name];
+
+                std::string canonical_name1 = br->get_string();
+                std::string canonical_name2 = brush->get_string();
+                if (canonical_name1 == canonical_name2) 
+				{
+					return name;
+				}
+			}
+
+			brushes[name] = brush;
 			brush->create(this);
-			return _linearGradientBrushDto->name.c_str();
+			return name;
 		}
 
 		virtual std::string setRadialGradientBrush(radialGradientBrushRequest* _radialGradientBrushDto, rectangle* _size = nullptr)
@@ -341,6 +379,20 @@ namespace corona
 				gradientStop = toGradientStop(i);
 				brush->stops.push_back(gradientStop);
 			}
+
+			const char* name = _radialGradientBrushDto->name.c_str();
+
+			if (brushes.contains(name)) {
+				auto br = brushes[name];
+
+				std::string canonical_name1 = br->get_string();
+				std::string canonical_name2 = brush->get_string();
+				if (canonical_name1 == canonical_name2)
+				{
+					return name;
+				}
+			}
+
 			brushes[_radialGradientBrushDto->name.c_str()] = brush;
 			brush->create(this);
 			return _radialGradientBrushDto->name.c_str();

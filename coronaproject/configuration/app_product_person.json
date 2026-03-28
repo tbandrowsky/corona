@@ -27,6 +27,11 @@
               "name": "Notes",
               "page_name": "tab_notes",
               "member_name": "notes"
+            },
+            {
+              "name": "Details",
+              "page_name": "tab_object",
+              "member_name": "."
             }
           ],
           "content_frame_name": "person_object_details"

@@ -12,6 +12,34 @@
           "box": "card_text_box"
         },
         {
+          "class_name": "row",
+          "name": "tab_milestone_commands",
+          "box": {
+            "width": "1.0 container",
+            "height": "50 pixels"
+          },
+          "children": [
+            {
+              "class_name": "command_button",
+              "name": "new_milestone",
+              "image": "assets\\milestone.png",
+              "text": "milestone",
+              "box": {
+                "width": "100 pixels",
+                "height": "50 pixels"
+              },
+              "on_click": {
+                "class_name": "create_object",
+                "create_class_name": "product",
+                "constructor_frame": "frame_selected",
+                "source_frame": "page_product_product",
+                "target_frame": "frame_selected",
+                "message": "layout test."
+              }
+            }
+          ]
+        },
+        {
           "class_name": "items_view",
           "name": "milestones_table",
           "json_field_name": "milestones",

@@ -7,28 +7,29 @@
       "$icon_image_file": "assets\\milestone.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "Name:",
-          "box": "edit_field_box",
-          "json_field_name": "name"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Url:",
-          "box": "edit_field_box",
-          "json_field_name": "url"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Status:",
-          "box": "edit_field_box",
-          "json_field_name": "status"
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Milestone",
+              "page_name": "tab_milestone",
+              "member_name": "."
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            },
+            {
+              "name": "Details",
+              "page_name": "tab_object",
+              "member_name": "."
+            }
+          ],
+          "content_frame_name": "person_object_details"
         }
       ]
     }

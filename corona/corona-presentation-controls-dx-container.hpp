@@ -476,13 +476,14 @@ namespace corona
 			if (temp.empty()) {
 				temp = json_parser().create_object();
 			}
-
-            for (auto child : children) {
-				json child_data = child->get_data();
-				if (child_data.object()) {
-                    auto members = child_data.get_members();
-					for (auto& member : members) {
-						temp.put_member(member.first, member.second);
+			else if (temp.object()) {
+				for (auto child : children) {
+					json child_data = child->get_data();
+					if (child_data.object()) {
+						auto members = child_data.get_members();
+						for (auto& member : members) {
+							temp.put_member(member.first, member.second);
+						}
 					}
 				}
 			}
@@ -1116,9 +1117,14 @@ namespace corona
 					item[class_name_field].as_string() == _item[class_name_field].as_string()) {
 					data.put_element(i, _item);
 					set_items(data);
+					return;
 				}
 			}
-        }
+
+            // if we got here, it means we didn't find the item, so we add it.
+            data.push_back(_item);
+			set_items(data);
+		}
 
 		virtual bool set_items(json _data)
 		{

@@ -10,6 +10,7 @@
       "class_name": "app_object",
       "base_class_name": "sys_object",
       "class_description": "A root object of searchable things",
+      "full_text": [ "description" ],
       "fields": {
         "description": {
           "field_type": "string",
@@ -36,12 +37,136 @@
       "class_description": "An appointment to meet someone",
       "base_class_name": "app_object",
       "class_color": "#af9d66",
-      "full_text": [ "text" ],
       "fields": {
         "item_date": {
           "field_type": "datetime",
           "label": "Date"
         }
+      },
+      "indexes": {
+        "idx_item_date": {
+          "index_keys": [ "item_date" ]
+        }
+      }
+    },
+    {
+      "class_name": "general_ledger_account",
+      "base_class_name": "app_object",
+      "class_description": "General ledger account",
+      "full_text": [ "account_number", "account_name", "account_type", "balance" ],
+      "fields": {
+        "account_number": {
+          "field_type": "string",
+          "label": "Account Number"
+        },
+        "account_name": {
+          "field_type": "string",
+          "label": "Account Name"
+        },
+        "account_type": {
+          "field_type": "string",
+          "label": "Account Type",
+          "enumeration": [ "Asset", "Liability", "Equity", "Revenue", "Expense" ]
+        },
+        "balance": {
+          "field_type": "double",
+          "label": "Balance"
+        },
+        "transactions": "[transaction_detail]"
+      },
+      "indexes": {
+        "idx_gl_account_number": {
+          "index_keys": [ "account_number" ]
+        }
+      }
+    },
+    {
+      "class_name": "general_ledger_period",
+      "base_class_name": "app_object",
+      "class_description": "A general ledger period",
+      "full_text": [ "period_name", "start_date", "end_date" ],
+      "fields": {
+        "period_name": {
+          "field_type": "string",
+          "label": "Period Name"
+        },
+        "start_date": {
+          "field_type": "datetime",
+          "label": "Start Date"
+        },
+        "end_date": {
+          "field_type": "datetime",
+          "label": "End Date"
+        },
+        "posts": "[general_ledger_post]"
+      }
+    },
+    {
+      "class_name": "transaction",
+      "base_class_name": "dated_item",
+      "class_description": "A transaction in the general ledger",
+      "full_text": [ "amount" ],
+      "fields": {
+        "accounts": "[transaction_account]",
+        "posts": "[general_ledger_post]"
+      }
+    },
+    {
+      "class_name": "invoice",
+      "base_class_name": "transaction",
+      "class_description": "An invoice",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "general_ledger_post",
+      "base_class_name": "app_object",
+      "class_description": "A general ledger post",
+      "parents": [ "general_ledger_period", "transaction" ],
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "transaction_account",
+      "base_class_name": "app_object",
+      "class_description": "A transaction detail",
+      "full_text": [ "amount" ],
+      "parents": [ "general_ledger_account" ],
+      "fields": {
+        "amount": {
+          "field_type": "double",
+          "label": "Amount"
+        }
+      }
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "app_object",
+      "class_description": "A person",
+      "parents": [ "client", "product", "meeting_person" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "email": "string",
+        "phone": "string",
+        "fax": "string",
+        "facebook": "string",
+        "linkedin": "string",
+        "twitter": "string",
+        "discord": "string",
+        "title": "string",
+        "skills": "string",
+        "username": "string",
+        "activities": "[activity]"
+      }
+    },
+    {
+      "class_name": "meeting_person",
+      "base_class_name": "app_object",
+      "class_description": "A person",
+      "parents": [ "meeting", "person" ],
+      "fields": {
       }
     },
     {
@@ -49,8 +174,17 @@
       "class_description": "An appointment to meet someone",
       "base_class_name": "dated_item",
       "class_color": "#af9d66",
-      "full_text": [ "text" ],
+      "full_text": [ "title", "agenda", "with", "when", "where" ],
       "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
+        "attendees": "[meeting_person]",
+        "agenda": {
+          "field_type": "string",
+          "label": "Agenda"
+        },
         "with": {
           "field_type": "string",
           "label": "With"
@@ -67,16 +201,35 @@
       }
     },
     {
+      "class_name": "client",
+      "base_class_name": "app_object",
+      "class_description": "A client",
+      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
+      "fields": {
+        "company_name": "string",
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "domain_name": "string",
+        "website": "string",
+        "people": "[person]",
+        "products": "[product]"
+      }
+    },
+    {
       "class_name": "product",
       "base_class_name": "app_object",
-      "class_description": "A general job to do",
-      "full_text": [ "story" ],
+      "class_description": "A custom product for a client",
+      "full_text": [ "common_name", "charter_name", "public_name" ],
       "fields": {
         "common_name": "string",
         "charter_name": "string",
         "public_name": "string",
         "projects": "[project]",
         "assets": "[asset]",
+        "people": "[person]",
         "milestones": "[milestone]"
       }
     },
@@ -84,11 +237,12 @@
       "class_name": "request",
       "base_class_name": "app_object",
       "class_description": "A request for a product",
-      "parents": [ "product" ],
+      "full_text": [ "title" ],
+      "parents": [ "client", "person" ],
       "fields": {
-        "details": {
+        "title": {
           "field_type": "string",
-          "label": "Details"
+          "label": "Title"
         }
       }
     },
@@ -99,13 +253,18 @@
       "full_text": [ "description", "status" ],
       "parents": [ "product" ],
       "fields": {
-        "status": {
+        "title": {
           "field_type": "string",
-          "label": "Status"
+          "label": "Title"
         },
         "charter": {
           "field_type": "string",
           "label": "Charter"
+        },
+        "status": {
+          "field_type": "string",
+          "label": "Status",
+          "enumeration": [ "Not Started", "In Progress", "Completed", "On Hold", "Cancelled" ]
         },
         "tasks": "[task]",
         "milestones": "[milestone]"
@@ -116,12 +275,21 @@
       "class_description": "A checkpoint and progress marker",
       "base_class_name": "dated_item",
       "class_color": "#af9d66",
-      "full_text": [ "text" ],
+      "full_text": [ "title", "assessment", "assessment_reason" ],
       "parents": [ "product", "project" ],
       "fields": {
-        "status": {
+        "title": {
           "field_type": "string",
-          "label": "Status"
+          "label": "Title"
+        },
+        "assessment": {
+          "field_type": "string",
+          "label": "Status",
+          "enumeration": [ "Green", "Yellow", "Red" ]
+        },
+        "assessment_reason": {
+          "field_type": "string",
+          "label": "Assessment Reason"
         }
       }
     },
@@ -134,35 +302,36 @@
       }
     },
     {
-      "class_name": "person",
-      "base_class_name": "asset",
-      "class_description": "A person",
-      "fields": {
-        "first_name": "string",
-        "last_name": "string",
-        "title": "string",
-        "skills": "string",
-        "username": "string",
-        "activities": "[activity]"
-      }
-    },
-    {
       "class_name": "server",
       "base_class_name": "asset",
       "class_description": "A server",
+      "full_text": [ "name", "url", "unc", "cpu", "cores", "memory", "storage" ],
       "fields": {
+        "name": "string",
         "url": "string",
         "unc": "string",
         "cpu": "string",
         "cores": "string",
-        "memory": "string"
+        "memory": "string",
+        "storage": "string"
       }
     },
+    {
+      "class_name": "environment_server",
+      "base_class_name": "app_object",
+      "class_description": "A server in an environment",
+      "parents": [ "environment", "server" ],
+      "fields": {
+      }
+    },
+
     {
       "class_name": "reference",
       "base_class_name": "asset",
       "class_description": "A reference or resource",
+      "full_text": [ "title", "url", "isbn", "synopsis" ],
       "fields": {
+        "title": "string",
         "url": "string",
         "isbn": "string",
         "synopsis": "string"
@@ -172,8 +341,11 @@
       "class_name": "license",
       "base_class_name": "asset",
       "class_description": "A license",
+      "full_text": [ "product_name", "product_version", "license_terms", "url", "license_key" ],
       "fields": {
         "product_name": "string",
+        "product_version": "string",
+        "license_terms": "string",
         "url": "string",
         "license_key": "string"
       }
@@ -182,7 +354,7 @@
       "class_name": "environment",
       "base_class_name": "asset",
       "class_description": "An environment for test",
-      "full_text": [ "status" ],
+      "full_text": [ "name", "url" ],
       "parents": [ "product" ],
       "fields": {
         "name": {
@@ -193,19 +365,20 @@
           "field_type": "string",
           "label": "URL"
         },
-        "status": {
-          "field_type": "string",
-          "label": "Status"
-        }
+        "servers": "[environment_server]"
       }
     },
     {
       "class_name": "task",
       "base_class_name": "dated_item",
       "class_description": "A general job to do",
-      "parents": [ "product", "project", "person" ],
+      "parents": [ "project" ],
       "full_text": [ "description", "status" ],
       "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
         "status": {
           "field_type": "string",
           "label": "Status"

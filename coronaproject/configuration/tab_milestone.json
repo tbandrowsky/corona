@@ -1,0 +1,16 @@
+{
+  "class_name": "page",
+  "page_name": "tab_milestone",
+  "children": [
+    {
+      "class_name": "paragraph",
+      "box": "card_text_box"
+    },
+    {
+      "class_name": "memo_field",
+      "text": "Description:",
+      "box": "memo_field_box_large",
+      "json_field_name": "description"
+    }
+  ]
+}

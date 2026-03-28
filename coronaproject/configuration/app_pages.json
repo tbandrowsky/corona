@@ -200,7 +200,8 @@
       "requirements": "card_task_requirements",
       "support": "card_task_support",
       "training": "card_task_training",
-      "app_note": "card_note"
+      "app_note": "card_note",
+      "client": "card_client"
     },
     "form_sources": {
       "environment": "page_product_environment",
@@ -220,7 +221,8 @@
       "requirements": "page_task_requirements",
       "support": "page_task_support",
       "training": "page_task_training",
-      "app_note": "page_note"
+      "app_note": "page_note",
+      "client": "page_client"
     }
   },
   "startup": [
@@ -426,7 +428,15 @@
     },
     {
       "class_name": "import",
+      "file_name": "tab_client.json"
+    },
+    {
+      "class_name": "import",
       "file_name": "tab_product.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_products.json"
     },
     {
       "class_name": "import",

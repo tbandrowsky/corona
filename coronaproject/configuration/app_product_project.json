@@ -17,28 +17,37 @@
               "name": "Project",
               "page_name": "tab_project",
               "member_name": ".",
-              "image": "assets\\project.png"
+              "image": "assets\\project.png",
+              "accept_classes": [ "project" ]
             },
             {
               "name": "Tasks",
               "page_name": "tab_tasks",
               "member_name": "tasks",
-              "image": "assets\\build.png"
+              "image": "assets\\build.png",
+              "accept_classes": ["task"]
             },
             {
               "name": "Milestones",
               "page_name": "tab_milestones",
               "member_name": "milestones",
-              "image": "assets\\milestone.png"
+              "image": "assets\\milestone.png",
+              "accept_classes": [ "milestone" ]
             },
             {
               "name": "Notes",
               "page_name": "tab_notes",
               "member_name": "notes",
-              "image": "assets\\note.png"
+              "image": "assets\\note.png",
+              "accept_classes": [ "app_note" ]
+            },
+            {
+              "name": "Details",
+              "page_name": "tab_object",
+              "member_name": "."
             }
           ],
-          "content_frame_name": "project_object_details"
+          "content_frame_name": "project_details"
         }
       ]
     }

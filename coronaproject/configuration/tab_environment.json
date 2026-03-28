@@ -1,10 +1,16 @@
 {
   "class_name": "page",
-  "page_name": "tab_task",
+  "page_name": "tab_environment",
   "children": [
     {
       "class_name": "paragraph",
       "box": "card_text_box"
+    },
+    {
+      "class_name": "edit_field",
+      "text": "Name:",
+      "box": "edit_field_box",
+      "json_field_name": "name"
     },
     {
       "class_name": "edit_field",
@@ -13,10 +19,10 @@
       "json_field_name": "description"
     },
     {
-      "class_name": "datetimepicker_field",
-      "text": "Task Date:",
+      "class_name": "edit_field",
+      "text": "Url:",
       "box": "edit_field_box",
-      "json_field_name": "item_date"
+      "json_field_name": "url"
     },
     {
       "class_name": "edit_field",

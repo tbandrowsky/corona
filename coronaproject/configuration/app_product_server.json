@@ -7,34 +7,29 @@
       "$icon_image_file": "assets\\server.png",
       "$details_contents": [
         {
-          "class_name": "edit_field",
-          "text": "Description:",
-          "box": "edit_field_box",
-          "json_field_name": "description"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Cpu:",
-          "box": "edit_field_box",
-          "json_field_name": "cpu"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Cores:",
-          "box": "edit_field_box",
-          "json_field_name": "cores"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Url:",
-          "box": "edit_field_box",
-          "json_field_name": "url"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Memory:",
-          "box": "edit_field_box",
-          "json_field_name": "memory"
+          "class_name": "tab_server",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Server",
+              "page_name": "tab_server",
+              "member_name": "."
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            },
+            {
+              "name": "Details",
+              "page_name": "tab_object",
+              "member_name": "."
+            }
+          ],
+          "content_frame_name": "person_object_details"
         }
       ]
     }

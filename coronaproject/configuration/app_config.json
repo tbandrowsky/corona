@@ -6,7 +6,7 @@
     }
   ],
   "Settings": {
-    "show_console":  true
+    "show_console":  false
   },
   "Servers": [
     {

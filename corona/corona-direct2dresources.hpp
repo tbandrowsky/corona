@@ -42,8 +42,16 @@ namespace corona
 			return NULL;
 		}
 
-	};
+		virtual std::string get_string()
+		{
+			return "";
+        }
 
+		virtual int compare(deviceDependentAssetBase* _src)
+		{
+            return this->get_string().compare(_src->get_string());
+		}
+	};
 
 	template <typename Direct2DAsset> class deviceDependentAsset : public deviceDependentAssetBase {
 	protected:
