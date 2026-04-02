@@ -72,7 +72,7 @@
           "field_type": "double",
           "label": "Balance"
         },
-        "transactions": "[transaction_detail]"
+        "posts": "[general_ledger_post]"
       },
       "indexes": {
         "idx_gl_account_number": {
@@ -106,9 +106,45 @@
       "base_class_name": "dated_item",
       "class_description": "A transaction in the general ledger",
       "full_text": [ "amount" ],
+      "parents": [ "general_ledger_transaction" ],
       "fields": {
-        "accounts": "[transaction_account]",
-        "posts": "[general_ledger_post]"
+        "amount": "double"
+      }
+    },
+    {
+      "class_name": "general_ledger_post",
+      "base_class_name": "app_object",
+      "class_description": "A general ledger post",
+      "parents": [ "general_ledger_period" ],
+      "full_text": [],
+      "fields": {
+        "transactions": "[general_ledger_transaction]"
+      }
+    },
+    {
+      "class_name": "general_ledger_transaction",
+      "base_class_name": "app_object",
+      "class_description": "A general ledger transaction",
+      "parents": [ "general_ledger_post" ],
+      "full_text": [],
+      "fields": {
+        "transactions": "[transaction]"
+      }
+    },
+    {
+      "class_name": "general_ledger_class",
+      "base_class_name": "app_object",
+      "class_description": "Mapping of a general ledger account to a class",
+      "full_text": [],
+      "fields": {
+        "source_class_name": "string",
+        "debit_account": "string",
+        "credit_account": "string"
+      },
+      "indexes": {
+        "idx_source_class_name": {
+          "index_keys": [ "source_class_name" ]
+        }
       }
     },
     {
@@ -116,28 +152,92 @@
       "base_class_name": "transaction",
       "class_description": "An invoice",
       "fields": {
+        "labor": "[activity]",
+        "post": {
+          "field_type": "query",
+          "function_name": "post",
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "class_name": "select_many",
+                "source": "$this",
+                "path": "activity",
+                "name": "charges"
+              },
+              {
+                "class_name": "project",
+                "source": "charges",
+                "name": "entries",
+                "projection": {
+                  "amount": "hours * hourly_rate",
+                  "charge_name": "client_rate.charge_name",
+                  "activity_class_name": "client_rate.activity_class_name"
+                }
+              },
+              {
+                "class_name": "result",
+                "source": "objects",
+                "name": "objects"
+              }
+            ]
+          }
+        }
       }
     },
     {
-      "class_name": "general_ledger_post",
-      "base_class_name": "app_object",
-      "class_description": "A general ledger post",
-      "parents": [ "general_ledger_period", "transaction" ],
-      "full_text": [],
-      "fields": {
-      }
-    },
-    {
-      "class_name": "transaction_account",
-      "base_class_name": "app_object",
-      "class_description": "A transaction detail",
-      "full_text": [ "amount" ],
-      "parents": [ "general_ledger_account" ],
+      "class_name": "payment",
+      "base_class_name": "transaction",
+      "class_description": "A payment",
+      "parents": [ "invoice", "debit_memo" ],
       "fields": {
         "amount": {
           "field_type": "double",
           "label": "Amount"
         }
+      }
+    },
+    {
+      "class_name": "check",
+      "base_class_name": "payment",
+      "class_description": "A payment",
+      "fields": {
+        "check_number": {
+          "field_type": "string",
+          "label": "Check Number"
+        },
+        "nsf": [ "returned_check" ]
+      }
+    },
+    {
+      "class_name": "debit_memo",
+      "base_class_name": "transaction",
+      "class_description": "A debit",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "returned_check",
+      "base_class_name": "debit_memo",
+      "class_description": "A returned check",
+      "parents": [ "check" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "returned_check_fee",
+      "base_class_name": "debit_memo",
+      "class_description": "A returned check fee",
+      "parents": [ "check" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "credit_memo",
+      "base_class_name": "transaction",
+      "class_description": "A credit",
+      "fields": {
       }
     },
     {
@@ -158,7 +258,9 @@
         "title": "string",
         "skills": "string",
         "username": "string",
-        "activities": "[activity]"
+        "activities": "[activity]",
+        "requests": "[request]",
+        "meetings": "[meeting]"
       }
     },
     {
@@ -201,9 +303,21 @@
       }
     },
     {
+      "class_name": "client_rate",
+      "base_class_name": "app_object",
+      "class_description": "A rate for a service object",
+      "full_text": [ "charge_name", "activity_class_name" ],
+      "fields": {
+        "charge_name": "string",
+        "activity_class_name": "string",
+        "flat_rate": "double",
+        "hourly_rate": "double"
+      }
+    },
+    {
       "class_name": "client",
       "base_class_name": "app_object",
-      "class_description": "A client",
+      "class_description": "A company that is either a customer or a vendor",
       "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
       "fields": {
         "company_name": "string",
@@ -215,7 +329,8 @@
         "domain_name": "string",
         "website": "string",
         "people": "[person]",
-        "products": "[product]"
+        "products": "[product]",
+        "invoices": "[invoice]"
       }
     },
     {
@@ -390,7 +505,7 @@
       "class_name": "activity",
       "base_class_name": "dated_item",
       "class_description": "An activity",
-      "parents": [ "task", "person" ],
+      "parents": [ "task", "person", "invoice" ],
       "fields": {
         "hours": {
           "field_type": "double",
