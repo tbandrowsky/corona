@@ -4041,6 +4041,16 @@ namespace corona
 			return r;
 		}
 
+		bool parse_value(json& _value, std::string src)
+		{
+			const char* _src = src.c_str();
+			std::shared_ptr<json_value> val;
+			if (parse_value(val, _src, &_src)) {
+				_value.set(val);
+				return true;
+			}
+			return false;
+		}
 
 		bool parse_value(std::shared_ptr<json_value>& _value, const char* _src, const char** _modified)
 		{

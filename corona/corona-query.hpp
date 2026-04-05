@@ -1461,27 +1461,39 @@ namespace corona
 						for (auto member : members) {
 							if (member.second.is_string()) {
 
-								std::string path = member.second.as_string();
-								if (path.starts_with("."))
+								std::string expression = member.second.as_string();
+
+								Lexer lexer(expression, arr_item);
+
+								lexer.EvaluateValue = [&_src](std::string _path, json _context) -> json
 								{
-									path = path.substr(1);
-									json data = arr_item.query(path);
-									data = data["value"];
-									new_item.put_member(member.first, data);
-								}
-								else if (path.starts_with("$")) {
-									path = path.substr(1);
-									json data = jp.create_object();
-									if (_src->get_data(data, path)) {
+									json_parser jp;
+									json data;
+
+									if (_path.starts_with("."))
+									{
+										_path = _path.substr(1);
+										json data = _context.query(_path);
 										data = data["value"];
 									}
-									new_item.put_member(member.first, data);
-								}
-								else
-								{
-									new_item.put_member(member.first, member.second);
-								}
-								json data;
+									else if (_path.starts_with("$")) {
+										_path = _path.substr(1);
+										json data = jp.create_object();
+										if (_src->get_data(data, _path)) {
+											data = data["value"];
+										}
+									}
+									else 
+									{
+										jp.parse_value(data, _path);
+									}
+
+									return data;
+								};
+
+								Parser parser(lexer, arr_item);
+								json data = parser.expr();
+								new_item.put_member(member.first, data);
 							}
 							else 
 							{

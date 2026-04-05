@@ -207,11 +207,11 @@ namespace corona {
 // is used for both hashing and encryption.
 #include "corona-cryptography.hpp"
 
-// query implements a linq like predicate object graph for everywhere
-#include "corona-query.hpp"
-
 // cheesy infix parser to be used 
 #include "corona-expressions.hpp"
+
+// query implements a linq like predicate object graph for everywhere
+#include "corona-query.hpp"
 
 // the data block allows for serialization and deserialization of resizable objects to and from a file.
 #include "corona-data-block.hpp"

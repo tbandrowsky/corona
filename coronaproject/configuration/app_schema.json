@@ -72,7 +72,7 @@
           "field_type": "double",
           "label": "Balance"
         },
-        "posts": "[general_ledger_post]"
+        "entries": "[ general_ledger_entry ]"
       },
       "indexes": {
         "idx_gl_account_number": {
@@ -102,33 +102,44 @@
       }
     },
     {
-      "class_name": "transaction",
-      "base_class_name": "dated_item",
-      "class_description": "A transaction in the general ledger",
-      "full_text": [ "amount" ],
-      "parents": [ "general_ledger_transaction" ],
-      "fields": {
-        "amount": "double"
-      }
-    },
-    {
       "class_name": "general_ledger_post",
       "base_class_name": "app_object",
       "class_description": "A general ledger post",
       "parents": [ "general_ledger_period" ],
       "full_text": [],
       "fields": {
-        "transactions": "[general_ledger_transaction]"
+        "entries": "[general_ledger_entry]"
       }
     },
     {
-      "class_name": "general_ledger_transaction",
+      "class_name": "general_ledger_entry",
       "base_class_name": "app_object",
-      "class_description": "A general ledger transaction",
-      "parents": [ "general_ledger_post" ],
+      "class_description": "A general ledger charge",
+      "parents": [ "general_ledger_post", "general_ledger_account" ],
       "full_text": [],
       "fields": {
-        "transactions": "[transaction]"
+        "amount": "double",
+        "transaction_item": "transaction_item"
+      }
+    },
+    {
+      "class_name": "transaction_item",
+      "base_class_name": "app_object",
+      "class_description": "An item on a transaction that can be posted to the general ledger",
+      "parents": [ "transaction", "general_ledger_entry" ],
+      "fields": {
+        "amount": "double"
+      }
+    },
+    {
+      "class_name": "activity_transaction_item",
+      "base_class_name": "transaction_item",
+      "class_description": "An item on a transaction that can be posted to the general ledger",
+      "parents": [ "activity" ],
+      "fields": {
+        "hours": "double",
+        "hourly_rate": "double",
+        "flat_rate": "double"
       }
     },
     {
@@ -148,16 +159,35 @@
       }
     },
     {
+      "class_name": "transaction",
+      "base_class_name": "app_object",
+      "class_description": "Mapping of a general ledger account to a class",
+      "full_text": [],
+      "fields": {
+        "items": "[transaction_item]",
+        "source_class_name": "string",
+        "debit_account": "string",
+        "credit_account": "string"
+      },
+      "indexes": {
+        "idx_source_class_name": {
+          "index_keys": [ "source_class_name" ]
+        }
+      }
+    },
+    {
       "class_name": "invoice",
       "base_class_name": "transaction",
       "class_description": "An invoice",
       "fields": {
-        "labor": "[activity]",
         "post": {
           "field_type": "query",
           "function_name": "post",
           "query": {
             "from": [
+              {
+                "class_name": "general_ledger_class"
+              }
             ],
             "stages": [
               {

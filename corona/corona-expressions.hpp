@@ -26,8 +26,8 @@ namespace corona
 
     class Token {
     public:
-        TokenType type;
-        json value;        
+        TokenType   type;
+        json        value;        
     };
 
     class Lexer 
@@ -35,20 +35,47 @@ namespace corona
 
         bool parse_value(Token& _dest, const char* _src, const char** _endsrc )
         {
-            json_parser jp;
             std::shared_ptr<json_value> _value;
+            std::string path;
 
-            if (jp.parse_value(_value, _src, _endsrc)) {
-                _dest.type = VALUE;
-                _dest.value = _value;
-                return true;
+            while (*_src and isspace(*_src)) {
+                _src++;
             }
-            return false;
+
+            while (std::isalpha(*_src) || * _src == '.') {
+                path += *_src;
+                _src++;
+            }
+
+            if (path.size() == 0) {
+                return false;
+            }
+
+            _dest.type = VALUE;
+            _dest.value = EvaluateValue(path, context);
+
+            return true;
         }
+
+        json context;
 
     public:
 
-        Lexer(const std::string& text) : text(text), pos(0), current_char(text[pos]) {}
+        std::function<json(std::string, json)> EvaluateValue = [](std::string _path, json _v) -> json {
+            json data = _v.query(_path);
+            data = data["value"];
+            return data;
+        };
+
+        Lexer(const std::string& text, json& _context) :
+            text(text),
+            context(_context),
+            pos(0),
+            current_char(text[pos])
+        {
+
+
+        }
 
         Token get_next_token() {
             json empty;
@@ -133,7 +160,7 @@ namespace corona
 
     class Parser {
     public:
-        Parser(Lexer& lexer) : lexer(lexer), current_token(lexer.get_next_token()) {}
+        Parser(Lexer& lexer, json& context) : lexer(lexer), context(context), current_token(lexer.get_next_token()) {}
 
         json expr() {
             json result = term();
@@ -154,6 +181,7 @@ namespace corona
     private:
         Lexer& lexer;
         Token current_token;
+        json context;
 
         void eat(TokenType token_type) {
             if (current_token.type == token_type) {
@@ -208,13 +236,27 @@ namespace corona
 
     int test_calculator() {
         std::string text;
+
+        json_parser jp;
+        json context = jp.parse_object(
+R"(
+{
+"name":"test",
+"age":30,
+"games":[
+    {"name":"chess","score":1200},
+    {"name":"checkers","score":1500}
+  ]
+} 
+)");
+
         while (true) {
             try {
                 std::cout << "calc> ";
                 std::getline(std::cin, text);
                 if (text.empty()) continue;
-                Lexer lexer(text);
-                Parser parser(lexer);
+                Lexer lexer(text, context);
+                Parser parser(lexer, context);
                 int result = parser.expr().as_int();
                 std::cout << result << std::endl;
             }
