@@ -139,7 +139,32 @@
       "fields": {
         "hours": "double",
         "hourly_rate": "double",
-        "flat_rate": "double"
+        "flat_rate": "double",
+        "calculate": {
+          "field_type": "query",
+          "function_name": "calculate",
+          "query": {
+            "from": [
+              {
+                "class_name": "client_rate",
+                "filters": [
+                  {
+                    "field_name": "activity_class_name",
+                    "operator": "=",
+                    "value": "$this.activity_class_name"
+                  }
+                ]
+              }
+            ],
+            "stages": [
+              {
+                "class_name": "result",
+                "source": "objects",
+                "name": "rate"
+              }
+            ]
+          }
+        }
       }
     },
     {
@@ -333,12 +358,13 @@
       }
     },
     {
-      "class_name": "client_rate",
+      "class_name": "rate",
       "base_class_name": "app_object",
       "class_description": "A rate for a service object",
       "full_text": [ "charge_name", "activity_class_name" ],
+      "parents": [ "client" ],
       "fields": {
-        "charge_name": "string",
+        "rate_name": "string",
         "activity_class_name": "string",
         "flat_rate": "double",
         "hourly_rate": "double"
@@ -358,6 +384,7 @@
         "zip": "string",
         "domain_name": "string",
         "website": "string",
+        "rates": "[rate]",
         "people": "[person]",
         "products": "[product]",
         "invoices": "[invoice]"
