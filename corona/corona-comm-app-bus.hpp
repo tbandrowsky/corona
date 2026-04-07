@@ -760,6 +760,22 @@ namespace corona
 
 			return response;
 		}
+		virtual corona_client_response remote_run_method(json _object)
+		{
+			corona_client_response response;
+
+			try
+			{
+				return client.run_method(_object);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
 		virtual corona_client_response remote_delete_object(std::string _class_name, int64_t _object_id)
 		{
 			corona_client_response response;
@@ -1141,11 +1157,32 @@ namespace corona
 			json request = object_information.clone();
 			request.put_member(token_field, token);
 			request.put_member(data_field, object_information);
-			json j = local_db->put_object(request);
+			json j = local_db->run_object(request);
 			if (j.error())
 				log_error(j, __FILE__, __LINE__);
 			response = j;
-			log_command_stop("put_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("run_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response  local_run_method(json object_information)
+		{
+			corona_client_response response;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("run_method", object_information[class_name_field].as_string(), dt);
+			timer tx;
+			json token = get_local_token();
+
+			json_parser jp;
+			json request = object_information.clone();
+			request.put_member(token_field, token);
+			request.put_member(data_field, object_information);
+			json j = local_db->run_method(request);
+			if (j.error())
+				log_error(j, __FILE__, __LINE__);
+			response = j;
+			log_command_stop("run_method", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -1587,6 +1624,33 @@ namespace corona
 			else
 			{
 				response = remote_run_object(object_information);
+			}
+
+			if (!response.success) {
+				log_error(response, __FILE__, __LINE__);
+			}
+
+			log_command_stop("run_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response  run_method(corona_instance _instance, json object_information, std::string method_name)
+		{
+			date_time dt;
+			dt = date_time::now();
+			timer tx;
+			log_command_start("run_method", object_information[class_name_field].as_string(), dt);
+			corona_client_response response;
+
+            object_information.put_member(method_path_field, method_name);
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_run_method(object_information);
+			}
+			else
+			{
+				response = remote_run_method(object_information);
 			}
 
 			if (!response.success) {

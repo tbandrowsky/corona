@@ -358,6 +358,26 @@ namespace corona
 			return result;
 		}
 
+		virtual corona_client_response run_method(json _object) override
+		{
+			corona_client_response result;
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			json payload = jp.create_object();
+			payload.put_member("data", _object);
+
+			std::string path = base_path + "/corona/objects/run_method/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), payload, header.c_str());
+
+			result = params;
+
+			return result;
+		}
+
 		virtual corona_client_response delete_object(std::string _class_name, int64_t _object_id) override
 		{
 			corona_client_response result;

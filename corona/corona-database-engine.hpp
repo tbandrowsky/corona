@@ -587,6 +587,7 @@ namespace corona
 			return options;
 		}
 
+		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
 
@@ -689,7 +690,7 @@ namespace corona
 		virtual json	get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json	delete_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
 		virtual json    get_single_object(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) = 0;
-
+        virtual json    run_method(corona_database_interface* _db, std::string& _method_name, std::string& _token, std::string& _class_name, json& _target) = 0;
 		virtual json	run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _target) = 0;
 
 		virtual json	get_info(corona_database_interface* _db) = 0;
@@ -780,6 +781,7 @@ namespace corona
 
 		virtual json edit_object(json _edit_object_request) = 0;
 		virtual json run_object(json _edit_object_request) = 0;
+		virtual json run_method(json _run_method_request) = 0;
 		virtual json create_object(json create_object_request) = 0;
 		virtual json put_object(json put_object_request) = 0;
 		virtual json get_object(json get_object_request) = 0;
@@ -2436,6 +2438,7 @@ namespace corona
 	{
 	public:
 		json		query_body;
+		bool        run_on_demand = false;
 
 		query_field_options() = default;
 		query_field_options(const query_field_options& _src) = default;
@@ -2448,6 +2451,7 @@ namespace corona
 		{
 			field_options_base::get_json(_dest);
 			_dest.put_member("query", query_body);
+            _dest.put_member("run_on_demand", run_on_demand);
 		}
 
 		virtual void put_json(json& _src)
@@ -2455,17 +2459,16 @@ namespace corona
 			json_parser jp;
 			field_options_base::put_json(_src);
 			query_body = _src["query"];
+            run_on_demand = _src["run_on_demand"].as_bool();
 		}
 
-
-
-		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _object)
+		virtual json run_method(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _object)
 		{
 			using namespace std::literals;
 			json_parser jp;
-            if (query_body.empty()) {
-                return jp.create_array();
-            }
+			if (query_body.empty()) {
+				return jp.create_array();
+			}
 			json this_query_body = query_body.clone();
 			this_query_body.put_member("include_children", false);
 
@@ -2486,7 +2489,7 @@ namespace corona
 			if (query_results[success_field].as_bool()) {
 				query_data_results = query_results[data_field];
 			}
-			else 
+			else
 			{
 				validation_error_collection ves;
 				validation_error ve;
@@ -2499,6 +2502,19 @@ namespace corona
 				query_data_results = jp.create_array();
 			}
 			return query_data_results;
+		}
+
+		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _object)
+		{
+			json_parser jp;
+            json results = jp.create_array();
+
+			if (run_on_demand) {
+				return results;
+			}
+
+            results = run_method(_db, _token, _classname, _object);
+			return results;
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
@@ -3918,6 +3934,20 @@ namespace corona
 				indexes.insert_or_assign(backing_index_name, idx);
 			}
 
+		}
+
+		virtual json run_method(corona_database_interface* _db, std::string& _method_name, std::string& _token, std::string& _classname, json& _target) override
+		{
+			json_parser jp;
+			json results = jp.create_array();
+            auto fldpair = fields.find(_method_name);
+			if (fldpair != fields.end()) {
+				auto query_field = fldpair->second;
+				if (query_field->get_field_type() == field_types::ft_query) {
+					results = query_field->run_method(_db, _method_name, _token, _classname, _target);
+				}
+			} 
+			return results;
 		}
 
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _target) override
@@ -9578,6 +9608,57 @@ grant_type=authorization_code
 				return result;
 			}
 			return result;
+		}
+
+		virtual json run_method(json _run_method_request)
+		{
+			std::string user_name, user_auth;
+			json_parser jp;
+			json response;
+
+			date_time start_time = date_time::now();
+			timer tx;
+			validation_error_collection errors;
+
+			if (not check_message(_run_method_request, { auth_general }, user_name, user_auth))
+			{
+				response = create_response(_run_method_request, false, "run method denied", jp.create_object(), errors, tx.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("run_method", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return response;
+			}
+
+            std::string token = _run_method_request[token_field].as_string();
+
+			json edit_request_data = _run_method_request[data_field];
+			if (edit_request_data.array())
+				edit_request_data = edit_request_data.get_element(0);
+			std::string class_name = edit_request_data[class_name_field].as_string();
+			int64_t object_id = edit_request_data[object_id_field].as_int64_t();
+            std::string method_path = edit_request_data[method_path_field].as_string();
+
+			class_permissions perms = get_class_permission(user_name, class_name);
+			class_permissions sys_perms = get_system_permission();
+
+			json user = get_user(user_name);
+			auto edit_class = read_lock_class(class_name);
+
+			json result = jp.create_array();
+
+			if (edit_class) {
+
+				if (object_id > 0) {
+
+					json key = jp.create_object();
+					key.put_member(class_name_field, class_name);
+                    key.put_member_i64(object_id_field, object_id);
+                    json object = edit_class->get_single_object(this, key, true, perms);
+					result = edit_class->run_method(this, method_path, token, class_name, object);
+				}
+			}
+
+            json response = create_response(_run_method_request, true, "Ok", result, errors, tx.get_elapsed_seconds());
+
+			return response;
 		}
 
 		virtual json edit_object(json _edit_object_request) override

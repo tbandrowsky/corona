@@ -951,6 +951,22 @@ namespace corona
 			_request.send_response(200, "Ok", fn_response);
 			};
 
+		http_handler_function corona_objects_run_method = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+				return;
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			//			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->run_method(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
+
 		json parse_request(http_request _request)
 		{
 			json_parser jph;
@@ -1996,6 +2012,50 @@ Bind get classes
 				api_paths.push_back(new_api);
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_objects_run);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+
+				/**************
+				Bind run_method
+				***************/
+
+				new_api.path = "objects/run_method/";
+				new_api.verb = "post";
+				new_api.name = "run_method";
+				new_api.description = "Runs a method on an object and returns the method results.";
+				new_api.request_class_name = R"(sys_run_method_request)";
+				new_api.response_class_name = R"(sys_run_method_response)";
+				new_api.request_schema = R"({
+  "type": "object",
+  "data": {
+		"class_name": "class of object",
+		"object_id": "id of object."
+	}
+})";
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True if the object was deleted successfully."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "array"
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_objects_run);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+
 
 				new_api.path = "objects/copy/";
 				new_api.name = "copy_object";

@@ -72,7 +72,7 @@
           "field_type": "double",
           "label": "Balance"
         },
-        "entries": "[ general_ledger_entry ]"
+        "entries": "[ general_ledger_entry : account_number ]"
       },
       "indexes": {
         "idx_gl_account_number": {
@@ -117,12 +117,17 @@
       "base_class_name": "app_object",
       "class_description": "A general ledger charge",
       "parents": [ "general_ledger_post" ],
-      "full_text": [],
+      "full_text": [ "account_number", "debit", "credit" ],
       "fields": {
         "account_number": "string",
         "debit": "double",
         "credit": "double",
         "reference": "app_object"
+      },
+      "indexes": {
+        "idx_gle_account_number": {
+          "index_keys": [ "account_number" ]
+        }
       }
     },
     {
@@ -166,24 +171,44 @@
                 "source2": "rate",
                 "resultname1": "charge",
                 "resultname2": "rate",
-                "keys1": "activity",
-                "keys2": "activity"
+                "keys1": "class_name",
+                "keys2": "activity_class_name"
               },
               {
-                "name": "entries",
+                "name": "debits",
                 "class_name": "project",
                 "source": "charge_rate",
                 "projection": {
                   "class_name": "general_ledger_entry",
-                  "debit": "hours * hourly_rate",
-                  "credit": "client_rate.charge_name",
+                  "account_number": "rate.debit_account_number",
+                  "debit": "charge.hours * rate.hourly_rate + rate.flat_rate",
+                  "credit": 0.0,
                   "activity_class_name": "client_rate.activity_class_name"
                 }
               },
               {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "rate.credit_account_number",
+                  "debit": 0.0,
+                  "credit": "charge.hours * rate.hourly_rate + rate.flat_rate",
+                  "activity_class_name": "client_rate.activity_class_name"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
                 "class_name": "result",
-                "source": "objects",
-                "name": "objects"
+                "source": "debits"
               }
             ]
           }
@@ -310,15 +335,15 @@
       "class_name": "rate",
       "base_class_name": "app_object",
       "class_description": "A rate for a service object",
-      "full_text": [ "rate_name", "activity_class_name", "debit_account", "credit_account", "flat_rate", "hourly_rate" ],
+      "full_text": [ "rate_name", "activity_class_name", "debit_account_number", "credit_account_number", "flat_rate", "hourly_rate" ],
       "parents": [ "client" ],
       "fields": {
         "rate_name": "string",
         "activity_class_name": "string",
         "flat_rate": "double",
         "hourly_rate": "double",
-        "debit_account": "general_ledger_account",
-        "credit_account": "general_ledger_account"
+        "debit_account_number": "string",
+        "credit_account_number": "string"
       }
     },
     {

@@ -82,6 +82,7 @@ namespace corona
 		virtual corona_client_response get_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
 		virtual corona_client_response put_object(json _object) = 0;
 		virtual corona_client_response run_object(json _object) = 0;
+ 		virtual corona_client_response run_method(json _object) = 0;
 		virtual corona_client_response delete_object(std::string _class_name, int64_t _object_id) = 0;
 		virtual corona_client_response query_objects(json _query) = 0;
 	};
