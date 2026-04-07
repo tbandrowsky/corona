@@ -670,7 +670,8 @@ namespace corona
 		std::string resultname2;
 		std::string source1;
 		std::string source2;
-		std::vector<std::string> keys;
+		std::vector<std::string> keys1;
+		std::vector<std::string> keys2;
 
 		virtual std::string term_name() { return "join"; }
 
@@ -708,9 +709,22 @@ namespace corona
 
 			if (query1.array() and query2.array()) {
 				for (auto item1 : query1) {
-					json key1 = item1.extract(keys);
+					json key1 = jp.create_object();
+					for (int i = 0; i < keys1.size(); i++) {
+						std::string k1 = std::format("key_{0}", i);
+						json t = item1[k1];
+						key1.put_member(k1, t);
+					}
+
 					for (auto item2 : query2) {
-						json key2 = item2.extract(keys);
+						json key2 = jp.create_object();
+
+						for (int i = 0; i < keys2.size(); i++) {
+							std::string k2 = std::format("key_{0}", i);
+							json t = item2[k2];
+							key2.put_member(k2, t);
+						}
+
 						if (key1.compare(key2) == 0) {
 							json new_item = jp.create_object();
 							new_item.merge(key1);
@@ -718,7 +732,9 @@ namespace corona
 							new_item.put_member(resultname2, item2);
 							stage_output.push_back(new_item);
 						}
+
 					}
+
 				}
 			}
 			execution_time_seconds = tx.get_elapsed_seconds();
@@ -735,8 +751,10 @@ namespace corona
 			_dest.put_member("resultname2", resultname2);
 			_dest.put_member("source1", source1);
 			_dest.put_member("source2", source2);
-			std::string skeys = join(keys, ",");
-			_dest.put_member("keys", skeys);
+			std::string skeys1 = join(keys1, ",");
+			std::string skeys2 = join(keys2, ",");
+			_dest.put_member("keys1", skeys1);
+			_dest.put_member("keys2", skeys2);
 			_dest.put_member(seconds_field, execution_time_seconds);
 		}
 
@@ -759,8 +777,10 @@ namespace corona
 			resultname2 = _src["resultname2"].as_string();
 			source1 = _src["source1"].as_string();
 			source2 = _src["source2"].as_string();
-			std::string skeys = _src["keys"].as_string();
-			keys = split(skeys, ',');
+			std::string skeys1 = _src["keys1"].as_string();
+			std::string skeys2 = _src["keys2"].as_string();
+			keys1 = split(skeys1, ',');
+			keys2 = split(skeys2, ',');
 			stage_output = _src["output"];
 		}
 

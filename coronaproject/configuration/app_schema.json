@@ -108,6 +108,7 @@
       "parents": [ "general_ledger_period" ],
       "full_text": [],
       "fields": {
+        "reference": "app_object",
         "entries": "[general_ledger_entry]"
       }
     },
@@ -115,72 +116,13 @@
       "class_name": "general_ledger_entry",
       "base_class_name": "app_object",
       "class_description": "A general ledger charge",
-      "parents": [ "general_ledger_post", "general_ledger_account" ],
+      "parents": [ "general_ledger_post" ],
       "full_text": [],
       "fields": {
-        "amount": "double",
-        "transaction_item": "transaction_item"
-      }
-    },
-    {
-      "class_name": "transaction_item",
-      "base_class_name": "app_object",
-      "class_description": "An item on a transaction that can be posted to the general ledger",
-      "parents": [ "transaction", "general_ledger_entry" ],
-      "fields": {
-        "amount": "double"
-      }
-    },
-    {
-      "class_name": "activity_transaction_item",
-      "base_class_name": "transaction_item",
-      "class_description": "An item on a transaction that can be posted to the general ledger",
-      "parents": [ "activity" ],
-      "fields": {
-        "hours": "double",
-        "hourly_rate": "double",
-        "flat_rate": "double",
-        "calculate": {
-          "field_type": "query",
-          "function_name": "calculate",
-          "query": {
-            "from": [
-              {
-                "class_name": "client_rate",
-                "filters": [
-                  {
-                    "field_name": "activity_class_name",
-                    "operator": "=",
-                    "value": "$this.activity_class_name"
-                  }
-                ]
-              }
-            ],
-            "stages": [
-              {
-                "class_name": "result",
-                "source": "objects",
-                "name": "rate"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "class_name": "general_ledger_class",
-      "base_class_name": "app_object",
-      "class_description": "Mapping of a general ledger account to a class",
-      "full_text": [],
-      "fields": {
-        "source_class_name": "string",
-        "debit_account": "string",
-        "credit_account": "string"
-      },
-      "indexes": {
-        "idx_source_class_name": {
-          "index_keys": [ "source_class_name" ]
-        }
+        "account_number": "string",
+        "debit": "double",
+        "credit": "double",
+        "reference": "app_object"
       }
     },
     {
@@ -189,45 +131,52 @@
       "class_description": "Mapping of a general ledger account to a class",
       "full_text": [],
       "fields": {
-        "items": "[transaction_item]",
-        "source_class_name": "string",
-        "debit_account": "string",
-        "credit_account": "string"
-      },
-      "indexes": {
-        "idx_source_class_name": {
-          "index_keys": [ "source_class_name" ]
-        }
+        
       }
     },
     {
       "class_name": "invoice",
       "base_class_name": "transaction",
       "class_description": "An invoice",
+      "parents": [ "client" ],
       "fields": {
+        "activity": "[activity]",
         "post": {
           "field_type": "query",
-          "function_name": "post",
           "query": {
             "from": [
               {
-                "class_name": "general_ledger_class"
+                "class_name": "rate",
+                "filter": {
+                  "client": "$this.client"
+                }
               }
             ],
             "stages": [
               {
+                "name": "charge",
                 "class_name": "select_many",
                 "source": "$this",
-                "path": "activity",
-                "name": "charges"
+                "path": "activity"
               },
               {
-                "class_name": "project",
-                "source": "charges",
+                "name": "charge_rate",
+                "class_name": "join",
+                "source1": "charge",
+                "source2": "rate",
+                "resultname1": "charge",
+                "resultname2": "rate",
+                "keys1": "activity",
+                "keys2": "activity"
+              },
+              {
                 "name": "entries",
+                "class_name": "project",
+                "source": "charge_rate",
                 "projection": {
-                  "amount": "hours * hourly_rate",
-                  "charge_name": "client_rate.charge_name",
+                  "class_name": "general_ledger_entry",
+                  "debit": "hours * hourly_rate",
+                  "credit": "client_rate.charge_name",
                   "activity_class_name": "client_rate.activity_class_name"
                 }
               },
@@ -361,13 +310,15 @@
       "class_name": "rate",
       "base_class_name": "app_object",
       "class_description": "A rate for a service object",
-      "full_text": [ "charge_name", "activity_class_name" ],
+      "full_text": [ "rate_name", "activity_class_name", "debit_account", "credit_account", "flat_rate", "hourly_rate" ],
       "parents": [ "client" ],
       "fields": {
         "rate_name": "string",
         "activity_class_name": "string",
         "flat_rate": "double",
-        "hourly_rate": "double"
+        "hourly_rate": "double",
+        "debit_account": "general_ledger_account",
+        "credit_account": "general_ledger_account"
       }
     },
     {
