@@ -528,6 +528,7 @@ namespace corona
 		virtual void put_json(json& _src) = 0;
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
+		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json & _object) = 0;
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
@@ -1163,6 +1164,12 @@ namespace corona
 		}
 
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json & _object)  override
+		{
+			json empty;
+			return empty;
+		}
+
+		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object)  override
 		{
 			json empty;
 			return empty;
@@ -2713,6 +2720,15 @@ namespace corona
 					}
 				}
 			}
+		}
+
+		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) 
+		{
+			json results;
+			if (options) {
+				results = options->run_method(_db, _method_name, _token, _class_name, _object);
+			}
+			return results;
 		}
 
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _classname, json& _object) override
@@ -9656,7 +9672,7 @@ grant_type=authorization_code
 				}
 			}
 
-            json response = create_response(_run_method_request, true, "Ok", result, errors, tx.get_elapsed_seconds());
+            response = create_response(_run_method_request, true, "Ok", result, errors, tx.get_elapsed_seconds());
 
 			return response;
 		}

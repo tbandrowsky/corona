@@ -81,8 +81,15 @@
       }
     },
     {
-      "class_name": "bank_account",
+      "class_name": "cash_account",
       "base_class_name": "general_ledger_account",
+      "class_description": "Cash and cash equivalents account",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bank_account",
+      "base_class_name": "cash_account",
       "class_description": "Bank account",
       "full_text": [ "bank_name", "bank_routing", "bank_account" ],
       "fields": {
@@ -90,11 +97,11 @@
           "field_type": "string",
           "label": "Bank Name"
         },
-        "bank_routing": {
+        "bank_routing_number": {
           "field_type": "string",
           "label": "Bank Routing"
         },
-        "bank_account": {
+        "bank_account_number": {
           "field_type": "string",
           "label": "Bank Account"
         },
@@ -105,6 +112,13 @@
       }
     },
     {
+      "class_name": "petty_cash",
+      "base_class_name": "cash_account",
+      "class_description": "Petty cash account",
+      "fields": {
+      }
+    },
+    {
       "class_name": "receivables_account",
       "base_class_name": "general_ledger_account",
       "class_description": "Receivables account",
@@ -112,12 +126,50 @@
       }
     },
     {
+      "class_name": "client",
+      "base_class_name": "receivables_account",
+      "class_description": "A company that is a customer or a vendor",
+      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
+      "fields": {
+        "company_name": "string",
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "domain_name": "string",
+        "website": "string",
+        "rates": "[rate]",
+        "people": "[person]",
+        "products": "[product]",
+        "invoices": "[invoice]"
+      }
+    },
+
+    {
       "class_name": "payables_account",
       "base_class_name": "general_ledger_account",
       "class_description": "Payables account",
       "fields": {
       }
     },
+    {
+      "class_name": "vendor",
+      "base_class_name": "payables_account",
+      "class_description": "A company that is a vendor",
+      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
+      "fields": {
+        "company_name": "string",
+        "street1": "string",
+        "street2": "string",
+        "city": "string",
+        "state": "string",
+        "zip": "string",
+        "domain_name": "string",
+        "website": "string"
+      }
+    },
+
     {
       "class_name": "general_ledger_period",
       "base_class_name": "app_object",
@@ -136,6 +188,10 @@
           "field_type": "datetime",
           "label": "End Date"
         },
+        "closing_date": {
+          "field_type": "datetime",
+          "label": "Closing Date"
+        },
         "posts": "[general_ledger_post]"
       }
     },
@@ -143,18 +199,17 @@
       "class_name": "general_ledger_post",
       "base_class_name": "app_object",
       "class_description": "A general ledger post",
-      "parents": [ "general_ledger_period" ],
+      "parents": [ "general_ledger_period", "app_object" ],
       "full_text": [],
       "fields": {
-        "reference": "app_object",
-        "entries": "[general_ledger_entry]"
+        "entries": "[ general_ledger_entry ]"
       }
     },
     {
       "class_name": "general_ledger_entry",
       "base_class_name": "app_object",
       "class_description": "A general ledger charge",
-      "parents": [ "general_ledger_post" ],
+      "parents": [ "general_ledger_post", "app_object" ],
       "full_text": [ "account_number", "debit", "credit" ],
       "fields": {
         "account_number": "string",
@@ -171,8 +226,9 @@
     {
       "class_name": "transaction",
       "base_class_name": "app_object",
-      "class_description": "Mapping of a general ledger account to a class",
+      "class_description": "An event with financial impact",
       "full_text": [],
+      "parents": [ "client" ],
       "fields": {
 
       }
@@ -181,11 +237,13 @@
       "class_name": "invoice",
       "base_class_name": "transaction",
       "class_description": "An invoice",
-      "parents": [ "client" ],
       "fields": {
         "activity": "[activity]",
+        "transactions": "[transaction]",
+
         "post": {
           "field_type": "query",
+          "run_on_demand": true,
           "query": {
             "from": [
               {
@@ -218,10 +276,11 @@
                 "source": "charge_rate",
                 "projection": {
                   "class_name": "general_ledger_entry",
-                  "account_number": "rate.debit_account_number",
+                  "account_number": "client.receivables_account_number",
                   "debit": "charge.hours * rate.hourly_rate + rate.flat_rate",
                   "credit": 0.0,
-                  "activity_class_name": "client_rate.activity_class_name"
+                  "reference": "this.object_id",
+                  "reference_class": "invoice"
                 }
               },
               {
@@ -233,7 +292,8 @@
                   "account_number": "rate.credit_account_number",
                   "debit": 0.0,
                   "credit": "charge.hours * rate.hourly_rate + rate.flat_rate",
-                  "activity_class_name": "client_rate.activity_class_name"
+                  "reference": "this.object_id",
+                  "reference_class": "invoice"
                 }
               },
               {
@@ -262,383 +322,679 @@
         "amount": {
           "field_type": "double",
           "label": "Amount"
-        }
-      },
-      {
-        "class_name": "check",
-        "base_class_name": "payment",
-        "class_description": "A payment",
-        "fields": {
-          "check_number": {
-            "field_type": "string",
-            "label": "Check Number"
-          },
-          "nsf": [ "returned_check" ]
-        }
-      },
-      {
-        "class_name": "debit_memo",
-        "base_class_name": "transaction",
-        "class_description": "A debit",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "returned_check",
-        "base_class_name": "debit_memo",
-        "class_description": "A returned check",
-        "parents": [ "check" ],
-        "fields": {
-        }
-      },
-      {
-        "class_name": "returned_check_fee",
-        "base_class_name": "debit_memo",
-        "class_description": "A returned check fee",
-        "parents": [ "check" ],
-        "fields": {
-        }
-      },
-      {
-        "class_name": "credit_memo",
-        "base_class_name": "transaction",
-        "class_description": "A credit",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "person",
-        "base_class_name": "app_object",
-        "class_description": "A person",
-        "parents": [ "client", "product", "meeting_person" ],
-        "fields": {
-          "first_name": "string",
-          "last_name": "string",
-          "email": "string",
-          "phone": "string",
-          "fax": "string",
-          "facebook": "string",
-          "linkedin": "string",
-          "twitter": "string",
-          "discord": "string",
-          "title": "string",
-          "skills": "string",
-          "username": "string",
-          "activities": "[activity]",
-          "requests": "[request]",
-          "meetings": "[meeting]"
-        }
-      },
-      {
-        "class_name": "meeting_person",
-        "base_class_name": "app_object",
-        "class_description": "A person",
-        "parents": [ "meeting", "person" ],
-        "fields": {
-        }
-      },
-      {
-        "class_name": "meeting",
-        "class_description": "An appointment to meet someone",
-        "base_class_name": "dated_item",
-        "class_color": "#af9d66",
-        "full_text": [ "title", "agenda", "with", "when", "where" ],
-        "fields": {
-          "title": {
-            "field_type": "string",
-            "label": "Title"
-          },
-          "attendees": "[meeting_person]",
-          "agenda": {
-            "field_type": "string",
-            "label": "Agenda"
-          },
-          "with": {
-            "field_type": "string",
-            "label": "With"
-          },
-          "duration": {
-            "field_type": "string",
-            "label": "Length"
-          },
-          "meeting_time": "string",
-          "where": {
-            "field_type": "string",
-            "label": "Where"
+        },
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "payment"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "payment"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
           }
-        }
-      },
-      {
-        "class_name": "rate",
-        "base_class_name": "app_object",
-        "class_description": "A rate for a service object",
-        "full_text": [ "rate_name", "activity_class_name", "debit_account_number", "credit_account_number", "flat_rate", "hourly_rate" ],
-        "parents": [ "client" ],
-        "fields": {
-          "rate_name": "string",
-          "activity_class_name": "string",
-          "flat_rate": "double",
-          "hourly_rate": "double",
-          "debit_account_number": "string",
-          "credit_account_number": "string"
-        }
-      },
-      {
-        "class_name": "client",
-        "base_class_name": "app_object",
-        "class_description": "A company that is either a customer or a vendor",
-        "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
-        "fields": {
-          "company_name": "string",
-          "street1": "string",
-          "street2": "string",
-          "city": "string",
-          "state": "string",
-          "zip": "string",
-          "domain_name": "string",
-          "website": "string",
-          "rates": "[rate]",
-          "people": "[person]",
-          "products": "[product]",
-          "invoices": "[invoice]"
-        }
-      },
-      {
-        "class_name": "product",
-        "base_class_name": "app_object",
-        "class_description": "A custom product for a client",
-        "full_text": [ "common_name", "charter_name", "public_name" ],
-        "fields": {
-          "common_name": "string",
-          "charter_name": "string",
-          "public_name": "string",
-          "projects": "[project]",
-          "assets": "[asset]",
-          "people": "[person]",
-          "milestones": "[milestone]"
-        }
-      },
-      {
-        "class_name": "request",
-        "base_class_name": "app_object",
-        "class_description": "A request for a product",
-        "full_text": [ "title" ],
-        "parents": [ "client", "person" ],
-        "fields": {
-          "title": {
-            "field_type": "string",
-            "label": "Title"
-          }
-        }
-      },
-      {
-        "class_name": "project",
-        "base_class_name": "dated_item",
-        "class_description": "A general job to do",
-        "full_text": [ "description", "status" ],
-        "parents": [ "product" ],
-        "fields": {
-          "title": {
-            "field_type": "string",
-            "label": "Title"
-          },
-          "charter": {
-            "field_type": "string",
-            "label": "Charter"
-          },
-          "status": {
-            "field_type": "string",
-            "label": "Status",
-            "enumeration": [ "Not Started", "In Progress", "Completed", "On Hold", "Cancelled" ]
-          },
-          "tasks": "[task]",
-          "milestones": "[milestone]"
-        }
-      },
-      {
-        "class_name": "milestone",
-        "class_description": "A checkpoint and progress marker",
-        "base_class_name": "dated_item",
-        "class_color": "#af9d66",
-        "full_text": [ "title", "assessment", "assessment_reason" ],
-        "parents": [ "product", "project" ],
-        "fields": {
-          "title": {
-            "field_type": "string",
-            "label": "Title"
-          },
-          "assessment": {
-            "field_type": "string",
-            "label": "Status",
-            "enumeration": [ "Green", "Yellow", "Red" ]
-          },
-          "assessment_reason": {
-            "field_type": "string",
-            "label": "Assessment Reason"
-          }
-        }
-      },
-      {
-        "class_name": "asset",
-        "base_class_name": "app_object",
-        "class_description": "An asset used on a project",
-        "parents": [ "product" ],
-        "fields": {
-        }
-      },
-      {
-        "class_name": "server",
-        "base_class_name": "asset",
-        "class_description": "A server",
-        "full_text": [ "name", "url", "unc", "cpu", "cores", "memory", "storage" ],
-        "fields": {
-          "name": "string",
-          "url": "string",
-          "unc": "string",
-          "cpu": "string",
-          "cores": "string",
-          "memory": "string",
-          "storage": "string"
-        }
-      },
-      {
-        "class_name": "environment_server",
-        "base_class_name": "app_object",
-        "class_description": "A server in an environment",
-        "parents": [ "environment", "server" ],
-        "fields": {
-        }
-      },
-
-      {
-        "class_name": "reference",
-        "base_class_name": "asset",
-        "class_description": "A reference or resource",
-        "full_text": [ "title", "url", "isbn", "synopsis" ],
-        "fields": {
-          "title": "string",
-          "url": "string",
-          "isbn": "string",
-          "synopsis": "string"
-        }
-      },
-      {
-        "class_name": "license",
-        "base_class_name": "asset",
-        "class_description": "A license",
-        "full_text": [ "product_name", "product_version", "license_terms", "url", "license_key" ],
-        "fields": {
-          "product_name": "string",
-          "product_version": "string",
-          "license_terms": "string",
-          "url": "string",
-          "license_key": "string"
-        }
-      },
-      {
-        "class_name": "environment",
-        "base_class_name": "asset",
-        "class_description": "An environment for test",
-        "full_text": [ "name", "url" ],
-        "parents": [ "product" ],
-        "fields": {
-          "name": {
-            "field_type": "string",
-            "label": "Name"
-          },
-          "url": {
-            "field_type": "string",
-            "label": "URL"
-          },
-          "servers": "[environment_server]"
-        }
-      },
-      {
-        "class_name": "task",
-        "base_class_name": "dated_item",
-        "class_description": "A general job to do",
-        "parents": [ "project" ],
-        "full_text": [ "description", "status" ],
-        "fields": {
-          "title": {
-            "field_type": "string",
-            "label": "Title"
-          },
-          "status": {
-            "field_type": "string",
-            "label": "Status"
-          },
-          "activities": "[activity]"
-        }
-      },
-      {
-        "class_name": "activity",
-        "base_class_name": "dated_item",
-        "class_description": "An activity",
-        "parents": [ "task", "person", "invoice" ],
-        "fields": {
-          "hours": {
-            "field_type": "double",
-            "label": "Hours"
-          }
-        }
-      },
-      {
-        "class_name": "requirements",
-        "base_class_name": "activity",
-        "class_description": "Defining the desired outcome",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "plan",
-        "base_class_name": "activity",
-        "class_description": "Planning for achieving the outcome",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "build",
-        "base_class_name": "activity",
-        "class_description": "Building and testing",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "delivery",
-        "base_class_name": "activity",
-        "class_description": "Delivering the final product",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "documentation",
-        "base_class_name": "activity",
-        "class_description": "Creating and maintaining documentation",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "support",
-        "base_class_name": "activity",
-        "class_description": "Providing support and assistance",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "quickchange",
-        "base_class_name": "activity",
-        "class_description": "Making a quick change to a system for bugs",
-        "fields": {
-        }
-      },
-      {
-        "class_name": "training",
-        "base_class_name": "activity",
-        "class_description": "Training and education",
-        "fields": {
         }
       }
+    },
+    {
+      "class_name": "check",
+      "base_class_name": "payment",
+      "class_description": "A payment",
+      "fields": {
+        "check_number": {
+          "field_type": "string",
+          "label": "Check Number"
+        },
+        "nsf": [ "returned_check" ],
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "class_name": "debit_memo",
+      "base_class_name": "transaction",
+      "class_description": "A debit",
+      "fields": {
+        "credit_account_number": {
+          "field_type": "string",
+          "label": "Credit Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "debit_memo"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.credit_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "debit_memo"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+
+      }
+    },
+    {
+      "class_name": "returned_check",
+      "base_class_name": "debit_memo",
+      "class_description": "A returned check",
+      "parents": [ "check" ],
+      "fields": {
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+
+      }
+    },
+    {
+      "class_name": "returned_check_fee",
+      "base_class_name": "debit_memo",
+      "class_description": "A returned check fee",
+      "parents": [ "check" ],
+      "fields": {
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.credit_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+
+      }
+    },
+    {
+      "class_name": "credit_memo",
+      "base_class_name": "transaction",
+      "class_description": "A credit",
+      "fields": {
+        "debit_account_number": {
+          "field_type": "string",
+          "label": "Debit Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "debit_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "returned_check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+
+      }
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "app_object",
+      "class_description": "A person",
+      "parents": [ "client", "product", "meeting_person" ],
+      "fields": {
+        "first_name": "string",
+        "last_name": "string",
+        "email": "string",
+        "phone": "string",
+        "fax": "string",
+        "facebook": "string",
+        "linkedin": "string",
+        "twitter": "string",
+        "discord": "string",
+        "title": "string",
+        "skills": "string",
+        "username": "string",
+        "activities": "[activity]",
+        "requests": "[request]",
+        "meetings": "[meeting]"
+      }
+    },
+    {
+      "class_name": "meeting_person",
+      "base_class_name": "app_object",
+      "class_description": "A person",
+      "parents": [ "meeting", "person" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "meeting",
+      "class_description": "An appointment to meet someone",
+      "base_class_name": "dated_item",
+      "class_color": "#af9d66",
+      "full_text": [ "title", "agenda", "with", "when", "where" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
+        "attendees": "[meeting_person]",
+        "agenda": {
+          "field_type": "string",
+          "label": "Agenda"
+        },
+        "with": {
+          "field_type": "string",
+          "label": "With"
+        },
+        "duration": {
+          "field_type": "string",
+          "label": "Length"
+        },
+        "meeting_time": "string",
+        "where": {
+          "field_type": "string",
+          "label": "Where"
+        }
+      }
+    },
+    {
+      "class_name": "rate",
+      "base_class_name": "app_object",
+      "class_description": "A rate for a service object",
+      "full_text": [ "rate_name", "activity_class_name", "debit_account_number", "credit_account_number", "flat_rate", "hourly_rate" ],
+      "parents": [ "client" ],
+      "fields": {
+        "rate_name": "string",
+        "activity_class_name": "string",
+        "flat_rate": "double",
+        "hourly_rate": "double",
+        "credit_account_number": "string"
+      }
+    },
+    {
+      "class_name": "product",
+      "base_class_name": "app_object",
+      "class_description": "A custom product for a client",
+      "full_text": [ "common_name", "charter_name", "public_name" ],
+      "fields": {
+        "common_name": "string",
+        "charter_name": "string",
+        "public_name": "string",
+        "projects": "[project]",
+        "assets": "[asset]",
+        "people": "[person]",
+        "milestones": "[milestone]"
+      }
+    },
+    {
+      "class_name": "request",
+      "base_class_name": "app_object",
+      "class_description": "A request for a product",
+      "full_text": [ "title" ],
+      "parents": [ "client", "person" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        }
+      }
+    },
+    {
+      "class_name": "project",
+      "base_class_name": "dated_item",
+      "class_description": "A general job to do",
+      "full_text": [ "description", "status" ],
+      "parents": [ "product" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
+        "charter": {
+          "field_type": "string",
+          "label": "Charter"
+        },
+        "status": {
+          "field_type": "string",
+          "label": "Status",
+          "enumeration": [ "Not Started", "In Progress", "Completed", "On Hold", "Cancelled" ]
+        },
+        "tasks": "[task]",
+        "milestones": "[milestone]"
+      }
+    },
+    {
+      "class_name": "milestone",
+      "class_description": "A checkpoint and progress marker",
+      "base_class_name": "dated_item",
+      "class_color": "#af9d66",
+      "full_text": [ "title", "assessment", "assessment_reason" ],
+      "parents": [ "product", "project" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
+        "assessment": {
+          "field_type": "string",
+          "label": "Status",
+          "enumeration": [ "Green", "Yellow", "Red" ]
+        },
+        "assessment_reason": {
+          "field_type": "string",
+          "label": "Assessment Reason"
+        }
+      }
+    },
+    {
+      "class_name": "asset",
+      "base_class_name": "app_object",
+      "class_description": "An asset used on a project",
+      "parents": [ "product" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "server",
+      "base_class_name": "asset",
+      "class_description": "A server",
+      "full_text": [ "name", "url", "unc", "cpu", "cores", "memory", "storage" ],
+      "fields": {
+        "name": "string",
+        "url": "string",
+        "unc": "string",
+        "cpu": "string",
+        "cores": "string",
+        "memory": "string",
+        "storage": "string"
+      }
+    },
+    {
+      "class_name": "environment_server",
+      "base_class_name": "app_object",
+      "class_description": "A server in an environment",
+      "parents": [ "environment", "server" ],
+      "fields": {
+      }
+    },
+
+    {
+      "class_name": "reference",
+      "base_class_name": "asset",
+      "class_description": "A reference or resource",
+      "full_text": [ "title", "url", "isbn", "synopsis" ],
+      "fields": {
+        "title": "string",
+        "url": "string",
+        "isbn": "string",
+        "synopsis": "string"
+      }
+    },
+    {
+      "class_name": "license",
+      "base_class_name": "asset",
+      "class_description": "A license",
+      "full_text": [ "product_name", "product_version", "license_terms", "url", "license_key" ],
+      "fields": {
+        "product_name": "string",
+        "product_version": "string",
+        "license_terms": "string",
+        "url": "string",
+        "license_key": "string"
+      }
+    },
+    {
+      "class_name": "environment",
+      "base_class_name": "asset",
+      "class_description": "An environment for test",
+      "full_text": [ "name", "url" ],
+      "parents": [ "product" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "url": {
+          "field_type": "string",
+          "label": "URL"
+        },
+        "servers": "[environment_server]"
+      }
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "dated_item",
+      "class_description": "A general job to do",
+      "parents": [ "project" ],
+      "full_text": [ "description", "status" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title"
+        },
+        "status": {
+          "field_type": "string",
+          "label": "Status"
+        },
+        "activities": "[activity]"
+      }
+    },
+    {
+      "class_name": "activity",
+      "base_class_name": "dated_item",
+      "class_description": "An activity",
+      "parents": [ "task", "person", "invoice" ],
+      "fields": {
+        "hours": {
+          "field_type": "double",
+          "label": "Hours"
+        }
+      }
+    },
+    {
+      "class_name": "requirements",
+      "base_class_name": "activity",
+      "class_description": "Defining the desired outcome",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "plan",
+      "base_class_name": "activity",
+      "class_description": "Planning for achieving the outcome",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "build",
+      "base_class_name": "activity",
+      "class_description": "Building and testing",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "delivery",
+      "base_class_name": "activity",
+      "class_description": "Delivering the final product",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "documentation",
+      "base_class_name": "activity",
+      "class_description": "Creating and maintaining documentation",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "support",
+      "base_class_name": "activity",
+      "class_description": "Providing support and assistance",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "quickchange",
+      "base_class_name": "activity",
+      "class_description": "Making a quick change to a system for bugs",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "training",
+      "base_class_name": "activity",
+      "class_description": "Training and education",
+      "fields": {
+      }
+    }
   ],
   "users": [
 

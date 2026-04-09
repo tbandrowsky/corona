@@ -390,18 +390,24 @@ namespace corona
 			else if (stage_input.array()) {
 				auto svc = comm_bus_app_interface::get_service();
 				if (svc) {
-					std::string class_name = put_class_name;
 					for (auto item : stage_input) {
 						if (item.object()) {
 							std::string item_class_name = item[class_name_field].as_string();
-							if (class_name.empty()) {
-								class_name = item_class_name;
-								auto response = svc->put_object(corona_instance::local, stage_input);
-								if (response.success) {
-									json obj = response.data[class_name];
-									if (obj.array() && obj.size() > 0) {
-										obj = obj.get_element(0);
-										result.push_back(obj);
+							if (item_class_name.empty()) {
+								item.put_member(class_name_field, put_class_name);
+							}
+						}
+					}
+					auto response = svc->put_object(corona_instance::local, stage_input);
+					if (response.success) {
+						json obj = response.data;
+						if (obj.object()) {
+                            auto members = obj.get_members();
+                            for (auto member : members) {
+								json item = member.second;
+								if (item.array()) {
+									for (auto item_obj : item) {
+										result.push_back(item_obj);
 									}
 								}
 							}

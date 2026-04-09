@@ -1191,7 +1191,7 @@ namespace corona
 			corona_client_response response;
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("put_object", object_information[class_name_field].as_string(), dt);
+			log_command_start("put_object", object_information.object() ? object_information[class_name_field].as_string() : "[array]", dt);
 			timer tx;
 			json token = get_local_token();
 
