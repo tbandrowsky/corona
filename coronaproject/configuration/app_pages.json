@@ -453,6 +453,182 @@
     {
       "class_name": "import",
       "file_name": "tab_milestones.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_account_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_entries.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_bank_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_bank_account_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_bank_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_petty_cash.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_petty_cash_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_petty_cash.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_vendor.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_vendor_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_vendor.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_period.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_period_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_period.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_posts.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_post.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_post_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_post.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_entry.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_general_ledger_entry_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_invoice.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_invoice_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_invoice.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_transactions.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_payment.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_payment_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_payment.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_check.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_check_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_check.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_nsf.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_debit_memo.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_debit_memo_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_returned_check.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_returned_check_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_returned_check_fee.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_returned_check_fee_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_credit_memo.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_credit_memo_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_rate.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_rate_card.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_rate.json"
     }
   ]
 }

@@ -1,0 +1,47 @@
+{
+  "class_name": "page",
+  "page_name": "tab_general_ledger_period",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "period_details",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Period Name:",
+          "box": "edit_field_box",
+          "json_field_name": "period_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Start Date:",
+          "box": "edit_field_box",
+          "json_field_name": "start_date"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "End Date:",
+          "box": "edit_field_box",
+          "json_field_name": "end_date"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Closing Date:",
+          "box": "edit_field_box",
+          "json_field_name": "closing_date"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        }
+      ]
+    }
+  ]
+}

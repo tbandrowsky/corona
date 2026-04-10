@@ -1,0 +1,37 @@
+{
+  "class_name": "page",
+  "page_name": "page_check",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\check.png",
+      "$details_contents": [
+        {
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Check",
+              "page_name": "tab_check",
+              "member_name": "."
+            },
+            {
+              "name": "NSF",
+              "page_name": "tab_nsf",
+              "member_name": "nsf"
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            }
+          ],
+          "content_frame_name": "check_details"
+        }
+      ]
+    }
+  }
+}

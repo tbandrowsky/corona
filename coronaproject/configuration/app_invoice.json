@@ -1,0 +1,42 @@
+{
+  "class_name": "page",
+  "page_name": "page_invoice",
+  "using": {
+    "page_name": "page_object_edit_template",
+    "parameters": {
+      "$icon_image_file": "assets\\invoice.png",
+      "$details_contents": [
+        {
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+            {
+              "name": "Invoice",
+              "page_name": "tab_invoice",
+              "member_name": "."
+            },
+            {
+              "name": "Activity",
+              "page_name": "tab_activities",
+              "member_name": "activity"
+            },
+            {
+              "name": "Transactions",
+              "page_name": "tab_transactions",
+              "member_name": "transactions"
+            },
+            {
+              "name": "Notes",
+              "page_name": "tab_notes",
+              "member_name": "notes"
+            }
+          ],
+          "content_frame_name": "invoice_details"
+        }
+      ]
+    }
+  }
+}

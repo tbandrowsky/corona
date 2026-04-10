@@ -1,0 +1,36 @@
+{
+  "class_name": "page",
+  "page_name": "page_bank_account_card",
+  "using": {
+    "page_name": "page_object_card_template",
+    "parameters": {
+      "$icon_image_file": "assets\\bank.png",
+      "$card_contents": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box",
+          "text_field_name": "bank_name",
+          "text_style": {
+            "font_size": 16,
+            "bold": true
+          }
+        },
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box",
+          "text_field_name": "account_name"
+        },
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box",
+          "text_field_name": "bank_account_number"
+        },
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box",
+          "text_field_name": "balance"
+        }
+      ]
+    }
+  }
+}

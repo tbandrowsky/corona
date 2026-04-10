@@ -1,0 +1,83 @@
+{
+  "class_name": "page",
+  "page_name": "tab_vendor",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "vendor_details",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Account Number:",
+          "box": "edit_field_box",
+          "json_field_name": "account_number"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Account Name:",
+          "box": "edit_field_box",
+          "json_field_name": "account_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Company Name:",
+          "box": "edit_field_box",
+          "json_field_name": "company_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Street 1:",
+          "box": "edit_field_box",
+          "json_field_name": "street1"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Street 2:",
+          "box": "edit_field_box",
+          "json_field_name": "street2"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "City:",
+          "box": "edit_field_box",
+          "json_field_name": "city"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "State:",
+          "box": "edit_field_box",
+          "json_field_name": "state"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Zip:",
+          "box": "edit_field_box",
+          "json_field_name": "zip"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Domain Name:",
+          "box": "edit_field_box",
+          "json_field_name": "domain_name"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Website:",
+          "box": "edit_field_box",
+          "json_field_name": "website"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        }
+      ]
+    }
+  ]
+}

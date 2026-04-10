@@ -1,0 +1,34 @@
+{
+  "class_name": "page",
+  "page_name": "tab_posts",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "object_stuff",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
+          "class_name": "items_view",
+          "name": "posts_table",
+          "json_field_name": "posts",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "No posts",
+          "select_command": {
+            "class_name": "list_select_object",
+            "target_frame": "page_home.frame_selected",
+            "table_name": "posts_table",
+            "sources": "form_sources"
+          }
+        }
+      ]
+    }
+  ]
+}

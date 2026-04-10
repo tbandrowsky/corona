@@ -1,0 +1,41 @@
+{
+  "class_name": "page",
+  "page_name": "tab_check",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "check_details",
+      "box": "full_container",
+      "children": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Description:",
+          "box": "edit_field_box",
+          "json_field_name": "description"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Check Number:",
+          "box": "edit_field_box",
+          "json_field_name": "check_number"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Amount:",
+          "box": "edit_field_box",
+          "json_field_name": "amount"
+        },
+        {
+          "class_name": "edit_field",
+          "text": "Bank Account Number:",
+          "box": "edit_field_box",
+          "json_field_name": "bank_account_number"
+        }
+      ]
+    }
+  ]
+}
