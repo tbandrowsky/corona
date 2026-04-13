@@ -233,6 +233,173 @@
                   }
                 },
                 {
+                  "class_name": "command_button",
+                  "name": "search_gl_periods",
+                  "image": "assets\\glperiod.png",
+                  "text": "g/l periods",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "general_ledger_period",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_gl_accounts",
+                  "image": "assets\\glaccount.png",
+                  "text": "g/l accounts",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "general_ledger_account",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_gl_posts",
+                  "image": "assets\\glpost.png",
+                  "text": "g/l posts",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "general_ledger_post",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_gl_entries",
+                  "image": "assets\\glentry.png",
+                  "text": "g/l entries",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "general_ledger_entry",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "chaptertitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "class_name": "column",
+              "name": "button_col2",
+              "box": {
+                "width": "100 pixels",
+                "height": "1.0 container"
+              },
+              "view_style": {
+                "box_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111121"
+                },
+                "box_border_brush": {
+                  "class_name": "solid_brush",
+                  "color": "111112"
+                },
+                "box_border_thickness": 4
+              },
+              "children": [
+
+                {
                   "class_name": "chaptertitle",
                   "name": "search_label_text",
                   "box": {
@@ -241,6 +408,8 @@
                   },
                   "text": ""
                 },
+
+
                 {
                   "class_name": "command_button",
                   "name": "search_client",
@@ -378,39 +547,8 @@
                       ]
                     }
                   }
-                }
+                },
 
-              ]
-            },
-            {
-              "class_name": "column",
-              "name": "button_col2",
-              "box": {
-                "width": "100 pixels",
-                "height": "1.0 container"
-              },
-              "view_style": {
-                "box_fill_brush": {
-                  "class_name": "solid_brush",
-                  "color": "111121"
-                },
-                "box_border_brush": {
-                  "class_name": "solid_brush",
-                  "color": "111112"
-                },
-                "box_border_thickness": 4
-              },
-              "children": [
-
-                {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "40 pixels"
-                  },
-                  "text": ""
-                },
 
 
                 {
@@ -553,7 +691,7 @@
                 {
                   "class_name": "command_button",
                   "name": "search_licenses",
-                  "image": "assets\\licenses.png",
+                  "image": "assets\\license.png",
                   "text": "licenses",
                   "box": {
                     "width": "100 pixels",
