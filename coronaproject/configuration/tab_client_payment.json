@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "tab_payment",
+  "page_name": "tab_client_payment",
   "children": [
     {
       "class_name": "column",

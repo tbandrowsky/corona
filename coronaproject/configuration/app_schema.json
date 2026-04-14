@@ -142,7 +142,7 @@
         "rates": "[rate]",
         "people": "[person]",
         "products": "[product]",
-        "invoices": "[invoice]"
+        "invoices": "[client_invoice]"
       }
     },
 
@@ -224,7 +224,7 @@
       }
     },
     {
-      "class_name": "transaction",
+      "class_name": "client_transaction",
       "base_class_name": "app_object",
       "class_description": "An event with financial impact",
       "full_text": [],
@@ -234,12 +234,12 @@
       }
     },
     {
-      "class_name": "invoice",
-      "base_class_name": "transaction",
-      "class_description": "An invoice",
+      "class_name": "client_invoice",
+      "base_class_name": "client_transaction",
+      "class_description": "A client invoice",
       "fields": {
         "activity": "[activity]",
-        "transactions": "[transaction]",
+        "transaction": "[client_transaction]",
 
         "post": {
           "field_type": "query",
@@ -314,7 +314,7 @@
       }
     },
     {
-      "class_name": "payment",
+      "class_name": "client_payment",
       "base_class_name": "transaction",
       "class_description": "A payment",
       "parents": [ "invoice", "debit_memo" ],
@@ -344,7 +344,7 @@
                   "debit": "this.amount",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "payment"
+                  "reference_class": "this.class_name"
                 }
               },
               {
@@ -357,7 +357,7 @@
                   "debit": 0.0,
                   "credit": "this.amount",
                   "reference": "this.object_id",
-                  "reference_class": "payment"
+                  "reference_class": "this.class_name"
                 }
               },
               {
@@ -378,9 +378,9 @@
       }
     },
     {
-      "class_name": "check",
-      "base_class_name": "payment",
-      "class_description": "A payment",
+      "class_name": "client_check",
+      "base_class_name": "client_payment",
+      "class_description": "A client check",
       "fields": {
         "check_number": {
           "field_type": "string",
@@ -442,8 +442,76 @@
       }
     },
     {
-      "class_name": "debit_memo",
-      "base_class_name": "transaction",
+      "class_name": "client_card",
+      "base_class_name": "client_payment",
+      "class_description": "A client card charge",
+      "fields": {
+        "authorization_code": {
+          "field_type": "string",
+          "label": "Authorization Code"
+        },
+        "state": {
+          "field_type": "string",
+          "enumeration": [ "Authorized", "Settled", "Voided", "Refunded" ]
+        },
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "class_name": "client_debit",
+      "base_class_name": "client_transaction",
       "class_description": "A debit",
       "fields": {
         "credit_account_number": {
@@ -502,7 +570,7 @@
       }
     },
     {
-      "class_name": "returned_check",
+      "class_name": "client_returned_check",
       "base_class_name": "debit_memo",
       "class_description": "A returned check",
       "parents": [ "check" ],
@@ -563,10 +631,10 @@
       }
     },
     {
-      "class_name": "returned_check_fee",
-      "base_class_name": "debit_memo",
-      "class_description": "A returned check fee",
-      "parents": [ "check" ],
+      "class_name": "client_returned_check_fee",
+      "base_class_name": "client_debit",
+      "class_description": "A client returned check fee",
+      "parents": [ "client_check" ],
       "fields": {
         "bank_account_number": {
           "field_type": "string",
@@ -589,7 +657,7 @@
                   "debit": "this.amount",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
+                  "reference_class": "this.class_name"
                 }
               },
               {
@@ -602,7 +670,7 @@
                   "debit": 0.0,
                   "credit": "this.amount",
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
+                  "reference_class": "this.class_name"
                 }
               },
               {
@@ -624,9 +692,9 @@
       }
     },
     {
-      "class_name": "credit_memo",
-      "base_class_name": "transaction",
-      "class_description": "A credit",
+      "class_name": "client_credit_memo",
+      "base_class_name": "client_transaction",
+      "class_description": "A client credit",
       "fields": {
         "debit_account_number": {
           "field_type": "string",
@@ -649,7 +717,7 @@
                   "debit": "this.amount",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
+                  "reference_class": "client_returned_check"
                 }
               },
               {
@@ -662,7 +730,7 @@
                   "debit": 0.0,
                   "credit": "this.amount",
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
+                  "reference_class": "client_returned_check"
                 }
               },
               {
@@ -746,7 +814,7 @@
       }
     },
     {
-      "class_name": "rate",
+      "class_name": "client_rate",
       "base_class_name": "app_object",
       "class_description": "A rate for a service object",
       "full_text": [ "rate_name", "activity_class_name", "debit_account_number", "credit_account_number", "flat_rate", "hourly_rate" ],
@@ -775,11 +843,11 @@
       }
     },
     {
-      "class_name": "request",
+      "class_name": "client_request",
       "base_class_name": "app_object",
       "class_description": "A request for a product",
       "full_text": [ "title" ],
-      "parents": [ "client", "person" ],
+      "parents": [ "client" ],
       "fields": {
         "title": {
           "field_type": "string",

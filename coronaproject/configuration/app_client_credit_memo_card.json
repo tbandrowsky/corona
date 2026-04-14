@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_returned_check_fee_card",
+  "page_name": "page_client_credit_memo_card",
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
-      "$icon_image_file": "assets\\fee.png",
+      "$icon_image_file": "assets\\credit_memo.png",
       "$card_contents": [
         {
           "class_name": "paragraph",
@@ -18,7 +18,7 @@
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "bank_account_number"
+          "text_field_name": "debit_account_number"
         }
       ]
     }

@@ -1,15 +1,15 @@
 {
   "class_name": "page",
-  "page_name": "page_rate_card",
+  "page_name": "page_client_check_card",
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
-      "$icon_image_file": "assets\\rate.png",
+      "$icon_image_file": "assets\\check.png",
       "$card_contents": [
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "rate_name",
+          "text_field_name": "check_number",
           "text_style": {
             "font_size": 16,
             "bold": true
@@ -18,17 +18,12 @@
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "activity_class_name"
+          "text_field_name": "amount"
         },
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "hourly_rate"
-        },
-        {
-          "class_name": "paragraph",
-          "box": "card_text_box",
-          "text_field_name": "flat_rate"
+          "text_field_name": "bank_account_number"
         }
       ]
     }

@@ -4,7 +4,7 @@
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
-      "$icon_image_file": "assets\\post.png",
+      "$icon_image_file": "assets\\ledger_post.png",
       "$card_contents": [
         {
           "class_name": "paragraph",

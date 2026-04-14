@@ -1,10 +1,10 @@
 {
   "class_name": "page",
-  "page_name": "page_invoice",
+  "page_name": "page_client_check",
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\invoice.png",
+      "$icon_image_file": "assets\\check.png",
       "$details_contents": [
         {
           "class_name": "tab_view",
@@ -14,19 +14,14 @@
           },
           "tabs": [
             {
-              "name": "Invoice",
-              "page_name": "tab_invoice",
+              "name": "Check",
+              "page_name": "tab_client_check",
               "member_name": "."
             },
             {
-              "name": "Activity",
-              "page_name": "tab_activities",
-              "member_name": "activity"
-            },
-            {
-              "name": "Transactions",
-              "page_name": "tab_transactions",
-              "member_name": "transactions"
+              "name": "NSF",
+              "page_name": "tab_client_nsf",
+              "member_name": "nsf"
             },
             {
               "name": "Notes",
@@ -34,7 +29,7 @@
               "member_name": "notes"
             }
           ],
-          "content_frame_name": "invoice_details"
+          "content_frame_name": "check_details"
         }
       ]
     }
