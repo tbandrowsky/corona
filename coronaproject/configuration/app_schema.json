@@ -280,7 +280,7 @@
                   "debit": "charge.hours * rate.hourly_rate + rate.flat_rate",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "invoice"
+                  "reference_class": "client_invoice"
                 }
               },
               {
@@ -293,7 +293,7 @@
                   "debit": 0.0,
                   "credit": "charge.hours * rate.hourly_rate + rate.flat_rate",
                   "reference": "this.object_id",
-                  "reference_class": "invoice"
+                  "reference_class": "client_invoice"
                 }
               },
               {
