@@ -28,7 +28,7 @@
               "class_name": "column",
               "name": "button_col1",
               "box": {
-                "width": "100 pixels",
+                "width": "116 pixels",
                 "height": "1.0 container"
               },
               "view_style": {
@@ -38,10 +38,12 @@
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
-                  "color": "111112"
+                  "color": "010102"
                 },
                 "box_border_thickness": 4
               },
+              "padding": "8 pixels",
+
               "children": [
                 {
                   "class_name": "chaptersubtitle",
@@ -242,7 +244,7 @@
               "class_name": "column",
               "name": "button_col2",
               "box": {
-                "width": "100 pixels",
+                "width": "116 pixels",
                 "height": "1.0 container"
               },
               "view_style": {
@@ -252,10 +254,11 @@
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
-                  "color": "111112"
+                  "color": "010102"
                 },
                 "box_border_thickness": 4
               },
+              "padding": "8 pixels",
               "children": [
 
                 {
@@ -490,7 +493,7 @@
                   "class_name": "command_button",
                   "name": "search_other",
                   "image": "assets\\client_other.png",
-                  "text": "any transaction",
+                  "text": "transaction",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
@@ -519,294 +522,6 @@
                       ]
                     }
                   }
-                },
-
-                {
-                  "class_name": "command_button",
-                  "name": "search_product",
-                  "image": "assets\\product.png",
-                  "text": "products",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "product",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_project",
-                  "image": "assets\\project.png",
-                  "text": "projects",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "project",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_button",
-                  "image": "assets\\task.png",
-                  "text": "tasks",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "task",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-
-
-
-                {
-                  "class_name": "command_button",
-                  "name": "search_person",
-                  "image": "assets\\people.png",
-                  "text": "people",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "person",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_reference",
-                  "image": "assets\\reference.png",
-                  "text": "reference",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "reference",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_environment",
-                  "image": "assets\\environments.png",
-                  "text": "environment",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "environment",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_server",
-                  "image": "assets\\server.png",
-                  "text": "servers",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "server",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_licenses",
-                  "image": "assets\\license.png",
-                  "text": "licenses",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "environment",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "chaptertitle",
-                  "name": "search_place_holder2",
-                  "text": "",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "16.0 pixels"
-                  }
                 }
               ]
             },
@@ -815,7 +530,7 @@
               "class_name": "column",
               "name": "button_col2",
               "box": {
-                "width": "100 pixels",
+                "width": "116 pixels",
                 "height": "1.0 container"
               },
               "view_style": {
@@ -825,10 +540,13 @@
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
-                  "color": "111112"
+                  "color": "010102"
                 },
                 "box_border_thickness": 4
               },
+
+              "padding": "8 pixels",
+
               "children": [
 
                 {
@@ -911,6 +629,15 @@
                       ]
                     }
                   }
+                },
+                {
+                  "class_name": "chaptersubtitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "CLIENT"
                 },
 
 
