@@ -21,6 +21,44 @@
           "name": "search_result",
           "box": {
             "width": "1.0 container",
+            "height": "40 pixels remaining"
+          },
+          "padding": "8 pixels",
+          "children": [
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_common_text",
+              "box": {
+                "width": "342 pixels",
+                "height": "50 pixels"
+              },
+              "text": "SEARCH"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_results_text",
+              "box": {
+                "width": "400 pixels",
+                "height": "50 pixels"
+              },
+              "text": "SELECT"
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_results_text",
+              "box": {
+                "width": "1.0 remaining",
+                "height": "50 pixels"
+              },
+              "text": "EDIT"
+            }
+          ]
+        },
+        {
+          "class_name": "row",
+          "name": "search_result",
+          "box": {
+            "width": "1.0 container",
             "height": "1.0 remaining"
           },
           "children": [
@@ -45,16 +83,6 @@
               "padding": "8 pixels",
 
               "children": [
-                {
-                  "class_name": "chaptersubtitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "40 pixels"
-                  },
-                  "text": "PENDING"
-                },
-
                 {
                   "class_name": "command_button",
                   "name": "search_all",
@@ -260,17 +288,6 @@
               },
               "padding": "8 pixels",
               "children": [
-
-                {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "40 pixels"
-                  },
-                  "text": ""
-                },
-
                 {
                   "class_name": "command_button",
                   "image": "assets\\day.png",
@@ -548,16 +565,6 @@
               "padding": "8 pixels",
 
               "children": [
-
-                {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "40 pixels"
-                  },
-                  "text": ""
-                },
                 {
                   "class_name": "command_button",
                   "image": "assets\\week.png",
@@ -630,6 +637,7 @@
                     }
                   }
                 },
+
                 {
                   "class_name": "chaptersubtitle",
                   "name": "search_label_text",
@@ -973,15 +981,6 @@
               },
               "children": [
                 {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "40 pixels"
-                  },
-                  "text": "List"
-                },
-                {
                   "class_name": "items_view",
                   "name": "result_table",
                   "box": {
@@ -1059,15 +1058,6 @@
               },
 
               "children": [
-                {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "40 pixels"
-                  },
-                  "text": "Nav"
-                },
                 {
                   "class_name": "command_button",
                   "name": "back_object",
@@ -1149,13 +1139,13 @@
                   "enable_class_name": "app_object"
                 },
                 {
-                  "class_name": "chaptertitle",
+                  "class_name": "chaptersubtitle",
                   "name": "search_label_text",
                   "box": {
                     "width": "100 pixels",
                     "height": "40 pixels"
                   },
-                  "text": "Edit"
+                  "text": "Object"
                 },
                 {
                   "class_name": "command_button",
