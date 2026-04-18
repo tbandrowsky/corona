@@ -21,7 +21,7 @@
           "name": "search_result",
           "box": {
             "width": "1.0 container",
-            "height": "40 pixels remaining"
+            "height": "40 pixels"
           },
           "padding": "8 pixels",
           "children": [
@@ -29,26 +29,49 @@
               "class_name": "chaptersubtitle",
               "name": "search_common_text",
               "box": {
-                "width": "342 pixels",
-                "height": "50 pixels"
+                "width": "116 pixels",
+                "height": "40 pixels"
               },
-              "text": "SEARCH"
+              "text": "    SEARCH"
+            },
+            {
+              "class_name": "edit",
+              "name": "search_input",
+              "json_field_name": "full_text",
+              "placholder": "Search text",
+              "box": {
+                "width": "216 pixels",
+                "height": "32 pixels"
+              },
+              "text_style": {
+                "font_name": "Georgia",
+                "font_size": 18
+              }
             },
             {
               "class_name": "chaptersubtitle",
               "name": "search_results_text",
               "box": {
+                "width": "8 pixels",
+                "height": "40 pixels"
+              },
+              "text": ""
+            },
+            {
+              "class_name": "chaptersubtitle",
+              "name": "search_prompt_text",
+              "box": {
                 "width": "400 pixels",
-                "height": "50 pixels"
+                "height": "40 pixels"
               },
               "text": "SELECT"
             },
             {
               "class_name": "chaptersubtitle",
-              "name": "search_results_text",
+              "name": "edit_prompt_text",
               "box": {
                 "width": "1.0 remaining",
-                "height": "50 pixels"
+                "height": "40 pixels"
               },
               "text": "EDIT"
             }
@@ -118,6 +141,187 @@
                   }
                 },
 
+                {
+                  "class_name": "chaptersubtitle",
+                  "name": "search_label_text",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "32 pixels"
+                  },
+                  "text": "  company"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_person",
+                  "image": "assets\\people.png",
+                  "text": "people",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "person",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_reference",
+                  "image": "assets\\reference.png",
+                  "text": "reference",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "reference",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_environment",
+                  "image": "assets\\environments.png",
+                  "text": "environment",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "environment",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_server",
+                  "image": "assets\\server.png",
+                  "text": "servers",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "server",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "search_licenses",
+                  "image": "assets\\license.png",
+                  "text": "licenses",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "query",
+                    "form_name": "search_row",
+                    "table_name": "result_table",
+                    "detail_frame": "frame_selected",
+                    "query": {
+                      "from": [
+                        {
+                          "class_name": "environment",
+                          "name": "objects",
+                          "filter": {
+                            "full_text": "$this.full_text"
+                          }
+                        }
+                      ],
+                      "stages": [
+                        {
+                          "class_name": "result",
+                          "source": "objects",
+                          "name": "objects"
+                        }
+                      ]
+                    }
+                  }
+                },
+
 
 
                 {
@@ -125,9 +329,9 @@
                   "name": "search_label_text",
                   "box": {
                     "width": "100 pixels",
-                    "height": "40 pixels"
+                    "height": "30 pixels"
                   },
-                  "text": "G/L"
+                  "text": "    investor"
                 },
 
                 {
@@ -366,9 +570,9 @@
                   "name": "search_label_text",
                   "box": {
                     "width": "100 pixels",
-                    "height": "40 pixels"
+                    "height": "32 pixels"
                   },
-                  "text": "A/R"
+                  "text": "        a/r"
                 },
                 {
                   "class_name": "command_button",
@@ -643,9 +847,9 @@
                   "name": "search_label_text",
                   "box": {
                     "width": "100 pixels",
-                    "height": "40 pixels"
+                    "height": "32 pixels"
                   },
-                  "text": "CLIENT"
+                  "text": "     clients"
                 },
 
 
@@ -791,177 +995,6 @@
 
 
                 {
-                  "class_name": "command_button",
-                  "name": "search_person",
-                  "image": "assets\\people.png",
-                  "text": "people",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "person",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_reference",
-                  "image": "assets\\reference.png",
-                  "text": "reference",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "reference",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_environment",
-                  "image": "assets\\environments.png",
-                  "text": "environment",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "environment",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_server",
-                  "image": "assets\\server.png",
-                  "text": "servers",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "server",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "search_licenses",
-                  "image": "assets\\license.png",
-                  "text": "licenses",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "50 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "query",
-                    "form_name": "search_row",
-                    "table_name": "result_table",
-                    "detail_frame": "frame_selected",
-                    "query": {
-                      "from": [
-                        {
-                          "class_name": "environment",
-                          "name": "objects",
-                          "filter": {
-                            "full_text": "$this.full_text"
-                          }
-                        }
-                      ],
-                      "stages": [
-                        {
-                          "class_name": "result",
-                          "source": "objects",
-                          "name": "objects"
-                        }
-                      ]
-                    }
-                  }
-                },
-                {
                   "class_name": "chaptertitle",
                   "name": "search_place_holder2",
                   "text": "",
@@ -1002,39 +1035,6 @@
                     "table_name": "result_table",
                     "sources": "form_sources"
                   }
-                },
-                {
-                  "class_name": "row",
-                  "name": "search_row",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "50 pixels"
-                  },
-                  "children": [
-                    {
-                      "class_name": "chaptertitle",
-                      "name": "search_label_text",
-                      "box": {
-                        "width": "100 pixels",
-                        "height": "40 pixels"
-                      },
-                      "text": "Filter"
-                    },
-                    {
-                      "class_name": "edit",
-                      "name": "search_input",
-                      "json_field_name": "full_text",
-                      "placholder": "Search text",
-                      "box": {
-                        "width": "300 pixels",
-                        "height": "40 pixels"
-                      },
-                      "text_style": {
-                        "font_name": "Georgia",
-                        "font_size": 24
-                      }
-                    }
-                  ]
                 }
               ]
             },
@@ -1092,9 +1092,45 @@
                   "class_name": "chaptersubtitle",
                   "box": {
                     "width": "1.0 container",
-                    "height": "25 pixels"
+                    "height": "30 pixels"
                   },
                   "text": "Add"
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_gl_account",
+                  "image": "assets\\glaccount.png",
+                  "text": "g/l account",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "general_ledger_account",
+                    "constructor_frame": "frame_selected",
+                    "source_frame": "page_client",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
+                },
+                {
+                  "class_name": "command_button",
+                  "name": "new_gl_period",
+                  "image": "assets\\glperiod.png",
+                  "text": "g/l period",
+                  "box": {
+                    "width": "100 pixels",
+                    "height": "50 pixels"
+                  },
+                  "on_click": {
+                    "class_name": "create_object",
+                    "create_class_name": "general_ledger_period",
+                    "constructor_frame": "frame_selected",
+                    "source_frame": "page_client",
+                    "target_frame": "frame_selected",
+                    "message": "layout test."
+                  }
                 },
                 {
                   "class_name": "command_button",
@@ -1143,7 +1179,7 @@
                   "name": "search_label_text",
                   "box": {
                     "width": "100 pixels",
-                    "height": "40 pixels"
+                    "height": "30 pixels"
                   },
                   "text": "Object"
                 },

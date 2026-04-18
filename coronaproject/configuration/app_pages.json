@@ -201,7 +201,8 @@
       "support": "card_task_support",
       "training": "card_task_training",
       "app_note": "card_note",
-      "client": "card_client"
+      "client": "card_client",
+      "general_ledger_account": "card_general_ledger_account",
     },
     "form_sources": {
       "environment": "page_product_environment",

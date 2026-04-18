@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_general_ledger_account_card",
+  "page_name": "card_general_ledger_account",
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
