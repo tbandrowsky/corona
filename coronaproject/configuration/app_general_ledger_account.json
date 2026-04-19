@@ -4,7 +4,7 @@
   "using": {
     "page_name": "page_object_edit_template",
     "parameters": {
-      "$icon_image_file": "assets\\ledger_account.png",
+      "$icon_image_file": "assets\\glaccount.png",
       "$details_contents": [
         {
           "class_name": "tab_view",

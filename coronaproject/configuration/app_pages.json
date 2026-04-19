@@ -203,6 +203,10 @@
       "app_note": "card_note",
       "client": "card_client",
       "general_ledger_account": "card_general_ledger_account",
+      "general_ledger_entry": "card_general_ledger_entry",
+      "general_ledger_period": "card_general_ledger_period",
+      "bank_account": "card_bank_account",
+      "petty_cash": "card_petty_cash"
     },
     "form_sources": {
       "environment": "page_product_environment",
@@ -223,7 +227,12 @@
       "support": "page_task_support",
       "training": "page_task_training",
       "app_note": "page_note",
-      "client": "page_client"
+      "client": "page_client",
+      "general_ledger_account": "page_general_ledger_account",
+      "general_ledger_entry": "page_general_ledger_entry",
+      "general_ledger_period": "page_general_ledger_period",
+      "bank_account": "page_bank_account",
+      "petty_cash": "page_general_ledger_period"
     }
   },
   "startup": [
@@ -647,6 +656,10 @@
     {
       "class_name": "import",
       "file_name": "tab_vendor.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_account.json"
     },
     {
       "class_name": "import",

@@ -1109,7 +1109,7 @@
                     "class_name": "create_object",
                     "create_class_name": "general_ledger_account",
                     "constructor_frame": "frame_selected",
-                    "source_frame": "page_client",
+                    "source_frame": "page_general_ledger_account",
                     "target_frame": "frame_selected",
                     "message": "layout test."
                   }
@@ -1127,7 +1127,7 @@
                     "class_name": "create_object",
                     "create_class_name": "general_ledger_period",
                     "constructor_frame": "frame_selected",
-                    "source_frame": "page_client",
+                    "source_frame": "page_general_ledger_period",
                     "target_frame": "frame_selected",
                     "message": "layout test."
                   }

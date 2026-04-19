@@ -723,35 +723,35 @@ namespace corona
 				for (int i = 0; i < _other.field_data.size(); i++)
 				{ 
 					auto& fp = _other.field_data[i];
-                    auto it = common_field_ids.find(fp.field_id);
+					auto it = common_field_ids.find(fp.field_id);
 
 					if (it != std::end(common_field_ids)) {
-                        auto comparison = compare_field(i, it->second, _other);
-                        if (comparison != std::strong_ordering::equal) {
+						auto comparison = compare_field(it->second, i, _other);
+						if (comparison != std::strong_ordering::equal) {
 							return false;
-                        }
+						}
 					}
 					return true;
 				}
-            }
-            else if (field_data.size() < _other.field_data.size()) {
-                for (int i = 0; i < _other.field_data.size(); i++) {
-                    auto& f = _other.field_data[i];
-                    common_field_ids[f.field_id] = i;
-                }
-                for (int i = 0; i < field_data.size(); i++)
-                {
-                    auto& fp = field_data[i];
-                    auto it = common_field_ids.find(fp.field_id);
-                    if (it != std::end(common_field_ids)) {
-						std::strong_ordering comparison = compare_field(it->second, i, _other);
-                        if (comparison != std::strong_ordering::equal) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            }
+			}
+			else if (field_data.size() < _other.field_data.size()) {
+				for (int i = 0; i < _other.field_data.size(); i++) {
+					auto& f = _other.field_data[i];
+					common_field_ids[f.field_id] = i;
+				}
+				for (int i = 0; i < field_data.size(); i++)
+				{
+					auto& fp = field_data[i];
+					auto it = common_field_ids.find(fp.field_id);
+					if (it != std::end(common_field_ids)) {
+						std::strong_ordering comparison = compare_field(i, it->second, _other);
+						if (comparison != std::strong_ordering::equal) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
 			else  
 			{
 				for (int i = 0; i < _other.field_data.size(); i++) {
