@@ -24,9 +24,18 @@
           "json_field_name": "account_name"
         },
         {
-          "class_name": "edit_field",
+          "class_name": "combobox_field",
           "text": "Account Type:",
           "box": "edit_field_box",
+          "choices": {
+            "id_field": "text",
+            "text_field": "text",
+            "items": [
+              { "text": "Asset" },
+              { "text": "Liability" },
+              { "text": "Equity" }
+            ]
+          },
           "json_field_name": "account_type"
         },
         {

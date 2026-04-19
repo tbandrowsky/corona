@@ -1223,15 +1223,6 @@
               },
               "children": [
                 {
-                  "class_name": "chaptertitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "40 pixels"
-                  },
-                  "text": ""
-                },
-                {
                   "class_name": "column",
                   "name": "search_row3",
                   "box": {
