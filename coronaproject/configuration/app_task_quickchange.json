@@ -7,7 +7,7 @@
       "$icon_image_file": "assets\\quickchange.png",
       "$details_contents": [
         {
-          "class_name": "tab_quickchange",
+          "class_name": "tab_view",
           "box": {
             "width": "1.0 container",
             "height": "1.0 container"

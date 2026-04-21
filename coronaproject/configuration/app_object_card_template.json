@@ -55,7 +55,7 @@
               "text": "{class_name}",
               "box": "chaptersubtitle_box"
             },
-            "$details_contents"
+            "$card_contents"
           ]
         }
       ]

@@ -315,7 +315,7 @@
     },
     {
       "class_name": "client_payment",
-      "base_class_name": "transaction",
+      "base_class_name": "client_transaction",
       "class_description": "A payment",
       "parents": [ "invoice", "debit_memo" ],
       "fields": {
@@ -596,7 +596,7 @@
                   "debit": "this.amount",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
+                  "reference_class": "client_returned_check"
                 }
               },
               {
@@ -609,68 +609,7 @@
                   "debit": 0.0,
                   "credit": "this.amount",
                   "reference": "this.object_id",
-                  "reference_class": "returned_check"
-                }
-              },
-              {
-                "class_name": "put",
-                "source": "credits"
-              },
-              {
-                "class_name": "put",
-                "source": "debits"
-              },
-              {
-                "class_name": "result",
-                "source": "debits"
-              }
-            ]
-          }
-        }
-
-      }
-    },
-    {
-      "class_name": "client_returned_check_fee",
-      "base_class_name": "client_debit",
-      "class_description": "A client returned check fee",
-      "parents": [ "client_check" ],
-      "fields": {
-        "bank_account_number": {
-          "field_type": "string",
-          "label": "Bank Account Number"
-        },
-        "post": {
-          "field_type": "query",
-          "run_on_demand": true,
-          "query": {
-            "from": [
-            ],
-            "stages": [
-              {
-                "name": "debits",
-                "class_name": "project",
-                "source": "charge_rate",
-                "projection": {
-                  "class_name": "general_ledger_entry",
-                  "account_number": "this.credit_account_number",
-                  "debit": "this.amount",
-                  "credit": 0.0,
-                  "reference": "this.object_id",
-                  "reference_class": "this.class_name"
-                }
-              },
-              {
-                "name": "credits",
-                "class_name": "project",
-                "source": "charge_rate",
-                "projection": {
-                  "class_name": "general_ledger_entry",
-                  "account_number": "this.bank_account_number",
-                  "debit": 0.0,
-                  "credit": "this.amount",
-                  "reference": "this.object_id",
-                  "reference_class": "this.class_name"
+                  "reference_class": "client_returned_check"
                 }
               },
               {
@@ -717,7 +656,7 @@
                   "debit": "this.amount",
                   "credit": 0.0,
                   "reference": "this.object_id",
-                  "reference_class": "client_returned_check"
+                  "reference_class": "client_credit_memo"
                 }
               },
               {
@@ -730,7 +669,7 @@
                   "debit": 0.0,
                   "credit": "this.amount",
                   "reference": "this.object_id",
-                  "reference_class": "client_returned_check"
+                  "reference_class": "client_credit_memo"
                 }
               },
               {

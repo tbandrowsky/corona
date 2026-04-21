@@ -889,7 +889,7 @@ namespace corona
 			return _data;
 		}
 
-		virtual void get_json(json& _dest)
+		virtual void get_json(json& _dest) override
 		{
 			json_parser jp;
 
@@ -899,7 +899,7 @@ namespace corona
 			_dest.put_member("choices", jlist_data);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(json& _src) override
 		{
 			json_parser jp;
 
@@ -907,11 +907,6 @@ namespace corona
 			json jlist_data = _src["choices"];
 			choices.put_json(jlist_data);
 			json command = _src["select_command"];
-			if (command.empty()) {
-				system_monitoring_interface::active_mon->log_information("dropdown control missing select_command", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json(_src);
-			}
-
 			corona::put_json(select_command, command);
 
 			data_changed();
@@ -933,6 +928,12 @@ namespace corona
 					lce.bus->run_command(lce.batch_id, select_command);
 					});
 			}
+		}
+
+		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
+		{
+			windows_control::create(_context, _host);
+			data_changed();
 		}
 
 	};

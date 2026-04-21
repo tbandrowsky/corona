@@ -282,12 +282,114 @@
     },
     {
       "class_name": "import",
-      "file_name": "app_product_environment.json"
+      "file_name": "tab_assets.json"
     },
     {
       "class_name": "import",
-      "file_name": "app_product_environment_card.json"
+      "file_name": "tab_milestones.json"
     },
+    {
+      "class_name": "import",
+      "file_name": "tab_notes.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_person.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_project.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_client.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_client_address.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_product.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_products.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_projects.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_task.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_tasks.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_milestones.json"
+    },
+
+    {
+      "class_name": "import",
+      "file_name": "tab_assets.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_bank_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_check.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_entries.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_posts.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_bank_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_petty_cash.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_server.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_reference.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_quickchange.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_vendor.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_period.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_general_ledger_post.json"
+    },
+
     {
       "class_name": "import",
       "file_name": "app_product_product.json"
@@ -296,6 +398,16 @@
       "class_name": "import",
       "file_name": "app_product_product_card.json"
     },
+
+    {
+      "class_name": "import",
+      "file_name": "app_product_environment.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "app_product_environment_card.json"
+    },
+
     {
       "class_name": "import",
       "file_name": "app_product_person.json"
@@ -418,10 +530,6 @@
     },
     {
       "class_name": "import",
-      "file_name": "tab_notes.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "app_general_ledger_account.json"
     },
     {
@@ -459,51 +567,6 @@
     {
       "class_name": "import",
       "file_name": "app_general_ledger_post_card.json"
-    },
-
-    {
-      "class_name": "import",
-      "file_name": "tab_assets.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_milestones.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_person.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_project.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_client.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_product.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_products.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_projects.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_task.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_tasks.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_milestones.json"
     },
 
     {
@@ -611,30 +674,6 @@
     },
     {
       "class_name": "import",
-      "file_name": "tab_assets.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_bank_account.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_check.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_entries.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_posts.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_bank_account.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "app_petty_cash.json"
     },
     {
@@ -643,31 +682,11 @@
     },
     {
       "class_name": "import",
-      "file_name": "tab_petty_cash.json"
-    },
-    {
-      "class_name": "import",
       "file_name": "app_vendor.json"
     },
     {
       "class_name": "import",
       "file_name": "app_vendor_card.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_vendor.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_general_ledger_account.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_general_ledger_period.json"
-    },
-    {
-      "class_name": "import",
-      "file_name": "tab_general_ledger_post.json"
     }
   ]
 }

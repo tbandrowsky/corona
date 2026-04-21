@@ -42,7 +42,7 @@ namespace corona
                 _src++;
             }
 
-            while (std::isalpha(*_src) || * _src == '.') {
+            while (std::isalpha(*_src) || * _src == '.' || *_src == '_') {
                 path += *_src;
                 _src++;
             }
@@ -67,14 +67,14 @@ namespace corona
             return data;
         };
 
-        Lexer(const std::string& text, json& _context) :
-            text(text),
+        Lexer(const std::string& _text, json& _context) :
+            text(_text),
             context(_context),
             pos(0),
             current_char(text[pos])
+
         {
-
-
+            pcurrent_char = &text[pos];
         }
 
         Token get_next_token() {
@@ -163,17 +163,25 @@ namespace corona
         Parser(Lexer& lexer, json& context) : lexer(lexer), context(context), current_token(lexer.get_next_token()) {}
 
         json expr() {
-            json result = term();
-            while (current_token.type == PLUS or current_token.type == MINUS) {
-                Token token = current_token;
-                if (token.type == PLUS) {
-                    eat(PLUS);
-                    result = result + term();
+            json result;
+            json_parser jp;
+
+            try {
+                result = term();
+                while (current_token.type == PLUS or current_token.type == MINUS) {
+                    Token token = current_token;
+                    if (token.type == PLUS) {
+                        eat(PLUS);
+                        result = result + term();
+                    }
+                    else if (token.type == MINUS) {
+                        eat(MINUS);
+                        result = result - term();
+                    }
                 }
-                else if (token.type == MINUS) {
-                    eat(MINUS);
-                    result = result - term();
-                }
+            }
+            catch (const std::exception& e) {
+                result = jp.from_string(e.what());
             }
             return result;
         }

@@ -45,7 +45,7 @@
             "height": "1.0 container"
           },
           "children": [
-            "$details_contents"
+            "$card_contents"
           ]
         }
       ]

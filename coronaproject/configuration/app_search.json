@@ -9,7 +9,7 @@
       "children": [
         {
           "class_name": "placeholder",
-          "name": "search_result",
+          "name": "search_options1",
           "text": "",
           "box": {
             "width": "1.0 container",
@@ -18,7 +18,7 @@
         },
         {
           "class_name": "row",
-          "name": "search_result",
+          "name": "search_row",
           "box": {
             "width": "1.0 container",
             "height": "40 pixels"
@@ -64,7 +64,7 @@
                 "width": "400 pixels",
                 "height": "40 pixels"
               },
-              "text": "SELECT"
+              "text": "SELECT {class_name}"
             },
             {
               "class_name": "chaptersubtitle",
@@ -79,7 +79,7 @@
         },
         {
           "class_name": "row",
-          "name": "search_result",
+          "name": "search_options2",
           "box": {
             "width": "1.0 container",
             "height": "1.0 remaining"
@@ -749,7 +749,7 @@
 
             {
               "class_name": "column",
-              "name": "button_col2",
+              "name": "button_col3",
               "box": {
                 "width": "116 pixels",
                 "height": "1.0 container"
@@ -1010,15 +1010,15 @@
               "name": "search_result",
               "box": {
                 "width": "400 pixels",
-                "height": "1.0 remaining"
+                "height": "1.0 container"
               },
               "children": [
                 {
                   "class_name": "items_view",
                   "name": "result_table",
                   "box": {
-                    "width": "400 pixels",
-                    "height": "1.0 remaining"
+                    "width": "1.0 container",
+                    "height": "1.0 container"
                   },
                   "padding": "2 pixels",
                   "sources": "card_sources",
@@ -1224,7 +1224,7 @@
               "children": [
                 {
                   "class_name": "column",
-                  "name": "search_row3",
+                  "name": "search_container",
                   "box": {
                     "width": "1.0 container",
                     "height": "1.0 remaining"

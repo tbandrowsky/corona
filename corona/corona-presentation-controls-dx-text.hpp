@@ -79,32 +79,56 @@ namespace corona
 						if (brace_level == 0) {
 							state = in_text;
 							json replacement_value;
-							
-							if (!replacement_path.starts_with("ux.")) {
-								replacement_value = data.query(replacement_path);
 
-								if (replacement_value.has_member("value")) {
-									replacement_value = replacement_value["value"];
-									if (replacement_value.is_datetime()) {
-										date_time dt = replacement_value.as_date_time();
-										text += dt.short_date();
-									}
-									else if (replacement_value.scalar()) {
-										text += replacement_value.as_string();
-									}
+							if (replacement_path.size()>0 && data.object() && !data.empty()) {
+								Lexer lexer(replacement_path, data);
+
+								lexer.EvaluateValue = [](std::string _path, json _context) -> json
+									{
+
+										json result_data;
+
+										json_parser jp;
+
+										if (_path.starts_with("ux.")) {
+											auto controls = split(_path, '.');
+
+											if (controls.size() >= 3) {
+												std::string control_name = controls[1];
+												std::string value_name = controls[2];
+												auto ctrl = comm_bus_app_interface::get_service()->find_control(control_name);
+												if (ctrl) {
+													result_data = ctrl->get_data();
+												}
+											}
+										}
+
+										if (_context.has_member(_path)) {
+											result_data = _context[_path];
+										}
+										else if (_path.starts_with("."))
+										{
+											_path = _path.substr(1);
+											result_data = _context.query(_path);
+											result_data = result_data["value"];
+										}
+										else {
+											result_data = jp.from_string(_path);
+										}
+
+										return result_data;
+									};
+
+								Parser parser(lexer, data);
+								json result_data = parser.expr();
+
+								if (result_data.is_datetime()) {
+									date_time dt = result_data.as_date_time();
+									text += dt.short_date();
 								}
-							}
-							else {
-								std::vector<std::string> controls = split(replacement_path, '.' );
-								if (controls.size() >= 3) {
-									std::string control_name = controls[1];
-									std::string value_name = controls[2];
-									auto ctrl = comm_bus_app_interface::get_service()->find_control(control_name);
-									if (ctrl) {
-										auto dta = ctrl->get_data();
-										text += dta[value_name].as_string();
-									}
-								}	
+								else if (result_data.scalar()) {
+									text += result_data.as_string();
+								}
 							}
 						}
 						else

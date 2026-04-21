@@ -4059,8 +4059,10 @@ namespace corona
 
 			put_json(_context->errors, definition);
 			
-			if (not std::filesystem::exists(get_class_filename(_context->db))) {
-				std::string stuff = std::format("Attempt to open {0} but not created", definition[class_name_field].as_string());
+
+			std::string class_file_name = get_class_filename(_context->db);
+			if (not std::filesystem::exists(class_file_name)) {
+				std::string stuff = std::format("Attempt to open {0} at {1} but not created", definition[class_name_field].as_string(), class_file_name);
 				throw std::logic_error(stuff);
 			}
 
@@ -7943,6 +7945,8 @@ private:
 				if (class_array.array())
 				{
 					class_count = class_array.size();
+					std::map<std::string, bool> visited_classes;
+
 					for (int i = 0; i < class_array.size(); i++)
 					{
 						date_time start_class = date_time::now();
@@ -7963,6 +7967,14 @@ private:
 							std::string new_class_name = class_definition["class_name"].as_string();
 							std::string new_class_author = class_definition["class_author"].as_string();
 							std::string new_class_version = class_definition["class_version"].as_string();
+
+							if (visited_classes.contains(new_class_name)) {
+								system_monitoring_interface::active_mon->log_warning(new_class_name + " already visited", __FILE__, __LINE__);
+								system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " already visited", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+								continue;
+							}
+
+                            visited_classes[new_class_name] = true;
 
                             auto existing_class = read_lock_class(new_class_name);
 
@@ -8048,6 +8060,7 @@ private:
 						json new_dataset = dataset_array.get_element(i);
 						new_dataset.put_member(class_name_field, "sys_dataset"sv);
 						new_dataset.put_member_i64("sys_schema", jschema[object_id_field].as_int64_t());
+						new_dataset.put_member("sys_schema_class", jschema[class_name_field].as_string());
 						std::string dataset_name = new_dataset["dataset_name"].as_string();
 						std::string dataset_version = new_dataset["dataset_version"].as_string();
 

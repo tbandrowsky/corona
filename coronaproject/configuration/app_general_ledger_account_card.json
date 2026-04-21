@@ -4,7 +4,8 @@
   "using": {
     "page_name": "page_object_card_template",
     "parameters": {
-      "$icon_image_file": "assets\\ledger_account.png",
+      "$icon_image_file": "assets\\glaccount.png",
+      "$card_height": "75 pixels",
       "$card_contents": [
         {
           "class_name": "paragraph",
@@ -13,17 +14,14 @@
           "text_style": {
             "font_size": 16,
             "bold": true
-          }
+          },
+          "text": "{account_number} - {account_name}"
         },
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "account_name"
-        },
-        {
-          "class_name": "paragraph",
-          "box": "card_text_box",
-          "text_field_name": "account_type"
+          "text_field_name": "account_type",
+          "text": "{account_type} - {account_name}"
         },
         {
           "class_name": "paragraph",

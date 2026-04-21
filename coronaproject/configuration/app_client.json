@@ -19,6 +19,11 @@
               "member_name": "."
             },
             {
+              "name": "Address",
+              "page_name": "tab_client_address",
+              "member_name": "."
+            },
+            {
               "name": "Products",
               "page_name": "tab_products",
               "member_name": "products"
