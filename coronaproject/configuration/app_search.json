@@ -611,7 +611,7 @@
                 {
                   "class_name": "command_button",
                   "name": "search_invoices",
-                  "image": "assets\\client_invoice.png",
+                  "image": "assets\\invoice.png",
                   "text": "invoices",
                   "box": {
                     "width": "100 pixels",
@@ -645,8 +645,8 @@
                 {
                   "class_name": "command_button",
                   "name": "search_card_charges",
-                  "image": "assets\\client_credit_card.png",
-                  "text": "card charges",
+                  "image": "assets\\credit_card.png",
+                  "text": "charges",
                   "box": {
                     "width": "100 pixels",
                     "height": "50 pixels"
@@ -679,7 +679,7 @@
                 {
                   "class_name": "command_button",
                   "name": "search_checks",
-                  "image": "assets\\client_check.png",
+                  "image": "assets\\check.png",
                   "text": "checks",
                   "box": {
                     "width": "100 pixels",

@@ -14,22 +14,14 @@
           "text_style": {
             "font_size": 16,
             "bold": true
-          }
+          },
+          "text": "{company_name}"
         },
         {
           "class_name": "paragraph",
           "box": "card_text_box",
-          "text_field_name": "contact"
-        },
-        {
-          "class_name": "paragraph",
-          "box": "card_text_box",
-          "text_field_name": "city"
-        },
-        {
-          "class_name": "paragraph",
-          "box": "card_text_box",
-          "text_field_name": "description"
+          "text_field_name": "contact",
+          "text": "{contact} - {city}, {state}"
         }
       ]
     }

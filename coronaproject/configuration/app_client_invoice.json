@@ -16,12 +16,14 @@
             {
               "name": "Invoice",
               "page_name": "tab_client_invoice",
-              "member_name": "."
+              "member_name": ".",
+              "image": "assets\\invoice.png"
             },
             {
               "name": "Activity",
               "page_name": "tab_activities",
-              "member_name": "activity"
+              "member_name": "activity",
+              "image": "assets\\activity.png"
             },
             {
               "name": "Transactions",
@@ -31,7 +33,8 @@
             {
               "name": "Notes",
               "page_name": "tab_notes",
-              "member_name": "notes"
+              "member_name": "notes",
+              "image": "assets\\note.png"
             }
           ],
           "content_frame_name": "invoice_details"

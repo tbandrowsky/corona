@@ -1,51 +1,47 @@
 {
   "class_name": "page",
-  "page_name": "tab_rate",
+  "page_name": "tab_address",
   "children": [
     {
       "class_name": "column",
-      "name": "rate_details",
+      "name": "address_details",
       "box": "full_container",
       "children": [
+
+
         {
           "class_name": "paragraph",
           "box": "card_text_box"
         },
         {
           "class_name": "edit_field",
-          "text": "Description:",
+          "text": "Street 1:",
           "box": "edit_field_box",
-          "json_field_name": "description"
+          "json_field_name": "street1"
         },
         {
           "class_name": "edit_field",
-          "text": "Rate Name:",
+          "text": "Street 2:",
           "box": "edit_field_box",
-          "json_field_name": "rate_name"
+          "json_field_name": "street2"
         },
         {
           "class_name": "edit_field",
-          "text": "Activity Class Name:",
+          "text": "City:",
           "box": "edit_field_box",
-          "json_field_name": "activity_class_name"
+          "json_field_name": "city"
         },
         {
           "class_name": "edit_field",
-          "text": "Flat Rate:",
+          "text": "State:",
           "box": "edit_field_box",
-          "json_field_name": "flat_rate"
+          "json_field_name": "state"
         },
         {
           "class_name": "edit_field",
-          "text": "Hourly Rate:",
+          "text": "Zip:",
           "box": "edit_field_box",
-          "json_field_name": "hourly_rate"
-        },
-        {
-          "class_name": "edit_field",
-          "text": "Credit Account Number:",
-          "box": "edit_field_box",
-          "json_field_name": "credit_account_number"
+          "json_field_name": "zip"
         }
       ]
     }

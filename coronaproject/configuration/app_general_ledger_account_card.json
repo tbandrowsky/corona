@@ -21,7 +21,7 @@
           "class_name": "paragraph",
           "box": "card_text_box",
           "text_field_name": "account_type",
-          "text": "{account_type} - {account_name}"
+          "text": "{account_type}"
         },
         {
           "class_name": "paragraph",

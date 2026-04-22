@@ -6,7 +6,7 @@
     "parameters": {
       "$icon_image_file": "assets\\note.png",
       "$card_height": "65 pixels",
-      "$details_contents": [
+      "$card_contents": [
         {
           "class_name": "paragraph",
           "json_field_name": "note_text",

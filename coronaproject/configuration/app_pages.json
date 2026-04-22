@@ -306,7 +306,7 @@
     },
     {
       "class_name": "import",
-      "file_name": "tab_client_address.json"
+      "file_name": "tab_address.json"
     },
     {
       "class_name": "import",
@@ -356,6 +356,10 @@
     {
       "class_name": "import",
       "file_name": "tab_bank_account.json"
+    },
+    {
+      "class_name": "import",
+      "file_name": "tab_receivables.json"
     },
     {
       "class_name": "import",

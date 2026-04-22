@@ -29,6 +29,11 @@
               "member_name": "products"
             },
             {
+              "name": "Billing",
+              "page_name": "tab_receivables",
+              "member_name": "receivables"
+            },
+            {
               "name": "Notes",
               "page_name": "tab_notes",
               "member_name": "notes"
