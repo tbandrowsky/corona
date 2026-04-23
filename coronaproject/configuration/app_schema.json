@@ -1006,6 +1006,66 @@
   "users": [
 
   ],
+  "application": {
+    "forms": [
+      {
+        "classes": "",
+        "tabs": {
+
+
+        }
+      }
+    ],
+    "search": {
+      "groups": [
+        {
+          "title": "company",
+          "classes": [
+            "people",
+            "reference",
+            "environment",
+            "servers",
+            "licenses"
+          ]
+        },
+        {
+          "title": "investor",
+          "classes": [
+            "general_ledger_period",
+            "general_ledger_account",
+            "general_ledger_post",
+            "general_ledger_entry"
+          ]
+        },
+        {
+          "title": "a/r",
+          "classes": [
+            "clients",
+            "invoices",
+            "charges",
+            "checks",
+            "transaction"
+          ]
+        },
+        {
+          "title": "clients",
+          "classes": [
+            "products",
+            "project",
+            "task"
+          ]
+        },
+        {
+          "title": "changes",
+          "classes": [
+            "$today",
+            "$week",
+            "$everything"
+          ]
+        }
+      ]
+    }
+  },
   "datasets": [
     {
       "dataset_name": "App Teams",
