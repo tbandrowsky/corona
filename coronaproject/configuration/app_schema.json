@@ -938,7 +938,7 @@
       "class_name": "activity",
       "base_class_name": "dated_item",
       "class_description": "An activity",
-      "parents": [ "task", "person", "invoice" ],
+      "parents": [ "task", "person" ],
       "fields": {
         "hours": {
           "field_type": "double",
@@ -1007,63 +1007,89 @@
 
   ],
   "application": {
-    "forms": [
+    "fields": [
       {
-        "classes": "",
-        "tabs": {
-
-
-        }
+        "string": "edit_field",
+        "datetime": "datetimepicker_field",
+        "double": "number_field",
+        "number": "number_field",
+        "int64_t": "number_field",
+        "boolean": "checkbox_field",
+        "string.enumeration": "combobox_field"
       }
     ],
-    "search": {
-      "groups": [
-        {
-          "title": "company",
-          "classes": [
-            "people",
-            "reference",
-            "environment",
-            "servers",
-            "licenses"
+    "classes": {
+      "class_name": {
+        "card": {
+          "title": "description",
+          "fields": [
+            {
+              "label": "text",
+              "expression": "description"
+            }
           ]
         },
-        {
-          "title": "investor",
-          "classes": [
-            "general_ledger_period",
-            "general_ledger_account",
-            "general_ledger_post",
-            "general_ledger_entry"
-          ]
-        },
-        {
-          "title": "a/r",
-          "classes": [
-            "clients",
-            "invoices",
-            "charges",
-            "checks",
-            "transaction"
-          ]
-        },
-        {
-          "title": "clients",
-          "classes": [
-            "products",
-            "project",
-            "task"
-          ]
-        },
-        {
-          "title": "changes",
-          "classes": [
-            "$today",
-            "$week",
-            "$everything"
+        "page": {
+          "tabs": [
+            {
+              "tab_name": "",
+              "member_names": [ "" ]
+            }
           ]
         }
-      ]
+      }
+    },
+    "teams": {
+      "App Team": {
+        "search_groups": [
+          {
+            "title": "company",
+            "classes": [
+              "people",
+              "reference",
+              "environment",
+              "servers",
+              "licenses"
+            ]
+          },
+          {
+            "title": "investor",
+            "classes": [
+              "general_ledger_period",
+              "general_ledger_account",
+              "general_ledger_post",
+              "general_ledger_entry"
+            ]
+          },
+          {
+            "title": "a/r",
+            "classes": [
+              "clients",
+              "invoices",
+              "charges",
+              "checks",
+              "transaction"
+            ]
+          },
+          {
+            "title": "clients",
+            "classes": [
+              "products",
+              "project",
+              "task"
+            ]
+          },
+          {
+            "title": "changes",
+            "classes": [
+              "$today",
+              "$week",
+              "$everything"
+            ]
+          }
+        ],
+        "new_objects": [ "client", "general_ledger_account" ]
+      }
     }
   },
   "datasets": [

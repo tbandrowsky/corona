@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_object_edit_template",
+  "page_name": "object_container",
   "children": [
     {
       "class_name": "column",

@@ -58,12 +58,8 @@ namespace corona
 			"class_name":"string",
 			"class_description":"string",
 			"class_color":"string",
-			"grid_template_rows":"string",
-			"grid_template_columns":"string",
 			"class_author": "string",
 			"class_version": "string",
-			"card_title": "string",
-			"card_fields": "[ string ]",
 			"base_class_name":"string",	
 			"parents":"[ string ]",
 			"full_text":"[ string ]",
@@ -298,8 +294,8 @@ namespace corona
 						{
 							_src++;
 							status = parsing_class_name;
-							new_class->copy_values.insert_or_assign(dest_field, src_field);
-							cod.child_classes.push_back(new_class);
+							new_class->copy_values.insert_or_assign(destField, srcField);
+							cod.child_classes.push_back(newClass);
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
@@ -637,14 +633,10 @@ namespace corona
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
 		virtual std::string								get_base_class_name()  const = 0;
-        virtual std::string                             get_grid_template_rows() const = 0;
-		virtual std::string                             get_grid_template_columns() const = 0;
 		virtual std::string                             get_class_color() const = 0;
 		virtual std::string                             get_class_display () const = 0;
 		virtual std::string                             get_class_author() const = 0;
 		virtual std::string                             get_class_version() const = 0;
-		virtual std::vector<std::string>				get_card_fields() const = 0;
-		virtual std::string                             get_card_title() const = 0;
 		virtual std::map<std::string, bool>  const&		get_descendants()  const = 0;
 		virtual std::map<std::string, bool>  const&		get_ancestors()  const = 0;
 		virtual std::map<std::string, bool>  &			update_descendants() = 0;
@@ -749,6 +741,7 @@ namespace corona
 		virtual void apply_config(json _system_config) = 0;
 		virtual void apply_config(json _system_config, json _server_config) = 0;
 		virtual json apply_schema(json _schema) = 0;
+		virtual json create_application(json _application_schema) = 0;
 
 		virtual std::string get_random_code(int _confirmation_code_digits = 8) = 0;
 
@@ -2962,11 +2955,7 @@ namespace corona
 		std::string class_name;
 		std::string class_description;
 		std::string base_class_name;
-		std::string grid_template_rows;
-		std::string grid_template_columns;
 		std::string display;
-		std::string card_title;
-		std::vector<std::string> card_fields;
 		std::string class_color;
 		std::vector<std::string> parents;
 		std::vector<std::string> full_text_fields;
@@ -3010,14 +2999,10 @@ namespace corona
 			}
 			ancestors = _src->get_ancestors();
 			descendants = _src->get_descendants();		
-            grid_template_rows = _src->get_grid_template_rows();
-            grid_template_columns = _src->get_grid_template_columns();
 			class_color = _src->get_class_color();
 			display = _src->get_class_display();
 			class_author = _src->get_class_author();
 			class_version = _src->get_class_version();
-			card_title = _src->get_card_title();
-			card_fields = _src->get_card_fields();
 		}
 
 		std::shared_ptr<xtable> table;
@@ -3150,16 +3135,6 @@ namespace corona
 			return *this;
 		}
 
-		virtual std::string get_grid_template_rows() const override
-		{
-			return grid_template_rows;
-		}
-
-		virtual std::string get_grid_template_columns() const override
-		{
-			return grid_template_columns;
-		}
-
         virtual std::string get_class_color() const override
         {
             return class_color;
@@ -3190,15 +3165,6 @@ namespace corona
 			return class_version;
 		}
 
-		virtual std::string get_card_title() const override
-		{
-			return card_title;
-		}
-
-		virtual std::vector<std::string> get_card_fields() const override
-		{
-			return card_fields;
-		}
 
 		virtual bool ready() override 
 		{
@@ -3515,13 +3481,10 @@ namespace corona
 			_dest.put_member(class_name_field, class_name);
 			_dest.put_member("class_description", class_description);
 			_dest.put_member("base_class_name", base_class_name);
-			_dest.put_member("grid_template_rows", grid_template_rows);
-			_dest.put_member("grid_template_columns", grid_template_columns);
 			_dest.put_member("class_color", class_color);
 			_dest.put_member("display", display);
 			_dest.put_member("class_version", class_version);
 			_dest.put_member("class_author", class_author);
-			_dest.put_member("card_title", card_title);
 
 			if (table) {
 				_dest.put_member("object_count", table->get_count());
@@ -3543,13 +3506,6 @@ namespace corona
 				ja.push_back(p);
 			}
 			_dest.share_member("full_text", ja);
-
-			ja = jp.create_array();
-			for (auto p : card_fields)
-			{
-				ja.push_back(p);
-			}
-			_dest.share_member("card_fields", ja);
 
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
@@ -3633,11 +3589,8 @@ namespace corona
 			class_name = _src[class_name_field].as_string();
 			base_class_name = _src["base_class_name"].as_string();
 			class_description = _src["class_description"].as_string();
-			grid_template_rows = _src["grid_template_rows"].as_string();
-			grid_template_columns = _src["grid_template_columns"].as_string();
 			class_color = _src["class_color"].as_string();
 			display = _src["display"].as_string();
-			card_title = _src["card_title"].as_string();
 			class_author = _src["class_author"].as_string();
 			class_version = _src["class_version"].as_string();
 
@@ -3668,21 +3621,6 @@ namespace corona
 			{
 				for (auto jparent : jfulltext) {
 					full_text_fields.push_back(jparent.as_string());
-				}
-			}
-
-			card_fields.clear();
-			json jcard_fields = _src["card_fields"];
-
-			if (jcard_fields.is_string())
-			{
-				std::string jparento = jcard_fields.as_string();
-				card_fields.push_back(jparento);
-			}
-			else if (jcard_fields.array())
-			{
-				for (auto jparent : jcard_fields) {
-					card_fields.push_back(jparent.as_string());
 				}
 			}
 
@@ -5519,14 +5457,9 @@ namespace corona
 			class_data_header->object_members.columns[7] = { field_types::ft_array, 7, "ancestors" };
 			class_data_header->object_members.columns[8] = { field_types::ft_array, 8, "descendants" };
 			class_data_header->object_members.columns[9] = { field_types::ft_object, 9, "sql" };
-			class_data_header->object_members.columns[10] = { field_types::ft_string, 10, "class_color" };
-			class_data_header->object_members.columns[11] = { field_types::ft_string, 11, "grid_template_rows" };
-			class_data_header->object_members.columns[12] = { field_types::ft_string, 12, "grid_template_columns" };
-			class_data_header->object_members.columns[13] = { field_types::ft_string, 13, "class_author" };
-			class_data_header->object_members.columns[14] = { field_types::ft_string, 14, "class_version" };
-			class_data_header->object_members.columns[15] = { field_types::ft_string, 15, "card_title" };
-			class_data_header->object_members.columns[16] = { field_types::ft_array, 16, "card_fields" };
-			class_data_header->object_members.columns[17] = { field_types::ft_array, 17, "full_text" };
+			class_data_header->object_members.columns[13] = { field_types::ft_string, 10, "class_author" };
+			class_data_header->object_members.columns[14] = { field_types::ft_string, 11, "class_version" };
+			class_data_header->object_members.columns[17] = { field_types::ft_array, 12, "full_text" };
 
 			std::filesystem::path class_table = data_path;
             class_table /= "classes.coronatbl";
@@ -7844,6 +7777,243 @@ private:
 			classes->commit();
 			return class_def;		
 		}
+
+        virtual json generate_card(read_class_sp& _class_definition)
+		{
+			json_parser jp;
+			json jempty = jp.create_object();
+			return jempty;
+		}
+
+		virtual json create_application(json _application_schema)
+		{
+			json_parser jp;
+
+			json field_mappings = _application_schema["fields"];
+			json class_mappings = _application_schema["classes"];
+			json team_mappings = _application_schema["teams"];
+
+			json result = jp.create_object();
+			json pages = jp.create_array();
+
+			json class_list = classes->select(nullptr, jp.create_object(), [](json& _item)->json {
+				return _item;
+				});
+
+			json card_template = jp.from_file(this->config_path + "\\source_templates\\card.json");
+			json card_container_template = jp.from_file(this->config_path + "\\source_templates\\card_container.json");
+			json object_template = jp.from_file(this->config_path + "\\source_templates\\object.json");
+			json object_details_template = jp.from_file(this->config_path + "\\source_templates\\object_details.json");
+			json object_container_template = jp.from_file(this->config_path + "\\source_templates\\object_container.json");
+			json pages_template = jp.from_file(this->config_path + "\\source_templates\\pages.json");
+			json styles_template = jp.from_file(this->config_path + "\\source_templates\\styles.json");
+
+			if (class_list.array()) {
+				for (auto& item : class_list.array_impl()->elements) {
+					std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);
+					if (jo && jo->members.contains(class_name_field)) {
+						std::string class_name = jo->members[class_name_field]->to_string();
+
+						// Skip system classes unless explicitly mapped
+						if (class_name.starts_with("sys_") && !class_mappings.has_member(class_name)) {
+							continue;
+						}
+
+						auto classd = read_lock_class(class_name);
+						if (!classd) continue;
+
+						json card_fields = class_mappings[class_name];
+						if (card_fields.empty()) continue;
+
+						// Generate card page
+						json card_page = generate_card_page(card_template, classd, card_fields, field_mappings);
+						if (!card_page.empty()) {
+							pages.push_back(card_page);
+						}
+
+						// Generate object details page
+						json object_page = generate_object_page(object_template, object_details_template,
+							class_name, classd, card_fields, field_mappings);
+						if (!object_page.empty()) {
+							pages.push_back(object_page);
+						}
+
+						// Generate object details page
+						json object_page = generate_edit_tab_page(object_template, object_details_template,
+							class_name, card_fields, field_mappings);
+						if (!object_page.empty()) {
+							pages.push_back(object_page);
+						}
+
+						// Generate container/list page
+						json container_page = generate_list_tab_page(card_container_template, object_container_template,
+							class_name, classd);
+						if (!container_page.empty()) {
+							pages.push_back(container_page);
+						}
+					}
+				}
+			}
+
+			result.put_member("pages", pages);
+			result.put_member("styles", styles_template);
+
+			return result;
+		}
+
+private:
+		json generate_card_page(json& card_template, read_class_sp& classd, json& card_fields, json& field_mappings)
+		{
+			json_parser jp;
+			json card_page = card_template.clone();
+
+			const std::string class_name = classd->get_class_name();
+
+			card_page.put_member("page_name", "card_" + class_name);
+
+			// Set icon
+			auto parameters = card_page.find_member("using.parameters");
+			if (parameters.object()) {
+				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+			}
+
+			// Populate card contents
+			auto contents = card_page.find_member("card_contents");
+			if (contents.array()) {
+				auto fields = classd->get_fields();
+
+				// Check if this field should be displayed on the card
+				auto cfm = card_fields.get_members();
+                for (auto field : cfm) {
+
+					json content = jp.create_object();
+					content.put_member_string("class_name", "paragraph");
+					content.put_member_string("box", "card_text_box");
+					content.put_member("json_field_name", field.first);
+					content.put_member("text_field_name", field.first);
+					content.put_member("text", field.second.as_string());
+					contents.push_back(content);
+				}
+			}
+
+			return card_page;
+		}
+
+		json generate_edit_tab_page(json& tab_template, const std::string& class_name,
+			read_class_sp& classd, json& card_fields, json& field_mappings)
+		{
+			json_parser jp;
+			json card_page = tab_template.clone();
+
+			card_page.put_member("page_name", "tab_" + class_name);
+
+			// Set icon
+			auto parameters = card_page.find_member("using.parameters");
+			if (parameters.object()) {
+				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+			}
+
+			// Populate card contents
+			auto contents = card_page.find_member("$details_contents");
+			if (contents.array()) {
+				auto fields = classd->get_fields();
+
+				// Check if this field should be displayed on the card
+				auto cfm = card_fields.get_members();
+				for (auto field : cfm) {
+
+					json content = jp.create_object();
+					content.put_member_string("class_name", "paragraph");
+					content.put_member_string("box", "card_text_box");
+					content.put_member("json_field_name", field.first);
+					content.put_member("text_field_name", field.first);
+					content.put_member("text", field.second.as_string());
+					contents.push_back(content);
+				}
+			}
+
+			return card_page;
+		}
+
+		json generate_object_page(json& object_template, json& object_details_template,
+			const std::string& class_name, read_class_sp& classd,
+			json& card_fields, json& field_mappings)
+		{
+			json_parser jp;
+			json object_page = object_template.clone();
+
+			object_page.put_member("page_name", "object_" + class_name);
+
+			// Populate object details
+			auto details = object_page.find_member("object_details");
+			if (details.array()) {
+				auto fields = classd->get_fields();
+
+				for (auto field : fields) {
+					std::string field_name = field->get_field_name();
+
+					json field_detail = object_details_template.clone();
+					field_detail.put_member("field_name", field_name);
+					field_detail.put_member("class_name", class_name);
+
+					// Get display properties
+					if (field_mappings.has_member(field_name)) {
+						json field_mapping = field_mappings[field_name];
+						field_detail.put_member("label", field_mapping["label"].as_string());
+						field_detail.put_member("display_type", field_mapping["display"].as_string());
+					}
+					else {
+						field_detail.put_member("label", field_name);
+
+						// Infer display type from field type
+						switch (field->get_field_type()) {
+						case field_types::ft_string:
+							field_detail.put_member_string("display_type", "text");
+							break;
+						case field_types::ft_int64:
+						case field_types::ft_double:
+							field_detail.put_member_string("display_type", "number");
+							break;
+						case field_types::ft_datetime:
+							field_detail.put_member_string("display_type", "datetime");
+							break;
+						case field_types::ft_bool:
+							field_detail.put_member_string("display_type", "checkbox");
+							break;
+						case field_types::ft_array:
+							field_detail.put_member_string("display_type", "array");
+							break;
+						case field_types::ft_object:
+							field_detail.put_member_string("display_type", "object");
+							break;
+						default:
+							field_detail.put_member_string("display_type", "text");
+						}
+					}
+
+					details.push_back(field_detail);
+				}
+			}
+
+			return object_page;
+		}
+
+		json generate_container_page(json& card_container_template, json& object_container_template,
+			const std::string& class_name, read_class_sp& classd)
+		{
+			json_parser jp;
+			json container_page = card_container_template.clone();
+
+			container_page.put_member("page_name", "list_" + class_name);
+			container_page.put_member("class_name", class_name);
+			container_page.put_member("card_page_reference", "card_" + class_name);
+			container_page.put_member("object_page_reference", "object_" + class_name);
+
+			return container_page;
+		}
+
+		public:
+
 
 		virtual json apply_schema()
 		{

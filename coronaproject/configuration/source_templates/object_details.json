@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_object_details",
+  "page_name": "object_details",
   "children": [
     {
       "class_name": "row",

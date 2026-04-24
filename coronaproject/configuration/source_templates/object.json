@@ -1,0 +1,22 @@
+{
+  "class_name": "page",
+  "page_name": "",
+  "using": {
+    "page_name": "object_container",
+    "parameters": {
+      "$icon_image_file": "",
+      "$details_contents": [
+        {
+          "class_name": "tab_view",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          },
+          "tabs": [
+          ],
+          "content_frame_name": ""
+        }
+      ]
+    }
+  }
+}

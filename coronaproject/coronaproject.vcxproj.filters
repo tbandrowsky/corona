@@ -38,4 +38,8 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="configuration\source_templates\object.json" />
+    <None Include="configuration\source_templates\card.json" />
+  </ItemGroup>
 </Project>

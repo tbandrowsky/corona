@@ -1202,6 +1202,16 @@ namespace corona
 			value_base = _value;
 		}
 
+		void save(std::string& _filename)
+		{
+			std::string file_string = this->to_json();
+			std::ofstream outFile(_filename, std::ios::out | std::ios::trunc);
+			if (outFile.is_open()) {
+                outFile.write(file_string.c_str(), file_string.size());
+				outFile.close();
+			}
+		}
+
         json& operator = (const json& _other)
 		{
 			value_base = _other.value_base;
@@ -1825,6 +1835,40 @@ namespace corona
 				}
 			}
 			return nullptr;
+		}
+
+		json find_member(const std::string _path)
+		{
+			json result;
+
+			auto obj_impl = object_impl();
+			if (!obj_impl)
+				return result;
+
+			std::vector<std::string> keys;
+			keys = split(_path, '.');
+
+			auto result_value = this->value_base;
+
+			for (auto& key : keys) 
+			{
+                auto member = obj_impl->members.find(key);
+
+				if (member == std::end(obj_impl->members)) {
+					return result;
+				}
+
+				if (!member->second || member->second->get_field_type() != field_types::ft_object) 
+				{
+					return result;
+				}
+
+				result_value = member->second;
+			}
+
+            result.set(result_value);
+
+			return result;
 		}
 
 		json operator[](const std::string_view& _key) const
@@ -3917,6 +3961,16 @@ namespace corona
 				error("http_response", "response was not a valid string");
 				return get_errors();
 			}
+		}
+
+		json from_file(std::string _filename)
+		{
+			json result = create_object();
+			std::string file_string = read_all_string(_filename);
+			if (!file_string.empty()) {
+				result = parse_object(file_string);
+			}
+			return result;
 		}
 
 		json create_object()

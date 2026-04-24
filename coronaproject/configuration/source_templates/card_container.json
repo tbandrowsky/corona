@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "page_object_card_template",
+  "page_name": "card_container",
   "children": [
     {
       "class_name": "row",

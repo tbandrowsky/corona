@@ -1,0 +1,13 @@
+{
+  "class_name": "page",
+  "page_name": "",
+  "using": {
+    "page_name": "card_container",
+    "parameters": {
+      "$icon_image_file": "assets\\check.png",
+      "$card_height": "75 pixels",
+      "$card_contents": [
+      ]
+    }
+  }
+}
