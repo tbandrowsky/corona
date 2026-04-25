@@ -1,0 +1,42 @@
+{
+  "class_name": "page",
+  "page_name": "tab_list",
+  "using": {
+    "page_name": "tab_container",
+    "parameters": {
+      "$tab_contents": [
+        {
+          "class_name": "paragraph",
+          "box": "card_text_box"
+        },
+        {
+          "class_name": "row",
+          "name": "tab_list_commands",
+          "box": {
+            "width": "1.0 container",
+            "height": "50 pixels"
+          },
+          "children": [
+          ]
+        },
+        {
+          "class_name": "items_view",
+          "name": "tab_list_table",
+          "json_field_name": "projects",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          },
+          "sources": "card_sources",
+          "empty_text": "",
+          "select_command": {
+            "class_name": "list_select_object",
+            "target_frame": "page_home.frame_selected",
+            "table_name": "tab_list_table",
+            "sources": "form_sources"
+          }
+        }
+      ]
+    }
+  }
+}

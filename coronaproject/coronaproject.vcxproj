@@ -587,7 +587,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\card.json" />
+    <None Include="configuration\source_templates\tab_list.json" />
     <None Include="configuration\source_templates\object.json" />
+    <None Include="configuration\source_templates\tab_container.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="configuration\source_templates\tab_edit.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

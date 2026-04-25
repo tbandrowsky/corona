@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "",
+  "page_name": "object",
   "using": {
     "page_name": "object_container",
     "parameters": {

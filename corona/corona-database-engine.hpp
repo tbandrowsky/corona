@@ -7803,8 +7803,17 @@ private:
 			json card_template = jp.from_file(this->config_path + "\\source_templates\\card.json");
 			json card_container_template = jp.from_file(this->config_path + "\\source_templates\\card_container.json");
 			json object_template = jp.from_file(this->config_path + "\\source_templates\\object.json");
-			json object_details_template = jp.from_file(this->config_path + "\\source_templates\\object_details.json");
+			json object_details = jp.from_file(this->config_path + "\\source_templates\\object_details.json");
 			json object_container_template = jp.from_file(this->config_path + "\\source_templates\\object_container.json");
+
+			json tab_edit_template = jp.from_file(this->config_path + "\\source_templates\\tab_edit.json");
+			json tab_list_template = jp.from_file(this->config_path + "\\source_templates\\tab_list.json");
+			json tab_container_template = jp.from_file(this->config_path + "\\source_templates\\tab_container.json");
+
+			json pages_template = jp.from_file(this->config_path + "\\source_templates\\pages.json");
+			json styles_template = jp.from_file(this->config_path + "\\source_templates\\styles.json");
+
+            json home_template = jp.from_file(this->config_path + "\\source_templates\\home.json");
 			json pages_template = jp.from_file(this->config_path + "\\source_templates\\pages.json");
 			json styles_template = jp.from_file(this->config_path + "\\source_templates\\styles.json");
 
@@ -7822,34 +7831,28 @@ private:
 						auto classd = read_lock_class(class_name);
 						if (!classd) continue;
 
-						json card_fields = class_mappings[class_name];
-						if (card_fields.empty()) continue;
-
 						// Generate card page
-						json card_page = generate_card_page(card_template, classd, card_fields, field_mappings);
+						json card_page = generate_card_page(card_template, classd, class_mappings, field_mappings);
 						if (!card_page.empty()) {
 							pages.push_back(card_page);
 						}
 
 						// Generate object details page
-						json object_page = generate_object_page(object_template, object_details_template,
-							class_name, classd, card_fields, field_mappings);
+						json object_page = generate_object_page(object_template, classd, class_mappings, field_mappings);
 						if (!object_page.empty()) {
 							pages.push_back(object_page);
 						}
 
-						// Generate object details page
-						json object_page = generate_edit_tab_page(object_template, object_details_template,
-							class_name, card_fields, field_mappings);
-						if (!object_page.empty()) {
-							pages.push_back(object_page);
+						// Generate edit tab page
+						json edit_tab_page = generate_tab_list_page(tab_list_template, classd, class_mappings, field_mappings);
+						if (!edit_tab_page.empty()) {
+							pages.push_back(edit_tab_page);
 						}
 
 						// Generate container/list page
-						json container_page = generate_list_tab_page(card_container_template, object_container_template,
-							class_name, classd);
-						if (!container_page.empty()) {
-							pages.push_back(container_page);
+						json tab_edit_page = generate_tab_edit_page(tab_edit_template, classd, class_mappings, field_mappings);
+						if (!tab_edit_page.empty()) {
+							pages.push_back(tab_edit_page);
 						}
 					}
 				}
@@ -7862,82 +7865,161 @@ private:
 		}
 
 private:
-		json generate_card_page(json& card_template, read_class_sp& classd, json& card_fields, json& field_mappings)
+
+		json generate_card_page(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
-			json card_page = card_template.clone();
+			json tab_edit_page = card_template.clone();
 
 			const std::string class_name = classd->get_class_name();
 
-			card_page.put_member("page_name", "card_" + class_name);
+			tab_edit_page.put_member("page_name", "card_" + class_name);
 
 			// Set icon
-			auto parameters = card_page.find_member("using.parameters");
+			auto parameters = tab_edit_page.find_member("using.parameters");
 			if (parameters.object()) {
 				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
 			}
 
 			// Populate card contents
-			auto contents = card_page.find_member("card_contents");
+			auto contents = tab_edit_page.find_member("$card_contents");
 			if (contents.array()) {
-				auto fields = classd->get_fields();
 
 				// Check if this field should be displayed on the card
-				auto cfm = card_fields.get_members();
-                for (auto field : cfm) {
+                auto cfm = class_mappings[class_name]["card"]["fields"];
 
+                for (int i = 0; i < cfm.size(); i++) {
+                    auto field = cfm.get_element(i);
+                
 					json content = jp.create_object();
 					content.put_member_string("class_name", "paragraph");
 					content.put_member_string("box", "card_text_box");
-					content.put_member("json_field_name", field.first);
-					content.put_member("text_field_name", field.first);
-					content.put_member("text", field.second.as_string());
+					content.put_member("json_field_name", field["field_name"].as_string());
+					content.put_member("text", field["expression"].as_string());
 					contents.push_back(content);
 				}
 			}
 
-			return card_page;
+			return tab_edit_page;
 		}
 
-		json generate_edit_tab_page(json& tab_template, const std::string& class_name,
-			read_class_sp& classd, json& card_fields, json& field_mappings)
+        json get_field_mapping(read_class_sp& classd, const std::string& field_name, json& field_mappings)
+		{
+            std::string key = classd->get_class_name() + "." + field_name;
+
+			if (field_mappings.has_member(key)) {
+				return field_mappings[key];
+			}
+
+			auto ancestors = classd->get_ancestors();
+            for (auto ans : ancestors) {
+				std::string ancestor_key = ans.first + "." + field_name;
+				if (field_mappings.has_member(ancestor_key)) {
+					return field_mappings[ancestor_key];
+				}
+			}
+
+            auto field = classd->get_field(field_name);
+			if (field) {
+				auto ft = field->get_field_type();
+                key = field_type_names[ft];
+
+				if (field_mappings.has_member(key)) {
+					return field_mappings[key];
+				}
+			}
+
+			return field_mappings["string"];
+		}
+
+		json generate_tab_edit_page(json& tab_template, 
+			read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
-			json card_page = tab_template.clone();
+			json tab_edit_page = tab_template.clone();
 
-			card_page.put_member("page_name", "tab_" + class_name);
+			tab_edit_page.put_member("page_name", "tab_edit_" + classd->get_class_name());
 
 			// Set icon
-			auto parameters = card_page.find_member("using.parameters");
+			auto parameters = tab_edit_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+				parameters.put_member("$icon_image_file", "assets\\" + classd->get_class_name() + ".png");
 			}
 
 			// Populate card contents
-			auto contents = card_page.find_member("$details_contents");
+			auto contents = tab_edit_page.find_member("$details_contents");
+			if (contents.array()) {
+
+				auto cfm = class_mappings[classd->get_class_name()]["tab_edit"]["fields"];
+
+				for (int i = 0; i < cfm.size(); i++) {
+					auto field = cfm.get_element(i);
+
+                    std::string field_name = field["field_name"].as_string();
+                    std::string field_label = field["label"].as_string();
+
+                    json field_mapping = get_field_mapping(classd, field_name, field_mappings);
+					if (field_mapping.empty()) {
+						continue;
+					}
+
+                    std::string field_type = field_mapping.as_string();
+
+					json content = jp.create_object();
+					content.put_member_string("class_name", field_type);
+					content.put_member_string("box", "card_text_box");
+					content.put_member("json_field_name", field_name);
+					content.put_member("text", field["expression"].as_string());
+					contents.push_back(content);
+				}
+
+			}
+
+			return tab_edit_page;
+		}
+
+		json generate_tab_list_page(json& tab_template, 
+			read_class_sp& classd, json& class_mappings, json& field_mappings)
+		{
+			json_parser jp;
+			json tab_list_page = tab_template.clone();
+
+			tab_list_page.put_member("page_name", "tab_" + classd->get_class_name() + "s");
+
+			// Set icon
+			auto parameters = tab_list_page.find_member("using.parameters");
+			if (parameters.object()) {
+				parameters.put_member("$icon_image_file", "assets\\" + classd->get_class_name() + ".png");
+			}
+
+			// Populate card contents
+			auto contents = tab_list_page.find_member("$details_contents");
 			if (contents.array()) {
 				auto fields = classd->get_fields();
 
 				// Check if this field should be displayed on the card
-				auto cfm = card_fields.get_members();
+				auto cfm = class_mappings.get_members();
 				for (auto field : cfm) {
+
+
+                    json field_mapping = field_mappings[field.first];
+
 
 					json content = jp.create_object();
 					content.put_member_string("class_name", "paragraph");
 					content.put_member_string("box", "card_text_box");
 					content.put_member("json_field_name", field.first);
-					content.put_member("text_field_name", field.first);
 					content.put_member("text", field.second.as_string());
 					contents.push_back(content);
 				}
 			}
 
-			return card_page;
+			return tab_list_page;
 		}
 
-		json generate_object_page(json& object_template, json& object_details_template,
-			const std::string& class_name, read_class_sp& classd,
-			json& card_fields, json& field_mappings)
+		json generate_object_page(json& object_template,
+			read_class_sp& classd,
+			json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
 			json object_page = object_template.clone();

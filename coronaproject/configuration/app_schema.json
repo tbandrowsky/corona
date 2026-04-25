@@ -1007,35 +1007,65 @@
 
   ],
   "application": {
-    "fields": [
-      {
-        "string": "edit_field",
-        "datetime": "datetimepicker_field",
-        "double": "number_field",
-        "number": "number_field",
-        "int64_t": "number_field",
-        "boolean": "checkbox_field",
-        "string.enumeration": "combobox_field"
+    "fields": {
+      "string.memo": {
+        "class_name": "memo_field",
+        "box": "edit_field_box"
+      },
+      "string": {
+        "class_name": "edit_field",
+        "box": "edit_field_box"
+      },
+      "datetime": {
+        "class_name": "datetimepicker_field",
+        "box": "edit_field_box"
+      },
+      "double": {
+        "class_name": "number_field",
+        "box": "edit_field_box"
+      },
+      "number": {
+        "class_name": "number_field",
+        "box": "edit_field_box"
+      },
+      "int64_t": {
+        "class_name": "number_field",
+        "box": "edit_field_box"
+      },
+      "boolean": {
+        "class_name": "checkbox_field",
+        "box": "edit_field_box"
+      },
+      "string.enumeration": {
+        "class_name": "combobox_field",
+        "box": "edit_field_box"
       }
-    ],
+    },
     "classes": {
       "class_name": {
         "card": {
           "title": "description",
           "fields": [
             {
-              "label": "text",
-              "expression": "description"
+              "field_name": "name",
+              "expression": ""
             }
-          ]
+          ],
+          "commands": []
+        },
+        "tab_edit": {
+          "fields": [
+            {
+              "field_name": "name"
+            }
+          ],
+          "commands": []
+        },
+        "tab_list": {
+          "commands": []
         },
         "page": {
-          "tabs": [
-            {
-              "tab_name": "",
-              "member_names": [ "" ]
-            }
-          ]
+          "tabs": [ "tab_name" ]
         }
       }
     },

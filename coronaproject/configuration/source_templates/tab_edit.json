@@ -1,0 +1,11 @@
+{
+  "class_name": "page",
+  "page_name": "tab_edit",
+  "using": {
+    "page_name": "tab_container",
+    "parameters": {
+      "$tab_contents": [
+      ]
+    }
+  }
+}

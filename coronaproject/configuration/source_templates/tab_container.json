@@ -1,0 +1,14 @@
+{
+  "class_name": "page",
+  "page_name": "tab_container",
+  "children": [
+    {
+      "class_name": "column",
+      "name": "tab_container_column",
+      "box": "full_container",
+      "children": [
+        "$tab_contents"
+      ]
+    }
+  ]
+}
