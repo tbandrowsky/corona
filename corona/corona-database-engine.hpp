@@ -7956,20 +7956,19 @@ private:
 					auto field = cfm.get_element(i);
 
                     std::string field_name = field["field_name"].as_string();
-                    std::string field_label = field["label"].as_string();
-
+                    
                     json field_mapping = get_field_mapping(classd, field_name, field_mappings);
 					if (field_mapping.empty()) {
 						continue;
 					}
 
-                    std::string field_type = field_mapping.as_string();
+                    std::string field_class_name = field_mapping["class_name"].as_string();
+					std::string field_box = field_mapping["box"].as_string();
 
 					json content = jp.create_object();
-					content.put_member_string("class_name", field_type);
-					content.put_member_string("box", "card_text_box");
+					content.put_member_string("class_name", field_class_name);
+					content.put_member_string("box", field_box);
 					content.put_member("json_field_name", field_name);
-					content.put_member("text", field["expression"].as_string());
 					contents.push_back(content);
 				}
 
