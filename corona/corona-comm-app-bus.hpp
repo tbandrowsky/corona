@@ -399,7 +399,7 @@ namespace corona
 
 					if (jsrcstyles.array() and jdststyles.array())
 					{
-						jdststyles.append_array(jsrcstyles);
+						jdststyles.pushback_array(jsrcstyles);
 					}
 					else if (jsrcstyles.array())
 					{
@@ -454,7 +454,7 @@ namespace corona
 
 						if (jdstpages.array())
 						{
-							jdstpages.append_array(jpages_expanded_array);
+							jdstpages.pushback_array(jpages_expanded_array);
 						}
 						else
 						{
@@ -467,7 +467,7 @@ namespace corona
 
 					if (jsrcstartup.array() and jdststartup.array())
 					{
-						jdststartup.append_array(jsrcstartup);
+						jdststartup.pushback_array(jsrcstartup);
 					}
 					else if (jsrcstartup.array())
 					{

@@ -7831,25 +7831,19 @@ private:
 						if (!classd) continue;
 
 						// Generate card page
-						json card_page = generate_card_page(card_template, classd, class_mappings, field_mappings);
+						json card_page = generate_card_pages(card_template, classd, class_mappings, field_mappings);
 						if (!card_page.empty()) {
 							pages.push_back(card_page);
 						}
 
 						// Generate object details page
-						json object_page = generate_object_page(object_template, classd, class_mappings, field_mappings);
+						json object_page = generate_object_pages(object_template, classd, class_mappings, field_mappings, tab_mappings);
 						if (!object_page.empty()) {
 							pages.push_back(object_page);
 						}
 
-						// Generate edit tab page
-						json edit_tab_page = generate_tab_list_page(tab_list_template, classd, class_mappings, field_mappings);
-						if (!edit_tab_page.empty()) {
-							pages.push_back(edit_tab_page);
-						}
-
 						// Generate container/list page
-						json tab_edit_page = generate_tab_edit_page(tab_edit_template, classd, class_mappings, field_mappings);
+						json tab_edit_page = generate_tab_edit_pages(tab_edit_template, classd, class_mappings, field_mappings);
 						if (!tab_edit_page.empty()) {
 							pages.push_back(tab_edit_page);
 						}
@@ -7865,7 +7859,7 @@ private:
 
 private:
 
-		json generate_card_page(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
+		json generate_card_pages(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
 
@@ -7936,7 +7930,7 @@ private:
 			return field_mappings["string"];
 		}
 
-		json generate_tab_edit_page(json& tab_template, 
+		json generate_tab_edit_pages(json& tab_template, 
 			read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
@@ -7990,7 +7984,7 @@ private:
 			return pages;
 		}
 
-		json generate_tab_list_page(json& tab_list_template, const std::string& class_name, const std::string& member_name)
+		json generate_tab_list_pages(json& tab_list_template, const std::string& class_name, const std::string& member_name)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
@@ -8016,7 +8010,7 @@ private:
 			return pages;
 		}
 
-		json generate_object_page(json& object_template,
+		json generate_object_pages(json& object_template,
 			read_class_sp& classd,
 			json& class_mappings, json& field_mappings, json& tab_list_template)
 		{
@@ -8041,12 +8035,10 @@ private:
 
 				bool list = src_tab["list"].as_bool();
 				if (list) {
-					json tab_page = generate_tab_list_page(tab_list_template, class_name, member_name);
-					if (!tab_page.empty()) {
-                        result.push_back(tab_page);
-					}
+					json tab_page = generate_tab_list_pages(tab_list_template, class_name, member_name);
+					result.push_back_array(tab_page);
 					new_tab.erase_member("list");
-                    new_tab.copy_member("page_name", tab_page);
+                    new_tab.copy_member("page_name", src_tab);
 				}
 
                 if (dest_tabs.array()) {

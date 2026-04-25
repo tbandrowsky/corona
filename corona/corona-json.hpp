@@ -1931,7 +1931,7 @@ namespace corona
 			}
 		}
 
-		void append_array(json _src)
+		void push_back_array(json _src)
 		{
 			if (array_impl()) {
 				if (_src.array()) {
