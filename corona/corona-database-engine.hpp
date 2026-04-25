@@ -7823,8 +7823,7 @@ private:
 					if (jo && jo->members.contains(class_name_field)) {
 						std::string class_name = jo->members[class_name_field]->to_string();
 
-						// Skip system classes unless explicitly mapped
-						if (class_name.starts_with("sys_") && !class_mappings.has_member(class_name)) {
+						if (!class_mappings.has_member(class_name)) {
 							continue;
 						}
 
@@ -7869,6 +7868,9 @@ private:
 		json generate_card_page(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
+
+            json pages = jp.create_array();
+
 			json tab_edit_page = card_template.clone();
 
 			const std::string class_name = classd->get_class_name();
@@ -7900,7 +7902,9 @@ private:
 				}
 			}
 
-			return tab_edit_page;
+            pages.push_back(tab_edit_page);
+
+			return pages;
 		}
 
         json get_field_mapping(read_class_sp& classd, const std::string& field_name, json& field_mappings)
@@ -7936,6 +7940,9 @@ private:
 			read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
+
+			json pages = jp.create_array();
+
 			json tab_edit_page = tab_template.clone();
 
 			tab_edit_page.put_member("page_name", "tab_edit_" + classd->get_class_name());
@@ -7976,13 +7983,18 @@ private:
 
 			}
 
-			return tab_edit_page;
+            pages = jp.create_array();
+
+            pages.push_back(tab_edit_page);
+
+			return pages;
 		}
 
 		json generate_tab_list_page(json& tab_list_template, const std::string& class_name, const std::string& member_name)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
+            json pages = jp.create_array();
 
 			tab_list_page.put_member("page_name", "tab_" + class_name + "_"+ member_name);
 
@@ -7999,7 +8011,9 @@ private:
 				target.put_member_string("json_field_name", member_name);
 			}
 
-			return tab_list_page;
+            pages.push_back(tab_list_page);
+
+			return pages;
 		}
 
 		json generate_object_page(json& object_template,
