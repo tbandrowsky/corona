@@ -7956,7 +7956,8 @@ private:
 					auto field = cfm.get_element(i);
 
                     std::string field_name = field["field_name"].as_string();
-                    
+					std::string field_label = field["label"].as_string();
+
                     json field_mapping = get_field_mapping(classd, field_name, field_mappings);
 					if (field_mapping.empty()) {
 						continue;
@@ -7968,6 +7969,7 @@ private:
 					json content = jp.create_object();
 					content.put_member_string("class_name", field_class_name);
 					content.put_member_string("box", field_box);
+					content.put_member_string("text", field_label);
 					content.put_member("json_field_name", field_name);
 					contents.push_back(content);
 				}
@@ -7977,40 +7979,24 @@ private:
 			return tab_edit_page;
 		}
 
-		json generate_tab_list_page(json& tab_template, 
-			read_class_sp& classd, json& class_mappings, json& field_mappings)
+		json generate_tab_list_page(json& tab_list_template, const std::string& class_name, const std::string& member_name)
 		{
 			json_parser jp;
-			json tab_list_page = tab_template.clone();
+			json tab_list_page = tab_list_template.clone();
 
-			tab_list_page.put_member("page_name", "tab_" + classd->get_class_name() + "s");
+			tab_list_page.put_member("page_name", "tab_" + class_name + "_"+ member_name);
 
 			// Set icon
 			auto parameters = tab_list_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + classd->get_class_name() + ".png");
+				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
 			}
 
 			// Populate card contents
-			auto contents = tab_list_page.find_member("$details_contents");
+			auto contents = tab_list_page.find_member("$tab_contents");
 			if (contents.array()) {
-				auto fields = classd->get_fields();
-
-				// Check if this field should be displayed on the card
-				auto cfm = class_mappings.get_members();
-				for (auto field : cfm) {
-
-
-                    json field_mapping = field_mappings[field.first];
-
-
-					json content = jp.create_object();
-					content.put_member_string("class_name", "paragraph");
-					content.put_member_string("box", "card_text_box");
-					content.put_member("json_field_name", field.first);
-					content.put_member("text", field.second.as_string());
-					contents.push_back(content);
-				}
+				json target = contents.find_object_with_member("json_field_name");
+				target.put_member_string("json_field_name", member_name);
 			}
 
 			return tab_list_page;
@@ -8018,79 +8004,45 @@ private:
 
 		json generate_object_page(json& object_template,
 			read_class_sp& classd,
-			json& class_mappings, json& field_mappings)
+			json& class_mappings, json& field_mappings, json& tab_list_template)
 		{
 			json_parser jp;
+
+			json result = jp.create_array();
 			json object_page = object_template.clone();
+
+            std::string class_name = classd->get_class_name();
 
 			object_page.put_member("page_name", "object_" + class_name);
 
-			// Populate object details
-			auto details = object_page.find_member("object_details");
-			if (details.array()) {
-				auto fields = classd->get_fields();
+			auto src_tabs = class_mappings[classd->get_class_name()]["page"]["tabs"];
+            auto dest_tabs = object_page["using"]["parameters"]["$details_contents"]["tabs"];
+			
+            for (int i = 0; i < src_tabs.size(); i++) {
+				auto src_tab = src_tabs.get_element(i);
 
-				for (auto field : fields) {
-					std::string field_name = field->get_field_name();
+				json new_tab = src_tab.clone();
 
-					json field_detail = object_details_template.clone();
-					field_detail.put_member("field_name", field_name);
-					field_detail.put_member("class_name", class_name);
+				std::string member_name = src_tab["member_name"].as_string();
 
-					// Get display properties
-					if (field_mappings.has_member(field_name)) {
-						json field_mapping = field_mappings[field_name];
-						field_detail.put_member("label", field_mapping["label"].as_string());
-						field_detail.put_member("display_type", field_mapping["display"].as_string());
+				bool list = src_tab["list"].as_bool();
+				if (list) {
+					json tab_page = generate_tab_list_page(tab_list_template, class_name, member_name);
+					if (!tab_page.empty()) {
+                        result.push_back(tab_page);
 					}
-					else {
-						field_detail.put_member("label", field_name);
+					new_tab.erase_member("list");
+                    new_tab.copy_member("page_name", tab_page);
+				}
 
-						// Infer display type from field type
-						switch (field->get_field_type()) {
-						case field_types::ft_string:
-							field_detail.put_member_string("display_type", "text");
-							break;
-						case field_types::ft_int64:
-						case field_types::ft_double:
-							field_detail.put_member_string("display_type", "number");
-							break;
-						case field_types::ft_datetime:
-							field_detail.put_member_string("display_type", "datetime");
-							break;
-						case field_types::ft_bool:
-							field_detail.put_member_string("display_type", "checkbox");
-							break;
-						case field_types::ft_array:
-							field_detail.put_member_string("display_type", "array");
-							break;
-						case field_types::ft_object:
-							field_detail.put_member_string("display_type", "object");
-							break;
-						default:
-							field_detail.put_member_string("display_type", "text");
-						}
-					}
-
-					details.push_back(field_detail);
+                if (dest_tabs.array()) {
+                    dest_tabs.push_back(new_tab);
 				}
 			}
 
-			return object_page;
-		}
+            result.push_back(object_page);
 
-		json generate_container_page(json& card_container_template, json& object_container_template,
-			const std::string& class_name, read_class_sp& classd)
-		{
-			json_parser jp;
-			json container_page = card_container_template.clone();
-
-			container_page.put_member("page_name", "list_" + class_name);
-			container_page.put_member("class_name", class_name);
-			container_page.put_member("card_page_reference", "card_" + class_name);
-			container_page.put_member("object_page_reference", "object_" + class_name);
-
-			return container_page;
+			return result;
 		}
 
 		public:

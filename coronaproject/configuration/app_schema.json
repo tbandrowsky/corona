@@ -1061,11 +1061,15 @@
           ],
           "commands": []
         },
-        "tab_list": {
-          "commands": []
-        },
         "page": {
-          "tabs": [ "tab_name" ]
+          "tabs": [
+            {
+              "name": "My Tab",
+              "page_name": "tab_list",
+              "member_name": "member",
+              "list": true
+            }
+          ]
         }
       }
     },
