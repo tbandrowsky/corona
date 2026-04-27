@@ -22,32 +22,40 @@ namespace corona
 
 	class directory_checker
 	{
+
 	public:
-
-		std::map<std::string, std::filesystem::file_time_type> entries;
-		std::filesystem::path path;
-
-		directory_checker() = default;
-		~directory_checker() = default;
 
 		struct check_options
 		{
 			std::map<std::string, bool> files_to_ignore;
 		};
 
-		bool check_changes( const check_options& _options )
+	private:
+
+		bool check_changes(std::string path, const check_options& _options)
 		{
 			bool result = false;
 			for (const auto& entry : std::filesystem::directory_iterator(path)) {
 				auto& entry_path = entry.path();
 				auto temp = entry_path.string();
 
+				// by default, ignore corona data files
 				if (entry_path.extension().string().find("corona") != std::string::npos)
-                    continue;
+					continue;
 
+				// in case we are too lazy to do this
 				if (_options.files_to_ignore.contains(temp))
 					continue;
-				
+
+                if (entry.is_directory())
+				{
+					if (check_changes(temp, _options))
+					{
+						result = true;
+					}
+					continue;
+				}
+
 				auto foundi = entries.find(temp);
 				if (foundi != std::end(entries))
 				{
@@ -67,7 +75,18 @@ namespace corona
 			return result;
 		}
 
+	public:
 
+		std::map<std::string, std::filesystem::file_time_type> entries;
+		std::filesystem::path path;
+
+		directory_checker() = default;
+		~directory_checker() = default;
+
+		bool check_changes(const check_options& _options)
+		{
+			return check_changes(path, _options);
+		}
 	};
 }
 

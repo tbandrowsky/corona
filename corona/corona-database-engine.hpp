@@ -7800,22 +7800,25 @@ private:
 				return _item;
 				});
 
-			json card_template = jp.from_file(this->config_path + "\\source_templates\\card.json");
-			json card_container_template = jp.from_file(this->config_path + "\\source_templates\\card_container.json");
-			json object_template = jp.from_file(this->config_path + "\\source_templates\\object.json");
-			json object_details = jp.from_file(this->config_path + "\\source_templates\\object_details.json");
-			json object_container_template = jp.from_file(this->config_path + "\\source_templates\\object_container.json");
+			// config path always ends with a separator
 
-			json tab_edit_template = jp.from_file(this->config_path + "\\source_templates\\tab_edit.json");
-			json tab_list_template = jp.from_file(this->config_path + "\\source_templates\\tab_list.json");
-			json tab_container_template = jp.from_file(this->config_path + "\\source_templates\\tab_container.json");
+			json card_template = jp.from_file(this->config_path + "source_templates\\card.json");
 
-			json pages_template = jp.from_file(this->config_path + "\\source_templates\\pages.json");
-			json styles_template = jp.from_file(this->config_path + "\\source_templates\\styles.json");
+			json card_container_template = jp.from_file(this->config_path + "source_templates\\card_container.json");
+			json object_template = jp.from_file(this->config_path + "source_templates\\object.json");
+			json object_details = jp.from_file(this->config_path + "source_templates\\object_details.json");
+			json object_container_template = jp.from_file(this->config_path + "source_templates\\object_container.json");
 
-            json home_template = jp.from_file(this->config_path + "\\source_templates\\home.json");
-			json pages_template = jp.from_file(this->config_path + "\\source_templates\\pages.json");
-			json styles_template = jp.from_file(this->config_path + "\\source_templates\\styles.json");
+			json tab_edit_template = jp.from_file(this->config_path + "source_templates\\tab_edit.json");
+			json tab_list_template = jp.from_file(this->config_path + "source_templates\\tab_list.json");
+			json tab_container_template = jp.from_file(this->config_path + "source_templates\\tab_container.json");
+			json home_template = jp.from_file(this->config_path + "source_templates\\home.json");
+			json pages_template = jp.from_file(this->config_path + "source_templates\\pages.json");
+			json styles_template = jp.from_file(this->config_path + "source_templates\\styles.json");
+
+			pages.push_back(card_container_template);
+			pages.push_back(tab_container_template);
+			pages.push_back(styles_template);
 
 			if (class_list.array()) {
 				for (auto& item : class_list.array_impl()->elements) {
@@ -7837,7 +7840,7 @@ private:
 						}
 
 						// Generate object details page
-						json object_page = generate_object_pages(object_template, classd, class_mappings, field_mappings, tab_mappings);
+						json object_page = generate_object_pages(object_template, classd, class_mappings, field_mappings, tab_list_template);
 						if (!object_page.empty()) {
 							pages.push_back(object_page);
 						}
@@ -7851,8 +7854,9 @@ private:
 				}
 			}
 
+            result.put_member("pages_template", pages_template);
+			result.put_member("styles_template", styles_template);
 			result.put_member("pages", pages);
-			result.put_member("styles", styles_template);
 
 			return result;
 		}
@@ -7990,7 +7994,7 @@ private:
 			json tab_list_page = tab_list_template.clone();
             json pages = jp.create_array();
 
-			tab_list_page.put_member("page_name", "tab_" + class_name + "_"+ member_name);
+			tab_list_page.put_member("page_name", "tab_list_" + class_name + "_"+ member_name);
 
 			// Set icon
 			auto parameters = tab_list_page.find_member("using.parameters");

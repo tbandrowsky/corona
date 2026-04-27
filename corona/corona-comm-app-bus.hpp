@@ -454,7 +454,7 @@ namespace corona
 
 						if (jdstpages.array())
 						{
-							jdstpages.pushback_array(jpages_expanded_array);
+							jdstpages.push_back_array(jpages_expanded_array);
 						}
 						else
 						{
@@ -467,7 +467,7 @@ namespace corona
 
 					if (jsrcstartup.array() and jdststartup.array())
 					{
-						jdststartup.pushback_array(jsrcstartup);
+						jdststartup.push_back_array(jsrcstartup);
 					}
 					else if (jsrcstartup.array())
 					{

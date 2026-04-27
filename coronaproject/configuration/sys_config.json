@@ -12,14 +12,14 @@
     {
       "listen_point": "http://localhost:5678/MySDLCApp/",
       "application_name": "My SDLC App",
-      "schema_filename": "app_schema.json",
+      "schema_filename": "sys_schema.json",
       "database_threads": 20,
       "database_recreate": true,
       "new_user_default_team": "ignored",
       "onboard_email_filename": "onboarding_email_template.html",
       "recovery_email_filename": "account_recovery_email_template.html",
-      "pages_filename": "app_pages.json",
-      "styles_filename": "app_styles.json"
+      "pages_filename": "sys_pages.json",
+      "styles_filename": "sys_styles.json"
     }
   ]
 
