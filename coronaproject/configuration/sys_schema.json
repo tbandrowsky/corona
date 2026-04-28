@@ -386,7 +386,7 @@
           "field_type": "string",
           "label": "Check Number"
         },
-        "nsf": [ "returned_check" ],
+        "nsf": [ "client_returned_check" ],
         "bank_account_number": {
           "field_type": "string",
           "label": "Bank Account Number"
@@ -573,7 +573,7 @@
       "class_name": "client_returned_check",
       "base_class_name": "debit_memo",
       "class_description": "A returned check",
-      "parents": [ "check" ],
+      "parents": [ "client_check" ],
       "fields": {
         "bank_account_number": {
           "field_type": "string",

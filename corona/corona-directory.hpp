@@ -85,7 +85,7 @@ namespace corona
 
 		bool check_changes(const check_options& _options)
 		{
-			return check_changes(path, _options);
+			return check_changes(path.string(), _options);
 		}
 	};
 }

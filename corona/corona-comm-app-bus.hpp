@@ -399,7 +399,7 @@ namespace corona
 
 					if (jsrcstyles.array() and jdststyles.array())
 					{
-						jdststyles.pushback_array(jsrcstyles);
+						jdststyles.push_back_array(jsrcstyles);
 					}
 					else if (jsrcstyles.array())
 					{

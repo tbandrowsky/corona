@@ -29,7 +29,7 @@ namespace corona
 
     const bool use_project_for_config = true;
 
-	std::string config_filename = "app_config.json";
+	std::string config_filename = "sys_config.json";
 
 	/*
 

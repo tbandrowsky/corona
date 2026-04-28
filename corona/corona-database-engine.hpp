@@ -294,8 +294,8 @@ namespace corona
 						{
 							_src++;
 							status = parsing_class_name;
-							new_class->copy_values.insert_or_assign(destField, srcField);
-							cod.child_classes.push_back(newClass);
+							new_class->copy_values.insert_or_assign(dest_field, src_field);
+							cod.child_classes.push_back(new_class);
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
@@ -3996,7 +3996,6 @@ namespace corona
 			json_parser jp;
 
 			put_json(_context->errors, definition);
-			
 
 			std::string class_file_name = get_class_filename(_context->db);
 			if (not std::filesystem::exists(class_file_name)) {
@@ -7527,6 +7526,8 @@ private:
 		std::string sendgrid_sender_email;
 		std::string user_confirmation_title;
 		bool database_shutdown = false;
+		std::string styles_file_name;
+		std::string pages_file_name;
 
 		// constructing and opening a database
 
@@ -7610,6 +7611,7 @@ private:
 			timer tx;
 			system_monitoring_interface::active_mon->log_job_start("apply_config", "start", start, __FILE__, __LINE__);
 
+
 			if (_system_config.has_member("SendGrid"))
 			{
 				json send_grid = _system_config["SendGrid"];
@@ -7666,6 +7668,9 @@ private:
 					schema_file_name = schema_file_path.string();
 				}
 			}
+
+			styles_file_name = _server_config["styles_filename"].as_string();
+			pages_file_name = _server_config["pages_filename"].as_string();
 
 			if (not (default_onboard_email_filename.empty() or default_recovery_email_filename.empty()))
 			{
@@ -7801,7 +7806,7 @@ private:
 				});
 
 			// config path always ends with a separator
-
+			
 			json card_template = jp.from_file(this->config_path + "source_templates\\card.json");
 
 			json card_container_template = jp.from_file(this->config_path + "source_templates\\card_container.json");
@@ -7816,9 +7821,10 @@ private:
 			json pages_template = jp.from_file(this->config_path + "source_templates\\pages.json");
 			json styles_template = jp.from_file(this->config_path + "source_templates\\styles.json");
 
+			json pages_array = pages_template["pages"];
+
 			pages.push_back(card_container_template);
 			pages.push_back(tab_container_template);
-			pages.push_back(styles_template);
 
 			if (class_list.array()) {
 				for (auto& item : class_list.array_impl()->elements) {
@@ -7853,6 +7859,28 @@ private:
 					}
 				}
 			}
+
+			for (int i = 0; i < pages.size(); i++) 
+			{
+				json page = pages.get_element(i);
+
+				std::string page_name = page["page_name"].as_string();
+				std::string filename = "pages\\" + page_name + ".json";
+
+				json page_import = jp.create_object();
+				page_import.put_member_string("class_name", "import");
+				page_import.put_member("file_name", filename);
+
+				pages_array.push_back(page_import);
+
+                std::string page_file_path = this->config_path + filename;
+                page.save(page_file_path);
+			}
+
+			std::string styles_file_path = this->config_path + styles_file_name;
+            styles_template.save(styles_file_path);
+			std::string pages_file_path = this->config_path + pages_file_name;
+            pages_template.save(pages_file_path);
 
             result.put_member("pages_template", pages_template);
 			result.put_member("styles_template", styles_template);
@@ -8641,6 +8669,16 @@ private:
 						system_monitoring_interface::active_mon->log_job_section_stop("DataSet", dataset_name + " Finished", txs.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					}
 					system_monitoring_interface::active_mon->log_job_section_stop("DataSets", "", txsect.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				}
+			}
+
+			if (jschema.has_member("application")) {
+				try {
+					json japplication = jschema["application"];
+					create_application(japplication);
+				}
+                catch (std::exception exc) {
+					system_monitoring_interface::active_mon->log_exception(exc);
 				}
 			}
 
