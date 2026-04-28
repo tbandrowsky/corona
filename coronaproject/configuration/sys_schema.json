@@ -129,7 +129,7 @@
       "class_name": "client",
       "base_class_name": "receivables_account",
       "class_description": "A company that is a customer or a vendor",
-      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
+      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name", "website" ],
       "fields": {
         "company_name": "string",
         "street1": "string",
@@ -157,7 +157,7 @@
       "class_name": "vendor",
       "base_class_name": "payables_account",
       "class_description": "A company that is a vendor",
-      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name" ],
+      "full_text": [ "company_name", "street1", "street2", "city", "state", "zip", "domain_name", "website" ],
       "fields": {
         "company_name": "string",
         "street1": "string",
@@ -377,6 +377,69 @@
         }
       }
     },
+
+    {
+      "class_name": "client_returned_check",
+      "base_class_name": "debit_memo",
+      "class_description": "A returned check",
+      "parents": [ "client_check" ],
+      "fields": {
+        "bank_account_number": {
+          "field_type": "string",
+          "label": "Bank Account Number"
+        },
+        "post": {
+          "field_type": "query",
+          "run_on_demand": true,
+          "query": {
+            "from": [
+            ],
+            "stages": [
+              {
+                "name": "debits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "client.receivables_account_number",
+                  "debit": "this.amount",
+                  "credit": 0.0,
+                  "reference": "this.object_id",
+                  "reference_class": "client_returned_check"
+                }
+              },
+              {
+                "name": "credits",
+                "class_name": "project",
+                "source": "charge_rate",
+                "projection": {
+                  "class_name": "general_ledger_entry",
+                  "account_number": "this.bank_account_number",
+                  "debit": 0.0,
+                  "credit": "this.amount",
+                  "reference": "this.object_id",
+                  "reference_class": "client_returned_check"
+                }
+              },
+              {
+                "class_name": "put",
+                "source": "credits"
+              },
+              {
+                "class_name": "put",
+                "source": "debits"
+              },
+              {
+                "class_name": "result",
+                "source": "debits"
+              }
+            ]
+          }
+        }
+
+      }
+    },
+
     {
       "class_name": "client_check",
       "base_class_name": "client_payment",
@@ -549,67 +612,6 @@
                   "credit": "this.amount",
                   "reference": "this.object_id",
                   "reference_class": "debit_memo"
-                }
-              },
-              {
-                "class_name": "put",
-                "source": "credits"
-              },
-              {
-                "class_name": "put",
-                "source": "debits"
-              },
-              {
-                "class_name": "result",
-                "source": "debits"
-              }
-            ]
-          }
-        }
-
-      }
-    },
-    {
-      "class_name": "client_returned_check",
-      "base_class_name": "debit_memo",
-      "class_description": "A returned check",
-      "parents": [ "client_check" ],
-      "fields": {
-        "bank_account_number": {
-          "field_type": "string",
-          "label": "Bank Account Number"
-        },
-        "post": {
-          "field_type": "query",
-          "run_on_demand": true,
-          "query": {
-            "from": [
-            ],
-            "stages": [
-              {
-                "name": "debits",
-                "class_name": "project",
-                "source": "charge_rate",
-                "projection": {
-                  "class_name": "general_ledger_entry",
-                  "account_number": "client.receivables_account_number",
-                  "debit": "this.amount",
-                  "credit": 0.0,
-                  "reference": "this.object_id",
-                  "reference_class": "client_returned_check"
-                }
-              },
-              {
-                "name": "credits",
-                "class_name": "project",
-                "source": "charge_rate",
-                "projection": {
-                  "class_name": "general_ledger_entry",
-                  "account_number": "this.bank_account_number",
-                  "debit": 0.0,
-                  "credit": "this.amount",
-                  "reference": "this.object_id",
-                  "reference_class": "client_returned_check"
                 }
               },
               {
@@ -855,8 +857,8 @@
       "class_description": "A server",
       "full_text": [ "name", "url", "unc", "cpu", "cores", "memory", "storage" ],
       "fields": {
-        "name": "string",
-        "url": "string",
+        "server_name": "string",
+        "remote_url": "string",
         "unc": "string",
         "cpu": "string",
         "cores": "string",
@@ -1008,9 +1010,17 @@
   ],
   "application": {
     "fields": {
+      "description": {
+        "class_name": "memo_field",
+        "box": "memo_field_box"
+      },
+      "note_text": {
+        "class_name": "memo_field",
+        "box": "memo_field_box"
+      },
       "string.memo": {
         "class_name": "memo_field",
-        "box": "edit_field_box"
+        "box": "memo_field_box"
       },
       "string": {
         "class_name": "edit_field",
@@ -1041,6 +1051,7 @@
         "box": "edit_field_box"
       }
     },
+    "card_fields": [ "description", "note_text", "account_number", "account_name", "amount", "first_name", "product_name", "last_name", "title", "agenda", "rate_name", "flat_rate", "hourly_rate", "account_type", "balance", "bank_name", "company_name", "period_name", "start_date", "end_date", "common_name", "charter_name", "public_name", "assessment", "server_name" ],
     "classes": {
       "class_name": {
         "card": {

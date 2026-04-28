@@ -1101,9 +1101,6 @@ namespace corona
 		std::string input_mask;
 		std::string label;
 		std::string description;
-		std::string grid_row;
-		std::string grid_column;
-		std::string display;
 		std::string tab_index;
 		bool		read_only;
 		bool		server_only;
@@ -1123,12 +1120,7 @@ namespace corona
 			_dest.put_member("server_only", server_only);
 			_dest.put_member("label", label);
 			_dest.put_member("description", description);
-			_dest.put_member("grid_row", grid_row);
-			_dest.put_member("grid_column", grid_column);
-			_dest.put_member("display", display);
 			_dest.put_member("read_only", read_only);
-			_dest.put_member("tab_index", tab_index);
-
 		}
 
 		virtual void put_json(json& _src)
@@ -1140,10 +1132,6 @@ namespace corona
             input_mask = _src["input_mask"].as_string();
             label = _src["label"].as_string();
 			description = _src["description"].as_string();
-			grid_row = _src["grid_row"].as_string();
-			grid_column = _src["grid_column"].as_string();
-			display = _src["display"].as_string();
-			tab_index = _src["tab_index"].as_string();
 		}
 
 		virtual void init_validation() override
@@ -5481,51 +5469,37 @@ namespace corona
 			"object_id" : { 
 				"field_type":"int64",
 				"read_only": true,	
-				"label": "Object Id",	
-				"grid_row": "1",		
-				"grid_column": "2"		
+				"label": "Object Id"
 			},
 			"class_name" : { 
 				"field_type":"string",
 				"read_only": true,	
-				"label": "Class",	
-				"grid_row": "1",		
-				"grid_column": "1"		
+				"label": "Class"
 			},
 			"created" : {
 				"field_type":"datetime",
 				"read_only": true,	
-				"label": "Created",	
-				"grid_row": "2",		
-				"grid_column": "1"		
+				"label": "Created"
 			},
 			"created_by" : {
 				"field_type":"string",
 				"read_only": true,	
-				"label": "Created By",	
-				"grid_row": "2",		
-				"grid_column": "2"		
+				"label": "Created By"
 			},
 			"updated": {
 				"field_type":"datetime",
 				"read_only": true,	
-				"label": "Updated",	
-				"grid_row": "3",		
-				"grid_column": "1"		
+				"label": "Updated"
 			},
  			"updated_by" : {
 				"field_type":"string",
 				"read_only": true,	
-				"label": "Updated By",	
-				"grid_row": "3",		
-				"grid_column": "2"		
+				"label": "Updated By"
 			},
 			"team" : {
 				"field_type":"string",
 				"read_only": true,	
-				"label": "Team",	
-				"grid_row": "4",		
-				"grid_column": "1"		
+				"label": "Team"
 			}
 	}
 }
@@ -5560,38 +5534,28 @@ namespace corona
 			"system" : {
 				"field_type":"string",
 				"read_only": true,
-				"label": "System Origin",
-				"grid_row":"2",
-				"grid_column":"1"
+				"label": "System Origin"
 			},
 			"message" :{
 				"field_type":"string",
 				"read_only": true,
-				"label": "Message",
-				"grid_row":"3",
-				"grid_column":"1"
+				"label": "Message"
 			},
 			"body": {
 				"field_type":"string",
 				"read_only": true,
-				"label": "Details",
-				"grid_row":"4",
-				"grid_column":"1",
+				"label": "Details"
 				"display": "json"	
 			},
 			"file" : {
 				"field_type":"string",
 				"read_only": true,
-				"label": "Source File",
-				"grid_row":"5",
-				"grid_column":"1"				
+				"label": "Source File"
 			},
 			"line": {
 				"field_type":"number",
 				"read_only": true,
-				"label": "Source Line #",
-				"grid_row":"5",
-				"grid_column":"2"
+				"label": "Source Line #"
 			},
 	}
 }
@@ -5627,32 +5591,24 @@ namespace corona
 			"server_name" : {
 				"field_type":"string",
 				"read_only": true,
-				"label": "Server Name",
-				"grid_row":"2",
-				"grid_column":"1"
+				"label": "Server Name"
 			},
 			"server_description" : {
 				"field_type":"string",
 				"read_only": true,
 				"label": "Description",
-				"grid_row":"3",
-				"grid_column":"1",
 				"display":"markdown"
 			},
 			"server_url" : {
 				"field_type":"string",
 				"read_only": true,
 				"label": "Url",
-				"grid_row":"4",
-				"grid_column":"1",
 				"display": "url"	
 			},
 			"server_version": {
 				"field_type":"string",
 				"read_only": true,
-				"label": "Version",
-				"grid_row":"5",
-				"grid_column":"1"
+				"label": "Version"
 			}
 	}
 }
@@ -5721,41 +5677,31 @@ namespace corona
 				"field_type":"string",
 				"field_name":"get",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown",
-				"grid_row":"2",
-				"grid_column":"1"
+				"display" : "dropdown"
 			},
 			"put" : {
 				"field_type":"string",
 				"field_name":"put",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown",	
-				"grid_row":"3",
-				"grid_column":"2"
+				"display" : "dropdown"
 			},
 			"delete" : {
 				"field_type":"string",
 				"field_name":"delete",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown",
-				"grid_row":"4",
-				"grid_column":"3"
+				"display" : "dropdown"
 			},
 			"alter" : {
 				"field_type":"string",
 				"field_name":"alter",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown",
-				"grid_row":"5",
-				"grid_column":"1"
+				"display" : "dropdown"
 			},
 			"derive" : {
 				"field_type":"string",
 				"field_name":"derive",
 				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown",
-				"grid_row":"6",
-				"grid_column":"2"
+				"display" : "dropdown"
 			},
 			"class_colors": "object"
 	}
@@ -5792,16 +5738,12 @@ namespace corona
 	"fields" : {
 			"status_name" :{
 				"field_type":"string",
-				"label": "Status Name",
-				"grid_row":"1",
-				"grid_column":"1"
+				"label": "Status Name"
 			},
 			"status_description" : {
 				"field_type":"string",
 				"label": "Status Description",
-				"display": "markdown",	
-				"grid_row": "2",
-				"grid_column": "1/2"
+				"display": "markdown"
 			},
 	}
 }
@@ -5839,16 +5781,12 @@ namespace corona
 			"ticket_name" :{
 				"field_type":"string",
 				"label": "Ticket Name",
-				"display": "url",
-				"grid_row": "1",
-				"grid_column":"1"
+				"display": "url"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Name",
-				"display": "markdown",	
-				"grid_row": "2",
-				"grid_column":"1"
+				"display": "markdown"
 			},
 			"history" : "[sys_status]"
 	}
@@ -5886,70 +5824,50 @@ namespace corona
 			"workflow_name" : {
 				"field_type":"string",
 				"label": "Workflow Name",
-				"grid_row": "2",
-				"grid_column":"1"
 			},
 			"workflow_description" : {
 				"field_type":"string",
 				"label": "Workflow Description",
-				"grid_row": "3",
-				"grid_column":"1"
 			},
 			"workflow_schedule_type" : {
 				"field_type":"string",
 				"display": "dropdown",
-				"grid_row": "4",
-				"grid_column":"1",
 				"enum" : [ "Week", "Month" ],
 			},
 			"workflow_schedule_days" : {
 				"field_type":"array",
 				"fundamental_type":"number",
 				"label": "Days to Run",
-				"display": "days",
-				"grid_row": "4",
-				"grid_column":"2",
+				"display": "days"
 			},
 			"workflow_schedule_hour" : {
 				"field_type":"number",
 				"label": "Hour to run",
 				"display": "hour",
 				"min_value" : 0,
-				"max_value" : 23,
-				"grid_row": "4",
-				"grid_column":"3",
+				"max_value" : 23
 			},
 			"ticket_class_name" : {
 				"field_type":"string",
 				"label": "Create Ticket",
-				"display": "dropdown:sys_ticket",	
-				"grid_row": "5",
-				"grid_column":"1"
+				"display": "dropdown:sys_ticket"
 			},
 			"ticket_name" : {
 				"field_type":"string",
-				"label": "Ticket Name",
-				"grid_row": "6",
-				"grid_column":"1"
+				"label": "Ticket Name"
 			},
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Description",
-				"display": "markdown",
-				"grid_row": "7",
-				"grid_column":"1"
+				"display": "markdown"
 			},
 			"last_ran" : {
 				"field_type":"number",
-				"label": "Last Run Day",
-				"grid_row": "8",
-				"grid_column":"1"
+				"label": "Last Run Day"
 			},
 			"last_result" : {
 				"field_type":"string",
-				"label": "Result",
-				"grid_row": "8",
-				"grid_column":"2"
+				"label": "Result"
 			}
 	}
 }
@@ -5985,23 +5903,17 @@ namespace corona
 			"team_name" :  {
 				"field_name:" : "team_name",
 				"field_type" : "string",
-				"grid_row":"2",
-				"grid_column":"1",
 				"label":"Team Name"
 			},
 			"team_description" :  {
 				"field_name:" : "team_description",
 				"field_type" : "string",		
-				"grid_row":"2",
-				"grid_column":"2",
 				"label":"Team Description"
 			},
 			"team_domain" : {
 				"field_name:" : "team_domain",
 				"field_type" : "string",		
 				"format:" : "regexp",
-				"grid_row":"3",
-				"grid_column":"3",
 				"label":"Team Domain"
 			},
 			"permissions" : "[ sys_grant ]",
@@ -6049,64 +5961,46 @@ namespace corona
 			"dataset_name" : {
 				"field_name:" : "dataset_name",
 				"field_type" : "string",		
-				"grid_row":"2",
-				"grid_column":"1",
 				"label":"Name"
 			},
 			"dataset_description" : {
 				"field_name:" : "dataset_description",
 				"field_type" : "string",		
-				"grid_row":"3",
-				"grid_column":"1",
 				"label":"Description"
 			},
 			"dataset_version" : {
 				"field_name:" : "dataset_version",
 				"field_type" : "string",		
-				"grid_row":"2",
-				"grid_column":"2",
 				"label":"Version"
 			},
 			"dataset_author" : {
 				"field_name:" : "dataset_author",
 				"field_type" : "string",		
-				"grid_row":"4",
-				"grid_column":"1",
 				"label":"Authors"
 			},
 			"dataset_source" : {
 				"field_name:" : "dataset_source",
 				"field_type" : "string",		
-				"grid_row":"4",
-				"grid_column":"2",
 				"label":"Source"
 			},
 			"completed" : {
 				"field_name:" : "completed",
 				"field_type" : "datetime",		
-				"grid_row":"5",
-				"grid_column":"1",
 				"label":"Completed"
 			},
 			"run_on_change": {
 				"field_name:" : "run_on_change",
 				"field_type" : "string",		
-				"grid_row":"5",
-				"grid_column":"2",
 				"label":"Run On Change"
 			},	
 			"bytes_read" : {
 				"field_name:" : "bytes_read",
 				"field_type" : "int64",		
-				"grid_row":"5",
-				"grid_column":"1",
 				"label":"Bytes Read"
 			},
 			"bytes_total" : {
 				"field_name:" : "bytes_total",
 				"field_type" : "int64",		
-				"grid_row":"5",
-				"grid_column":"1",
 				"label":"Bytes Total"
 			},
 			"objects" : "array",
@@ -6149,29 +6043,21 @@ namespace corona
 			"schema_name" : {
 				"field_name:" : "schema_name",
 				"field_type" : "string",		
-				"grid_row":"2",
-				"grid_column":"1",
 				"label":"Name"
 			},
 			"schema_description" : {
 				"field_name:" : "schema_description",
 				"field_type" : "string",		
-				"grid_row":"3",
-				"grid_column":"1",
 				"label":"Description"
 			},
 			"schema_version" : {
 				"field_name:" : "schema_version",
 				"field_type" : "string",		
-				"grid_row":"3",
-				"grid_column":"2",
 				"label":"Version"
 			},
 			"schema_authors" : {
 				"field_name:" : "schema_author",
 				"field_type" : "string",		
-				"grid_row":"4",
-				"grid_column":"1",
 				"label":"Authors"
 			},
 			"classes" : "[object]",
@@ -6245,9 +6131,7 @@ namespace corona
 				"label": "First Name",
 				"required" : true,
 				"max_length" : 50,
-				"match_pattern": "[a-zA-Z0-9/s]+",
-				"grid_row": "2",
-				"grid_column":"1"
+				"match_pattern": "[a-zA-Z0-9/s]+"
 			},
 			"last_name" : {
 				"field_type":"string",
@@ -6255,18 +6139,14 @@ namespace corona
 				"label": "Last Name",
 				"required" : true,
 				"max_length" : 50,
-				"match_pattern": "[a-zA-Z0-9/s]+",
-				"grid_row": "2",
-				"grid_column":"2"
+				"match_pattern": "[a-zA-Z0-9/s]+"
 			},
 			"user_name" : {
 				"field_type":"string",
 				"field_name":"user_name",
 				"label": "User Name",	
 				"required" : true,
-				"max_length" : 100,
-				"grid_row": "3",
-				"grid_column":"1"
+				"max_length" : 100
 			},
 			"email" : {
 				"field_type":"string",
@@ -6274,9 +6154,7 @@ namespace corona
 				"label": "E-Mail",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "(/w+)(/.|_)?(/w*)@(/w+)(/.(/w+))+",
-				"grid_row": "3",
-				"grid_column": "2"
+				"match_pattern": "(/w+)(/.|_)?(/w*)@(/w+)(/.(/w+))+"
 			},
 			"mobile" : {
 				"field_type":"string",
@@ -6284,9 +6162,7 @@ namespace corona
 				"label": "Mobile",
 				"format":"tel",
 				"required" : true,
-				"max_length" : 15,
-				"grid_row": "4",
-				"grid_column": "1"
+				"max_length" : 15
 			},
 			"street1" : {
 				"field_type":"string",
@@ -6295,9 +6171,7 @@ namespace corona
 				"label": "Street Address",
 				"required" : true,
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_/-/s]+",
-				"grid_row": "5",
-				"grid_column": "1"
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"
 			},
 			"street2" : {
 				"field_type":"string",
@@ -6305,9 +6179,7 @@ namespace corona
 				"required" : true,
 				"label": "Street Address 2",
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "6",
-				"grid_column": "1"
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"
 			},
 			"city" : {
 				"field_type":"string",
@@ -6315,9 +6187,7 @@ namespace corona
 				"required" : true,
 				"label": "City",
 				"max_length" : 100,
-				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "7",
-				"grid_column": "1"
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"
 			},
 			"state" : {
 				"field_type":"string",
@@ -6325,9 +6195,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 50,
 				"label": "State",
-				"match_pattern": "[a-zA-Z0-9_/-/s]+",	
-				"grid_row": "8",
-				"grid_column": "2"
+				"match_pattern": "[a-zA-Z0-9_/-/s]+"
 			},
 			"zip" : {
 				"field_type":"string",
@@ -6335,9 +6203,7 @@ namespace corona
 				"required" : true,
 				"max_length" : 15,
 				"match_pattern": "^/d{5}(?:[-/s]/d{4})?$",
-				"label": "Zip",
-				"grid_row": "9",
-				"grid_column": "3"
+				"label": "Zip"
 			},
 			"password" : { 
 				"field_type":"string",
@@ -7826,18 +7692,33 @@ private:
 			pages.push_back(card_container_template);
 			pages.push_back(tab_container_template);
 
+			std::map<std::string, bool> card_fields;
+
+            json ja = _application_schema["card_fields"];
+			if (ja.array()) {
+				for (int i = 0; i < ja.size(); i++) {
+					std::string field_name = ja.get_element(i).as_string();
+					card_fields[field_name] = true;
+				}
+            }
+
 			if (class_list.array()) {
 				for (auto& item : class_list.array_impl()->elements) {
 					std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);
 					if (jo && jo->members.contains(class_name_field)) {
 						std::string class_name = jo->members[class_name_field]->to_string();
 
-						if (!class_mappings.has_member(class_name)) {
-							continue;
-						}
-
 						auto classd = read_lock_class(class_name);
 						if (!classd) continue;
+
+						json class_ux_map;
+
+						class_ux_map = class_mappings[class_name];
+
+						if (class_ux_map.empty()) 
+						{
+							class_ux_map = create_ux_map(classd, card_fields);
+						}
 
 						// Generate card page
 						json card_page = generate_card_pages(card_template, classd, class_mappings, field_mappings);
@@ -7891,7 +7772,95 @@ private:
 
 private:
 
-		json generate_card_pages(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
+
+	/*
+	
+	    "card": {
+          "title": "description",
+          "fields": [
+            {
+              "field_name": "name",
+              "expression": ""
+            }
+          ],
+          "commands": []
+        },
+        "tab_edit": {
+          "fields": [
+            {
+              "field_name": "name"
+            }
+          ],
+          "commands": []
+        },
+        "page": {
+          "tabs": [
+            {
+              "name": "My Tab",
+              "page_name": "tab_list",
+              "member_name": "member",
+              "list": true
+            }
+          ]
+        }
+*/
+
+	json create_ux_map(read_class_sp& classd, std::map<std::string, bool>& _card_fields)
+	{
+		json_parser jp;
+		json ux_map = jp.create_object();
+
+		json card = jp.create_object();
+		json tab_edit = jp.create_object();
+		json page = jp.create_object();
+        json tabs = jp.create_array();
+
+		ux_map.put_member("card", card);
+        ux_map.put_member("tab_edit", tab_edit);
+        ux_map.put_member("page", page);
+
+        auto fields = classd->get_fields();
+
+        json card_fields = jp.create_array();
+		json tab_edit_fields = jp.create_array();
+
+        card.put_member("title", classd->get_class_name());
+
+		for (auto& field : fields) 
+		{
+
+			if (field->get_field_type() == field_types::ft_object) {
+				json tab = jp.create_object();
+                tab.put_member("field_name", field->get_field_name());
+				tab.put_member("member_name", field->get_field_name());
+			}
+			else if (field->get_field_type() == field_types::ft_array) {
+				json tab = jp.create_object();
+				tab.put_member("field_name", field->get_field_name());
+				tab.put_member("member_name", field->get_field_name());
+			}
+			else if (field->get_field_class() != "sys_object")
+			{
+                json tab_field = jp.create_object();
+                tab_field.put_member("field_name", field->get_field_name());
+                tab_edit_fields.push_back(tab_field);
+			}
+			
+			if (_card_fields.find(field->get_field_name()) != _card_fields.end()) {
+				json new_card_field = jp.create_object();
+                new_card_field.put_member("field_name", field->get_field_name());
+				new_card_field.put_member("expression", field->get_field_name());
+                card_fields.push_back(new_card_field);
+			}
+		}
+
+        card.put_member("fields", card_fields);
+        tab_edit.put_member("fields", tab_edit_fields);
+
+		return ux_map;
+    }
+
+	json generate_card_pages(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
 
@@ -7914,7 +7883,7 @@ private:
 			if (contents.array()) {
 
 				// Check if this field should be displayed on the card
-                auto cfm = class_mappings[class_name]["card"]["fields"];
+                auto cfm = class_mappings["card"]["fields"];
 
                 for (int i = 0; i < cfm.size(); i++) {
                     auto field = cfm.get_element(i);
@@ -7983,7 +7952,7 @@ private:
 			auto contents = tab_edit_page.find_member("$details_contents");
 			if (contents.array()) {
 
-				auto cfm = class_mappings[classd->get_class_name()]["tab_edit"]["fields"];
+				auto cfm = class_mappings["tab_edit"]["fields"];
 
 				for (int i = 0; i < cfm.size(); i++) {
 					auto field = cfm.get_element(i);
