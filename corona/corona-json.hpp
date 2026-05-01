@@ -3354,10 +3354,11 @@ namespace corona
 					if (member.second.get() == nullptr)
 						continue;
 
-					if (_abbreviations.contains(member.first)) {
-						member.second = _abbreviations[member.first]
-							.clone()
-							.value();
+					std::string t = member.second->to_string();
+					auto jv = _abbreviations.find(t);
+
+					if (jv != std::end(_abbreviations)) {
+						member.second = jv->second.value();
 					}
 					else if (member.second->get_field_type() == field_types::ft_string)
 					{

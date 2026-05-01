@@ -7881,6 +7881,7 @@ private:
 
 			if (team_mappings.object()) {
 				auto tms = team_mappings.get_members();
+
 				for (auto tm : tms) {
 					json team_page = search_template.clone();
                     json search_items = tm.second["search_items"];
