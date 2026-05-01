@@ -104,8 +104,10 @@
                 "box_border_thickness": 4
               },
               "padding": "8 pixels",
-
-              "children": []
+              "wrap": true,
+              "children": [
+                "$search_groups"
+              ]
             },
 
             {

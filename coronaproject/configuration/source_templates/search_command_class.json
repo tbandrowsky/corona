@@ -1,0 +1,35 @@
+{
+  "class_name": "command_button",
+  "name": "$search_button_name",
+  "image": "$search_button_image",
+  "text": "$search_button_text",
+  "box": {
+    "width": "100 pixels",
+    "height": "50 pixels"
+
+  },
+  "on_click": {
+    "class_name": "query",
+    "form_name": "search_row",
+    "table_name": "result_table",
+    "detail_frame": "frame_selected",
+    "query": {
+      "from": [
+        {
+          "class_name": "$search_button_class",
+          "name": "objects",
+          "filter": {
+            "full_text": "$this.full_text"
+          }
+        }
+      ],
+      "stages": [
+        {
+          "class_name": "result",
+          "source": "objects",
+          "name": "objects"
+        }
+      ]
+    }
+  }
+}

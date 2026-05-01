@@ -1,0 +1,23 @@
+{
+  "class_name": "column",
+  "name": "$search_group_name",
+  "box": {
+    "width": "100 pixels",
+    "height": "1.0 container"
+  },
+  "view_style": {
+    "box_fill_brush": {
+      "class_name": "solid_brush",
+      "color": "111121"
+    },
+    "box_border_brush": {
+      "class_name": "solid_brush",
+      "color": "111112"
+    },
+    "box_border_thickness": 4
+  },
+
+  "children": [
+    "$search_group_commands"
+  ]
+}

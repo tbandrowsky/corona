@@ -1328,7 +1328,7 @@ namespace corona
 		}
 
 		// I will regret this
-		std::shared_ptr<json_value> value()
+		std::shared_ptr<json_value> value() const
 		{
             return value_base;
 		}
@@ -3343,6 +3343,86 @@ namespace corona
 			}
 			return _src;
 		}
+
+
+		void apply_abbreviations(const std::map<std::string,json>& _abbreviations)
+		{
+			if (object())
+			{
+				for (auto& member : object_impl()->members)
+				{
+					if (member.second.get() == nullptr)
+						continue;
+
+					if (_abbreviations.contains(member.first)) {
+						member.second = _abbreviations[member.first]
+							.clone()
+							.value();
+					}
+					else if (member.second->get_field_type() == field_types::ft_string)
+					{
+						std::shared_ptr<json_string> js = std::dynamic_pointer_cast<json_string>(member.second);
+						if (js)
+						{
+							auto ifound = _abbreviations.find(js->get_value());
+							if (ifound != std::end(_abbreviations)) {
+								member.second = ifound->second.value();
+							}
+						}
+					}
+					else if (member.second->get_field_type() == field_types::ft_object)
+					{
+						json j = member.second;
+						j.apply_abbreviations(_abbreviations);
+					}
+					else if (member.second->get_field_type() == field_types::ft_array)
+					{
+						json j = member.second;
+						j.apply_abbreviations(_abbreviations);
+					}
+				}
+			}
+			else if (array())
+			{
+				std::vector<std::shared_ptr<json_value>> new_elements;
+				auto aimpl = array_impl();
+				for (int i = 0; i < aimpl->elements.size(); i++) {
+					auto item = aimpl->elements[i];
+					if (item->get_field_type() == field_types::ft_string)
+					{
+						std::string name = item->to_string();
+						auto ifound = _abbreviations.find(name);
+
+						if (ifound != std::end(_abbreviations)) {
+							auto spa = ifound->second;
+							if (spa.array()) {
+								for (int i = 0; i < spa.size(); i++) {
+									new_elements.push_back(spa.get_element(i).value());
+								}
+							}
+							else
+							{
+								new_elements.push_back(ifound->second.value());
+							}
+						}
+						else {
+							new_elements.push_back(item);
+						}
+					}
+					else if (item->get_field_type() == field_types::ft_object)
+					{
+						json j = item;
+						j.apply_abbreviations(_abbreviations);
+						new_elements.push_back(j.value());
+					}
+					else {
+						new_elements.push_back(item);
+					}
+				}
+				aimpl->elements = new_elements;
+			}
+		}
+
 
 		void apply_abbreviations(json _abbreviations)
 		{

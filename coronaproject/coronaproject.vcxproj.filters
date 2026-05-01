@@ -43,6 +43,9 @@
     <None Include="configuration\source_templates\card.json" />
     <None Include="configuration\source_templates\tab_container.json" />
     <None Include="configuration\source_templates\tab_list.json" />
+    <None Include="configuration\source_templates\search.json" />
+    <None Include="configuration\source_templates\search_group.json" />
+    <None Include="configuration\source_templates\search_command_class.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="configuration\source_templates\tab_edit.json" />

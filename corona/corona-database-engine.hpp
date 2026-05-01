@@ -7698,6 +7698,86 @@ private:
 			return jempty;
 		}
 
+		/*
+		
+
+								{
+				  "class_name": "command_button",
+				  "image": "assets\\day.png",
+				  "box": "button_box",
+				  "margin": "button_margin",
+				  "text": "today",
+				  "defaults_field": "common",
+				  "on_click": {
+					"class_name": "query",
+					"form_name": "search_row",
+					"table_name": "result_table",
+					"detail_frame": "frame_selected",
+					"query": {
+					  "from": [
+						{
+						  "class_name": "task",
+						  "name": "objects",
+						  "filter": {
+							"full_text": "$this.full_text"
+						  }
+						}
+					  ],
+					  "stages": [
+						{
+						  "class_name": "filter",
+						  "source": "objects",
+						  "name": "filtered",
+						  "condition": {
+							"class_name": "all",
+							"conditions": [
+							  {
+								"class_name": "gte",
+								"valuepath": "task_date",
+								"value": "$this.common.dates.today.start"
+																"value": "$this.common.dates.this_week.start"
+							  },
+							  {
+								"class_name": "any",
+								"conditions": [
+								  {
+									"class_name": "eq",
+									"valuepath": "status",
+									"value": "open"
+								  },
+								  {
+									"class_name": "eq",
+									"valuepath": "status",
+									"value": "in progress"
+								  },
+								  {
+									"class_name": "eq",
+									"valuepath": "status",
+									"value": "on hold"
+								  },
+								  {
+									"class_name": "eq",
+									"valuepath": "status",
+									"value": "blocked"
+								  }
+								]
+							  }
+							]
+						  }
+						},
+						{
+						  "class_name": "result",
+						  "source": "filtered",
+						  "name": "output"
+						}
+					  ]
+					}
+				  }
+				},
+
+		*/
+
+
 		virtual json create_application(json _application_schema)
 		{
 			json_parser jp;
@@ -7709,11 +7789,16 @@ private:
 			json result = jp.create_object();
 			json pages = jp.create_array();
 
+            // get the list of classes from the database
+
 			json class_list = classes->select(nullptr, jp.create_object(), [](json& _item)->json {
 				return _item;
 				});
 
 			// config path always ends with a separator
+
+			// read the templates from the files.  everything is json object and we're just manipulating them
+			// in a C++ equivalent of what node.js might do.
 			
 			json card_template = jp.from_file(this->config_path + "source_templates\\card.json");
 
@@ -7729,6 +7814,10 @@ private:
 			json pages_template = jp.from_file(this->config_path + "source_templates\\pages.json");
 			json styles_template = jp.from_file(this->config_path + "source_templates\\styles.json");
 
+            json search_template = jp.from_file(this->config_path + "source_templates\\search.json");
+            json search_group_template = jp.from_file(this->config_path + "source_templates\\search_group.json");
+			json search_command_class_template = jp.from_file(this->config_path + "source_templates\\search_command_class.json");
+
 			json pages_array = pages_template["pages"];
 
 			pages.push_back(card_container_template);
@@ -7743,6 +7832,11 @@ private:
 					card_fields[field_name] = true;
 				}
             }
+
+            // we're going to go through the list of classes here, applying ux maps for each class, and generating pages based on the templates for each class.  
+			// The ux maps will determine which fields are included in the generated pages, and the templates will determine the layout and structure of the pages.
+            // The generated pages will then be added to the pages array, and the pages template will be updated to include the new pages.  
+			// Finally, the pages template and styles template will be saved to the config path.
 
 			if (class_list.array()) {
 				for (auto& item : class_list.array_impl()->elements) {
@@ -7782,6 +7876,61 @@ private:
 					}
 				}
 			}
+
+			// here we build the search pages.  each team gets a search page.
+
+			if (team_mappings.object()) {
+				auto tms = team_mappings.get_members();
+				for (auto tm : tms) {
+					json team_page = search_template.clone();
+                    json search_items = tm.second["search_items"];
+
+					std::string team_name = tm.first;
+					json team_spec = tm.second;
+					json search_groups = team_spec["search_groups"];
+
+                    json ux_search_groups = jp.create_array();
+
+					if (search_groups.array()) {
+
+						for (int isg = 0; isg < search_groups.size(); isg++) {
+							json sg = search_groups.get_element(isg);
+							auto sg_classes = sg["classes"].to_string_array();
+							auto sg_title = sg["title"].as_string();
+
+							json search_group = search_group_template.clone();
+                            json search_group_commands = jp.create_array();
+
+							for (auto sg_class : sg_classes) {
+
+                                auto sgclassd = read_lock_class(sg_class);
+
+								json search_command = search_command_class_template.clone();
+
+								search_command.apply_abbreviations({
+									{ "$search_button_class", jp.from_string( sgclassd->get_class_name() ) },
+									{ "$search_button_name", jp.from_string( "create_" + sgclassd->get_class_name() + "_button" ) },
+									{ "$search_button_image", jp.from_string( std::format("assets\\{}", sgclassd->get_class_name()) ) },
+									{ "$search_button_text", jp.from_string( sgclassd->get_class_name() ) },
+                                    });
+
+                                search_group_commands.push_back(search_command);
+							}
+
+							search_group.apply_abbreviations({
+								{ "$search_group_name", jp.from_string(sg_title) }, 
+								{ "$search_group_commands", search_group_commands }
+								});
+
+							ux_search_groups.push_back(search_group);
+
+						}
+					}
+				}
+			}
+
+			// now we're going to write the pages
+			// while building references to the other pages in the master page.
 
 			for (int i = 0; i < pages.size(); i++) 
 			{
