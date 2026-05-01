@@ -614,6 +614,92 @@ namespace corona
 
 	};
 
+	class json_bool : public json_value
+	{
+	public:
+		bool value;
+
+		virtual std::string to_key() const
+		{
+			return value ? "true" : "false";
+		}
+
+		virtual std::string to_json() const
+		{
+			return value ? "true" : "false";
+		}
+
+		virtual std::string to_json_typed() const
+		{
+			return get_type_prefix() + " " + to_json();
+		}
+		virtual std::stringstream& serialize(std::stringstream& _src) const
+		{
+			_src << to_json_typed();
+			return _src;
+
+		}
+
+		virtual bool is_empty() const
+		{
+			return false;
+		}
+
+		virtual std::string format(std::string _format) const
+		{
+			return std::to_string(value);
+		}
+
+		virtual std::string to_string() const
+		{
+			return std::format("{}", value);
+		}
+
+		virtual void from_string(const std::string_view& _src)
+		{
+			std::string temp(_src);
+			std::transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+			value = (temp == "true") || (temp == "yes") || (temp == "americafuckyeah");
+		}
+
+		virtual field_types get_field_type() const
+		{
+			return field_types::ft_bool;
+		}
+
+		virtual std::string get_type_prefix() const
+		{
+			return "$bool";
+		}
+
+		virtual std::shared_ptr<json_value> clone() const
+		{
+			auto t = std::make_shared<json_bool>();
+			t->value = value;
+			t->comparison_index = comparison_index;
+			return t;
+		}
+
+		virtual int64_t to_int64() const
+		{
+			return value ? 1 : 0;
+		}
+		virtual date_time to_datetime() const
+		{
+			date_time dt(value);
+			return dt;
+		}
+		virtual bool to_bool() const
+		{
+			return value;
+		}
+
+		virtual double to_double() const {
+			return value ? 1.0 : 0.0;
+		}
+
+	};
+
 	class json_reference : public json_value
 	{
 	public:
@@ -1229,6 +1315,10 @@ namespace corona
             value_base = nullptr;
 		}
 
+		json_bool* bool_impl() const {
+			return dynamic_cast<json_bool *>(value_base.get());
+		}
+
 		json_double *double_impl() const {
 			return dynamic_cast<json_double *>(value_base.get());
 		}
@@ -1612,6 +1702,11 @@ namespace corona
 		bool is_double()  const
 		{
 			return double_impl() != nullptr;
+		}
+
+		bool is_bool()  const
+		{
+			return bool_impl() != nullptr;
 		}
 
 		bool is_string()  const
@@ -2292,6 +2387,17 @@ namespace corona
 			return *this;
 		}
 
+		json put_member_bool(std::string _key, bool _value)
+		{
+			if (not object_impl()) {
+				throw std::logic_error("Not an object");
+			}
+			auto new_member = std::make_shared<json_bool>();
+			new_member->value = _value;
+			object_impl()->members[_key] = new_member;
+			return *this;
+		}
+
 		json put_member_i64(std::string _key,  int64_t _value)
 		{
 			if (not object_impl()) {
@@ -2358,7 +2464,6 @@ namespace corona
 			}
 			auto existing_object = _object.object_impl();
 			if (existing_object) {
-//				auto new_object = existing_object->clone();
 				object_impl()->members[_key] = _object.value_base;
 			}
 			else 
@@ -2397,7 +2502,6 @@ namespace corona
 			auto existing_array = _array.array_impl();
 
 			if (existing_array) {
-//				auto new_array = existing_array->clone();
 				object_impl()->members[_key] = _array.value_base;
 			}
 			else 
@@ -2888,7 +2992,17 @@ namespace corona
 			break;
 
 			case field_types::ft_bool:
-				break;
+			{
+				auto vsource = std::dynamic_pointer_cast<json_bool>(source_value);
+				auto vdest = std::dynamic_pointer_cast<json_bool>(dest_value);
+				if (vsource->value < vdest->value) {
+					comparison_result = -1;
+				}
+				else if (vsource->value > vdest->value) {
+					comparison_result = 1;
+				}
+			}
+			break;
 
 			case field_types::ft_datetime:
 			{
@@ -3071,7 +3185,6 @@ namespace corona
 				for (auto m : members)
 				{
 					if (_where_clause(m.second)) {
-	//					json j = m.second.clone();
 						result_item.put_member(m.first, m.second);
 					}
 				}
@@ -3083,7 +3196,6 @@ namespace corona
 				{
 					auto element = get_element(i);
 					if (_where_clause(element)) {
-//						json jnew = element->clone();
 						result_item.put_element(-1, element);
 					}
 				}
@@ -3791,7 +3903,7 @@ namespace corona
 			return result;
 		}
 
-		bool parse_boolean(double& _result, const char* _src, const char** _modified)
+		bool parse_boolean(bool& _result, const char* _src, const char** _modified)
 		{
 			bool result = false;
 			_src = eat_white(_src);
@@ -4113,6 +4225,7 @@ namespace corona
 			std::string new_string_value;
 			int64_t new_int64_value;
 			double new_number_value;
+			bool new_boolean_value;
 			bool result = true;
 
 			const char* new_src = _src;
@@ -4149,6 +4262,17 @@ namespace corona
 					{
 						auto js = std::make_shared<json_int64>();
 						js->value = new_int64_value;
+						_value = js;
+						*_modified = new_src;
+						return result;
+					}
+				}
+				else if (member_type == "bool" || member_type=="boolean")
+				{
+					if (parse_boolean(new_boolean_value, _src, &new_src))
+					{
+						auto js = std::make_shared<json_bool>();
+						js->value = new_boolean_value;
 						_value = js;
 						*_modified = new_src;
 						return result;
@@ -4230,10 +4354,10 @@ namespace corona
 				auto js = std::make_shared<json_string>();
 				_value = js;
 			}
-			else if (parse_boolean(new_number_value, _src, &new_src))
+			else if (parse_boolean(new_boolean_value, _src, &new_src))
 			{
-				auto js = std::make_shared<json_double>();
-				js->value = new_number_value;
+				auto js = std::make_shared<json_bool>();
+				js->value = new_boolean_value;
 				_value = js;
 			}
 			else
@@ -4536,6 +4660,11 @@ namespace corona
 			double dv = _value.double_impl()->value;
 			return dme > dv;
 		}
+		else if (_value.is_bool()) {
+			bool bme = as_bool();
+			bool bv = _value.bool_impl()->value;
+			return bme > bv;
+		}
 		else 
 		{
 			std::string sme = as_string();
@@ -4573,6 +4702,11 @@ namespace corona
 			double dv = _value.double_impl()->value;
 			return dme < dv;
 		}
+		else if (_value.is_bool()) {
+			bool bme = as_bool();
+			bool bv = _value.bool_impl()->value;
+			return bme < bv;
+		}
 		else
 		{
 			std::string sme = as_string();
@@ -4609,6 +4743,11 @@ namespace corona
 			double dme = as_double();
 			double dv = _value.double_impl()->value;
 			return dme == dv;
+		}
+		else if (_value.is_bool()) {
+			bool bme = as_bool();
+			bool bv = _value.bool_impl()->value;
+			return bme == bv;
 		}
 		else
 		{

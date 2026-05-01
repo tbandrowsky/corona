@@ -591,13 +591,13 @@ namespace corona
 				case field_types::ft_bool:
 				{
 					bool b = *((bool*)s);
-					_dest.put_member(acol.field_name.c_str(), b);
+					_dest.put_member_bool(acol.field_name.c_str(), b);
 				}
 				break;
 				case field_types::ft_double:
 				{
 					double t = *((double *)s);
-					_dest.put_member(acol.field_name.c_str(), t);
+					_dest.put_member_double(acol.field_name.c_str(), t);
 				}
 				break;
 				case field_types::ft_datetime:

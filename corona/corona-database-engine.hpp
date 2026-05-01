@@ -508,20 +508,28 @@ namespace corona
 		virtual void put_json(json& _src) = 0;
 
 		virtual std::shared_ptr<child_bridge_interface> get_bridge(std::string _class_name) = 0;
-		virtual std::vector<std::string> get_bridge_list() = 0;
 
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json get_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
 		virtual json delete_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
+
+		virtual std::vector<std::string> get_allowed_classes() = 0;
 	};
 
 	class field_options_interface
 	{
 	public:
 
-		virtual void get_json(json& _dest) = 0;
-		virtual void put_json(json& _src) = 0;
+		bool		required;
+		std::string format;
+		std::string input_mask;
+		std::string label;
+		std::string description;
+		std::string tab_index;
+		bool		read_only;
+		bool		server_only;
+
 		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
@@ -532,6 +540,33 @@ namespace corona
 		virtual json get_openapi_schema(corona_database_interface* _db) = 0;
         virtual bool is_required() = 0;
 		virtual bool is_server_only() = 0;
+		virtual std::vector<std::string> get_allowed_classes() = 0;
+
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member("required", required);
+			_dest.put_member("format", format);
+			_dest.put_member("input_mask", input_mask);
+			_dest.put_member("label", label);
+			_dest.put_member("description", description);
+			_dest.put_member("tab_index", tab_index);
+			_dest.put_member("read_only", read_only);
+			_dest.put_member("server_only", server_only);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			required = _src["required"].as_bool();
+			format = _src["format"].as_string();
+			input_mask = _src["input_mask"].as_string();
+			label = _src["label"].as_string();
+			description = _src["description"].as_string();
+            tab_index = _src["tab_index"].as_string();
+			server_only = _src["server_only"].as_bool();
+			read_only = _src["read_only"].as_bool();
+		}
+
 	};
 
 	class class_interface_base
@@ -589,6 +624,7 @@ namespace corona
 		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
 
         virtual json get_openapi_schema(corona_database_interface* _db) = 0;
+
 		virtual bool is_relational_children() {
             if (options) {
                 return options->is_relational_children();
@@ -596,6 +632,25 @@ namespace corona
 			return false;
 		}
 
+		virtual std::vector<std::string> get_allowed_classes()
+		{
+			if (options) {
+				return options->get_allowed_classes();
+			}
+            return {};
+		}
+
+		virtual std::string get_label()
+		{
+			std::string label;
+			if (options) {
+				label = options->label;
+            }
+			if (label.empty()) {
+				label = human_case(field_name);
+			}
+			return label;
+		}
 	};
 
 	class index_interface
@@ -725,6 +780,7 @@ namespace corona
 	protected:
 
 	public:
+
 		corona_connections connections;
 		std::string onboarding_email;
 		std::string recovery_email;
@@ -1096,14 +1152,7 @@ namespace corona
 	class field_options_base : public field_options_interface
 	{
 	public:
-		bool		required;
-		std::string format;
-		std::string input_mask;
-		std::string label;
-		std::string description;
-		std::string tab_index;
-		bool		read_only;
-		bool		server_only;
+
 
 		field_options_base() = default;
 		field_options_base(const field_options_base& _src) = default;
@@ -1112,27 +1161,6 @@ namespace corona
 		field_options_base& operator = (field_options_base&& _src) = default;
 		virtual ~field_options_base() = default;
 
-		virtual void get_json(json& _dest)
-		{
-			_dest.put_member("required", required);
-			_dest.put_member("format", format);
-			_dest.put_member("input_mask", input_mask);
-			_dest.put_member("server_only", server_only);
-			_dest.put_member("label", label);
-			_dest.put_member("description", description);
-			_dest.put_member("read_only", read_only);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			required = _src["required"].as_bool();
-            server_only = _src["server_only"].as_bool();
-			read_only = _src["read_only"].as_bool();
-			format = _src["format"].as_string();
-            input_mask = _src["input_mask"].as_string();
-            label = _src["label"].as_string();
-			description = _src["description"].as_string();
-		}
 
 		virtual void init_validation() override
 		{
@@ -1200,6 +1228,19 @@ namespace corona
 		{
 			return false;
 		}
+
+		virtual std::vector<std::string> get_allowed_classes() override
+		{
+			std::vector<std::string> results;
+			auto bridges = get_bridges();
+			if (bridges) {
+				for (auto item : bridges->get_allowed_classes()) {
+					results.push_back(item);
+				}
+			}
+			return results;
+		}
+
 
 	};
 
@@ -1339,13 +1380,14 @@ namespace corona
 			return result;
 		}
 
-  		virtual std::vector<std::string> get_bridge_list() override
+		virtual std::vector<std::string> get_allowed_classes() override
 		{
 			std::vector<std::string> results;
 			for (auto item : all_constructors) {
 				results.push_back(item.first);
 			}
 			return results;
+
 		}
 
 		virtual void init_validation() override
@@ -1849,7 +1891,6 @@ namespace corona
 
 			return schema;
 		}
-
 	};
 
 	int max_query_result_rows = 10000;
@@ -2728,6 +2769,7 @@ namespace corona
 			}
 			return nullptr;
 		}
+
 	};
 
 	class index_implementation : public index_interface
@@ -3920,7 +3962,7 @@ namespace corona
 				else if (query_field->get_field_type() == field_types::ft_array || query_field->get_field_type() == field_types::ft_object) {
 					std::shared_ptr<child_bridges_interface> brs = query_field->get_bridges();
 					if (brs) {
-						auto class_list = brs->get_bridge_list();
+						auto class_list = brs->get_allowed_classes();
 
 						for (auto& class_name : class_list)
 						{
@@ -7828,16 +7870,49 @@ private:
 
 		for (auto& field : fields) 
 		{
+			std::string field_class = "sys_object";
+
+			auto field_classes = field->get_allowed_classes();
+			if (field_classes.size() > 0) {
+				field_class = field_classes[0];
+			}
 
 			if (field->get_field_type() == field_types::ft_object) {
-				json tab = jp.create_object();
-                tab.put_member("field_name", field->get_field_name());
+				json tab = jp.create_object();				
+                std::string tab_name = "tab_" + field_class;
+                tab.put_member_string("page_name", tab_name);
+                tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
+				tab.put_member_bool("list", false);
 			}
 			else if (field->get_field_type() == field_types::ft_array) {
 				json tab = jp.create_object();
-				tab.put_member("field_name", field->get_field_name());
+				std::string tab_name = "tab_" + field_class + "_list";
+				tab.put_member_string("page_name", tab_name);
+				tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
+				tab.put_member_bool("list", true);
+
+				auto create_objects = field->get_allowed_classes();
+                json tab_commands = jp.create_array();
+                for (auto co : create_objects) {
+					json jcommand = jp.create_object();
+                    jcommand.put_member_string("class_name", "create_object");
+                    jcommand.put_member_string("create_class_name", co);
+					jcommand.put_member_string("constructor_frame", "frame_selected");
+
+					json jcopy = jp.create_object();
+                    jcopy.put_member_string(classd->get_class_name(), "object_id");
+					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
+
+					jcommand.put_member("constructor_copy", jcopy);
+					jcommand.put_member_string("source_frame", "frame_selected");
+					jcommand.put_member_string("target_frame", "frame_selected");
+					jcommand.put_member_string("message", "Create " + co);
+					tab_commands.push_back(jcommand);
+				}
+				tab.put_member("commands", tab_commands);
+                tabs.push_back(tab);
 			}
 			else if (field->get_field_class() != "sys_object")
 			{
@@ -7850,6 +7925,7 @@ private:
 				json new_card_field = jp.create_object();
                 new_card_field.put_member("field_name", field->get_field_name());
 				new_card_field.put_member("expression", field->get_field_name());
+				field->get_field_class();
                 card_fields.push_back(new_card_field);
 			}
 		}
