@@ -114,8 +114,6 @@ namespace corona
 
 		int database_threads;
 
-		json_file_watcher database_schema_mon;
-
 		bool database_recreate;
 
 		bool is_db_polling = false;

@@ -148,6 +148,8 @@ namespace corona {
 #include "corona-control-data.hpp"
 #include "corona-interfaces.hpp"
 #include "corona-comm-bus-interface.hpp"
+
+// and higher level for corona-express-table
 #include "corona-express-record.hpp"
 
 // these are general structures and are used for the binary saving stuff, not

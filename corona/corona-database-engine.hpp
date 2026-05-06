@@ -57,7 +57,6 @@ namespace corona
 	"fields" : {			
 			"class_name":"string",
 			"class_description":"string",
-			"class_color":"string",
 			"class_author": "string",
 			"class_version": "string",
 			"base_class_name":"string",	
@@ -688,7 +687,6 @@ namespace corona
 		virtual std::string								get_class_name()  const = 0;
 		virtual std::string								get_class_description()  const = 0;
 		virtual std::string								get_base_class_name()  const = 0;
-		virtual std::string                             get_class_color() const = 0;
 		virtual std::string                             get_class_display () const = 0;
 		virtual std::string                             get_class_author() const = 0;
 		virtual std::string                             get_class_version() const = 0;
@@ -2986,7 +2984,6 @@ namespace corona
 		std::string class_description;
 		std::string base_class_name;
 		std::string display;
-		std::string class_color;
 		std::vector<std::string> parents;
 		std::vector<std::string> full_text_fields;
 		std::map<std::string, std::shared_ptr<field_interface>> fields;
@@ -3029,7 +3026,6 @@ namespace corona
 			}
 			ancestors = _src->get_ancestors();
 			descendants = _src->get_descendants();		
-			class_color = _src->get_class_color();
 			display = _src->get_class_display();
 			class_author = _src->get_class_author();
 			class_version = _src->get_class_version();
@@ -3165,10 +3161,6 @@ namespace corona
 			return *this;
 		}
 
-        virtual std::string get_class_color() const override
-        {
-            return class_color;
-        }
 
 		virtual std::string get_class_display() const override
 		{
@@ -3511,8 +3503,6 @@ namespace corona
 			_dest.put_member(class_name_field, class_name);
 			_dest.put_member("class_description", class_description);
 			_dest.put_member("base_class_name", base_class_name);
-			_dest.put_member("class_color", class_color);
-			_dest.put_member("display", display);
 			_dest.put_member("class_version", class_version);
 			_dest.put_member("class_author", class_author);
 
@@ -3619,8 +3609,6 @@ namespace corona
 			class_name = _src[class_name_field].as_string();
 			base_class_name = _src["base_class_name"].as_string();
 			class_description = _src["class_description"].as_string();
-			class_color = _src["class_color"].as_string();
-			display = _src["display"].as_string();
 			class_author = _src["class_author"].as_string();
 			class_version = _src["class_version"].as_string();
 
@@ -4099,10 +4087,6 @@ namespace corona
 				auto base_class = _context->db->read_get_class(base_class_name);
 				if (base_class and base_class->ready()) {
 
-					if (class_color.empty()) {
-                        class_color = base_class->get_class_color();
-					}
-
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
 					base_class->update_descendants().insert_or_assign(class_name, true);
@@ -4416,7 +4400,6 @@ namespace corona
 			if (result.object())
 			{
 				_exists = true;
-				result.put_member("class_color", class_color);
 
 				if (_grant.get_grant & class_grants::grant_any)
                 {
@@ -4638,8 +4621,7 @@ namespace corona
 					for (int i = 0; i < s; i++)
 					{
                         auto _src_obj = source_list.get_element(i);
-						_src_obj.erase_member("class_color");
-
+						
 						db_object_id_type object_id = -1;
 						json write_object;
 						json old_object;
@@ -4655,7 +4637,6 @@ namespace corona
 							if (old_object.object()) {
 								write_object = old_object.clone();
 								write_object.merge(_src_obj);
-								write_object.erase_member("class_color");
 							}
 							else if (not exists)
 							{
@@ -5207,11 +5188,6 @@ namespace corona
 				}
 			}
 
-			for (auto ob : obj)
-			{
-				ob.put_member("class_color", class_color);
-			}
-
 			return obj;
 		}
 
@@ -5503,10 +5479,6 @@ namespace corona
 {	
 	"class_name" : "sys_object",
 	"class_description" : "Object",
-	"class_color": "#bcbcbc",
-    "grid_template_rows": "60px 60px 60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
-    "display":"optional",
 	"fields" : {			
 			"object_id" : { 
 				"field_type":"int64",
@@ -5568,10 +5540,6 @@ namespace corona
 	"class_name" : "sys_error",
 	"class_description" : "Error",
 	"base_class_name" : "sys_object",
-	"class_color": "#d80000",
-    "grid_template_rows": "60px 60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
-    "display":"default",
 	"fields" : {			
 			"system" : {
 				"field_type":"string",
@@ -5587,7 +5555,6 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Details"
-				"display": "json"	
 			},
 			"file" : {
 				"field_type":"string",
@@ -5625,10 +5592,6 @@ namespace corona
 	"class_name" : "sys_server",
 	"class_description" : "Servers",
 	"base_class_name" : "sys_object",
-	"class_color": "#bcbcbc",
-    "grid_template_rows": "60px 60px 120px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
-    "display":"default",
 	"fields" : {
 			"server_name" : {
 				"field_type":"string",
@@ -5639,13 +5602,11 @@ namespace corona
 				"field_type":"string",
 				"read_only": true,
 				"label": "Description",
-				"display":"markdown"
 			},
 			"server_url" : {
 				"field_type":"string",
 				"read_only": true,
 				"label": "Url",
-				"display": "url"	
 			},
 			"server_version": {
 				"field_type":"string",
@@ -5679,7 +5640,6 @@ namespace corona
 	"class_name" : "sys_command",
 	"class_description" : "Command",
 	"base_class_name" : "sys_object",
-	"class_color": "#bcbcbc",
 	"fields" : {
 	}
 }
@@ -5709,43 +5669,34 @@ namespace corona
 	"base_class_name" : "sys_object",
 	"class_description" : "Grant",
 	"parents" : [ "sys_team" ],
-	"class_color": "#bcbcbc",
-	"display":"default",
-	"grid_template_rows": "60px 120px",
-	"grid_template_columns": "1fr 1fr 1fr",
 	"fields" : {
 			"grant_classes" : "[string]",
 			"get" : {
 				"field_type":"string",
 				"field_name":"get",
-				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown"
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"put" : {
 				"field_type":"string",
 				"field_name":"put",
-				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown"
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"delete" : {
 				"field_type":"string",
 				"field_name":"delete",
-				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown"
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"alter" : {
 				"field_type":"string",
 				"field_name":"alter",
-				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown"
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			},
 			"derive" : {
 				"field_type":"string",
 				"field_name":"derive",
-				"enum" : [ "any", "none", "own", "team", "teamorown" ],
-				"display" : "dropdown"
-			},
-			"class_colors": "object"
+				"enum" : [ "any", "none", "own", "team", "teamorown" ]
+			}
+			
 	}
 }
 )");
@@ -5773,10 +5724,6 @@ namespace corona
 	"base_class_name" : "sys_object",
 	"class_description" : "Ticket Status",
 	"parents" : [ "sys_ticket" ],
-	"class_color": "#bcbcbc",
-	"display":"default",
-	"grid_template_rows": "60px 120px",
-	"grid_template_columns": "300px 300px",
 	"fields" : {
 			"status_name" :{
 				"field_type":"string",
@@ -5784,8 +5731,7 @@ namespace corona
 			},
 			"status_description" : {
 				"field_type":"string",
-				"label": "Status Description",
-				"display": "markdown"
+				"label": "Status Description"
 			},
 	}
 }
@@ -5814,21 +5760,15 @@ namespace corona
 	"base_class_name" : "sys_object",
 	"class_description" : "Ticket",
 	"parents" : [ "sys_team" ],
-	"class_color": "#bcbcbc",
-	"display":"default",
-	"grid_template_rows": "60px 150px",
-	"grid_template_columns": "600px",
 	"full_text" : [ "ticket_name", "ticket_description" ],
 	"fields" : {
 			"ticket_name" :{
 				"field_type":"string",
-				"label": "Ticket Name",
-				"display": "url"
+				"label": "Ticket Name"
 			},
 			"ticket_description" : {
 				"field_type":"string",
-				"label": "Ticket Name",
-				"display": "markdown"
+				"label": "Ticket Name"
 			},
 			"history" : "[sys_status]"
 	}
@@ -5858,10 +5798,6 @@ namespace corona
 	"base_class_name" : "sys_object",
 	"class_description" : "Workflow",
 	"parents" : [ "sys_team" ],
-	"class_color": "#bcbcbc",
-	"grid_template_rows": "60px 120px 60px 60px 60px 120px 60px",
-	"grid_template_columns": "1fr 1fr",
-	"display":"default",
 	"fields" : {
 			"workflow_name" : {
 				"field_type":"string",
@@ -5873,26 +5809,22 @@ namespace corona
 			},
 			"workflow_schedule_type" : {
 				"field_type":"string",
-				"display": "dropdown",
 				"enum" : [ "Week", "Month" ],
 			},
 			"workflow_schedule_days" : {
 				"field_type":"array",
 				"fundamental_type":"number",
-				"label": "Days to Run",
-				"display": "days"
+				"label": "Days to Run"
 			},
 			"workflow_schedule_hour" : {
 				"field_type":"number",
 				"label": "Hour to run",
-				"display": "hour",
 				"min_value" : 0,
 				"max_value" : 23
 			},
 			"ticket_class_name" : {
 				"field_type":"string",
-				"label": "Create Ticket",
-				"display": "dropdown:sys_ticket"
+				"label": "Create Ticket"
 			},
 			"ticket_name" : {
 				"field_type":"string",
@@ -5901,7 +5833,6 @@ namespace corona
 			"ticket_description" : {
 				"field_type":"string",
 				"label": "Ticket Description",
-				"display": "markdown"
 			},
 			"last_ran" : {
 				"field_type":"number",
@@ -5937,10 +5868,6 @@ namespace corona
 	"class_name" : "sys_team",
 	"base_class_name" : "sys_object",
 	"class_description" : "Team",
-	"class_color": "#bcbcbc",
-	"display":"default",
-	"grid_template_rows": "60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
 	"fields" : {
 			"team_name" :  {
 				"field_name:" : "team_name",
@@ -5995,10 +5922,7 @@ namespace corona
 	"class_name" : "sys_dataset",
 	"base_class_name" : "sys_object",
 	"class_description" : "DataSet",
-	"class_color": "#bcbcbc",
 	"parents" : [ "sys_schema" ],
-	"grid_template_rows": "60px 60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
 	"fields" : {
 			"dataset_name" : {
 				"field_name:" : "dataset_name",
@@ -6078,9 +6002,6 @@ namespace corona
 	"class_name" : "sys_schema",
 	"base_class_name" : "sys_object",
 	"class_description" : "Schema",
-	"class_color": "#bcbcbc",
-	"grid_template_rows": "60px 60px 60px 60px",
-	"grid_template_columns": "1fr 1fr",
 	"fields" : {		
 			"schema_name" : {
 				"field_name:" : "schema_name",
@@ -6133,8 +6054,6 @@ namespace corona
 	"class_name" : "sys_item",
 	"class_description" : "Item",
 	"parents": [ "sys_user", "sys_item", "sys_team" ],
-	"class_color": "#bcbcbc",
-	"display":"none",
 	"fields" : {			
 			
         }
@@ -6163,9 +6082,6 @@ namespace corona
 	"base_class_name" : "sys_object",
 	"class_name" : "sys_user",
 	"class_description" : "User",
-	"class_color": "#bcbcbc",
-	"grid_template_rows": "60px 60px 60px 60px 60px 120px 60px",
-	"grid_template_columns": "1fr 1fr",
 	"fields" : {			
 			"first_name" : {
 				"field_type":"string",
