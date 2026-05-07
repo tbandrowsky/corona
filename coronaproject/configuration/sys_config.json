@@ -10,8 +10,8 @@
   },
   "Servers": [
     {
-      "listen_point": "http://localhost:5678/MySDLCApp/",
-      "application_name": "My SDLC App",
+      "listen_point": "http://localhost:5678/CoronaDemoApplication/",
+      "application_name": "Corona Demo Application",
       "schema_filename": "sys_schema.json",
       "database_threads": 20,
       "database_recreate": true,

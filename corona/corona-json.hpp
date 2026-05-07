@@ -1272,6 +1272,57 @@ namespace corona
 
 		std::shared_ptr<json_value> value_base = nullptr;
 
+        void write(std::ostream& _ss, int _indent, bool _indent_constant) 
+		{
+			std::string json_temp = to_json();
+
+			if (json_temp.size() < 70) {
+				if (_indent_constant)
+				{
+                    _ss << std::endl << std::string(_indent, ' ');
+				}
+                _ss << json_temp;
+			}
+			else if (object()) 
+			{
+                auto obj = object_impl();
+				_ss << std::endl << std::string(_indent, ' ') << "{";
+				_indent += 2;
+				std::string comma = "";
+				for (auto member : obj->members) {
+                    _ss << comma;
+					_ss << "\n" << std::string(_indent, ' ') << "\"" << member.first << "\":";
+ 					if (member.second) {
+						json temp(member.second);
+						temp.write(_ss, _indent + 2, false);
+					}
+					else {
+						_ss << "null";
+					}
+					comma = ",";
+				}
+				_indent -= 2;
+				_ss << std::endl << std::string(_indent, ' ') << "}";
+			}
+			else if (array())
+			{
+				auto arr = array_impl();
+
+				_ss << std::endl << std::string(_indent, ' ') << "[";
+				std::string comma = "\n";
+				for (auto element : arr->elements) {
+					_ss << comma;
+					json temp(element);
+					temp.write(_ss, _indent + 2, true);
+					comma = ",\n";
+				}
+				_ss << std::endl << std::string(_indent, ' ') << "]";
+			}
+			else {
+				_ss << json_temp;
+			}
+		}
+
 	public:
 
 		json()
@@ -1293,7 +1344,7 @@ namespace corona
 			std::string file_string = this->to_json();
 			std::ofstream outFile(_filename, std::ios::out | std::ios::trunc);
 			if (outFile.is_open()) {
-                outFile.write(file_string.c_str(), file_string.size());
+                write(outFile, 0, false);
 				outFile.close();
 			}
 		}
@@ -1871,8 +1922,8 @@ namespace corona
 						}
 					}
 				}
-            }
-            else if (auto aipl = array_impl()) {
+			}
+			else if (auto aipl = array_impl()) {
 				for (auto& element : aipl->elements) {
 					json jn(element);
 					json result = jn.find_object_with_member(_member);
@@ -1941,28 +1992,53 @@ namespace corona
 				return result;
 
 			std::vector<std::string> keys;
+
 			keys = split(_path, '.');
 
-			auto result_value = this->value_base;
+			int ik = 0;
+			int iks = keys.size() - 1;
 
-			for (auto& key : keys) 
+			while (ik < iks)
 			{
-                auto member = obj_impl->members.find(key);
+				auto member = obj_impl->members.find(keys[ik]);
 
-				if (member == std::end(obj_impl->members)) {
-					return result;
-				}
-
-				if (!member->second || member->second->get_field_type() != field_types::ft_object) 
+				if (member == std::end(obj_impl->members))
 				{
 					return result;
 				}
 
-				result_value = member->second;
+				if (member->second->get_field_type() == field_types::ft_array) 
+				{
+                    json child_array(member->second);
+
+					for (int i = 0; i < child_array.size(); i++) {
+						json child_object = child_array.get_element(i);
+						if (child_object.object()) {
+                            auto it_start = keys.begin() + ik + 1;
+							auto it_end = keys.end();
+							std::string child_path = concat(it_start, it_end, ".");
+							json temp = child_object.find_member(child_path);
+							return temp;
+						}
+					}
+				}
+
+				if (member->second->get_field_type() != field_types::ft_object)
+				{
+					return result;
+				}
+				
+                obj_impl = dynamic_cast<json_object *>(member->second.get());
+				ik++;
 			}
 
-            result.set(result_value);
-
+			if (obj_impl) {
+				auto member = obj_impl->members.find(keys[ik]);
+                if (member != std::end(obj_impl->members)) {
+					result.set(member->second);
+				}
+			}
+ 
 			return result;
 		}
 

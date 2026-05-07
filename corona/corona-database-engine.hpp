@@ -7737,7 +7737,9 @@ private:
 			json pages_array = pages_template["pages"];
 
 			pages.push_back(card_container_template);
-			pages.push_back(tab_container_template);
+			pages.push_back(object_container_template);
+			pages.push_back(object_details);
+			pages.push_back(home_template);
 
 			std::map<std::string, bool> card_fields;
 
@@ -7767,27 +7769,32 @@ private:
 
 						class_ux_map = class_mappings[class_name];
 
-						if (class_ux_map.empty()) 
+                        if (class_ux_map.is_string() && class_ux_map.as_string() == "default") 
 						{
 							class_ux_map = create_ux_map(classd, card_fields);
 						}
 
+						if (class_ux_map.empty()) 
+						{
+							continue;
+						}
+
 						// Generate card page
-						json card_page = generate_card_pages(card_template, classd, class_mappings, field_mappings);
-						if (!card_page.empty()) {
-							pages.push_back(card_page);
+						json card_pages = generate_card_pages(card_template, classd, class_ux_map, field_mappings);
+						if (!card_pages.empty()) {
+							pages.push_back_array(card_pages);
 						}
 
 						// Generate object details page
-						json object_page = generate_object_pages(object_template, classd, class_mappings, field_mappings, tab_list_template);
-						if (!object_page.empty()) {
-							pages.push_back(object_page);
+						json object_pages = generate_object_pages(object_template, classd, class_ux_map, field_mappings, tab_list_template);
+						if (!object_pages.empty()) {
+							pages.push_back_array(object_pages);
 						}
 
 						// Generate container/list page
-						json tab_edit_page = generate_tab_edit_pages(tab_edit_template, classd, class_mappings, field_mappings);
-						if (!tab_edit_page.empty()) {
-							pages.push_back(tab_edit_page);
+						json tab_edit_pages = generate_tab_edit_pages(tab_edit_template, classd, class_ux_map, field_mappings);
+						if (!tab_edit_pages.empty()) {
+							pages.push_back_array(tab_edit_pages);
 						}
 					}
 				}
@@ -7800,11 +7807,11 @@ private:
 
 				for (auto tm : tms) {
 					json team_page = search_template.clone();
-                    json search_items = tm.second["search_items"];
 
 					std::string team_name = tm.first;
 					json team_spec = tm.second;
 					json search_groups = team_spec["search_groups"];
+					team_page.put_member("page_name", "home_" + team_name);
 
                     json ux_search_groups = jp.create_array();
 
@@ -7840,9 +7847,13 @@ private:
 								});
 
 							ux_search_groups.push_back(search_group);
-
 						}
+						team_page.apply_abbreviations({
+							{ "$search_groups", ux_search_groups }
+						});
 					}
+
+					pages.push_back(team_page);
 				}
 			}
 
@@ -7934,6 +7945,7 @@ private:
 
         card.put_member("title", classd->get_class_name());
 
+
 		for (auto& field : fields) 
 		{
 			std::string field_class = "sys_object";
@@ -7996,6 +8008,15 @@ private:
 			}
 		}
 
+		json tab = jp.create_object();
+		std::string tab_name = "tab_" + classd->get_class_name();
+		tab.put_member_string("page_name", tab_name);
+		tab.put_member_string("name", tab_name + "_details");
+		tab.put_member_string("member_name", ".");
+		tab.put_member_bool("list", false);
+		tabs.push_back(tab);
+
+		page.put_member("tabs", tabs);
         card.put_member("fields", card_fields);
         tab_edit.put_member("fields", tab_edit_fields);
 
@@ -8018,28 +8039,30 @@ private:
 			auto parameters = tab_edit_page.find_member("using.parameters");
 			if (parameters.object()) {
 				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
-			}
 
-			// Populate card contents
-			auto contents = tab_edit_page.find_member("$card_contents");
-			if (contents.array()) {
+				// Populate card contents
+				auto contents = parameters["$card_contents"];
+				if (contents.array()) {
 
-				// Check if this field should be displayed on the card
-                auto cfm = class_mappings["card"]["fields"];
+					// Check if this field should be displayed on the card
+					auto cfm = class_mappings["card"]["fields"];
 
-                for (int i = 0; i < cfm.size(); i++) {
-                    auto field = cfm.get_element(i);
-                
-					json content = jp.create_object();
-					content.put_member_string("class_name", "paragraph");
-					content.put_member_string("box", "card_text_box");
-					content.put_member("json_field_name", field["field_name"].as_string());
-					content.put_member("text", field["expression"].as_string());
-					contents.push_back(content);
+					for (int i = 0; i < cfm.size(); i++) {
+						auto field = cfm.get_element(i);
+
+						json content = jp.create_object();
+						content.put_member_string("class_name", "paragraph");
+						content.put_member_string("box", "card_text_box");
+						content.put_member("json_field_name", field["field_name"].as_string());
+						content.put_member("text", field["expression"].as_string());
+						contents.push_back(content);
+					}
 				}
+
+				pages.push_back(tab_edit_page);
+
 			}
 
-            pages.push_back(tab_edit_page);
 
 			return pages;
 		}
@@ -8166,10 +8189,18 @@ private:
 
 			object_page.put_member("page_name", "object_" + class_name);
 
-			auto src_tabs = class_mappings[classd->get_class_name()]["page"]["tabs"];
-            auto dest_tabs = object_page["using"]["parameters"]["$details_contents"]["tabs"];
-			
-            for (int i = 0; i < src_tabs.size(); i++) {
+			auto src_tabs = class_mappings["page"]["tabs"];
+            auto dest_tabs = object_page.find_member("using.parameters.$details_contents.tabs");
+
+			if (!src_tabs.array()) {
+				return result;
+			}
+
+			if (!dest_tabs.array()) {
+				return result;
+			}
+
+			for (int i = 0; i < src_tabs.size(); i++) {
 				auto src_tab = src_tabs.get_element(i);
 
 				json new_tab = src_tab.clone();
@@ -8181,11 +8212,11 @@ private:
 					json tab_page = generate_tab_list_pages(tab_list_template, class_name, member_name);
 					result.push_back_array(tab_page);
 					new_tab.erase_member("list");
-                    new_tab.copy_member("page_name", src_tab);
+					new_tab.copy_member("page_name", src_tab);
 				}
 
-                if (dest_tabs.array()) {
-                    dest_tabs.push_back(new_tab);
+				if (dest_tabs.array()) {
+					dest_tabs.push_back(new_tab);
 				}
 			}
 

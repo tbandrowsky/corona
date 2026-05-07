@@ -233,8 +233,6 @@ namespace corona
 			app = std::make_shared<application>(database_threads);
 			app->application_name = server_config["application_name"].as_string();
 
-			database_schema_mon.filename = config_path + database_schema_filename;
-
 			if (app->application_name.empty())
 			{
 				throw std::logic_error("application_name not specified");

@@ -123,6 +123,24 @@ namespace corona {
 		return ss.str();
 	}
 
+	std::string concat(std::vector<std::string> items, std::string delim)
+	{
+		return join(items,delim);
+	}
+
+	template <typename Iterator>
+	std::string concat(Iterator start, Iterator stop, std::string delim)
+	{
+		std::stringstream ss;
+		std::string sep = "";
+		for (auto it = start; it != stop; ++it) {
+			ss << *it;
+			ss << sep;
+			sep = delim;
+		}
+		return ss.str();
+	}
+
 	bool is_number(const std::string& s) {
 		for (char c : s) {
 			if (not std::isdigit(c)) {
