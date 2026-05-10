@@ -376,3 +376,4 @@ seed_data/
 *.coronatextindex
 *.coronatext
 *.coronaindex
+/coronaproject/configuration/pages
