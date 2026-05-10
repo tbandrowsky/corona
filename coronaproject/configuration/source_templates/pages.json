@@ -191,7 +191,7 @@
     {
       "class_name": "select_frame",
       "target_frame": "page_home.frame_home",
-      "source_frame": "page_search",
+      "source_frame": "$user_team",
       "message": "layout test."
     }
   ],

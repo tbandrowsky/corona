@@ -7704,6 +7704,8 @@ private:
 
 			json result = jp.create_object();
 			json pages = jp.create_array();
+			json card_sources = jp.create_object();
+            json page_sources = jp.create_object();
 
             // get the list of classes from the database
 
@@ -7735,6 +7737,7 @@ private:
 			json search_command_class_template = jp.from_file(this->config_path + "source_templates\\search_command_class.json");
 
 			json pages_array = pages_template["pages"];
+            json abbreviations = pages_template["abbreviations"];
 
 			pages.push_back(card_container_template);
 			pages.push_back(object_container_template);
@@ -7782,12 +7785,14 @@ private:
 						// Generate card page
 						json card_pages = generate_card_pages(card_template, classd, class_ux_map, field_mappings);
 						if (!card_pages.empty()) {
+                            card_sources.put_member(class_name, std::format("card_{}", class_name));
 							pages.push_back_array(card_pages);
 						}
 
 						// Generate object details page
 						json object_pages = generate_object_pages(object_template, classd, class_ux_map, field_mappings, tab_list_template);
 						if (!object_pages.empty()) {
+							page_sources.put_member(class_name, std::format("page_{}", class_name));
 							pages.push_back_array(object_pages);
 						}
 
@@ -7876,6 +7881,9 @@ private:
                 std::string page_file_path = this->config_path + filename;
                 page.save(page_file_path);
 			}
+
+            abbreviations.put_member("card_sources", card_sources);
+            abbreviations.put_member("page_sources", page_sources);
 
 			std::string styles_file_path = this->config_path + styles_file_name;
             styles_template.save(styles_file_path);
@@ -8301,6 +8309,14 @@ private:
 			{
                 jschema.merge(_schema);
 				schema_id = _schema["object_id"].as_int64_t();
+
+				std::string schema_msg = std::format("Schema '{0}' already applied", schema_key["schema_name"].as_string());
+				system_monitoring_interface::active_mon->log_information(schema_msg, __FILE__, __LINE__);
+
+				json error = jp.create_object();
+				error.put_member(success_field, false);
+				error.put_member(message_field, std::string("Schema already applied"));
+				return error;
 			}
 			else 
 			{

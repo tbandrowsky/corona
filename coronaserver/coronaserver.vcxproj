@@ -73,19 +73,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
-    <TargetName>revolutionservice</TargetName>
+    <TargetName>coronaserver</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <CustomBuildBeforeTargets>BuildCompile</CustomBuildBeforeTargets>
-    <TargetName>revolutionservice</TargetName>
+    <TargetName>coronaserver</TargetName>
     <PublicIncludeDirectories>
     </PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>instantgovernment</TargetName>
+    <TargetName>coronaserver</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>instantgovernment</TargetName>
+    <TargetName>coronaserver</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>false</VcpkgEnabled>

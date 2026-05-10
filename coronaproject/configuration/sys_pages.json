@@ -9,7 +9,7 @@
           "width":"100 pixels"
         },
       "button_margin":{ "amount":20.000000, "units":"pixels" },
-      "card_sources":{  },
+      "card_sources":{ "person":"card_person" },
       "card_text_box":
         {
           "height":{ "amount":14.000000, "units":"pixels" },
@@ -86,6 +86,7 @@
           "height":{ "amount":60.000000, "units":"pixels" },
           "width":{ "amount":1.000000, "units":"container" }
         },
+      "page_sources":{ "person":"page_person" },
       "paragraph_box":
         {
           "height":{ "amount":6.200000, "units":"text" },
@@ -112,11 +113,15 @@
 
       { "class_name":"import", "file_name":"pages\\object_details.json" },
 
+      { "class_name":"import", "file_name":"pages\\page_home.json" },
+
       { "class_name":"import", "file_name":"pages\\card_person.json" },
 
       { "class_name":"import", "file_name":"pages\\object_person.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_edit_person.json" }
+      { "class_name":"import", "file_name":"pages\\tab_edit_person.json" },
+
+      { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],
   "startup":
     [
@@ -124,7 +129,7 @@
       {
         "class_name":"select_frame",
         "message":"layout test.",
-        "source_frame":"page_search",
+        "source_frame":"$user_team",
         "target_frame":"page_home.frame_home"
       }
     ]

@@ -233,6 +233,50 @@ namespace corona
 			}
 		}
 
+
+		void delete_files_in_folder(const std::string& folder_path)
+		{
+			try
+			{
+				if (!std::filesystem::exists(folder_path))
+				{
+					log_warning(std::format("Folder does not exist: {}", folder_path), __FILE__, __LINE__);
+					return;
+				}
+
+				if (!std::filesystem::is_directory(folder_path))
+				{
+					log_warning(std::format("Path is not a directory: {}", folder_path), __FILE__, __LINE__);
+					return;
+				}
+
+				int deleted_count = 0;
+				for (const auto& entry : std::filesystem::directory_iterator(folder_path))
+				{
+					if (entry.is_regular_file())
+					{
+						try
+						{
+							std::filesystem::remove(entry.path());
+							deleted_count++;
+						}
+						catch (const std::exception& exc)
+						{
+							log_warning(std::format("Failed to delete file {}: {}",
+								entry.path().string(), exc.what()), __FILE__, __LINE__);
+						}
+					}
+				}
+
+				log_information(std::format("Deleted {} files from {}", deleted_count, folder_path));
+			}
+			catch (const std::exception& exc)
+			{
+				log_warning(std::format("Error deleting files from {}: {}",
+					folder_path, exc.what()), __FILE__, __LINE__);
+			}
+		}
+
 		virtual void log_user_command_start(std::string _command_name, std::string _message, date_time _request_time, const char* _file = nullptr, int _line = 0)
 		{
 			if (_command_name.empty())

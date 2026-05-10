@@ -105,6 +105,7 @@ namespace corona
 		std::string styles_config_filename;
 		std::string pages_config_filename;
 		std::string database_schema_filename;
+		std::string default_page;
 
 		directory_checker checker;
 
@@ -123,15 +124,15 @@ namespace corona
 
 		bool poll_db_enabled = false;
 
-		desktop_app_bus(std::string _config_path, 
-			std::string _database_path, 
+		desktop_app_bus(std::string _config_path,
+			std::string _database_path,
 			json _system_config,
-			json _server_config, 
+			json _server_config,
 			bool _database_recreate = true)
 		{
-            poll_db_enabled = !corona::corona_db_read_only;
+			poll_db_enabled = !corona::corona_db_read_only;
 
-            gui_thread_id = GetCurrentThreadId();
+			gui_thread_id = GetCurrentThreadId();
 
 			system_monitoring_interface::start(); // this will create the global log queue.
 
@@ -152,8 +153,8 @@ namespace corona
 			}
 
 			database_path = _database_path;
-            config_path = _config_path;
-            checker.path = config_path;
+			config_path = _config_path;
+			checker.path = config_path;
 
 			init_xtables();
 
@@ -166,6 +167,7 @@ namespace corona
 			is_service = false;
 			local_db_config = _system_config;
 			server_config = _server_config;
+            default_page = server_config["default_page"].as_string();
 
 			log_command_start("comm_service_bus", "startup", t);
 
@@ -184,13 +186,13 @@ namespace corona
 			// create the presentation - this holds the data of what is on screen, for various pages.
 			presentation_layer = std::make_shared<presentation>(this, app_ui);
 
-            std::string _application_name = server_config["application_name"].as_string();	
+			std::string _application_name = server_config["application_name"].as_string();
 
 			app_menu = std::make_shared<menu_item>();
 
 			pages_config_filename = server_config["pages_filename"].as_string();
 
-            if (pages_config_filename.empty())
+			if (pages_config_filename.empty())
 			{
 				pages_config_filename = _config_path + _application_name + "_pages.json";
 			}
@@ -204,7 +206,7 @@ namespace corona
 				else
 				{
 					log_information(std::format("Pages config file {0} exists, using it", pages_config_filename));
-                }
+				}
 			}
 
 			styles_config_filename = server_config["styles_filename"].as_string();
@@ -240,14 +242,10 @@ namespace corona
 
 			if (database_recreate)
 			{
-                std::string delete_command = "del " + database_path;
-				run( delete_command + "*.coronatbl");
-				run( delete_command + "*.coronaclass");
-				run( delete_command + "*.coronaindex");
-                run( delete_command + "*.coronatext");
+                delete_files_in_folder(database_path);				
 			}
 
-			if (not std::filesystem::exists( database_path + "classes.coronatbl"))
+			if (not std::filesystem::exists(database_path + "classes.coronatbl"))
 			{
 				try {
 					local_db = std::make_shared<corona_database>(database_path, config_path);
@@ -282,6 +280,7 @@ namespace corona
 				std::string mxessage = std::format("Could not apply config {}", exc.what());
 				log_warning(mxessage, __FILE__, __LINE__);
 			}
+
 
 			MFStartup(MF_VERSION);
 
@@ -336,7 +335,7 @@ namespace corona
 				if (read_json(full_schema_filename, temp) != null_row) {
 					log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
 					auto tempo = local_db->apply_schema(temp);
-					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					log_command_stop("poll_db", "schema applied", tx.getectitnelapsed_seconds(), 1, __FILE__, __LINE__);
 				}
 				is_db_polling = false;
 				// there is no apply config because that's a server only thing.
@@ -948,14 +947,12 @@ namespace corona
 			{
 				json_parser jp;
 				json request = jp.create_object();
-				json token = get_local_token();
-				request.copy_member(token_field, token);
 				json data = jp.create_object();
 				data.put_member(user_name_field, _user_name);
 				data.put_member("password1", _password);
 				data.put_member("password2", _password);
 				request.put_member("data", data);
-				json jresponse = local_db->user_confirm_code(request);
+				json jresponse = local_db->login_user(request);
 				response.set(jresponse);
 			}
 			catch (std::exception& exc)
@@ -1097,6 +1094,24 @@ namespace corona
 		time_t next_token_cache_check = 0;
 		json local_token_cache;
 
+		json current_user = json_parser().create_object();
+
+		std::string get_user_name() const
+		{
+			return current_user[user_name_field].as_string();
+		}
+
+		std::string get_user_email() const
+		{
+			return current_user[user_email_field].as_string();
+		}
+
+		std::string get_user_team() const
+		{
+			std::string team = current_user["team_name"].as_string();
+			return team;
+		}
+
 		json get_local_token()
 		{
 			scope_lock lockme(login_lock);
@@ -1110,6 +1125,9 @@ namespace corona
 				user_data.put_member(user_email_field, app->get_user_email());
 				login_request.put_member(data_field, user_data);
 				json result = local_db->login_user_local(login_request);
+				current_user = result["data"];
+				if (!current_user.object())
+                    current_user = jp.create_object();
                 local_token_cache = result[token_field];
                 next_token_cache_check = current_time + 60; // cache for 60 seconds
 				return result[token_field];
@@ -1912,6 +1930,19 @@ namespace corona
 			std::string _form_to_load;
 
             std::vector<std::string> dest_parts = split(_dest, '.');
+
+			// handle the special team case
+
+			if (_src == "$user_team") {
+				std::string team_name = get_user_team();
+				if (team_name.empty()) {
+					_src = default_page;
+				}
+				else {
+					_src = std::format("home_{0}", team_name);
+				}
+            }
+
 			std::vector<std::string> src_parts = split(_src, '.');
 
 			if (dest_parts.size() > 0) {
