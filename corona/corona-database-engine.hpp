@@ -6845,8 +6845,8 @@ private:
 					}
 				}
 				user.share_member("allowed_teams", jall_allowed_teams);
+				user_cache.insert(_user_name, user);
 			}
-            user_cache.insert(_user_name, user);
 
 			return user;
 		}
@@ -6855,10 +6855,8 @@ private:
 		{
 			json_parser jp;
 
-			json key = jp.create_object();
 			json query_details = jp.create_object();
             query_details.put_member("class_name", std::string("sys_team"));	
-			query_details.put_member("filter", key);
 			json all_teams = query_class(default_user, query_details);
 			json found_teams = jp.create_array();
 
@@ -6868,31 +6866,29 @@ private:
 					for (int ix = 0; ix < all_teams.size(); ix++) {
 						json team = all_teams.get_element(ix);
 						std::string team_name = team["team_name"].as_string();
-						std::string domains = team["team_domain"].as_string();
-						if (domains.size() == 0 || domains == "NONE")
+						std::string team_domain = team["team_domain"].as_string();
+						if (team_domain.size() == 0 || team_domain == "none")
 							continue;
-						if (domains == "ANY")
+						if (team_domain == "any")
 						{
-//							system_monitoring_interface::active_mon->log_information(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
 							json actual_team = get_team(team_name, _permission);
 							found_teams.push_back(actual_team);
 						}
 						else 
 						{
 							try {
-								std::regex domain_matcher(domains);
-								if (std::regex_match(_domain, domain_matcher)) {
-//									system_monitoring_interface::active_mon->log_information(std::format("Matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+								
+								if (_domain.ends_with(team_domain)) {
 									json actual_team = get_team(team_name, _permission);
 									found_teams.push_back(actual_team);
 								}
 								else {
-									system_monitoring_interface::active_mon->log_information(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+									system_monitoring_interface::active_mon->log_information(std::format("Not matched domain '{0}' for team_domain '{1}' for '{2}'", _domain, team_domain, team_name), __FILE__, __LINE__);
 								}
 							}
 							catch (std::exception exc)
 							{
-								system_monitoring_interface::active_mon->log_warning(std::format("Invalid regexp '{0}' for team_domain '{1}' for '{2}'", _domain, domains, team_name), __FILE__, __LINE__);
+								system_monitoring_interface::active_mon->log_warning(std::format("Invalid regexp '{0}' for team_domain '{1}' for '{2}'", _domain, team_domain, team_name), __FILE__, __LINE__);
 							}
 						}
 					}
@@ -7705,7 +7701,7 @@ private:
 			json result = jp.create_object();
 			json pages = jp.create_array();
 			json card_sources = jp.create_object();
-            json page_sources = jp.create_object();
+            json form_sources = jp.create_object();
 
             // get the list of classes from the database
 
@@ -7735,12 +7731,14 @@ private:
             json search_template = jp.from_file(this->config_path + "source_templates\\search.json");
             json search_group_template = jp.from_file(this->config_path + "source_templates\\search_group.json");
 			json search_command_class_template = jp.from_file(this->config_path + "source_templates\\search_command_class.json");
+			json create_command_class_template = jp.from_file(this->config_path + "source_templates\\create_command_class.json");
 
 			json pages_array = pages_template["pages"];
             json abbreviations = pages_template["abbreviations"];
 
 			pages.push_back(card_container_template);
 			pages.push_back(object_container_template);
+			pages.push_back(tab_container_template);
 			pages.push_back(object_details);
 			pages.push_back(home_template);
 
@@ -7792,7 +7790,7 @@ private:
 						// Generate object details page
 						json object_pages = generate_object_pages(object_template, classd, class_ux_map, field_mappings, tab_list_template);
 						if (!object_pages.empty()) {
-							page_sources.put_member(class_name, std::format("page_{}", class_name));
+							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
 						}
 
@@ -7817,6 +7815,32 @@ private:
 					json team_spec = tm.second;
 					json search_groups = team_spec["search_groups"];
 					team_page.put_member("page_name", "home_" + team_name);
+					json team_add_target = jp.create_array();
+					json team_create_options = team_spec["new_objects"];
+
+					if (team_create_options.array()) {
+                        for (int i = 0; i < team_create_options.size(); i++) {
+                            auto option = team_create_options.get_element(i);
+							std::string class_name = option.as_string();
+							auto classd = read_lock_class(class_name);
+							if (classd) {
+								json create_command = create_command_class_template.clone();
+								create_command.apply_abbreviations({
+									{ "$create_button_class", jp.from_string( classd->get_class_name() ) },
+									{ "$create_button_name", jp.from_string( "create_" + classd->get_class_name() + "_button" ) },
+									{ "$create_button_image", jp.from_string( std::format("assets\\{}.png", classd->get_class_name()) ) },
+									{ "$create_button_text", jp.from_string( classd->get_class_name() ) },
+									{ "$create_button_message", jp.from_string( "new " + classd->get_class_name()) },
+									{ "$class_edit_page", form_sources[ classd->get_class_name() ] }
+									});
+								team_add_target.push_back(create_command);
+							}
+						}
+						team_page.apply_abbreviations({
+							{ "$team_name", jp.from_string(team_name) },
+							{ "$new_object_commands", team_add_target }
+						});
+					}
 
                     json ux_search_groups = jp.create_array();
 
@@ -7839,7 +7863,7 @@ private:
 								search_command.apply_abbreviations({
 									{ "$search_button_class", jp.from_string( sgclassd->get_class_name() ) },
 									{ "$search_button_name", jp.from_string( "create_" + sgclassd->get_class_name() + "_button" ) },
-									{ "$search_button_image", jp.from_string( std::format("assets\\{}", sgclassd->get_class_name()) ) },
+									{ "$search_button_image", jp.from_string( std::format("assets\\{}.png", sgclassd->get_class_name()) ) },
 									{ "$search_button_text", jp.from_string( sgclassd->get_class_name() ) },
                                     });
 
@@ -7883,7 +7907,7 @@ private:
 			}
 
             abbreviations.put_member("card_sources", card_sources);
-            abbreviations.put_member("page_sources", page_sources);
+            abbreviations.put_member("form_sources", form_sources);
 
 			std::string styles_file_path = this->config_path + styles_file_name;
             styles_template.save(styles_file_path);
@@ -8004,6 +8028,7 @@ private:
 			{
                 json tab_field = jp.create_object();
                 tab_field.put_member("field_name", field->get_field_name());
+				tab_field.put_member("field_label", field->get_label());
                 tab_edit_fields.push_back(tab_field);
 			}
 			
@@ -8019,7 +8044,7 @@ private:
 		json tab = jp.create_object();
 		std::string tab_name = "tab_" + classd->get_class_name();
 		tab.put_member_string("page_name", tab_name);
-		tab.put_member_string("name", tab_name + "_details");
+		tab.put_member_string("name", "details");
 		tab.put_member_string("member_name", ".");
 		tab.put_member_bool("list", false);
 		tabs.push_back(tab);
@@ -8062,7 +8087,8 @@ private:
 						content.put_member_string("class_name", "paragraph");
 						content.put_member_string("box", "card_text_box");
 						content.put_member("json_field_name", field["field_name"].as_string());
-						content.put_member("text", field["expression"].as_string());
+                        std::string expression = "{" + field["expression"].as_string() + "}";
+						content.put_member_string("text", expression);
 						contents.push_back(content);
 					}
 				}
@@ -8110,10 +8136,11 @@ private:
 			json_parser jp;
 
 			json pages = jp.create_array();
+			json tab_contents = jp.create_array();
 
 			json tab_edit_page = tab_template.clone();
 
-			tab_edit_page.put_member("page_name", "tab_edit_" + classd->get_class_name());
+			tab_edit_page.put_member("page_name", "tab_" + classd->get_class_name());
 
 			// Set icon
 			auto parameters = tab_edit_page.find_member("using.parameters");
@@ -8122,35 +8149,31 @@ private:
 			}
 
 			// Populate card contents
-			auto contents = tab_edit_page.find_member("$details_contents");
-			if (contents.array()) {
+			auto cfm = class_mappings["tab_edit"]["fields"];
 
-				auto cfm = class_mappings["tab_edit"]["fields"];
+			for (int i = 0; i < cfm.size(); i++) {
+				auto field = cfm.get_element(i);
 
-				for (int i = 0; i < cfm.size(); i++) {
-					auto field = cfm.get_element(i);
+                std::string field_name = field["field_name"].as_string();
+				std::string field_label = field["field_label"].as_string();
 
-                    std::string field_name = field["field_name"].as_string();
-					std::string field_label = field["label"].as_string();
-
-                    json field_mapping = get_field_mapping(classd, field_name, field_mappings);
-					if (field_mapping.empty()) {
-						continue;
-					}
-
-                    std::string field_class_name = field_mapping["class_name"].as_string();
-					std::string field_box = field_mapping["box"].as_string();
-
-					json content = jp.create_object();
-					content.put_member_string("class_name", field_class_name);
-					content.put_member_string("box", field_box);
-					content.put_member_string("text", field_label);
-					content.put_member("json_field_name", field_name);
-					contents.push_back(content);
+                json field_mapping = get_field_mapping(classd, field_name, field_mappings);
+				if (field_mapping.empty()) {
+					continue;
 				}
 
+                std::string field_class_name = field_mapping["class_name"].as_string();
+				std::string field_box = field_mapping["box"].as_string();
+
+				json content = jp.create_object();
+				content.put_member_string("class_name", field_class_name);
+				content.put_member_string("box", field_box);
+				content.put_member_string("text", field_label);
+				content.put_member("json_field_name", field_name);
+				tab_contents.push_back(content);
 			}
 
+            parameters.put_member("$tab_contents", tab_contents);
             pages = jp.create_array();
 
             pages.push_back(tab_edit_page);
@@ -8199,6 +8222,8 @@ private:
 
 			auto src_tabs = class_mappings["page"]["tabs"];
             auto dest_tabs = object_page.find_member("using.parameters.$details_contents.tabs");
+			auto parameters = object_page.find_member("using.parameters");
+            parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
 
 			if (!src_tabs.array()) {
 				return result;
@@ -9143,6 +9168,12 @@ private:
 				existing_user.put_member(user_mobile_field, std::string("5558675309"));
 				existing_user.put_member("confirmed_code", 1);
 				json teams = get_team_by_email(user_email, sys_perm);
+
+				if (teams.empty())
+				{
+					system_monitoring_interface::active_mon->log_warning(std::format("No team found for user '{}', email '{}'", user_name, user_email), __FILE__, __LINE__);
+                }
+
 				for (json team : teams)
 				{
 					existing_user.put_member("home_team_name", team["team_name"].as_string());

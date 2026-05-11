@@ -122,6 +122,7 @@ namespace corona
 
 		json system_proof;
 
+		bool poll_ux_enabled = false;
 		bool poll_db_enabled = false;
 
 		desktop_app_bus(std::string _config_path,
@@ -266,7 +267,10 @@ namespace corona
 					log_json(create_database_response);
 					throw std::exception("Could not create database");
 				}
-				local_db->shutdown();
+
+				// the most brutal test that the database was created ok
+                // is to shut it down, and reopen it.  
+				local_db->shutdown(); 
 				local_db = nullptr;
 			}
 
@@ -284,14 +288,18 @@ namespace corona
 
 			MFStartup(MF_VERSION);
 
+			if (!poll_db_enabled) {
+				json token = get_local_token();
+			}
 
-			json token = get_local_token();
+			poll_ux_enabled = true;
 
 			log_command_stop("desktop_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		virtual ~desktop_app_bus()
 		{
+            poll_ux_enabled = false;
 			if (local_db) {
 				local_db->shutdown();
 			}
@@ -335,7 +343,8 @@ namespace corona
 				if (read_json(full_schema_filename, temp) != null_row) {
 					log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
 					auto tempo = local_db->apply_schema(temp);
-					log_command_stop("poll_db", "schema applied", tx.getectitnelapsed_seconds(), 1, __FILE__, __LINE__);
+					get_local_token();
+					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				}
 				is_db_polling = false;
 				// there is no apply config because that's a server only thing.
@@ -353,6 +362,10 @@ namespace corona
 				json_parser			jp;
 				json				pages_json;
 				json				styles_json;
+
+				if (!poll_ux_enabled)
+					return;
+
 				if (is_ux_polling) {
 					return;
 				}

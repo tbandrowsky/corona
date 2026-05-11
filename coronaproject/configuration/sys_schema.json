@@ -5,6 +5,35 @@
   "schema_authors": [
     "TJ Bandrowsky"
   ],
+  "datasets": [
+    {
+      "dataset_name": "App Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical, and the use of sys_team means it can go first",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "app_team",
+          "team_description": "Local security for teams",
+          "team_domain": "localhost.com",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "app_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "classes": [
     {
       "class_name": "person",
@@ -15,13 +44,11 @@
         "first_name": {
           "field_type": "string",
           "label": "First Name",
-          "required": true,
           "max_length": 100
         },
         "last_name": {
           "field_type": "string",
           "label": "Last Name",
-          "required": true,
           "max_length": 100
         },
         "middle_name": {
@@ -81,7 +108,7 @@
     },
     "card_fields": [ "first_name", "last_name" ],
     "classes": {
-      "person":"default"
+      "person": "default"
     },
     "teams": {
       "app_team": {
@@ -96,34 +123,5 @@
         "new_objects": [ "person" ]
       }
     }
-  },
-  "datasets": [
-    {
-      "dataset_name": "App Teams",
-      "dataset_description": "Teams and their default memberships",
-      "dataset_version": "1.1",
-      "dataset_author": "Todd Bandrowsky",
-      "dataset_source": "This is canonical",
-      "objects": [
-        {
-          "class_name": "sys_team",
-          "team_name": "app_team",
-          "team_description": "Local security for teams",
-          "team_domain": "ANY",
-          "inventory_classes": [],
-          "allowed_teams": [],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "app_object" ],
-              "get": "any",
-              "put": "any",
-              "delete": "any",
-              "alter": "any"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  }
 }

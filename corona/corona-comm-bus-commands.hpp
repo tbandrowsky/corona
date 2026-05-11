@@ -1359,7 +1359,6 @@ namespace corona
 	class corona_load_object_command : public corona_form_command
 	{
 	public:
-		std::string control_name = "";
 		json		object_data;
 		corona_instance instance = corona_instance::local;
 
@@ -1398,7 +1397,6 @@ namespace corona
 			using namespace std::literals;
 
 			_dest.put_member("class_name", "load_object"sv);
-			_dest.put_member("control_name", control_name);
 			_dest.put_member("data", object_data);
 			corona::get_json(_dest, instance);
 
@@ -1407,7 +1405,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "control_name", "data" })) {
+			if (not _src.has_members(missing, { "data" })) {
 				system_monitoring_interface::active_mon->log_warning("load_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -1416,7 +1414,6 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			control_name = _src["control_name"].as_string();
 			object_data = _src["data"];
 			corona::put_json(instance, _src);
 		}
@@ -1426,7 +1423,6 @@ namespace corona
 	class corona_delete_object_command : public corona_form_command
 	{
 	public:
-		std::string		control_name = "";
 		corona_instance instance = corona_instance::local;
 		json deleted_object;
 
@@ -1509,7 +1505,6 @@ namespace corona
 		{
 			using namespace std::literals;
 			_dest.put_member("class_name", "delete_object"sv);
-			_dest.put_member("control_name", control_name);
 			corona::get_json(_dest, instance);
             json temp = json_parser().create_object();
 		}
@@ -1517,7 +1512,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "class_name", "control_name" })) {
+			if (not _src.has_members(missing, { "class_name" })) {
 				system_monitoring_interface::active_mon->log_warning("delete_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -1527,7 +1522,6 @@ namespace corona
 				return;
 			}
 
-			control_name = _src["control_name"].as_string();
 			corona::put_json(instance, _src);
 
 		}

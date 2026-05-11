@@ -238,8 +238,8 @@
                     "height": "30 pixels"
                   },
                   "text": "Add"
-                }
-
+                },
+                "$new_object_commands"
               ]
             },
             {

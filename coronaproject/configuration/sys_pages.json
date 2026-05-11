@@ -60,7 +60,7 @@
           "height":{ "amount":60.000000, "units":"pixels" },
           "width":{ "amount":200.000000, "units":"pixels" }
         },
-      "form_sources":{  },
+      "form_sources":{ "person":"object_person" },
       "full_container":
         {
           "height":{ "amount":1.000000, "units":"container" },
@@ -86,7 +86,6 @@
           "height":{ "amount":60.000000, "units":"pixels" },
           "width":{ "amount":1.000000, "units":"container" }
         },
-      "page_sources":{ "person":"page_person" },
       "paragraph_box":
         {
           "height":{ "amount":6.200000, "units":"text" },
@@ -111,6 +110,8 @@
 
       { "class_name":"import", "file_name":"pages\\object_container.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_container.json" },
+
       { "class_name":"import", "file_name":"pages\\object_details.json" },
 
       { "class_name":"import", "file_name":"pages\\page_home.json" },
@@ -119,7 +120,7 @@
 
       { "class_name":"import", "file_name":"pages\\object_person.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_edit_person.json" },
+      { "class_name":"import", "file_name":"pages\\tab_person.json" },
 
       { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],

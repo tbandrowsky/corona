@@ -1,0 +1,18 @@
+{
+  "class_name": "command_button",
+  "name": "$create_button_name",
+  "image": "$create_button_image",
+  "text": "$create_button_text",
+  "box": {
+    "width": "100 pixels",
+    "height": "50 pixels"
+
+  },
+  "on_click": {
+    "class_name": "create_object",
+    "create_class_name": "$create_button_class",
+    "source_frame": "$class_edit_page",
+    "target_frame": "frame_selected",
+    "message": "$create_button_message"
+  }
+}

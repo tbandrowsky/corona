@@ -587,6 +587,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\card.json" />
+    <None Include="configuration\source_templates\create_command_class.json" />
     <None Include="configuration\source_templates\search.json" />
     <None Include="configuration\source_templates\search_command_class.json" />
     <None Include="configuration\source_templates\search_group.json" />
