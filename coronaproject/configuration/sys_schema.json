@@ -44,22 +44,17 @@
         "first_name": {
           "field_type": "string",
           "label": "First Name",
-          "max_length": 100
+          "max_length": 20
         },
         "last_name": {
           "field_type": "string",
           "label": "Last Name",
-          "max_length": 100
+          "max_length": 50
         },
         "middle_name": {
           "field_type": "string",
           "label": "Middle Name",
-          "max_length": 10
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description",
-          "max_length": 1000
+          "max_length": 5
         }
       }
     }
