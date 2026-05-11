@@ -13,8 +13,8 @@
       "children": [
         {
           "class_name": "caption_bar",
-          "corporate_name": "",
-          "title_name": "",
+          "corporate_name": "$corporate_name",
+          "title_name": "$title_name",
           "title_start": "60 pixels",
           "box": {
             "width": "1.0 container",

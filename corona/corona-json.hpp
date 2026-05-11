@@ -3439,7 +3439,7 @@ namespace corona
 					else if (member.second->get_field_type() == field_types::ft_string)
 					{
 						std::shared_ptr<json_string> js = std::dynamic_pointer_cast<json_string>(member.second);
-						if (js)
+						if (js && !js->is_empty())
 						{
 							auto ifound = _abbreviations.find(js->get_value());
 							if (ifound != std::end(_abbreviations)) {
@@ -3521,7 +3521,7 @@ namespace corona
 					else if (member.second->get_field_type() == field_types::ft_string)
 					{
 						std::shared_ptr<json_string> js = std::dynamic_pointer_cast<json_string>(member.second);
-						if (js)
+						if (js && !js->is_empty())
 						{
 							auto ifound = abbrev->members.find(js->get_value());
 							if (ifound != std::end(abbrev->members)) {

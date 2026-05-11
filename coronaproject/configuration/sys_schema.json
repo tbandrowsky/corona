@@ -68,6 +68,8 @@
 
   ],
   "application": {
+    "application_creator": "Todd Bandrowsky",
+    "application_name": "Corona Demo Application",
     "fields": {
       "description": {
         "class_name": "memo_field",

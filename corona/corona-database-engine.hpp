@@ -7349,7 +7349,11 @@ private:
 		std::string styles_file_name;
 		std::string pages_file_name;
 
+		json system_config;
+		json server_config;
+
 		// constructing and opening a database
+
 
 		corona_database()
 		{
@@ -7403,7 +7407,7 @@ private:
             }
 
 			json_parser jp;
-			json system_config, server_config;
+			json system_config;
 
 			system_config = jp.create_object();
 			server_config = jp.create_object();
@@ -7725,6 +7729,13 @@ private:
 			json tab_list_template = jp.from_file(this->config_path + "source_templates\\tab_list.json");
 			json tab_container_template = jp.from_file(this->config_path + "source_templates\\tab_container.json");
 			json home_template = jp.from_file(this->config_path + "source_templates\\home.json");
+			json home_page = home_template.clone();
+
+			home_page.apply_abbreviations({
+				{ "$corporate_name", _application_schema["application_company"] },
+				{ "$title_name",  _application_schema["application_name"] }
+                });
+
 			json pages_template = jp.from_file(this->config_path + "source_templates\\pages.json");
 			json styles_template = jp.from_file(this->config_path + "source_templates\\styles.json");
 
@@ -7740,7 +7751,7 @@ private:
 			pages.push_back(object_container_template);
 			pages.push_back(tab_container_template);
 			pages.push_back(object_details);
-			pages.push_back(home_template);
+			pages.push_back(home_page);
 
 			std::map<std::string, bool> card_fields;
 
