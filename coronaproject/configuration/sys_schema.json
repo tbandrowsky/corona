@@ -57,10 +57,67 @@
           "max_length": 5
         }
       }
-    }
-  ],
-  "users": [
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "sys_object",
+      "class_description": "A person in the system",
+      "full_text": [ "first_name", "last_name", "middle_name" ],
+      "fields": {
+        "first_name": {
+          "field_type": "string",
+          "label": "First Name",
+          "max_length": 20
+        },
+        "last_name": {
+          "field_type": "string",
+          "label": "Last Name",
+          "max_length": 50
+        },
+        "middle_name": {
+          "field_type": "string",
+          "label": "Middle Name",
+          "max_length": 5
+        },
+        "meetings": "[person_meeting]"
+      }
+    },
+    {
+      "class_name": "person_meeting",
+      "base_class_name": "sys_object",
+      "class_description": "A person in a meeting",
+      "parents": [ "meeting", "person" ],
+      "fields": {
 
+      }
+    },
+    {
+      "class_name": "meeting",
+      "base_class_name": "sys_object",
+      "class_description": "A meeting in the system",
+      "full_text": [ "title", "description", "start_time", "end_time" ],
+      "fields": {
+        "title": {
+          "field_type": "string",
+          "label": "Title",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description",
+          "max_length": 1000
+        },
+        "start_time": {
+          "field_type": "datetime",
+          "label": "Start Time"
+        },
+        "end_time": {
+          "field_type": "datetime",
+          "label": "End Time"
+        },
+        "attendees": "[person_meeting]"
+      }
+    }
   ],
   "application": {
     "application_creator": "Todd Bandrowsky",

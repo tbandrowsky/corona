@@ -1394,6 +1394,24 @@ namespace corona
 		}
 
 	};
+	
+	class inventory_control :
+		public container_control
+	{
+	public:
+		inventory_control() { ; }
+		inventory_control(const inventory_control& _src) = default;
+		inventory_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
+		virtual ~inventory_control() { ; }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<inventory_control>(*this);
+			return tv;
+		}
+
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
+	};
 
 	class row_view_layout :
 		public row_layout
