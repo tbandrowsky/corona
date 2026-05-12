@@ -1394,11 +1394,16 @@ namespace corona
 		}
 
 	};
-	
+
 	class inventory_control :
 		public container_control
 	{
 	public:
+
+		json accept;
+		json checkout;
+		json checkin;
+
 		inventory_control() { ; }
 		inventory_control(const inventory_control& _src) = default;
 		inventory_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }

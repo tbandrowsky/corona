@@ -754,6 +754,31 @@ namespace corona
 	using read_class_sp = read_locked_sp<class_interface>;
 	using write_class_sp = write_locked_sp<class_interface>;
 
+	class inventory_class_interface {
+	public:
+		std::string field_name;
+        std::string class_name;
+	};
+
+	class inventory_interface {
+	public:
+		std::vector<std::shared_ptr<inventory_class_interface>> inventory_stores; // any actor that can take an inventory
+		
+		move_item(json _src_object, json _dest_object) {
+			// this is a simple implementation that assumes the item field is an array of objects with "item_class" and "quantity" fields. 
+			// a more complex implementation could handle different inventory structures and item representations.
+
+			json& src_inventory = _src_object[field_name];
+			json& dest_inventory = _dest_object[field_name];
+			// find the item in the source inventory
+			for (auto& src_item : src_inventory.as_array()) {
+				if (src_item["item_class"].as_string) {
+					;
+				}
+			}
+		}
+	};
+
 	class activity
 	{
 	public:
