@@ -812,6 +812,7 @@ namespace corona
 		virtual std::shared_ptr<class_interface> get_class_impl(activity* _activity, std::string _class_name) = 0;
 
         virtual std::vector<std::string> get_class_descendants(const std::string& _class_name) = 0;
+
 		virtual json query_class(std::string _user_name, json query_details) = 0;
 		virtual void scrub_object(json& object_to_scrub) = 0;
 		virtual json create_user(json create_user_request, bool _trusted_user, bool _system_user) = 0;
@@ -1795,6 +1796,7 @@ namespace corona
             for (auto& item : items) {
 				json jitem = jp.create_object();
 				item.second.get_json(jitem);
+				_dest.push_back(jitem);
 			}
 		}
 

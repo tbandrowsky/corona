@@ -507,6 +507,12 @@ namespace corona
 						add(acol.field_id, s);
 					}
 					break;
+				case field_types::ft_chest:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
 				case field_types::ft_array:
 					{
 						std::string a = m.to_json_typed();
@@ -572,6 +578,13 @@ namespace corona
 				case field_types::ft_string:
 				{
                     _dest.put_member(acol.field_name.c_str(), std::string(s, field.size_bytes - 1));
+				}
+				break;
+				case field_types::ft_chest:
+				{
+					std::string t = s;
+					json result = jp.parse_array(t);
+					_dest.put_member(acol.field_name.c_str(), result);
 				}
 				break;
 				case field_types::ft_array:
