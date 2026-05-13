@@ -754,31 +754,6 @@ namespace corona
 	using read_class_sp = read_locked_sp<class_interface>;
 	using write_class_sp = write_locked_sp<class_interface>;
 
-	class inventory_store_interface
-	{
-	public:
-
-		std::string class_name;
-		std::string field_name;
-	};
-
-	class inventory_interface 
-	{
-	public:
-
-		std::vector<std::shared_ptr<inventory_store_interface>> inventory_stores; // any actor that can take an inventory
-
-		void move_item(json _dest_object, json _item_to_move, json _src_object)
-		{
-
-		}
-
-		void add_item(json _dest_object, json _item_to_add)
-		{
-
-		}
-	};
-
 	class activity
 	{
 	public:
@@ -5743,150 +5718,7 @@ namespace corona
 
 			created_classes.put_member("sys_grant", true);
 
-			response = create_class(R"(
-{
-	"class_name" : "sys_status",
-	"base_class_name" : "sys_object",
-	"class_description" : "Ticket Status",
-	"parents" : [ "sys_ticket" ],
-	"fields" : {
-			"status_name" :{
-				"field_type":"string",
-				"label": "Status Name"
-			},
-			"status_description" : {
-				"field_type":"string",
-				"label": "Status Description"
-			},
-	}
-}
-)");
 
-			if (response[success_field].as_bool() == false) {
-				system_monitoring_interface::active_mon->log_warning("create_class sys_status put failed", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json<json>(response);
-				std::cout << response.to_json() << std::endl;
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			test = classes->get(R"({"class_name":"sys_status"})"_jobject);
-			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_status after creation.", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			created_classes.put_member("sys_status", true);
-
-			response = create_class(R"(
-{
-	"class_name" : "sys_ticket",
-	"base_class_name" : "sys_object",
-	"class_description" : "Ticket",
-	"parents" : [ "sys_team" ],
-	"full_text" : [ "ticket_name", "ticket_description" ],
-	"fields" : {
-			"ticket_name" :{
-				"field_type":"string",
-				"label": "Ticket Name"
-			},
-			"ticket_description" : {
-				"field_type":"string",
-				"label": "Ticket Name"
-			},
-			"history" : "[sys_status]"
-	}
-}
-)");
-
-			if (response[success_field].as_bool() == false) {
-				system_monitoring_interface::active_mon->log_warning("create_class sys_ticket put failed", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json<json>(response);
-				std::cout << response.to_json() << std::endl;
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1,  __FILE__, __LINE__);
-				return result;
-			}
-
-			test = classes->get(R"({"class_name":"sys_ticket"})"_jobject);
-			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_ticket after creation.", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			created_classes.put_member("sys_ticket", true);
-
-			response = create_class(R"(
-{
-	"class_name" : "sys_workflow",
-	"base_class_name" : "sys_object",
-	"class_description" : "Workflow",
-	"parents" : [ "sys_team" ],
-	"fields" : {
-			"workflow_name" : {
-				"field_type":"string",
-				"label": "Workflow Name",
-			},
-			"workflow_description" : {
-				"field_type":"string",
-				"label": "Workflow Description",
-			},
-			"workflow_schedule_type" : {
-				"field_type":"string",
-				"enum" : [ "Week", "Month" ],
-			},
-			"workflow_schedule_days" : {
-				"field_type":"array",
-				"fundamental_type":"number",
-				"label": "Days to Run"
-			},
-			"workflow_schedule_hour" : {
-				"field_type":"number",
-				"label": "Hour to run",
-				"min_value" : 0,
-				"max_value" : 23
-			},
-			"ticket_class_name" : {
-				"field_type":"string",
-				"label": "Create Ticket"
-			},
-			"ticket_name" : {
-				"field_type":"string",
-				"label": "Ticket Name"
-			},
-			"ticket_description" : {
-				"field_type":"string",
-				"label": "Ticket Description",
-			},
-			"last_ran" : {
-				"field_type":"number",
-				"label": "Last Run Day"
-			},
-			"last_result" : {
-				"field_type":"string",
-				"label": "Result"
-			}
-	}
-}
-)");
-
-			if (response[success_field].as_bool() == false) {
-				system_monitoring_interface::active_mon->log_warning("create_class sys_workflow put failed", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json<json>(response);
-				std::cout << response.to_json() << std::endl;
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			test = classes->get(R"({"class_name":"sys_workflow"})"_jobject);
-			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow after creation.", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			created_classes.put_member("sys_workflow", true);
 
 			response = create_class(R"(
 {
@@ -5911,10 +5743,7 @@ namespace corona
 				"label":"Team Domain"
 			},
 			"permissions" : "[ sys_grant ]",
-			"inventory_classes" : "[ string ]",
 			"allowed_teams" : "[ string ]",
-			"tickets" : "[ sys_ticket ]",
-			"workflow" : "[ sys_workflow ]",
 			"items" : "[ sys_item ]"
 	},
 	"indexes" : {
@@ -6219,8 +6048,7 @@ namespace corona
 			"picture" :{ 
 				"field_type":"string",
 				"field_name":"picture"
-			},
-			"inventory" : "[sys_item]"
+			}
         }
 	}
 }
@@ -7001,100 +6829,6 @@ private:
 					}
 				}
 
-				json workflows = team["workflow"];
-				if (workflows.array()) 
-				{
-					for (auto wf : workflows) 
-					{
-						// read the ticket job
-						int64_t workflow_object_id = wf[object_id_field].as_int64_t();
-						std::string workflow_name = wf["workflow_name"].as_string();
-						std::string workflow_description = wf["workflow_description"].as_string();
-
-						system_monitoring_interface::active_mon->log_information(std::format("Workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-
-						std::string workflow_schedule_type = wf["workflow_schedule_type"].as_string();
-						json workflow_schedule_days = wf["workflow_schedule_days"];
-						int hour = wf["workflow_schedule_hour"].as_int();
-
-						SYSTEMTIME system_time;
-						::GetSystemTime(&system_time);
-
-						bool matched_set = false;
-						int matched_day = 0;
-
-						if (workflow_schedule_type == "Month") {
-							for (auto day : workflow_schedule_days) {
-								int d = day.as_int();
-								if (d == system_time.wDay) {
-									matched_day = d;
-									matched_set = true;
-									break;
-								}
-							}
-						}
-						else if (workflow_schedule_type == "Week") 
-						{
-							for (auto day : workflow_schedule_days) 
-							{
-								int d = day.as_int();
-								if (d == system_time.wDayOfWeek)
-								{
-									matched_day = d;
-									matched_set = true;
-									break;
-								}
-							}
-						}
-
-						double last_ran = wf["last_ran"].as_double();
-
-						if (matched_set && (system_time.wHour >= hour && last_ran < matched_day)) 
-						{
-							wf.put_member("last_ran", (double)system_time.wDay);
-						}
-						else
-						{
-							continue;
-						}
-
-						std::string ticket_class_name = wf["ticket_class_name"].as_string();
-						std::string ticket_name = wf["ticket_name"].as_string();
-						std::string ticket_description = wf["ticket_description"].as_string()	;
-
-						if (workflow_name.empty() or ticket_class_name.empty()) 
-						{
-							continue;
-						}
-						system_monitoring_interface::active_mon->log_information(std::format("Running workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-
-						json new_object = jp.create_object();
-						new_object.put_member(class_name_field, ticket_class_name);
-						new_object.put_member("sys_team", team_id);
-						new_object.put_member("ticket_name", ticket_name);
-						new_object.put_member("ticket_description", ticket_description);
-						json por = create_system_request(new_object);
-						json porresp = put_object(por);
-						if (porresp["success"].as_bool()) 
-						{
-							new_object = porresp[data_field];
-							wf.put_member("last_result", porresp["message"].as_string());
-							wf.put_member("last_result", porresp["message"].as_string());
-							por = create_system_request(wf);
-							porresp = put_object(por);
-							if (porresp["success"].as_bool() == false) 
-							{
-								system_monitoring_interface::active_mon->log_warning(std::format("Could not update workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-								system_monitoring_interface::active_mon->log_json(porresp);
-							}
-						}
-						else 
-						{
-							system_monitoring_interface::active_mon->log_warning(std::format("Could not create ticket for workflow '{0}' for team '{1}'", workflow_name, _team_name), __FILE__, __LINE__);
-							system_monitoring_interface::active_mon->log_json(porresp);
-						}
-					}
-				}
 			}
 			return team;
 		}
@@ -9659,36 +9393,6 @@ grant_type=authorization_code
 
 			json_parser jp;
 			std::string user_name = user["user_name"].as_string();
-			json user_inventory = user["inventory"];
-			json user_inventory_classes = team["inventory_classes"];
-			if (not user_inventory.array())
-			{
-				user_inventory = jp.create_array();
-			}
-			std::map<std::string, bool> existing_classes;
-			for (auto inv_item : user_inventory) {
-				std::string class_name = inv_item[class_name_field].as_string();
-				existing_classes[class_name] = true;
-			}
-			// workflow classes lets you create editable objects for a user
-			// whose methods are search
-			if (user_inventory_classes.array()) {
-				for (auto wf_class : user_inventory_classes) {
-					std::string class_name = wf_class.as_string();
-					if (existing_classes.contains(class_name))
-						continue;
-					json create_req = jp.create_object();
-					create_req.put_member(class_name_field, class_name);
-					json sys_create_req = create_system_request(create_req);
-					json result = create_object(sys_create_req);
-					if (result[success_field].as_bool()) {
-						json obj = result[data_field];
-						obj.put_member("created_by", user_name);
-						user_inventory.push_back(obj);
-					}
-				}
-			}
-			user.share_member("inventory", user_inventory);
 		}
 
 		virtual void apply_user_team(json user)
@@ -10040,7 +9744,6 @@ grant_type=authorization_code
 			{
 				bool confirm = user["confirmed_code"].as_bool();
 
-				json workflow = user["inventory"];
 				json navigation_options = jp.create_object();
 
 				if (user_name == default_user and default_user.size() > 0) 
