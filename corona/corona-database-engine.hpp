@@ -835,8 +835,9 @@ namespace corona
 		virtual json get_object(json get_object_request) = 0;
 		virtual json delete_object(json delete_object_request) = 0;
 
-		virtual json copy_object(json copy_request) = 0;
-		virtual json query(json query_request) = 0;
+		virtual json add_item_chest(json add_to_chest_request) = 0;
+		virtual json remove_item_chest(json remove_from_chest_request) = 0;
+		virtual json move_item_chest(json move_chest_request) = 0;
 
 		virtual json select_object(std::string _class_name, int64_t _object_id, class_permissions _permissions) = 0;
 		virtual json select_object(json _key, bool _include_children, class_permissions _permissions) = 0;
@@ -1702,6 +1703,192 @@ namespace corona
             return schema;
 		}
 
+	};
+
+	class chest_field_options_interface
+	{
+	public:
+		std::string part_class;
+		std::string units;
+	};
+
+	class chest_item
+	{
+	public: 
+
+		std::string part_class;
+        int64_t		part_id;
+        double      quantity;
+
+		virtual void get_json(json& _dest)
+		{
+            _dest.put_member_string("part_class", part_class);
+            _dest.put_member_i64("part_id", part_id);
+            _dest.put_member_double("quantity", quantity);
+		}
+
+		virtual void put_json(json& _src)
+		{
+            part_class = _src["part_class"].as_string();
+            part_id = _src["part_id"].as_int64_t();
+            quantity = _src["quantity"].as_double();
+		}
+
+	};
+
+	class chest_field 
+	{
+	public:
+        std::map<std::string, chest_item> items;
+		std::shared_ptr<chest_field_options_interface> options;
+
+        chest_field() = default;
+        chest_field(const chest_field& _src) = default;
+        chest_field(chest_field&& _src) = default;
+        chest_field& operator = (const chest_field& _src) = default;
+		chest_field& operator = (chest_field&& _src) = default;
+
+		void add_part(const chest_item& _item)
+		{
+            auto iter = items.find(_item.part_class);
+			if (iter != items.end()) {
+				iter->second.quantity += _item.quantity;
+			}
+			else 
+			{
+				items.insert_or_assign(_item.part_class, _item);
+			}
+        }
+
+		bool remove_part(const chest_item& _item)
+		{
+			auto iter = items.find(_item.part_class);
+			if (iter != items.end()) {
+                if (iter->second.quantity < _item.quantity) {
+					return false;
+				}
+				iter->second.quantity -= _item.quantity;
+				if (iter->second.quantity == 0) {
+					items.erase(iter);
+                }
+			}
+			else
+			{
+				items.insert_or_assign(_item.part_class, _item);
+			}
+		}
+
+		bool move_part(chest_field& _dest, const chest_item& _item)
+		{
+			if (remove_part(_item)) {
+				_dest.add_part(_item);
+				return true;
+			}
+			return false;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+            _dest = jp.create_array();
+
+            for (auto& item : items) {
+				json jitem = jp.create_object();
+				item.second.get_json(jitem);
+			}
+		}
+
+		virtual void put_json(json& _src)
+		{
+			json_parser jp;
+
+			items.clear();
+			if (_src.array()) {
+                for (int i = 0; i < _src.size(); i++) {
+                    json jitem = _src.get_element(i);
+					chest_item item;
+                    item.put_json(jitem);
+					items.insert_or_assign(item.part_class, item);
+				}
+			}
+		}
+
+	};
+
+	/// <summary>
+	/// models the jsony idea that an array can be of a fundamental type or objects
+	/// </summary>
+	class chest_field_options : public field_options_base, public chest_field_options_interface
+	{
+	public:
+
+		chest_field_options() = default;
+		chest_field_options(const chest_field_options& _src) = default;
+		chest_field_options(chest_field_options&& _src) = default;
+		chest_field_options& operator = (const chest_field_options& _src) = default;
+		chest_field_options& operator = (chest_field_options&& _src) = default;
+		virtual ~chest_field_options	() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+            part_class = _src["part_class"].as_string();
+            units = _src["units"].as_string();
+		}
+
+		virtual void init_validation() override
+		{
+
+		}
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		{
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (_object_to_test.array())
+				{
+
+				}
+				else
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an array for an array field.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("chest"));
+			return schema;
+		}
 	};
 
 	class object_field_options : public field_options_base
@@ -2688,6 +2875,11 @@ namespace corona
 			else if (field_type == field_types::ft_string)
 			{
 				options = std::make_shared<string_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_chest)
+			{
+				options = std::make_shared<chest_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_bool)
