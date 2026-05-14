@@ -465,6 +465,133 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_stop("parse_child_field", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
+
+	class chest_item
+	{
+	public:
+
+		std::string part_class;
+		int64_t		part_id;
+		double      quantity;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member_string("part_class", part_class);
+			_dest.put_member_i64("part_id", part_id);
+			_dest.put_member_double("quantity", quantity);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			part_class = _src["part_class"].as_string();
+			part_id = _src["part_id"].as_int64_t();
+			quantity = _src["quantity"].as_double();
+		}
+
+	};
+
+	class chest_field_options_interface
+	{
+	public:
+		std::string part_class;
+		std::string units;
+	};
+
+	class chest_field 
+	{
+	public:
+		std::map<std::string, chest_item> items;
+		std::shared_ptr<chest_field_options_interface> options;
+
+		chest_field() = default;
+		chest_field(const chest_field& _src) = default;
+		chest_field(chest_field&& _src) = default;
+		chest_field& operator = (const chest_field& _src) = default;
+		chest_field& operator = (chest_field&& _src) = default;
+
+		chest_field(std::shared_ptr<chest_field_options_interface> _options, json _src) : options(_options)
+		{
+			put_json(_src);
+		}
+
+		void add_part(const chest_item& _item)
+		{
+			if (!options) return;
+
+			auto iter = items.find(_item.part_class);
+			if (iter != items.end()) {
+				iter->second.quantity += _item.quantity;
+			}
+			else
+			{
+				items.insert_or_assign(_item.part_class, _item);
+			}
+		}
+
+		bool remove_part(const chest_item& _item)
+		{
+			if (!options) return;
+
+			auto iter = items.find(_item.part_class);
+			if (iter != items.end()) {
+				if (iter->second.quantity < _item.quantity) {
+					return false;
+				}
+				iter->second.quantity -= _item.quantity;
+				if (iter->second.quantity == 0) {
+					items.erase(iter);
+				}
+			}
+			else
+			{
+				items.insert_or_assign(_item.part_class, _item);
+			}
+		}
+
+		bool move_part(chest_field& _dest, const chest_item& _item)
+		{
+			if (!options) return;
+
+			if (remove_part(_item)) {
+				_dest.add_part(_item);
+				return true;
+			}
+			return false;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			if (!options) return;
+
+			json_parser jp;
+			_dest = jp.create_array();
+
+			for (auto& item : items) {
+				json jitem = jp.create_object();
+				item.second.get_json(jitem);
+				_dest.push_back(jitem);
+			}
+		}
+
+		virtual void put_json(json& _src)
+		{
+			if (!options) return;
+
+			json_parser jp;
+
+			items.clear();
+			if (_src.array()) {
+				for (int i = 0; i < _src.size(); i++) {
+					json jitem = _src.get_element(i);
+					chest_item item;
+					item.put_json(jitem);
+					items.insert_or_assign(item.part_class, item);
+				}
+			}
+		}
+
+	};
+
 	class class_permissions {
 	public:
 		std::string		user_name;
@@ -723,6 +850,8 @@ namespace corona
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
+		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  const = 0;
+		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src)  const = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -1706,121 +1835,11 @@ namespace corona
 
 	};
 
-	class chest_field_options_interface
-	{
-	public:
-		std::string part_class;
-		std::string units;
-	};
-
-	class chest_item
-	{
-	public: 
-
-		std::string part_class;
-        int64_t		part_id;
-        double      quantity;
-
-		virtual void get_json(json& _dest)
-		{
-            _dest.put_member_string("part_class", part_class);
-            _dest.put_member_i64("part_id", part_id);
-            _dest.put_member_double("quantity", quantity);
-		}
-
-		virtual void put_json(json& _src)
-		{
-            part_class = _src["part_class"].as_string();
-            part_id = _src["part_id"].as_int64_t();
-            quantity = _src["quantity"].as_double();
-		}
-
-	};
-
-	class chest_field 
-	{
-	public:
-        std::map<std::string, chest_item> items;
-		std::shared_ptr<chest_field_options_interface> options;
-
-        chest_field() = default;
-        chest_field(const chest_field& _src) = default;
-        chest_field(chest_field&& _src) = default;
-        chest_field& operator = (const chest_field& _src) = default;
-		chest_field& operator = (chest_field&& _src) = default;
-
-		void add_part(const chest_item& _item)
-		{
-            auto iter = items.find(_item.part_class);
-			if (iter != items.end()) {
-				iter->second.quantity += _item.quantity;
-			}
-			else 
-			{
-				items.insert_or_assign(_item.part_class, _item);
-			}
-        }
-
-		bool remove_part(const chest_item& _item)
-		{
-			auto iter = items.find(_item.part_class);
-			if (iter != items.end()) {
-                if (iter->second.quantity < _item.quantity) {
-					return false;
-				}
-				iter->second.quantity -= _item.quantity;
-				if (iter->second.quantity == 0) {
-					items.erase(iter);
-                }
-			}
-			else
-			{
-				items.insert_or_assign(_item.part_class, _item);
-			}
-		}
-
-		bool move_part(chest_field& _dest, const chest_item& _item)
-		{
-			if (remove_part(_item)) {
-				_dest.add_part(_item);
-				return true;
-			}
-			return false;
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-            _dest = jp.create_array();
-
-            for (auto& item : items) {
-				json jitem = jp.create_object();
-				item.second.get_json(jitem);
-				_dest.push_back(jitem);
-			}
-		}
-
-		virtual void put_json(json& _src)
-		{
-			json_parser jp;
-
-			items.clear();
-			if (_src.array()) {
-                for (int i = 0; i < _src.size(); i++) {
-                    json jitem = _src.get_element(i);
-					chest_item item;
-                    item.put_json(jitem);
-					items.insert_or_assign(item.part_class, item);
-				}
-			}
-		}
-
-	};
 
 	/// <summary>
 	/// models the jsony idea that an array can be of a fundamental type or objects
 	/// </summary>
-	class chest_field_options : public field_options_base, public chest_field_options_interface
+	class chest_field_options : public field_options_base
 	{
 	public:
 
@@ -5114,6 +5133,67 @@ namespace corona
 			}
 
 			return results;
+		}
+
+		virtual std::shared_ptr<chest_field> get_chest(json _src, const std::string& _name)  const
+		{
+			std::shared_ptr<chest_field> cf;
+
+			auto chest_field = fields.find(_name);
+
+            if (chest_field != std::end(fields)) {
+				if (chest_field->second->get_field_type() == field_types::ft_chest) {
+                    auto field_options = chest_field->second->get_options();
+                    auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
+					if (chest_field_options) {
+						json chest_data = _src[_name];
+						if (chest_data.array()) {
+							cf = std::make_shared<chest_field>(chest_field_options, chest_data);
+						}
+						else {
+                            throw std::logic_error(std::format("field {0} chest data is not an array", _name));
+						}
+					}
+					else {
+                        throw std::logic_error(std::format("field {0} does not have chest field options", _name));
+					}
+				}
+				else {
+                    throw std::logic_error(std::format("field {0} is not a chest field", _name));
+				}
+			}
+			else {
+                throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
+		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src)
+		{
+			auto chest_field = fields.find(_name);
+
+			if (chest_field != std::end(fields)) {
+				if (chest_field->second->get_field_type() == field_types::ft_chest) {
+					auto field_options = chest_field->second->get_options();
+					auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
+					if (chest_field_options) {
+						json_parser jp;
+						json chest_data = jp.create_array();
+                        _src->get_json(chest_data);
+                        _dest.put_member(_name, chest_data);
+					}
+					else {
+                        throw std::logic_error(std::format("field {0} does not have chest field options", _name));
+					}
+				}
+				else {
+                    throw std::logic_error(std::format("field {0} is not a chest field", _name));
+				}
+			}
+			else {
+                throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
 		}
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
@@ -11113,6 +11193,115 @@ grant_type=authorization_code
 
 			system_monitoring_interface::active_mon->log_function_stop("copy_object", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
+		}
+
+		virtual json add_item_chest(json add_to_chest_request)
+		{
+			progress_fence progress(&calls_in_progress);
+
+			timer method_timer;
+			json_parser jp;
+			read_scope_lock my_lock(database_lock);
+			json response;
+
+			date_time start_time = date_time::now();
+			timer tx;
+			system_monitoring_interface::active_mon->log_function_start("add_item_chest", "start", start_time, __FILE__, __LINE__);
+
+			validation_error_collection errors;
+			std::string user_name, user_auth;
+
+			if (not check_message(add_to_chest_request, { auth_general }, user_name, user_auth))
+			{
+				response = create_response(add_to_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return response;
+			}
+
+			json data = add_to_chest_request[data_field];
+			if (data.object())
+			{
+                std::string target_class_name = data[class_name_field].as_string();
+                int64_t target_object_id = data[object_id_field].as_int64_t();
+				std::string chest_name = data[chest_name_field].as_string();
+
+				auto edit_class = read_lock_class(target_class_name);
+
+				if (edit_class) {
+                    auto permissions = get_class_permission(user_name, target_class_name);
+                    json key = data.extract({ class_name_field, object_id_field });
+                    json obj = edit_class->get_single_object(this, key, true, permissions);
+
+					auto chest = edit_class->get_chest(obj, chest_name);
+					chest_item ci;
+					ci.put_json(data);
+					chest->add_part(ci);
+					json new_chest = jp.create_object();
+                    chest->put_json(new_chest);
+					obj.put_member(chest_name, new_chest);
+                    edit_class->put_objects(this, {}, obj, permissions, errors);
+					result = create_response(add_to_chest_request, true, "Ok", obj, errors, method_timer.get_elapsed_seconds());
+				}
+
+			}
+			else
+			{
+				result = create_response(get_object_request, false, "Not found", object_key, errors, method_timer.get_elapsed_seconds());
+			}
+			system_monitoring_interface::active_mon->log_function_stop("get_object", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+
+		}
+
+		virtual json remove_item_chest(json remove_from_chest_request)
+		{
+			progress_fence progress(&calls_in_progress);
+
+			timer method_timer;
+			json_parser jp;
+			read_scope_lock my_lock(database_lock);
+			json response;
+
+			date_time start_time = date_time::now();
+			timer tx;
+			system_monitoring_interface::active_mon->log_function_start("copy_object", "start", start_time, __FILE__, __LINE__);
+
+			validation_error_collection errors;
+			std::string user_name, user_auth;
+
+			if (not check_message(remove_from_chest_request, { auth_general }, user_name, user_auth))
+			{
+				response = create_response(remove_from_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return response;
+			}
+
+
+		}
+
+		virtual json move_item_chest(json move_chest_request)
+		{
+			progress_fence progress(&calls_in_progress);
+
+			timer method_timer;
+			json_parser jp;
+			read_scope_lock my_lock(database_lock);
+			json response;
+
+			date_time start_time = date_time::now();
+			timer tx;
+			system_monitoring_interface::active_mon->log_function_start("copy_object", "start", start_time, __FILE__, __LINE__);
+
+			validation_error_collection errors;
+			std::string user_name, user_auth;
+
+			if (not check_message(move_chest_request, { auth_general }, user_name, user_auth))
+			{
+				response = create_response(move_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return response;
+			}
+
+
 		}
 
 		private:
