@@ -5598,6 +5598,50 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
+		template <json(*implementation_method)(json obj, std::string user_name, std::string user_auth, validation_error_collection& _errors)> 
+		json corona_function(const char *_function_name, json request_message)
+		{
+			progress_fence progress(&calls_in_progress);
+
+			timer method_timer;
+			json_parser jp;
+			json response;
+
+			date_time start_time = date_time::now();
+			timer tx;
+			system_monitoring_interface::active_mon->log_function_start(_function_name, "start", start_time, __FILE__, __LINE__);
+
+			try {
+
+				validation_error_collection errors;
+				std::string user_name, user_auth;
+
+				if (not check_message(request_message, { auth_general }, user_name, user_auth))
+				{
+					response = create_response(request_message, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+					system_monitoring_interface::active_mon->log_function_stop(function_name, "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					return response;
+				}
+
+				json data = request_message[data_field];
+				if (data.object())
+				{
+					json result = implementation_method(data, user_name, user_auth, errors);
+					response = create_response(add_to_chest_request, true, result, obj, errors, method_timer.get_elapsed_seconds());
+				}
+				else
+				{
+					response = create_response(request_message, false, "Not found", data, errors, method_timer.get_elapsed_seconds());
+				}
+				system_monitoring_interface::active_mon->log_function_stop(_function_name, "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+
+			}
+			catch (std::exception exc)
+			{
+				system_monitoring_interface::active_mon->log_exception(exc, __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_function_stop(_function_name, "exception", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			}
+		}
 
 	public:
 
@@ -6423,6 +6467,93 @@ namespace corona
 		}
 
 private:
+
+		virtual json add_item_chest_impl(json data, std::string user_name, std::string user_auth, validation_error_collection& _errors)
+		{
+			json_parser jp;
+			json result = jp.create_object();
+			if (data.object())
+			{
+				std::string target_class_name = data[class_name_field].as_string();
+				int64_t target_object_id = data[object_id_field].as_int64_t();
+				std::string chest_name = data[chest_name_field].as_string();
+
+				auto edit_class = read_lock_class(target_class_name);
+
+				if (edit_class) {
+					auto permissions = get_class_permission(user_name, target_class_name);
+					json key = data.extract({ class_name_field, object_id_field });
+					json obj = edit_class->get_single_object(this, key, true, permissions);
+
+					auto chest = edit_class->get_chest(obj, chest_name);
+					chest_item ci;
+					ci.put_json(data);
+					chest->add_part(ci);
+					json new_chest = jp.create_object();
+					chest->put_json(new_chest);
+					obj.put_member(chest_name, new_chest);
+					json child_objects = jp.create_array();
+					json objects = jp.create_array();
+					objects.push_back(obj);
+					int64_t success_objects = 0;
+					int64_t fail_objects = 0;
+					result = edit_class->put_objects(this, child_objects, obj, permissions, _errors, success_objects, fail_objects);
+				}
+			}
+			return result;
+		}
+
+		virtual json remove_item_chest_impl(json data, std::string user_name, std::string user_auth, validation_error_collection& _errors)
+		{
+			json_parser jp;
+			json result = jp.create_object();
+			if (data.object())
+			{
+				std::string target_class_name = data[class_name_field].as_string();
+				int64_t target_object_id = data[object_id_field].as_int64_t();
+				std::string chest_name = data[chest_name_field].as_string();
+
+				auto edit_class = read_lock_class(target_class_name);
+
+				if (edit_class) {
+					auto permissions = get_class_permission(user_name, target_class_name);
+					json key = data.extract({ class_name_field, object_id_field });
+					json obj = edit_class->get_single_object(this, key, true, permissions);
+
+					auto chest = edit_class->get_chest(obj, chest_name);
+					chest_item ci;
+					ci.put_json(data);
+					chest->remove_part(ci);
+					json new_chest = jp.create_object();
+					chest->put_json(new_chest);
+					obj.put_member(chest_name, new_chest);
+					json child_objects = jp.create_array();
+					json objects = jp.create_array();
+					objects.push_back(obj);
+					int64_t success_objects = 0;
+					int64_t fail_objects = 0;
+					result =edit_class->put_objects(this, child_objects, obj, permissions, _errors, success_objects, fail_objects);
+				}
+			}
+
+			return result;
+		}
+
+		virtual json move_item_chest_impl(json data, std::string user_name, std::string user_auth, validation_error_collection& _errors)
+		{
+			json_parser jp;
+			json result = jp.create_object();
+			if (data.object())
+			{
+                json from = data["from"];
+                json to = data["to"];
+
+                remove_item_chest_impl(from, user_name, user_auth, _errors);
+                add_item_chest_impl(to, user_name, user_auth, _errors);
+			}
+
+			return result;
+		}
 
 		json create_class(std::string _text)
 		{
@@ -11197,111 +11328,20 @@ grant_type=authorization_code
 
 		virtual json add_item_chest(json add_to_chest_request)
 		{
-			progress_fence progress(&calls_in_progress);
-
-			timer method_timer;
-			json_parser jp;
-			read_scope_lock my_lock(database_lock);
-			json response;
-
-			date_time start_time = date_time::now();
-			timer tx;
-			system_monitoring_interface::active_mon->log_function_start("add_item_chest", "start", start_time, __FILE__, __LINE__);
-
-			validation_error_collection errors;
-			std::string user_name, user_auth;
-
-			if (not check_message(add_to_chest_request, { auth_general }, user_name, user_auth))
-			{
-				response = create_response(add_to_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return response;
-			}
-
-			json data = add_to_chest_request[data_field];
-			if (data.object())
-			{
-                std::string target_class_name = data[class_name_field].as_string();
-                int64_t target_object_id = data[object_id_field].as_int64_t();
-				std::string chest_name = data[chest_name_field].as_string();
-
-				auto edit_class = read_lock_class(target_class_name);
-
-				if (edit_class) {
-                    auto permissions = get_class_permission(user_name, target_class_name);
-                    json key = data.extract({ class_name_field, object_id_field });
-                    json obj = edit_class->get_single_object(this, key, true, permissions);
-
-					auto chest = edit_class->get_chest(obj, chest_name);
-					chest_item ci;
-					ci.put_json(data);
-					chest->add_part(ci);
-					json new_chest = jp.create_object();
-                    chest->put_json(new_chest);
-					obj.put_member(chest_name, new_chest);
-                    edit_class->put_objects(this, {}, obj, permissions, errors);
-					result = create_response(add_to_chest_request, true, "Ok", obj, errors, method_timer.get_elapsed_seconds());
-				}
-
-			}
-			else
-			{
-				result = create_response(get_object_request, false, "Not found", object_key, errors, method_timer.get_elapsed_seconds());
-			}
-			system_monitoring_interface::active_mon->log_function_stop("get_object", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-
+            const std::string pc_name = "add_item_chest";
+			return corona_function<add_item_chest_impl>(pc_name, add_to_chest_request);
 		}
 
 		virtual json remove_item_chest(json remove_from_chest_request)
 		{
-			progress_fence progress(&calls_in_progress);
-
-			timer method_timer;
-			json_parser jp;
-			read_scope_lock my_lock(database_lock);
-			json response;
-
-			date_time start_time = date_time::now();
-			timer tx;
-			system_monitoring_interface::active_mon->log_function_start("copy_object", "start", start_time, __FILE__, __LINE__);
-
-			validation_error_collection errors;
-			std::string user_name, user_auth;
-
-			if (not check_message(remove_from_chest_request, { auth_general }, user_name, user_auth))
-			{
-				response = create_response(remove_from_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return response;
-			}
-
-
+			const std::string pc_name = "remove_item_chest";
+			return corona_function<remove_item_chest_impl>(pc_name, remove_from_chest_request);
 		}
 
 		virtual json move_item_chest(json move_chest_request)
 		{
-			progress_fence progress(&calls_in_progress);
-
-			timer method_timer;
-			json_parser jp;
-			read_scope_lock my_lock(database_lock);
-			json response;
-
-			date_time start_time = date_time::now();
-			timer tx;
-			system_monitoring_interface::active_mon->log_function_start("copy_object", "start", start_time, __FILE__, __LINE__);
-
-			validation_error_collection errors;
-			std::string user_name, user_auth;
-
-			if (not check_message(move_chest_request, { auth_general }, user_name, user_auth))
-			{
-				response = create_response(move_chest_request, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-				system_monitoring_interface::active_mon->log_function_stop("copy_object", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return response;
-			}
-
-
+			const std::string pc_name = "move_item_chest";
+			return corona_function<move_item_chest_impl>(pc_name, move_chest_request);
 		}
 
 		private:
