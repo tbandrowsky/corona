@@ -108,7 +108,6 @@ namespace corona
 
 		std::string user_name;
 		std::string user_password;
-		std::string token;
 
 		virtual corona_client_response login(std::string _user_name, std::string _password) override
 		{
@@ -143,11 +142,11 @@ namespace corona
 
 			result = params;
 
-			if (result.success) 
+			if (result.success)
 			{
 				authorization_header = "Authorization: Bearer " + result.data[token_field].as_string();
 			}
-			else 
+			else
 			{
 				authorization_header = "";
 			}
@@ -419,6 +418,63 @@ namespace corona
 			result = params;
 
 			return result;
+		}
+
+		virtual corona_client_response add_item_chest(json add_to_chest_request)
+		{
+			corona_client_response result;
+
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			std::string path = base_path + "/corona/chest/add/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), add_to_chest_request, header.c_str());
+
+			result = params;
+
+			return result;
+
+		}
+
+		virtual corona_client_response remove_item_chest(json remove_from_chest_request)
+		{
+			corona_client_response result;
+
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			std::string path = base_path + "/corona/chest/remove/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), remove_from_chest_request, header.c_str());
+
+			result = params;
+
+			return result;
+
+		}
+
+		virtual corona_client_response move_item_chest(json move_chest_request)
+		{
+			corona_client_response result;
+
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			std::string path = base_path + "/corona/chest/move/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), move_chest_request, header.c_str());
+
+			result = params;
+
+			return result;
+
 		}
 
 	};

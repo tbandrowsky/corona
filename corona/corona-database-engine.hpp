@@ -530,7 +530,7 @@ namespace corona
 
 		bool remove_part(const chest_item& _item)
 		{
-			if (!options) return;
+			if (!options) return false;
 
 			auto iter = items.find(_item.part_class);
 			if (iter != items.end()) {
@@ -550,7 +550,7 @@ namespace corona
 
 		bool move_part(chest_field& _dest, const chest_item& _item)
 		{
-			if (!options) return;
+			if (!options) return false;
 
 			if (remove_part(_item)) {
 				_dest.add_part(_item);
@@ -635,7 +635,6 @@ namespace corona
 
 		virtual std::shared_ptr<child_bridge_interface> get_bridge(std::string _class_name) = 0;
 
-		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json get_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
 		virtual json delete_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
@@ -656,7 +655,6 @@ namespace corona
 		bool		read_only;
 		bool		server_only;
 
-		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json & _object) = 0;
@@ -712,7 +710,6 @@ namespace corona
 
 	public:
 
-		virtual void init_validation() = 0;
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
 		virtual void get_json(json& _dest) = 0;
@@ -1290,12 +1287,6 @@ namespace corona
 		field_options_base& operator = (field_options_base&& _src) = default;
 		virtual ~field_options_base() = default;
 
-
-		virtual void init_validation() override
-		{
-
-		}
-
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)  override
 		{
 			;
@@ -1519,12 +1510,8 @@ namespace corona
 
 		}
 
-		virtual void init_validation() override
-		{
-
-		}
-
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 			all_constructors.clear();
 			for (auto class_name_pair : base_constructors) {
@@ -1651,12 +1638,7 @@ namespace corona
 			bridges->put_child_object(_cod);
 		}
 
-		virtual void init_validation() override
-		{
-
-		}
-
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 			if (bridges)
 				bridges->init_validation(_db, _permissions);
@@ -1850,28 +1832,38 @@ namespace corona
 		chest_field_options& operator = (chest_field_options&& _src) = default;
 		virtual ~chest_field_options	() = default;
 
+		std::string part_class;
+		std::string quantity_units;
+
 		virtual void get_json(json& _dest)
 		{
 			field_options_base::get_json(_dest);
 
-			json_parser jp;
+            _dest.put_member("part_class", part_class);
+            _dest.put_member("quantity_units", quantity_units);
 
+			json_parser jp;
 		}
+
+		std::map<std::string, std::string> get_part_fields()
+		{
+			std::map<std::string, std::string> result;
+			result["part_class"] = part_class;
+			result["quantity_units"] = quantity_units;
+			return result;
+        }
 
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
             part_class = _src["part_class"].as_string();
-            units = _src["units"].as_string();
+			quantity_units = _src["quantity_units"].as_string();
 		}
 
-		virtual void init_validation() override
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 
-		}
-
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
-		{
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
@@ -1881,7 +1873,22 @@ namespace corona
 
 				if (_object_to_test.array())
 				{
+                    for (auto obj : _object_to_test)
+					{
+						bool acceptable = obj.object();
+						if (not acceptable) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "Elements of a chest array must be objects.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
 
+                        std::string object_class_name = obj[class_name_field].as_string();
+					}
 				}
 				else
 				{
@@ -1961,7 +1968,7 @@ namespace corona
 			return fundamental_type == field_types::ft_none;
 		}
 
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 			if (bridges)
 				bridges->init_validation(_db, _permissions);
@@ -2354,7 +2361,7 @@ namespace corona
 			reference_class_descendants.clear();
 		}
 
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 			reference_class_descendants.clear();
 			auto descendants = _db->get_class_descendants(reference_class);
@@ -2577,12 +2584,7 @@ namespace corona
 		choice_field_options& operator = (choice_field_options&& _src) = default;
 		virtual ~choice_field_options() = default;
 
-		virtual void init_validation() override
-		{
-
-		}
-
-		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions)
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
 			json_parser jp;
 			json key = jp.create_object();
@@ -2807,12 +2809,6 @@ namespace corona
 		virtual std::shared_ptr<field_options_interface> set_options(std::shared_ptr<field_options_interface> _src) {
 			options = _src;
 			return options;
-		}
-
-		virtual void init_validation() override
-		{
-			class_permissions default_perms;
-			if (options) options->init_validation();
 		}
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
@@ -5598,8 +5594,9 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
-		template <json(*implementation_method)(json obj, std::string user_name, std::string user_auth, validation_error_collection& _errors)> 
-		json corona_function(const char *_function_name, json request_message)
+		using corona_method_implementation = std::function<json(json obj, std::string user_name, std::string user_auth, validation_error_collection& _errors)>;
+
+		json corona_function(const std::string& _function_name, json request_message, corona_method_implementation fn)
 		{
 			progress_fence progress(&calls_in_progress);
 
@@ -5619,15 +5616,15 @@ namespace corona
 				if (not check_message(request_message, { auth_general }, user_name, user_auth))
 				{
 					response = create_response(request_message, false, "Denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
-					system_monitoring_interface::active_mon->log_function_stop(function_name, "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					system_monitoring_interface::active_mon->log_function_stop(_function_name, "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 					return response;
 				}
 
 				json data = request_message[data_field];
 				if (data.object())
 				{
-					json result = implementation_method(data, user_name, user_auth, errors);
-					response = create_response(add_to_chest_request, true, result, obj, errors, method_timer.get_elapsed_seconds());
+					json result = fn(data, user_name, user_auth, errors);
+					response = create_response(request_message, true, "Ok", result, errors, method_timer.get_elapsed_seconds());
 				}
 				else
 				{
@@ -6477,7 +6474,7 @@ private:
 				std::string target_class_name = data[class_name_field].as_string();
 				int64_t target_object_id = data[object_id_field].as_int64_t();
 				std::string chest_name = data[chest_name_field].as_string();
-
+                json item_data = data["item_data"];
 				auto edit_class = read_lock_class(target_class_name);
 
 				if (edit_class) {
@@ -6486,9 +6483,16 @@ private:
 					json obj = edit_class->get_single_object(this, key, true, permissions);
 
 					auto chest = edit_class->get_chest(obj, chest_name);
-					chest_item ci;
-					ci.put_json(data);
-					chest->add_part(ci);
+
+					item_data = item_data.as_array();
+
+					for (int i = 0; i < item_data.size(); i++) {
+						json id = item_data.get_element(i);
+						chest_item ci;
+						ci.put_json(item_data);
+						chest->add_part(ci);
+					}
+
 					json new_chest = jp.create_object();
 					chest->put_json(new_chest);
 					obj.put_member(chest_name, new_chest);
@@ -6512,6 +6516,7 @@ private:
 				std::string target_class_name = data[class_name_field].as_string();
 				int64_t target_object_id = data[object_id_field].as_int64_t();
 				std::string chest_name = data[chest_name_field].as_string();
+				json item_data = data["item_data"];
 
 				auto edit_class = read_lock_class(target_class_name);
 
@@ -6519,11 +6524,17 @@ private:
 					auto permissions = get_class_permission(user_name, target_class_name);
 					json key = data.extract({ class_name_field, object_id_field });
 					json obj = edit_class->get_single_object(this, key, true, permissions);
-
 					auto chest = edit_class->get_chest(obj, chest_name);
-					chest_item ci;
-					ci.put_json(data);
-					chest->remove_part(ci);
+
+					item_data = item_data.as_array();
+
+					for (int i = 0; i < item_data.size(); i++) {
+						json id = item_data.get_element(i);
+						chest_item ci;
+						ci.put_json(item_data);
+						chest->remove_part(ci);
+					}
+
 					json new_chest = jp.create_object();
 					chest->put_json(new_chest);
 					obj.put_member(chest_name, new_chest);
@@ -6532,7 +6543,7 @@ private:
 					objects.push_back(obj);
 					int64_t success_objects = 0;
 					int64_t fail_objects = 0;
-					result =edit_class->put_objects(this, child_objects, obj, permissions, _errors, success_objects, fail_objects);
+					result = edit_class->put_objects(this, child_objects, obj, permissions, _errors, success_objects, fail_objects);
 				}
 			}
 
@@ -6545,9 +6556,11 @@ private:
 			json result = jp.create_object();
 			if (data.object())
 			{
+                json item_data = data["item_data"];
                 json from = data["from"];
                 json to = data["to"];
-
+                from.put_member("item_data"	, item_data);
+				to.put_member("item_data", item_data);
                 remove_item_chest_impl(from, user_name, user_auth, _errors);
                 add_item_chest_impl(to, user_name, user_auth, _errors);
 			}
@@ -11326,23 +11339,30 @@ grant_type=authorization_code
 			return response;
 		}
 
-		virtual json add_item_chest(json add_to_chest_request)
+		virtual json add_item_chest(json add_to_chest_request) override
 		{
-            const std::string pc_name = "add_item_chest";
-			return corona_function<add_item_chest_impl>(pc_name, add_to_chest_request);
+			return corona_function("add_item_chest", add_to_chest_request,
+				[this](json data, std::string user_name, std::string user_auth, validation_error_collection& errors) {
+					return this->add_item_chest_impl(data, user_name, user_auth, errors);
+				});
 		}
 
-		virtual json remove_item_chest(json remove_from_chest_request)
+		virtual json remove_item_chest(json remove_from_chest_request) override
 		{
-			const std::string pc_name = "remove_item_chest";
-			return corona_function<remove_item_chest_impl>(pc_name, remove_from_chest_request);
+			return corona_function("remove_item_chest", remove_from_chest_request,
+				[this](json data, std::string user_name, std::string user_auth, validation_error_collection& errors) {
+					return this->remove_item_chest_impl(data, user_name, user_auth, errors);
+				});
 		}
 
-		virtual json move_item_chest(json move_chest_request)
+		virtual json move_item_chest(json move_chest_request) override
 		{
-			const std::string pc_name = "move_item_chest";
-			return corona_function<move_item_chest_impl>(pc_name, move_chest_request);
+			return corona_function("move_item_chest", move_chest_request,
+				[this](json data, std::string user_name, std::string user_auth, validation_error_collection& errors) {
+					return this->move_item_chest_impl(data, user_name, user_auth, errors);
+				});
 		}
+
 
 		private:
 

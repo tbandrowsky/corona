@@ -168,7 +168,7 @@ namespace corona
 			is_service = false;
 			local_db_config = _system_config;
 			server_config = _server_config;
-            default_page = server_config["default_page"].as_string();
+			default_page = server_config["default_page"].as_string();
 
 			log_command_start("comm_service_bus", "startup", t);
 
@@ -243,7 +243,7 @@ namespace corona
 
 			if (database_recreate)
 			{
-                delete_files_in_folder(database_path);				
+				delete_files_in_folder(database_path);
 			}
 
 			if (not std::filesystem::exists(database_path + "classes.coronatbl"))
@@ -269,8 +269,8 @@ namespace corona
 				}
 
 				// the most brutal test that the database was created ok
-                // is to shut it down, and reopen it.  
-				local_db->shutdown(); 
+				// is to shut it down, and reopen it.  
+				local_db->shutdown();
 				local_db = nullptr;
 			}
 
@@ -299,7 +299,7 @@ namespace corona
 
 		virtual ~desktop_app_bus()
 		{
-            poll_ux_enabled = false;
+			poll_ux_enabled = false;
 			if (local_db) {
 				local_db->shutdown();
 			}
@@ -505,22 +505,22 @@ namespace corona
 				if (timer_control) {
 					json_parser jp;
 					json status = jp.create_object();
-                    command_current = time(nullptr);
-                    elapsed_seconds = command_current - command_start;
+					command_current = time(nullptr);
+					elapsed_seconds = command_current - command_start;
 					status.put_member("call_timer_seconds", elapsed_seconds);
 					timer_control->set_data(status);
 				}
 			}
 
-			if (checker.check_changes( options )) {
+			if (checker.check_changes(options)) {
 
 				if (poll_db_enabled) {
 					global_job_queue->submit_job([this, _select_default_page]()->void {
 						poll_db();
-                        run_ui([this, _select_default_page]()->void {
+						run_ui([this, _select_default_page]()->void {
 							poll_pages(_select_default_page);
-						});
-					}, nullptr);
+							});
+						}, nullptr);
 				}
 				else {
 					poll_pages(_select_default_page);
@@ -537,7 +537,7 @@ namespace corona
 		{
 			corona_client_response response;
 
-			try 
+			try
 			{
 				response = client.register_user(_user);
 			}
@@ -571,7 +571,7 @@ namespace corona
 		{
 			corona_client_response response;
 
-			try 
+			try
 			{
 				response = client.send_user(_user_name);
 			}
@@ -588,7 +588,7 @@ namespace corona
 		{
 			corona_client_response response;
 
-			try 
+			try
 			{
 				response = client.login(_user_name, _password);
 			}
@@ -622,7 +622,7 @@ namespace corona
 		{
 			corona_client_response response;
 
-			try 
+			try
 			{
 				response = client.set_password(user_name, validation_code, password1, password2);
 			}
@@ -839,6 +839,57 @@ namespace corona
 				response.success = false;
 				response.message = exc.what();
 			}
+			return response;
+		}
+
+		virtual corona_client_response remote_add_item_chest(corona_instance _instance, json add_to_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.add_item_chest(add_to_chest_request);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response remote_remove_item_chest(corona_instance _instance, json remove_from_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.remove_item_chest(remove_from_chest_request);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response remote_move_item_chest(corona_instance _instance, json move_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.move_item_chest(move_chest_request);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
 			return response;
 		}
 
@@ -1066,8 +1117,7 @@ namespace corona
 				json request = jp.create_object();
 				json token = get_local_token();
 				request.copy_member(token_field, token);
-				json data = jp.create_object();
-				request.put_member("data", data);
+				request.put_member_string(class_name_field, class_name);
 				json jresponse = local_db->get_class(request);
 				response.set(jresponse);
 			}
@@ -1090,8 +1140,7 @@ namespace corona
 				json request = jp.create_object();
 				json token = get_local_token();
 				request.copy_member(token_field, token);
-				json data = jp.create_object();
-				request.put_member("data", data);
+				request.put_member("data", _class_definition);
 				json jresponse = local_db->put_class(request);
 				response.set(jresponse);
 			}
@@ -1102,6 +1151,77 @@ namespace corona
 			}
 
 			return response;
+		}
+
+		virtual corona_client_response local_add_item_chest(corona_instance _instance, json add_to_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				request.put_member("data", add_to_chest_request);
+				json jresponse = local_db->add_item_chest(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_remove_item_chest(corona_instance _instance, json remove_from_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				request.put_member("data", remove_from_chest_request);
+				json jresponse = local_db->remove_item_chest(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+
+		}
+
+		virtual corona_client_response local_move_item_chest(corona_instance _instance, json move_chest_request)
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				request.put_member("data", move_chest_request);
+				json jresponse = local_db->move_item_chest(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+
 		}
 
 		time_t next_token_cache_check = 0;
@@ -1806,6 +1926,23 @@ namespace corona
 			}
 			return result;
 		}
+
+
+		virtual corona_client_response add_item_chest(corona_instance _instance, json add_to_chest_request)
+		{
+			;
+		}
+
+		virtual corona_client_response remove_item_chest(corona_instance _instance, json remove_from_chest_request)
+		{
+			;
+		}
+
+		virtual corona_client_response move_item_chest(corona_instance _instance, json move_chest_request)
+		{
+			;
+		}
+
 
 		virtual json get_form_data(std::string _form_name)
 		{

@@ -170,6 +170,9 @@ namespace corona
 		virtual corona_client_response remote_get_classes() = 0;
 		virtual corona_client_response remote_get_class(std::string class_name) = 0;
 		virtual corona_client_response remote_put_class(json _class_data) = 0;
+		virtual corona_client_response remote_add_item_chest(corona_instance _instance, json add_to_chest_request) = 0;
+		virtual corona_client_response remote_remove_item_chest(corona_instance _instance, json remove_from_chest_request) = 0;
+		virtual corona_client_response remote_move_item_chest(corona_instance _instance, json move_chest_request) = 0;
 
 		virtual corona_client_response local_register_user(json _user) = 0;
 		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
@@ -180,6 +183,9 @@ namespace corona
 		virtual corona_client_response local_get_classes() = 0;
 		virtual corona_client_response local_get_class(std::string class_name) = 0;
 		virtual corona_client_response local_put_class(json _class_data) = 0;
+		virtual corona_client_response local_add_item_chest(corona_instance _instance, json add_to_chest_request) = 0;
+		virtual corona_client_response local_remove_item_chest(corona_instance _instance, json remove_from_chest_request) = 0;
+		virtual corona_client_response local_move_item_chest(corona_instance _instance, json move_chest_request) = 0;
 
 		virtual corona_client_response create_object(corona_instance _instance, std::string class_name) = 0;
 		virtual corona_client_response run_object(corona_instance _instance, json object_information) = 0;
@@ -189,6 +195,9 @@ namespace corona
 		virtual corona_client_response delete_object(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response query_objects(corona_instance _instance, json object_information) = 0;
 		virtual corona_client_response query(corona_instance _instance, json query_body) = 0;
+		virtual corona_client_response add_item_chest(corona_instance _instance, json add_to_chest_request) = 0;
+		virtual corona_client_response remove_item_chest(corona_instance _instance, json remove_from_chest_request) = 0;
+		virtual corona_client_response move_item_chest(corona_instance _instance, json move_chest_request) = 0;
 
 		virtual corona_client_response register_user(corona_instance _instance, json _user) = 0;
 		virtual corona_client_response confirm_user(corona_instance _instance, std::string _user_name, std::string _confirmation_code) = 0;

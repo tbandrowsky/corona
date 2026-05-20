@@ -967,6 +967,51 @@ namespace corona
 			};
 
 
+		http_handler_function corona_chest_add = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+				return;
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			//			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->run_object(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
+		http_handler_function corona_chest_remove = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+				return;
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			//			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->run_object(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
+		http_handler_function corona_chest_move = [this](http_action_request _request)->void {
+			json parsed_request = parse_request(_request.request);
+			if (parsed_request.error()) {
+				http_response error_response = create_response(500, parsed_request);
+				_request.send_response(500, "Parse error", parsed_request);
+				return;
+			}
+			std::string token = get_token(_request);
+			parsed_request.put_member(token_field, token);
+			//			local_db->scrub_object(parsed_request);
+			json fn_response = local_db->run_object(parsed_request);
+			http_response response = create_response(200, fn_response);
+			_request.send_response(200, "Ok", fn_response);
+			};
+
 		json parse_request(http_request _request)
 		{
 			json_parser jph;
@@ -2133,6 +2178,217 @@ Bind get classes
 })";
 				api_paths.push_back(new_api);
 				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_objects_copy);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+
+				new_api.path = "chest/add/";
+				new_api.name = "add_to_chest";
+				new_api.verb = "post";
+				new_api.description = "Adds an object to the chest.";
+				new_api.request_class_name = R"(sys_add_to_chest_request)";
+				new_api.response_class_name = R"(sys_add_to_chest_response)";
+				new_api.request_schema = R"({
+  "type": "object",
+	"properties": {
+		"class_name": {
+			"type": "string",
+			"description": "class of object to copy."
+		},
+		"object_id": {
+			"type": "number",
+			"description": "id of object to copy."
+		},
+		"chest_name": {
+			"type": "string",
+			"description": "member of object to copy."
+		},
+		"item_data": {
+			"type": "object",
+			"description": "data about the item to add. item_data can be an array.",
+			"properties": {
+				"part_class": {
+					"type": "number",
+					"description": "quantity to add."
+				}
+				"part_id": {
+					"type": "number",
+					"description": "object id of part."
+				}
+				"quantity": {
+					"type": "number",
+					"description": "quantity to add."
+				}
+			}
+	}
+})";
+
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True if the object was deleted successfully."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "object"
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_chest_add);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+
+				new_api.path = "chest/remove/";
+				new_api.name = "remove_from_chest";
+				new_api.verb = "post";
+				new_api.description = "Removes an object from the chest.";
+				new_api.request_class_name = R"(sys_remove_from_chest_request)";
+				new_api.response_class_name = R"(sys_remove_from_chest_response)";
+				new_api.request_schema = R"({
+  "type": "object",
+	"properties": {
+		"class_name": {
+			"type": "string",
+			"description": "class of object to copy."
+		},
+		"object_id": {
+			"type": "number",
+			"description": "id of object to copy."
+		},
+		"chest_name": {
+			"type": "string",
+			"description": "member of object to copy."
+		},
+		"item_data": {
+			"type": "object",
+			"description": "data about the item to remove. item_data can be an array.",
+			"properties": {
+				"part_class": {
+					"type": "number",
+					"description": "quantity to add."
+				}
+				"part_id": {
+					"type": "number",
+					"description": "object id of part."
+				}
+				"quantity": {
+					"type": "number",
+					"description": "quantity to remove."
+				}
+			}
+	}
+})";
+
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True if the object was deleted successfully."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "object"
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_chest_remove);
+				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
+
+				new_api.path = "chest/move/";
+				new_api.name = "remove_from_chest";
+				new_api.verb = "post";
+				new_api.description = "Moves items from one chest to another.";
+				new_api.request_class_name = R"(sys_remove_from_chest_request)";
+				new_api.response_class_name = R"(sys_remove_from_chest_response)";
+				new_api.request_schema = R"({
+  "type": "object",
+	"properties": {
+		"from": {
+			"type": "object",
+			"properties": {
+				"object_id": {
+					"type": "number",
+					"description": "id of object to copy."
+				},
+				"chest_name": {
+					"type": "string",
+					"description": "member of object to copy."
+				}
+			}
+		},
+		"to": {
+			"type": "object",
+			"properties": {
+				"object_id": {
+					"type": "number",
+					"description": "id of object to copy."
+				},
+				"chest_name": {
+					"type": "string",
+					"description": "class of object to copy."
+				}
+			}
+		},		
+		"item_data": {
+			"type": "object",
+			"description": "data about the item to remove. item_data can be an array.",
+			"properties": {
+				"part_class": {
+					"type": "number",
+					"description": "quantity to add."
+				}
+				"part_id": {
+					"type": "number",
+					"description": "object id of part."
+				}
+				"quantity": {
+					"type": "number",
+					"description": "quantity to remove."
+				}
+			}
+	}
+})";
+
+				new_api.response_schema = R"({
+  "type": "object",
+  "properties": {
+	"success": {
+	  "type": "boolean",
+	  "description": "True if the object was deleted successfully."
+	},
+	"message": {
+	  "type": "string",
+	  "description": "Text of message."
+	},
+	"data": {
+	  "type": "object"
+	},
+	"token": {
+	  "type": "string",
+	  "description": "Token for the user to use in subsequent requests."
+	}
+  }
+})";
+				api_paths.push_back(new_api);
+				_server.put_handler(HTTP_VERB::HttpVerbPOST, root_path, base_path, new_api.path, corona_chest_move);
 				_server.put_handler(HTTP_VERB::HttpVerbOPTIONS, root_path, base_path, new_api.path, corona_options);
 
 				new_api.path = "describe/";

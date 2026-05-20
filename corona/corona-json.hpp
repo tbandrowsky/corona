@@ -1864,6 +1864,28 @@ namespace corona
 				return "";
 		}
 
+		json as_array() const
+		{
+			json_parser jp;
+			json result;
+
+			if (value_base) {
+				if (value_base->get_field_type() == field_types::ft_array) {
+					result = value_base;
+				}
+				else {
+					result = jp.create_array();
+					json temp = value_base;
+					result.push_back(temp);
+				}
+			}
+			else {
+				result = jp.create_array();
+			}
+
+			return result;
+		}
+
 		object_reference_type as_object_reference_type() const
 		{
 			auto value_ref = reference_impl();
