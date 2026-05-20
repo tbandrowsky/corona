@@ -842,7 +842,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response remote_add_item_chest(corona_instance _instance, json add_to_chest_request)
+		virtual corona_client_response remote_add_item_chest(json add_to_chest_request) override
 		{
 			corona_client_response response;
 
@@ -859,7 +859,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response remote_remove_item_chest(corona_instance _instance, json remove_from_chest_request)
+		virtual corona_client_response remote_remove_item_chest(json remove_from_chest_request)  override
 		{
 			corona_client_response response;
 
@@ -876,7 +876,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response remote_move_item_chest(corona_instance _instance, json move_chest_request)
+		virtual corona_client_response remote_move_item_chest(json move_chest_request)  override
 		{
 			corona_client_response response;
 
@@ -893,7 +893,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response  local_create_user(json user_information)
+		virtual corona_client_response  local_create_user(json user_information)  override
 		{
 			corona_client_response response;
 			date_time dt;
@@ -913,7 +913,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response  local_login_user(json login_information)
+		virtual corona_client_response  local_login_user(json login_information) override
 		{
 
 			corona_client_response response;
@@ -929,7 +929,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_register_user(json _user)
+		virtual corona_client_response local_register_user(json _user) override
 		{
 			corona_client_response response;
 
@@ -952,7 +952,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code)
+		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code) override
 		{
 			corona_client_response response;
 
@@ -978,7 +978,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_send_user(std::string _user_name)
+		virtual corona_client_response local_send_user(std::string _user_name) override
 		{
 			corona_client_response response;
 
@@ -1003,7 +1003,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_login(std::string _user_name, std::string _password)
+		virtual corona_client_response local_login(std::string _user_name, std::string _password) override
 		{
 			corona_client_response response;
 
@@ -1029,7 +1029,7 @@ namespace corona
 
 		}
 
-		virtual corona_client_response local_login()
+		virtual corona_client_response local_login() override
 		{
 			corona_client_response response;
 
@@ -1054,7 +1054,7 @@ namespace corona
 
 		}
 
-		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2)
+		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2)  override
 		{
 			corona_client_response response;
 
@@ -1083,7 +1083,7 @@ namespace corona
 
 		}
 
-		virtual corona_client_response local_get_classes()
+		virtual corona_client_response local_get_classes()  override
 		{
 			corona_client_response response;
 
@@ -1107,7 +1107,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_get_class(std::string class_name)
+		virtual corona_client_response local_get_class(std::string class_name)  override
 		{
 			corona_client_response response;
 
@@ -1130,7 +1130,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_put_class(json _class_definition)
+		virtual corona_client_response local_put_class(json _class_definition)  override
 		{
 			corona_client_response response;
 
@@ -1153,7 +1153,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_add_item_chest(corona_instance _instance, json add_to_chest_request)
+		virtual corona_client_response local_add_item_chest(json add_to_chest_request) override
 		{
 			corona_client_response response;
 
@@ -1176,7 +1176,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response local_remove_item_chest(corona_instance _instance, json remove_from_chest_request)
+		virtual corona_client_response local_remove_item_chest(json remove_from_chest_request) override
 		{
 			corona_client_response response;
 
@@ -1200,7 +1200,7 @@ namespace corona
 
 		}
 
-		virtual corona_client_response local_move_item_chest(corona_instance _instance, json move_chest_request)
+		virtual corona_client_response local_move_item_chest(json move_chest_request) override
 		{
 			corona_client_response response;
 
@@ -1930,17 +1930,71 @@ namespace corona
 
 		virtual corona_client_response add_item_chest(corona_instance _instance, json add_to_chest_request)
 		{
-			;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("add_item_chest", add_to_chest_request[class_name_field].as_string(), dt);
+			corona_client_response response;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_add_item_chest(add_to_chest_request);
+			}
+			else
+			{
+				response = remote_add_item_chest(add_to_chest_request);
+			}
+
+			if (!response.success) {
+				log_error(response, __FILE__, __LINE__);
+			}
+
+			return response;
 		}
 
 		virtual corona_client_response remove_item_chest(corona_instance _instance, json remove_from_chest_request)
 		{
-			;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("remove_item_chest", remove_from_chest_request[class_name_field].as_string(), dt);
+			corona_client_response response;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_remove_item_chest(remove_from_chest_request);
+			}
+			else
+			{
+				response = remote_remove_item_chest(remove_from_chest_request);
+			}
+
+			if (!response.success) {
+				log_error(response, __FILE__, __LINE__);
+			}
+
+			return response;
 		}
 
 		virtual corona_client_response move_item_chest(corona_instance _instance, json move_chest_request)
 		{
-			;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("move_item_chest", move_chest_request[class_name_field].as_string(), dt);
+			corona_client_response response;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_move_item_chest(move_chest_request);
+			}
+			else
+			{
+				response = remote_move_item_chest(move_chest_request);
+			}
+
+			if (!response.success) {
+				log_error(response, __FILE__, __LINE__);
+			}
+
+			return response;
 		}
 
 
@@ -1964,12 +2018,18 @@ namespace corona
 
 		virtual void object_updated(json _data)
 		{
-			presentation_layer->object_updated(_data);
+			json items = _data.as_array();
+			items.for_each_element([this](json item) {
+				presentation_layer->object_updated(item);
+				});
 		}
 
 		virtual void object_deleted(json _data)
 		{
-			presentation_layer->object_deleted(_data);
+			json items = _data.as_array();
+			items.for_each_element([this](json item) {
+				presentation_layer->object_deleted(item);
+				});
 		}
 
 		virtual control_base* find_control(std::string _name) override

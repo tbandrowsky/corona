@@ -412,6 +412,10 @@ namespace corona
 		}
 	};
 
+	/// <summary>
+	/// selects a tab
+	/// </summary>
+
 	class corona_select_tab_command : public corona_form_command
 	{
 	public:
@@ -475,6 +479,265 @@ namespace corona
 
 			tab_control = _src["tab_control"].as_string();
 			tab_name = _src["tab_name"].as_string();
+		}
+	};
+
+	/// <summary>
+	/// adds the selected item in the list to the chest of another object
+	/// </summary>
+	class corona_list_add_chest_command : public corona_form_command
+	{
+	public:
+		std::string		table_name = "";
+		std::string     chest_name = "";
+
+		corona_instance instance = corona_instance::local;
+
+		corona_list_add_chest_command()
+		{
+			topic = "add_chest";
+		}
+
+		virtual std::string get_name()
+		{
+			return "list_add_chest";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			control_base* cb = _bus->find_control(table_name);
+			if (cb) {
+				json selected_item = cb->get_selected_object();
+                json chest_request = jp.create_object();
+                json form_object = _bus->get_form_data(form_name);
+                chest_request.put_member("chest_name", chest_name);
+				chest_request.copy_member(object_id_field, form_object);
+				chest_request.copy_member(class_name_field, form_object);
+				chest_request.put_member("item_data", selected_item);
+				return chest_request;
+			}
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->add_item_chest(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (response.success) {
+                _bus->object_updated(response.data);
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "list_add_chest"sv);
+			_dest.put_member("table_name", table_name);
+			_dest.put_member("chest_name", chest_name);
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "table_name", "chest_name"})) {
+				system_monitoring_interface::active_mon->log_warning("list_add_chest missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			chest_name = _src["chest_name"].as_string();
+			table_name = _src["table_name"].as_string();
+
+			corona::put_json(instance, _src);
+		}
+	};
+
+	class corona_list_remove_chest_command : public corona_form_command
+	{
+	public:
+		std::string		table_name = "";
+		std::string     chest_name = "";
+
+		corona_instance instance = corona_instance::local;
+
+		corona_list_remove_chest_command()
+		{
+			topic = "remove_chest";
+		}
+
+		virtual std::string get_name()
+		{
+			return "list_remove_chest";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			control_base* cb = _bus->find_control(table_name);
+			if (cb) {
+				json selected_item = cb->get_selected_object();
+				json chest_request = jp.create_object();
+				json form_object = _bus->get_form_data(form_name);
+				chest_request.put_member("chest_name", chest_name);
+				chest_request.copy_member(object_id_field, form_object);
+				chest_request.copy_member(class_name_field, form_object);
+				chest_request.put_member("item_data", selected_item);
+				return chest_request;
+			}
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->remove_item_chest(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (response.success) {
+				_bus->object_updated(response.data);
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "list_remove_chest"sv);
+			_dest.put_member("table_name", table_name);
+			_dest.put_member("chest_name", chest_name);
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "table_name", "chest_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_add_chest missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			chest_name = _src["chest_name"].as_string();
+			table_name = _src["table_name"].as_string();
+
+			corona::put_json(instance, _src);
+		}
+	};
+
+	class corona_list_move_chest_command : public corona_form_command
+	{
+	public:
+
+        std::string 	table_form = "";
+		std::string		table_name = "";
+		std::string     chest_name = "";
+
+		corona_instance instance = corona_instance::local;
+
+		corona_list_move_chest_command()
+		{
+			topic = "move_chest";
+		}
+
+		virtual std::string get_name()
+		{
+			return "list_move_chest";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			control_base* cb = _bus->find_control(table_name);
+			if (cb) {
+				json selected_item = cb->get_selected_object();
+				json chest_request = jp.create_object();
+				
+				json from, to;
+
+                json from_object = _bus->get_form_data(table_form);
+				from = jp.create_object();
+				from.copy_member(object_id_field, from_object);
+				from.copy_member(class_name_field, from_object);
+
+                json to_object = _bus->get_form_data(form_name);
+				to = jp.create_object();
+				to.copy_member(object_id_field, to_object);
+				to.copy_member(class_name_field, to_object);
+
+				chest_request.put_member("chest_name", chest_name);
+				chest_request.put_member("from", from);
+				chest_request.put_member("to", to);
+				chest_request.put_member("item_data", selected_item);
+				return chest_request;
+			}
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->remove_item_chest(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			if (response.success) {
+				json from_object = _bus->get_form_data(table_form);
+				json to_object = _bus->get_form_data(form_name);
+				_bus->object_updated(from_object);
+				_bus->object_updated(to_object);
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "list_move_chest"sv);
+			_dest.put_member("table_form", table_form);
+			_dest.put_member("table_name", table_name);
+			_dest.put_member("chest_name", chest_name);
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "table_name", "table_form", "chest_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_move_chest missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			chest_name = _src["chest_name"].as_string();
+			table_name = _src["table_name"].as_string();
+			table_form = _src["table_form"].as_string();
+
+			corona::put_json(instance, _src);
 		}
 	};
 
@@ -2137,6 +2400,21 @@ namespace corona
 			else if (class_name == "list_select_object")
 			{
 				_dest = std::make_shared<corona_list_select_object_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "list_add_chest")
+			{
+				_dest = std::make_shared<corona_list_add_chest_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "list_move_chest")
+			{
+				_dest = std::make_shared<corona_list_move_chest_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "list_remove_chest")
+			{
+				_dest = std::make_shared<corona_list_remove_chest_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "register_user")
