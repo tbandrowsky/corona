@@ -893,7 +893,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response  local_create_user(json user_information)  override
+		virtual corona_client_response  local_create_user(json user_information)  
 		{
 			corona_client_response response;
 			date_time dt;
@@ -913,7 +913,7 @@ namespace corona
 			return response;
 		}
 
-		virtual corona_client_response  local_login_user(json login_information) override
+		virtual corona_client_response  local_login_user(json login_information) 
 		{
 
 			corona_client_response response;

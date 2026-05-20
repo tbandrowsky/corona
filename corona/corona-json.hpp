@@ -1866,7 +1866,6 @@ namespace corona
 
 		json as_array() const
 		{
-			json_parser jp;
 			json result;
 
 			if (value_base) {
@@ -1874,13 +1873,13 @@ namespace corona
 					result = value_base;
 				}
 				else {
-					result = jp.create_array();
+					result = std::make_shared<json_array>();
 					json temp = value_base;
 					result.push_back(temp);
 				}
 			}
 			else {
-				result = jp.create_array();
+				result = std::make_shared<json_array>();
 			}
 
 			return result;
