@@ -847,8 +847,8 @@ namespace corona
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
-		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  const = 0;
-		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src)  const = 0;
+		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  = 0;
+		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -961,6 +961,7 @@ namespace corona
 		virtual json put_object(json put_object_request) = 0;
 		virtual json get_object(json get_object_request) = 0;
 		virtual json delete_object(json delete_object_request) = 0;
+		virtual json query(json query_request) = 0;
 
 		virtual json add_item_chest(json add_to_chest_request) = 0;
 		virtual json remove_item_chest(json remove_from_chest_request) = 0;
@@ -5131,15 +5132,15 @@ namespace corona
 			return results;
 		}
 
-		virtual std::shared_ptr<chest_field> get_chest(json _src, const std::string& _name)  const
+		virtual std::shared_ptr<chest_field> get_chest(json _src, const std::string& _name) override
 		{
 			std::shared_ptr<chest_field> cf;
 
-			auto chest_field = fields.find(_name);
+			auto cfi = fields.find(_name);
 
-            if (chest_field != std::end(fields)) {
-				if (chest_field->second->get_field_type() == field_types::ft_chest) {
-                    auto field_options = chest_field->second->get_options();
+            if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_chest) {
+                    auto field_options = cfi->second->get_options();
                     auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
 					if (chest_field_options) {
 						json chest_data = _src[_name];
@@ -5165,13 +5166,13 @@ namespace corona
 			return cf;
 		}
 
-		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src)
+		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
 		{
-			auto chest_field = fields.find(_name);
+			auto cfi = fields.find(_name);
 
-			if (chest_field != std::end(fields)) {
-				if (chest_field->second->get_field_type() == field_types::ft_chest) {
-					auto field_options = chest_field->second->get_options();
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_chest) {
+					auto field_options = cfi->second->get_options();
 					auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
 					if (chest_field_options) {
 						json_parser jp;
@@ -5192,7 +5193,7 @@ namespace corona
 			}
 		}
 
-		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant)
+		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) 
 		{
 			// Now, if there is an index set specified, let's go see if we can find one and use it 
 			// rather than scanning the table

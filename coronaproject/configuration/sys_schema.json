@@ -1,6 +1,6 @@
 ﻿{
-  "schema_name": "Sample Application",
-  "schema_description": "Sample Corona Application.",
+  "schema_name": "Revolution Arcade",
+  "schema_description": "Revolution Arcade.",
   "schema_version": "1.1",
   "schema_authors": [
     "TJ Bandrowsky"
@@ -36,86 +36,187 @@
   ],
   "classes": [
     {
-      "class_name": "person",
+      "class_name": "mini_game",
       "base_class_name": "sys_object",
-      "class_description": "A person in the system",
-      "full_text": [ "first_name", "last_name", "middle_name", "description" ],
+      "class_description": "A mini game in the system",
+      "full_text": [ "name", "description", "genre", "platform" ],
       "fields": {
-        "first_name": {
+        "name": {
           "field_type": "string",
           "label": "First Name",
           "max_length": 20
         },
-        "last_name": {
+        "map": "map",
+        "sessions": "[session]"
+      }
+    },
+    {
+      "class_name": "session",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming session",
+      "parents": [ "mini_game" ],
+      "fields": {
+        "players": "[player]"
+      }
+    },
+    {
+      "class_name": "player",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming player",
+      "parents": [ "mini_game" ],
+      "fields": {
+        "players": "[player]"
+      }
+    },
+    {
+      "class_name": "image_section",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming piece",
+      "parents": [ "piece" ],
+      "fields": {
+        "state": {
           "field_type": "string",
-          "label": "Last Name",
-          "max_length": 50
+          "label": "State",
+          "max_length": 20
         },
-        "middle_name": {
+        "order": {
           "field_type": "string",
-          "label": "Middle Name",
-          "max_length": 5
+          "label": "Order",
+          "max_length": 20
+        },
+        "duration": {
+          "field_type": "double",
+          "label": "Duration"
+        },
+        "width": {
+          "field_type": "double",
+          "label": "Width"
+        },
+        "height": {
+          "field_type": "double",
+          "label": "Height"
+        },
+        "x": {
+          "field_type": "double",
+          "label": "X"
+        },
+        "y": {
+          "field_type": "double",
+          "label": "Y"
         }
       }
     },
     {
-      "class_name": "person",
+      "class_name": "piece",
       "base_class_name": "sys_object",
-      "class_description": "A person in the system",
-      "full_text": [ "first_name", "last_name", "middle_name" ],
+      "class_description": "a gaming piece",
+      "parents": [ "mini_game" ],
       "fields": {
-        "first_name": {
+        "name": "string",
+        "image": {
           "field_type": "string",
-          "label": "First Name",
-          "max_length": 20
+          "label": "Image asset name",
+          "max_length": 200
         },
-        "last_name": {
-          "field_type": "string",
-          "label": "Last Name",
-          "max_length": 50
-        },
-        "middle_name": {
-          "field_type": "string",
-          "label": "Middle Name",
-          "max_length": 5
-        },
-        "meetings": "[person_meeting]"
+        "state": "string",
+        "image_sections": "[image_section]",
+        "dx": "double",
+        "dy": "double",
+        "ax": "double",
+        "ay": "double",
+        "cx": "double",
+        "cy": "double",
+        "cz": "double"
       }
     },
     {
-      "class_name": "person_meeting",
-      "base_class_name": "sys_object",
-      "class_description": "A person in a meeting",
-      "parents": [ "meeting", "person" ],
+      "class_name": "item",
+      "base_class_name": "piece",
+      "class_description": "a gaming item",
       "fields": {
-
+        "name": "string",
+        "image": {
+          "field_type": "string",
+          "label": "Image asset name",
+          "max_length": 200
+        },
+        "state": "string",
+        "image_sections": "[image_section]",
+        "dx": "double",
+        "dy": "double",
+        "ax": "double",
+        "ay": "double",
+        "cx": "double",
+        "cy": "double",
+        "cz": "double"
       }
     },
     {
-      "class_name": "meeting",
-      "base_class_name": "sys_object",
-      "class_description": "A meeting in the system",
-      "full_text": [ "title", "description", "start_time", "end_time" ],
+      "class_name": "player",
+      "base_class_name": "piece",
+      "class_description": "a gaming player",
       "fields": {
-        "title": {
-          "field_type": "string",
-          "label": "Title",
-          "max_length": 100
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description",
-          "max_length": 1000
-        },
-        "start_time": {
-          "field_type": "datetime",
-          "label": "Start Time"
-        },
-        "end_time": {
-          "field_type": "datetime",
-          "label": "End Time"
-        },
-        "attendees": "[person_meeting]"
+        "input_device": "string",
+        "full_hit_points": "double",
+        "hit_points": "double",
+        "inventory": {
+          "field_type": "[chest]"
+        }
+      }
+    },
+    {
+      "class_name": "npc",
+      "base_class_name": "piece",
+      "class_description": "a gaming NPC",
+      "fields": {
+        "input_device": "string",
+        "full_hit_points": "double",
+        "hit_points": "double"
+      }
+    },
+    {
+      "class_name": "wall",
+      "base_class_name": "piece",
+      "class_description": "a gaming wall",
+      "fields": {
+        "full_hit_points": "double",
+        "hit_points": "double"
+      }
+    },
+    {
+      "class_name": "door",
+      "base_class_name": "piece",
+      "class_description": "a gaming door",
+      "fields": {
+        "full_hit_points": "double",
+        "hit_points": "double"
+      }
+    },
+    {
+      "class_name": "liquid",
+      "base_class_name": "piece",
+      "class_description": "a gaming liquid",
+      "fields": {
+        "full_hit_points": "double",
+        "hit_points": "double"
+      }
+    },
+    {
+      "class_name": "ice",
+      "base_class_name": "piece",
+      "class_description": "a gaming ice",
+      "fields": {
+        "full_hit_points": "double",
+        "hit_points": "double"
+      }
+    },
+    {
+      "class_name": "decoration",
+      "base_class_name": "piece",
+      "class_description": "a gaming decoration, like clouds",
+      "fields": {
+        "full_hit_points": "double",
+        "hit_points": "double"
       }
     }
   ],
