@@ -1465,6 +1465,26 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response  local_copy_object(json _copy_params)
+		{
+			corona_client_response response;
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("copy_object", "start", dt);
+			timer tx;
+			json_parser jp;
+			json request = jp.create_object();
+			json token = get_local_token();
+			request.put_member("include_children", true);
+			request.put_member(token_field, token);
+			request.put_member(data_field, _copy_params);
+			json j = local_db->copy_object(request);
+			if (j.error())
+				log_error(j, __FILE__, __LINE__);
+			log_command_stop("copy_object", j[message_field].as_string(), tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			response = j;
+			return response;
+		}
 
 		virtual corona_client_response register_user(corona_instance _instance, json _user)
 		{

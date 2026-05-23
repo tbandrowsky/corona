@@ -29,6 +29,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-comm-service-bus.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-corona-client.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-express-record.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-gaming-2d.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-interfaces.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-locks.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-constants.hpp" />

@@ -9188,6 +9188,37 @@ private:
 		/// and also guards against leaking them.
 		/// </summary>
 		/// <param name="object_to_scrub"></param>
+		virtual void remove_object_ids(json& object_to_scrub)
+		{
+			if (auto obj_impl = object_to_scrub.object_impl()) {
+				auto member_set = object_to_scrub.get_members();
+				for (auto member : member_set)
+				{
+					json child(member.second);
+					if (child.object() or child.array()) {
+						scrub_object(child);
+					}
+                    else if (member.first == object_id_field) {
+						obj_impl->members.erase(member.first);
+					}
+				}
+			}
+			else if (auto array_impl = object_to_scrub.array_impl()) {
+				for (int i = 0; i < array_impl->elements.size(); i++) {
+					json item(array_impl->elements[i]);
+					if (item.object()) {
+						scrub_object(item);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Removes references to fields in object_to_scrub that are marked server only.
+		/// This prevents clients from updating server only data,
+		/// and also guards against leaking them.
+		/// </summary>
+		/// <param name="object_to_scrub"></param>
 		virtual void scrub_object(json& object_to_scrub)
 		{
 			
@@ -11275,6 +11306,11 @@ grant_type=authorization_code
 				// if that worked, then let's go for the copy
 				if (source_object.object()) 
 				{
+
+					// transforms this to a new object....
+					// because this is a deep copy.
+                    remove_object_ids(source_object);
+
 					json new_object;
 					// we transform the object into a new class while copying, if there is a 
 					// transform specification
@@ -11296,39 +11332,47 @@ grant_type=authorization_code
 							}
 						}
 					}
-					else 
+
+                    // ok, two cases.  Either the destination is a new object, in which case we just put the new object there, or the destination is an existing object, in which case we need to merge the new object into the existing one.  We can tell which case it is by whether the dest_path is empty or not.  If it's empty, then we are putting the new object at the destination key.  If it's not empty, then we are merging into an existing object.
+					// or, the destionation is a member of an existing object.
+
+					if (dest_key["object_id"].as_int64_t() == 0)
 					{
-						new_object = source_object.clone();
-						new_object.erase_member(object_id_field);
-					}
-
-					//
-					json object_dest = select_single_object(dest_key, true, dest_permission);
-
-					// now we are going to put this object in our destination
-					json object_dest_result = object_dest.query(dest_path);
-
-					if (object_dest_result.object()) {
-						json update_obj;
-						json target = object_dest_result["target"];
-						std::string name = object_dest_result["name"].as_string();
-						update_obj = object_dest_result["object"];
-						if (target.array())
-						{
-							target.push_back(new_object);
-						}
-						else if (target.object())
-						{
-							target.put_member(name, new_object);
-						}
-						json por = create_request(user_name, auth_general, update_obj);
+						json por = create_request(user_name, auth_general, new_object);
 						response = put_object(por);
 					}
-					else {
-						response = create_response(copy_request, false, "could not find dest object", object_dest, errors, method_timer.get_elapsed_seconds());;
+					else 
+					{
+						//
+						json object_dest = select_single_object(dest_key, true, dest_permission);
+
+						// now we are going to put this object in our destination
+						json object_dest_result = object_dest.query(dest_path);
+
+						if (object_dest_result.object()) {
+							json update_obj;
+							json target = object_dest_result["target"];
+							std::string name = object_dest_result["name"].as_string();
+							update_obj = object_dest_result["object"];
+							if (target.array())
+							{
+								target.push_back(new_object);
+							}
+							else if (target.object())
+							{
+								target.put_member(name, new_object);
+							}
+							json por = create_request(user_name, auth_general, update_obj);
+							response = put_object(por);
+						}
+						else 
+						{
+							response = create_response(copy_request, false, "could not find dest object", object_dest, errors, method_timer.get_elapsed_seconds());;
+						}
 					}
 				}
-				else {
+				else 				
+				{
 					response = create_response(copy_request, false, "could not find source object", object_source, errors, method_timer.get_elapsed_seconds());;
 				}
 			}

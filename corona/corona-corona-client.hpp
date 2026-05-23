@@ -420,6 +420,24 @@ namespace corona
 			return result;
 		}
 
+		virtual corona_client_response copy_objects(json _copy) override
+		{
+			corona_client_response result;
+
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			std::string path = base_path + "/corona/objects/copy/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), _copy, header.c_str());
+
+			result = params;
+
+			return result;
+		}
+
 		virtual corona_client_response add_item_chest(json add_to_chest_request)
 		{
 			corona_client_response result;

@@ -1,6 +1,6 @@
 ﻿{
   "schema_name": "Revolution Arcade",
-  "schema_description": "Revolution Arcade.",
+  "schema_description": "Revolution Arcade Application Schema",
   "schema_version": "1.1",
   "schema_authors": [
     "TJ Bandrowsky"
@@ -36,18 +36,71 @@
   ],
   "classes": [
     {
-      "class_name": "mini_game",
+      "class_name": "activity",
       "base_class_name": "sys_object",
-      "class_description": "A mini game in the system",
-      "full_text": [ "name", "description", "genre", "platform" ],
+      "class_description": "An activity",
+      "full_text": [ "name", "description", "image" ],
       "fields": {
         "name": {
           "field_type": "string",
           "label": "First Name",
-          "max_length": 20
+          "max_length": 100
         },
-        "map": "map",
+        "description": {
+          "field_type": "string",
+          "label": "First Name"
+        },
+        "image": "string"
+      }
+    },
+    {
+      "class_name": "mini_game",
+      "base_class_name": "activity",
+      "class_description": "A mini game in the system",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "First Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "First Name"
+        },
+        "image": "string",
+        "maps": "[map]",
+        "starting_map": "map",
         "sessions": "[session]"
+      },
+      "indexes": {
+        "mini_game_name_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "essay",
+      "base_class_name": "activity",
+      "class_description": "An essay in the system",
+      "full_text": [ "name", "description", "text" ],
+      "fields": {
+        "text": "string"
+      }
+    },
+    {
+      "class_name": "map",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming map",
+      "parents": [ "mini_game", "session" ],
+      "fields": {
+        "pieces": "[piece]",
+        "friction_ax": "double",
+        "friction_ay": "double",
+        "friction_az": "double",
+        "gravity_ax": "double",
+        "gravity_ay": "double",
+        "gravity_az": "double"
       }
     },
     {
@@ -56,20 +109,22 @@
       "class_description": "a gaming session",
       "parents": [ "mini_game" ],
       "fields": {
-        "players": "[player]"
+        "maps": "[map]",
+        "name": {
+          "field_type": "string",
+          "label": "First Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "First Name"
+        },
+        "image": "string",
+        "current_map": "string"
       }
     },
     {
-      "class_name": "player",
-      "base_class_name": "sys_object",
-      "class_description": "a gaming player",
-      "parents": [ "mini_game" ],
-      "fields": {
-        "players": "[player]"
-      }
-    },
-    {
-      "class_name": "image_section",
+      "class_name": "sprite",
       "base_class_name": "sys_object",
       "class_description": "a gaming piece",
       "parents": [ "piece" ],
@@ -80,7 +135,7 @@
           "max_length": 20
         },
         "order": {
-          "field_type": "string",
+          "field_type": "double",
           "label": "Order",
           "max_length": 20
         },
@@ -88,11 +143,11 @@
           "field_type": "double",
           "label": "Duration"
         },
-        "width": {
+        "w": {
           "field_type": "double",
           "label": "Width"
         },
-        "height": {
+        "h": {
           "field_type": "double",
           "label": "Height"
         },
@@ -113,20 +168,28 @@
       "parents": [ "mini_game" ],
       "fields": {
         "name": "string",
-        "image": {
+        "image_name": {
           "field_type": "string",
           "label": "Image asset name",
           "max_length": 200
         },
         "state": "string",
-        "image_sections": "[image_section]",
+        "sprites": "[ sprite ]",
         "dx": "double",
         "dy": "double",
+        "dz": "double",
         "ax": "double",
         "ay": "double",
+        "az": "double",
         "cx": "double",
         "cy": "double",
-        "cz": "double"
+        "cz": "double",
+        "full_hit_points": "double",
+        "hit_points": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "item"
+        }
       }
     },
     {
@@ -134,21 +197,6 @@
       "base_class_name": "piece",
       "class_description": "a gaming item",
       "fields": {
-        "name": "string",
-        "image": {
-          "field_type": "string",
-          "label": "Image asset name",
-          "max_length": 200
-        },
-        "state": "string",
-        "image_sections": "[image_section]",
-        "dx": "double",
-        "dy": "double",
-        "ax": "double",
-        "ay": "double",
-        "cx": "double",
-        "cy": "double",
-        "cz": "double"
       }
     },
     {
@@ -156,12 +204,15 @@
       "base_class_name": "piece",
       "class_description": "a gaming player",
       "fields": {
-        "input_device": "string",
-        "full_hit_points": "double",
-        "hit_points": "double",
-        "inventory": {
-          "field_type": "[chest]"
-        }
+        "input_device": "string"
+      }
+    },
+    {
+      "class_name": "loot_box",
+      "base_class_name": "piece",
+      "class_description": "a gaming loot box",
+      "fields": {
+        
       }
     },
     {
@@ -169,9 +220,7 @@
       "base_class_name": "piece",
       "class_description": "a gaming NPC",
       "fields": {
-        "input_device": "string",
-        "full_hit_points": "double",
-        "hit_points": "double"
+        
       }
     },
     {
@@ -179,8 +228,7 @@
       "base_class_name": "piece",
       "class_description": "a gaming wall",
       "fields": {
-        "full_hit_points": "double",
-        "hit_points": "double"
+        "passable": "boolean"
       }
     },
     {
@@ -188,26 +236,17 @@
       "base_class_name": "piece",
       "class_description": "a gaming door",
       "fields": {
-        "full_hit_points": "double",
-        "hit_points": "double"
+        "open": "boolean"
       }
     },
     {
-      "class_name": "liquid",
+      "class_name": "surface",
       "base_class_name": "piece",
-      "class_description": "a gaming liquid",
+      "class_description": "a gaming surface",
       "fields": {
-        "full_hit_points": "double",
-        "hit_points": "double"
-      }
-    },
-    {
-      "class_name": "ice",
-      "base_class_name": "piece",
-      "class_description": "a gaming ice",
-      "fields": {
-        "full_hit_points": "double",
-        "hit_points": "double"
+        "mechanic": "string",
+        "acceleration_multiplier": "double",
+        "friction_multiplier": "double"
       }
     },
     {
@@ -215,8 +254,6 @@
       "base_class_name": "piece",
       "class_description": "a gaming decoration, like clouds",
       "fields": {
-        "full_hit_points": "double",
-        "hit_points": "double"
       }
     }
   ],
@@ -235,7 +272,7 @@
       "string": {
         "class_name": "edit_field",
         "box": "edit_field_box"
-      },
+      }, 
       "datetime": {
         "class_name": "datetimepicker_field",
         "box": "edit_field_box"
@@ -265,7 +302,7 @@
     "classes": {
       "person": "default"
     },
-    "teams": {
+    "teams": { 
       "app_team": {
         "search_groups": [
           {
