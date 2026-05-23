@@ -286,7 +286,7 @@ namespace corona
 
 			name = _src["name"].as_string();
 
-			json j = _src["sprites"];
+			json j = _src["pieces"];
 			json aj = j.as_array();
 
 			for (int i = 0; i < aj.size(); i++) {
@@ -360,12 +360,20 @@ namespace corona
 		std::string class_name;
 		int64_t object_id;
 		std::string name;
+        std::string description;
+		std::string image;
+		std::string current_map;
+		date_time last_frame;
+
 		std::vector<std::shared_ptr<game_map>> maps;
 
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
 			_dest.put_member("name", name);
+			_dest.put_member("description", description);
+			_dest.put_member("image", image);
+			_dest.put_member("current_map", current_map);
 			json j = jp.create_array();
 			for (auto& s : maps) {
 				json jmap = jp.create_object();
@@ -378,6 +386,9 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			name = _src["name"].as_string();
+			description = _src["description"].as_string();
+			image = _src["image"].as_string();
+			current_map = _src["current_map"].as_string();
 			json j = _src["maps"];
 			json aj = j.as_array();
 			for (int i = 0; i < aj.size(); i++) {
@@ -389,6 +400,12 @@ namespace corona
 				}
 			}
         }
+
+		virtual void update_frame()
+		{
+
+		}
+
 	};
 
 	class gaming_engine

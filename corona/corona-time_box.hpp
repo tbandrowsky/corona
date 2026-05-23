@@ -735,6 +735,13 @@ namespace corona
             }
 		}
 
+		bool empty() const
+		{
+			return sql_date_time.year == 0 and sql_date_time.month == 0 and sql_date_time.day == 0 and
+				sql_date_time.hour == 0 and sql_date_time.minute == 0 and sql_date_time.second == 0 and
+				sql_date_time.fraction == 0;
+        }
+
 	};
 
 	std::ostream& operator <<(std::ostream& output, date_time& _src)

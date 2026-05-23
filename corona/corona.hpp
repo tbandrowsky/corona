@@ -71,6 +71,14 @@ For Future Consideration
 #include <direct.h>
 #include <sql.h>
 #include <sqlext.h>
+#include <wbemidl.h>
+#include <oleauto.h>
+
+#include <Xinput.h>
+
+#ifndef SAFE_RELEASE
+#define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr; } }
+#endif
 
 // these are all miscellaneous utility classes and the ever abused core constants
 
@@ -166,6 +174,9 @@ namespace corona {
 #include "corona-jvalue.hpp"
 #include "corona-jobject.hpp"
 #include "corona-jdatabase_server.hpp"
+
+// game pad support
+#include "corona-xinput.hpp"
 
 // these are for the ui. data transfer is just about empty and was
 // envisioned as the place for all the dtos, but, matters evolved and 
