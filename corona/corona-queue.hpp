@@ -41,7 +41,7 @@ namespace corona {
 
 	public:
 
-		bool repost, shouldDelete;
+		bool shouldDelete;
 
 		job_notify();
 		job_notify(job_notify&& _src);
@@ -62,6 +62,7 @@ namespace corona {
 		virtual ~job();
 		virtual bool queued(job_queue* _callingQueue) = 0;
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
+		virtual job* get_next_job();
 		friend class job_queue;
 	};
 
@@ -83,12 +84,14 @@ namespace corona {
 		runnable function_to_run;
 		double execution_time_seconds;
 		timer queue_time;
+		bool repeat;
 		general_job();
 		general_job(runnable _runnable, HANDLE _notification_handle = nullptr);
 		virtual bool queued(job_queue* _callingQueue) override {
 			return true;
 		}
 		virtual ~general_job();
+		job* get_next_job() override;
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
 		friend class job_queue;
 	};
@@ -135,6 +138,7 @@ namespace corona {
     public:
 		thread_safe_map<LPOVERLAPPED, io_job*> jobs_by_ovp;
 	};
+
 
 	class job_queue : public lockable
 	{
@@ -203,7 +207,6 @@ namespace corona {
 
 	job_notify::job_notify()
 	{
-		repost = false;
 		notification = none;
 		shouldDelete = false;
 		msg = {};
@@ -211,7 +214,6 @@ namespace corona {
 
 	job_notify::job_notify(job_notify&& _src)
 	{
-		repost = _src.repost;
 		msg.hwnd = _src.msg.hwnd;
 		msg.message = _src.msg.message;
 		msg.wParam = _src.msg.wParam;
@@ -249,7 +251,6 @@ namespace corona {
 
 	void job_notify::operator = (const job_notify& _src)
 	{
-		repost = _src.repost;
 		msg.hwnd = _src.msg.hwnd;
 		msg.message = _src.msg.message;
 		msg.wParam = _src.msg.wParam;
@@ -282,6 +283,12 @@ namespace corona {
 		return jobNotify;
 	}
 
+    job* job::get_next_job()
+	{
+		return nullptr;
+	}
+
+
 	
 
 	// -------------------------------------------------------------------------------
@@ -290,6 +297,7 @@ namespace corona {
 	{
 		notification_handle = nullptr;
 		execution_time_seconds = 0;
+		repeat = false;
 	}
 
 	general_job::general_job(runnable _runnable, HANDLE _notification_handle)
@@ -297,6 +305,7 @@ namespace corona {
 		notification_handle = _notification_handle;
 		function_to_run = _runnable;
 		execution_time_seconds = 0;
+		repeat = false;
 	}
 
 	general_job::~general_job()
@@ -318,10 +327,20 @@ namespace corona {
 			jobNotify.setSignal(notification_handle);
 		}
 
-		jobNotify.shouldDelete = true;
+		jobNotify.shouldDelete = !repeat;
 
 		return jobNotify;
 	}
+
+	job *general_job::get_next_job()
+	{
+		if (repeat) {
+			return this;
+		}
+		else {
+			return nullptr;
+		}
+    }
 
 	// -------------------------------------------------------------------------------
 
@@ -594,6 +613,11 @@ namespace corona {
 			if (success) {
 
 				io_job* completed_io = find_io_job(compKey, lpov);
+
+				// TODO:  have a method on the job called 
+				// get_next_job(), which returns a next job
+				// that actually solves a shit ton of your problems.
+
 				if (completed_io) {
 					try {
 						// if waiting_job is whacked, that means the pointer for the job was actually deleted.
@@ -625,8 +649,9 @@ namespace corona {
 							}
 							// if waiting_job is whacked, that means the pointer for the job was actually deleted.
 							jobNotify = waiting_job->execute(this, bytesTransferred, success);
-							if (jobNotify.repost and (!wasShutDownOrdered())) {
-								submit_job(waiting_job);
+                            job* next_job = waiting_job->get_next_job();
+							if (next_job and (!wasShutDownOrdered())) {
+								submit_job(next_job);
 							}
 						}
 						catch (std::exception exc)

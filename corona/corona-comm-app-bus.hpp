@@ -33,6 +33,7 @@ namespace corona
 		std::multimap<std::string, topic_event_waiter> topic_waiters;
 
 		corona_client client;
+		xinput controllers;
 
 		void check_windows_queue(MSG* _msg)
 		{
