@@ -247,10 +247,6 @@ namespace corona {
 // the bus makes use of these to do the React style insta-edit
 #include "corona-file-monitor.hpp"
 
-// the gaming engine is a layer that uses Corona db, rendered by the presentation control, 
-// hosted by the app bus, and ultimately the service bus
-#include "corona-gaming-2d.hpp"
-
 // these are visual styles.  corona has a primitive style sheet system
 // that is conceptually in between what HTML does - which makes a mess out of everything
 // versus what XAML does, which is so simplistic.
@@ -293,6 +289,10 @@ namespace corona {
 #include "corona-presentation.hpp"
 #include "corona-directapplication.hpp"
 
+// the gaming engine is a layer that uses Corona db, rendered by the presentation control, 
+// hosted by the app bus, and ultimately the service bus
+#include "corona-gaming-2d.hpp"
+ 
 // the easiest way to let an application be a web service.
 // this little bad boy uses the Windows HTTP Server stack 
 // and so yes a corona applications cheesy web server is 

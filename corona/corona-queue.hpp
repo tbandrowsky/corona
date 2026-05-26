@@ -376,7 +376,6 @@ namespace corona {
 		}
 		catch (std::exception & exc) 
 		{
-			jobNotify.repost = false;
 			jobNotify.shouldDelete = true;
 			system_monitoring_interface::active_mon->log_exception(exc, __FILE__, __LINE__);
 			return jobNotify;

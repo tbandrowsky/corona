@@ -354,7 +354,7 @@ namespace corona
 
 	};
 
-	class game_session
+	class game_session : public job
 	{
 	public:
 		std::string class_name;
@@ -363,9 +363,27 @@ namespace corona
         std::string description;
 		std::string image;
 		std::string current_map;
-		date_time last_frame;
+		timer		frame_timer;
+        xinput		input;
+
+		bool game_launched = true;
+		bool game_running = false;
+		bool game_over = false;
+		bool game_complete = false;
+
+		double last_elapsed_seconds;
 
 		std::vector<std::shared_ptr<game_map>> maps;
+
+		game_session()
+		{
+			;
+		}
+
+		game_session(json& _src)
+		{
+			put_json(_src);
+		}
 
 		virtual void get_json(json& _dest)
 		{
@@ -401,9 +419,50 @@ namespace corona
 			}
         }
 
-		virtual void update_frame()
+		job* get_next_job()
 		{
+			if (!game_over) {
+				return this;
+			}
+			else {
+				return nullptr;
+			}
+		}
 
+		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		{
+            job_notify notify;
+
+			notify.shouldDelete = false;
+
+			if (game_launched) {
+                last_elapsed_seconds = frame_timer.get_elapsed_seconds();
+				return;
+			}
+
+            double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
+			double delta = current_elapsed_seconds - last_elapsed_seconds;
+
+			// we have to resolve collision effects first, because, 
+			// that gives us new accelerations.
+
+			// in the model, physical quantities are given in seconds, so, we can apply the ax, ay to terms
+			// and that gives us simple linear models.
+			// for other models, we can additionally scale the time so that seconds could be weeks,
+			// months or years.
+
+            for (auto gm : maps) {
+				for (auto piece : gm->pieces) {
+					piece->dx += piece->ax * delta;
+					piece->dy += piece->ay * delta;
+					piece->dz += piece->az * delta;
+					piece->cx += piece->dx * delta;
+					piece->cy += piece->dy * delta;
+					piece->cz += piece->dz * delta;
+				}
+			}
+
+			return notify;
 		}
 
 	};
