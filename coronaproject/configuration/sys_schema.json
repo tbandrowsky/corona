@@ -184,6 +184,7 @@
         "cx": "double",
         "cy": "double",
         "cz": "double",
+        "mass": "double",
         "full_hit_points": "double",
         "hit_points": "double",
         "inventory": {

@@ -76,6 +76,8 @@ For Future Consideration
 
 #include <Xinput.h>
 
+#include <DirectXMath.h>
+
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr; } }
 #endif

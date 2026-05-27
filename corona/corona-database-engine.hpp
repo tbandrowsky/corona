@@ -1716,6 +1716,20 @@ namespace corona
 								return false;
 							}
 						}
+						else if (fundamental_type == field_types::ft_vector)
+						{
+							bool acceptable = obj.is_vector();
+							if (not acceptable) {
+								validation_error ve;
+								ve.class_name = _class_name;
+								ve.field_name = _field_name;
+								ve.filename = get_file_name(__FILE__);
+								ve.line_number = __LINE__;
+								ve.message = "Element must be a datetime.";
+								_validation_errors.push_back(ve);
+								return false;
+							}
+						}
 						else if (bridges)
 						{
 							if (obj.object()) {

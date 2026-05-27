@@ -705,7 +705,9 @@ namespace corona
 		ft_function = 'f',
 		ft_query = 'q',
 		ft_blob = 'x',
-		ft_null = 'n'
+		ft_null = 'n',
+        ft_vector = 'v',
+		ft_rectangle = 'e'
 	};
 	
 	const int field_type_size = 12;
@@ -737,7 +739,8 @@ namespace corona
 { "bool", field_types::ft_bool },
 { "datetime", field_types::ft_datetime },
 { "function", field_types::ft_function },
-{ "query", field_types::ft_query }
+{ "query", field_types::ft_query },
+{ "vector", field_types::ft_vector }
 	};
 
 	std::map<field_types, std::string> field_type_names = {
@@ -750,7 +753,8 @@ namespace corona
 { field_types::ft_bool, "bool"  },
 { field_types::ft_datetime, "datetime"  },
 { field_types::ft_function, "function"  },
-{ field_types::ft_query, "query"  }
+{ field_types::ft_query, "query"  },
+{ field_types::ft_vector, "vector"  }
 	};
 
 	std::map<field_types, std::string> field_type_names_openapi = {
@@ -763,7 +767,8 @@ namespace corona
 { field_types::ft_datetime, "string"  },
 { field_types::ft_function, "array"  },
 { field_types::ft_query, "array"  },
-{ field_types::ft_chest, "chest"  }
+{ field_types::ft_chest, "chest"  },
+{ field_types::ft_vector, "vector"  },
 	};
 
 	auto toHex(unsigned char i)

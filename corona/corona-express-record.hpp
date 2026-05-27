@@ -386,6 +386,11 @@ namespace corona
             std::copy(_data, _data + _length, record_data.begin() + f.record_offset);
         }
 
+		void add(int32_t _field_id, DirectX::XMVECTOR _d)
+		{
+			add_poco<DirectX::XMVECTOR>(_field_id, _d, field_types::ft_vector);
+		}
+
 		void add(int32_t _field_id, double _d)
 		{
             add_poco<double>(_field_id, _d, field_types::ft_double);
@@ -508,6 +513,12 @@ namespace corona
 					}
 					break;
 				case field_types::ft_chest:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
+				case field_types::ft_vector:
 					{
 						std::string a = m.to_json_typed();
 						add(acol.field_id, a);

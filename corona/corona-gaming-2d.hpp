@@ -49,9 +49,9 @@ namespace corona
 		std::vector<std::shared_ptr<game_sprite>> sprites;
 		std::shared_ptr<chest_field> inventory;
 
-		double dx, dy, dz;
-		double ax, ay, az;
-		double cx, cy, cz;
+		DirectX::XMVECTOR position = {};
+		DirectX::XMVECTOR velocity = {};
+		DirectX::XMVECTOR acceleration = {};
 
 		virtual void get_json(json& _dest)
 		{
@@ -62,15 +62,15 @@ namespace corona
 			_dest.put_member("image_name", image_name);
 			_dest.put_member("state", state);
 			_dest.put_member("name", name);
-			_dest.put_member("dx", dx);
-			_dest.put_member("dy", dy);
-			_dest.put_member("dz", dz);
-			_dest.put_member("ax", ax);
-			_dest.put_member("ay", ay);
-			_dest.put_member("az", az);
-			_dest.put_member("cx", cx);
-			_dest.put_member("cy", cy);
-			_dest.put_member("cz", cz);
+			_dest.put_member("dx", position.m128_f32[0]);
+			_dest.put_member("dy", position.m128_f32[1]);
+			_dest.put_member("dz", position.m128_f32[2]);
+			_dest.put_member("ax", acceleration.m128_f32[0]);
+			_dest.put_member("ay", acceleration.m128_f32[1]);
+			_dest.put_member("az", acceleration.m128_f32[2]);
+			_dest.put_member("cx", velocity.m128_f32[0]);
+			_dest.put_member("cy", velocity.m128_f32[1]);
+			_dest.put_member("cz", velocity.m128_f32[2]);
 
 			json j = jp.create_array();
 			for (auto& s : sprites) {
@@ -94,15 +94,15 @@ namespace corona
 			image_name = _src["image_name"].as_string();
 			state = _src["state"].as_string();
 			name = _src["name"].as_string();
-			dx = _src["dx"].as_double();
-			dy = _src["dy"].as_double();
-			dz = _src["dz"].as_double();
-			ax = _src["ax"].as_double();
-			ay = _src["ay"].as_double();
-			az = _src["az"].as_double();
-			cx = _src["cx"].as_double();
-			cy = _src["cy"].as_double();
-			cz = _src["cz"].as_double();
+			position.m128_f32[0] = _src["dx"].as_double();
+			position.m128_f32[1] = _src["dy"].as_double();
+			position.m128_f32[2] = _src["dz"].as_double();
+			acceleration.m128_f32[0] = _src["ax"].as_double();
+			acceleration.m128_f32[1] = _src["ay"].as_double();
+			acceleration.m128_f32[2] = _src["az"].as_double();
+			velocity.m128_f32[0] = _src["cx"].as_double();
+			velocity.m128_f32[1] = _src["cy"].as_double();
+			velocity.m128_f32[2] = _src["cz"].as_double();
 
 			json j = _src["sprites"];
 			json aj = j.as_array();
@@ -374,6 +374,7 @@ namespace corona
 		double last_elapsed_seconds;
 
 		std::vector<std::shared_ptr<game_map>> maps;
+		DirectX::XMVECTOR zero_vector = {};
 
 		game_session()
 		{
@@ -429,6 +430,33 @@ namespace corona
 			}
 		}
 
+		/// <summary>
+		/// applies the acceleration of a piece,
+		/// returning true, if, the piece accelerated something else.
+		/// think of this as like a packet
+		/// </summary>
+		/// <param name="_piece"></param>
+		/// <returns></returns>
+		bool accelerate_piece(std::shared_ptr<game_map> _map, std::shared_ptr<game_piece> _piece)
+		{
+            // can't be accelerated or accelerate anything if it's not moving or accelerating.
+			// no kinetic energy
+			if (DirectX::XMVector3Equal(_piece->acceleration, zero_vector) &&
+				DirectX::XMVector3Equal(_piece->velocity, zero_vector)) {
+				return false;
+            }
+
+            DirectX::XMVECTOR new_position = DirectX::XMVectorAdd(_piece->position, _piece->velocity);
+
+            // now do we hit something as we are moving
+			for (auto p : _map->pieces) 
+			{
+				if (p != _piece) {
+					
+				}
+			}
+		}
+
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
             job_notify notify;
@@ -452,14 +480,6 @@ namespace corona
 			// months or years.
 
             for (auto gm : maps) {
-				for (auto piece : gm->pieces) {
-					piece->dx += piece->ax * delta;
-					piece->dy += piece->ay * delta;
-					piece->dz += piece->az * delta;
-					piece->cx += piece->dx * delta;
-					piece->cy += piece->dy * delta;
-					piece->cz += piece->dz * delta;
-				}
 			}
 
 			return notify;

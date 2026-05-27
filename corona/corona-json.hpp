@@ -115,6 +115,11 @@ namespace corona
 		{
 			return 0.0;
 		}
+		virtual DirectX::XMVECTOR to_vector() const
+		{
+			DirectX::XMVECTOR v = {};
+			return v;
+		}
 
 	};
 
@@ -364,6 +369,61 @@ namespace corona
 			return value != 0.0;
 		}
 		virtual double to_double() const
+		{
+			return value;
+		}
+
+	};
+
+	class json_vector : public json_value
+	{
+	public:
+		DirectX::XMVECTOR value;
+
+		virtual std::string to_key() const;
+		virtual std::string to_json() const;
+		virtual std::string to_json_typed() const;
+		virtual std::string to_string() const;
+		virtual bool is_empty() const;
+		virtual std::stringstream& serialize(std::stringstream& _src)  const;
+		virtual void from_string(const std::string_view& _src);
+		virtual std::string format(std::string _format) const;
+
+		virtual field_types get_field_type() const
+		{
+			return field_types::ft_vector;
+		}
+
+		virtual std::string get_type_prefix() const
+		{
+			return "$vector";
+		}
+
+		virtual std::shared_ptr<json_value> clone() const
+		{
+			auto t = std::make_shared<json_vector>();
+			t->value = value;
+			t->comparison_index = comparison_index;
+			return t;
+		}
+
+		virtual int64_t to_int64() const
+		{
+			return value.m128_i64[0];
+		}
+		virtual date_time to_datetime() const
+		{
+			return date_time(value.m128_i64[0]);
+		}
+		virtual bool to_bool() const
+		{
+			return value.m128_i64 > 0;
+		}
+		virtual double to_double() const
+		{
+			return value.m128_f32[0];
+		}
+		virtual DirectX::XMVECTOR to_vector() const
 		{
 			return value;
 		}
@@ -1400,6 +1460,10 @@ namespace corona
 			return dynamic_cast<json_int64 *>(value_base.get());
 		}
 
+		json_vector *vector_impl() const {
+			return dynamic_cast<json_vector*>(value_base.get());
+		}
+
 		json_reference *reference_impl() const {
 			return dynamic_cast<json_reference *>(value_base.get());
 		}
@@ -1735,6 +1799,11 @@ namespace corona
 
 		json make_path(std::string_view _path, std::string& _name, json _value);
 
+		bool is_vector() const
+		{
+			return vector_impl() != nullptr;
+		}
+
 		bool is_int64() const
 		{
 			return int64_impl() != nullptr;
@@ -1846,6 +1915,14 @@ namespace corona
 				return value_base->to_int64();
 			else
 				return 0;
+		}
+
+		DirectX::XMVECTOR as_vector() const
+		{
+			if (value_base)
+				return value_base->to_vector();
+			else
+				return DirectX::XMVectorZero();
 		}
 
 		date_time as_date_time() const
@@ -2301,6 +2378,10 @@ namespace corona
 				bool b = get_member(_key).as_bool();
 				put_member(_key, b);
 			}
+			else if (_new_type == field_types::ft_vector) {
+				DirectX::XMVECTOR v = get_member(_key).as_vector();
+				put_member(_key, v);
+			}
 		}
 
 		json build_member(std::string _key);
@@ -2513,6 +2594,17 @@ namespace corona
 			}
 			auto new_member = std::make_shared<json_reference>();
 			new_member->value = _ref;
+			object_impl()->members[_key] = new_member;
+			return *this;
+		}
+
+		json put_member_vector(std::string _key, const DirectX::XMVECTOR& _value)
+		{
+			if (not object_impl()) {
+				throw std::logic_error("Not an object");
+			}
+			auto new_member = std::make_shared<json_vector>();
+			new_member->value = _value;
 			object_impl()->members[_key] = new_member;
 			return *this;
 		}
