@@ -20,6 +20,368 @@ For Future Consideration
 namespace corona 
 {
 
+	class parser_base
+	{
+	public:
+		class parse_message
+		{
+		public:
+			int line;
+			int char_index;
+			std::string topic;
+			std::string error;
+		};
+
+		std::vector<parse_message> parse_errors;
+
+		int line_number = 1;
+		int char_index = 0;
+
+		bool has_errors()
+		{
+			return parse_errors.size() > 0;
+		}
+
+
+		void check_line(const char* nl)
+		{
+			char_index++;
+			if (*nl == '\r') {
+				line_number++;
+				char_index = 0;
+			}
+		}
+
+		void error(std::string _topic, std::string _message)
+		{
+			parse_message new_message = { line_number, char_index, _topic, _message };
+			parse_errors.push_back(new_message);
+		}
+
+		const char* eat_white(const char* _src)
+		{
+			if (not _src)
+				return _src;
+			while (std::isspace(*_src))
+				_src++;
+			return _src;
+		}
+
+		bool parse_symbol(std::string& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			std::string temp = "";
+			_src = eat_white(_src);
+			if (std::isalpha(*_src))
+			{
+				result = true;
+				while (isalnum(*_src) || *_src == '.' || *_src == '_')
+				{
+					check_line(_src);
+					temp += *_src;
+					_src++;
+				}
+				*_modified = _src;
+				_result = temp;
+			}
+			return result;
+		}
+
+		bool parse_member_type(std::string& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			std::string temp = "";
+			_src = eat_white(_src);
+			if (*_src == '$')
+			{
+				_src++;
+				result = true;
+				while (isalnum(*_src))
+				{
+					check_line(_src);
+					temp += *_src;
+					_src++;
+				}
+				*_modified = _src;
+				_result = temp;
+			}
+			return result;
+		}
+
+		int codepoint_to_utf8(uint32_t codepoint, unsigned char* out) {
+			if (codepoint <= 0x7F) {
+				out[0] = (unsigned char)codepoint;
+				return 1;
+			}
+			else if (codepoint <= 0x7FF) {
+				out[0] = 0xC0 | (codepoint >> 6);
+				out[1] = 0x80 | (codepoint & 0x3F);
+				return 2;
+			}
+			else if (codepoint <= 0xFFFF) {
+				out[0] = 0xE0 | (codepoint >> 12);
+				out[1] = 0x80 | ((codepoint >> 6) & 0x3F);
+				out[2] = 0x80 | (codepoint & 0x3F);
+				return 3;
+			}
+			else if (codepoint <= 0x10FFFF) {
+				out[0] = 0xF0 | (codepoint >> 18);
+				out[1] = 0x80 | ((codepoint >> 12) & 0x3F);
+				out[2] = 0x80 | ((codepoint >> 6) & 0x3F);
+				out[3] = 0x80 | (codepoint & 0x3F);
+				return 4;
+			}
+			return -1; // Invalid code point
+		}
+
+		bool parse_string(std::string& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			std::string temp = "";
+			_src = eat_white(_src);
+			if (*_src == '"')
+			{
+				_src++;
+				result = true;
+				while (*_src && *_src != '"')
+				{
+					check_line(_src);
+					if (*_src < 0 or std::iscntrl(*_src))
+					{
+						_src++;
+						continue;
+					}
+					else if (*_src == '\\')
+					{
+						_src++;
+						switch (*_src)
+						{
+						case '"':
+							temp += '"';
+							break;
+						case '\\':
+							temp += R"(\)";
+							break;
+						case '/':
+							temp += '/';
+							break;
+						case 'b':
+							temp += 0x8;
+							break;
+						case 'f':
+							temp += 12;
+							break;
+						case 'n':
+							temp += 10;
+							break;
+						case 'r':
+							temp += 13;
+							break;
+						case 't':
+							temp += 9;
+							break;
+						case 'u':
+						{
+							unsigned int codepoint = 0;
+							if (sscanf_s(_src + 1, "%4x", &codepoint) == 1) {
+								_src += 4;
+								unsigned char utf8[4];
+								int len = codepoint_to_utf8(codepoint, utf8);
+								for (int i = 0; i < len; i++) {
+									temp += utf8[i];
+								}
+							}
+						}
+						break;
+						}
+					}
+					else
+					{
+						temp += *_src;
+					}
+					_src++;
+				}
+				_result = temp;
+				_src++;
+			}
+			*_modified = _src;
+			return result;
+		}
+
+		bool parse_reference(object_reference_type& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			if (isalnum(*_src))
+			{
+				_result.class_name = "";
+				result = true;
+				while (isalnum(*_src) or *_src == '_')
+				{
+					check_line(_src);
+					if (*_src != '_') {
+						_result.class_name += *_src;
+					}
+					_src++;
+				}
+				_src = eat_white(_src);
+				if (*_src == ':')
+					_src++;
+				_src = eat_white(_src);
+				result = parse_int64(_result.object_id, _src, &_src);
+			}
+			*_modified = _src;
+			return result;
+		}
+
+
+		bool parse_number(double& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			if (isdigit(*_src) or *_src == '.' or *_src == '-')
+			{
+				std::string temp = "";
+				result = true;
+				while (isdigit(*_src) or *_src == '.' or *_src == '_' or *_src == '-')
+				{
+					check_line(_src);
+					if (*_src != '_') {
+						temp += *_src;
+					}
+					_src++;
+				}
+				_result = std::strtod(temp.c_str(), nullptr);
+				result = true;
+			}
+			*_modified = _src;
+			return result;
+		}
+
+		bool parse_vector(DirectX::XMVECTOR& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			int idx = 0;
+			_result = {};
+
+			if (*_src == '[')
+			{
+				_src++;
+				while (*_src && *_src != ']')
+				{
+					double value;
+					if (parse_number(value, _src, &_src))
+					{
+						if (idx < 3) {
+							DirectX::XMVectorSetByIndex(_result, idx, value);
+							idx++;
+						}
+						result = true;
+					}
+					_src = eat_white(_src);
+					if (*_src == ',')
+					{
+						_src++;
+					}
+					_src = eat_white(_src);
+				}
+				if (*_src == ']')
+				{
+					_src++;
+					result = true;
+				}
+			}
+			*_modified = _src;
+			return result;
+		}
+
+		bool parse_int64(int64_t& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			if (isdigit(*_src) or *_src == '-')
+			{
+				std::string temp = "";
+				result = true;
+				while (isdigit(*_src) or *_src == '_' or *_src == '-')
+				{
+					check_line(_src);
+					if (*_src != '_') {
+						temp += *_src;
+					}
+					_src++;
+				}
+				_result = std::strtoll(temp.c_str(), nullptr, 10);
+				result = true;
+			}
+			*_modified = _src;
+			return result;
+		}
+
+		bool parse_boolean(bool& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			if (isalpha(*_src))
+			{
+				std::string temp = "";
+				result = true;
+				while (isalnum(*_src) or *_src == '_')
+				{
+					check_line(_src);
+					temp += *_src;
+					_src++;
+				}
+				if (temp == "true")
+				{
+					_result = 1.0;
+					result = true;
+				}
+				else if (temp == "false")
+				{
+					_result = 0.0;
+					result = true;
+				}
+				else
+				{
+					result = false;
+				}
+
+			}
+			*_modified = _src;
+			return result;
+		}
+
+		bool parse_null(const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			if (isalpha(*_src))
+			{
+				std::string temp = "";
+				result = true;
+				while (isalnum(*_src) or *_src == '_')
+				{
+					check_line(_src);
+					temp += *_src;
+					_src++;
+				}
+				if (temp == "null")
+				{
+					result = true;
+				}
+				else
+				{
+					result = false;
+				}
+			}
+			*_modified = _src;
+			return result;
+		}
+
+	};
+
 	class json_value
 	{
 	public:
@@ -380,14 +742,43 @@ namespace corona
 	public:
 		DirectX::XMVECTOR value;
 
-		virtual std::string to_key() const;
-		virtual std::string to_json() const;
-		virtual std::string to_json_typed() const;
-		virtual std::string to_string() const;
-		virtual bool is_empty() const;
-		virtual std::stringstream& serialize(std::stringstream& _src)  const;
-		virtual void from_string(const std::string_view& _src);
-		virtual std::string format(std::string _format) const;
+		virtual std::string to_key() const {
+			return to_string();
+		}
+		virtual std::string to_json() const {
+			return to_string();
+		}
+		virtual std::string to_json_typed() const {
+			return get_type_prefix() + " " + to_json();
+		}
+		virtual std::string to_string() const
+		{
+			std::string valuez = std::format("[{0},{1},{2},{3}]",
+				DirectX::XMVectorGetX(value),
+				DirectX::XMVectorGetY(value),
+				DirectX::XMVectorGetZ(value),
+				DirectX::XMVectorGetW(value));
+			return valuez;
+		}
+
+		virtual bool is_empty() const
+		{
+			return DirectX::XMVectorGetX(value) == 0.0f;
+		}
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
+		{
+			_src << to_json;
+			return _src;
+		}
+		virtual void from_string(const std::string_view& _src)
+		{
+			parser_base pb;
+            pb.parse_vector(value, _src.data(), nullptr);
+		}
+		virtual std::string format(std::string _format) const
+		{
+			return std::format( _format, to_string() );
+		}
 
 		virtual field_types get_field_type() const
 		{
@@ -409,19 +800,19 @@ namespace corona
 
 		virtual int64_t to_int64() const
 		{
-			return value.m128_i64[0];
+			return DirectX::XMVectorGetX(value);
 		}
 		virtual date_time to_datetime() const
 		{
-			return date_time(value.m128_i64[0]);
+			return date_time(to_int64());
 		}
 		virtual bool to_bool() const
 		{
-			return value.m128_i64 > 0;
+			return to_int64() != 0;
 		}
 		virtual double to_double() const
 		{
-			return value.m128_f32[0];
+			return DirectX::XMVectorGetX(value);
 		}
 		virtual DirectX::XMVECTOR to_vector() const
 		{
@@ -2483,6 +2874,10 @@ namespace corona
 				date_time d = _member.as_date_time();
 				put_member(_key, d);
 			}
+			else if (_member.is_vector()) {
+				auto d = _member.as_vector();
+				put_member(_key, d);
+			}
 			else if (_member.is_string()) {
 				std::string d = _member.as_string();
 				put_member(_key, d);
@@ -2563,6 +2958,11 @@ namespace corona
 			new_member->set_value(_value.c_str() );
 			object_impl()->members[_key] = new_member;
 			return *this;
+		}
+
+		json put_member(std::string _key, DirectX::FXMVECTOR _value)
+		{
+			return put_member_vector(_key, _value);
 		}
 
 		json put_member_bool(std::string _key, bool _value)
@@ -3890,352 +4290,6 @@ namespace corona
 		return mp;
 	}
 
-	class parser_base
-	{
-	public:
-		class parse_message
-		{
-		public:
-			int line;
-			int char_index;
-			std::string topic;
-			std::string error;
-		};
-
-		std::vector<parse_message> parse_errors;
-
-		int line_number = 1;
-		int char_index = 0;
-
-		bool has_errors()
-		{
-			return parse_errors.size() > 0;
-		}
-
-		json get_errors()
-		{
-			json error_root(std::make_shared<json_object>());
-
-			error_root.put_member(class_name_field, parse_error_class);
-			error_root.put_member(success_field, has_errors());
-
-			json error_array(std::make_shared<json_array>());
-
-			for (auto parse_error : parse_errors)
-			{
-				json err(std::make_shared<json_object>());
-				err.put_member("line", parse_error.line);
-				err.put_member("char", parse_error.char_index);
-				err.put_member("topic", parse_error.topic);
-				err.put_member("error", parse_error.error);
-				error_array.append_element(err);
-			}
-
-			error_root.put_member("errors", error_array);
-			return error_root;
-		}
-		
-		void check_line(const char* nl)
-		{
-			char_index++;
-			if (*nl == '\r') {
-				line_number++;
-				char_index = 0;
-			}
-		}
-
-		void error(std::string _topic, std::string _message)
-		{
-			parse_message new_message = { line_number, char_index, _topic, _message };
-			parse_errors.push_back(new_message);
-		}
-
-		const char* eat_white(const char* _src)
-		{
-			if (not _src)
-				return _src;
-			while (std::isspace(*_src))
-				_src++;
-			return _src;
-		}
-
-		bool parse_symbol(std::string& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			std::string temp = "";
-			_src = eat_white(_src);
-			if (std::isalpha(*_src))
-			{
-				result = true;
-				while (isalnum(*_src) || *_src == '.' || *_src == '_')
-				{
-					check_line(_src);
-					temp += *_src;
-					_src++;
-				}
-				*_modified = _src;
-				_result = temp;
-			}
-			return result;
-		}
-
-		bool parse_member_type(std::string& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			std::string temp = "";
-			_src = eat_white(_src);
-			if (*_src == '$')
-			{
-				_src++;
-				result = true;
-				while (isalnum(*_src))
-				{
-					check_line(_src);
-					temp += *_src;
-					_src++;
-				}
-				*_modified = _src;
-				_result = temp;
-			}
-			return result;
-		}
-
-		int codepoint_to_utf8(uint32_t codepoint, unsigned char* out) {
-			if (codepoint <= 0x7F) {
-				out[0] = (unsigned char)codepoint;
-				return 1;
-			}
-			else if (codepoint <= 0x7FF) {
-				out[0] = 0xC0 | (codepoint >> 6);
-				out[1] = 0x80 | (codepoint & 0x3F);
-				return 2;
-			}
-			else if (codepoint <= 0xFFFF) {
-				out[0] = 0xE0 | (codepoint >> 12);
-				out[1] = 0x80 | ((codepoint >> 6) & 0x3F);
-				out[2] = 0x80 | (codepoint & 0x3F);
-				return 3;
-			}
-			else if (codepoint <= 0x10FFFF) {
-				out[0] = 0xF0 | (codepoint >> 18);
-				out[1] = 0x80 | ((codepoint >> 12) & 0x3F);
-				out[2] = 0x80 | ((codepoint >> 6) & 0x3F);
-				out[3] = 0x80 | (codepoint & 0x3F);
-				return 4;
-			}
-			return -1; // Invalid code point
-		}
-
-		bool parse_string(std::string& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			std::string temp = "";
-			_src = eat_white(_src);
-			if (*_src == '"')
-			{
-				_src++;
-				result = true;
-				while (*_src && *_src != '"')
-				{
-					check_line(_src);
-					if (*_src < 0 or std::iscntrl(*_src))
-					{
-						_src++;
-						continue;
-					}
-					else if (*_src == '\\')
-					{
-						_src++;
-						switch (*_src)
-						{
-						case '"':
-							temp += '"';
-							break;
-						case '\\':
-							temp += R"(\)";
-							break;
-						case '/':
-							temp += '/';
-							break;
-						case 'b':
-							temp += 0x8;
-							break;
-						case 'f':
-							temp += 12;
-							break;
-						case 'n':
-							temp += 10;
-							break;
-						case 'r':
-							temp += 13;
-							break;
-						case 't':
-							temp += 9;
-							break;
-						case 'u':
-							{
-							unsigned int codepoint = 0;
-							if (sscanf_s(_src + 1, "%4x", &codepoint) == 1) {
-								_src+=4;
-								unsigned char utf8[4];
-								int len = codepoint_to_utf8(codepoint, utf8);
-								for (int i = 0; i < len; i++) {
-									temp += utf8[i];
-								}
-							}
-							}
-							break;
-						}
-					}
-					else
-					{
-						temp += *_src;
-					}
-					_src++;
-				}
-				_result = temp;
-				_src++;
-			}
-			*_modified = _src;
-			return result;
-		}
-
-		bool parse_reference(object_reference_type& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			_src = eat_white(_src);
-			if (isalnum(*_src))
-			{
-				_result.class_name = "";
-				result = true;
-				while (isalnum(*_src) or *_src == '_')
-				{
-					check_line(_src);
-					if (*_src != '_') {
-						_result.class_name += *_src;
-					}
-					_src++;
-				}
-				_src = eat_white(_src);
-				if (*_src == ':')
-					_src++;
-				_src = eat_white(_src);
-				result = parse_int64(_result.object_id, _src, &_src);
-			}
-			*_modified = _src;
-			return result;
-		}
-
-
-		bool parse_number(double& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			_src = eat_white(_src);
-			if (isdigit(*_src) or *_src == '.' or *_src == '-')
-			{
-				std::string temp = "";
-				result = true;
-				while (isdigit(*_src) or *_src == '.' or *_src == '_' or *_src == '-')
-				{
-					check_line(_src);
-					if (*_src != '_') {
-						temp += *_src;
-					}
-					_src++;
-				}
-				_result = std::strtod(temp.c_str(), nullptr);
-				result = true;
-			}
-			*_modified = _src;
-			return result;
-		}
-
-		bool parse_int64(int64_t& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			_src = eat_white(_src);
-			if (isdigit(*_src) or *_src == '-')
-			{
-				std::string temp = "";
-				result = true;
-				while (isdigit(*_src) or *_src == '_' or *_src == '-')
-				{
-					check_line(_src);
-					if (*_src != '_') {
-						temp += *_src;
-					}
-					_src++;
-				}
-				_result = std::strtoll(temp.c_str(), nullptr, 10);
-				result = true;
-			}
-			*_modified = _src;
-			return result;
-		}
-
-		bool parse_boolean(bool& _result, const char* _src, const char** _modified)
-		{
-			bool result = false;
-			_src = eat_white(_src);
-			if (isalpha(*_src))
-			{
-				std::string temp = "";
-				result = true;
-				while (isalnum(*_src) or *_src == '_')
-				{
-					check_line(_src);
-					temp += *_src;
-					_src++;
-				}
-				if (temp == "true")
-				{
-					_result = 1.0;
-					result = true;
-				}
-				else if (temp == "false")
-				{
-					_result = 0.0;
-					result = true;
-				}
-				else
-				{
-					result = false;
-				}
-
-			}
-			*_modified = _src;
-			return result;
-		}
-
-		bool parse_null(const char* _src, const char** _modified)
-		{
-			bool result = false;
-			_src = eat_white(_src);
-			if (isalpha(*_src))
-			{
-				std::string temp = "";
-				result = true;
-				while (isalnum(*_src) or *_src == '_')
-				{
-					check_line(_src);
-					temp += *_src;
-					_src++;
-				}
-				if (temp == "null")
-				{
-					result = true;
-				}
-				else
-				{
-					result = false;
-				}
-			}
-			*_modified = _src;
-			return result;
-		}
-
-
-	};
 
 	class json_parser : public parser_base
 	{
@@ -4303,6 +4357,29 @@ namespace corona
 			j.put_member("query_path", query_path);
 
 			return j;
+		}
+
+		json get_errors()
+		{
+			json error_root(std::make_shared<json_object>());
+
+			error_root.put_member(class_name_field, parse_error_class);
+			error_root.put_member(success_field, has_errors());
+
+			json error_array(std::make_shared<json_array>());
+
+			for (auto parse_error : parse_errors)
+			{
+				json err(std::make_shared<json_object>());
+				err.put_member("line", parse_error.line);
+				err.put_member("char", parse_error.char_index);
+				err.put_member("topic", parse_error.topic);
+				err.put_member("error", parse_error.error);
+				error_array.append_element(err);
+			}
+
+			error_root.put_member("errors", error_array);
+			return error_root;
 		}
 
 		json parse_object(std::string _object)
@@ -4493,6 +4570,7 @@ namespace corona
 			std::shared_ptr<json_array> new_array_value;
 			std::shared_ptr<json_object> new_object_value;
 			std::string new_string_value;
+            DirectX::XMVECTOR new_vector_value;
 			int64_t new_int64_value;
 			double new_number_value;
 			bool new_boolean_value;
@@ -4521,6 +4599,17 @@ namespace corona
 					{
 						auto js = std::make_shared<json_datetime>();
 						js->value.parse(new_string_value);
+						_value = js;
+						*_modified = new_src;
+						return result;
+					}
+				}
+				else if (member_type == "vector")
+				{
+					if (parse_vector(new_vector_value, _src, &new_src))
+					{
+						auto js = std::make_shared<json_vector>();
+						js->value = new_vector_value;
 						_value = js;
 						*_modified = new_src;
 						return result;

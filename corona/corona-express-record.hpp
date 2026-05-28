@@ -520,8 +520,14 @@ namespace corona
 					break;
 				case field_types::ft_vector:
 					{
-						std::string a = m.to_json_typed();
-						add(acol.field_id, a);
+						auto v = m.vector_impl();
+						if (v) {
+							add(acol.field_id, v->value);
+						}
+						else 
+						{
+							add(acol.field_id, DirectX::XMVectorZero());
+						}
 					}
 					break;
 				case field_types::ft_array:
@@ -603,6 +609,12 @@ namespace corona
 					std::string t = s;
 					json result = jp.parse_array(t);
                     _dest.put_member(acol.field_name.c_str(), result);	
+				}
+				break;
+				case field_types::ft_vector:
+				{
+					DirectX::XMVECTOR v = *(DirectX::XMVECTOR*)s;
+					_dest.put_member(acol.field_name.c_str(), v);
 				}
 				break;
 				case field_types::ft_object:

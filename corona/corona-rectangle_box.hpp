@@ -127,6 +127,30 @@ namespace corona {
 			return intersection;
 		}
 
+		static rectangle from_vector(DirectX::XMVECTOR _position, DirectX::XMVECTOR _size )
+		{
+            rectangle r;
+            r.x = DirectX::XMVectorGetX(_position);
+            r.y = DirectX::XMVectorGetY(_position);
+            r.w = DirectX::XMVectorGetX(_size);
+            r.h = DirectX::XMVectorGetY(_size);
+			return r;
+		}
+
+        static rectangle translate(rectangle r, point p)
+		{
+			r.x += p.x;
+			r.y += p.y;
+			return r;
+		}
+
+		static rectangle translate(rectangle r, DirectX::XMVECTOR v)
+		{
+			r.x += DirectX::XMVectorGetX(v);
+			r.y += DirectX::XMVectorGetY(v);
+			return r;
+		}
+
 	};
 
 	class rectangle_box : protected boxed<rectangle>

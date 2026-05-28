@@ -69,9 +69,9 @@
           "label": "First Name"
         },
         "image": "string",
-        "maps": "[map]",
-        "starting_map": "map",
-        "sessions": "[session]"
+        "maps": ["map"],
+        "starting_map": "string",
+        "sessions": ["session"]
       },
       "indexes": {
         "mini_game_name_index": {
@@ -94,13 +94,9 @@
       "class_description": "a gaming map",
       "parents": [ "mini_game", "session" ],
       "fields": {
-        "pieces": "[piece]",
-        "friction_ax": "double",
-        "friction_ay": "double",
-        "friction_az": "double",
-        "gravity_ax": "double",
-        "gravity_ay": "double",
-        "gravity_az": "double"
+        "pieces": [ "piece" ],
+        "friction": "vector",
+        "gravity": "vector"
       }
     },
     {
@@ -109,7 +105,7 @@
       "class_description": "a gaming session",
       "parents": [ "mini_game" ],
       "fields": {
-        "maps": "[map]",
+        "maps": [ "map" ],
         "name": {
           "field_type": "string",
           "label": "First Name",
@@ -143,22 +139,8 @@
           "field_type": "double",
           "label": "Duration"
         },
-        "w": {
-          "field_type": "double",
-          "label": "Width"
-        },
-        "h": {
-          "field_type": "double",
-          "label": "Height"
-        },
-        "x": {
-          "field_type": "double",
-          "label": "X"
-        },
-        "y": {
-          "field_type": "double",
-          "label": "Y"
-        }
+        "size": "vector",
+        "offset": "vector"
       }
     },
     {
@@ -174,16 +156,7 @@
           "max_length": 200
         },
         "state": "string",
-        "sprites": "[ sprite ]",
-        "dx": "double",
-        "dy": "double",
-        "dz": "double",
-        "ax": "double",
-        "ay": "double",
-        "az": "double",
-        "cx": "double",
-        "cy": "double",
-        "cz": "double",
+        "sprites": [ "sprite" ],
         "mass": "double",
         "full_hit_points": "double",
         "hit_points": "double",

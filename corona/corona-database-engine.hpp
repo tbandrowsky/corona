@@ -1725,7 +1725,7 @@ namespace corona
 								ve.field_name = _field_name;
 								ve.filename = get_file_name(__FILE__);
 								ve.line_number = __LINE__;
-								ve.message = "Element must be a datetime.";
+								ve.message = "Element must be a vector.";
 								_validation_errors.push_back(ve);
 								return false;
 							}
@@ -1808,6 +1808,9 @@ namespace corona
 			json joneofi = jp.create_object();
 			switch (fundamental_type)
 			{
+			case field_types::ft_vector:
+				joneofi.put_member_string("type", "array");
+				break;
 			case field_types::ft_datetime:
 			case field_types::ft_string:
 				joneofi.put_member_string("type", "string");
@@ -2047,6 +2050,20 @@ namespace corona
 				else if (fundamental_type == field_types::ft_datetime)
 				{
 					bool acceptable = obj.is_int64();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a datetime.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_vector)
+				{
+					bool acceptable = obj.is_vector();
 					if (not acceptable) {
 						validation_error ve;
 						ve.class_name = _class_name;
@@ -2501,6 +2518,42 @@ namespace corona
 
 	};
 
+	class vector_field_options : public field_options_base
+	{
+	public:
+
+		vector_field_options() = default;
+		vector_field_options(const vector_field_options& _src) = default;
+		vector_field_options(vector_field_options&& _src) = default;
+		vector_field_options& operator = (const vector_field_options& _src) = default;
+		vector_field_options& operator = (vector_field_options&& _src) = default;
+		virtual ~vector_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			return field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test);
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("vector"));
+			return schema;
+		}
+
+	};
+
 	class double_field_options : public field_options_base
 	{
 	public:
@@ -2922,6 +2975,11 @@ namespace corona
 			else if (field_type == field_types::ft_datetime)
 			{
 				options = std::make_shared<datetime_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_vector)
+			{
+				options = std::make_shared<vector_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_query)

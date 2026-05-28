@@ -50,6 +50,7 @@ namespace corona
 		std::shared_ptr<chest_field> inventory;
 
 		DirectX::XMVECTOR position = {};
+		DirectX::XMVECTOR size = {};
 		DirectX::XMVECTOR velocity = {};
 		DirectX::XMVECTOR acceleration = {};
 
@@ -62,15 +63,10 @@ namespace corona
 			_dest.put_member("image_name", image_name);
 			_dest.put_member("state", state);
 			_dest.put_member("name", name);
-			_dest.put_member("dx", position.m128_f32[0]);
-			_dest.put_member("dy", position.m128_f32[1]);
-			_dest.put_member("dz", position.m128_f32[2]);
-			_dest.put_member("ax", acceleration.m128_f32[0]);
-			_dest.put_member("ay", acceleration.m128_f32[1]);
-			_dest.put_member("az", acceleration.m128_f32[2]);
-			_dest.put_member("cx", velocity.m128_f32[0]);
-			_dest.put_member("cy", velocity.m128_f32[1]);
-			_dest.put_member("cz", velocity.m128_f32[2]);
+			_dest.put_member("position", position);
+			_dest.put_member("acceleration", acceleration);
+			_dest.put_member("velocity", velocity);
+			_dest.put_member("size", size);
 
 			json j = jp.create_array();
 			for (auto& s : sprites) {
@@ -94,15 +90,10 @@ namespace corona
 			image_name = _src["image_name"].as_string();
 			state = _src["state"].as_string();
 			name = _src["name"].as_string();
-			position.m128_f32[0] = _src["dx"].as_double();
-			position.m128_f32[1] = _src["dy"].as_double();
-			position.m128_f32[2] = _src["dz"].as_double();
-			acceleration.m128_f32[0] = _src["ax"].as_double();
-			acceleration.m128_f32[1] = _src["ay"].as_double();
-			acceleration.m128_f32[2] = _src["az"].as_double();
-			velocity.m128_f32[0] = _src["cx"].as_double();
-			velocity.m128_f32[1] = _src["cy"].as_double();
-			velocity.m128_f32[2] = _src["cz"].as_double();
+			position = _src["position"].as_vector();
+			acceleration = _src["acceleration"].as_vector();
+			velocity = _src["velocity"].as_vector();
+			size = _src["size"].as_vector();
 
 			json j = _src["sprites"];
 			json aj = j.as_array();
@@ -264,6 +255,7 @@ namespace corona
 		std::string class_name;
 		int64_t object_id;
 		std::string name;
+		double mass;
 		std::vector<std::shared_ptr<game_piece>> pieces;
 
 		virtual void get_json(json& _dest)
@@ -285,6 +277,11 @@ namespace corona
 		{
 
 			name = _src["name"].as_string();
+            mass = _src["mass"].as_double();
+
+			if (fabs(mass) < 0.0001) {
+				mass = 1.0;
+            }
 
 			json j = _src["pieces"];
 			json aj = j.as_array();
@@ -439,22 +436,150 @@ namespace corona
 		/// <returns></returns>
 		bool accelerate_piece(std::shared_ptr<game_map> _map, std::shared_ptr<game_piece> _piece)
 		{
-            // can't be accelerated or accelerate anything if it's not moving or accelerating.
+			using namespace DirectX;
+
+			// can't be accelerated or accelerate anything if it's not moving or accelerating.
 			// no kinetic energy
-			if (DirectX::XMVector3Equal(_piece->acceleration, zero_vector) &&
-				DirectX::XMVector3Equal(_piece->velocity, zero_vector)) {
+			if (XMVector3Equal(_piece->acceleration, zero_vector) &&
+				XMVector3Equal(_piece->velocity, zero_vector)) {
 				return false;
-            }
+			}
 
-            DirectX::XMVECTOR new_position = DirectX::XMVectorAdd(_piece->position, _piece->velocity);
+			bool caused_acceleration = false;
 
-            // now do we hit something as we are moving
-			for (auto p : _map->pieces) 
+			// Apply acceleration to velocity (velocity += acceleration * delta_time)
+			// Note: delta_time should be passed in, but using a small timestep for now
+			XMVECTOR velocity_change = XMVectorScale(_piece->acceleration, static_cast<float>(last_elapsed_seconds));
+			_piece->velocity = XMVectorAdd(_piece->velocity, velocity_change);
+
+			// Calculate predicted position for this frame
+			XMVECTOR displacement = XMVectorScale(_piece->velocity, static_cast<float>(last_elapsed_seconds));
+			XMVECTOR predicted_position = XMVectorAdd(_piece->position, displacement);
+
+			// Get current piece bounds
+			rectangle piece_rect = rectangle_math::from_vector(predicted_position, _piece->size);
+
+			// Assume mass is proportional to area (width * height)
+			// You may want to add an explicit mass field to game_piece
+			float piece_mass = XMVectorGetX(_piece->size) * XMVectorGetY(_piece->size);
+			if (piece_mass < 1.0f) piece_mass = 1.0f; // Minimum mass
+
+			// Check collision with all other pieces
+			for (auto& other : _map->pieces)
 			{
-				if (p != _piece) {
-					
+				if (other == _piece) continue;
+
+				// Check if other piece is a wall or solid object
+				bool other_is_solid = false;
+				bool other_is_passable = true;
+
+				if (auto wall = std::dynamic_pointer_cast<game_wall>(other)) {
+					other_is_solid = true;
+					other_is_passable = wall->passable;
+				}
+				else if (auto door = std::dynamic_pointer_cast<game_door>(other)) {
+					other_is_solid = true;
+					other_is_passable = door->open;
+				}
+
+				if (other_is_solid && other_is_passable) {
+					continue; // Skip passable objects
+				}
+
+				// Get other piece bounds
+				rectangle other_rect = rectangle_math::from_vector(other->position, other->size);
+
+				// Check for collision (AABB intersection)
+				if (piece_rect.intersects(other_rect))
+				{
+					caused_acceleration = true;
+
+					// Calculate collision normal (direction from other to piece)
+					XMVECTOR collision_vector = XMVectorSubtract(_piece->position, other->position);
+					float length = XMVectorGetX(XMVector3Length(collision_vector));
+					XMVECTOR collision_normal = length > 0.001f ?
+						XMVectorScale(collision_vector, 1.0f / length) :
+						XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+
+					// Calculate relative velocity
+					XMVECTOR relative_velocity = XMVectorSubtract(_piece->velocity, other->velocity);
+					float velocity_along_normal = XMVectorGetX(XMVector3Dot(relative_velocity, collision_normal));
+
+					// Don't resolve if velocities are separating
+					if (velocity_along_normal > 0)
+						continue;
+
+					// Calculate other piece mass
+					float other_mass = XMVectorGetX(other->size) * XMVectorGetY(other->size);
+					if (other_mass < 1.0f) other_mass = 1.0f;
+
+					// If other is solid and immovable (wall), treat as infinite mass
+					if (other_is_solid && !other_is_passable) {
+						other_mass = piece_mass * 1000.0f; // Effectively infinite
+					}
+
+					// Calculate restitution (bounciness) - 0 = inelastic, 1 = perfectly elastic
+					float restitution = 0.5f; // Semi-elastic collision
+
+					// Calculate impulse scalar
+					float impulse_scalar = -(1.0f + restitution) * velocity_along_normal;
+					impulse_scalar /= (1.0f / piece_mass + 1.0f / other_mass);
+
+					// Apply impulse to both objects
+					XMVECTOR impulse = XMVectorScale(collision_normal, impulse_scalar);
+
+					// Update velocities based on impulse
+					_piece->velocity = XMVectorAdd(_piece->velocity,
+						XMVectorScale(impulse, 1.0f / piece_mass));
+
+					if (!other_is_solid || other_is_passable) {
+						// Only update velocity of movable objects
+						other->velocity = XMVectorSubtract(other->velocity,
+							XMVectorScale(impulse, 1.0f / other_mass));
+
+						// Apply acceleration to the other piece
+						other->acceleration = XMVectorAdd(other->acceleration,
+							XMVectorScale(impulse, 0.1f / other_mass)); // Scaled for game feel
+					}
+
+					// Separate the objects to prevent overlap
+					float penetration_depth =
+						(XMVectorGetX(_piece->size) + XMVectorGetX(other->size)) * 0.5f - length;
+
+					if (penetration_depth > 0) {
+						float separation_ratio = piece_mass / (piece_mass + other_mass);
+						XMVECTOR separation = XMVectorScale(collision_normal, penetration_depth);
+
+						_piece->position = XMVectorAdd(_piece->position,
+							XMVectorScale(separation, separation_ratio));
+
+						if (!other_is_solid || other_is_passable) {
+							other->position = XMVectorSubtract(other->position,
+								XMVectorScale(separation, 1.0f - separation_ratio));
+						}
+					}
+
+					// Apply friction/damping to simulate energy loss
+					float friction_coefficient = 0.98f;
+					_piece->velocity = XMVectorScale(_piece->velocity, friction_coefficient);
+
+					if (!other_is_solid || other_is_passable) {
+						other->velocity = XMVectorScale(other->velocity, friction_coefficient);
+					}
 				}
 			}
+
+			// Update position based on final velocity (if no collision blocked it)
+			if (!caused_acceleration) {
+				_piece->position = predicted_position;
+			}
+
+			// Apply friction when no collision (air resistance, surface friction, etc.)
+			float ambient_friction = 0.99f;
+			_piece->velocity = XMVectorScale(_piece->velocity, ambient_friction);
+			_piece->acceleration = XMVectorScale(_piece->acceleration, 0.95f); // Decay acceleration over time
+
+			return caused_acceleration;
 		}
 
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
