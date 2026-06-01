@@ -47,8 +47,11 @@ namespace corona
 		std::string image_name;
 		std::string state;
 		std::vector<std::shared_ptr<game_sprite>> sprites;
-		std::shared_ptr<chest_field> inventory;
 		double		mass;
+		double      full_hit_points;
+		double      hit_points;
+		std::shared_ptr<chest_field> inventory;
+		bool		consumed;
 
 		DirectX::XMVECTOR position = {};
 		DirectX::XMVECTOR size = {};
@@ -70,6 +73,8 @@ namespace corona
 			_dest.put_member("velocity", velocity);
 			_dest.put_member("size", size);
             _dest.put_member("mass", mass);
+			_dest.put_member("full_hit_points", full_hit_points);
+			_dest.put_member("hit_points", hit_points);	
 
 			json j = jp.create_array();
 			for (auto& s : sprites) {
@@ -100,6 +105,8 @@ namespace corona
             frame_velocity = velocity;
 			size = _src["size"].as_vector();
 			mass = _src["mass"].as_double();
+            hit_points = _src["hit_points"].as_double();
+            full_hit_points = _src["full_hit_points"].as_double();
 
 			if (fabs(mass) < 0.0001) {
 				mass = 1.0;
@@ -143,9 +150,9 @@ namespace corona
 
 	class game_player : public game_piece
 	{
-		std::string input_device;
-
 	public:
+
+		std::string input_device;
 
 		virtual void get_json(json& _dest)
 		{
@@ -177,20 +184,24 @@ namespace corona
 
 	class game_shot : public game_piece
 	{
-		std::string originator;
 
 	public:
+
+		double      damage;
+		std::string originator;
 
 		virtual void get_json(json& _dest)
 		{
 			game_piece::get_json(_dest);
 			_dest.put_member("originator", originator);
+            _dest.put_member("damage", damage);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			game_piece::put_json(_src);
 			originator = _src["originator"].as_string();
+            damage = _src["damage"].as_double();
 		}
 	};
 
@@ -422,17 +433,24 @@ namespace corona
         bool collided() { return piece_1.get() != nullptr && piece_2.get() != nullptr; }
     };
 
+	class player_input
+	{
+	public:
+		std::string	  input_device;
+		XINPUT_STATE  input;
+	};
+
 	class game_session : public job
 	{
 	public:
 		std::string class_name;
 		int64_t		object_id;
 		std::string name;
-        std::string description;
+		std::string description;
 		std::string image;
 		std::string current_map;
 		timer		frame_timer;
-        xinput		input;
+		lockable	map_locker;
 
 		bool game_launched = true;
 		bool game_running = false;
@@ -443,6 +461,8 @@ namespace corona
 
 		std::vector<std::shared_ptr<game_map>> maps;
 		DirectX::XMVECTOR zero_vector = {};
+        thread_safe_map<std::string, player_input> player_inputs;
+		std::shared_ptr<game_map> working_map;
 
 		game_session()
 		{
@@ -486,7 +506,7 @@ namespace corona
 					maps.push_back(map);
 				}
 			}
-        }
+		}
 
 		job* get_next_job()
 		{
@@ -497,20 +517,65 @@ namespace corona
 				return nullptr;
 			}
 		}
-		
+
+		json get_players()
+		{
+			json_parser jp;
+			json j = jp.create_array();
+
+			for (auto gm : maps) {
+				if (gm->name == current_map) {
+					for (auto& player : gm->pieces) {
+						if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+							json pj = jp.create_object();
+							player->get_json(pj);
+							j.push_back(pj);
+						}
+					}
+				}
+			}
+			return j;
+		}
+
+		bool start_playing(json _player, std::string _input_id)
+		{
+			bool is_playing = false;
+			for (auto gm : maps) {
+				if (gm->name == current_map) {
+                    for (auto& player : gm->pieces) {
+						if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+							if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
+								pplayer->input_device = std::format("xinput_{}", _input_id);
+								player_input pix;
+								pix.input_device = pplayer->input_device;
+								player_inputs.insert(_input_id, pix);
+								is_playing = true;
+							}
+						}
+					}
+				}
+			}
+			return is_playing;
+		}
+
+		void playing_input(player_input xpi)
+		{
+			player_inputs.insert(xpi.input_device, xpi);
+		}
+ 
 		rectangle get_piece_rectangle(game_piece* _piece, double _elapsed)
 		{
 			using namespace DirectX;
 
 			XMVECTOR this_position_start = XMVectorAdd(_piece->position, XMVectorScale(_piece->velocity, static_cast<float>(_elapsed)));
 
-            rectangle rect;
-            rect.x = XMVectorGetX(this_position_start);
-            rect.y = XMVectorGetY(this_position_start);
+			rectangle rect;
+			rect.x = XMVectorGetX(this_position_start);
+			rect.y = XMVectorGetY(this_position_start);
 			rect.w = XMVectorGetX(_piece->size);
 			rect.h = XMVectorGetY(_piece->size);
 			return rect;
-        }
+		}
 
 		void init_piece(std::shared_ptr<game_map> _map, int _piece_index)
 		{
@@ -568,12 +633,12 @@ namespace corona
 			XMVECTOR p_length = XMVector3Length(piece1->velocity);
 			double l = XMVectorGetX(p_length);
 
-            // And, that will be our slide velocity, which is the total velocity projected onto the collision normal
-            if (collision.collision_side == intersection_side::intersection_side_top || collision.collision_side == intersection_side::intersection_side_bottom) {
-                double xvl = XMVectorGetX(v1);
+			// And, that will be our slide velocity, which is the total velocity projected onto the collision normal
+			if (collision.collision_side == intersection_side::intersection_side_top || collision.collision_side == intersection_side::intersection_side_bottom) {
+				double xvl = XMVectorGetX(v1);
 				if (xvl < 0) {
 					l = -l;
-                }
+				}
 				// If we hit top or bottom, we want to slide along the x axis
 				piece1->velocity = XMVectorSet(l, 0.0f, 0.0f, 0.0f);
 			}
@@ -641,18 +706,18 @@ namespace corona
 
 		void process_collision(collision_result& collision)
 		{
-			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_1)) 
+			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_1))
 			{
-				if (auto target = std::dynamic_pointer_cast<game_player>(collision.piece_2)) 
+				if (auto target = std::dynamic_pointer_cast<game_player>(collision.piece_2))
 				{
 					// player hits another player
-                    player_hits_player(collision, pplayer, target);
-                }
-                else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
-				{
-                    player_hits_npc(collision, pplayer, pnpc);
+					player_hits_player(collision, pplayer, target);
 				}
-				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2)) 
+				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
+				{
+					player_hits_npc(collision, pplayer, pnpc);
+				}
+				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
 				{
 					player_hits_lootbox(collision, pplayer, plootbox);
 				}
@@ -664,48 +729,69 @@ namespace corona
 				{
 					player_hits_wall(collision, pplayer, pwall);
 				}
-				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2)) 
+				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
 				{
 					player_hits_door(collision, pplayer, pdoor);
 				}
-			} 
-			else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_1)) 
+			}
+			else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_1))
 			{
 				if (auto target = std::dynamic_pointer_cast<game_player>(collision.piece_2))
 				{
 					// player hits another player
+					npc_hits_player(collision, pnpc, target);
 				}
 				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
 				{
-					// player hits npc
+					npc_hits_npc(collision, pnpc, pnpc);
 				}
 				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
 				{
-					// player hits lootbox
+					npc_hits_lootbox(collision, pnpc, plootbox);
 				}
 				else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2))
 				{
-					// player hits lootspot
+					npc_hits_lootspot(collision, pnpc, plootspot);
 				}
 				else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2))
 				{
-					// player hits wall
+					npc_hits_wall(collision, pnpc, pwall);
 				}
 				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
 				{
-					// player hits door
+					npc_hits_door(collision, pnpc, pdoor);
 				}
 
-			} 
-			else if (auto pshot = std::dynamic_pointer_cast<game_shot>(collision.piece_1)) 
+			}
+			else if (auto pshot = std::dynamic_pointer_cast<game_shot>(collision.piece_1))
 			{
-
-			} 
+				if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_2))
+				{
+					// player hits another player
+					shot_hits_player(collision, pshot, pplayer);
+				}
+				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
+				{
+					shot_hits_npc(collision, pshot, pnpc);
+				}
+				else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2))
+				{
+					shot_hits_wall(collision, pshot, pwall);
+				}
+				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
+				{
+					shot_hits_door(collision, pshot, pdoor);
+				}
+				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
+				{
+					shot_hits_lootbox(collision, pshot, plootbox);
+				}
+			}
 		}
 
 		void player_hits_player(collision_result& collision, std::shared_ptr<game_player> player1, std::shared_ptr<game_player> player2)
 		{
-            recoil_piece(collision);
+			recoil_piece(collision);
 		}
 
 		void player_hits_npc(collision_result& collision, std::shared_ptr<game_player> player1, std::shared_ptr<game_npc> player2)
@@ -715,7 +801,7 @@ namespace corona
 
 		void player_hits_lootbox(collision_result& collision, std::shared_ptr<game_player> npc, std::shared_ptr<game_lootbox> lootbox)
 		{
-
+			slide_piece(collision);
 		}
 
 		void player_hits_lootspot(collision_result& collision, std::shared_ptr<game_player> player, std::shared_ptr<game_lootspot> lootspot)
@@ -728,8 +814,9 @@ namespace corona
 			slide_piece(collision);
 		}
 
-		void player_hits_door(collision_result& collision, std::shared_ptr<game_player> npc, std::shared_ptr<game_door> lootbox)
+		void player_hits_door(collision_result& collision, std::shared_ptr<game_player> npc, std::shared_ptr<game_door> door)
 		{
+
 		}
 
 		void npc_hits_player(collision_result& collision, std::shared_ptr<game_npc> player1, std::shared_ptr<game_player> player2)
@@ -759,6 +846,124 @@ namespace corona
 
 		void npc_hits_door(collision_result& collision, std::shared_ptr<game_npc> npc, std::shared_ptr<game_door> lootbox)
 		{
+
+		}
+
+		game_map get_current_map()
+		{
+			for (auto& map : maps) {
+				if (map->name == current_map) {
+					return *map;
+				}
+			}
+            return game_map();
+		}
+
+		void process_player_commands(std::shared_ptr<game_player> _player)
+		{
+            using namespace DirectX;
+
+			player_input pix;
+			if (player_inputs.try_get(_player->input_device, pix)) {
+
+				if (pix.input.Gamepad.bLeftTrigger) {
+
+                }
+                else if (pix.input.Gamepad.bRightTrigger) {
+
+				}
+				
+				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) {
+                    _player->acceleration = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+				}
+				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+					_player->acceleration = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+				}
+				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+					_player->acceleration = XMVectorSet(-1.0f, 0.0, 0.0f, 0.0f);
+				}
+				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+					_player->acceleration = XMVectorSet(0.0f, 1.0, 0.0f, 0.0f);
+				}
+			}
+		}
+
+		// player hits another player
+		void shot_hits_player(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_player> player)
+		{
+			if (player->name != shot->originator) {
+				shot->state = "destroyed";
+				player->hit_points -= shot->damage;
+                if (player->hit_points < 0) {
+					player->hit_points = 0;
+					player->state = "destroyed";
+				}
+			}
+		}
+
+		void shot_hits_npc(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_npc> npc)
+		{
+			if (npc->name != shot->originator) {
+				shot->state = "destroyed";
+				npc->hit_points -= shot->damage;
+				if (npc->hit_points < 0) {
+					npc->hit_points = 0;
+					npc->state = "destroyed";
+				}
+			}
+		}
+
+		void shot_hits_wall(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_wall> wall)
+		{
+			if (wall->name != shot->originator) {
+				shot->state = "destroyed";
+				wall->hit_points -= shot->damage;
+				if (wall->hit_points < 0) {
+					wall->hit_points = 0;
+					wall->state = "destroyed";
+					wall->passable = true;
+				}
+			}
+		}
+
+		void shot_hits_door(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_door> door)
+		{
+			if (door->name != shot->originator) {
+				shot->state = "destroyed";
+				door->hit_points -= shot->damage;
+				if (door->hit_points < 0) {
+					door->hit_points = 0;
+					door->state = "destroyed";
+				}
+			}
+		}
+
+		void shot_hits_lootbox(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_lootbox> lootbox)
+		{
+			if (lootbox->name != shot->originator) {
+				shot->state = "destroyed";
+				lootbox->hit_points -= shot->damage;
+				if (lootbox->hit_points < 0) {
+					lootbox->hit_points = 0;
+					lootbox->state = "destroyed";
+				}
+			}
+		}
+
+		void apply_surface(std::shared_ptr<game_piece> _piece, std::shared_ptr<game_surface> surface, double _elapsed_secs)
+		{
+			if (auto player = std::dynamic_pointer_cast<game_player>(_piece)) {
+				if (surface->mechanic == "ice") {
+				}
+				else if (surface->mechanic == "mud") {
+				}
+			}
+			else if (auto npc = std::dynamic_pointer_cast<game_npc>(_piece)) {
+				if (surface->mechanic == "ice") {
+				}
+				else if (surface->mechanic == "mud") {
+				}
+			}
 		}
 
 		collision_result model_piece(std::shared_ptr<game_map> _map, int _piece_index, double _elapsed_secs)
@@ -788,11 +993,8 @@ namespace corona
 				bool other_is_open = false;
 
                 if (auto surface = std::dynamic_pointer_cast<game_surface>(other)) {
-					other_is_open = false;
-					// Apply surface mechanics to the piece's acceleration
-					if (surface->mechanic == "slippery") {
-
-					}
+					other_is_open = true;
+					apply_surface(_piece, surface, _elapsed_secs);
 				}
 				else if (auto wall = std::dynamic_pointer_cast<game_wall>(other)) {
 					other_is_open = wall->passable;
@@ -818,14 +1020,16 @@ namespace corona
 						et = mt; // Collision detected, search in the earlier half
 						collision_side = sides;
 					}
-					else {
+					else 
+					{
 						st = mt; // No collision, search in the later half
 					}
 					mt = (st + et) / 2.0;
                 }
 
 				if (collision_detected) {
-					if (collision.piece_2) {
+					if (collision.piece_2) 
+					{
 						// We already have a collision, so we need to determine which one is sooner
 						if (mt < collision.time_of_collision) {
 							collision.piece_2 = other;
@@ -833,7 +1037,8 @@ namespace corona
                             collision.collision_side = collision_side;
 						}
 					}
-					else {
+					else 
+					{
 						collision.piece_2 = other;
 						collision.time_of_collision = mt;
                         collision.collision_side = collision_side;
@@ -847,11 +1052,13 @@ namespace corona
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
             job_notify notify;
+			json_parser jp;
 
 			notify.shouldDelete = false;
 
 			if (game_launched) {
                 last_elapsed_seconds = frame_timer.get_elapsed_seconds();
+				game_launched = false;
 				return;
 			}
 
@@ -871,6 +1078,12 @@ namespace corona
 
             for (auto gm : maps) {
                 if (gm->name == current_map) {
+
+					for (int i = 0; i < gm->pieces.size(); i++) {
+						if (auto pplayer = std::dynamic_pointer_cast<game_player>(gm->pieces[i])) {
+							process_player_commands(pplayer);
+						}
+					}
 
 					for (int i = 0; i < gm->pieces.size(); i++) {
 						init_piece(gm, i);
@@ -907,7 +1120,8 @@ namespace corona
 
 							process_collision(closest_collision);
 						}
-						else {
+						else 
+						{
 							// no more collisions, we can move all pieces for the remaining time
 							for (int i = 0; i < gm->pieces.size(); i++) {
 								accelerate_piece(gm, i, remaining);
@@ -920,7 +1134,6 @@ namespace corona
 						auto _piece = gm->pieces[i];
                         _piece->acceleration = zero_vector;
 					}
-
 				}
 			}
 
