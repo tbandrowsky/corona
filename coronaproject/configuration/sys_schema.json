@@ -1,4 +1,4 @@
-﻿{
+﻿ {
   "schema_name": "Revolution Arcade",
   "schema_description": "Revolution Arcade Application Schema",
   "schema_version": "1.1",
@@ -69,9 +69,9 @@
           "label": "First Name"
         },
         "image": "string",
-        "maps": ["map"],
+        "maps": [ "map" ],
         "starting_map": "string",
-        "sessions": ["session"]
+        "sessions": [ "session" ]
       },
       "indexes": {
         "mini_game_name_index": {
@@ -186,7 +186,31 @@
       "base_class_name": "piece",
       "class_description": "a gaming loot box",
       "fields": {
-        
+
+      }
+    },
+    {
+      "class_name": "loot_spot",
+      "base_class_name": "piece",
+      "class_description": "a gaming loot spot",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "switch",
+      "base_class_name": "piece",
+      "class_description": "a gaming switch",
+      "fields": {
+         
+      }
+    },
+    {
+      "class_name": "shot",
+      "base_class_name": "piece",
+      "class_description": "an effect of a weapon",
+      "fields": {
+
       }
     },
     {
@@ -194,7 +218,7 @@
       "base_class_name": "piece",
       "class_description": "a gaming NPC",
       "fields": {
-        
+
       }
     },
     {

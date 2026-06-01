@@ -559,6 +559,18 @@ namespace corona
 			return false;
 		}
 
+		bool loot(chest_field& _dest)
+		{
+			if (!options) return false;
+
+			for (auto& item : items) {
+				if (remove_part(item.second)) {
+					_dest.add_part(item.second);
+				}
+			}
+			return true;
+		}
+
 		virtual void get_json(json& _dest)
 		{
 			if (!options) return;

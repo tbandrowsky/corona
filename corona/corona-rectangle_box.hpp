@@ -25,6 +25,14 @@ namespace corona {
 		double bottom() const { return y + h; }
 	};
 
+	enum intersection_side {
+		intersection_side_none = 0,
+		intersection_side_top = 1,
+		intersection_side_bottom = 2,
+		intersection_side_left = 3,
+		intersection_side_right = 4
+	};
+
 	class rectangle_math
 	{
 	public:
@@ -117,15 +125,41 @@ namespace corona {
 			return ret;
 		}
 
-		static bool intersect(const rectangle* a, const rectangle* b)
+		static intersection_side intersect(const rectangle* a, const rectangle* b)
 		{
-			bool intersection = false;
+			intersection_side sides = intersection_side_none;
+
 			if (b->bottom() < a->y or a->bottom() < b->y or b->right() < a->x or a->right() < b->x)
-				intersection = false;
-			else
-				intersection = true;
-			return intersection;
+                return sides;
+
+			double side_length = 0;
+
+			double d1 = fabs(a->bottom() - b->y);
+			
+			side_length = d1;
+            sides = intersection_side_top;
+
+			d1 = fabs(a->y - b->bottom());
+            if (d1 < side_length) {
+				side_length = d1;
+				sides = intersection_side_bottom;
+			}
+
+			d1 = fabs(a->right() - b->x);
+			if (d1 < side_length) {
+				side_length = d1;
+				sides = intersection_side_right;
+			}
+
+			d1 = fabs(a->x - b->right());
+			if (d1 < side_length) {
+				side_length = d1;
+				sides = intersection_side_left;
+			}
+
+			return sides;
 		}
+
 
 		static rectangle from_vector(DirectX::XMVECTOR _position, DirectX::XMVECTOR _size )
 		{
