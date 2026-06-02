@@ -524,13 +524,11 @@ namespace corona
 			json j = jp.create_array();
 
 			for (auto gm : maps) {
-				if (gm->name == current_map) {
-					for (auto& player : gm->pieces) {
-						if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-							json pj = jp.create_object();
-							player->get_json(pj);
-							j.push_back(pj);
-						}
+				for (auto& player : gm->pieces) {
+					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+						json pj = jp.create_object();
+						player->get_json(pj);
+						j.push_back(pj);
 					}
 				}
 			}
@@ -541,16 +539,14 @@ namespace corona
 		{
 			bool is_playing = false;
 			for (auto gm : maps) {
-				if (gm->name == current_map) {
-                    for (auto& player : gm->pieces) {
-						if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-							if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
-								pplayer->input_device = std::format("xinput_{}", _input_id);
-								player_input pix;
-								pix.input_device = pplayer->input_device;
-								player_inputs.insert(_input_id, pix);
-								is_playing = true;
-							}
+                for (auto& player : gm->pieces) {
+					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+						if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
+							pplayer->input_device = std::format("xinput_{}", _input_id);
+							player_input pix;
+							pix.input_device = pplayer->input_device;
+							player_inputs.insert(_input_id, pix);
+							is_playing = true;
 						}
 					}
 				}
@@ -1077,63 +1073,60 @@ namespace corona
 			double step_elapsed = 0.0;
 
             for (auto gm : maps) {
-                if (gm->name == current_map) {
+				for (int i = 0; i < gm->pieces.size(); i++) {
+					if (auto pplayer = std::dynamic_pointer_cast<game_player>(gm->pieces[i])) {
+						process_player_commands(pplayer);
+					}
+				}
+
+				for (int i = 0; i < gm->pieces.size(); i++) {
+					init_piece(gm, i);
+				}
+
+				step_elapsed = remaining;
+				while (remaining > 0.001) {
+
+					collision_result closest_collision;
 
 					for (int i = 0; i < gm->pieces.size(); i++) {
-						if (auto pplayer = std::dynamic_pointer_cast<game_player>(gm->pieces[i])) {
-							process_player_commands(pplayer);
-						}
-					}
-
-					for (int i = 0; i < gm->pieces.size(); i++) {
-						init_piece(gm, i);
-					}
-
-					step_elapsed = remaining;
-					while (remaining > 0.001) {
-
-						collision_result closest_collision;
-
-						for (int i = 0; i < gm->pieces.size(); i++) {
-							reset_piece(gm, i);
-							collision_result collision = model_piece(gm, i, step_elapsed);
-							if (collision.collided()) {
-								if (closest_collision.collided()) {
-									if (collision.time_of_collision < closest_collision.time_of_collision) {
-										closest_collision = collision;
-									}
-								}
-								else {
+						reset_piece(gm, i);
+						collision_result collision = model_piece(gm, i, step_elapsed);
+						if (collision.collided()) {
+							if (closest_collision.collided()) {
+								if (collision.time_of_collision < closest_collision.time_of_collision) {
 									closest_collision = collision;
 								}
 							}
-						}
-
-                        if (closest_collision.collided()) {
-							// move pieces to the point of collision
-							for (int i = 0; i < gm->pieces.size(); i++) {
-								accelerate_piece(gm, i, closest_collision.time_of_collision);
+							else {
+								closest_collision = collision;
 							}
-							// resolve collision effects here and update accelerations accordingly
-							// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
-							remaining -= closest_collision.time_of_collision;
-
-							process_collision(closest_collision);
-						}
-						else 
-						{
-							// no more collisions, we can move all pieces for the remaining time
-							for (int i = 0; i < gm->pieces.size(); i++) {
-								accelerate_piece(gm, i, remaining);
-							}
-							remaining = 0;
 						}
 					}
 
-					for (int i = 0; i < gm->pieces.size(); i++) {
-						auto _piece = gm->pieces[i];
-                        _piece->acceleration = zero_vector;
+                    if (closest_collision.collided()) {
+						// move pieces to the point of collision
+						for (int i = 0; i < gm->pieces.size(); i++) {
+							accelerate_piece(gm, i, closest_collision.time_of_collision);
+						}
+						// resolve collision effects here and update accelerations accordingly
+						// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
+						remaining -= closest_collision.time_of_collision;
+
+						process_collision(closest_collision);
 					}
+					else 
+					{
+						// no more collisions, we can move all pieces for the remaining time
+						for (int i = 0; i < gm->pieces.size(); i++) {
+							accelerate_piece(gm, i, remaining);
+						}
+						remaining = 0;
+					}
+				}
+
+				for (int i = 0; i < gm->pieces.size(); i++) {
+					auto _piece = gm->pieces[i];
+                    _piece->acceleration = zero_vector;
 				}
 			}
 
@@ -1146,6 +1139,7 @@ namespace corona
 	{
 		std::shared_ptr<comm_bus_app_interface> bus;
 		corona_instance instance = corona_instance::local;
+        std::vector<std::shared_ptr<game_session>> sessions;
 
 	public:
 
@@ -1153,7 +1147,19 @@ namespace corona
 		{
 		}
 
-		std::shared_ptr<game_session> new_session(json _game_key)
+		json get_games()
+		{
+			json_parser jp;
+			json filter = jp.create_object();
+			filter.put_member_string("class_name", "mini_game");
+			auto result = bus->query_objects(instance, filter);
+			if (result.success) {
+				return result.data;
+			}
+            return jp.create_array();
+		}
+
+		std::shared_ptr<game_session> new_game_session(json _game_key)
 		{
 			json_parser jp;
 
@@ -1181,29 +1187,37 @@ namespace corona
 				json new_session = ccr.data;
                 std::shared_ptr<game_session> session = std::make_shared<game_session>();
                 session->put_json(new_session);
+                sessions.push_back(session);
 				return session;
 			}
+
 			return nullptr;
 		}
 
-		std::shared_ptr<game_session> load_session(json _session_key)
+		std::shared_ptr<game_session> load_game_session(json _session_key)
 		{
 			json_parser jp;
 			auto result = bus->get_object(instance, _session_key);
 			if (result.success) {
 				std::shared_ptr<game_session> session = std::make_shared<game_session>();
 				session->put_json(result.data);
+                sessions.push_back(session);
 				return session;
 			}
 			return nullptr;
 		}
 
-		void save_session(std::shared_ptr<game_session> _session)
+		void save_game_session(std::shared_ptr<game_session> _session)
 		{
 			json_parser jp;
 			json jsession = jp.create_object();
 			_session->get_json(jsession);
 			bus->put_object(instance, jsession);
+		}
+
+		void close_game_session(std::shared_ptr<game_session> _session)
+		{
+			std::remove(sessions.begin(), sessions.end(), _session);
 		}
 	};
 

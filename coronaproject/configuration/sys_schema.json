@@ -80,6 +80,47 @@
       }
     },
     {
+      "class_name": "camera",
+      "base_class_name": "activity",
+      "class_description": "A camera in the system",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Camera Name",
+          "max_length": 100
+        },
+        "location": "vector",
+        "facing": "vector"
+      },
+      "indexes": {
+        "camera_name_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "light",
+      "base_class_name": "activity",
+      "class_description": "A light in the system",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Camera Name",
+          "max_length": 100
+        },
+        "location": "vector",
+        "facing": "vector",
+        "color": "string"
+      },
+      "indexes": {
+        "light_name_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
       "class_name": "essay",
       "base_class_name": "activity",
       "class_description": "An essay in the system",
@@ -95,6 +136,8 @@
       "parents": [ "mini_game", "session" ],
       "fields": {
         "pieces": [ "piece" ],
+        "cameras": [ "camera" ],
+        "lights": [ "light" ],
         "friction": "vector",
         "gravity": "vector"
       }
@@ -147,7 +190,7 @@
       "class_name": "piece",
       "base_class_name": "sys_object",
       "class_description": "a gaming piece",
-      "parents": [ "mini_game" ],
+      "parents": [ "map" ],
       "fields": {
         "name": "string",
         "image_name": {
@@ -208,7 +251,7 @@
       "base_class_name": "piece",
       "class_description": "a gaming switch",
       "fields": {
-         
+
       }
     },
     {

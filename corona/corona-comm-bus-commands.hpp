@@ -2292,6 +2292,192 @@ namespace corona
 		}
 	};
 
+	class corona_get_games_command : public corona_form_command
+	{
+	public:
+		corona_instance instance = corona_instance::local;
+
+		corona_get_games_command()
+		{
+			topic = "get_games";
+		}
+
+		virtual std::string get_name()
+		{
+			return "get_games";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			json obj = _bus->get_form_data(form_name);
+
+			return obj;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->get_object(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			return response.data;
+		}
+
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "get_games"sv);
+			corona::get_json(_dest, instance);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "data" })) {
+				system_monitoring_interface::active_mon->log_warning("get_games_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+			corona::put_json(instance, _src);
+		}
+
+	};
+
+	class corona_start_game_command : public corona_form_command
+	{
+	public:
+		corona_instance instance = corona_instance::local;
+
+		corona_start_game_command()
+		{
+			topic = "get_games";
+		}
+
+		virtual std::string get_name()
+		{
+			return "get_games";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			json obj = _bus->get_form_data(form_name);
+
+			return obj;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->get_object(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			return response.data;
+		}
+
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "get_games"sv);
+			corona::get_json(_dest, instance);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "data" })) {
+				system_monitoring_interface::active_mon->log_warning("start_game_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+			corona::put_json(instance, _src);
+		}
+
+	};
+
+	class corona_stop_game_command : public corona_form_command
+	{
+	public:
+		json		object_data;
+		corona_instance instance = corona_instance::local;
+
+		corona_stop_game_command()
+		{
+			topic = "stop_game";
+		}
+
+		virtual std::string get_name()
+		{
+			return "stop_game";
+		}
+
+		virtual json create_request(comm_bus_app_interface* _bus)
+		{
+			json_parser jp;
+
+			json obj = _bus->get_form_data(form_name);
+
+			return obj;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			auto response = _bus->get_object(instance, request);
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			return response.data;
+		}
+
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "stop_game"sv);
+			_dest.put_member("data", object_data);
+			corona::get_json(_dest, instance);
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "data" })) {
+				system_monitoring_interface::active_mon->log_warning("stop_game_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+			object_data = _src["data"];
+			corona::put_json(instance, _src);
+		}
+
+	};
+
 	class corona_set_property_command : public corona_form_command
 	{
 	public:
@@ -2470,6 +2656,21 @@ namespace corona
 			else if (class_name == "load_object")
 			{
 				_dest = std::make_shared<corona_load_object_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "get_games")
+			{
+				_dest = std::make_shared<corona_get_games_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "start_game")
+			{
+				_dest = std::make_shared<corona_start_game_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "stop_game")
+			{
+				_dest = std::make_shared<corona_stop_game_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "delete_object")

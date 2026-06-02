@@ -1424,6 +1424,8 @@ namespace corona
 	{
 	public:
 
+        std::shared_ptr<game_session> current_session;
+
 		game_session_control() { ; }
 		game_session_control(const game_session_control& _src) = default;
 		game_session_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
@@ -1436,6 +1438,19 @@ namespace corona
 		}
 
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+			draw_control::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			draw_control::put_json(_src);
+		}
+
+
 	};
 
 	class row_view_layout :
