@@ -204,6 +204,10 @@
           "max_length": 32,
           "enumeration": [ "spawned", "active", "inactive", "destroyed" ]
         },
+        "position": "vector",
+        "size": "vector",
+        "velocity": "vector",
+        "facing": "vector",
         "state_time": "datetime",
         "sprites": [ "sprite" ],
         "mass": "double",

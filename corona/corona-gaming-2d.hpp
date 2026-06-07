@@ -56,6 +56,7 @@ namespace corona
 		bool		consumed;
 
 		DirectX::XMVECTOR position = {};
+		DirectX::XMVECTOR facing = {};
 		DirectX::XMVECTOR size = {};
 		DirectX::XMVECTOR velocity = {};
 		DirectX::XMVECTOR frame_velocity = {};
