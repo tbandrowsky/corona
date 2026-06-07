@@ -222,6 +222,7 @@ namespace corona {
 		virtual void setFocus(int ddlControlId);
 		virtual void killFocus(int ddlControlId);
 		virtual bool navigationKey(int _key);
+		virtual void gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state);
 
 		std::function<void(presentation*)> create_pages;
 
@@ -725,6 +726,21 @@ namespace corona {
 			focusedWindow = ::GetAncestor(focusedWindow, GA_PARENT);
 		}
 		return r;
+	}
+
+	void presentation::gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state)
+	{
+		if (_ctrl_id == 0) {
+			_ctrl_id = current_focused_id;
+		}
+		auto cp = current_page.lock();
+		key_press_event kde;
+		kde.control_id = _ctrl_id;
+		kde.key = _key;
+		kde.bus = bus;
+		if (cp) {
+			cp->handle_key_press(_ctrl_id, kde);
+		}
 	}
 
 	void presentation::keyPress(int _ctrl_id, int _key)

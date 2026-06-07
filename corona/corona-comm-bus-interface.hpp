@@ -130,6 +130,9 @@ namespace corona
 
 		static comm_bus_app_interface* global_bus;
 
+		gaming_engine local_gaming;
+        xinput local_input;
+
 		comm_bus_app_interface()
 		{
 			if (global_bus == nullptr) {
@@ -440,6 +443,8 @@ namespace corona
 		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 
+		// this stuff here is wonky
+
 		virtual void set_variable(int _batch_id, std::string _name, json _value)
 		{
 			auto it = batch_data.find(_batch_id);
@@ -500,13 +505,33 @@ namespace corona
 			return t.as_double();
 		}
 
-		virtual void new_game(json _game_key) = 0;
-		virtual void existing_game(json _game_key) = 0;
+		virtual corona_client_response local_get_games()
+		{
+			json_parser jp;
+			json filter = jp.create_object();
+			filter.put_member_string("class_name", "mini_game");
+			auto result = query_objects(corona_instance::local, filter);
+			return result;
+		}
+
+		virtual std::shared_ptr<game_session> local_start_game_session(json _game)
+		{
+            auto new_session = local_gaming.new_game_session(_game);
+			return new_session;
+		}
+
+		virtual corona_client_response local_stop_game_session(std::shared_ptr<game_session> _session)
+		{
+			local_gaming.close_game_session(_session);
+		}
+
+		virtual corona_client_response local_input(json _game)
+		{
+
+		}
 
 	protected:
-
 		std::map<int, std::shared_ptr<json_object>> batch_data;
-
 	};
 
 	comm_bus_app_interface* comm_bus_app_interface::global_bus = nullptr;

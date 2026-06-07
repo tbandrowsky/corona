@@ -2311,21 +2311,24 @@ namespace corona
 		{
 			json_parser jp;
 
-			json obj = _bus->get_form_data(form_name);
+			json obj = jp.create_object();
 
 			return obj;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
-			auto response = _bus->get_object(instance, request);
+			auto response = _bus->local_get_games();
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+			auto ctrl = _bus->find_control(form_name);
+			if (ctrl) {
+				ctrl->set_items(response.data);
+            }
 			return response.data;
 		}
-
 
 		virtual void get_json(json& _dest)
 		{
@@ -2339,15 +2342,6 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "data" })) {
-				system_monitoring_interface::active_mon->log_warning("get_games_command missing:");
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-				return;
-			}
 			corona::put_json(instance, _src);
 		}
 
@@ -2357,6 +2351,8 @@ namespace corona
 	{
 	public:
 		corona_instance instance = corona_instance::local;
+		std::string game_control;
+		std::shared_ptr<game_session> session;
 
 		corona_start_game_command()
 		{
@@ -2379,20 +2375,23 @@ namespace corona
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
-			auto response = _bus->get_object(instance, request);
+			session = _bus->local_start_game_session(request);
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+            auto ctrl = _bus->find_control(game_control);
+			auto session_control = dynamic_cast<game_session_control*>(ctrl);
+			if (session_control) {
+                session_control->set_session(session);
+			}
 			return response.data;
 		}
 
-
 		virtual void get_json(json& _dest)
 		{
-			using namespace std::literals;
-
-			_dest.put_member("class_name", "get_games"sv);
+			_dest.put_member_string("class_name", "start_game");
+            _dest.put_member_string("game_control", game_control);
 			corona::get_json(_dest, instance);
 
 		}
@@ -2400,7 +2399,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "data" })) {
+			if (not _src.has_members(missing, { "game_control" })) {
 				system_monitoring_interface::active_mon->log_warning("start_game_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -2409,6 +2408,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
+            game_control = _src["game_control"].as_string();
 			corona::put_json(instance, _src);
 		}
 
@@ -2417,8 +2417,8 @@ namespace corona
 	class corona_stop_game_command : public corona_form_command
 	{
 	public:
-		json		object_data;
 		corona_instance instance = corona_instance::local;
+        std::string game_control;
 
 		corona_stop_game_command()
 		{
@@ -2442,6 +2442,7 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto response = _bus->get_object(instance, request);
+			session = _bus->local_start_game_session(request);
 			return response;
 		}
 
@@ -2455,7 +2456,7 @@ namespace corona
 			using namespace std::literals;
 
 			_dest.put_member("class_name", "stop_game"sv);
-			_dest.put_member("data", object_data);
+            _dest.put_member("game_control", game_control);
 			corona::get_json(_dest, instance);
 
 		}
@@ -2472,7 +2473,7 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			object_data = _src["data"];
+			game_control = _src["game_control"].as_string();
 			corona::put_json(instance, _src);
 		}
 
@@ -2658,6 +2659,11 @@ namespace corona
 				_dest = std::make_shared<corona_load_object_command>();
 				_dest->put_json(_src);
 			}
+			else if (class_name == "delete_object")
+			{
+				_dest = std::make_shared<corona_delete_object_command>();
+				_dest->put_json(_src);
+			}
 			else if (class_name == "get_games")
 			{
 				_dest = std::make_shared<corona_get_games_command>();
@@ -2671,16 +2677,6 @@ namespace corona
 			else if (class_name == "stop_game")
 			{
 				_dest = std::make_shared<corona_stop_game_command>();
-				_dest->put_json(_src);
-			}
-			else if (class_name == "delete_object")
-			{
-				_dest = std::make_shared<corona_delete_object_command>();
-				_dest->put_json(_src);
-			}
-			else if (class_name == "query")
-			{
-				_dest = std::make_shared<corona_query_command>();
 				_dest->put_json(_src);
 			}
 		}

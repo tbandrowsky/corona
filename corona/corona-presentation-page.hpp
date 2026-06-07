@@ -26,7 +26,6 @@ namespace corona
 
 	class page : public page_base
 	{
-
 		std::map<int, std::shared_ptr<mouse_move_event_binding> > mouse_move_bindings;
 		std::map<int, std::shared_ptr<mouse_wheel_event_binding> > mouse_wheel_bindings;
 		std::map<int, std::shared_ptr<mouse_click_event_binding> > mouse_click_bindings;
@@ -35,6 +34,12 @@ namespace corona
 		std::map<int, std::shared_ptr<item_changed_event_binding> > item_changed_bindings;
 		std::map<int, std::shared_ptr<list_changed_event_binding> > list_changed_events;
 		std::map<int, std::shared_ptr<command_event_binding> > command_bindings;
+		std::map<int, std::shared_ptr<gamepad_button_down_event_binding> > gamepad_button_down_bindings;
+        std::map<int, std::shared_ptr<gamepad_button_up_event_binding> > gamepad_button_up_bindings;
+		std::map<int, std::shared_ptr<gamepad_trigger_down_event_binding> > gamepad_trigger_down_bindings;
+		std::map<int, std::shared_ptr<gamepad_trigger_up_event_binding> > gamepad_trigger_up_bindings;
+		std::map<int, std::shared_ptr<gamepad_thumbstick_move_event_binding> > gamepad_thumbstick_move_event_bindings;
+
 		std::vector<std::shared_ptr<page_select_event_binding>> select_bindings;
 		update_function update_event;
 

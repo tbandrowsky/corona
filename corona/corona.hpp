@@ -274,6 +274,7 @@ namespace corona {
 #include "corona-presentation-controls-dx.hpp"
 #include "corona-presentation-controls-dx-container.hpp"
 #include "corona-presentation-controls-dx-text.hpp"
+#include "corona-presentation-controls-gaming.hpp"
 #include "corona-presentation-controls-win32.hpp"
 
 // builder has some complex controls, but its main reason for existing

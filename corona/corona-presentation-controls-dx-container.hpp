@@ -1395,64 +1395,6 @@ namespace corona
 
 	};
 
-	class chest_control :
-		public container_control
-	{
-	public:
-
-		chest_control() { ; }
-		chest_control(const chest_control& _src) = default;
-		chest_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
-		virtual ~chest_control() { ; }
-
-		virtual std::shared_ptr<control_base> clone()
-		{
-			auto tv = std::make_shared<chest_control>(*this);
-			return tv;
-		}
-
-		virtual void arrange(control_base* _parent, rectangle* _ctx) override
-		{
-
-
-		}
-	};
-
-
-	class game_session_control :
-		public container_control
-	{
-	public:
-
-        std::shared_ptr<game_session> current_session;
-
-		game_session_control() { ; }
-		game_session_control(const game_session_control& _src) = default;
-		game_session_control(control_base* _parent, int _id) : container_control(_parent, _id) { ; }
-		virtual ~game_session_control() { ; }
-
-		virtual std::shared_ptr<control_base> clone()
-		{
-			auto tv = std::make_shared<game_session_control>(*this);
-			return tv;
-		}
-
-		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-			draw_control::get_json(_dest);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			draw_control::put_json(_src);
-		}
-
-
-	};
-
 	class row_view_layout :
 		public row_layout
 	{

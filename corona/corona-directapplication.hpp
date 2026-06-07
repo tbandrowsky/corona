@@ -56,6 +56,8 @@ namespace corona
 		std::shared_ptr<directXAdapter> factory;
 		HWND tooltip;
 
+        XINPUT_STATE lastGamePadState[XUSER_MAX_COUNT];
+
 	public:
 
 		comm_bus_app_interface* bus;
@@ -74,6 +76,8 @@ namespace corona
 		std::weak_ptr<direct2dWindow> getWindow();
 		std::weak_ptr<direct2dChildWindow> createDirect2Window(DWORD control_id, rectangle bounds);
 
+
+		virtual void updateGamePads();
 		virtual bool isDialogMessage(HWND hwnd, LPMSG msg);
 		virtual bool runFull(HINSTANCE _hinstance, const char* _title, int _iconId, bool _fullScreen, std::shared_ptr<controller> _firstController);
 		virtual bool runDialog(HINSTANCE _hinstance, const char* _title, int _iconId, bool _fullScreen, std::shared_ptr<controller> _firstController);
@@ -440,6 +444,32 @@ namespace corona
 	LRESULT CALLBACK directApplicationWin32::controlWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		return current->controlWindowProcHandler(hwnd, message, wParam, lParam);
+	}
+
+	void directApplicationWin32::updateGamePads()
+	{
+		for (int i = 0; i < XUSER_MAX_COUNT; i++)
+		{
+			XINPUT_STATE state;
+			if (XInputGetState(i, &state) == ERROR_SUCCESS)
+			{
+                auto& old_state = lastGamePadState[i];
+				if (state.Gamepad.wButtons != old_state.Gamepad.wButtons ||
+					state.Gamepad.bLeftTrigger != old_state.Gamepad.bLeftTrigger ||
+					state.Gamepad.bRightTrigger != old_state.Gamepad.bRightTrigger ||
+					state.Gamepad.sThumbLX != old_state.Gamepad.sThumbLX ||
+					state.Gamepad.sThumbLY != old_state.Gamepad.sThumbLY ||
+					state.Gamepad.sThumbRX != old_state.Gamepad.sThumbRX ||
+                    state.Gamepad.sThumbRY != old_state.Gamepad.sThumbRY)
+				{
+					if (currentController)
+					{
+						currentController->gamePad(state, old_state);
+					}
+					old_state = state;
+				}
+			}
+		}
 	}
 
 	bool directApplicationWin32::isDialogMessage(HWND hwnd, LPMSG msg)
@@ -1215,6 +1245,7 @@ namespace corona
 				}
 			}
 			else {
+				updateGamePads();
 				__int64 counter;
 				::QueryPerformanceCounter((LARGE_INTEGER*)&counter);
 				double elapsedSeconds = (double)(counter - lastCounter) / (double)performanceFrequency;
@@ -1340,6 +1371,7 @@ namespace corona
 				}
 			}
 			else {
+				updateGamePads();
 				__int64 counter;
 				::QueryPerformanceCounter((LARGE_INTEGER*)&counter);
 				double elapsedSeconds = (double)(counter - lastCounter) / (double)performanceFrequency;

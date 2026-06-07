@@ -2,7 +2,6 @@
 
 namespace corona
 {
-
 	class game_sprite
 	{
 	public:
@@ -13,12 +12,15 @@ namespace corona
 		double		order;
 		double		duration;
 
-		std::shared_ptr<image_control> source_image;
+		game_sprite() = default;
+        game_sprite(const game_sprite& _src) = default;
+        game_sprite(game_sprite&& _src) = default;
+		game_sprite& operator =(const game_sprite& _src) = default;
+		game_sprite& operator =(game_sprite&& _src) = default;
 
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
-
 			_dest.put_member("state", state);
 			_dest.put_member("order", order);
 			_dest.put_member("duration", duration);
@@ -58,6 +60,12 @@ namespace corona
 		DirectX::XMVECTOR velocity = {};
 		DirectX::XMVECTOR frame_velocity = {};
 		DirectX::XMVECTOR acceleration = {};
+
+		game_piece() = default;
+		game_piece(const game_piece& _src) = default;
+		game_piece(game_piece&& _src) = default;
+		game_piece& operator =(const game_piece& _src) = default;
+		game_piece& operator =(game_piece&& _src) = default;
 
 		virtual void get_json(json& _dest)
 		{
@@ -130,474 +138,45 @@ namespace corona
 				inventory->put_json(jinventory);
 			}
 		}
-	};
 
-	class game_item : public game_piece
-	{
-	public:
-		virtual void get_json(json& _dest)
+        virtual void collide(collision_result& collision)
 		{
-			game_piece::get_json(_dest);
-            // add item specific properties here
+			; // default pieces do not react to collisions, but they can be overridden in derived classes
 		}
 
-		virtual void put_json(json& _src)
-		{	
-			game_piece::put_json(_src);
-            // add item specific properties here
-		}
-	};
-
-	class game_player : public game_piece
-	{
-	public:
-
-		std::string input_device;
-
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-			_dest.put_member("input_device", input_device);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-			input_device = _src["input_device"].as_string();
-		}
-	};
-
-	class game_switch : public game_piece
-	{
-	public:
-
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-		}
-	};
-
-	class game_shot : public game_piece
-	{
-
-	public:
-
-		double      damage;
-		std::string originator;
-
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-			_dest.put_member("originator", originator);
-            _dest.put_member("damage", damage);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-			originator = _src["originator"].as_string();
-            damage = _src["damage"].as_double();
-		}
-	};
-
-	class game_lootspot : public game_piece
-	{
-	public:
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-		}
-	};
-
-	class game_lootbox : public game_piece
-	{
-	public:
-
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-		}
-	};
-
-	class game_npc : public game_piece
-	{
-	public:
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-		}
-	};
-
-	class game_wall : public game_piece
-	{
-	public:
-
-		bool passable;
-
-		virtual void get_json(json& _dest)
-		{
-			game_piece::get_json(_dest);
-			_dest.put_member("passable", passable);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-			passable = _src["passable"].as_bool();
-		}
-	};
-
-	class game_door : public game_piece
-	{
-	public:
-
-		bool open;
-
-		virtual void get_json(json& _dest)
-		{
-			_dest.put_member_bool("open", open);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			game_piece::put_json(_src);
-			open = _src["open"].as_bool();
-		}
-	};
-
-	class game_surface : public game_piece
-	{
-	public:
-		std::string mechanic;
-		double acceleration_multiplier;
-		double friction_multiplier;
-
-		virtual void get_json(json& _dest)
-		{
-			_dest.put_member("mechanic", mechanic);
-			_dest.put_member("acceleration_multiplier", acceleration_multiplier);
-			_dest.put_member("friction_multiplier", friction_multiplier);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			mechanic = _src["mechanic"].as_string();
-			acceleration_multiplier = _src["acceleration_multiplier"].as_double();
-			friction_multiplier = _src["friction_multiplier"].as_double();
-		}
-	};
-
-	class game_decoration : public game_piece
-	{
-	public:
-
-		virtual void get_json(json& _dest)
-		{
-
-		}
-
-		virtual void put_json(json& _src)
-		{
-
-		}
-	};
-
-	class game_map
-	{
-	public:
-		std::string class_name;
-		int64_t object_id;
-		std::string name;
-		std::vector<std::shared_ptr<game_piece>> pieces;
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-
-			_dest.put_member("pieces", name);
-
-			json j = jp.create_array();
-			for (auto& s : pieces) {
-				json jitem = jp.create_object();
-				s->get_json(jitem);
-				j.push_back(jitem);
-			}
-			_dest.put_member("pieces", j);
-		}
-
-		virtual void put_json(json& _src)
-		{
-
-			name = _src["name"].as_string();
-			json j = _src["pieces"];
-			json aj = j.as_array();
-
-			for (int i = 0; i < aj.size(); i++) {
-				json aji = aj.get_element(i);
-				if (aji.object()) {
-					std::string class_name = aji["class_name"].as_string();
-
-					if (class_name == "piece")
-					{
-						auto piece = std::make_shared<game_piece>();
-						piece->put_json(aji);
-						pieces.push_back(piece);
-					}
-					else if (class_name == "item")
-					{
-						auto item = std::make_shared<game_item>();
-						item->put_json(aji);
-						pieces.push_back(item);
-					}
-					else if (class_name == "player")
-					{
-						auto player = std::make_shared<game_player>();
-						player->put_json(aji);
-						pieces.push_back(player);
-					}
-					else if (class_name == "loot_spot")
-					{
-						auto loot_spot = std::make_shared<game_lootspot>();
-						loot_spot->put_json(aji);
-						pieces.push_back(loot_spot);
-					}
-					else if (class_name == "loot_box")
-					{
-						auto loot_box = std::make_shared<game_lootbox>();
-						loot_box->put_json(aji);
-						pieces.push_back(loot_box);
-					}
-					else if (class_name == "npc")
-					{
-						auto npc = std::make_shared<game_npc>();
-						npc->put_json(aji);
-						pieces.push_back(npc);
-					}
-					else if (class_name == "wall")
-					{
-						auto wall = std::make_shared<game_wall>();
-						wall->put_json(aji);
-						pieces.push_back(wall);
-					}
-					else if (class_name == "door")
-					{
-						auto door = std::make_shared<game_door>();
-						door->put_json(aji);
-						pieces.push_back(door);
-					}
-					else if (class_name == "surface")
-					{
-						auto surface = std::make_shared<game_surface>();
-						surface->put_json(aji);
-						pieces.push_back(surface);
-					}
-					else if (class_name == "decoration")
-					{
-						auto decoration = std::make_shared<game_decoration>();
-						decoration->put_json(aji);
-						pieces.push_back(decoration);
-					}
-				}
-			}
-		}
-
-	};
-
-	struct collision_result
-	{
-		std::shared_ptr<game_piece> piece_1;
-		std::shared_ptr<game_piece> piece_2;
-		double time_of_collision;
-        intersection_side collision_side;
-
-        bool collided() { return piece_1.get() != nullptr && piece_2.get() != nullptr; }
-    };
-
-	class player_input
-	{
-	public:
-		std::string	  input_device;
-		XINPUT_STATE  input;
-	};
-
-	class game_session : public job
-	{
-	public:
-		std::string class_name;
-		int64_t		object_id;
-		std::string name;
-		std::string description;
-		std::string image;
-		std::string current_map;
-		timer		frame_timer;
-		lockable	map_locker;
-
-		bool game_launched = true;
-		bool game_running = false;
-		bool game_over = false;
-		bool game_complete = false;
-
-		double last_elapsed_seconds;
-
-		std::vector<std::shared_ptr<game_map>> maps;
-		DirectX::XMVECTOR zero_vector = {};
-        thread_safe_map<std::string, player_input> player_inputs;
-		std::shared_ptr<game_map> working_map;
-
-		game_session()
-		{
-			;
-		}
-
-		game_session(json& _src)
-		{
-			put_json(_src);
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-			_dest.put_member("name", name);
-			_dest.put_member("description", description);
-			_dest.put_member("image", image);
-			_dest.put_member("current_map", current_map);
-			json j = jp.create_array();
-			for (auto& s : maps) {
-				json jmap = jp.create_object();
-				s->get_json(jmap);
-				j.push_back(jmap);
-			}
-			_dest.put_member("maps", j);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			name = _src["name"].as_string();
-			description = _src["description"].as_string();
-			image = _src["image"].as_string();
-			current_map = _src["current_map"].as_string();
-			json j = _src["maps"];
-			json aj = j.as_array();
-			for (int i = 0; i < aj.size(); i++) {
-				json aji = aj.get_element(i);
-				if (aji.object()) {
-					auto map = std::make_shared<game_map>();
-					map->put_json(aji);
-					maps.push_back(map);
-				}
-			}
-		}
-
-		job* get_next_job()
-		{
-			if (!game_over) {
-				return this;
-			}
-			else {
-				return nullptr;
-			}
-		}
-
-		json get_players()
-		{
-			json_parser jp;
-			json j = jp.create_array();
-
-			for (auto gm : maps) {
-				for (auto& player : gm->pieces) {
-					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-						json pj = jp.create_object();
-						player->get_json(pj);
-						j.push_back(pj);
-					}
-				}
-			}
-			return j;
-		}
-
-		bool start_playing(json _player, std::string _input_id)
-		{
-			bool is_playing = false;
-			for (auto gm : maps) {
-                for (auto& player : gm->pieces) {
-					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-						if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
-							pplayer->input_device = std::format("xinput_{}", _input_id);
-							player_input pix;
-							pix.input_device = pplayer->input_device;
-							player_inputs.insert(_input_id, pix);
-							is_playing = true;
-						}
-					}
-				}
-			}
-			return is_playing;
-		}
-
-		void playing_input(player_input xpi)
-		{
-			player_inputs.insert(xpi.input_device, xpi);
-		}
- 
-		rectangle get_piece_rectangle(game_piece* _piece, double _elapsed)
+		rectangle get_rectangle(double _elapsed)
 		{
 			using namespace DirectX;
 
-			XMVECTOR this_position_start = XMVectorAdd(_piece->position, XMVectorScale(_piece->velocity, static_cast<float>(_elapsed)));
+			XMVECTOR this_position_start = XMVectorAdd(position, XMVectorScale(velocity, static_cast<float>(_elapsed)));
 
 			rectangle rect;
 			rect.x = XMVectorGetX(this_position_start);
 			rect.y = XMVectorGetY(this_position_start);
-			rect.w = XMVectorGetX(_piece->size);
-			rect.h = XMVectorGetY(_piece->size);
+			rect.w = XMVectorGetX(size);
+			rect.h = XMVectorGetY(size);
 			return rect;
 		}
 
-		void init_piece(std::shared_ptr<game_map> _map, int _piece_index)
+		void init_frame()
 		{
 			using namespace DirectX;
 
-			auto _piece = _map->pieces[_piece_index];
-
-			_piece->frame_velocity = _piece->velocity;
+			frame_velocity = velocity;
 		}
 
-		void reset_piece(std::shared_ptr<game_map> _map, int _piece_index)
+		void reset_frame()
 		{
 			using namespace DirectX;
 
-			auto _piece = _map->pieces[_piece_index];
-
-			_piece->velocity = _piece->frame_velocity;
+			velocity = frame_velocity;
 		}
 
-		void accelerate_piece(std::shared_ptr<game_map> _map, int _piece_index, double _elapsed_secs)
+		void accelerate(double _elapsed_secs)
 		{
 			using namespace DirectX;
 
-			auto _piece = _map->pieces[_piece_index];
-
-			_piece->velocity = XMVectorAdd(_piece->velocity, XMVectorScale(_piece->acceleration, static_cast<float>(_elapsed_secs)));
+			velocity = XMVectorAdd(velocity, XMVectorScale(acceleration, static_cast<float>(_elapsed_secs)));
 		}
 
 		void slide_piece(collision_result& collision)
@@ -692,157 +271,641 @@ namespace corona
 			piece2->velocity = XMVectorAdd(v2, XMVectorScale(normal, (impulse * m1) / m2));
 
 			// Set accelerations to zero after collision
-			piece1->acceleration = zero_vector;
-			piece2->acceleration = zero_vector;
+			piece1->acceleration = XMVectorZero();
+			piece2->acceleration = XMVectorZero();
 
 			// Update frame velocities
 			piece1->frame_velocity = piece1->velocity;
 			piece2->frame_velocity = piece2->velocity;
 		}
 
-		void process_collision(collision_result& collision)
-		{
-			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_1))
-			{
-				if (auto target = std::dynamic_pointer_cast<game_player>(collision.piece_2))
-				{
-					// player hits another player
-					player_hits_player(collision, pplayer, target);
-				}
-				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
-				{
-					player_hits_npc(collision, pplayer, pnpc);
-				}
-				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
-				{
-					player_hits_lootbox(collision, pplayer, plootbox);
-				}
-				else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2))
-				{
-					player_hits_lootspot(collision, pplayer, plootspot);
-				}
-				else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2))
-				{
-					player_hits_wall(collision, pplayer, pwall);
-				}
-				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
-				{
-					player_hits_door(collision, pplayer, pdoor);
-				}
-			}
-			else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_1))
-			{
-				if (auto target = std::dynamic_pointer_cast<game_player>(collision.piece_2))
-				{
-					// player hits another player
-					npc_hits_player(collision, pnpc, target);
-				}
-				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
-				{
-					npc_hits_npc(collision, pnpc, pnpc);
-				}
-				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
-				{
-					npc_hits_lootbox(collision, pnpc, plootbox);
-				}
-				else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2))
-				{
-					npc_hits_lootspot(collision, pnpc, plootspot);
-				}
-				else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2))
-				{
-					npc_hits_wall(collision, pnpc, pwall);
-				}
-				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
-				{
-					npc_hits_door(collision, pnpc, pdoor);
-				}
+	};
 
+	struct collision_result
+	{
+		std::shared_ptr<game_piece> piece_1;
+		std::shared_ptr<game_piece> piece_2;
+		double time_of_collision;
+		intersection_side collision_side;
+
+		bool collided() { return piece_1.get() != nullptr && piece_2.get() != nullptr; }
+	};
+
+	class game_item : public game_piece
+	{
+	public:
+
+		game_item() = default;
+		game_item(const game_item& _src) = default;
+		game_item(game_item&& _src) = default;
+		game_item& operator =(const game_item& _src) = default;
+		game_item& operator =(game_item&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+            // add item specific properties here
+		}
+
+		virtual void put_json(json& _src)
+		{	
+			game_piece::put_json(_src);
+            // add item specific properties here
+		}
+	};
+
+	class game_switch : public game_piece
+	{
+	public:
+
+		game_switch() = default;
+		game_switch(const game_switch& _src) = default;
+		game_switch(game_switch&& _src) = default;
+		game_switch& operator =(const game_switch& _src) = default;
+		game_switch& operator =(game_switch&& _src) = default;
+
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+	};
+
+	class game_lootspot : public game_piece
+	{
+	public:
+		game_lootspot() = default;
+		game_lootspot(const game_lootspot& _src) = default;
+		game_lootspot(game_lootspot&& _src) = default;
+		game_lootspot& operator =(const game_lootspot& _src) = default;
+		game_lootspot& operator =(game_lootspot&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+	};
+
+	class game_lootbox : public game_piece
+	{
+	public:
+		game_lootbox() = default;
+		game_lootbox(const game_lootbox& _src) = default;
+		game_lootbox(game_lootbox&& _src) = default;
+		game_lootbox& operator =(const game_lootbox& _src) = default;
+		game_lootbox& operator =(game_lootbox&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+	};
+
+	class game_wall : public game_piece
+	{
+	public:
+		game_wall() = default;
+		game_wall(const game_wall& _src) = default;
+		game_wall(game_wall&& _src) = default;
+		game_wall& operator =(const game_wall& _src) = default;
+		game_wall& operator =(game_wall&& _src) = default;
+
+		bool passable;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+			_dest.put_member("passable", passable);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+			passable = _src["passable"].as_bool();
+		}
+	};
+
+	class game_door : public game_piece
+	{
+	public:
+		game_door() = default;
+		game_door(const game_door& _src) = default;
+		game_door(game_door&& _src) = default;
+		game_door& operator =(const game_door& _src) = default;
+		game_door& operator =(game_door&& _src) = default;
+
+		bool open;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member_bool("open", open);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+			open = _src["open"].as_bool();
+		}
+	};
+
+	class game_surface : public game_piece
+	{
+	public:
+		game_surface() = default;
+		game_surface(const game_surface& _src) = default;
+		game_surface(game_surface&& _src) = default;
+		game_surface& operator =(const game_surface& _src) = default;
+		game_surface& operator =(game_surface&& _src) = default;
+
+		std::string mechanic;
+		double acceleration_multiplier;
+		double friction_multiplier;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member("mechanic", mechanic);
+			_dest.put_member("acceleration_multiplier", acceleration_multiplier);
+			_dest.put_member("friction_multiplier", friction_multiplier);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			mechanic = _src["mechanic"].as_string();
+			acceleration_multiplier = _src["acceleration_multiplier"].as_double();
+			friction_multiplier = _src["friction_multiplier"].as_double();
+		}
+	};
+
+	class game_decoration : public game_piece
+	{
+	public:
+		game_decoration() = default;
+		game_decoration(const game_decoration& _src) = default;
+		game_decoration(game_decoration&& _src) = default;
+		game_decoration& operator =(const game_decoration& _src) = default;
+		game_decoration& operator =(game_decoration&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+
+		}
+	};
+
+	class game_actor : public game_piece {
+	public:
+
+		game_actor() = default;
+		game_actor(const game_actor& _src) = default;
+		game_actor(game_actor&& _src) = default;
+		game_actor& operator =(const game_actor& _src) = default;
+		game_actor& operator =(game_actor&& _src) = default;
+
+		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer) = 0;
+		virtual void hit_npc(collision_result& collision, std::shared_ptr<game_npc>& pnpc) = 0;
+		virtual void hit_lootbox(collision_result& collision, std::shared_ptr<game_lootbox>& plootbox) = 0;
+		virtual void hit_lootspot(collision_result& collision, std::shared_ptr<game_lootspot>& plootspot) = 0;
+		virtual void hit_switch(collision_result& collision, std::shared_ptr<game_switch>& plootspot) = 0;
+		virtual void hit_wall(collision_result& collision, std::shared_ptr<game_wall>& pwall) = 0;
+		virtual void hit_door(collision_result& collision, std::shared_ptr<game_door>& pdoor) = 0;
+
+		virtual void collide(collision_result& collision)
+		{
+            if (!collision.collided()) {
+				return;
 			}
-			else if (auto pshot = std::dynamic_pointer_cast<game_shot>(collision.piece_1))
-			{
-				if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_2))
-				{
-					// player hits another player
-					shot_hits_player(collision, pshot, pplayer);
-				}
-				else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2))
-				{
-					shot_hits_npc(collision, pshot, pnpc);
-				}
-				else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2))
-				{
-					shot_hits_wall(collision, pshot, pwall);
-				}
-				else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2))
-				{
-					shot_hits_door(collision, pshot, pdoor);
-				}
-				else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2))
-				{
-					shot_hits_lootbox(collision, pshot, plootbox);
-				}
+			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_2)) {
+				hit_player(collision, pplayer);
+			}
+            else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2)) {
+				hit_npc(collision, pnpc);
+			}
+			else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2)) {
+				hit_lootbox(collision, plootbox);
+			}
+			else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2)) {
+				hit_lootspot(collision, plootspot);
+			}
+			else if (auto pswitch = std::dynamic_pointer_cast<game_switch>(collision.piece_2)) {
+				hit_switch(collision, pswitch);
+			}
+			else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2)) {
+				hit_wall(collision, pwall);
+			}
+			else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2)) {
+				hit_door(collision, pdoor);
 			}
 		}
 
-		void player_hits_player(collision_result& collision, std::shared_ptr<game_player> player1, std::shared_ptr<game_player> player2)
+	};
+
+	class game_player : public game_actor
+	{
+	public:
+
+		game_player() = default;
+        game_player(const game_player& _src) = default;
+        game_player(game_player&& _src) = default;
+		game_player& operator =(const game_player& _src) = default;
+		game_player& operator =(game_player&& _src) = default;
+
+
+		std::string input_device;
+
+		virtual void get_json(json& _dest)
+		{
+			game_actor::get_json(_dest);
+			_dest.put_member("input_device", input_device);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_actor::put_json(_src);
+			input_device = _src["input_device"].as_string();
+		}
+
+		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer)
+		{
+            recoil_piece(collision);
+		}
+		virtual void hit_npc(collision_result& collision, std::shared_ptr<game_npc>& pnpc)
+		{
+            recoil_piece(collision);
+		}
+		virtual void hit_lootbox(collision_result& collision, std::shared_ptr<game_lootbox>& plootbox)
 		{
 			recoil_piece(collision);
 		}
-
-		void player_hits_npc(collision_result& collision, std::shared_ptr<game_player> player1, std::shared_ptr<game_npc> player2)
+		virtual void hit_lootspot(collision_result& collision, std::shared_ptr<game_lootspot>& plootspot)
 		{
-			recoil_piece(collision);
+
 		}
-
-		void player_hits_lootbox(collision_result& collision, std::shared_ptr<game_player> npc, std::shared_ptr<game_lootbox> lootbox)
+		virtual void hit_switch(collision_result& collision, std::shared_ptr<game_switch>& pswitch)
 		{
+
+		}
+		virtual void hit_wall(collision_result& collision, std::shared_ptr<game_wall>& pwall)
+		{
+			if (pwall->passable) {
+				return;
+			}
 			slide_piece(collision);
 		}
-
-		void player_hits_lootspot(collision_result& collision, std::shared_ptr<game_player> player, std::shared_ptr<game_lootspot> lootspot)
+		virtual void hit_door(collision_result& collision, std::shared_ptr<game_door>& pdoor)
 		{
-			player->inventory->loot(*lootspot->inventory);
-		}
-
-		void player_hits_wall(collision_result& collision, std::shared_ptr<game_player> player, std::shared_ptr<game_wall> wall)
-		{
-			slide_piece(collision);
-		}
-
-		void player_hits_door(collision_result& collision, std::shared_ptr<game_player> npc, std::shared_ptr<game_door> door)
-		{
-
-		}
-
-		void npc_hits_player(collision_result& collision, std::shared_ptr<game_npc> player1, std::shared_ptr<game_player> player2)
-		{
+            if (pdoor->open) {
+				return;
+			}
 			recoil_piece(collision);
 		}
 
-		void npc_hits_npc(collision_result& collision, std::shared_ptr<game_npc> player1, std::shared_ptr<game_npc> player2)
+	};
+
+
+
+	class game_shot : public game_actor
+	{
+
+	public:
+
+		game_shot() = default;
+		game_shot(const game_shot& _src) = default;
+		game_shot(game_shot&& _src) = default;
+		game_shot& operator =(const game_shot& _src) = default;
+		game_shot& operator =(game_shot&& _src) = default;
+
+		double      damage;
+		std::string originator;
+
+		virtual void get_json(json& _dest)
+		{
+			game_actor::get_json(_dest);
+			_dest.put_member("originator", originator);
+            _dest.put_member("damage", damage);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_actor::put_json(_src);
+			originator = _src["originator"].as_string();
+            damage = _src["damage"].as_double();
+		}
+
+		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer) = 0;
+		virtual void hit_npc(collision_result& collision, std::shared_ptr<game_npc>& pnpc) = 0;
+		virtual void hit_lootbox(collision_result& collision, std::shared_ptr<game_lootbox>& plootbox) = 0;
+		virtual void hit_switch(collision_result& collision, std::shared_ptr<game_switch>& pswitch) = 0;
+		virtual void hit_lootspot(collision_result& collision, std::shared_ptr<game_lootspot>& plootspot) = 0;
+		virtual void hit_wall(collision_result& collision, std::shared_ptr<game_wall>& pwall) = 0;
+		virtual void hit_door(collision_result& collision, std::shared_ptr<game_door>& pdoor) = 0;
+
+	};
+
+	class game_npc : public game_actor
+	{
+	public:
+		game_npc() = default;
+		game_npc(const game_npc& _src) = default;
+		game_npc(game_npc&& _src) = default;
+		game_npc& operator =(const game_npc& _src) = default;
+		game_npc& operator =(game_npc&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+
+		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer)
 		{
 			recoil_piece(collision);
 		}
-
-		void npc_hits_lootbox(collision_result& collision, std::shared_ptr<game_npc> npc, std::shared_ptr<game_lootbox> lootbox)
+		virtual void hit_npc(collision_result& collision, std::shared_ptr<game_npc>& pnpc)
+		{
+			recoil_piece(collision);
+		}
+		virtual void hit_lootbox(collision_result& collision, std::shared_ptr<game_lootbox>& plootbox)
+		{
+			recoil_piece(collision);
+		}
+		virtual void hit_lootspot(collision_result& collision, std::shared_ptr<game_lootspot>& plootspot)
 		{
 
 		}
 
-		void npc_hits_lootspot(collision_result& collision, std::shared_ptr<game_npc> player, std::shared_ptr<game_lootspot> lootspot)
+		virtual void hit_switch(collision_result& collision, std::shared_ptr<game_switch>& pswitch)
 		{
-			player->inventory->loot(*lootspot->inventory);
+
 		}
 
-		void npc_hits_wall(collision_result& collision, std::shared_ptr<game_npc> player, std::shared_ptr<game_wall> wall)
+		virtual void hit_wall(collision_result& collision, std::shared_ptr<game_wall>& pwall)
 		{
+			if (pwall->passable) {
+				return;
+			}
 			slide_piece(collision);
 		}
+		virtual void hit_door(collision_result& collision, std::shared_ptr<game_door>& pdoor)
+		{
+			if (pdoor->open) {
+				return;
+			}
+			recoil_piece(collision);
+		}
 
-		void npc_hits_door(collision_result& collision, std::shared_ptr<game_npc> npc, std::shared_ptr<game_door> lootbox)
+	};
+
+
+	class game_map
+	{
+	public:
+
+		game_map() = default;
+		game_map(const game_map& _src) = default;
+		game_map(game_map&& _src) = default;
+		game_map& operator =(const game_map& _src) = default;
+		game_map& operator =(game_map&& _src) = default;
+
+
+		std::string class_name;
+		int64_t object_id;
+		std::string name;
+		std::vector<std::shared_ptr<game_piece>> pieces;
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+
+			_dest.put_member("pieces", name);
+
+			json j = jp.create_array();
+			for (auto& s : pieces) {
+				json jitem = jp.create_object();
+				s->get_json(jitem);
+				j.push_back(jitem);
+			}
+			_dest.put_member("pieces", j);
+		}
+
+		virtual void put_json(json& _src)
 		{
 
+			name = _src["name"].as_string();
+			json j = _src["pieces"];
+			json aj = j.as_array();
+
+			for (int i = 0; i < aj.size(); i++) {
+				json aji = aj.get_element(i);
+				if (aji.object()) {
+					std::string class_name = aji["class_name"].as_string();
+
+					if (class_name == "piece")
+					{
+						auto piece = std::make_shared<game_piece>();
+						piece->put_json(aji);
+						pieces.push_back(piece);
+					}
+					else if (class_name == "item")
+					{
+						auto item = std::make_shared<game_item>();
+						item->put_json(aji);
+						pieces.push_back(item);
+					}
+					else if (class_name == "player")
+					{
+						auto player = std::make_shared<game_player>();
+						player->put_json(aji);
+						pieces.push_back(player);
+					}
+					else if (class_name == "loot_spot")
+					{
+						auto loot_spot = std::make_shared<game_lootspot>();
+						loot_spot->put_json(aji);
+						pieces.push_back(loot_spot);
+					}
+					else if (class_name == "loot_box")
+					{
+						auto loot_box = std::make_shared<game_lootbox>();
+						loot_box->put_json(aji);
+						pieces.push_back(loot_box);
+					}
+					else if (class_name == "npc")
+					{
+						auto npc = std::make_shared<game_npc>();
+						npc->put_json(aji);
+						pieces.push_back(npc);
+					}
+					else if (class_name == "wall")
+					{
+						auto wall = std::make_shared<game_wall>();
+						wall->put_json(aji);
+						pieces.push_back(wall);
+					}
+					else if (class_name == "door")
+					{
+						auto door = std::make_shared<game_door>();
+						door->put_json(aji);
+						pieces.push_back(door);
+					}
+					else if (class_name == "shot")
+					{
+						auto shot = std::make_shared<game_shot>();
+						shot->put_json(aji);
+						pieces.push_back(shot);
+					}
+					else if (class_name == "surface")
+					{
+						auto surface = std::make_shared<game_surface>();
+						surface->put_json(aji);
+						pieces.push_back(surface);
+					}
+					else if (class_name == "decoration")
+					{
+						auto decoration = std::make_shared<game_decoration>();
+						decoration->put_json(aji);
+						pieces.push_back(decoration);
+					}
+				}
+			}
+		}
+
+	};
+
+	class game_session : public job
+	{
+	public:
+		std::string class_name;
+		int64_t		object_id;
+		std::string name;
+		std::string description;
+		std::string image;
+		std::string current_map;
+		timer		frame_timer;
+		lockable	map_locker;
+
+		bool game_launched = true;
+		bool game_running = false;
+
+		double last_elapsed_seconds;
+
+		std::vector<std::shared_ptr<game_map>> maps;
+		DirectX::XMVECTOR zero_vector = {};
+        thread_safe_map<std::string, player_input> player_inputs;
+
+		game_session()
+		{
+			;
+		}
+
+		game_session(json& _src)
+		{
+			put_json(_src);
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+			_dest.put_member("name", name);
+			_dest.put_member("description", description);
+			_dest.put_member("image", image);
+			_dest.put_member("current_map", current_map);
+			json j = jp.create_array();
+			for (auto& s : maps) {
+				json jmap = jp.create_object();
+				s->get_json(jmap);
+				j.push_back(jmap);
+			}
+			_dest.put_member("maps", j);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			name = _src["name"].as_string();
+			description = _src["description"].as_string();
+			image = _src["image"].as_string();
+			current_map = _src["current_map"].as_string();
+			json j = _src["maps"];
+			json aj = j.as_array();
+			for (int i = 0; i < aj.size(); i++) {
+				json aji = aj.get_element(i);
+				if (aji.object()) {
+					auto map = std::make_shared<game_map>();
+					map->put_json(aji);
+					if (current_map.empty()) {
+						current_map = map->name;
+                    }
+					maps.push_back(map);
+				}
+			}
+		}
+
+		job* get_next_job()
+		{
+			if (game_running) {
+				return this;
+			}
+			else {
+				return nullptr;
+			}
+		}
+
+		json get_players()
+		{
+			json_parser jp;
+			json j = jp.create_array();
+
+			for (auto gm : maps) {
+				for (auto& player : gm->pieces) {
+					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+						json pj = jp.create_object();
+						player->get_json(pj);
+						j.push_back(pj);
+					}
+				}
+			}
+			return j;
+		}
+
+		bool player_start(json _player, std::string _input_id)
+		{
+			bool is_playing = false;
+			for (auto gm : maps) {
+                for (auto& player : gm->pieces) {
+					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
+						if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
+							pplayer->input_device = std::format("xinput_{}", _input_id);
+							player_input pix;
+							pix.input_device = pplayer->input_device;
+							player_inputs.insert(_input_id, pix);
+							is_playing = true;
+						}
+					}
+				}
+			}
+			return is_playing;
 		}
 
 		game_map get_current_map()
@@ -884,84 +947,6 @@ namespace corona
 			}
 		}
 
-		// player hits another player
-		void shot_hits_player(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_player> player)
-		{
-			if (player->name != shot->originator) {
-				shot->state = "destroyed";
-				player->hit_points -= shot->damage;
-                if (player->hit_points < 0) {
-					player->hit_points = 0;
-					player->state = "destroyed";
-				}
-			}
-		}
-
-		void shot_hits_npc(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_npc> npc)
-		{
-			if (npc->name != shot->originator) {
-				shot->state = "destroyed";
-				npc->hit_points -= shot->damage;
-				if (npc->hit_points < 0) {
-					npc->hit_points = 0;
-					npc->state = "destroyed";
-				}
-			}
-		}
-
-		void shot_hits_wall(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_wall> wall)
-		{
-			if (wall->name != shot->originator) {
-				shot->state = "destroyed";
-				wall->hit_points -= shot->damage;
-				if (wall->hit_points < 0) {
-					wall->hit_points = 0;
-					wall->state = "destroyed";
-					wall->passable = true;
-				}
-			}
-		}
-
-		void shot_hits_door(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_door> door)
-		{
-			if (door->name != shot->originator) {
-				shot->state = "destroyed";
-				door->hit_points -= shot->damage;
-				if (door->hit_points < 0) {
-					door->hit_points = 0;
-					door->state = "destroyed";
-				}
-			}
-		}
-
-		void shot_hits_lootbox(collision_result& collision, std::shared_ptr<game_shot> shot, std::shared_ptr<game_lootbox> lootbox)
-		{
-			if (lootbox->name != shot->originator) {
-				shot->state = "destroyed";
-				lootbox->hit_points -= shot->damage;
-				if (lootbox->hit_points < 0) {
-					lootbox->hit_points = 0;
-					lootbox->state = "destroyed";
-				}
-			}
-		}
-
-		void apply_surface(std::shared_ptr<game_piece> _piece, std::shared_ptr<game_surface> surface, double _elapsed_secs)
-		{
-			if (auto player = std::dynamic_pointer_cast<game_player>(_piece)) {
-				if (surface->mechanic == "ice") {
-				}
-				else if (surface->mechanic == "mud") {
-				}
-			}
-			else if (auto npc = std::dynamic_pointer_cast<game_npc>(_piece)) {
-				if (surface->mechanic == "ice") {
-				}
-				else if (surface->mechanic == "mud") {
-				}
-			}
-		}
-
 		collision_result model_piece(std::shared_ptr<game_map> _map, int _piece_index, double _elapsed_secs)
 		{
 			using namespace DirectX;
@@ -990,7 +975,6 @@ namespace corona
 
                 if (auto surface = std::dynamic_pointer_cast<game_surface>(other)) {
 					other_is_open = true;
-					apply_surface(_piece, surface, _elapsed_secs);
 				}
 				else if (auto wall = std::dynamic_pointer_cast<game_wall>(other)) {
 					other_is_open = wall->passable;
@@ -1009,8 +993,8 @@ namespace corona
 				intersection_side collision_side;
 
 				while (fabs(et - st) > 0.001) {
-					rectangle piece_rect = get_piece_rectangle(_piece.get(), mt);
-					rectangle other_rect = get_piece_rectangle(other.get(), mt);
+					rectangle piece_rect = _piece->get_rectangle(mt);
+					rectangle other_rect = other->get_rectangle(mt);
 					if (auto sides = rectangle_math::intersect(&piece_rect, &other_rect)) {
 						collision_detected = true;
 						et = mt; // Collision detected, search in the earlier half
@@ -1080,7 +1064,8 @@ namespace corona
 				}
 
 				for (int i = 0; i < gm->pieces.size(); i++) {
-					init_piece(gm, i);
+					auto pc = gm->pieces[i];
+					pc->init_frame();
 				}
 
 				step_elapsed = remaining;
@@ -1089,7 +1074,8 @@ namespace corona
 					collision_result closest_collision;
 
 					for (int i = 0; i < gm->pieces.size(); i++) {
-						reset_piece(gm, i);
+						auto pc = gm->pieces[i];
+						pc->reset_frame();
 						collision_result collision = model_piece(gm, i, step_elapsed);
 						if (collision.collided()) {
 							if (closest_collision.collided()) {
@@ -1106,19 +1092,21 @@ namespace corona
                     if (closest_collision.collided()) {
 						// move pieces to the point of collision
 						for (int i = 0; i < gm->pieces.size(); i++) {
-							accelerate_piece(gm, i, closest_collision.time_of_collision);
+							auto pc = gm->pieces[i];
+							pc->accelerate(closest_collision.time_of_collision);
 						}
 						// resolve collision effects here and update accelerations accordingly
 						// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
 						remaining -= closest_collision.time_of_collision;
 
-						process_collision(closest_collision);
+                        closest_collision.piece_1->collide(closest_collision);
 					}
 					else 
 					{
 						// no more collisions, we can move all pieces for the remaining time
 						for (int i = 0; i < gm->pieces.size(); i++) {
-							accelerate_piece(gm, i, remaining);
+							auto pc = gm->pieces[i];
+							pc->accelerate(remaining);
 						}
 						remaining = 0;
 					}
@@ -1145,18 +1133,6 @@ namespace corona
 
         gaming_engine(std::shared_ptr<comm_bus_app_interface> _db) : bus(_db)
 		{
-		}
-
-		json get_games()
-		{
-			json_parser jp;
-			json filter = jp.create_object();
-			filter.put_member_string("class_name", "mini_game");
-			auto result = bus->query_objects(instance, filter);
-			if (result.success) {
-				return result.data;
-			}
-            return jp.create_array();
 		}
 
 		std::shared_ptr<game_session> new_game_session(json _game_key)
@@ -1217,6 +1193,7 @@ namespace corona
 
 		void close_game_session(std::shared_ptr<game_session> _session)
 		{
+			_session->game_running = false;
 			std::remove(sessions.begin(), sessions.end(), _session);
 		}
 	};

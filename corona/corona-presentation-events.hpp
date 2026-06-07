@@ -113,6 +113,69 @@ namespace corona {
 
 	};
 
+	enum class gamepad_button
+	{
+		A = 0,
+		B = 1,
+		X = 2,
+		Y = 3,
+		LeftShoulder = 4,
+		RightShoulder = 5,
+		Start = 6,
+		Back = 7,
+		LeftThumb = 8,
+		RightThumb = 9
+    };
+
+	enum class gamepad_trigger
+	{
+		LeftTrigger = 8,
+		RightTrigger = 9
+	};
+
+	enum class gamepad_thumb
+	{
+		LeftThumb = 8,
+		RightThumb = 9
+	};
+
+	class gamepad_event : public control_event
+	{
+	public:
+		XINPUT_STATE state;
+	};
+
+	class gamepad_button_down_event : public gamepad_event
+	{
+	public:
+		gamepad_button button;
+	};
+
+	class gamepad_button_up_event : public gamepad_event
+	{
+	public:
+		gamepad_button button;
+	};
+
+	class gamepad_trigger_down_event : public gamepad_event
+	{
+	public:
+		gamepad_trigger thumb;
+	};
+
+	class gamepad_trigger_up_event : public gamepad_event
+	{
+	public:
+		gamepad_trigger trigger;
+	};
+
+	class gamepad_thumbstick_move_event : public gamepad_event
+	{
+	public:
+		gamepad_thumb thumb;
+		float x, y;
+	};
+
 	class key_press_event : public key_event
 	{
 	public:
@@ -200,6 +263,41 @@ namespace corona {
 		int subscribed_item_id;
 		control_base* control;
 		std::function< void(mouse_right_click_event) > on_mouse_right_click;
+	};
+
+	class gamepad_button_down_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		std::function< void(gamepad_button_down_event) > on_button_down;
+	};
+
+	class gamepad_button_up_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		std::function< void(gamepad_button_up_event) > on_button_up;
+	};
+
+	class gamepad_trigger_down_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		std::function< void(gamepad_trigger_down_event) > on_trigger_down;
+	};
+
+	class gamepad_trigger_up_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		std::function< void(gamepad_trigger_up_event) > on_trigger_up;
+	};
+
+	class gamepad_thumbstick_move_event_binding
+	{
+	public:
+		int subscribed_item_id;
+		std::function< void(gamepad_thumbstick_move_event) > on_thumbstick_move;
 	};
 
 	class draw_event_binding

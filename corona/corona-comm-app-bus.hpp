@@ -35,8 +35,6 @@ namespace corona
 		std::multimap<std::string, topic_event_waiter> topic_waiters;
 
 		corona_client client;
-		gaming_engine local_gaming;
-		std::shared_ptr<game_session> current_game_session;
 
 		void check_windows_queue(MSG* _msg)
 		{
@@ -2335,29 +2333,7 @@ namespace corona
 			return jp.create_array();
 		}
 
-		virtual json get_local_game_sessions()
-		{
-			json_parser jp;
-			json filter = jp.create_object();
-			filter.put_member_string("class_name", "mini_game");
-			auto result = query_objects(corona_instance::local, filter);
-			if (result.success) {
-				return result.data;
-			}
-			return jp.create_array();
-		}
 
-		virtual json get_local_game_sessions()
-		{
-			json_parser jp;
-			json filter = jp.create_object();
-			filter.put_member_string("class_name", "mini_game");
-			auto result = query_objects(corona_instance::local, filter);
-			if (result.success) {
-				return result.data;
-			}
-			return jp.create_array();
-		}
 
 	};
 

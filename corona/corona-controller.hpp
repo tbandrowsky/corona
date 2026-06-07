@@ -54,6 +54,7 @@ namespace corona
 		virtual void setFocus(int ddlControlId) = 0;
 		virtual void killFocus(int ddlControlId) = 0;
 		virtual bool navigationKey(int _key) = 0;
+		virtual void gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state) = 0;
 
 		virtual void onHostCreated() = 0;
 		virtual void onCreated() = 0;
