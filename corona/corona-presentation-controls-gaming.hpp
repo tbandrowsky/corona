@@ -22,6 +22,41 @@ namespace corona
 			; 
 		}
 
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			draw_control::on_subscribe(_presentation, _page);
+
+			_page->on_gamepad_button_down(id, [this](gamepad_button_down_event gpbd) {
+				if (current_session) {
+                    current_session->handle_gamepad_button_down(gpbd);
+				}
+			});
+
+			_page->on_gamepad_button_up(id, [this](gamepad_button_up_event gpbu) {
+				if (current_session) {
+					current_session->handle_gamepad_button_up(gpbu);
+				}
+			});
+
+			_page->on_gamepad_trigger_up(id, [this](gamepad_trigger_up_event gptu) {
+				if (current_session) {
+					current_session->handle_gamepad_trigger_up(gptu);
+				}
+			});
+
+			_page->on_gamepad_trigger_down(id, [this](gamepad_trigger_down_event gptd) {
+				if (current_session) {
+					current_session->handle_gamepad_trigger_down(gptd);
+				}
+			});
+
+			_page->on_gamepad_thumbstick_move(id, [this](gamepad_thumbstick_move_event gptm) {
+				if (current_session) {
+					current_session->handle_gamepad_thumbstick_move(gptm);
+				}
+			});
+		}
+
 		virtual ~game_session_control() { ; }
 
 		virtual std::shared_ptr<control_base> clone()

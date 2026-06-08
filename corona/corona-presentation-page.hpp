@@ -38,7 +38,7 @@ namespace corona
         std::map<int, std::shared_ptr<gamepad_button_up_event_binding> > gamepad_button_up_bindings;
 		std::map<int, std::shared_ptr<gamepad_trigger_down_event_binding> > gamepad_trigger_down_bindings;
 		std::map<int, std::shared_ptr<gamepad_trigger_up_event_binding> > gamepad_trigger_up_bindings;
-		std::map<int, std::shared_ptr<gamepad_thumbstick_move_event_binding> > gamepad_thumbstick_move_event_bindings;
+		std::map<int, std::shared_ptr<gamepad_thumbstick_move_event_binding> > gamepad_thumbstick_move_bindings;
 
 		std::vector<std::shared_ptr<page_select_event_binding>> select_bindings;
 		update_function update_event;
@@ -384,6 +384,51 @@ namespace corona
 			evt->subscribed_item_id = _control_id;
 			evt->on_command = handler;
 			command_bindings[_control_id] = evt;
+		}
+
+		virtual void on_gamepad_button_down(int _control_id, std::function< void(gamepad_button_down_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<gamepad_button_down_event_binding>();
+			evt->subscribed_item_id = _control_id;
+			evt->on_button_down = handler;
+			gamepad_button_down_bindings[_control_id] = evt;
+		}
+
+		virtual void on_gamepad_button_up(int _control_id, std::function< void(gamepad_button_up_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<gamepad_button_up_event_binding>();
+			evt->subscribed_item_id = _control_id;
+			evt->on_button_up = handler;
+			gamepad_button_up_bindings[_control_id] = evt;
+		}
+
+		virtual void on_gamepad_trigger_down(int _control_id, std::function< void(gamepad_trigger_down_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<gamepad_trigger_down_event_binding>();
+            evt->subscribed_item_id = _control_id;
+            evt->on_trigger_down = handler;
+            gamepad_trigger_down_bindings[_control_id] = evt;
+        }
+
+		virtual void on_gamepad_trigger_up(int _control_id, std::function< void(gamepad_trigger_up_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<gamepad_trigger_up_event_binding>();
+            evt->subscribed_item_id = _control_id;
+            evt->on_trigger_up = handler;
+            gamepad_trigger_up_bindings[_control_id] = evt;
+		}
+
+		virtual void on_gamepad_thumbstick_move(int _control_id, std::function< void(gamepad_thumbstick_move_event) > handler)
+		{
+			scope_lock locker(binding_lock);
+			auto evt = std::make_shared<gamepad_thumbstick_move_event_binding>();
+			evt->subscribed_item_id = _control_id;
+			evt->on_thumbstick_move = handler;
+			gamepad_thumbstick_move_bindings[_control_id] = evt;
 		}
 
 		virtual void on_update(update_function fnc)

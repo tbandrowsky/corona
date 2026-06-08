@@ -353,6 +353,11 @@ namespace corona {
 		virtual void on_list_changed(int _control_id, std::function< void(list_changed_event) >) = 0;
 		virtual void on_command(int _item_id, std::function< void(command_event) >) = 0;
 		virtual void on_select(std::function< void(page_select_event) >) = 0;
+        virtual void on_gamepad_button_down(int _control_id, std::function< void(gamepad_button_down_event) >) = 0;
+        virtual void on_gamepad_button_up(int _control_id, std::function< void(gamepad_button_up_event) >) = 0;
+        virtual void on_gamepad_trigger_down(int _control_id, std::function< void(gamepad_trigger_down_event) >) = 0;
+        virtual void on_gamepad_trigger_up(int _control_id, std::function< void(gamepad_trigger_up_event) >) = 0;
+        virtual void on_gamepad_thumbstick_move(int _control_id, std::function< void(gamepad_thumbstick_move_event) >) = 0;
 		virtual void clear_events(int _item_id) = 0;
 		virtual void refresh() = 0;
 

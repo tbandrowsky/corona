@@ -130,8 +130,7 @@ namespace corona
 
 		static comm_bus_app_interface* global_bus;
 
-		gaming_engine local_gaming;
-        xinput local_input;
+		game_engine local_gaming;
 
 		comm_bus_app_interface()
 		{
@@ -523,11 +522,6 @@ namespace corona
 		virtual corona_client_response local_stop_game_session(std::shared_ptr<game_session> _session)
 		{
 			local_gaming.close_game_session(_session);
-		}
-
-		virtual corona_client_response local_input(json _game)
-		{
-
 		}
 
 	protected:

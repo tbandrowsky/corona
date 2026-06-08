@@ -315,6 +315,48 @@ namespace corona
 		}
 	};
 
+	class game_spawn : public game_piece
+	{
+	public:
+
+		game_spawn() = default;
+		game_spawn(const game_spawn& _src) = default;
+		game_spawn(game_spawn&& _src) = default;
+		game_spawn& operator =(const game_spawn& _src) = default;
+		game_spawn& operator =(game_spawn&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+	};
+
+	class game_light : public game_piece
+	{
+	public:
+
+		game_light() = default;
+		game_light(const game_light& _src) = default;
+		game_light(game_light&& _src) = default;
+		game_light& operator =(const game_light& _src) = default;
+		game_light& operator =(game_light&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			game_piece::put_json(_src);
+		}
+	};
+
 	class game_switch : public game_piece
 	{
 	public:
@@ -803,7 +845,6 @@ namespace corona
 		std::string name;
 		std::string description;
 		std::string image;
-		std::string current_map;
 		timer		frame_timer;
 		lockable	map_locker;
 
@@ -812,9 +853,8 @@ namespace corona
 
 		double last_elapsed_seconds;
 
-		std::vector<std::shared_ptr<game_map>> maps;
+		std::shared_ptr<game_map> map;
 		DirectX::XMVECTOR zero_vector = {};
-        thread_safe_map<std::string, player_input> player_inputs;
 
 		game_session()
 		{
@@ -826,6 +866,31 @@ namespace corona
 			put_json(_src);
 		}
 
+		void handle_gamepad_button_up(gamepad_button_up_event gpbd) 
+		{
+
+		}
+
+		void handle_gamepad_button_down(gamepad_button_down_event gpbd) 
+		{
+
+		}
+
+		void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu) 
+		{
+
+		}
+
+		void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd) 
+		{
+
+		}
+
+		void handle_gamepad_button_down(gamepad_button_down_event gpbd) 
+		{
+
+		}
+
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
@@ -834,12 +899,10 @@ namespace corona
 			_dest.put_member("image", image);
 			_dest.put_member("current_map", current_map);
 			json j = jp.create_array();
-			for (auto& s : maps) {
-				json jmap = jp.create_object();
-				s->get_json(jmap);
-				j.push_back(jmap);
-			}
-			_dest.put_member("maps", j);
+			json jmap = jp.create_object();
+			map->get_json(jmap);
+			j.push_back(jmap);
+			_dest.put_member("map", j);
 		}
 
 		virtual void put_json(json& _src)
@@ -849,18 +912,7 @@ namespace corona
 			image = _src["image"].as_string();
 			current_map = _src["current_map"].as_string();
 			json j = _src["maps"];
-			json aj = j.as_array();
-			for (int i = 0; i < aj.size(); i++) {
-				json aji = aj.get_element(i);
-				if (aji.object()) {
-					auto map = std::make_shared<game_map>();
-					map->put_json(aji);
-					if (current_map.empty()) {
-						current_map = map->name;
-                    }
-					maps.push_back(map);
-				}
-			}
+            map = std::make_shared<game_map>();
 		}
 
 		job* get_next_job()
@@ -1124,7 +1176,7 @@ namespace corona
 
 	};
 
-	class gaming_engine
+	class game_engine
 	{
 		std::shared_ptr<comm_bus_app_interface> bus;
 		corona_instance instance = corona_instance::local;
@@ -1132,9 +1184,10 @@ namespace corona
 
 	public:
 
-        gaming_engine(std::shared_ptr<comm_bus_app_interface> _db) : bus(_db)
+		game_engine(std::shared_ptr<comm_bus_app_interface> _db) : bus(_db)
 		{
 		}
+
 
 		std::shared_ptr<game_session> new_game_session(json _game_key)
 		{

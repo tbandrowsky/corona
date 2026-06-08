@@ -68,54 +68,11 @@
           "field_type": "string",
           "label": "First Name"
         },
-        "image": "string",
-        "maps": [ "map" ],
-        "starting_map": "string",
+        "map": "map",
         "sessions": [ "session" ]
       },
       "indexes": {
         "mini_game_name_index": {
-          "index_keys": [ "name" ]
-        }
-      }
-    },
-    {
-      "class_name": "camera",
-      "base_class_name": "activity",
-      "class_description": "A camera in the system",
-      "full_text": [ "name", "description", "image" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Camera Name",
-          "max_length": 100
-        },
-        "location": "vector",
-        "facing": "vector"
-      },
-      "indexes": {
-        "camera_name_index": {
-          "index_keys": [ "name" ]
-        }
-      }
-    },
-    {
-      "class_name": "light",
-      "base_class_name": "activity",
-      "class_description": "A light in the system",
-      "full_text": [ "name", "description", "image" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Camera Name",
-          "max_length": 100
-        },
-        "location": "vector",
-        "facing": "vector",
-        "color": "string"
-      },
-      "indexes": {
-        "light_name_index": {
           "index_keys": [ "name" ]
         }
       }
@@ -135,11 +92,8 @@
       "class_description": "a gaming map",
       "parents": [ "mini_game", "session" ],
       "fields": {
-        "pieces": [ "piece" ],
-        "cameras": [ "camera" ],
-        "lights": [ "light" ],
-        "friction": "vector",
-        "gravity": "vector"
+        "image": "string",
+        "pieces": [ "piece" ]
       }
     },
     {
@@ -148,7 +102,7 @@
       "class_description": "a gaming session",
       "parents": [ "mini_game" ],
       "fields": {
-        "maps": [ "map" ],
+        "map" : "map",
         "name": {
           "field_type": "string",
           "label": "First Name",
@@ -157,9 +111,7 @@
         "description": {
           "field_type": "string",
           "label": "First Name"
-        },
-        "image": "string",
-        "current_map": "string"
+        }
       }
     },
     {
@@ -223,6 +175,23 @@
       "class_name": "item",
       "base_class_name": "piece",
       "class_description": "a gaming item",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "camera",
+      "base_class_name": "piece",
+      "class_description": "A camera in the system",
+      "fields": {
+        "fov": "double",
+        "near_clip": "double",
+        "far_clip": "double"
+      }
+    },
+    {
+      "class_name": "spawn",
+      "base_class_name": "piece",
+      "class_description": "A place to launch players",
       "fields": {
       }
     },
