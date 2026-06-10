@@ -593,6 +593,61 @@ namespace corona
 			_pg->root->loaded(batch_id);
 		}
 
+		void handle_gamepad_button_down(int _control_id, gamepad_button_down_event evt)
+		{
+			scope_lock locker(binding_lock);
+			if (gamepad_button_down_bindings.contains(_control_id)) {
+				auto& ptrx = gamepad_button_down_bindings[_control_id];
+				evt.control = find(_control_id);
+				evt.control_id = _control_id;
+				ptrx->on_button_down(evt);
+			}
+        }
+
+		void handle_gamepad_button_up(int _control_id, gamepad_button_up_event evt)
+		{
+			scope_lock locker(binding_lock);
+			if (gamepad_button_up_bindings.contains(_control_id)) {
+				auto& ptrx = gamepad_button_up_bindings[_control_id];
+				evt.control = find(_control_id);
+				evt.control_id = _control_id;
+				ptrx->on_button_up(evt);
+			}
+		}
+
+		void handle_gamepad_trigger_down(int _control_id, gamepad_trigger_down_event evt)
+		{
+			scope_lock locker(binding_lock);
+			if (gamepad_trigger_down_bindings.contains(_control_id)) {
+				auto& ptrx = gamepad_trigger_down_bindings[_control_id];
+				evt.control = find(_control_id);
+				evt.control_id = _control_id;
+				ptrx->on_trigger_down(evt);
+			}
+		}
+
+		void handle_gamepad_trigger_up(int _control_id, gamepad_trigger_up_event evt)
+		{
+			scope_lock locker(binding_lock);
+			if (gamepad_trigger_up_bindings.contains(_control_id)) {
+				auto& ptrx = gamepad_trigger_up_bindings[_control_id];
+				evt.control = find(_control_id);
+				evt.control_id = _control_id;
+				ptrx->on_trigger_up(evt);
+			}
+		}
+
+		void handle_gamepad_thumbstick_move(int _control_id, gamepad_thumbstick_move_event evt)
+		{
+			scope_lock locker(binding_lock);
+			if (gamepad_thumbstick_move_bindings.contains(_control_id)) {
+				auto& ptrx = gamepad_thumbstick_move_bindings[_control_id];
+				evt.control = find(_control_id);
+				evt.control_id = _control_id;
+				ptrx->on_thumbstick_move(evt);
+			}
+		}
+
 		friend class presentation;
 	};
 }

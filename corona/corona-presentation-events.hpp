@@ -124,7 +124,11 @@ namespace corona {
 		Start = 6,
 		Back = 7,
 		LeftThumb = 8,
-		RightThumb = 9
+		RightThumb = 9,
+        DpadUp = 10,
+        DpadDown = 11,
+        DpadLeft = 12,
+        DpadRight = 13
     };
 
 	enum class gamepad_trigger
@@ -160,7 +164,7 @@ namespace corona {
 	class gamepad_trigger_down_event : public gamepad_event
 	{
 	public:
-		gamepad_trigger thumb;
+		gamepad_trigger trigger;
 	};
 
 	class gamepad_trigger_up_event : public gamepad_event

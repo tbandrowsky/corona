@@ -78,6 +78,10 @@ For Future Consideration
 
 #include <DirectXMath.h>
 
+#include <mmdeviceapi.h>
+#include <audioclient.h>
+
+
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr; } }
 #endif
@@ -99,6 +103,8 @@ TRACELOGGING_DEFINE_PROVIDER( // defines g_hProvider
 namespace corona {
 	void log_warning(const std::string &_src);
 }
+
+#include "corona-audio-synth.hpp"
 
 #include "corona-publicity-stunts.hpp"
 

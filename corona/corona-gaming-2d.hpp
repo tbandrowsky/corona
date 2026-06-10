@@ -2,6 +2,41 @@
 
 namespace corona
 {
+	point get_thumbstick(int dead_zone, int thumbX, int thumbY)
+	{
+		point pt;
+
+		float LX = thumbX;
+		float LY = thumbY;
+
+		//determine how far the controller is pushed
+		float magnitude = sqrt(LX * LX + LY * LY);
+
+		float normalizedMagnitude = 0;
+
+		//check if the controller is outside a circular dead zone
+		if (magnitude > dead_zone)
+		{
+			//clip the magnitude at its expected maximum value
+			if (magnitude > 32767) magnitude = 32767;
+
+			//adjust magnitude relative to the end of the dead zone
+			magnitude -= dead_zone;
+
+            if (magnitude < 1) magnitude = 1;
+
+            normalizedMagnitude = magnitude / (32767 - dead_zone);
+
+			if (normalizedMagnitude < 1) normalizedMagnitude = 1;
+
+			pt.x = LX * normalizedMagnitude;
+			pt.y = LY * normalizedMagnitude;
+		}
+
+		return pt;
+	}
+
+
 	class game_sprite
 	{
 	public:
@@ -571,19 +606,24 @@ namespace corona
 		game_player& operator =(const game_player& _src) = default;
 		game_player& operator =(game_player&& _src) = default;
 
-
-		std::string input_device;
+		int		input_device;
+		bool    ready;
+        bool    dead;
 
 		virtual void get_json(json& _dest)
 		{
 			game_actor::get_json(_dest);
-			_dest.put_member("input_device", input_device);
+			_dest.put_member_i64("input_device", input_device);
+			_dest.put_member_bool("ready", ready);
+			_dest.put_member_bool("dead", dead);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			game_actor::put_json(_src);
-			input_device = _src["input_device"].as_string();
+			input_device = _src["input_device"].as_int();
+            ready = _src["ready"].as_bool();
+			dead = _src["dead"].as_bool();
 		}
 
 		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer)
@@ -732,11 +772,35 @@ namespace corona
 		game_map& operator =(const game_map& _src) = default;
 		game_map& operator =(game_map&& _src) = default;
 
-
 		std::string class_name;
 		int64_t object_id;
 		std::string name;
+
 		std::vector<std::shared_ptr<game_piece>> pieces;
+
+		// C++20 view functions - no separate storage needed
+		template<std::derived_from<game_piece> T>
+		auto get_pieces_of_type() const {
+			return pieces 
+				| std::views::transform([](const auto& p) { 
+					return std::dynamic_pointer_cast<T>(p); 
+				  })
+				| std::views::filter([](const auto& p) { return p != nullptr; });
+		}
+
+		// Convenience accessors for common types
+		auto players() const { return get_pieces_of_type<game_player>(); }
+		auto npcs() const { return get_pieces_of_type<game_npc>(); }
+		auto walls() const { return get_pieces_of_type<game_wall>(); }
+		auto spawns() const { return get_pieces_of_type<game_spawn>(); }
+		auto lights() const { return get_pieces_of_type<game_light>(); }
+		auto switches() const { return get_pieces_of_type<game_switch>(); }
+		auto lootboxes() const { return get_pieces_of_type<game_lootbox>(); }
+		auto lootspots() const { return get_pieces_of_type<game_lootspot>(); }
+		auto doors() const { return get_pieces_of_type<game_door>(); }
+		auto decorations() const { return get_pieces_of_type<game_decoration>(); }
+		auto shots() const { return get_pieces_of_type<game_shot>(); }
+		auto surfaces() const { return get_pieces_of_type<game_surface>(); }
 
 		virtual void get_json(json& _dest)
 		{
@@ -755,6 +819,7 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
+			pieces.clear();
 
 			name = _src["name"].as_string();
 			json j = _src["pieces"];
@@ -769,7 +834,7 @@ namespace corona
 					{
 						auto piece = std::make_shared<game_piece>();
 						piece->put_json(aji);
-						pieces.push_back(piece);
+						pieces.push_back(piece);						
 					}
 					else if (class_name == "item")
 					{
@@ -837,24 +902,32 @@ namespace corona
 
 	};
 
+	enum class game_session_state
+	{
+		lobby,
+		active,
+        paused,
+		complete,
+		exit
+	};
+
 	class game_session : public job
 	{
-	public:
-		std::string class_name;
-		int64_t		object_id;
-		std::string name;
-		std::string description;
-		std::string image;
-		timer		frame_timer;
-		lockable	map_locker;
-
-		bool game_launched = true;
-		bool game_running = false;
+		std::string			class_name;
+		int64_t				object_id;
+		std::string			name;
+		std::string			description;
+		timer				frame_timer;
+		lockable			map_locker;
+		game_session_state	game_state;
 
 		double last_elapsed_seconds;
 
 		std::shared_ptr<game_map> map;
+
 		DirectX::XMVECTOR zero_vector = {};
+
+	public:
 
 		game_session()
 		{
@@ -866,29 +939,171 @@ namespace corona
 			put_json(_src);
 		}
 
-		void handle_gamepad_button_up(gamepad_button_up_event gpbd) 
+		std::shared_ptr<game_player> attach_player(XINPUT_STATE& _input_state)
 		{
+			// Search for existing player with this input device
+			for (auto player : map->players()) {
+				if (player->input_device == _input_state.dwPacketNumber) {
+					return player;
+				}
+			}
 
+			// Create new player and add to pieces only
+			std::shared_ptr<game_player> new_player = std::make_shared<game_player>();
+			new_player->input_device = _input_state.dwPacketNumber;
+			new_player->name = "Player " + std::to_string(_input_state.dwPacketNumber);
+			new_player->ready = false;
+			map->pieces.push_back(new_player);
+			return new_player;
+		}
+
+		void start_game_if_all_ready()
+		{
+			if (game_state == game_session_state::lobby) {
+				auto players_view = map->players();
+				bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
+					return player->ready;
+				});
+				if (all_ready) {
+					set_active();
+				}
+			}
+		}
+
+		void complete_game_if_all_dead()
+		{
+			auto players_view = map->players();
+			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
+				return player->dead;
+				});
+			if (all_dead) { 
+				set_complete();
+			}
+		}
+
+		void set_lobby()
+		{
+			// Remove all players from the pieces collection
+			auto is_player = [](const auto& piece) {
+				return std::dynamic_pointer_cast<game_player>(piece) != nullptr;
+			};
+			map->pieces.erase(
+				std::remove_if(map->pieces.begin(), map->pieces.end(), is_player),
+				map->pieces.end()
+			);
+			game_state = game_session_state::lobby;
+		}
+
+		void set_active()
+		{
+			game_state = game_session_state::active;
+		}
+
+		void set_paused()
+		{
+			game_state = game_session_state::paused;
+		}
+
+		void set_complete()
+		{
+			game_state = game_session_state::complete;
+		}
+
+		void set_exit()
+		{
+			game_state = game_session_state::exit;
+		}
+
+		void handle_gamepad_button_up(gamepad_button_up_event gpbd)
+		{
+			auto player = attach_player(gpbd.state); 
 		}
 
 		void handle_gamepad_button_down(gamepad_button_down_event gpbd) 
 		{
-
+			auto player = attach_player(gpbd.state);
+			switch (gpbd.button) 
+			{
+			case gamepad_button::A:
+				break;
+			case gamepad_button::B:
+				break;
+			case gamepad_button::X:  // It's good to learn to not hit the X button.
+				player->dead = true;
+				break;
+			case gamepad_button::Y:
+				break;
+			case gamepad_button::LeftShoulder:
+				break;
+			case gamepad_button::RightShoulder:
+				break;
+			case gamepad_button::Back:
+				player->dead = false;
+				break;
+			case gamepad_button::Start:
+                if (game_state == game_session_state::lobby) {
+					player->ready = !player->ready;
+					start_game_if_all_ready();
+				}
+				else if (game_state == game_session_state::active) {
+					player->dead = false;
+					set_paused();
+				}
+				else if (game_state == game_session_state::paused) {
+					set_active();
+				}
+				else if (game_state == game_session_state::complete) {
+					set_lobby();
+				}
+				else if (game_state == game_session_state::exit) {
+					; // do nothing, we're exiting anyway
+				}
+				break;
+			case gamepad_button::DpadUp:
+                player->acceleration = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+                break;
+			case gamepad_button::DpadDown:
+                player->acceleration = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+				break;
+			case gamepad_button::DpadLeft:
+                player->acceleration = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+				break;
+			case gamepad_button::DpadRight:
+                player->acceleration = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+				break;
+			}
 		}
 
 		void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu) 
 		{
-
+			auto player = attach_player(gptu.state);
 		}
 
 		void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd) 
 		{
-
+			auto player = attach_player(gptd.state);
+			player->ready = !player->ready;
+            if (game_state == game_session_state::lobby) {
+				player->ready = true;
+				start_game_if_all_ready();
+            }
+            else if (game_state == game_session_state::active) {
+			}
+			else if (game_state == game_session_state::paused) {
+				set_active();
+			}
+			else if (game_state == game_session_state::complete) {
+				set_lobby();
+			}
+			else if (game_state == game_session_state::exit) {
+				; // do nothing, we're exiting anyway
+			}
 		}
 
-		void handle_gamepad_button_down(gamepad_button_down_event gpbd) 
+		void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd) 
 		{
-
+			auto player = attach_player(gpbd.state);
+            player->acceleration = DirectX::XMVectorSet(gpbd.x, gpbd.y, 0.0f, 0.0f);
 		}
 
 		virtual void get_json(json& _dest)
@@ -896,109 +1111,54 @@ namespace corona
 			json_parser jp;
 			_dest.put_member("name", name);
 			_dest.put_member("description", description);
-			_dest.put_member("image", image);
-			_dest.put_member("current_map", current_map);
 			json j = jp.create_array();
 			json jmap = jp.create_object();
 			map->get_json(jmap);
 			j.push_back(jmap);
 			_dest.put_member("map", j);
+
+			switch (game_state) {
+			case game_session_state::lobby:
+				_dest.put_member_string("state", "lobby");
+				break;
+			case game_session_state::active:
+				_dest.put_member_string("state", "active");
+				break;
+			case game_session_state::paused:
+				_dest.put_member_string("state", "paused");
+				break;
+			case game_session_state::complete:
+				_dest.put_member_string("state", "complete");
+				break;
+			case game_session_state::exit:
+				_dest.put_member_string("state", "exit");
+				break;
+			}
 		}
 
 		virtual void put_json(json& _src)
 		{
 			name = _src["name"].as_string();
 			description = _src["description"].as_string();
-			image = _src["image"].as_string();
-			current_map = _src["current_map"].as_string();
-			json j = _src["maps"];
+			json j = _src["map"];
             map = std::make_shared<game_map>();
+            std::string state_string = _src["state"].as_string();
 		}
 
 		job* get_next_job()
 		{
-			if (game_running) {
+			if (game_state != game_session_state::exit)
+			{
 				return this;
 			}
-			else {
+			else
+			{
 				return nullptr;
 			}
 		}
 
-		json get_players()
-		{
-			json_parser jp;
-			json j = jp.create_array();
+	private:
 
-			for (auto gm : maps) {
-				for (auto& player : gm->pieces) {
-					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-						json pj = jp.create_object();
-						player->get_json(pj);
-						j.push_back(pj);
-					}
-				}
-			}
-			return j;
-		}
-
-		bool player_start(json _player, std::string _input_id)
-		{
-			bool is_playing = false;
-			for (auto gm : maps) {
-                for (auto& player : gm->pieces) {
-					if (auto pplayer = std::dynamic_pointer_cast<game_player>(player)) {
-						if (pplayer->input_device.empty() || pplayer->input_device.empty()) {
-							pplayer->input_device = std::format("xinput_{}", _input_id);
-							player_input pix;
-							pix.input_device = pplayer->input_device;
-							player_inputs.insert(_input_id, pix);
-							is_playing = true;
-						}
-					}
-				}
-			}
-			return is_playing;
-		}
-
-		game_map get_current_map()
-		{
-			for (auto& map : maps) {
-				if (map->name == current_map) {
-					return *map;
-				}
-			}
-            return game_map();
-		}
-
-		void process_player_commands(std::shared_ptr<game_player> _player)
-		{
-            using namespace DirectX;
-
-			player_input pix;
-			if (player_inputs.try_get(_player->input_device, pix)) {
-
-				if (pix.input.Gamepad.bLeftTrigger) {
-
-                }
-                else if (pix.input.Gamepad.bRightTrigger) {
-
-				}
-				
-				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) {
-                    _player->acceleration = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
-				}
-				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
-					_player->acceleration = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-				}
-				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
-					_player->acceleration = XMVectorSet(-1.0f, 0.0, 0.0f, 0.0f);
-				}
-				if (pix.input.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
-					_player->acceleration = XMVectorSet(0.0f, 1.0, 0.0f, 0.0f);
-				}
-			}
-		}
 
 		collision_result model_piece(std::shared_ptr<game_map> _map, int _piece_index, double _elapsed_secs)
 		{
@@ -1082,22 +1242,13 @@ namespace corona
 			return collision;
 		}
 
-		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		void run_lobby(double delta)
 		{
-            job_notify notify;
-			json_parser jp;
+			;
+		}
 
-			notify.shouldDelete = false;
-
-			if (game_launched) {
-                last_elapsed_seconds = frame_timer.get_elapsed_seconds();
-				game_launched = false;
-				return;
-			}
-
-            double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
-			double delta = current_elapsed_seconds - last_elapsed_seconds;
-
+		void run_active(double delta)
+		{
 			// we have to resolve collision effects first, because, 
 			// that gives us new accelerations.
 
@@ -1109,67 +1260,94 @@ namespace corona
 			double remaining = delta;
 			double step_elapsed = 0.0;
 
-            for (auto gm : maps) {
-				for (int i = 0; i < gm->pieces.size(); i++) {
-					if (auto pplayer = std::dynamic_pointer_cast<game_player>(gm->pieces[i])) {
-						process_player_commands(pplayer);
-					}
-				}
+			step_elapsed = remaining;
+			while (remaining > 0.001) {
 
-				for (int i = 0; i < gm->pieces.size(); i++) {
-					auto pc = gm->pieces[i];
-					pc->init_frame();
-				}
+				collision_result closest_collision;
 
-				step_elapsed = remaining;
-				while (remaining > 0.001) {
-
-					collision_result closest_collision;
-
-					for (int i = 0; i < gm->pieces.size(); i++) {
-						auto pc = gm->pieces[i];
-						pc->reset_frame();
-						collision_result collision = model_piece(gm, i, step_elapsed);
-						if (collision.collided()) {
-							if (closest_collision.collided()) {
-								if (collision.time_of_collision < closest_collision.time_of_collision) {
-									closest_collision = collision;
-								}
-							}
-							else {
+				for (int i = 0; i < map->pieces.size(); i++) {
+					auto pc = map->pieces[i];
+					pc->reset_frame();
+					collision_result collision = model_piece(map, i, step_elapsed);
+					if (collision.collided()) {
+						if (closest_collision.collided()) {
+							if (collision.time_of_collision < closest_collision.time_of_collision) {
 								closest_collision = collision;
 							}
 						}
-					}
-
-                    if (closest_collision.collided()) {
-						// move pieces to the point of collision
-						for (int i = 0; i < gm->pieces.size(); i++) {
-							auto pc = gm->pieces[i];
-							pc->accelerate(closest_collision.time_of_collision);
+						else {
+							closest_collision = collision;
 						}
-						// resolve collision effects here and update accelerations accordingly
-						// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
-						remaining -= closest_collision.time_of_collision;
-
-                        closest_collision.piece_1->collide(closest_collision);
-					}
-					else 
-					{
-						// no more collisions, we can move all pieces for the remaining time
-						for (int i = 0; i < gm->pieces.size(); i++) {
-							auto pc = gm->pieces[i];
-							pc->accelerate(remaining);
-						}
-						remaining = 0;
 					}
 				}
 
-				for (int i = 0; i < gm->pieces.size(); i++) {
-					auto _piece = gm->pieces[i];
-                    _piece->acceleration = zero_vector;
+				if (closest_collision.collided()) {
+					// move pieces to the point of collision
+					for (int i = 0; i < map->pieces.size(); i++) {
+						auto pc = map->pieces[i];
+						pc->accelerate(closest_collision.time_of_collision);
+					}
+					// resolve collision effects here and update accelerations accordingly
+					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
+					remaining -= closest_collision.time_of_collision;
+
+					closest_collision.piece_1->collide(closest_collision);
+				}
+				else
+				{
+					// no more collisions, we can move all pieces for the remaining time
+					for (int i = 0; i < map->pieces.size(); i++) {
+						auto pc = map->pieces[i];
+						pc->accelerate(remaining);
+					}
+					remaining = 0;
 				}
 			}
+
+			for (int i = 0; i < map->pieces.size(); i++) {
+				auto _piece = map->pieces[i];
+				_piece->acceleration = zero_vector;
+			};
+		}
+
+		void run_complete(double delta)
+		{
+			;
+        }
+
+		void run_paused(double delta)
+		{
+			;
+		}
+
+		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		{
+            job_notify notify;
+			json_parser jp;
+
+			notify.shouldDelete = false;
+
+			double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
+			double delta = current_elapsed_seconds - last_elapsed_seconds;
+
+			last_elapsed_seconds = current_elapsed_seconds;
+
+			switch (game_state) {
+			case game_session_state::lobby:
+				run_lobby(delta);
+				break;
+			case game_session_state::active:
+				run_active(delta);
+				break;
+			case game_session_state::complete:
+				run_complete(delta);
+				break;
+			case game_session_state::paused:
+				run_paused(delta);
+				break;
+			case game_session_state::exit:
+				break;
+			}	
 
 			return notify;
 		}
@@ -1247,7 +1425,7 @@ namespace corona
 
 		void close_game_session(std::shared_ptr<game_session> _session)
 		{
-			_session->game_running = false;
+			_session->set_exit();
 			std::remove(sessions.begin(), sessions.end(), _session);
 		}
 	};

@@ -730,17 +730,160 @@ namespace corona {
 
 	void presentation::gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state)
 	{
-		if (_ctrl_id == 0) {
-			_ctrl_id = current_focused_id;
-		}
 		auto cp = current_page.lock();
-		key_press_event kde;
-		kde.control_id = _ctrl_id;
-		kde.key = _key;
-		kde.bus = bus;
-		if (cp) {
-			cp->handle_key_press(_ctrl_id, kde);
+
+        if (new_state.Gamepad.wButtons != old_state.Gamepad.wButtons) {
+			// handle button changes
+			// for example, if the A button is pressed:
+
+            bool a_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+            bool b_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
+			bool x_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0;
+			bool y_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0;
+			bool dup_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0;
+			bool ddown_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+			bool dright_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
+			bool dleft_pressed = (new_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+
+			bool old_a_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+			bool old_b_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_B) != 0;
+			bool old_x_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_X) != 0;
+			bool old_y_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) != 0;
+			bool old_dup_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0;
+			bool old_ddown_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+			bool old_dright_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
+			bool old_dleft_pressed = (old_state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+
+            if (a_pressed && !old_a_pressed) {
+				// A button was just pressed
+                gamepad_button_down_event gbde;
+
+				gbde.button = gamepad_button::A;
+				gbde.bus = bus;
+                gbde.state = new_state;
+                cp->handle_gamepad_button_down(0, gbde);
+			}
+			else if (!a_pressed && old_a_pressed) {
+				// A button was just released
+				gamepad_button_up_event gbue;
+
+				gbue.button = gamepad_button::A;
+				gbue.bus = bus;
+				gbue.state = new_state;
+				cp->handle_gamepad_button_up(0, gbue);
+			}
+
+			if (b_pressed && !old_b_pressed) {
+				// B button was just pressed
+				gamepad_button_down_event gbde;
+
+				gbde.button = gamepad_button::B;
+				gbde.bus = bus;
+				gbde.state = new_state;
+				cp->handle_gamepad_button_down(0, gbde);
+			}
+			else if (!b_pressed && old_b_pressed) {
+				// B button was just released
+				gamepad_button_up_event gbue;
+
+				gbue.button = gamepad_button::B;
+				gbue.bus = bus;
+				gbue.state = new_state;
+				cp->handle_gamepad_button_up(0, gbue);
+			}
+
+			if (x_pressed && !old_x_pressed) {
+				// X button was just pressed
+				gamepad_button_down_event gbde;
+
+				gbde.button = gamepad_button::X;
+				gbde.bus = bus;
+				gbde.state = new_state;
+				cp->handle_gamepad_button_down(0, gbde);
+			}
+			else if (!x_pressed && old_x_pressed) {
+				// X button was just released
+				gamepad_button_up_event gbue;
+
+				gbue.button = gamepad_button::X;
+				gbue.bus = bus;
+				gbue.state = new_state;
+				cp->handle_gamepad_button_up(0, gbue);
+			}
+
+			if (y_pressed && !old_y_pressed) {
+				// Y button was just pressed
+				gamepad_button_down_event gbde;
+
+				gbde.button = gamepad_button::Y;
+				gbde.bus = bus;
+				gbde.state = new_state;
+				cp->handle_gamepad_button_down(0, gbde);
+
+			}
+			else if (!y_pressed && old_y_pressed) {
+				// Y button was just released
+				gamepad_button_up_event gbue;
+
+				gbue.button = gamepad_button::Y;
+				gbue.bus = bus;
+				gbue.state = new_state;
+				cp->handle_gamepad_button_up(0, gbue);
+			}
+
 		}
+
+		if (new_state.Gamepad.bLeftTrigger && !old_state.Gamepad.bLeftTrigger) {
+			gamepad_trigger_down_event gtd;
+			gtd.trigger = gamepad_trigger::LeftTrigger;
+			gtd.bus = bus;
+			cp->handle_gamepad_trigger_down(0, gtd);
+		}
+		else if (!new_state.Gamepad.bLeftTrigger && old_state.Gamepad.bLeftTrigger) {
+			gamepad_trigger_up_event gtu;
+			gtu.trigger = gamepad_trigger::LeftTrigger;
+			gtu.bus = bus;
+			cp->handle_gamepad_trigger_up(0, gtu);
+		}
+
+		if (new_state.Gamepad.bRightTrigger && !old_state.Gamepad.bRightTrigger) {
+			gamepad_trigger_down_event gtd;
+			gtd.trigger = gamepad_trigger::RightTrigger;
+			gtd.bus = bus;
+			cp->handle_gamepad_trigger_down(0, gtd);
+		}
+		else if (!new_state.Gamepad.bRightTrigger && old_state.Gamepad.bRightTrigger) {
+			gamepad_trigger_up_event gtu;
+			gtu.trigger = gamepad_trigger::RightTrigger;
+			gtu.bus = bus;
+			cp->handle_gamepad_trigger_up(0, gtu);
+		}
+
+
+		//repeat for thumb sticks
+
+		if (new_state.Gamepad.sThumbLX != old_state.Gamepad.sThumbLX || 
+			new_state.Gamepad.sThumbLY != old_state.Gamepad.sThumbLY) {
+            point pt = get_thumbstick(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE, new_state.Gamepad.sThumbLX, new_state.Gamepad.sThumbLY);
+			gamepad_thumbstick_move_event gtse;
+			gtse.thumb = gamepad_thumb::LeftThumb;
+			gtse.x = pt.x;
+			gtse.y = pt.y;
+			gtse.bus = bus;
+			cp->handle_gamepad_thumbstick_move(0, gtse);
+        }
+
+		if (new_state.Gamepad.sThumbRX != old_state.Gamepad.sThumbRX ||
+			new_state.Gamepad.sThumbRY != old_state.Gamepad.sThumbRY) {
+			point pt = get_thumbstick(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE, new_state.Gamepad.sThumbRX, new_state.Gamepad.sThumbRY);
+			gamepad_thumbstick_move_event gtse;
+			gtse.thumb = gamepad_thumb::RightThumb;
+			gtse.x = pt.x;
+			gtse.y = pt.y;
+			gtse.bus = bus;
+			cp->handle_gamepad_thumbstick_move(0, gtse);
+		}
+
 	}
 
 	void presentation::keyPress(int _ctrl_id, int _key)
