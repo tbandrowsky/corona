@@ -138,8 +138,32 @@
           "field_type": "double",
           "label": "Duration"
         },
-        "offset": "vector",
-        "size": "vector"
+        "src_offset": "vector",
+        "src_size": "vector",
+        "dest_offset": "vector",
+        "dest_size": "vector"
+      }
+    },
+    {
+      "class_name": "bitmap_sprite",
+      "base_class_name": "sprite",
+      "class_description": "a gaming piece of an image",
+      "fields": {
+        "image_name": {
+          "field_type": "string",
+          "label": "Image asset name",
+          "max_length": 200
+        }
+      }
+    },
+    {
+      "class_name": "vector_sprite",
+      "base_class_name": "sprite",
+      "class_description": "a gaming piece of an image",
+      "fields": {
+        "shape": "path",
+        "fill": "brush",
+        "border": "brush"
       }
     },
     {
@@ -212,6 +236,7 @@
       "class_description": "a gaming player",
       "fields": {
         "input_device": "string",
+        "selection": "selection",
         "state": {
           "field_type": "string",
           "label": "State",

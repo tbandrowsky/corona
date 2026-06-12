@@ -39,6 +39,52 @@ namespace corona
 		}
 	};
 
+	class game_vector_sprite : public game_sprite
+	{
+	public:
+		rectangle   source_rectangle;
+		std::string state;
+		double		order;
+		double		duration;
+
+		game_vector_sprite() = default;
+		game_vector_sprite(const game_vector_sprite& _src) = default;
+		game_vector_sprite(game_vector_sprite&& _src) = default;
+		game_vector_sprite& operator =(const game_vector_sprite& _src) = default;
+		game_vector_sprite& operator =(game_vector_sprite&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+		}
+
+		virtual void put_json(json& _src)
+		{
+		}
+	};
+
+	class game_bitmap_sprite : public game_sprite
+	{
+	public:
+		rectangle   source_rectangle;
+		std::string state;
+		double		order;
+		double		duration;
+
+		game_bitmap_sprite() = default;
+		game_bitmap_sprite(const game_bitmap_sprite& _src) = default;
+		game_bitmap_sprite(game_bitmap_sprite&& _src) = default;
+		game_bitmap_sprite& operator =(const game_bitmap_sprite& _src) = default;
+		game_bitmap_sprite& operator =(game_bitmap_sprite&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+		}
+
+		virtual void put_json(json& _src)
+		{
+		}
+	};
+
 	using game_sprite_factory = corona_object_factory<game_sprite>;
 
 	class game_piece : public corona_object
@@ -575,10 +621,10 @@ namespace corona
 		game_player& operator =(const game_player& _src) = default;
 		game_player& operator =(game_player&& _src) = default;
 
-		int			input_device;
-		chest_item	selected_tool;
-		bool		ready;
-        bool		dead;
+		int					input_device;
+		selection_field		selection;
+		bool				ready;
+        bool				dead;
 
 		virtual void get_json(json& _dest)
 		{
@@ -659,52 +705,9 @@ namespace corona
 			}
 		}
 
-		virtual void set_tool(int _index)
-		{
-            if (inventory->items.empty()) {
-				selected_tool = {};
-				return;
-			}
-			int s = inventory->items.size() - 1;
-			if (_index < 0) _index = 0;
-			if (_index > s) _index = s;
-
-			int i = 0;
-			auto m = inventory->items.begin();
-			while (i < selected_tool && m != inventory->items.end()) {
-				++m;
-				++i;
-			}
-			if (m == inventory->items.end()) {
-				selected_tool = {};
-				return false;
-			}
-			selected_tool = m->second;
-
-		}
-
-		virtual void next_tool()
-		{
-			set_tool(selected_tool + 1);
-		}
-
-		virtual void previous_tool()
-		{
-			set_tool(selected_tool - 1);
-		}
-
-		virtual bool get_selected_tool(chest_item& _chest_item)
-		{
-			if (selected_tool < 0 || selected_tool >= inventory->items.size()) {
-				_chest_item = {};
-				return false;
-			}
-			return true;
-		}
+		// and now, we can extend the selection and the inventory
 
 	};
-
-
 
 	class game_shot : public game_piece
 	{

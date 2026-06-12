@@ -104,7 +104,6 @@ namespace corona {
 	void log_warning(const std::string &_src);
 }
 
-#include "corona-audio-synth.hpp"
 
 #include "corona-publicity-stunts.hpp"
 
@@ -129,6 +128,8 @@ namespace corona {
 #include "corona-object_id_box.hpp"
 
 #include "corona-locks.hpp"
+
+#include "corona-audio-synth.hpp"
 
 #include "corona-system-monitor-bus.hpp"
 #include "corona-test.hpp"

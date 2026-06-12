@@ -368,7 +368,7 @@ namespace corona
     {
         memset(output_buffer, 0, num_frames * device_format->nBlockAlign);
 
-        auto lock = voices_lock.lock();
+        scope_lock lockme(voices_lock);
 
         // Generate and mix all voices
         for (auto it = voices.begin(); it != voices.end();)
@@ -408,7 +408,7 @@ namespace corona
     {
         auto voice = std::make_shared<audio_voice>(generator, global_time, duration, volume);
 
-        auto lock = voices_lock.lock();
+        scope_lock lockme(voices_lock);
         voices.push_back(voice);
 
         return voice;
@@ -436,7 +436,7 @@ namespace corona
 
     void audio_synth_engine::stop_all()
     {
-        auto lock = voices_lock.lock();
+        scope_lock lockme(voices_lock);
         for (auto& voice : voices)
         {
             voice->stop();

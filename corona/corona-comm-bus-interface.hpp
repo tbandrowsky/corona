@@ -130,7 +130,8 @@ namespace corona
 
 		static comm_bus_app_interface* global_bus;
 
-		game_engine local_gaming;
+		game_engine			local_gaming;
+		audio_synth_engine	local_audio_synth;
 
 		comm_bus_app_interface()
 		{
@@ -523,6 +524,7 @@ namespace corona
 		{
 			local_gaming.close_game_session(_session);
 		}
+
 
 	protected:
 		std::map<int, std::shared_ptr<json_object>> batch_data;

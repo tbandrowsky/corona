@@ -2333,7 +2333,29 @@ namespace corona
 			return jp.create_array();
 		}
 
+		// Play a function
+		std::shared_ptr<audio_voice> play_function(audio_function generator, float volume = 1.0f, double duration = -1.0)
+		{
+			return local_audio_synth.play(generator, volume, duration);
+		}
 
+		// Play a note at a specific frequency
+		std::shared_ptr<audio_voice> play_note(double frequency, double duration, float volume = 1.0f)
+		{
+			return local_audio_synth.play_note(frequency, duration, volume);
+		}
+
+		// Stop a voice
+		void stop_voice(std::shared_ptr<audio_voice> voice)
+		{
+			local_audio_synth.stop_voice(voice);
+		}
+
+		// Stop all voices
+		void stop_audio()
+		{
+			local_audio_synth.stop_all();
+		}
 
 	};
 

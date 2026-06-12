@@ -1043,6 +1043,19 @@ namespace corona {
 			clear();
 		}
 
+		generalBrushRequest(json& _j)
+		{
+			clear();
+			put_json(*this, _j);
+		}
+
+		generalBrushRequest(const generalBrushRequest& _src) = default;
+		generalBrushRequest(generalBrushRequest&& _src) = default;
+
+		generalBrushRequest& operator = (const generalBrushRequest& _src) = default;
+		generalBrushRequest& operator = (generalBrushRequest&& _src) = default;
+
+
 		void clear()
 		{
 			brush_type = brush_types::no_brush_type;
@@ -1095,48 +1108,6 @@ namespace corona {
 				break;
 			}
 			return name;
-		}
-
-
-		generalBrushRequest(const generalBrushRequest& gbr)
-		{
-			clear();
-			brush_type = gbr.brush_type;
-			switch (brush_type) {
-			case brush_types::solid_brush_type:
-				solid_brush = std::make_shared<solidBrushRequest>(gbr.solid_brush);
-				break;
-			case brush_types::radial_brush_type:
-				radial_brush = std::make_shared<radialGradientBrushRequest>(gbr.radial_brush);
-				break;
-			case brush_types::linear_brush_type:
-				linear_brush = std::make_shared<linearGradientBrushRequest>(gbr.linear_brush);
-				break;
-			case brush_types::bitmap_brush_type:
-				bitmap_brush = std::make_shared<bitmapBrushRequest>(gbr.bitmap_brush);
-				break;
-			}
-		}
-
-		generalBrushRequest operator = (const generalBrushRequest& gbr)
-		{
-			clear();
-			brush_type = gbr.brush_type;
-			switch (brush_type) {
-			case brush_types::solid_brush_type:
-				solid_brush = std::make_shared<solidBrushRequest>(gbr.solid_brush);
-				break;
-			case brush_types::radial_brush_type:
-				radial_brush = std::make_shared<radialGradientBrushRequest>(gbr.radial_brush);
-				break;
-			case brush_types::linear_brush_type:
-				linear_brush = std::make_shared<linearGradientBrushRequest>(gbr.linear_brush);
-				break;
-			case brush_types::bitmap_brush_type:
-				bitmap_brush = std::make_shared<bitmapBrushRequest>(gbr.bitmap_brush);
-			}
-
-			return *this;
 		}
 
 		generalBrushRequest(std::string name, std::string color)
@@ -1319,7 +1290,11 @@ namespace corona {
 		float rotation;
 		rectangle layout;
 
-		drawTextRequest();
+		drawTextRequest() = default;
+        drawTextRequest(const drawTextRequest& _request) = default;
+        drawTextRequest(drawTextRequest&& _request) = default;
+        drawTextRequest& operator = (const drawTextRequest& _request) = default;
+        drawTextRequest& operator = (drawTextRequest&& _request) = default;
 	};
 
 	struct pathImmediateDto {

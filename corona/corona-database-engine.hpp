@@ -954,9 +954,9 @@ namespace corona
 		virtual std::shared_ptr<selection_field>		get_selection(json _src, const std::string& _name) = 0;
 		virtual void									put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) = 0;
 		virtual std::shared_ptr<pathDto>				get_path(json _src, const std::string& _name) = 0;
-		virtual void									put_path(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) = 0;
+		virtual void									put_path(json& _dest, const std::string& _name, pathDto& _src) = 0;
 		virtual std::shared_ptr<generalBrushRequest>	get_brush(json _src, const std::string& _name) = 0;
-		virtual void									put_brush(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) = 0;
+		virtual void									put_brush(json& _dest, const std::string& _name, generalBrushRequest& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -3468,9 +3468,14 @@ namespace corona
 				options = std::make_shared<selection_field_options>();
 				options->put_json(_src);
 			}
-			else if (field_type == field_types::ft_polygon)
+			else if (field_type == field_types::ft_path)
 			{
-				options = std::make_shared<polygon_field_options>();
+				options = std::make_shared<path_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_brush)
+			{
+				options = std::make_shared<brush_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_rectangle)
@@ -5802,6 +5807,43 @@ namespace corona
 			return cf;
 		}
 
+		virtual std::shared_ptr<generalBrushRequest> get_brush(json _src, const std::string& _name) override
+		{
+			std::shared_ptr<generalBrushRequest> cf;
+
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_brush) {
+					auto field_options = cfi->second->get_options();
+					auto brush_field_options = std::dynamic_pointer_cast<brush_field_options_interface>(field_options);
+					if (brush_field_options) {
+						json brush_data = _src[_name];
+						if (brush_data.object()) 
+						{
+							cf = std::make_shared<generalBrushRequest>(brush_data);
+						}
+						else 
+						{
+							throw std::logic_error(std::format("field {0} brush is not an object", _name));
+						}
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have brush options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a brush field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
+
 		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
 		{
 			auto cfi = fields.find(_name);
@@ -5842,6 +5884,87 @@ namespace corona
 						json selection_data = jp.create_object();
 						_src->get_json(selection_data);
 						_dest.put_member(_name, selection_data);
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a selection field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+		}
+
+		virtual void put_path(json& _dest, const std::string& _name, pathDto& _src) override
+		{
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_path) {
+					auto field_options = cfi->second->get_options();
+					auto path_field_options = std::dynamic_pointer_cast<path_field_options_interface>(field_options);
+					if (path_field_options) {
+						json_parser jp;
+						json path_data = jp.create_object();
+						_src.get_json(path_data);
+						_dest.put_member(_name, path_data);
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have path field options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a path field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+		}
+
+		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
+		{
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_selection) {
+					auto field_options = cfi->second->get_options();
+					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
+					if (selection_field_options) {
+						json_parser jp;
+						json selection_data = jp.create_object();
+						_src->get_json(selection_data);
+						_dest.put_member(_name, selection_data);
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a selection field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+		}
+
+		virtual void put_brush(json& _dest, const std::string& _name, generalBrushRequest& _src) override
+		{
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_brush) {
+					auto field_options = cfi->second->get_options();
+					auto brush_field_options = std::dynamic_pointer_cast<brush_field_options_interface>(field_options);
+					if (brush_field_options) {
+						json_parser jp;
+						json brush_data = jp.create_object();
+						corona::get_json(brush_data, _src);
+						_dest.put_member(_name, brush_data);
 					}
 					else {
 						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
