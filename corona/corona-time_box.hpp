@@ -766,6 +766,68 @@ namespace corona
 		return result;
 	}
 
+	template <typename T> class scheduled_lambda 
+	{
+	public:
+
+
+		scheduled_lambda(double _seconds, T _value, std::function<void(T src)> _task)
+			: remaining_seconds(0), frequency_seconds(_seconds), duration_seconds(_seconds), task(_task), value(_value)
+		{
+			
+		}
+
+		scheduled_lambda()
+		{
+            frequnecy_seconds = 1;
+			remaining_seconds = 0;
+			duration_seconds = 2;
+			enabled = false;
+			value = {};
+			task = {};
+		}
+
+		schedule_lambda(const scheduled_lambda& _src) = default;
+		schedule_lambda(scheduled_lambda&& _src) = default;
+		schedule_lambda& operator=(const scheduled_lambda& _src) = default;
+		schedule_lambda& operator=(scheduled_lambda&& _src) = default;
+
+		std::function<void(T src)>	task;
+		double						frequency_seconds;
+		double						remaining_seconds;
+		T							value;
+		bool						enabled;
+
+		void execute(double elapsed) 
+		{
+			if (!enabled)
+				return;
+
+			duration_seconds -= elapsed;
+			remaining_seconds -= elapsed;
+
+			if (duration_seconds < 0) {
+				return;
+			}
+
+			if (remaining_seconds <= 0.0) 
+			{
+				try 
+				{
+					if (task) 
+					{
+						task(value);
+					}
+				}
+				catch (std::exception exc)
+				{
+					system_monitoring_interface::active_mon->log_warning("Scheduled lambda failed");
+                    system_monitoring_interface::global_mon->log_exception(exc);
+				}
+				remaining_seconds = frequency_seconds;				
+			}
+        }
+	};
 
 	class time_box : public basic_time_box
 	{

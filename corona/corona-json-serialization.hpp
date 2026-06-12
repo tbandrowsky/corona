@@ -270,6 +270,33 @@ namespace corona
 		_dest.h = _src["h"].as_double();
 	}
 
+	template <typename T> void get_json(json& _dest, scheduled_lambda<T>& _src)
+	{
+		_dest.put_member_double("frequency_seconds", _src.frequency_seconds);
+		_dest.put_member_double("remaining_seconds", _src.remaining_seconds);
+		_dest.put_member_bool("enabled", _src.enabled);
+	}
 
+	template <typename T> void put_json(scheduled_lambda<T>& _dest, json& _src)
+	{
+
+		if (_src.empty())
+			return;
+
+		std::vector<std::string> missing;
+		if (not _src.has_members(missing, { "frequency_seconds" })) {
+			system_monitoring_interface::active_mon->log_warning("scheduled_lambda is missing:");
+			std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+				system_monitoring_interface::active_mon->log_warning(s);
+				});
+			system_monitoring_interface::active_mon->log_information("the source json is:");
+			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+			return;
+		}
+
+		_dest.frequency_seconds = _src["frequency_seconds"].as_double();
+		_dest.remaining_seconds = _src["remaining_seconds"].as_double();
+		_dest.enabled = _src["enabled"].as_bool();
+	}
 }
 

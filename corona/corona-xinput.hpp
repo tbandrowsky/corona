@@ -100,4 +100,40 @@ namespace corona
 
     };
 
+    point get_thumbstick(int dead_zone, int thumbX, int thumbY)
+    {
+        point pt;
+
+        float LX = thumbX;
+        float LY = thumbY;
+
+        //determine how far the controller is pushed
+        float magnitude = sqrt(LX * LX + LY * LY);
+
+        float normalizedMagnitude = 0;
+
+        //check if the controller is outside a circular dead zone
+        if (magnitude > dead_zone)
+        {
+            //clip the magnitude at its expected maximum value
+            if (magnitude > 32767) magnitude = 32767;
+
+            //adjust magnitude relative to the end of the dead zone
+            magnitude -= dead_zone;
+
+            if (magnitude < 1) magnitude = 1;
+
+            normalizedMagnitude = magnitude / (32767 - dead_zone);
+
+            if (normalizedMagnitude < 1) normalizedMagnitude = 1;
+
+            pt.x = LX * normalizedMagnitude;
+            pt.y = LY * normalizedMagnitude;
+        }
+
+        return pt;
+    }
+
+
+
 }

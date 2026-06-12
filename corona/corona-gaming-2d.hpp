@@ -2,46 +2,10 @@
 
 namespace corona
 {
-	point get_thumbstick(int dead_zone, int thumbX, int thumbY)
-	{
-		point pt;
 
-		float LX = thumbX;
-		float LY = thumbY;
-
-		//determine how far the controller is pushed
-		float magnitude = sqrt(LX * LX + LY * LY);
-
-		float normalizedMagnitude = 0;
-
-		//check if the controller is outside a circular dead zone
-		if (magnitude > dead_zone)
-		{
-			//clip the magnitude at its expected maximum value
-			if (magnitude > 32767) magnitude = 32767;
-
-			//adjust magnitude relative to the end of the dead zone
-			magnitude -= dead_zone;
-
-            if (magnitude < 1) magnitude = 1;
-
-            normalizedMagnitude = magnitude / (32767 - dead_zone);
-
-			if (normalizedMagnitude < 1) normalizedMagnitude = 1;
-
-			pt.x = LX * normalizedMagnitude;
-			pt.y = LY * normalizedMagnitude;
-		}
-
-		return pt;
-	}
-
-
-	class game_sprite
+	class game_sprite : public corona_object
 	{
 	public:
-		std::string class_name;
-		int64_t		object_id;
 		rectangle   source_rectangle;
 		std::string state;
 		double		order;
@@ -75,11 +39,11 @@ namespace corona
 		}
 	};
 
-	class game_piece
+	using game_sprite_factory = corona_object_factory<game_sprite>;
+
+	class game_piece : public corona_object
 	{
 	public:
-		std::string class_name;
-		int64_t		object_id;
 		std::string name;
 		std::string image_name;
 		std::string state;
@@ -88,7 +52,6 @@ namespace corona
 		double      full_hit_points;
 		double      hit_points;
 		std::shared_ptr<chest_field> inventory;
-		bool		consumed;
 
 		DirectX::XMVECTOR position = {};
 		DirectX::XMVECTOR facing = {};
@@ -107,8 +70,8 @@ namespace corona
 		{
 			json_parser jp;
 
-            _dest.put_member("class_name", class_name);
-            _dest.put_member_i64("object_id", object_id);
+			corona_object::get_json(_dest);
+
 			_dest.put_member("image_name", image_name);
 			_dest.put_member("state", state);
 			_dest.put_member("name", name);
@@ -136,7 +99,7 @@ namespace corona
 
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_sprite_factory& _factory, json& _src)
 		{
 			class_name = _src["class_name"].as_string();
             object_id = _src["object_id"].as_int64_t();
@@ -157,16 +120,7 @@ namespace corona
 			}
 
 			json j = _src["sprites"];
-			json aj = j.as_array();
-
-			for (int i = 0; i < aj.size(); i++) {
-				auto sprite = std::make_shared<game_sprite>();
-				json aji = aj.get_element(i);
-				if (aji.object()) {
-					sprite->put_json(aji);
-					sprites.push_back(sprite);
-				}
-			}
+			sprites = _factory.create_array(j);
 
 			inventory = std::make_shared<chest_field>();
 			if (_src.has_member("inventory")) {
@@ -317,6 +271,8 @@ namespace corona
 
 	};
 
+	using game_piece_factory = corona_object_factory<game_piece>;
+
 	struct collision_result
 	{
 		std::shared_ptr<game_piece> piece_1;
@@ -327,47 +283,107 @@ namespace corona
 		bool collided() { return piece_1.get() != nullptr && piece_2.get() != nullptr; }
 	};
 
-	class game_item : public game_piece
+	class game_bus 
+	{
+	public:
+		game_piece_factory piece_factory;
+		game_sprite_factory sprite_factory;
+	};
+
+	class game_effect : public game_piece
 	{
 	public:
 
-		game_item() = default;
-		game_item(const game_item& _src) = default;
-		game_item(game_item&& _src) = default;
-		game_item& operator =(const game_item& _src) = default;
-		game_item& operator =(game_item&& _src) = default;
+		scheduled_lambda<game_effect*> scheduler;
+
+		std::string		name;
+
+		game_effect() = default;
+		game_effect(const game_effect& _src) = default;
+		game_effect(game_effect&& _src) = default;
+		game_effect& operator =(const game_effect& _src) = default;
+		game_effect& operator =(game_effect&& _src) = default;
 
 		virtual void get_json(json& _dest)
 		{
 			game_piece::get_json(_dest);
-            // add item specific properties here
+			_dest.put_member_string(class_name_field, class_name);
+			_dest.put_member_i64(object_id_field, object_id);
+
+			corona::get_json(_dest, scheduler);
+
+			_dest.put_member_string("name", name);
 		}
 
-		virtual void put_json(json& _src)
-		{	
-			game_piece::put_json(_src);
-            // add item specific properties here
+		virtual void put_json(game_bus& _gbus, json& _src)
+		{
+			game_piece::put_json(_gbus.sprite_factory, _src);
+			class_name = _src[class_name_field].as_string();
+			object_id = _src[object_id_field].as_int64_t();
+
+			corona::put_json(scheduler, _src);
 		}
 	};
 
-	class game_spawn : public game_piece
+	class game_player_spawn : public game_piece
 	{
 	public:
 
-		game_spawn() = default;
-		game_spawn(const game_spawn& _src) = default;
-		game_spawn(game_spawn&& _src) = default;
-		game_spawn& operator =(const game_spawn& _src) = default;
-		game_spawn& operator =(game_spawn&& _src) = default;
+		game_player_spawn() = default;
+		game_player_spawn(const game_player_spawn& _src) = default;
+		game_player_spawn(game_player_spawn&& _src) = default;
+		game_player_spawn& operator =(const game_player_spawn& _src) = default;
+		game_player_spawn& operator =(game_player_spawn&& _src) = default;
 
 		virtual void get_json(json& _dest)
 		{
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
+		}
+	};
+
+	class game_npc_spawn : public game_piece
+	{
+	public:
+
+        scheduled_lambda<game_npc_spawn*> spawn_clock;
+        std::vector<std::string> spawn_classes;
+
+		game_npc_spawn() = default;
+		game_npc_spawn(const game_npc_spawn& _src) = default;
+		game_npc_spawn(game_npc_spawn&& _src) = default;
+		game_npc_spawn& operator =(const game_npc_spawn& _src) = default;
+		game_npc_spawn& operator =(game_npc_spawn&& _src) = default;
+
+		virtual void get_json(json& _dest)
+		{
+			game_piece::get_json(_dest);
+			json_parser jp;
+            json j = jp.from_string_container(spawn_classes);
+            _dest.put_member("spawn_classes", j);
+		}
+
+		virtual void put_json(game_bus& _gbus, json& _src)
+		{
+			game_piece::put_json(_gbus.sprite_factory, _src);
+			json jsc = _src["spawn_classes"];
+			json timer = _src["schedule"];
+
+            spawn_classes = jsc.to_string_array();
+		}
+
+		std::string get_spawn_class()
+		{
+			std::string result;
+			std::random_device rd; // Seed generator
+			std::mt19937 gen(rd()); // Mersenne Twister engine
+			std::uniform_int_distribution<> dist(0, spawn_classes.size() - 1);
+			int index = dist(gen);
+			result = spawn_classes[index];
 		}
 	};
 
@@ -386,11 +402,12 @@ namespace corona
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 	};
+
 
 	class game_switch : public game_piece
 	{
@@ -402,15 +419,14 @@ namespace corona
 		game_switch& operator =(const game_switch& _src) = default;
 		game_switch& operator =(game_switch&& _src) = default;
 
-
 		virtual void get_json(json& _dest)
 		{
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 	};
 
@@ -428,9 +444,9 @@ namespace corona
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 	};
 
@@ -448,9 +464,9 @@ namespace corona
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 	};
 
@@ -471,9 +487,9 @@ namespace corona
 			_dest.put_member("passable", passable);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 			passable = _src["passable"].as_bool();
 		}
 	};
@@ -494,9 +510,9 @@ namespace corona
 			_dest.put_member_bool("open", open);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 			open = _src["open"].as_bool();
 		}
 	};
@@ -543,60 +559,13 @@ namespace corona
 
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 	};
 
-	class game_actor : public game_piece {
-	public:
-
-		game_actor() = default;
-		game_actor(const game_actor& _src) = default;
-		game_actor(game_actor&& _src) = default;
-		game_actor& operator =(const game_actor& _src) = default;
-		game_actor& operator =(game_actor&& _src) = default;
-
-		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer) = 0;
-		virtual void hit_npc(collision_result& collision, std::shared_ptr<game_npc>& pnpc) = 0;
-		virtual void hit_lootbox(collision_result& collision, std::shared_ptr<game_lootbox>& plootbox) = 0;
-		virtual void hit_lootspot(collision_result& collision, std::shared_ptr<game_lootspot>& plootspot) = 0;
-		virtual void hit_switch(collision_result& collision, std::shared_ptr<game_switch>& plootspot) = 0;
-		virtual void hit_wall(collision_result& collision, std::shared_ptr<game_wall>& pwall) = 0;
-		virtual void hit_door(collision_result& collision, std::shared_ptr<game_door>& pdoor) = 0;
-
-		virtual void collide(collision_result& collision)
-		{
-            if (!collision.collided()) {
-				return;
-			}
-			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_2)) {
-				hit_player(collision, pplayer);
-			}
-            else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2)) {
-				hit_npc(collision, pnpc);
-			}
-			else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2)) {
-				hit_lootbox(collision, plootbox);
-			}
-			else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2)) {
-				hit_lootspot(collision, plootspot);
-			}
-			else if (auto pswitch = std::dynamic_pointer_cast<game_switch>(collision.piece_2)) {
-				hit_switch(collision, pswitch);
-			}
-			else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2)) {
-				hit_wall(collision, pwall);
-			}
-			else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2)) {
-				hit_door(collision, pdoor);
-			}
-		}
-
-	};
-
-	class game_player : public game_actor
+	class game_player : public game_piece
 	{
 	public:
 
@@ -606,21 +575,22 @@ namespace corona
 		game_player& operator =(const game_player& _src) = default;
 		game_player& operator =(game_player&& _src) = default;
 
-		int		input_device;
-		bool    ready;
-        bool    dead;
+		int			input_device;
+		chest_item	selected_tool;
+		bool		ready;
+        bool		dead;
 
 		virtual void get_json(json& _dest)
 		{
-			game_actor::get_json(_dest);
+			game_piece::get_json(_dest);
 			_dest.put_member_i64("input_device", input_device);
 			_dest.put_member_bool("ready", ready);
 			_dest.put_member_bool("dead", dead);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_actor::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 			input_device = _src["input_device"].as_int();
             ready = _src["ready"].as_bool();
 			dead = _src["dead"].as_bool();
@@ -661,11 +631,82 @@ namespace corona
 			recoil_piece(collision);
 		}
 
+		virtual void collide(collision_result& collision)
+		{
+			if (!collision.collided()) {
+				return;
+			}
+			if (auto pplayer = std::dynamic_pointer_cast<game_player>(collision.piece_2)) {
+				hit_player(collision, pplayer);
+			}
+			else if (auto pnpc = std::dynamic_pointer_cast<game_npc>(collision.piece_2)) {
+				hit_npc(collision, pnpc);
+			}
+			else if (auto plootbox = std::dynamic_pointer_cast<game_lootbox>(collision.piece_2)) {
+				hit_lootbox(collision, plootbox);
+			}
+			else if (auto plootspot = std::dynamic_pointer_cast<game_lootspot>(collision.piece_2)) {
+				hit_lootspot(collision, plootspot);
+			}
+			else if (auto pswitch = std::dynamic_pointer_cast<game_switch>(collision.piece_2)) {
+				hit_switch(collision, pswitch);
+			}
+			else if (auto pwall = std::dynamic_pointer_cast<game_wall>(collision.piece_2)) {
+				hit_wall(collision, pwall);
+			}
+			else if (auto pdoor = std::dynamic_pointer_cast<game_door>(collision.piece_2)) {
+				hit_door(collision, pdoor);
+			}
+		}
+
+		virtual void set_tool(int _index)
+		{
+            if (inventory->items.empty()) {
+				selected_tool = {};
+				return;
+			}
+			int s = inventory->items.size() - 1;
+			if (_index < 0) _index = 0;
+			if (_index > s) _index = s;
+
+			int i = 0;
+			auto m = inventory->items.begin();
+			while (i < selected_tool && m != inventory->items.end()) {
+				++m;
+				++i;
+			}
+			if (m == inventory->items.end()) {
+				selected_tool = {};
+				return false;
+			}
+			selected_tool = m->second;
+
+		}
+
+		virtual void next_tool()
+		{
+			set_tool(selected_tool + 1);
+		}
+
+		virtual void previous_tool()
+		{
+			set_tool(selected_tool - 1);
+		}
+
+		virtual bool get_selected_tool(chest_item& _chest_item)
+		{
+			if (selected_tool < 0 || selected_tool >= inventory->items.size()) {
+				_chest_item = {};
+				return false;
+			}
+			return true;
+		}
+
 	};
 
 
 
-	class game_shot : public game_actor
+	class game_shot : public game_piece
 	{
 
 	public:
@@ -681,14 +722,14 @@ namespace corona
 
 		virtual void get_json(json& _dest)
 		{
-			game_actor::get_json(_dest);
+			game_piece::get_json(_dest);
 			_dest.put_member("originator", originator);
             _dest.put_member("damage", damage);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_actor::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 			originator = _src["originator"].as_string();
             damage = _src["damage"].as_double();
 		}
@@ -703,7 +744,7 @@ namespace corona
 
 	};
 
-	class game_npc : public game_actor
+	class game_npc : public game_piece
 	{
 	public:
 		game_npc() = default;
@@ -717,9 +758,9 @@ namespace corona
 			game_piece::get_json(_dest);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			game_piece::put_json(_src);
+			game_piece::put_json(_gbus.sprite_factory, _src);
 		}
 
 		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer)
@@ -792,7 +833,8 @@ namespace corona
 		auto players() const { return get_pieces_of_type<game_player>(); }
 		auto npcs() const { return get_pieces_of_type<game_npc>(); }
 		auto walls() const { return get_pieces_of_type<game_wall>(); }
-		auto spawns() const { return get_pieces_of_type<game_spawn>(); }
+		auto player_spawns() const { return get_pieces_of_type<game_player_spawn>(); }
+		auto npc_spawns() const { return get_pieces_of_type<game_npc_spawn>(); }
 		auto lights() const { return get_pieces_of_type<game_light>(); }
 		auto switches() const { return get_pieces_of_type<game_switch>(); }
 		auto lootboxes() const { return get_pieces_of_type<game_lootbox>(); }
@@ -817,87 +859,12 @@ namespace corona
 			_dest.put_member("pieces", j);
 		}
 
-		virtual void put_json(json& _src)
+		virtual void put_json(game_bus& _gbus, json& _src)
 		{
-			pieces.clear();
-
 			name = _src["name"].as_string();
 			json j = _src["pieces"];
-			json aj = j.as_array();
 
-			for (int i = 0; i < aj.size(); i++) {
-				json aji = aj.get_element(i);
-				if (aji.object()) {
-					std::string class_name = aji["class_name"].as_string();
-
-					if (class_name == "piece")
-					{
-						auto piece = std::make_shared<game_piece>();
-						piece->put_json(aji);
-						pieces.push_back(piece);						
-					}
-					else if (class_name == "item")
-					{
-						auto item = std::make_shared<game_item>();
-						item->put_json(aji);
-						pieces.push_back(item);
-					}
-					else if (class_name == "player")
-					{
-						auto player = std::make_shared<game_player>();
-						player->put_json(aji);
-						pieces.push_back(player);
-					}
-					else if (class_name == "loot_spot")
-					{
-						auto loot_spot = std::make_shared<game_lootspot>();
-						loot_spot->put_json(aji);
-						pieces.push_back(loot_spot);
-					}
-					else if (class_name == "loot_box")
-					{
-						auto loot_box = std::make_shared<game_lootbox>();
-						loot_box->put_json(aji);
-						pieces.push_back(loot_box);
-					}
-					else if (class_name == "npc")
-					{
-						auto npc = std::make_shared<game_npc>();
-						npc->put_json(aji);
-						pieces.push_back(npc);
-					}
-					else if (class_name == "wall")
-					{
-						auto wall = std::make_shared<game_wall>();
-						wall->put_json(aji);
-						pieces.push_back(wall);
-					}
-					else if (class_name == "door")
-					{
-						auto door = std::make_shared<game_door>();
-						door->put_json(aji);
-						pieces.push_back(door);
-					}
-					else if (class_name == "shot")
-					{
-						auto shot = std::make_shared<game_shot>();
-						shot->put_json(aji);
-						pieces.push_back(shot);
-					}
-					else if (class_name == "surface")
-					{
-						auto surface = std::make_shared<game_surface>();
-						surface->put_json(aji);
-						pieces.push_back(surface);
-					}
-					else if (class_name == "decoration")
-					{
-						auto decoration = std::make_shared<game_decoration>();
-						decoration->put_json(aji);
-						pieces.push_back(decoration);
-					}
-				}
-			}
+			pieces = _gbus.piece_factory.create_array(j);
 		}
 
 	};
@@ -911,9 +878,8 @@ namespace corona
 		exit
 	};
 
-	class game_session : public job
+	class game_session : public job, public corona_object
 	{
-		std::string			class_name;
 		int64_t				object_id;
 		std::string			name;
 		std::string			description;
@@ -1088,6 +1054,7 @@ namespace corona
 				start_game_if_all_ready();
             }
             else if (game_state == game_session_state::active) {
+				
 			}
 			else if (game_state == game_session_state::paused) {
 				set_active();

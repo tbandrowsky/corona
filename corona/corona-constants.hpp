@@ -707,7 +707,10 @@ namespace corona
 		ft_blob = 'x',
 		ft_null = 'n',
         ft_vector = 'v',
-		ft_rectangle = 'e'
+		ft_rectangle = 'e',
+		ft_selection = 'l',
+        ft_path = 'p',
+		ft_brush = 'h'
 	};
 	
 	const int field_type_size = 12;
@@ -740,7 +743,10 @@ namespace corona
 { "datetime", field_types::ft_datetime },
 { "function", field_types::ft_function },
 { "query", field_types::ft_query },
-{ "vector", field_types::ft_vector }
+{ "vector", field_types::ft_vector },
+{ "rectangle", field_types::ft_rectangle },
+{ "path", field_types::ft_path },
+{ "brush", field_types::ft_brush },
 	};
 
 	std::map<field_types, std::string> field_type_names = {
@@ -754,7 +760,12 @@ namespace corona
 { field_types::ft_datetime, "datetime"  },
 { field_types::ft_function, "function"  },
 { field_types::ft_query, "query"  },
-{ field_types::ft_vector, "vector"  }
+{ field_types::ft_vector, "vector"  },
+{ field_types::ft_rectangle, "rectangle"  },
+{ field_types::ft_selection, "selection"  },
+{ field_types::ft_path, "path"  },
+{ field_types::ft_brush, "brush"  },
+
 	};
 
 	std::map<field_types, std::string> field_type_names_openapi = {
@@ -769,6 +780,10 @@ namespace corona
 { field_types::ft_query, "array"  },
 { field_types::ft_chest, "chest"  },
 { field_types::ft_vector, "vector"  },
+{ field_types::ft_rectangle, "vector"  },
+{ field_types::ft_selection, "selection"  },
+{ field_types::ft_path, "path"  },
+{ field_types::ft_brush, "brush"  }
 	};
 
 	auto toHex(unsigned char i)

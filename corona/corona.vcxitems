@@ -73,6 +73,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-list_box.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-messages.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-midi_box.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-object.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-object_id_box.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-paths.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-point_box.hpp" />

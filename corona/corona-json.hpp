@@ -296,6 +296,55 @@ namespace corona
 			return result;
 		}
 
+		bool parse_rectangle(rectangle& _result, const char* _src, const char** _modified)
+		{
+			bool result = false;
+			_src = eat_white(_src);
+			int idx = 0;
+			_result = {};
+
+			if (*_src == '[')
+			{
+				_src++;
+				while (*_src && *_src != ']')
+				{
+					double value;
+					if (parse_number(value, _src, &_src))
+					{
+						switch (idx) {
+							case 0:
+								_result.x = value;
+								break;
+                            case 1:
+                                _result.y = value;
+								break;
+							case 2:
+								_result.w = value;
+								break;
+							case 3:
+								_result.h = value;
+								break;
+						}
+						idx++;
+						result = true;
+					}
+					_src = eat_white(_src);
+					if (*_src == ',')
+					{
+						_src++;
+					}
+					_src = eat_white(_src);
+				}
+				if (*_src == ']')
+				{
+					_src++;
+					result = true;
+				}
+			}
+			*_modified = _src;
+			return result;
+		}
+
 		bool parse_int64(int64_t& _result, const char* _src, const char** _modified)
 		{
 			bool result = false;
@@ -817,6 +866,90 @@ namespace corona
 		virtual DirectX::XMVECTOR to_vector() const
 		{
 			return value;
+		}
+
+	};
+
+	class json_rectangle : public json_value
+	{
+	public:
+		rectangle value;
+
+		virtual std::string to_key() const {
+			return to_string();
+		}
+		virtual std::string to_json() const {
+			return to_string();
+		}
+		virtual std::string to_json_typed() const {
+			return get_type_prefix() + " " + to_json();
+		}
+		virtual std::string to_string() const
+		{
+			std::string valuez = std::format("[{0},{1},{2},{3}]",
+				value.x,
+				value.y,
+				value.w,
+				value.h);
+			return valuez;
+		}
+
+		virtual bool is_empty() const
+		{
+			return false;
+		}
+		virtual std::stringstream& serialize(std::stringstream& _src)  const
+		{
+			_src << to_json;
+			return _src;
+		}
+		virtual void from_string(const std::string_view& _src)
+		{
+			parser_base pb;
+			pb.parse_rectangle(value, _src.data(), nullptr);
+		}
+		virtual std::string format(std::string _format) const
+		{
+			return std::format(_format, to_string());
+		}
+
+		virtual field_types get_field_type() const
+		{
+			return field_types::ft_rectangle;
+		}
+
+		virtual std::string get_type_prefix() const
+		{
+			return "$rectangle";
+		}
+
+		virtual std::shared_ptr<json_value> clone() const
+		{
+			auto t = std::make_shared<json_rectangle>();
+			t->value = value;
+			t->comparison_index = comparison_index;
+			return t;
+		}
+
+		virtual int64_t to_int64() const
+		{
+			return value.x;
+		}
+		virtual date_time to_datetime() const
+		{
+			return date_time::now();
+		}
+		virtual bool to_bool() const
+		{
+			return to_int64() != 0;
+		}
+		virtual double to_double() const
+		{
+			return to_int64();
+		}
+		virtual DirectX::XMVECTOR to_vector() const
+		{
+			return DirectX::XMVectorSet(value.x, value.y, value.w, value.h);
 		}
 
 	};
@@ -1849,6 +1982,10 @@ namespace corona
 
 		json_int64 *int64_impl() const {
 			return dynamic_cast<json_int64 *>(value_base.get());
+		}
+
+		json_rectangle *rectangle_impl() const {
+			return dynamic_cast<json_rectangle*>(value_base.get());
 		}
 
 		json_vector *vector_impl() const {
@@ -4330,6 +4467,17 @@ namespace corona
 			return result;
 		}
 
+		template <typename container> json from_string_container(container& _src)
+		{
+            json result(std::make_shared<json_array>());
+			for (std::string& s : _src) {
+				std::shared_ptr<json_string> dd = std::make_shared<json_string>();
+				dd->set_value(s);
+				result.push_back(dd);
+			}
+			return result;
+		}
+
 		json parse_query(std::string _path)
 		{
 			json_parser jp;
@@ -4571,6 +4719,7 @@ namespace corona
 			std::shared_ptr<json_object> new_object_value;
 			std::string new_string_value;
             DirectX::XMVECTOR new_vector_value;
+			rectangle new_rectangle_value;
 			int64_t new_int64_value;
 			double new_number_value;
 			bool new_boolean_value;
@@ -4610,6 +4759,17 @@ namespace corona
 					{
 						auto js = std::make_shared<json_vector>();
 						js->value = new_vector_value;
+						_value = js;
+						*_modified = new_src;
+						return result;
+					}
+				}
+				else if (member_type == "rectangle")
+				{
+					if (parse_rectangle(new_rectangle_value, _src, &new_src))
+					{
+						auto js = std::make_shared<json_rectangle>();
+						js->value = new_rectangle_value;
 						_value = js;
 						*_modified = new_src;
 						return result;

@@ -1,4 +1,4 @@
-﻿ {
+﻿{
   "schema_name": "Revolution Arcade",
   "schema_description": "Revolution Arcade Application Schema",
   "schema_version": "1.1",
@@ -54,9 +54,9 @@
       }
     },
     {
-      "class_name": "mini_game",
+      "class_name": "game",
       "base_class_name": "activity",
-      "class_description": "A mini game in the system",
+      "class_description": "A game in the system",
       "full_text": [ "name", "description", "image" ],
       "fields": {
         "name": {
@@ -72,7 +72,7 @@
         "sessions": [ "session" ]
       },
       "indexes": {
-        "mini_game_name_index": {
+        "game_name_index": {
           "index_keys": [ "name" ]
         }
       }
@@ -90,7 +90,7 @@
       "class_name": "map",
       "base_class_name": "sys_object",
       "class_description": "a gaming map",
-      "parents": [ "mini_game", "session" ],
+      "parents": [ "game", "session" ],
       "fields": {
         "image": "string",
         "pieces": [ "piece" ]
@@ -100,7 +100,7 @@
       "class_name": "session",
       "base_class_name": "sys_object",
       "class_description": "a gaming session",
-      "parents": [ "mini_game" ],
+      "parents": [ "game" ],
       "fields": {
         "map": "map",
         "name": {
@@ -128,20 +128,18 @@
       "fields": {
         "state": {
           "field_type": "string",
-          "label": "State",
-          "max_length": 20
+          "label": "State"
         },
-        "order": {
+        "frame_index": {
           "field_type": "double",
-          "label": "Order",
-          "max_length": 20
+          "label": "Frame Index"
         },
         "duration": {
           "field_type": "double",
           "label": "Duration"
         },
-        "size": "vector",
-        "offset": "vector"
+        "offset": "vector",
+        "size": "vector"
       }
     },
     {
@@ -156,32 +154,29 @@
           "label": "Image asset name",
           "max_length": 200
         },
-        "state": {
-          "field_type": "string",
-          "label": "State",
-          "max_length": 32,
-          "enumeration": [ "spawned", "active", "inactive", "destroyed" ]
-        },
         "position": "vector",
         "size": "vector",
         "velocity": "vector",
         "facing": "vector",
-        "state_time": "datetime",
         "sprites": [ "sprite" ],
         "mass": "double",
         "full_hit_points": "double",
         "hit_points": "double",
         "inventory": {
           "field_type": "chest",
-          "item_class": "item"
+          "item_class": "piece"
         }
       }
     },
     {
-      "class_name": "item",
+      "class_name": "effect",
       "base_class_name": "piece",
       "class_description": "a gaming item",
       "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "remaining_count": "double",
+        "name": "string"
       }
     },
     {
@@ -195,10 +190,20 @@
       }
     },
     {
-      "class_name": "spawn",
+      "class_name": "player_spawn",
       "base_class_name": "piece",
       "class_description": "A place to launch players",
       "fields": {
+      }
+    },
+    {
+      "class_name": "npc_spawn",
+      "base_class_name": "piece",
+      "class_description": "A place to launch npcs",
+      "fields": {
+        "spawn_classes": [ "string" ],
+        "frequency_seconds": "double",
+        "remaining_seconds": "double"
       }
     },
     {
@@ -206,7 +211,42 @@
       "base_class_name": "piece",
       "class_description": "a gaming player",
       "fields": {
-        "input_device": "string"
+        "input_device": "string",
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "selected_tool": "number",
+          "enumeration": [
+            "still",
+            "moving",
+            "shoot",
+            "walk-up",
+            "walk-down",
+            "walk-right",
+            "walk-left",
+            "jump-up",
+            "jump-down",
+            "jump-right",
+            "jump-left",
+            "climb-up",
+            "climb-down",
+            "climb-right",
+            "climb-left",
+            "throw-up",
+            "throw-down",
+            "throw-right",
+            "throw-left",
+            "activate-up",
+            "activate-down",
+            "activate-right",
+            "activate-left",
+            "fire-up",
+            "fire-down",
+            "fire-right",
+            "fire-left"
+          ]
+        }
+
       }
     },
     {
@@ -234,11 +274,27 @@
       }
     },
     {
+      "class_name": "gun",
+      "base_class_name": "piece",
+      "class_description": "weapon for the shot",
+      "fields": {
+        "ammo_class": "string"
+      }
+    },
+    {
+      "class_name": "ammo",
+      "base_class_name": "piece",
+      "class_description": "consumable for the shot",
+      "fields": {
+        "shot_class": "string"
+      }
+    },
+    {
       "class_name": "shot",
       "base_class_name": "piece",
       "class_description": "an effect of a weapon",
       "fields": {
-        "damage": "double"
+        "effect_class": "string"
       }
     },
     {
@@ -246,6 +302,41 @@
       "base_class_name": "piece",
       "class_description": "a gaming NPC",
       "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "enumeration": [
+            "still",
+            "moving",
+            "shoot",
+            "walk-up",
+            "walk-down",
+            "walk-right",
+            "walk-left",
+            "jump-up",
+            "jump-down",
+            "jump-right",
+            "jump-left",
+            "climb-up",
+            "climb-down",
+            "climb-right",
+            "climb-left",
+            "throw-up",
+            "throw-down",
+            "throw-right",
+            "throw-left",
+            "activate-up",
+            "activate-down",
+            "activate-right",
+            "activate-left",
+            "fire-up",
+            "fire-down",
+            "fire-right",
+            "fire-left"
+          ]
+        }
 
       }
     },
@@ -280,6 +371,16 @@
       "base_class_name": "piece",
       "class_description": "a gaming decoration, like clouds",
       "fields": {
+      }
+    },
+    {
+      "class_name": "shot",
+      "base_class_name": "piece",
+      "class_description": "a gaming shot",
+      "fields": {
+        "effect_class": "string",
+        "frequency_seconds": "double",
+        "remaining_seconds": "double"
       }
     }
   ],

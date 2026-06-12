@@ -490,6 +490,26 @@ namespace corona
 
 	};
 
+	class selection_field_options_interface
+	{
+	public:
+	};
+
+	class rectangle_field_options_interface
+	{
+	public:
+	};
+
+	class path_field_options_interface
+	{
+	public:
+	};
+
+	class brush_field_options_interface
+	{
+	public:
+	};
+
 	class chest_field_options_interface
 	{
 	public:
@@ -576,13 +596,15 @@ namespace corona
 			if (!options) return;
 
 			json_parser jp;
-			_dest = jp.create_array();
+			json jitems = jp.create_array();
 
 			for (auto& item : items) {
 				json jitem = jp.create_object();
 				item.second.get_json(jitem);
-				_dest.push_back(jitem);
+				jitems.push_back(jitem);
 			}
+
+			_dest.put_member("items", jitems);
 		}
 
 		virtual void put_json(json& _src)
@@ -592,9 +614,12 @@ namespace corona
 			json_parser jp;
 
 			items.clear();
-			if (_src.array()) {
-				for (int i = 0; i < _src.size(); i++) {
-					json jitem = _src.get_element(i);
+
+			json jitems = _src["items"];
+
+			if (jitems.array()) {
+				for (int i = 0; i < jitems.size(); i++) {
+					json jitem = jitems.get_element(i);
 					chest_item item;
 					item.put_json(jitem);
 					items.insert_or_assign(item.part_class, item);
@@ -603,6 +628,71 @@ namespace corona
 		}
 
 	};
+
+	class selection_field
+	{
+	public:
+
+		std::vector<chest_item> selections;	
+
+		void clear()
+		{
+			selections.clear();
+        }
+
+		void create(const chest_item& _item)
+		{
+			selections.clear();
+			selections.push_back(_item);
+        }
+
+		void extend(const chest_item& _item)
+		{
+            auto sel = std::find_if(selections.begin(), selections.end(), [&_item](const chest_item& i) { return i.part_class == _item.part_class and i.part_id == _item.part_id; });
+			if (sel == selections.end()) {
+				selections.push_back(_item);
+			}
+		}
+
+		void remove(const chest_item& _item)
+		{
+			auto sel = std::find_if(selections.begin(), selections.end(), [&_item](const chest_item& i) { return i.part_class == _item.part_class and i.part_id == _item.part_id; });
+			if (sel != selections.end()) {
+				selections.erase(sel);
+			}
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+			json dest_array = jp.create_array();		
+
+			for (auto& item : selections) {
+				json jitem = jp.create_object();
+				item.get_json(jitem);
+				dest_array.push_back(jitem);
+			}
+
+			_dest.put_member("selections", dest_array);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			json_parser jp;
+
+			selections.clear();
+			json arr = _src["selections"];
+			if (arr.array()) {
+				for (int i = 0; i < _src.size(); i++) {
+					json jitem = _src.get_element(i);
+					chest_item item;
+					item.put_json(jitem);
+					selections.push_back(item);
+				}
+			}
+		}
+	};
+
 
 	class class_permissions {
 	public:
@@ -861,6 +951,12 @@ namespace corona
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
 		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
+		virtual std::shared_ptr<selection_field>		get_selection(json _src, const std::string& _name) = 0;
+		virtual void									put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) = 0;
+		virtual std::shared_ptr<pathDto>				get_path(json _src, const std::string& _name) = 0;
+		virtual void									put_path(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) = 0;
+		virtual std::shared_ptr<generalBrushRequest>	get_brush(json _src, const std::string& _name) = 0;
+		virtual void									put_brush(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -1949,6 +2045,337 @@ namespace corona
 		}
 	};
 
+	/// <summary>
+	/// keeps track of a selection state for a user
+	/// </summary>
+	class selection_field_options : public field_options_base
+	{
+	public:
+
+		selection_field_options() = default;
+		selection_field_options(const selection_field_options& _src) = default;
+		selection_field_options(selection_field_options&& _src) = default;
+		selection_field_options& operator = (const selection_field_options& _src) = default;
+		selection_field_options& operator = (selection_field_options&& _src) = default;
+		virtual ~selection_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		std::map<std::string, std::string> get_part_fields()
+		{
+			std::map<std::string, std::string> result;
+			return result;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (_object_to_test.array())
+				{
+					for (auto obj : _object_to_test)
+					{
+						bool acceptable = obj.object();
+						if (not acceptable) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "Elements of a selection array must be objects.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+
+						std::string object_class_name = obj[class_name_field].as_string();
+					}
+				}
+				else
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an array for an array field.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("selection"));
+			return schema;
+		}
+	};
+
+	/// <summary>
+	/// keeps track of a path field
+	/// </summary>
+	class path_field_options : public field_options_base
+	{
+	public:
+
+		path_field_options() = default;
+		path_field_options(const path_field_options& _src) = default;
+		path_field_options(path_field_options&& _src) = default;
+		path_field_options& operator = (const path_field_options& _src) = default;
+		path_field_options& operator = (path_field_options&& _src) = default;
+		virtual ~path_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (!_object_to_test.object())
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an object.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("polygon"));
+			return schema;
+		}
+	};
+
+	/// <summary>
+	/// keeps track of a brush field
+	/// </summary>
+	class brush_field_options : public field_options_base
+	{
+	public:
+
+		brush_field_options() = default;
+		brush_field_options(const brush_field_options& _src) = default;
+		brush_field_options(brush_field_options&& _src) = default;
+		brush_field_options& operator = (const brush_field_options& _src) = default;
+		brush_field_options& operator = (brush_field_options&& _src) = default;
+		virtual ~brush_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (!_object_to_test.object())
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an object.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("polygon"));
+			return schema;
+		}
+	};
+
+	/// <summary>
+	/// keeps track of a rectangle field
+	/// </summary>
+	class rectangle_field_options : public field_options_base
+	{
+	public:
+
+		rectangle_field_options() = default;
+		rectangle_field_options(const rectangle_field_options& _src) = default;
+		rectangle_field_options(rectangle_field_options&& _src) = default;
+		rectangle_field_options& operator = (const rectangle_field_options& _src) = default;
+		rectangle_field_options& operator = (rectangle_field_options&& _src) = default;
+		virtual ~rectangle_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (_object_to_test.object())
+				{
+					for (auto obj : _object_to_test)
+					{
+						bool acceptable = obj.object();
+
+						if (not acceptable) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "Element must be a rectangle.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+
+                        if (obj.has_members({ "x", "y", "width", "height" })) {
+							if (not (obj["x"].is_double() && obj["y"].is_double() && obj["width"].is_double() && obj["height"].is_double())) {
+								validation_error ve;
+								ve.class_name = _class_name;
+								ve.field_name = _field_name;
+								ve.filename = get_file_name(__FILE__);
+								ve.line_number = __LINE__;
+								ve.message = "rectangle must have double x, y, width, and height.";
+								_validation_errors.push_back(ve);
+								return false;
+							}
+						}
+						else {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "rectangle must have x, y, width, and height.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+
+						std::string object_class_name = obj[class_name_field].as_string();
+					}
+				}
+				else
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an rectangle for a rectangle field.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("polygon"));
+			return schema;
+		}
+	};
+
+
 	class object_field_options : public field_options_base
 	{
 	public:
@@ -2082,7 +2509,49 @@ namespace corona
 						ve.field_name = _field_name;
 						ve.filename = get_file_name(__FILE__);
 						ve.line_number = __LINE__;
-						ve.message = "Element must be a datetime.";
+						ve.message = "Element must be a vector.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_path)
+				{
+					bool acceptable = obj.has_members({ "name", "points" });
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a path.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_brush)
+				{
+					bool acceptable = obj.has_members({ "name" });
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a brush.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+				}
+				else if (fundamental_type == field_types::ft_rectangle)
+				{
+					bool acceptable = obj.has_members({ "x", "y", "width", "height"});
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a rectangle.";
 						_validation_errors.push_back(ve);
 						return false;
 					}
@@ -2992,6 +3461,21 @@ namespace corona
 			else if (field_type == field_types::ft_vector)
 			{
 				options = std::make_shared<vector_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_selection)
+			{
+				options = std::make_shared<selection_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_polygon)
+			{
+				options = std::make_shared<polygon_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_rectangle)
+			{
+				options = std::make_shared<rectangle_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_query)
@@ -5228,7 +5712,7 @@ namespace corona
                     auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
 					if (chest_field_options) {
 						json chest_data = _src[_name];
-						if (chest_data.array()) {
+						if (chest_data.object()) {
 							cf = std::make_shared<chest_field>(chest_field_options, chest_data);
 						}
 						else {
@@ -5250,6 +5734,74 @@ namespace corona
 			return cf;
 		}
 
+		virtual std::shared_ptr<selection_field> get_selection(json _src, const std::string& _name) override
+		{
+			std::shared_ptr<selection_field> cf;
+
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_selection) {
+					auto field_options = cfi->second->get_options();
+					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
+					if (selection_field_options) {
+						json selection_data = _src[_name];
+						if (selection_data.object()) {
+							cf = std::make_shared<selection_field>(selection_field_options, selection_data);
+						}
+						else {
+							throw std::logic_error(std::format("field {0} selection is not an array", _name));
+						}
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have selection options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a selection field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
+		virtual std::shared_ptr<pathDto> get_path(json _src, const std::string& _name) override
+		{
+			std::shared_ptr<pathDto> cf;
+
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_selection) {
+					auto field_options = cfi->second->get_options();
+					auto path_field_options = std::dynamic_pointer_cast<path_field_options_interface>(field_options);
+					if (path_field_options) {
+						json selection_data = _src[_name];
+						if (selection_data.object()) {
+							cf = std::make_shared<pathDto>(path_field_options, selection_data);
+						}
+						else {
+							throw std::logic_error(std::format("field {0} path is not an object", _name));
+						}
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have path options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a path field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
 		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
 		{
 			auto cfi = fields.find(_name);
@@ -5260,7 +5812,7 @@ namespace corona
 					auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
 					if (chest_field_options) {
 						json_parser jp;
-						json chest_data = jp.create_array();
+						json chest_data = jp.create_object();
                         _src->get_json(chest_data);
                         _dest.put_member(_name, chest_data);
 					}
@@ -5274,6 +5826,33 @@ namespace corona
 			}
 			else {
                 throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+		}
+
+		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
+		{
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == field_types::ft_selection) {
+					auto field_options = cfi->second->get_options();
+					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
+					if (selection_field_options) {
+						json_parser jp;
+						json selection_data = jp.create_object();
+						_src->get_json(selection_data);
+						_dest.put_member(_name, selection_data);
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a selection field", _name));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
 			}
 		}
 

@@ -251,6 +251,10 @@ namespace corona {
 // consisting of multiple classes
 #include "corona-database-engine.hpp"
 
+// this is the corona objects a view of the database
+// consisting of multiple classes
+#include "corona-object.hpp"
+
 // the file monitor is a thing that lets you set up config files and watch for changes.
 // the bus makes use of these to do the React style insta-edit
 #include "corona-file-monitor.hpp"

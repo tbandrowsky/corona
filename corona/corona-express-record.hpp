@@ -386,6 +386,11 @@ namespace corona
             std::copy(_data, _data + _length, record_data.begin() + f.record_offset);
         }
 
+		void add(int32_t _field_id, rectangle _d)
+		{
+			add_poco<rectangle>(_field_id, _d, field_types::ft_rectangle);
+		}
+
 		void add(int32_t _field_id, DirectX::XMVECTOR _d)
 		{
 			add_poco<DirectX::XMVECTOR>(_field_id, _d, field_types::ft_vector);
@@ -518,6 +523,31 @@ namespace corona
 						add(acol.field_id, a);
 					}
 					break;
+				case field_types::ft_selection:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
+				case field_types::ft_path:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
+				case field_types::ft_rectangle:
+					{
+						auto v = m.rectangle_impl();
+						if (v) {
+							add(acol.field_id, v->value);
+						}
+						else
+						{
+							rectangle r = {};
+							add(acol.field_id, r);
+						}
+					}
+					break;
 				case field_types::ft_vector:
 					{
 						auto v = m.vector_impl();
@@ -597,6 +627,20 @@ namespace corona
                     _dest.put_member(acol.field_name.c_str(), std::string(s, field.size_bytes - 1));
 				}
 				break;
+				case field_types::ft_path:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_selection:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
 				case field_types::ft_chest:
 				{
 					std::string t = s;
@@ -615,6 +659,13 @@ namespace corona
 				{
 					DirectX::XMVECTOR v = *(DirectX::XMVECTOR*)s;
 					_dest.put_member(acol.field_name.c_str(), v);
+				}
+				break;
+				case field_types::ft_rectangle:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
 				}
 				break;
 				case field_types::ft_object:

@@ -701,6 +701,8 @@ namespace corona {
 		inline pathArcDto* asPathArcDto() { return eType == e_line ? (pathArcDto*)this : NULL; }
 		inline pathBezierDto* asPathBezierDto() { return eType == e_line ? (pathBezierDto*)this : NULL; }
 		inline pathQuadraticBezierDto* asPathQuadraticBezierDto() { return eType == e_line ? (pathQuadraticBezierDto*)this : NULL; }
+		virtual void get_json(json& _dest) = 0;
+		virtual void put_json(json& _src) = 0;
 	};
 
 	class pathLineDto : public pathBaseDto {
@@ -711,6 +713,35 @@ namespace corona {
 			eType = ePathPointType::e_line;
 			point = {};
 		}
+
+		void get_json(json& _dest)
+		{
+			_dest.put_member_vector("point", DirectX::XMVectorSet(point.x, point.y, point.z, 0));
+            _dest.put_member_string(class_name_field, "pathLineDto");
+		}
+
+		void put_json(json& _src)
+		{
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "point"})) {
+				system_monitoring_interface::active_mon->log_warning("pathLineDto needs a point");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+            json jpoint = _src["point"];
+            auto v = jpoint.as_vector();
+            point.x = DirectX::XMVectorGetX(v);
+            point.y = DirectX::XMVectorGetY(v);
+            point.z = DirectX::XMVectorGetZ(v);
+		}
+
 	};
 
 	class pathArcDto : public pathBaseDto {
@@ -724,6 +755,42 @@ namespace corona {
 			eType = ePathPointType::e_arc;
 			point = {};
 		}
+
+		void get_json(json& _dest) override
+		{
+			_dest.put_member_vector("point", DirectX::XMVectorSet(point.x, point.y, point.z, 0));
+            _dest.put_member_double("angleDegrees", angleDegrees);
+            _dest.put_member_double("radiusX", radiusX);
+            _dest.put_member_double("radiusY", radiusY);
+			_dest.put_member_string("class_name", "pathArcDto");
+		}
+
+		void put_json(json& _src) override
+		{
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "point", "angleDegrees", "radiusX", "radiusY" })) {
+				system_monitoring_interface::active_mon->log_warning("pathArcDto needs a point, angleDegrees, radiusX, and radiusY");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			json jpoint = _src["point"];
+			auto v = jpoint.as_vector();
+			point.x = DirectX::XMVectorGetX(v);
+			point.y = DirectX::XMVectorGetY(v);
+			point.z = DirectX::XMVectorGetZ(v);
+
+			angleDegrees = _src["angleDegrees"].as_double();
+			radiusX = _src["radiusX"].as_double();
+			radiusY = _src["radiusY"].as_double();
+		}
+
 	};
 
 	class pathQuadraticBezierDto : public pathBaseDto {
@@ -735,6 +802,41 @@ namespace corona {
 			eType = ePathPointType::e_quadractic_bezier;
 			point1 = {};
 			point2 = {};
+		}
+
+		void get_json(json& _dest) override
+		{
+			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
+			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
+			_dest.put_member_string(class_name_field, "pathQuadraticBezierDto");
+		}
+
+		void put_json(json& _src) override
+		{
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "point1", "point2" })) {
+				system_monitoring_interface::active_mon->log_warning("pathQuadraticBezierDto needs point1 and point2");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			json jpoint1 = _src["point1"];
+			auto v1 = jpoint1.as_vector();
+			point1.x = DirectX::XMVectorGetX(v1);
+			point1.y = DirectX::XMVectorGetY(v1);
+			point1.z = DirectX::XMVectorGetZ(v1);
+
+			json jpoint2 = _src["point2"];
+			auto v2 = jpoint2.as_vector();
+			point2.x = DirectX::XMVectorGetX(v2);
+			point2.y = DirectX::XMVectorGetY(v2);
+			point2.z = DirectX::XMVectorGetZ(v2);
 		}
 	};
 
@@ -750,6 +852,49 @@ namespace corona {
 			point2 = {};
 			point3 = {};
 		}
+
+		void get_json(json& _dest) override
+		{
+			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
+			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
+			_dest.put_member_vector("point3", DirectX::XMVectorSet(point3.x, point3.y, point3.z, 0));
+			_dest.put_member_string(class_name_field, "pathBezierDto");
+		}
+
+		void put_json(json& _src) override
+		{
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "point1", "point2", "point3" })) {
+				system_monitoring_interface::active_mon->log_warning("pathBezierDto needs point1, point2 and point3");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			json jpoint1 = _src["point1"];
+			auto v1 = jpoint1.as_vector();
+			point1.x = DirectX::XMVectorGetX(v1);
+			point1.y = DirectX::XMVectorGetY(v1);
+			point1.z = DirectX::XMVectorGetZ(v1);
+
+			json jpoint2 = _src["point2"];
+			auto v2 = jpoint2.as_vector();
+			point2.x = DirectX::XMVectorGetX(v2);
+			point2.y = DirectX::XMVectorGetY(v2);
+			point2.z = DirectX::XMVectorGetZ(v2);
+
+            json jpoint3 = _src["point3"];
+            auto v3 = jpoint3.as_vector();
+            point3.x = DirectX::XMVectorGetX(v3);
+            point3.y = DirectX::XMVectorGetY(v3);
+            point3.z = DirectX::XMVectorGetZ(v3);
+		}
+
 	};
 
 	class pathDto {
@@ -807,6 +952,67 @@ namespace corona {
 			ndto->point3.z = 0;
 			points.push_back(ndto);
 			return *this;
+		}
+
+		void get_json(json& _dest)
+		{
+			_dest.put_member_string("name", name);
+			_dest.put_member_string(class_name_field, "pathDto");
+			json_parser jp;
+			json segments = jp.create_array();
+
+            for (auto item : points) {
+				json jitem = jp.create_object();
+                item->get_json(jitem);
+				segments.append_element(jitem);
+			}
+		}
+
+		void put_json(pathDto& _dest, json& _src)
+		{
+
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "name", "points"})) {
+				system_monitoring_interface::active_mon->log_warning("pathDto needs a name and points");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+            _dest.name = _src["name"].as_string();
+            json jpoints = _src["points"];
+			if (jpoints.array()) {
+				int msz = jpoints.size();
+				_dest.points.clear();
+				for (int i = 0; i < msz; i++)
+				{
+					json jitem = jpoints.get_element(i);
+					std::string class_name = jitem["class_name"].as_string();
+					std::shared_ptr<pathBaseDto> item;
+					if (class_name == "pathLineDto") {
+						item = std::make_shared<pathLineDto>();
+					}
+					else if (class_name == "pathArcDto") {
+						item = std::make_shared<pathArcDto>();
+					}
+					else if (class_name == "pathQuadraticBezierDto") {
+						item = std::make_shared<pathQuadraticBezierDto>();
+					}
+					else if (class_name == "pathBezierDto") {
+						item = std::make_shared<pathBezierDto>();
+					}
+					else {
+						system_monitoring_interface::active_mon->log_warning("Unknown path segment type: " + class_name);
+						continue;
+					}
+					item->put_json(jitem);
+					_dest.points.push_back(item);
+				}
+			}
 		}
 
 	};
