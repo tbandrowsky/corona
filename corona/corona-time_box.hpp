@@ -779,7 +779,7 @@ namespace corona
 
 		scheduled_lambda()
 		{
-            frequnecy_seconds = 1;
+			frequency_seconds = 1;
 			remaining_seconds = 0;
 			duration_seconds = 2;
 			enabled = false;
@@ -787,14 +787,15 @@ namespace corona
 			task = {};
 		}
 
-		schedule_lambda(const scheduled_lambda& _src) = default;
-		schedule_lambda(scheduled_lambda&& _src) = default;
-		schedule_lambda& operator=(const scheduled_lambda& _src) = default;
-		schedule_lambda& operator=(scheduled_lambda&& _src) = default;
+		scheduled_lambda(const scheduled_lambda& _src) = default;
+		scheduled_lambda(scheduled_lambda&& _src) = default;
+		scheduled_lambda& operator=(const scheduled_lambda& _src) = default;
+		scheduled_lambda& operator=(scheduled_lambda&& _src) = default;
 
 		std::function<void(T src)>	task;
 		double						frequency_seconds;
 		double						remaining_seconds;
+		double						duration_seconds;
 		T							value;
 		bool						enabled;
 

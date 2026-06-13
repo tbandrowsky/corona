@@ -531,6 +531,11 @@ namespace corona
 			DirectX::XMVECTOR v = {};
 			return v;
 		}
+		virtual rectangle to_rectangle() const
+		{
+			rectangle r = {};
+			return r;
+		}
 
 	};
 
@@ -951,7 +956,10 @@ namespace corona
 		{
 			return DirectX::XMVectorSet(value.x, value.y, value.w, value.h);
 		}
-
+		virtual rectangle to_rectangle() const
+		{
+			return value;
+		}
 	};
 
 	class json_datetime : public json_value
@@ -2332,6 +2340,11 @@ namespace corona
 			return vector_impl() != nullptr;
 		}
 
+		bool is_rectangle() const
+		{
+			return rectangle_impl() != nullptr;
+		}
+
 		bool is_int64() const
 		{
 			return int64_impl() != nullptr;
@@ -2452,6 +2465,15 @@ namespace corona
 			else
 				return DirectX::XMVectorZero();
 		}
+
+		rectangle as_rectangle() const
+		{
+			if (value_base)
+				return value_base->to_rectangle();
+			else
+				return rectangle();
+		}
+
 
 		date_time as_date_time() const
 		{
@@ -3157,6 +3179,17 @@ namespace corona
 			return *this;
 		}
 
+		json put_member_rectangle(std::string _key, const rectangle& _value)
+		{
+			if (not object_impl()) {
+				throw std::logic_error("Not an object");
+			}
+			auto new_member = std::make_shared<json_rectangle>();
+			new_member->value = _value;
+			object_impl()->members[_key] = new_member;
+			return *this;
+		}
+
 		json put_member(std::string _key, double _value)
 		{
 			return put_member_double(_key, _value);
@@ -3171,6 +3204,11 @@ namespace corona
 			new_member->value = _value;
 			object_impl()->members[_key] = new_member;
 			return *this;
+		}
+
+		json put_member(std::string _key, const rectangle& _src)
+		{
+			return put_member_rectangle(_key, _src);
 		}
 
 		json put_member_array(std::string _key)

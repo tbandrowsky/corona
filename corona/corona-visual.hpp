@@ -396,24 +396,23 @@ namespace corona {
 			bitmapName = _request->bitmapName;
 		}
 
-	};
-
-	void get_json(json& _dest, bitmapBrushRequest& _src)
-	{
-		_dest.put_member("name", _src.name);
-		_dest.put_member("bitmap_name", _src.bitmapName);
-	}
-
-	void put_json(bitmapBrushRequest& _dest, json& _src)
-	{
-		if (not _src.has_members({ "filename" })) {
-			system_monitoring_interface::active_mon->log_warning("bitmap_brush must have filename");
-			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-			return;
+		void get_json(json& _dest)
+		{
+			_dest.put_member("name", name);
+			_dest.put_member("bitmap_name", bitmapName);
 		}
 
-		_dest.bitmapName = _src["filename"].as_string();
-	}
+		void put_json(json& _src)
+		{
+			if (not _src.has_members({ "filename" })) {
+				system_monitoring_interface::active_mon->log_warning("bitmap_brush must have filename");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+			bitmapName = _src["filename"].as_string();
+		}
+	};
+
 
 	class linearGradientBrushRequest 
 	{
@@ -438,71 +437,69 @@ namespace corona {
 			gradientStops = _request->gradientStops;
 		}
 
-	};
+		void get_json(json& _dest)
+		{
+			json_parser jp;
 
-	void get_json(json& _dest, linearGradientBrushRequest& _src)
-	{
-		json_parser jp;
+			_dest.put_member("name", name);
 
-		_dest.put_member("name", _src.name);
-		
-		json jstart, jstop, jsize, jstops;
+			json jstart, jstop, jsize, jstops;
 
-		jstart = jp.create_object();
-		get_json(jstart, _src.start);
-		_dest.put_member("start", jstart);
+			jstart = jp.create_object();
+			corona::get_json(jstart, start);
+			_dest.put_member("start", jstart);
 
-		jstop = jp.create_object();
-		get_json(jstop, _src.stop);
-		_dest.put_member("stop", jstop);
-
-		jsize = jp.create_object();
-		get_json(jsize, _src.size);
-		_dest.put_member("size", jsize);
-
-		jstops = jp.create_array();
-		for (auto st : _src.gradientStops) {
 			jstop = jp.create_object();
-			get_json(jstop, st);
-			jstops.append_element(jstop);
+			corona::get_json(jstop, stop);
+			_dest.put_member("stop", jstop);
+
+			jsize = jp.create_object();
+			corona::get_json(jsize, size);
+			_dest.put_member("size", jsize);
+
+			jstops = jp.create_array();
+			for (auto st : gradientStops) {
+				jstop = jp.create_object();
+				corona::get_json(jstop, st);
+				jstops.append_element(jstop);
+			}
+			_dest.put_member("stops", jstops);
 		}
-		_dest.put_member("stops", jstops);
-	}
 
-	void put_json(linearGradientBrushRequest& _dest, json& _src)
-	{
-		json_parser jp;
+		void put_json(json& _src)
+		{
+			json_parser jp;
 
-		if (not _src.has_members({ "start", "stop", "stops" })) {
-			system_monitoring_interface::active_mon->log_warning("linear_brush must have start, stop and stops");
-			system_monitoring_interface::active_mon->log_information("source json:");
-			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-			return;
-		}
+			if (not _src.has_members({ "start", "stop", "stops" })) {
+				system_monitoring_interface::active_mon->log_warning("linear_brush must have start, stop and stops");
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
 
-		json jstart, jstop, jstops;
+			json jstart, jstop, jstops;
 
-		jstart = _src["start"];
-		put_json(_dest.start, jstart);
+			jstart = _src["start"];
+			corona::put_json(start, jstart);
 
-		jstop = _src["stop"];
-		put_json(_dest.stop, jstop);
+			jstop = _src["stop"];
+			corona::put_json(stop, jstop);
 
-		jstops = _src["stops"];
-		if (jstops.array()) {
-			int msz = jstops.size();
-			_dest.gradientStops.clear();
+			jstops = _src["stops"];
+			if (jstops.array()) {
+				int msz = jstops.size();
+				gradientStops.clear();
 
-			for (int i = 0; i < msz; i++)
-			{
-				json jgs = jstops.get_element(i);
-				gradientStop gs;
-				put_json(gs, jgs);
-				_dest.gradientStops.push_back(gs);
+				for (int i = 0; i < msz; i++)
+				{
+					json jgs = jstops.get_element(i);
+					gradientStop gs;
+					corona::put_json(gs, jgs);
+					gradientStops.push_back(gs);
+				}
 			}
 		}
-	}
-
+	};
 
 	class radialGradientBrushRequest 
 	{
@@ -531,80 +528,80 @@ namespace corona {
 			gradientStops = _request->gradientStops;
 		}
 
-	};
+		void get_json(json& _dest)
+		{
+			json_parser jp;
 
-	void get_json(json& _dest, radialGradientBrushRequest& _src)
-	{
-		json_parser jp;
+			_dest.put_member("name", name);
 
-		_dest.put_member("name", _src.name);
+			json jcenter, joffset, jsize, jstops, jstop;
 
-		json jcenter, joffset, jsize, jstops, jstop;
+			jcenter = jp.create_object();
+			corona::get_json(jcenter, center);
+			_dest.put_member("center", jcenter);
 
-		jcenter = jp.create_object();
-		get_json(jcenter, _src.center);
-		_dest.put_member("center", jcenter);
+			joffset = jp.create_object();
+			corona::get_json(joffset, offset);
+			_dest.put_member("offset", joffset);
 
-		joffset = jp.create_object();
-		get_json(joffset, _src.offset);
-		_dest.put_member("offset", joffset);
+			_dest.put_member("radiusX", radiusX);
+			_dest.put_member("radiusY", radiusY);
 
-		_dest.put_member("radiusX", _src.radiusX);
-		_dest.put_member("radiusY", _src.radiusY);
-
-		jstops = jp.create_array();
-		for (auto st : _src.gradientStops) {
-			jstop = jp.create_object();
-			get_json(jstop, st);
-			jstops.append_element(jstop);
-		}
-		_dest.put_member("stops", jstops);
-	}
-
-	void put_json(radialGradientBrushRequest& _dest, json& _src)
-	{
-		json_parser jp;
-
-		std::vector<std::string> missing;
-		if (not _src.has_members(missing, { "center", "offset", "size", "radiusX", "radiusY", "stops" })) {
-			system_monitoring_interface::active_mon->log_warning("radial_brush must have name, center, offset, size, radiusX, radiusY and stops");
-			system_monitoring_interface::active_mon->log_warning("is missing:");
-			std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-				system_monitoring_interface::active_mon->log_warning(s);
-				});
-			system_monitoring_interface::active_mon->log_information("source json:");
-			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-			return;
+			jstops = jp.create_array();
+			for (auto st : gradientStops) {
+				jstop = jp.create_object();
+				corona::get_json(jstop, st);
+				jstops.append_element(jstop);
+			}
+			_dest.put_member("stops", jstops);
 		}
 
-		json jcenter, joffset, jsize, jstops, jstop;
+		void put_json(json& _src)
+		{
+			json_parser jp;
 
-		jcenter = _src["center"];
-		put_json(_dest.center, jcenter);
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "center", "offset", "size", "radiusX", "radiusY", "stops" })) {
+				system_monitoring_interface::active_mon->log_warning("radial_brush must have name, center, offset, size, radiusX, radiusY and stops");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
 
-		joffset = _src["offset"];
-		put_json(_dest.offset, joffset);
+			json jcenter, joffset, jsize, jstops, jstop;
 
-		jsize = _src["size"];
-		put_json(_dest.size, jsize);
+			jcenter = _src["center"];
+			corona::put_json(center, jcenter);
 
-		_dest.radiusX = _src["radiusX"].as_double();
-		_dest.radiusY = _src["radiusY"].as_double();
+			joffset = _src["offset"];
+			corona::put_json(offset, joffset);
 
-		jstops = _src["stops"];
-		if (jstops.array()) {
-			int msz = jstops.size();
-			_dest.gradientStops.clear();
+			jsize = _src["size"];
+			corona::put_json(size, jsize);
 
-			for (int i = 0; i < msz; i++)
-			{
-				json jgs = jstops.get_element(i);
-				gradientStop gs;
-				put_json(gs, jgs);
-				_dest.gradientStops.push_back(gs);
+			radiusX = _src["radiusX"].as_double();
+			radiusY = _src["radiusY"].as_double();
+
+			jstops = _src["stops"];
+			if (jstops.array()) {
+				int msz = jstops.size();
+				gradientStops.clear();
+
+				for (int i = 0; i < msz; i++)
+				{
+					json jgs = jstops.get_element(i);
+					gradientStop gs;
+					corona::put_json(gs, jgs);
+					gradientStops.push_back(gs);
+				}
 			}
 		}
-	}
+	};
+
 
 	class solidBrushRequest
 	{
@@ -623,6 +620,31 @@ namespace corona {
 			name = _request->name;
 			brushColor = _request->brushColor;
 		}
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			_dest.put_member("name", name);
+
+			json jcolor = jp.create_object();
+			corona::get_json(_dest, brushColor);
+			_dest.put_member("color", jcolor);
+		}
+
+		void put_json(json& _src)
+		{
+			json_parser jp;
+
+			if (not _src.has_members({ "color" })) {
+				system_monitoring_interface::active_mon->log_warning("solid_brush must have color");
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			corona::put_json(brushColor, "color", _src);
+		}
+
 	};
 
 	void get_json(std::string member, json& _dest, solidBrushRequest& _src)
@@ -657,29 +679,6 @@ namespace corona {
 	}
 
 
-	void get_json(json& _dest, solidBrushRequest& _src)
-	{
-		json_parser jp;
-		_dest.put_member("name", _src.name);
-
-		json jcolor = jp.create_object();
-		get_json(_dest, _src.brushColor);
-		_dest.put_member("color", jcolor);
-	}
-
-	void put_json(solidBrushRequest& _dest, json& _src)
-	{
-		json_parser jp;
-
-		if (not _src.has_members({ "color" })) {
-			system_monitoring_interface::active_mon->log_warning("solid_brush must have color");
-			system_monitoring_interface::active_mon->log_information("source json:");
-			system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-			return;
-		}
-
-		put_json(_dest.brushColor, "color", _src);
-	}
 
 	enum ePathPointType {
 		e_line,
@@ -1046,7 +1045,7 @@ namespace corona {
 		generalBrushRequest(json& _j)
 		{
 			clear();
-			put_json(*this, _j);
+			put_json(_j);
 		}
 
 		generalBrushRequest(const generalBrushRequest& _src) = default;
@@ -1219,66 +1218,60 @@ namespace corona {
 			}
 		}
 
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			using namespace std::literals;
+
+			switch (brush_type) {
+			case brush_types::solid_brush_type:
+				_dest.put_member("class_name", "solid_brush"sv);
+				solid_brush->get_json(_dest);
+				break;
+			case brush_types::linear_brush_type:
+				_dest.put_member("class_name", "linear_brush"sv);
+				linear_brush->get_json(_dest);
+				break;
+			case brush_types::radial_brush_type:
+				_dest.put_member("class_name", "radial_brush"sv);
+				radial_brush->get_json(_dest);
+				break;
+			case brush_types::bitmap_brush_type:
+				_dest.put_member("class_name", "bitmap_brush"sv);
+				bitmap_brush->get_json(_dest);
+				break;
+			}
+		}
+
+		void put_json(json& _src)
+		{
+			json_parser jp;
+
+			std::string jtype = _src.get_member("class_name").as_string();
+			if (jtype == "solid_brush")
+			{
+				solidBrushRequest sbr;
+				sbr.put_json(_src);
+			}
+			else if (jtype == "linear_brush")
+			{
+				linearGradientBrushRequest lgbr;
+				lgbr.put_json(_src);
+			}
+			else if (jtype == "radial_brush")
+			{
+				radialGradientBrushRequest rgbr;
+				rgbr.put_json(_src);
+			}
+			else if (jtype == "bitmap_brush")
+			{
+				radialGradientBrushRequest rgbr;
+				rgbr.put_json(_src);
+			}
+		}
 
 	};
 
-	void get_json(json& _dest, generalBrushRequest& _src)
-	{
-		json_parser jp;
-		using namespace std::literals;
-
-		switch (_src.brush_type) {
-		case brush_types::solid_brush_type:
-			_dest.put_member("class_name", "solid_brush"sv);
-			get_json(_dest, *_src.solid_brush);
-			break;
-		case brush_types::linear_brush_type:
-			_dest.put_member("class_name", "linear_brush"sv);
-			get_json(_dest, *_src.linear_brush);
-			break;
-		case brush_types::radial_brush_type:
-			_dest.put_member("class_name", "radial_brush"sv);
-			get_json(_dest, *_src.radial_brush);
-			break;
-		case brush_types::bitmap_brush_type:
-			_dest.put_member("class_name", "bitmap_brush"sv);
-			get_json(_dest, *_src.bitmap_brush);
-			break;
-		}
-	}
-
-	void put_json(generalBrushRequest& _dest, json& _src)
-	{
-		json_parser jp;
-
-		std::string jtype = _src.get_member("class_name").as_string();
-		if (jtype == "solid_brush")
-		{
-			solidBrushRequest sbr;
-			put_json(sbr, _src);
-			_dest = sbr;
-		}
-		else if (jtype == "linear_brush")
-		{
-			linearGradientBrushRequest lgbr;
-			put_json(lgbr, _src);
-			_dest = lgbr;
-		}
-		else if (jtype == "radial_brush")
-		{
-			radialGradientBrushRequest rgbr;
-			put_json(rgbr, _src);
-			_dest = rgbr;
-		}
-		else if (jtype == "bitmap_brush")
-		{
-			radialGradientBrushRequest rgbr;
-			put_json(rgbr, _src);
-			_dest = rgbr;
-		}
-		else
-			_dest.clear();
-	}
 
 	struct drawTextRequest 
 	{
@@ -1487,19 +1480,19 @@ namespace corona {
 		_dest.put_member("text_style", text_style);
 
 		if (_src.box_border_brush.has_brush()) {
-			get_json(box_border, _src.box_border_brush);
+			_src.box_border_brush.get_json(box_border);
 			_dest.put_member("box_border_brush", box_border);
 		}
 		if (_src.shape_border_brush.has_brush()) {
-			get_json(shape_border, _src.shape_border_brush);
+			_src.shape_border_brush.get_json(shape_border);
 			_dest.put_member("shape_border_brush", shape_border);
 		}
 		if (_src.box_fill_brush.has_brush()) {
-			get_json(box_fill, _src.box_fill_brush);
+			_src.box_fill_brush.get_json(box_fill);
 			_dest.put_member("box_fill_brush", box_fill);
 		}
 		if (_src.shape_fill_brush.has_brush()) {
-			get_json(shape_fill, _src.shape_fill_brush);
+			_src.shape_fill_brush.get_json(shape_fill);
 			_dest.put_member("shape_fill_brush", shape_fill);
 		}
 
@@ -1513,10 +1506,10 @@ namespace corona {
 	{
 
 		json text_style = _src["text_style"];
-		json box_border = _src["box_border_brush"];
-		json shape_border = _src["shape_border_brush"];
-		json box_fill = _src["box_fill_brush"];
-		json shape_fill = _src["shape_fill_brush"];
+		json jbox_border = _src["box_border_brush"];
+		json jshape_border = _src["shape_border_brush"];
+		json jbox_fill = _src["box_fill_brush"];
+		json jshape_fill = _src["shape_fill_brush"];
 
 		_dest.shape_border_thickness = _src["shape_border_thickness"].as_double();
 		_dest.box_border_thickness = _src["box_border_thickness"].as_double();
@@ -1524,10 +1517,10 @@ namespace corona {
 		if (text_style.object()) {
 			put_json(_dest.text_style, text_style);
 		}
-		put_json(_dest.box_border_brush, box_border);
-		put_json(_dest.shape_border_brush, shape_border);
-		put_json(_dest.box_fill_brush, box_fill);
-		put_json(_dest.shape_fill_brush, shape_fill);
+		_dest.box_border_brush.put_json(jbox_border);
+		_dest.shape_border_brush.put_json(jshape_border);
+		_dest.box_fill_brush.put_json(jbox_fill);
+		_dest.shape_fill_brush.put_json(jshape_fill);
 
 		_dest.name = _src["name"].as_string();
 		_dest.set_default_name(_dest.name);

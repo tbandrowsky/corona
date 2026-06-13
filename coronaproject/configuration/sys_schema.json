@@ -138,10 +138,8 @@
           "field_type": "double",
           "label": "Duration"
         },
-        "src_offset": "vector",
-        "src_size": "vector",
-        "dest_offset": "vector",
-        "dest_size": "vector"
+        "source": "rectangle",
+        "destination": "rectangle"
       }
     },
     {

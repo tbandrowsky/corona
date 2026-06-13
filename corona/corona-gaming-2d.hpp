@@ -6,10 +6,27 @@ namespace corona
 	class game_sprite : public corona_object
 	{
 	public:
-		rectangle   source_rectangle;
+		/*
+		        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "frame_index": {
+          "field_type": "double",
+          "label": "Frame Index"
+        },
+        "duration": {
+          "field_type": "double",
+          "label": "Duration"
+        },
+        "source": "rectangle",
+        "destination": "rectangle"
+		*/
 		std::string state;
-		double		order;
+		double		frame_index;
 		double		duration;
+		rectangle   source;
+		rectangle   destination;
 
 		game_sprite() = default;
         game_sprite(const game_sprite& _src) = default;
@@ -21,31 +38,32 @@ namespace corona
 		{
 			json_parser jp;
 			_dest.put_member("state", state);
-			_dest.put_member("order", order);
+			_dest.put_member("frame_index", frame_index);
 			_dest.put_member("duration", duration);
 			_dest.put_member("class_name", class_name);
             _dest.put_member("object_id", object_id);
-			corona::get_json(_dest, source_rectangle);
+			_dest.put_member("source", source);
+            _dest.put_member("destination", destination);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			state = _src["state"].as_string();
-			order = _src["order"].as_double();
+			frame_index = _src["frame_index"].as_double();
 			duration = _src["duration"].as_double();
             class_name = _src["class_name"].as_string();
             object_id = _src["object_id"].as_int64_t();
-			corona::put_json(source_rectangle, _src);
+            source = _src["source"].as_rectangle();
+            destination = _src["destination"].as_rectangle();
 		}
 	};
 
 	class game_vector_sprite : public game_sprite
 	{
 	public:
-		rectangle   source_rectangle;
-		std::string state;
-		double		order;
-		double		duration;
+		pathDto shape;
+		generalBrushRequest fill;
+        generalBrushRequest border;
 
 		game_vector_sprite() = default;
 		game_vector_sprite(const game_vector_sprite& _src) = default;
@@ -55,6 +73,20 @@ namespace corona
 
 		virtual void get_json(json& _dest)
 		{
+			json_parser jp;
+
+			game_sprite::get_json(_dest);
+
+			json jshape = jp.create_object();
+			json jfill = jp.create_object();;
+			json jborder = jp.create_object();
+            shape.get_json(jshape);
+            corona::get_json(jfill, fill);
+			corona::get_json(jborder, border);
+
+			_dest.put_member("shape", jshape);
+			_dest.put_member("fill", jfill);
+            _dest.put_member("border", jborder);
 		}
 
 		virtual void put_json(json& _src)
@@ -65,10 +97,7 @@ namespace corona
 	class game_bitmap_sprite : public game_sprite
 	{
 	public:
-		rectangle   source_rectangle;
-		std::string state;
-		double		order;
-		double		duration;
+		std::string image_name;
 
 		game_bitmap_sprite() = default;
 		game_bitmap_sprite(const game_bitmap_sprite& _src) = default;
