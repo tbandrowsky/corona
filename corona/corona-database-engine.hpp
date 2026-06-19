@@ -1020,14 +1020,19 @@ namespace corona
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
 		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
+		virtual void									put_chest(json& _dest, const std::string& _name, chest_field& _src) = 0;
 		virtual std::shared_ptr<selection_field>		get_selection(json _src, const std::string& _name) = 0;
+		virtual void									put_selection(json& _dest, const std::string& _name, selection_field& _src) = 0;
 		virtual void									put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) = 0;
 		virtual std::shared_ptr<pathDto>				get_path(json _src, const std::string& _name) = 0;
 		virtual void									put_path(json& _dest, const std::string& _name, pathDto& _src) = 0;
+		virtual void									put_path(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) = 0;
 		virtual std::shared_ptr<generalBrushRequest>	get_brush(json _src, const std::string& _name) = 0;
 		virtual void									put_brush(json& _dest, const std::string& _name, generalBrushRequest& _src) = 0;
+		virtual void									put_brush(json& _dest, const std::string& _name, std::shared_ptr<generalBrushRequest>& _src) = 0;
 		virtual std::shared_ptr<bitmapInstanceDto>		get_bitmap(json _src, const std::string& _name) = 0;
 		virtual void									put_bitmap(json& _dest, const std::string& _name, bitmapInstanceDto& _src) = 0;
+		virtual void									put_bitmap(json& _dest, const std::string& _name, std::shared_ptr<bitmapInstanceDto>& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -6018,6 +6023,33 @@ namespace corona
 			}
 		}
 
+		template <typename object_type, field_types ft, typename field_options_interface> void put_field_object(json& _dest, const std::string& _name, object_type& _src)
+		{
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == ft) {
+					auto field_options = cfi->second->get_options();
+					auto specific_field_options = std::dynamic_pointer_cast<field_options_interface>(field_options);
+					if (specific_field_options) {
+						json_parser jp;
+						json field_data = jp.create_object();
+						_src.get_json(field_data);
+						_dest.put_member(_name, field_data);
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have {1} field options", _name, field_type_names[ft]));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a {1} field", _name, field_type_names[ft]));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+		}
+
 		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
 		{
             put_field_object<chest_field, field_types::ft_chest, chest_field_options_interface>(_dest, _name, _src);
@@ -6026,6 +6058,16 @@ namespace corona
 		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
 		{
 			put_field_object<selection_field, field_types::ft_selection, selection_field_options_interface>(_dest, _name, _src);
+		}
+
+		virtual void put_path(json& _dest, const std::string& _name, std::shared_ptr<pathDto>& _src) override
+		{
+			put_field_object<pathDto, field_types::ft_path, path_field_options_interface>(_dest, _name, _src);
+		}
+
+		virtual void put_brush(json& _dest, const std::string& _name, std::shared_ptr<generalBrushRequest>& _src) override
+		{
+			put_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
 		}
 
 		virtual void put_path(json& _dest, const std::string& _name, pathDto& _src) override
@@ -6038,6 +6080,10 @@ namespace corona
 			put_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
 		}
 
+		virtual void put_brush(json& _dest, const std::string& _name, bitmapInstanceDto& _src) override
+		{
+			put_field_object<bitmapInstanceDto, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
+		}
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) 
 		{
