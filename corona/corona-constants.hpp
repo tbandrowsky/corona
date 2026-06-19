@@ -710,7 +710,8 @@ namespace corona
 		ft_rectangle = 'e',
 		ft_selection = 'l',
         ft_path = 'p',
-		ft_brush = 'h'
+		ft_brush = 'h',
+		ft_bitmap = 'm'
 	};
 	
 	const int field_type_size = 12;
@@ -747,6 +748,7 @@ namespace corona
 { "rectangle", field_types::ft_rectangle },
 { "path", field_types::ft_path },
 { "brush", field_types::ft_brush },
+{ "bitmap", field_types::ft_bitmap }
 	};
 
 	std::map<field_types, std::string> field_type_names = {
@@ -765,6 +767,7 @@ namespace corona
 { field_types::ft_selection, "selection"  },
 { field_types::ft_path, "path"  },
 { field_types::ft_brush, "brush"  },
+{ field_types::ft_bitmap, "bitmap"  }
 
 	};
 
@@ -783,7 +786,8 @@ namespace corona
 { field_types::ft_rectangle, "vector"  },
 { field_types::ft_selection, "selection"  },
 { field_types::ft_path, "path"  },
-{ field_types::ft_brush, "brush"  }
+{ field_types::ft_brush, "brush"  },
+{ field_types::ft_bitmap, "bitmap"  }
 	};
 
 	auto toHex(unsigned char i)
@@ -1107,4 +1111,3 @@ namespace corona
 	using db_object_id_type = int64_t;
 
 }
-

@@ -8,6 +8,8 @@ namespace corona
     {
     public:
 
+       comm_bus_app_interface* bus;
+
        std::string  class_name;
        int64_t      object_id;
 
@@ -16,6 +18,17 @@ namespace corona
 
        std::string  updated_by;
        date_time    updated;
+
+       corona_object() = default;
+       corona_object(const corona_object& _src) = default;
+       corona_object(corona_object&& _src) = default;
+       corona_object& operator =(const corona_object& _src) = default;
+       corona_object& operator =(corona_object&& _src) = default;
+
+       corona_object(comm_bus_app_interface* _bus) : bus(_bus)
+       {
+
+       }
 
        void get_json(json& _dest)
        {
@@ -52,7 +65,7 @@ namespace corona
     template <typename T> class corona_object_factory
     {
 
-        using fn_create_object = std::function<std::shared_ptr<T>(json& _src)>;
+        using fn_create_object = std::function<std::shared_ptr<T>(json& _src, comm_bus_app_interface* _bus)>;
 
         std::map<std::string, fn_create_object> factory_map;
         lockable factory_lock;
@@ -64,6 +77,8 @@ namespace corona
         corona_object_factory(corona_object_factory&& _src) = default;
         corona_object_factory& operator =(const corona_object_factory& _src) = default;
         corona_object_factory& operator =(corona_object_factory&& _src) = default;
+
+        comm_bus_app_interface* bus;
 
         void register_class(std::string _class_name, fn_create_object _ctor)
         {
@@ -81,7 +96,7 @@ namespace corona
 
                 auto foundit = factory_map.find(class_name);
                 if (foundit != std::end(factory_map)) {
-                    sp = foundit->second(ji);
+                    sp = foundit->second(ji, bus);
                 }
             }
             return sp;
@@ -104,7 +119,7 @@ namespace corona
 
                         auto foundit = factory_map.find(class_name);
                         if (foundit != std::end(factory_map)) {
-                            auto object = foundit->second(ji);
+                            auto object = foundit->second(ji, bus);
                             object_list.push_back(object);
                         }
                     }

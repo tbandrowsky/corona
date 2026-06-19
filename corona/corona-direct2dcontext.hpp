@@ -952,11 +952,21 @@ namespace corona
 				else {
 					rect.bottom = rect.top + size.height;
 				}
-				source.left = 0;
-				source.top = 0;
-				source.right = size.width;
-				source.bottom = size.height;
-				getDeviceContext()->DrawBitmap(ibm, rect, _bitmapInstanceDto->alpha, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, source);
+
+				if (_bitmapInstanceDto->source_rectangle.w > 0 && _bitmapInstanceDto->source_rectangle.h > 0) {
+					source.left = _bitmapInstanceDto->source_rectangle.x;
+					source.top = _bitmapInstanceDto->source_rectangle.y;
+					source.right = source.left + _bitmapInstanceDto->source_rectangle.right();
+					source.bottom = source.top + _bitmapInstanceDto->source_rectangle.bottom();
+				}
+				else 
+				{
+					source.left = 0;
+					source.top = 0;
+					source.right = size.width;
+					source.bottom = size.height;
+					getDeviceContext()->DrawBitmap(ibm, rect, _bitmapInstanceDto->alpha, D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR, source);
+				}
 			}
 			else {
 				std::string msg = std::format("bitmap {0} did not have a matching size of {1},{2}", _bitmapInstanceDto->bitmapName, _bitmapInstanceDto->width, _bitmapInstanceDto->height);

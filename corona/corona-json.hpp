@@ -821,7 +821,7 @@ namespace corona
 		}
 		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
-			_src << to_json;
+			_src << to_json();
 			return _src;
 		}
 		virtual void from_string(const std::string_view& _src)
@@ -831,7 +831,8 @@ namespace corona
 		}
 		virtual std::string format(std::string _format) const
 		{
-			return std::format( _format, to_string() );
+            std::string temp = to_string();
+			return temp;
 		}
 
 		virtual field_types get_field_type() const
@@ -905,7 +906,7 @@ namespace corona
 		}
 		virtual std::stringstream& serialize(std::stringstream& _src)  const
 		{
-			_src << to_json;
+			_src << to_json();
 			return _src;
 		}
 		virtual void from_string(const std::string_view& _src)
@@ -915,7 +916,8 @@ namespace corona
 		}
 		virtual std::string format(std::string _format) const
 		{
-			return std::format(_format, to_string());
+            std::string temp = to_string();
+			return temp;
 		}
 
 		virtual field_types get_field_type() const

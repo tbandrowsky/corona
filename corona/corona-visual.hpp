@@ -228,6 +228,34 @@ namespace corona {
 			stop_position = _position;
 			stop_color = _color;
 		}
+
+		void get_json(json& _dest, ccolor& _src)
+		{
+			_dest.put_member("a", _src.a);
+			_dest.put_member("r", _src.r);
+			_dest.put_member("g", _src.g);
+			_dest.put_member("b", _src.b);
+		}
+
+		void put_json(ccolor& _dest, std::string _member_name, json& _src)
+		{
+			json jcolor = _src[_member_name];
+			if (jcolor.is_string()) {
+				std::string color_string = jcolor.as_string();
+				_dest = corona::toColor(color_string);
+			}
+			else if (jcolor.object())
+			{
+				if (jcolor.has_member("a"))
+					_dest.a = jcolor["a"].as_double();
+				else
+					_dest.a = 1.0;
+
+				_dest.r = jcolor["r"].as_double();
+				_dest.g = jcolor["g"].as_double();
+				_dest.b = jcolor["b"].as_double();
+			}
+		}
 	};
 
 	void get_json(json& _dest, ccolor & _src)
@@ -321,6 +349,7 @@ namespace corona {
 			sizes = _request->sizes;
 			source = _request->source;
 		}
+
 	};
 
 	void get_json(json& _dest, bitmapRequest& _src)
@@ -967,7 +996,7 @@ namespace corona {
 			}
 		}
 
-		void put_json(pathDto& _dest, json& _src)
+		void put_json(json& _src)
 		{
 
 			std::vector<std::string> missing;
@@ -982,11 +1011,11 @@ namespace corona {
 				return;
 			}
 
-            _dest.name = _src["name"].as_string();
+            name = _src["name"].as_string();
             json jpoints = _src["points"];
 			if (jpoints.array()) {
 				int msz = jpoints.size();
-				_dest.points.clear();
+				points.clear();
 				for (int i = 0; i < msz; i++)
 				{
 					json jitem = jpoints.get_element(i);
@@ -1009,7 +1038,7 @@ namespace corona {
 						continue;
 					}
 					item->put_json(jitem);
-					_dest.points.push_back(item);
+					points.push_back(item);
 				}
 			}
 		}
@@ -1311,14 +1340,60 @@ namespace corona {
 
 	struct bitmapInstanceDto {
 		std::string bitmapName;
-		int copyId;
-		float x, y, width, height;
-		bool selected;
-		double alpha;
+		std::string bitmapPath;
+		int copyId = 0;
+		float x = 0, y = 0, width = 0, height = 0;
+		bool selected = false;
+		double alpha = 1;
+		rectangle source_rectangle = {};
 
 		bool contains(point pt)
 		{
 			return (pt.x >= x) and (pt.x < (x + width)) and (pt.y >= y) and (pt.y < (y + height));
+		}
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			_dest.put_member("bitmapName", bitmapName);
+            _dest.put_member("bitmapPath", bitmapPath);
+			_dest.put_member("copyId", copyId);
+			_dest.put_member("x", x);
+			_dest.put_member("y", y);
+			_dest.put_member("width", width);
+			_dest.put_member("height", height);
+			_dest.put_member("selected", selected);
+			_dest.put_member("alpha", alpha);
+			json jsource_rect = jp.create_object();
+			corona::get_json(jsource_rect, source_rectangle);
+			_dest.put_member("source_rectangle", jsource_rect);
+        }
+
+        void put_json(json& _src)
+		{
+			json_parser jp;
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "bitmapName", "x", "y", "width", "height", "selected", "alpha", "source_rectangle" })) {
+				system_monitoring_interface::active_mon->log_warning("bitmapInstanceDto must have bitmapName, x, y, width, height, selected, alpha and source_rectangle");
+				system_monitoring_interface::active_mon->log_warning("is missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("source json:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+			bitmapName = _src["bitmapName"].as_string();
+			copyId = _src["copyId"].as_int();
+			x = _src["x"].as_double();
+			y = _src["y"].as_double();
+			width = _src["width"].as_double();
+			height = _src["height"].as_double();
+			selected = _src["selected"].as_bool();
+			alpha = _src["alpha"].as_double();
+            bitmapPath = _src["bitmapPath"].as_string();
+			json jsource_rect = _src["source_rectangle"];
+			corona::put_json(source_rectangle, jsource_rect);
 		}
 	};
 

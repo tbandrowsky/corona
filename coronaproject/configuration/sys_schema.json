@@ -105,18 +105,18 @@
         "map": "map",
         "name": {
           "field_type": "string",
-          "label": "First Name",
+          "label": "Name",
           "max_length": 100
         },
         "state": {
           "field_type": "string",
-          "label": "First Name",
+          "label": "State",
           "max_length": 20,
           "enumeration": [ "lobby", "active", "paused", "complete", "exit" ]
         },
         "description": {
           "field_type": "string",
-          "label": "First Name"
+          "label": "Description"
         }
       }
     },
@@ -186,59 +186,19 @@
         "hit_points": "double",
         "inventory": {
           "field_type": "chest",
-          "item_class": "piece"
+          "item_class": "item"
         }
       }
     },
     {
-      "class_name": "effect",
-      "base_class_name": "piece",
-      "class_description": "a gaming item",
-      "fields": {
-        "frequency_seconds": "double",
-        "remaining_seconds": "double",
-        "remaining_count": "double",
-        "name": "string"
-      }
-    },
-    {
-      "class_name": "camera",
-      "base_class_name": "piece",
-      "class_description": "A camera in the system",
-      "fields": {
-        "fov": "double",
-        "near_clip": "double",
-        "far_clip": "double"
-      }
-    },
-    {
-      "class_name": "player_spawn",
-      "base_class_name": "piece",
-      "class_description": "A place to launch players",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "npc_spawn",
-      "base_class_name": "piece",
-      "class_description": "A place to launch npcs",
-      "fields": {
-        "spawn_classes": [ "string" ],
-        "frequency_seconds": "double",
-        "remaining_seconds": "double"
-      }
-    },
-    {
-      "class_name": "player",
+      "class_name": "actor",
       "base_class_name": "piece",
       "class_description": "a gaming player",
       "fields": {
-        "input_device": "string",
         "selection": "selection",
         "state": {
           "field_type": "string",
           "label": "State",
-          "selected_tool": "number",
           "enumeration": [
             "still",
             "moving",
@@ -269,12 +229,32 @@
             "fire-left"
           ]
         }
+      }
+    },
+    {
+      "class_name": "player",
+      "base_class_name": "actor",
+      "class_description": "a gaming player",
+      "fields": {
+        "input_device": "string"
+      }
+    },
+    {
+      "class_name": "npc",
+      "base_class_name": "actor",
+      "class_description": "a gaming NPC",
+      "fields": {
 
       }
     },
     {
-      "class_name": "loot_box",
+      "class_name": "feature",
       "base_class_name": "piece",
+      "class_description": "a static faeature on a map"
+    },
+    {
+      "class_name": "loot_box",
+      "base_class_name": "feature",
       "class_description": "a gaming loot box",
       "fields": {
 
@@ -282,7 +262,7 @@
     },
     {
       "class_name": "loot_spot",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming loot spot",
       "fields": {
 
@@ -290,82 +270,15 @@
     },
     {
       "class_name": "switch",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming switch",
       "fields": {
 
       }
     },
     {
-      "class_name": "gun",
-      "base_class_name": "piece",
-      "class_description": "weapon for the shot",
-      "fields": {
-        "ammo_class": "string"
-      }
-    },
-    {
-      "class_name": "ammo",
-      "base_class_name": "piece",
-      "class_description": "consumable for the shot",
-      "fields": {
-        "shot_class": "string"
-      }
-    },
-    {
-      "class_name": "shot",
-      "base_class_name": "piece",
-      "class_description": "an effect of a weapon",
-      "fields": {
-        "effect_class": "string"
-      }
-    },
-    {
-      "class_name": "npc",
-      "base_class_name": "piece",
-      "class_description": "a gaming NPC",
-      "fields": {
-        "frequency_seconds": "double",
-        "remaining_seconds": "double",
-        "state": {
-          "field_type": "string",
-          "label": "State",
-          "enumeration": [
-            "still",
-            "moving",
-            "shoot",
-            "walk-up",
-            "walk-down",
-            "walk-right",
-            "walk-left",
-            "jump-up",
-            "jump-down",
-            "jump-right",
-            "jump-left",
-            "climb-up",
-            "climb-down",
-            "climb-right",
-            "climb-left",
-            "throw-up",
-            "throw-down",
-            "throw-right",
-            "throw-left",
-            "activate-up",
-            "activate-down",
-            "activate-right",
-            "activate-left",
-            "fire-up",
-            "fire-down",
-            "fire-right",
-            "fire-left"
-          ]
-        }
-
-      }
-    },
-    {
       "class_name": "wall",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming wall",
       "fields": {
         "passable": "boolean"
@@ -373,7 +286,7 @@
     },
     {
       "class_name": "door",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming door",
       "fields": {
         "open": "boolean"
@@ -381,7 +294,7 @@
     },
     {
       "class_name": "surface",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming surface",
       "fields": {
         "mechanic": "string",
@@ -391,19 +304,212 @@
     },
     {
       "class_name": "decoration",
-      "base_class_name": "piece",
+      "base_class_name": "feature",
       "class_description": "a gaming decoration, like clouds",
       "fields": {
       }
     },
     {
-      "class_name": "shot",
-      "base_class_name": "piece",
-      "class_description": "a gaming shot",
+      "class_name": "camera",
+      "base_class_name": "feature",
+      "class_description": "A camera in the system",
       "fields": {
-        "effect_class": "string",
+        "fov": "double",
+        "near_clip": "double",
+        "far_clip": "double"
+      }
+    },
+    {
+      "class_name": "spawn",
+      "base_class_name": "feature",
+      "class_description": "A place to launch players",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "npc_spawn",
+      "base_class_name": "feature",
+      "class_description": "A place to launch npcs",
+      "fields": {
+        "spawn_classes": [ "string" ],
         "frequency_seconds": "double",
         "remaining_seconds": "double"
+      }
+    },
+    {
+      "class_name": "player_spawn",
+      "base_class_name": "feature",
+      "class_description": "A place to launch players",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "item_type",
+      "base_class_name": "sys_object",
+      "class_description": "a type of an item",
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "items": [ "item" ]
+      }
+    },
+    {
+      "class_name": "item",
+      "base_class_name": "piece",
+      "class_description": "an item to be used during the game",
+      "parents": [ "map", "item_type" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "effect_type",
+      "base_class_name": "item_type",
+      "class_description": "a type of an effect",
+      "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "remaining_count": "double",
+        "name": "string",
+        "effect": [ "effect" ]
+      }
+    },
+    {
+      "class_name": "effect",
+      "base_class_name": "item",
+      "class_description": "a gaming item",
+      "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "remaining_count": "double",
+        "name": "string"
+      }
+    },
+    {
+      "class_name": "tool_type",
+      "base_class_name": "item",
+      "class_description": "general activatable thing",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "firearm_type",
+      "base_class_name": "tool_type",
+      "class_description": "weapon for the shot",
+      "fields": {
+        "magazine": [ "magazine_type" ]
+      }
+    },
+    {
+      "class_name": "magazine_type",
+      "base_class_name": "item_type",
+      "class_description": "a magazine for the firearm",
+      "parents": [ "firearm_type" ],
+      "fields": {
+        "ammunition": [ "ammunition_type" ],
+        "magazines": [ "magazine" ]
+      }
+    },
+    {
+      "class_name": "ammunition_type",
+      "base_class_name": "item_type",
+      "class_description": "ammo for the firearm",
+      "parents": [ "magazine_type" ],
+      "fields": {
+        "shot": [ "shot_type" ],
+        "ammunition": [ "ammunition" ]
+      }
+    },
+    {
+      "class_name": "shot_type",
+      "base_class_name": "item_type",
+      "class_description": "an effect of a weapon",
+      "fields": {
+        "effect": [ "effect_type" ],
+        "shots": [ "shot" ]
+      }
+    },
+    {
+      "class_name": "firearm",
+      "base_class_name": "tool",
+      "class_description": "weapon for the shot",
+      "parents": [ "firearm_type" ],
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "magazine",
+      "base_class_name": "item",
+      "class_description": "a magazine for the firearm",
+      "parents": [ "firearm_type" ],
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "ammunition",
+      "base_class_name": "item",
+      "class_description": "ammo for the firearm",
+      "parents": [ "ammunition_type" ],
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "shot",
+      "base_class_name": "item",
+      "class_description": "an effect of a weapon",
+      "parents": [ "shot_type" ],
+      "fields": {
+        "effect": [ "effect_type" ]
+      }
+    },
+    {
+      "class_name": "wand_type",
+      "base_class_name": "tool_type",
+      "class_description": "a magic thing that launches spells",
+      "fields": {
+        "spells": [ "spell_type" ]
+      }
+    },
+    {
+      "class_name": "spell_type",
+      "base_class_name": "tool",
+      "class_description": "a travelling spell with effects",
+      "parents": [ "wand_type" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "wand",
+      "base_class_name": "tool",
+      "class_description": "a magic thing that launches spells",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "spell",
+      "base_class_name": "tool",
+      "class_description": "a travelling spell with effects",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "stick_type",
+      "base_class_name": "tool",
+      "class_description": "general stick",
+      "fields": {
+        "reach": "double"
+      }
+    },
+    {
+      "class_name": "stick",
+      "base_class_name": "tool",
+      "class_description": "general stick",
+      "parents": [ "stick_type" ],
+      "fields": {
       }
     }
   ],

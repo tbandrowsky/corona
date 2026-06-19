@@ -510,6 +510,11 @@ namespace corona
 	public:
 	};
 
+	class bitmap_field_options_interface
+	{
+	public:
+	};
+
 	class chest_field_options_interface
 	{
 	public:
@@ -532,6 +537,17 @@ namespace corona
 		chest_field(std::shared_ptr<chest_field_options_interface> _options, json _src) : options(_options)
 		{
 			put_json(_src);
+		}
+
+		chest_item* get_first()
+		{
+			if (!options) return nullptr;
+			auto iter = items.begin();
+			if (iter != items.end()) {
+				auto& cf = iter->second;
+				return &cf;
+			}
+            return nullptr;
 		}
 
 		void add_part(const chest_item& _item)
@@ -589,6 +605,49 @@ namespace corona
 				}
 			}
 			return true;
+		}
+
+		chest_item* find_next(chest_item& _item)
+		{
+			if (!options) return nullptr;
+
+            auto it = items.upper_bound(_item.part_class);
+			if (it != items.end()) {
+				auto& cf = it->second;
+				return &cf;
+			}
+
+			it = items.begin();
+			if (it != items.end()) {
+				auto& cf = it->second;
+				return &cf;
+			}
+
+			return nullptr;
+		}
+
+		chest_item* find_previous(chest_item& _item)
+		{
+			if (!options) return nullptr;
+
+			auto it = items.lower_bound(_item.part_class);
+			if (it != items.end()) {
+				if (it->second.part_class == _item.part_class) {
+					it--;
+				}
+			}
+			if (it != items.end()) {
+				auto& cf = it->second;
+				return &cf;
+			}
+
+			it = items.begin();
+			if (it != items.end()) {
+				auto& cf = it->second;
+				return &cf;
+			}
+
+			return nullptr;
 		}
 
 		virtual void get_json(json& _dest)
@@ -660,6 +719,16 @@ namespace corona
 			if (sel != selections.end()) {
 				selections.erase(sel);
 			}
+		}
+
+		chest_item* get_first()
+		{
+			auto iter = selections.begin();
+			if (iter != selections.end()) {
+				auto& cf = *iter;
+				return &cf;
+			}
+			return nullptr;
 		}
 
 		virtual void get_json(json& _dest)
@@ -957,6 +1026,8 @@ namespace corona
 		virtual void									put_path(json& _dest, const std::string& _name, pathDto& _src) = 0;
 		virtual std::shared_ptr<generalBrushRequest>	get_brush(json _src, const std::string& _name) = 0;
 		virtual void									put_brush(json& _dest, const std::string& _name, generalBrushRequest& _src) = 0;
+		virtual std::shared_ptr<bitmapInstanceDto>		get_bitmap(json _src, const std::string& _name) = 0;
+		virtual void									put_bitmap(json& _dest, const std::string& _name, bitmapInstanceDto& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
 		
@@ -2370,10 +2441,120 @@ namespace corona
 		{
 			json_parser jp;
 			json schema = jp.create_object();
-			schema.put_member("type", std::string("polygon"));
+			schema.put_member("type", std::string("rectangle"));
 			return schema;
 		}
 	};
+
+	/// <summary>
+/// keeps track of a bitmap field
+/// </summary>
+	class bitmap_field_options : public field_options_base
+	{
+	public:
+
+		bitmap_field_options() = default;
+		bitmap_field_options(const bitmap_field_options& _src) = default;
+		bitmap_field_options(bitmap_field_options&& _src) = default;
+		bitmap_field_options& operator = (const bitmap_field_options& _src) = default;
+		bitmap_field_options& operator = (bitmap_field_options&& _src) = default;
+		virtual ~bitmap_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (_object_to_test.object())
+				{
+					for (auto obj : _object_to_test)
+					{
+						bool acceptable = obj.object();
+
+						if (not acceptable) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "Element must be a bitmap reference.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+
+						if (obj.has_members({ "x", "y", "width", "height", "bitmapName"})) {
+							if (not (obj["x"].is_double() && obj["y"].is_double() && obj["width"].is_double() && obj["height"].is_double())) {
+								validation_error ve;
+								ve.class_name = _class_name;
+								ve.field_name = _field_name;
+								ve.filename = get_file_name(__FILE__);
+								ve.line_number = __LINE__;
+								ve.message = "bitmap must have double x, y, width, and height.";
+								_validation_errors.push_back(ve);
+								return false;
+							}
+						}
+						else {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "bitmap must have x, y, width, and height and a bitmapName, and a bitmapPath optional.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+
+						std::string object_class_name = obj[class_name_field].as_string();
+					}
+				}
+				else
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an bitmapPath for a bitmapPath field.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("bitmap"));
+			return schema;
+		}
+	};
+
 
 
 	class object_field_options : public field_options_base
@@ -2556,6 +2737,20 @@ namespace corona
 						return false;
 					}
 				}
+				else if (fundamental_type == field_types::ft_bitmap)
+				{
+					bool acceptable = obj.has_members({ "bitmapName", "x", "y", "width", "height" });
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a rectangle.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+					}
 				else if (bridges)
 				{
 					if (obj.object()) {
@@ -3481,6 +3676,11 @@ namespace corona
 			else if (field_type == field_types::ft_rectangle)
 			{
 				options = std::make_shared<rectangle_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_bitmap)
+			{
+				options = std::make_shared<bitmap_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_query)
@@ -4877,9 +5077,15 @@ namespace corona
 					std::vector<std::string> base_fields = base_class->get_full_text_fields();
 					full_text_fields.insert(full_text_fields.end(), base_fields.begin(), base_fields.end());
 
+                    // the little change I made here allows a class to inherit fields from its base class, 
+					// but also to override them by redefining them in the child class.  
+					// if a field is defined in the base class but not in the child class, it will be inherited.  
+					// if it is defined in both, the child class's definition will be used.
 					for (auto temp_field : base_class->get_fields())
 					{
-						changed_class.fields.insert_or_assign(temp_field->get_field_name(), temp_field);
+						if (changed_class.fields.find(temp_field->get_field_name()) == changed_class.fields.end()) {
+							changed_class.fields.insert_or_assign(temp_field->get_field_name(), temp_field);
+						}
 					}
 					_context->db->save_class(base_class.get());
 				}
@@ -5705,36 +5911,46 @@ namespace corona
 			return results;
 		}
 
+        template <typename object_type, field_types ft, typename options_interface_type>
+		std::shared_ptr<object_type> get_field_object(json _src, const std::string& _name) 
+		{
+			std::shared_ptr<object_type> cf;
+
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == ft) {
+					auto field_options = cfi->second->get_options();
+					auto chest_field_options = std::dynamic_pointer_cast<options_interface_type>(field_options);
+					if (chest_field_options) {
+						json chest_data = _src[_name];
+						if (chest_data.object()) {
+							cf = std::make_shared<object_type>(chest_field_options, chest_data);
+						}
+						else {
+							throw std::logic_error(std::format("field {0} data is not an array", _name));
+						}
+					}
+					else {
+						throw std::logic_error(std::format("field {0} does not have {1} field options", _name, field_type_names[ft]));
+					}
+				}
+				else {
+					throw std::logic_error(std::format("field {0} is not a {1} field", _name, field_type_names[ft]));
+				}
+			}
+			else {
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
 		virtual std::shared_ptr<chest_field> get_chest(json _src, const std::string& _name) override
 		{
 			std::shared_ptr<chest_field> cf;
 
-			auto cfi = fields.find(_name);
-
-            if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_chest) {
-                    auto field_options = cfi->second->get_options();
-                    auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
-					if (chest_field_options) {
-						json chest_data = _src[_name];
-						if (chest_data.object()) {
-							cf = std::make_shared<chest_field>(chest_field_options, chest_data);
-						}
-						else {
-                            throw std::logic_error(std::format("field {0} chest data is not an array", _name));
-						}
-					}
-					else {
-                        throw std::logic_error(std::format("field {0} does not have chest field options", _name));
-					}
-				}
-				else {
-                    throw std::logic_error(std::format("field {0} is not a chest field", _name));
-				}
-			}
-			else {
-                throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+            cf = get_field_object<chest_field, field_types::ft_chest, chest_field_options_interface>(_src, _name);
 
 			return cf;
 		}
@@ -5743,32 +5959,7 @@ namespace corona
 		{
 			std::shared_ptr<selection_field> cf;
 
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_selection) {
-					auto field_options = cfi->second->get_options();
-					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
-					if (selection_field_options) {
-						json selection_data = _src[_name];
-						if (selection_data.object()) {
-							cf = std::make_shared<selection_field>(selection_field_options, selection_data);
-						}
-						else {
-							throw std::logic_error(std::format("field {0} selection is not an array", _name));
-						}
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have selection options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a selection field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			cf = get_field_object<selection_field, field_types::ft_selection, selection_field_options_interface>(_src, _name);
 
 			return cf;
 		}
@@ -5777,32 +5968,7 @@ namespace corona
 		{
 			std::shared_ptr<pathDto> cf;
 
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_selection) {
-					auto field_options = cfi->second->get_options();
-					auto path_field_options = std::dynamic_pointer_cast<path_field_options_interface>(field_options);
-					if (path_field_options) {
-						json selection_data = _src[_name];
-						if (selection_data.object()) {
-							cf = std::make_shared<pathDto>(path_field_options, selection_data);
-						}
-						else {
-							throw std::logic_error(std::format("field {0} path is not an object", _name));
-						}
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have path options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a path field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			cf = get_field_object<pathDto, field_types::ft_path, path_field_options_interface>(_src, _name);
 
 			return cf;
 		}
@@ -5811,173 +5977,67 @@ namespace corona
 		{
 			std::shared_ptr<generalBrushRequest> cf;
 
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_brush) {
-					auto field_options = cfi->second->get_options();
-					auto brush_field_options = std::dynamic_pointer_cast<brush_field_options_interface>(field_options);
-					if (brush_field_options) {
-						json brush_data = _src[_name];
-						if (brush_data.object()) 
-						{
-							cf = std::make_shared<generalBrushRequest>(brush_data);
-						}
-						else 
-						{
-							throw std::logic_error(std::format("field {0} brush is not an object", _name));
-						}
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have brush options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a brush field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			cf = get_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_src, _name);
 
 			return cf;
 		}
 
-
-		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
+		virtual std::shared_ptr<bitmapInstanceDto> get_bitmap(json _src, const std::string& _name) override
 		{
-			auto cfi = fields.find(_name);
+			std::shared_ptr<bitmapInstanceDto> cf;
 
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_chest) {
-					auto field_options = cfi->second->get_options();
-					auto chest_field_options = std::dynamic_pointer_cast<chest_field_options_interface>(field_options);
-					if (chest_field_options) {
-						json_parser jp;
-						json chest_data = jp.create_object();
-                        _src->get_json(chest_data);
-                        _dest.put_member(_name, chest_data);
-					}
-					else {
-                        throw std::logic_error(std::format("field {0} does not have chest field options", _name));
-					}
-				}
-				else {
-                    throw std::logic_error(std::format("field {0} is not a chest field", _name));
-				}
-			}
-			else {
-                throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			cf = get_field_object<bitmapInstanceDto, field_types::ft_bitmap, bitmap_field_options_interface>(_src, _name);
+
+			return cf;
 		}
 
-		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
+		template <typename object_type, field_types ft, typename field_options_interface> void put_field_object(json& _dest, const std::string& _name, std::shared_ptr<object_type>& _src) 
 		{
 			auto cfi = fields.find(_name);
 
 			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_selection) {
+				if (cfi->second->get_field_type() == ft) {
 					auto field_options = cfi->second->get_options();
-					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
-					if (selection_field_options) {
+					auto specific_field_options = std::dynamic_pointer_cast<field_options_interface>(field_options);
+					if (specific_field_options) {
 						json_parser jp;
-						json selection_data = jp.create_object();
-						_src->get_json(selection_data);
-						_dest.put_member(_name, selection_data);
+						json field_data = jp.create_object();
+						_src->get_json(field_data);
+						_dest.put_member(_name, field_data);
 					}
 					else {
-						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
+						throw std::logic_error(std::format("field {0} does not have {1} field options", _name, field_type_names[ft]));
 					}
 				}
 				else {
-					throw std::logic_error(std::format("field {0} is not a selection field", _name));
+					throw std::logic_error(std::format("field {0} is not a {1} field", _name, field_type_names[ft]));
 				}
 			}
 			else {
 				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
 			}
+		}
+
+		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
+		{
+            put_field_object<chest_field, field_types::ft_chest, chest_field_options_interface>(_dest, _name, _src);
+		}
+
+		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
+		{
+			put_field_object<selection_field, field_types::ft_selection, selection_field_options_interface>(_dest, _name, _src);
 		}
 
 		virtual void put_path(json& _dest, const std::string& _name, pathDto& _src) override
 		{
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_path) {
-					auto field_options = cfi->second->get_options();
-					auto path_field_options = std::dynamic_pointer_cast<path_field_options_interface>(field_options);
-					if (path_field_options) {
-						json_parser jp;
-						json path_data = jp.create_object();
-						_src.get_json(path_data);
-						_dest.put_member(_name, path_data);
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have path field options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a path field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
-		}
-
-		virtual void put_selection(json& _dest, const std::string& _name, std::shared_ptr<selection_field>& _src) override
-		{
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_selection) {
-					auto field_options = cfi->second->get_options();
-					auto selection_field_options = std::dynamic_pointer_cast<selection_field_options_interface>(field_options);
-					if (selection_field_options) {
-						json_parser jp;
-						json selection_data = jp.create_object();
-						_src->get_json(selection_data);
-						_dest.put_member(_name, selection_data);
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a selection field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			put_field_object<pathDto, field_types::ft_path, path_field_options_interface>(_dest, _name, _src);
 		}
 
 		virtual void put_brush(json& _dest, const std::string& _name, generalBrushRequest& _src) override
 		{
-			auto cfi = fields.find(_name);
-
-			if (cfi != std::end(fields)) {
-				if (cfi->second->get_field_type() == field_types::ft_brush) {
-					auto field_options = cfi->second->get_options();
-					auto brush_field_options = std::dynamic_pointer_cast<brush_field_options_interface>(field_options);
-					if (brush_field_options) {
-						json_parser jp;
-						json brush_data = jp.create_object();
-						corona::get_json(brush_data, _src);
-						_dest.put_member(_name, brush_data);
-					}
-					else {
-						throw std::logic_error(std::format("field {0} does not have selection field options", _name));
-					}
-				}
-				else {
-					throw std::logic_error(std::format("field {0} is not a selection field", _name));
-				}
-			}
-			else {
-				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
-			}
+			put_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
 		}
+
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) 
 		{
