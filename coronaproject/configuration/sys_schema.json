@@ -511,6 +511,30 @@
       "parents": [ "stick_type" ],
       "fields": {
       }
+    },
+    {
+      "class_name": "artifact_type",
+      "base_class_name": "tool",
+      "class_description": "general artifact",
+      "fields": {
+        "effect_type": [ "effect_type" ]
+      }
+    },
+    {
+      "class_name": "artifact",
+      "base_class_name": "tool",
+      "class_description": "general artifact",
+      "fields": {
+        "effect_type": [ "effect_type" ]
+      }
+    },
+    {
+      "class_name": "stick",
+      "base_class_name": "tool",
+      "class_description": "general stick",
+      "parents": [ "stick_type" ],
+      "fields": {
+      }
     }
   ],
   "application": {
