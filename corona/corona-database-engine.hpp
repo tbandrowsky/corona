@@ -515,6 +515,11 @@ namespace corona
 	public:
 	};
 
+    class audio_field_options_interface
+	{
+	public:
+	};
+
 	class chest_field_options_interface
 	{
 	public:
@@ -1018,6 +1023,7 @@ namespace corona
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
+		virtual audio_function							get_audio(json _src, const std::string& _name) = 0;
 		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, chest_field& _src) = 0;
@@ -2023,7 +2029,7 @@ namespace corona
 	/// <summary>
 	/// models the jsony idea that an array can be of a fundamental type or objects
 	/// </summary>
-	class chest_field_options : public field_options_base
+	class chest_field_options : public field_options_base, public chest_field_options_interface
 	{
 	public:
 
@@ -2124,7 +2130,7 @@ namespace corona
 	/// <summary>
 	/// keeps track of a selection state for a user
 	/// </summary>
-	class selection_field_options : public field_options_base
+    class selection_field_options : public field_options_base, public selection_field_options_interface
 	{
 	public:
 
@@ -2215,7 +2221,7 @@ namespace corona
 	/// <summary>
 	/// keeps track of a path field
 	/// </summary>
-	class path_field_options : public field_options_base
+    class path_field_options : public field_options_base, public path_field_options_interface
 	{
 	public:
 
@@ -2280,7 +2286,7 @@ namespace corona
 	/// <summary>
 	/// keeps track of a brush field
 	/// </summary>
-	class brush_field_options : public field_options_base
+    class brush_field_options : public field_options_base, public brush_field_options_interface
 	{
 	public:
 
@@ -2345,7 +2351,7 @@ namespace corona
 	/// <summary>
 	/// keeps track of a rectangle field
 	/// </summary>
-	class rectangle_field_options : public field_options_base
+    class rectangle_field_options : public field_options_base, public rectangle_field_options_interface
 	{
 	public:
 
@@ -2454,7 +2460,7 @@ namespace corona
 	/// <summary>
 /// keeps track of a bitmap field
 /// </summary>
-	class bitmap_field_options : public field_options_base
+    class bitmap_field_options : public field_options_base, public bitmap_field_options_interface
 	{
 	public:
 
@@ -2560,6 +2566,71 @@ namespace corona
 		}
 	};
 
+
+	/// <summary>
+	/// keeps track of a audio field
+	/// </summary>
+    class audio_field_options : public field_options_base, public audio_field_options_interface
+	{
+	public:
+
+		audio_field_options() = default;
+		audio_field_options(const audio_field_options& _src) = default;
+		audio_field_options(audio_field_options&& _src) = default;
+		audio_field_options& operator = (const audio_field_options& _src) = default;
+		audio_field_options& operator = (audio_field_options&& _src) = default;
+		virtual ~audio_field_options() = default;
+
+		virtual void get_json(json& _dest)
+		{
+			field_options_base::get_json(_dest);
+
+			json_parser jp;
+		}
+
+		virtual void put_json(json& _src)
+		{
+			field_options_base::put_json(_src);
+		}
+
+		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
+		{
+
+		}
+
+		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
+		{
+			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
+				bool is_legit = true;
+
+				if (!_object_to_test.object())
+				{
+					validation_error ve;
+					ve.class_name = _class_name;
+					ve.field_name = _field_name;
+					ve.filename = get_file_name(__FILE__);
+					ve.line_number = __LINE__;
+					ve.message = "Value must be an object.";
+					_validation_errors.push_back(ve);
+					return false;
+				}
+			}
+			return false;
+		}
+
+		virtual bool is_relational_children() override
+		{
+			return false;
+		}
+
+		virtual json get_openapi_schema(corona_database_interface* _db) override
+		{
+			json_parser jp;
+			json schema = jp.create_object();
+			schema.put_member("type", std::string("audio"));
+			return schema;
+		}
+	};
 
 
 	class object_field_options : public field_options_base
@@ -3691,6 +3762,11 @@ namespace corona
 			else if (field_type == field_types::ft_query)
 			{
 				options = std::make_shared<query_field_options>();
+				options->put_json(_src);
+			}
+			else if (field_type == field_types::ft_audio)
+			{
+				options = std::make_shared<audio_field_options>();
 				options->put_json(_src);
 			}
 			else if (field_type == field_types::ft_function)
@@ -5996,6 +6072,54 @@ namespace corona
 			return cf;
 		}
 
+		template <typename factory_type, typename object_type, field_types ft, typename options_interface_type>
+		object_type get_field_object_factory(json _src, const std::string& _name)
+		{
+			object_type cf;
+
+			auto cfi = fields.find(_name);
+
+			if (cfi != std::end(fields)) {
+				if (cfi->second->get_field_type() == ft) {
+					auto field_options = cfi->second->get_options();
+					auto chest_field_options = std::dynamic_pointer_cast<options_interface_type>(field_options);
+					if (chest_field_options) {
+						json chest_data = _src[_name];
+						if (chest_data.object()) {
+							cf = factory_type::from_json(chest_data);
+						}
+						else 
+						{
+							throw std::logic_error(std::format("field {0} data is not an array", _name));
+						}
+					}
+					else 
+					{
+						throw std::logic_error(std::format("field {0} does not have {1} field options", _name, field_type_names[ft]));
+					}
+				}
+				else 
+				{
+					throw std::logic_error(std::format("field {0} is not a {1} field", _name, field_type_names[ft]));
+				}
+			}
+			else 
+			{
+				throw std::logic_error(std::format("field {0} not found in class {1}", _name, class_name));
+			}
+
+			return cf;
+		}
+
+		virtual audio_function get_audio(json _src, const std::string& _name) override
+		{
+			audio_function cf;
+
+			cf = get_field_object_factory<audio_graph, audio_function, field_types::ft_audio, audio_field_options_interface>(_src, _name);
+
+			return cf;
+		}
+
 		template <typename object_type, field_types ft, typename field_options_interface> void put_field_object(json& _dest, const std::string& _name, std::shared_ptr<object_type>& _src) 
 		{
 			auto cfi = fields.find(_name);
@@ -6080,9 +6204,9 @@ namespace corona
 			put_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
 		}
 
-		virtual void put_brush(json& _dest, const std::string& _name, bitmapInstanceDto& _src) override
+		virtual void put_bitmap(json& _dest, const std::string& _name, bitmapInstanceDto& _src) override
 		{
-			put_field_object<bitmapInstanceDto, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
+			put_field_object<bitmapInstanceDto, field_types::ft_bitmap, bitmap_field_options_interface>(_dest, _name, _src);
 		}
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) 

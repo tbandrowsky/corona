@@ -59,6 +59,7 @@ namespace corona
                 return 0.0f;
                 };
         }
+
     }
 
     // Audio envelopes (ADSR)
@@ -154,6 +155,81 @@ namespace corona
                 };
         }
     }
+
+    class audio_graph
+    {
+    public:
+
+        static audio_function from_json(json _src)
+        {
+            std::string class_name = _src[class_name_field].as_string();
+
+            if (class_name == "audio_function") {
+                std::string type = _src["audio_type"].as_string();
+                if (type == "sine") {
+                    double freq = _src["frequency"].as_double();
+                    return waveforms::sine(freq);
+                }
+                else if (type == "square") {
+                    double freq = _src["frequency"].as_double();
+                    return waveforms::square(freq);
+                }
+                else if (type == "sawtooth") {
+                    double freq = _src["frequency"].as_double();
+                    return waveforms::sawtooth(freq);
+                }
+                else if (type == "triangle") {
+                    double freq = _src["frequency"].as_double();
+                    return waveforms::triangle(freq);
+                }
+                else if (type == "noise") {
+                    return waveforms::noise();
+                }
+                else if (type == "envelope") {
+                    auto env = envelope{
+                        _src["attack"].as_double(),
+                        _src["decay"].as_double(),
+                        _src["sustain"].as_double(),
+                        _src["release"].as_double()
+                    };
+                    auto base_fn = from_json(_src["input"]);
+                    double start_time = _src["start_time"].as_double();
+                    bool note_on = _src["note_on"].as_bool();
+                    return modifiers::with_envelope(base_fn, env, start_time, note_on);
+                }
+                else if (type == "mix") {
+                    auto a = from_json(_src["input_a"]);
+                    auto b = from_json(_src["input_b"]);
+                    float balance = _src["balance"].as_double();
+                    return modifiers::mix(a, b, balance);
+                }
+                else if (type == "fm") {
+                    double carrier_freq = _src["carrier_freq"].as_double();
+                    auto modulator = from_json(_src["modulator"]);
+                    double mod_depth = _src["mod_depth"].as_double();
+                    return modifiers::fm(carrier_freq, modulator, mod_depth);
+                }
+                else if (type == "volume") {
+                    auto base_fn = from_json(_src["input"]);
+                    float vol = _src["volume"].as_double();
+                    return modifiers::volume(base_fn, vol);
+                }
+                else if (type == "lowpass") {
+                    auto base_fn = from_json(_src["input"]);
+                    float cutoff_ratio = _src["cutoff_ratio"].as_double();
+                    return modifiers::lowpass(base_fn, cutoff_ratio);
+                }
+                else if (type == "multiply") {
+                    auto carrier = from_json(_src["carrier"]);
+                    auto modulator = from_json(_src["modulator"]);
+                    return modifiers::multiply(carrier, modulator);
+                }
+                return waveforms::silence();
+            }
+            return waveforms::silence();
+        }
+
+    };
 
     // Audio voice - a playing instance of an audio function
     class audio_voice

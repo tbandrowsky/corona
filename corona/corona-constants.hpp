@@ -711,7 +711,8 @@ namespace corona
 		ft_selection = 'l',
         ft_path = 'p',
 		ft_brush = 'h',
-		ft_bitmap = 'm'
+		ft_bitmap = 'm',
+        ft_audio = 'u'
 	};
 	
 	const int field_type_size = 12;
@@ -748,7 +749,8 @@ namespace corona
 { "rectangle", field_types::ft_rectangle },
 { "path", field_types::ft_path },
 { "brush", field_types::ft_brush },
-{ "bitmap", field_types::ft_bitmap }
+{ "bitmap", field_types::ft_bitmap },
+{ "audio", field_types::ft_audio }
 	};
 
 	std::map<field_types, std::string> field_type_names = {
@@ -767,8 +769,8 @@ namespace corona
 { field_types::ft_selection, "selection"  },
 { field_types::ft_path, "path"  },
 { field_types::ft_brush, "brush"  },
-{ field_types::ft_bitmap, "bitmap"  }
-
+{ field_types::ft_bitmap, "bitmap"  },
+{ field_types::ft_audio, "audio"  }
 	};
 
 	std::map<field_types, std::string> field_type_names_openapi = {
@@ -787,7 +789,8 @@ namespace corona
 { field_types::ft_selection, "selection"  },
 { field_types::ft_path, "path"  },
 { field_types::ft_brush, "brush"  },
-{ field_types::ft_bitmap, "bitmap"  }
+{ field_types::ft_bitmap, "bitmap"  },
+{ field_types::ft_audio, "audio"  }
 	};
 
 	auto toHex(unsigned char i)

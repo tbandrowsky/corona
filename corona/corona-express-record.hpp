@@ -535,6 +535,24 @@ namespace corona
 						add(acol.field_id, a);
 					}
 					break;
+				case field_types::ft_brush:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
+				case field_types::ft_bitmap:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
+				case field_types::ft_audio:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
 				case field_types::ft_rectangle:
 					{
 						auto v = m.rectangle_impl();
@@ -644,7 +662,28 @@ namespace corona
 				case field_types::ft_chest:
 				{
 					std::string t = s;
-					json result = jp.parse_array(t);
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_brush:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_bitmap:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_audio:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
 					_dest.put_member(acol.field_name.c_str(), result);
 				}
 				break;
