@@ -112,6 +112,25 @@ namespace corona
 		virtual void stop_message(comm_bus_app_interface* _bus);
 		virtual corona_client_response& stop_message(corona_client_response _src, comm_bus_app_interface* _bus);
 
+        virtual void set_parameter(std::string _name, std::string _value)
+		{
+			if (_stricmp(_name.c_str(), "form_name") == 0) {
+				form_name = _value;
+			}
+			else if (_stricmp(_name.c_str(), "success_message_field") == 0) {
+				success_message_field = _value;
+			}
+			else if (_stricmp(_name.c_str(), "status_message_field") == 0) {
+				status_message_field = _value;
+			}
+			else if (_stricmp(_name.c_str(), "error_table_field") == 0) {
+				error_table_field = _value;
+			}
+			else if (_stricmp(_name.c_str(), "execution_time_field") == 0) {
+				execution_time_field = _value;
+			}
+		}
+
 		virtual json execute(int _batch_id, comm_bus_app_interface* bus)
 		{
 			batch_id = _batch_id;
@@ -2260,6 +2279,15 @@ namespace corona
 
 		}
 
+		virtual void set_parameter(std::string _name, std::string _value)
+		{
+            corona_form_command::set_parameter(_name, _value);
+            for (auto comm : commands)
+			{
+				comm->set_parameter(_name, _value);
+			}
+		}
+
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
@@ -2349,10 +2377,14 @@ namespace corona
 
 	class corona_start_game_command : public corona_form_command
 	{
+
+
+	private:
+
+		std::shared_ptr<game_session> session;
+
 	public:
 		corona_instance instance = corona_instance::local;
-		std::string game_control;
-		std::shared_ptr<game_session> session;
 
 		corona_start_game_command()
 		{
@@ -2367,8 +2399,7 @@ namespace corona
 		virtual json create_request(comm_bus_app_interface* _bus)
 		{
 			json_parser jp;
-
-			json obj = _bus->get_form_data(form_name);
+			json obj;
 
 			return obj;
 		}
@@ -2380,7 +2411,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
-            auto ctrl = _bus->find_control(game_control);
+            auto ctrl = _bus->find_control(form_name);
 			auto session_control = dynamic_cast<game_session_control*>(ctrl);
 			if (session_control) {
                 session_control->set_session(session);
@@ -2391,7 +2422,6 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			_dest.put_member_string("class_name", "start_game");
-            _dest.put_member_string("game_control", game_control);
 			corona::get_json(_dest, instance);
 
 		}
@@ -2399,7 +2429,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "game_control" })) {
+			if (not _src.has_members(missing, { })) {
 				system_monitoring_interface::active_mon->log_warning("start_game_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -2408,41 +2438,51 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-            game_control = _src["game_control"].as_string();
 			corona::put_json(instance, _src);
 		}
 
 	};
 
-	class corona_stop_game_command : public corona_form_command
+	class corona_game_command : public corona_form_command
 	{
-	public:
-		corona_instance instance = corona_instance::local;
-        std::string game_control;
 
-		corona_stop_game_command()
+	private:
+		std::shared_ptr<game_session> session;
+
+	public:
+
+		std::string input_name;
+
+		corona_instance instance = corona_instance::local;
+
+		corona_game_command(std::string _topic)
 		{
-			topic = "stop_game";
+			topic = _topic;
 		}
 
 		virtual std::string get_name()
 		{
-			return "stop_game";
+			return topic;
+		}
+
+		virtual std::shared_ptr<game_session> get_session()
+		{
+            return session;
 		}
 
 		virtual json create_request(comm_bus_app_interface* _bus)
 		{
 			json_parser jp;
+			json obj;
 
-			json obj = _bus->get_form_data(form_name);
-
+			auto ctrl = _bus->find_control(form_name);
+			auto session_control = dynamic_cast<game_session_control*>(ctrl);
+            session = session_control->get_session();
 			return obj;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
-			auto response = _bus->get_object(instance, request);
-			session = _bus->local_start_game_session(request);
 			return response;
 		}
 
@@ -2450,22 +2490,18 @@ namespace corona
 			return response.data;
 		}
 
-
 		virtual void get_json(json& _dest)
 		{
-			using namespace std::literals;
-
-			_dest.put_member("class_name", "stop_game"sv);
-            _dest.put_member("game_control", game_control);
+			_dest.put_member_string("class_name", topic);
+			_dest.put_member_string("input_name", input_name);
 			corona::get_json(_dest, instance);
-
 		}
 
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "data" })) {
-				system_monitoring_interface::active_mon->log_warning("stop_game_command missing:");
+			if (not _src.has_members(missing, { })) {
+				system_monitoring_interface::active_mon->log_warning(topic + " missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -2473,11 +2509,308 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			game_control = _src["game_control"].as_string();
 			corona::put_json(instance, _src);
+			
 		}
 
 	};
+
+	class corona_game_set_lobby : public corona_game_command
+	{
+	public:
+		corona_game_set_lobby() : corona_game_command("set_lobby")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_lobby();
+			return response;
+		}
+	};
+
+	class corona_game_set_active : public corona_game_command
+	{
+	public:
+		corona_game_set_active() : corona_game_command("set_active")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_active();
+			return response;
+		}
+	};
+
+	class corona_game_set_paused : public corona_game_command
+	{
+	public:
+		corona_game_set_paused() : corona_game_command("set_paused")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_paused();
+			return response;
+		}
+	};
+
+	class corona_game_set_complete : public corona_game_command
+	{
+	public:
+		corona_game_set_complete() : corona_game_set_complete("set_paused")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_complete();
+			return response;
+		}
+	};
+
+	class corona_game_set_exit : public corona_game_command
+	{
+	public:
+		corona_game_set_exit() : corona_game_command("set_exit")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_exit();
+			return response;
+		}
+	};
+
+
+	class corona_game_clear_selection_command : public corona_game_command
+	{
+	public:
+        corona_game_clear_selection_command() : corona_game_command("clear_selection")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+            get_session()->clear_selection(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_extend_selection_command : public corona_game_command
+	{
+	public:
+		corona_game_extend_selection_command() : corona_game_command("extend_selection")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->extend_selection(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_throw_selection_command : public corona_game_command
+	{
+	public:
+		corona_game_throw_selection_command() : corona_game_command("throw_selection")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->throw_selection(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_drop_selection_command : public corona_game_command
+	{
+	public:
+		corona_game_drop_selection_command() : corona_game_command("drop_selection")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->drop_selection(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_use_selection_command : public corona_game_command
+	{
+	public:
+		corona_game_use_selection_command() : corona_game_command("use_selection")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->use_selection(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_select_next_command : public corona_game_command
+	{
+	public:
+		corona_game_select_next_command() : corona_game_command("select_next")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->select_next(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_select_previous_command : public corona_game_command
+	{
+	public:
+		corona_game_select_previous_command() : corona_game_command("select_previous")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->select_previous(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_add_pieces_command : public corona_game_command
+	{
+        json pieces;
+
+        corona_game_add_pieces_command() : corona_game_command("add_pieces")
+		{
+			;
+		}
+
+	
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+            get_session()->add_pieces(pieces);
+			return response;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			corona_game_command::get_json(_dest);
+            _dest.put_member("pieces", pieces);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			corona_game_command::put_json(_src);
+			pieces = _src["pieces"].as_array();
+		}
+	};
+
+
+	class corona_game_remove_pieces_command : public corona_game_command
+	{
+		json pieces;
+
+		corona_game_remove_pieces_command() : corona_game_command("remove_pieces")
+		{
+			;
+		}
+
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->remove_pieces(pieces);
+			return response;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			corona_game_command::get_json(_dest);
+			_dest.put_member("pieces", pieces);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			corona_game_command::put_json(_src);
+			pieces = _src["pieces"].as_array();
+		}
+	};
+
+	class corona_game_purchase_pieces_command : public corona_game_command
+	{
+		json for_sale;
+		json price;
+
+		corona_game_purchase_pieces_command() : corona_game_command("purchase_pieces")
+		{
+			;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->purchase_pieces(input_name, for_sale, price);
+			return response;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			corona_game_command::get_json(_dest);
+			_dest.put_member("for_sale", for_sale);
+			_dest.put_member("price", price);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			corona_game_command::put_json(_src);
+			for_sale = _src["for_sale"].as_array();
+			price = _src["price"].as_array();
+		}
+	};
+
+	class corona_game_set_facing_command : public corona_game_command
+	{
+	public:
+
+		corona_game_set_facing_command() : corona_game_command("set_facing")
+		{
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_facing(input_name);
+			return response;
+		}
+	};
+
+	class corona_game_set_acceleration_command : public corona_game_command
+	{
+	
+	public:
+
+		double value;
+
+		corona_game_set_acceleration_command() : corona_game_command("set_acceleration")
+		{
+
+		}
+
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		{
+			get_session()->set_acceleration(input_name, value);
+			return response;
+		}
+	};
+
+
+
+
 
 	class corona_set_property_command : public corona_form_command
 	{

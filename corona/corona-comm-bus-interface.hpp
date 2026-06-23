@@ -546,6 +546,10 @@ namespace corona
 		virtual json execute(int _batch_id, comm_bus_app_interface* _bus) = 0;
 		virtual json execute_sync(int _batch_id, comm_bus_app_interface* _bus) = 0;
 
+		virtual void set_parameter(std::string _name, std::string _value)
+		{
+		}
+
 		virtual void get_json(json& _dest)
 		{
 		}

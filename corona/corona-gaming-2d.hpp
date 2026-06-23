@@ -9,6 +9,20 @@ namespace corona
 		intersection_side	collision_side;
 	};
 
+	class game_activity : public corona_object
+	{
+	public:
+		std::string			name;
+		std::string			description;
+		bitmapInstanceDto	bitmap;
+	};
+
+	class game_essay : public game_activity
+	{
+	public:
+        std::string         text;
+	};
+
 	class game_sprite : public corona_object
 	{
 	public:
@@ -647,7 +661,7 @@ namespace corona
 		game_player& operator =(const game_player& _src) = default;
 		game_player& operator =(game_player&& _src) = default;
 
-		int										input_device;
+		std::string								input_device;
 		std::shared_ptr<selection_field>		selection;
 		bool									ready;
         bool									dead;
@@ -655,7 +669,7 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			game_piece::get_json(_dest);
-			_dest.put_member_i64("input_device", input_device);
+			_dest.put_member("input_device", input_device);
 			_dest.put_member_bool("ready", ready);
 			_dest.put_member_bool("dead", dead);
 		}
@@ -665,7 +679,7 @@ namespace corona
 			game_piece::put_json(_gbus.sprite_factory, _src);
 			input_device = _src["input_device"].as_int();
             ready = _src["ready"].as_bool();
-			dead = _src["dead"].as_bool();
+			dead = _src["dead"].as_bool();		
 		}
 
 		virtual void hit_player(collision_result& collision, std::shared_ptr<game_player>& pplayer)
@@ -985,8 +999,32 @@ namespace corona
         collision_result collision;
 	};
 
+	class game_state_event
+	{
+	public:
+		game_session_state state;
+
+		std::shared_ptr<corona_bus_command> A_down;
+		std::shared_ptr<corona_bus_command> B_down;
+		std::shared_ptr<corona_bus_command> X_down;
+		std::shared_ptr<corona_bus_command> Y_down;
+		std::shared_ptr<corona_bus_command> LeftTrigger_down;
+		std::shared_ptr<corona_bus_command> RightTrigger_down;
+		std::shared_ptr<corona_bus_command> LeftShoulder_down;
+		std::shared_ptr<corona_bus_command> RightShoulder_down;
+		std::shared_ptr<corona_bus_command> Dpad_up;
+		std::shared_ptr<corona_bus_command> Dpad_down;
+		std::shared_ptr<corona_bus_command> Dpad_right;
+		std::shared_ptr<corona_bus_command> Dpad_left;
+		std::shared_ptr<corona_bus_command> Left_Thumb_move;
+		std::shared_ptr<corona_bus_command> Right_Thumb_move;
+		std::shared_ptr<corona_bus_command> On_All_Players_Ready;
+		std::shared_ptr<corona_bus_command> On_All_Players_Dead;
+	};
+
 	class game_session : public job, public corona_object
 	{
+		std::shared_ptr<comm_bus_app_interface> bus;
 		int64_t				object_id;
 		std::string			name;
 		std::string			description;
@@ -1000,17 +1038,21 @@ namespace corona
 
 		DirectX::XMVECTOR zero_vector = {};
 
-	public:
-
-		game_session()
+		std::shared_ptr<game_player> attach_player(std::string input_name)
 		{
-			;
-		}
-
-		game_session(json& _src)
-		{
-			put_json(_src);
-		}
+			// Search for existing player with this input device
+			for (auto player : map->players()) {
+				if (player->input_device == input_name) {
+					return player;
+				}
+			}
+			// Create new player and add to pieces only
+			std::shared_ptr<game_player> new_player = std::make_shared<game_player>();
+			new_player->name = input_name;
+			new_player->ready = false;
+			map->pieces.push_back(new_player);
+			return new_player;
+        }
 
 		std::shared_ptr<game_player> attach_player(XINPUT_STATE& _input_state)
 		{
@@ -1030,28 +1072,80 @@ namespace corona
 			return new_player;
 		}
 
-		void start_game_if_all_ready()
+		void fire_player_event(std::shared_ptr<corona_bus_command> _command, std::string input_name)
 		{
-			if (game_state == game_session_state::lobby) {
-				auto players_view = map->players();
-				bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
-					return player->ready;
-				});
-				if (all_ready) {
-					set_active();
-				}
+			if (input_name.empty())
+			{
+				return;
 			}
+
+            _command->set_parameter("input_name", input_name);
+            bus->run_command(0, _command);
 		}
 
-		void complete_game_if_all_dead()
+		std::map<game_session_state, game_state_event> state_events;
+
+	public:
+
+		game_session()
 		{
-			auto players_view = map->players();
-			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
-				return player->dead;
-				});
-			if (all_dead) { 
-				set_complete();
-			}
+			;
+		}
+
+		game_session(std::shared_ptr<comm_bus_app_interface> _bus, json& _src)
+		{
+			put_json(_src);
+		}
+
+
+		corona_client_response clear_selection(std::string input_name)
+		{
+
+		}
+
+		corona_client_response extend_selection(std::string input_name)
+		{
+
+		}
+
+		corona_client_response throw_selection(std::string input_name)
+		{
+
+		}
+
+		corona_client_response drop_selection(std::string input_name)
+		{
+
+		}
+
+		corona_client_response use_selection(std::string input_name)
+		{
+
+		}
+
+		corona_client_response select_next(std::string input_name)
+		{
+
+		}
+
+		corona_client_response select_previous(std::string input_name)
+		{
+
+		}
+
+		corona_client_response add_pieces(json _pieces)
+		{
+
+		}
+
+		corona_client_response remove_pieces(json _pieces)
+		{
+
+		}
+
+		corona_client_response purchase_pieces(std::string input_name, json _for_sale, json _price)
+		{
+
 		}
 
 		void set_lobby()
@@ -1059,7 +1153,7 @@ namespace corona
 			// Remove all players from the pieces collection
 			auto is_player = [](const auto& piece) {
 				return std::dynamic_pointer_cast<game_player>(piece) != nullptr;
-			};
+				};
 			map->pieces.erase(
 				std::remove_if(map->pieces.begin(), map->pieces.end(), is_player),
 				map->pieces.end()
@@ -1085,6 +1179,54 @@ namespace corona
 		void set_exit()
 		{
 			game_state = game_session_state::exit;
+		}
+
+		void start_play(std::string input_name)
+		{
+			auto player = attach_player(input_name);
+
+			if (game_state == game_session_state::lobby) {
+				player->ready = !player->ready;
+				start_game_if_all_ready();
+			}
+			else if (game_state == game_session_state::active) {
+				player->dead = false;
+				set_paused();
+			}
+			else if (game_state == game_session_state::paused) {
+				set_active();
+			}
+			else if (game_state == game_session_state::complete) {
+				set_lobby();
+			}
+			else if (game_state == game_session_state::exit) {
+				; // do nothing, we're exiting anyway
+			}
+			break;
+		}
+
+		void check_all_ready()
+		{
+			if (game_state == game_session_state::lobby) {
+				auto players_view = map->players();
+				bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
+					return player->ready;
+				});
+				if (all_ready) {
+					set_active();
+				}
+			}
+		}
+
+		void check_all_dead()
+		{
+			auto players_view = map->players();
+			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
+				return player->dead;
+				});
+			if (all_dead) { 
+				set_complete();
+			}
 		}
 
 		void handle_gamepad_button_up(gamepad_button_up_event gpbd)
@@ -1114,24 +1256,6 @@ namespace corona
 				player->dead = false;
 				break;
 			case gamepad_button::Start:
-                if (game_state == game_session_state::lobby) {
-					player->ready = !player->ready;
-					start_game_if_all_ready();
-				}
-				else if (game_state == game_session_state::active) {
-					player->dead = false;
-					set_paused();
-				}
-				else if (game_state == game_session_state::paused) {
-					set_active();
-				}
-				else if (game_state == game_session_state::complete) {
-					set_lobby();
-				}
-				else if (game_state == game_session_state::exit) {
-					; // do nothing, we're exiting anyway
-				}
-				break;
 			case gamepad_button::DpadUp:
                 player->acceleration = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
                 break;
@@ -1154,24 +1278,6 @@ namespace corona
 
 		void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd) 
 		{
-			auto player = attach_player(gptd.state);
-			player->ready = !player->ready;
-            if (game_state == game_session_state::lobby) {
-				player->ready = true;
-				start_game_if_all_ready();
-            }
-            else if (game_state == game_session_state::active) {
-				
-			}
-			else if (game_state == game_session_state::paused) {
-				set_active();
-			}
-			else if (game_state == game_session_state::complete) {
-				set_lobby();
-			}
-			else if (game_state == game_session_state::exit) {
-				; // do nothing, we're exiting anyway
-			}
 		}
 
 		void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd) 
@@ -1372,6 +1478,11 @@ namespace corona
 			;
 		}
 
+		void run_exit(double delta)
+		{
+			;
+		}
+
 		virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
             job_notify notify;
@@ -1398,8 +1509,9 @@ namespace corona
 				run_paused(delta);
 				break;
 			case game_session_state::exit:
+                run_exit(delta);
 				break;
-			}	
+			}
 
 			return notify;
 		}
