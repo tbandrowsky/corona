@@ -155,7 +155,8 @@
       "fields": {
         "shape": "path",
         "fill": "brush",
-        "border": "brush"
+        "stroke": "brush",
+        "stroke_width": "double"
       }
     },
     {
