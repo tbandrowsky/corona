@@ -36,7 +36,7 @@
   ],
   "classes": [
     {
-      "class_name": "game_activity",
+      "class_name": "activity",
       "base_class_name": "sys_object",
       "class_description": "An activity",
       "full_text": [ "name", "description", "image" ],
@@ -54,9 +54,9 @@
       }
     },
     {
-      "class_name": "game_definition",
+      "class_name": "world",
       "base_class_name": "activity",
-      "class_description": "A game in the system",
+      "class_description": "A world in the system",
       "full_text": [ "name", "description", "image" ],
       "fields": {
         "name": {
@@ -69,7 +69,7 @@
           "label": "First Name"
         },
         "map": "map",
-        "sessions": [ "session" ]
+        "games": [ "game" ]
       },
       "indexes": {
         "game_name_index": {
@@ -78,8 +78,8 @@
       }
     },
     {
-      "class_name": "game_essay",
-      "base_class_name": "game_activity",
+      "class_name": "essay",
+      "base_class_name": "activity",
       "class_description": "An essay in the system",
       "full_text": [ "name", "description", "text" ],
       "fields": {
@@ -87,22 +87,22 @@
       }
     },
     {
-      "class_name": "game_map",
+      "class_name": "map",
       "base_class_name": "sys_object",
       "class_description": "a gaming map",
-      "parents": [ "game", "session" ],
+      "parents": [ "world", "session" ],
       "fields": {
         "image": "string",
         "pieces": [ "piece" ]
       }
     },
     {
-      "class_name": "game_session",
+      "class_name": "game",
       "base_class_name": "sys_object",
       "class_description": "a gaming session",
-      "parents": [ "game_definition" ],
+      "parents": [ "world" ],
       "fields": {
-        "map": "game_map",
+        "map": "map",
         "name": {
           "field_type": "string",
           "label": "Name",
@@ -121,10 +121,10 @@
       }
     },
     {
-      "class_name": "animation_frame",
+      "class_name": "frame",
       "base_class_name": "sys_object",
       "class_description": "a gaming piece",
-      "parents": [ "piece_animation" ],
+      "parents": [ "animation" ],
       "fields": {
         "state": {
           "field_type": "string",
@@ -141,7 +141,7 @@
       }
     },
     {
-      "class_name": "animation_bitmap_frame",
+      "class_name": "bitmap_frame",
       "base_class_name": "frame",
       "class_description": "a gaming piece of an image",
       "fields": {
@@ -149,7 +149,7 @@
       }
     },
     {
-      "class_name": "animation_vector_frame",
+      "class_name": "vector_frame",
       "base_class_name": "frame",
       "class_description": "a gaming piece of an image",
       "fields": {
@@ -160,10 +160,10 @@
       }
     },
     {
-      "class_name": "piece_animation",
+      "class_name": "animation",
       "base_class_name": "sys_object",
       "class_description": "a gaming piece",
-      "parents": [ "game_piece" ],
+      "parents": [ "piece" ],
       "fields": {
         "state": {
           "field_type": "string",
@@ -176,108 +176,103 @@
         "destination": "rectangle",
         "direction": "vector",
         "sound": "audio",
-        "frames": [ "animation_frame" ]
+        "frames": [ "frame" ]
       }
     },
     {
-      "class_name": "map_piece",
+      "class_name": "piece",
       "base_class_name": "sys_object",
       "class_description": "a gaming piece",
-      "parents": [ "game_map" ],
+      "parents": [ "map" ],
       "fields": {
         "name": "string",
-        "image_name": {
-          "field_type": "string",
-          "label": "Image asset name",
-          "max_length": 200
-        },
+        "description": "string",
+        "state": "string",
         "position": "vector",
         "size": "vector",
         "velocity": "vector",
         "facing": "vector",
-        "state": "string",
-        "animations": [ "piece_animation" ],
+        "animations": [ "animation" ],
         "mass": "double",
         "full_hit_points": "double",
-        "hit_points": "double",
         "inventory": {
           "field_type": "chest",
-          "item_class": "game_item"
+          "item_class": "item"
         }
       }
     },
     {
-      "class_name": "map_actor",
-      "base_class_name": "map_piece",
+      "class_name": "actor",
+      "base_class_name": "piece",
       "class_description": "a gaming player",
       "fields": {
         "selection": "selection"
       }
     },
     {
-      "class_name": "map_player",
-      "base_class_name": "map_actor",
+      "class_name": "player",
+      "base_class_name": "actor",
       "class_description": "a gaming player",
       "fields": {
         "input_device": "string"
       }
     },
     {
-      "class_name": "map_npc",
-      "base_class_name": "map_actor",
+      "class_name": "npc",
+      "base_class_name": "actor",
       "class_description": "a gaming NPC",
       "fields": {
 
       }
     },
     {
-      "class_name": "map_feature",
-      "base_class_name": "map_piece",
+      "class_name": "feature",
+      "base_class_name": "piece",
       "class_description": "a static feature on a map"
     },
     {
-      "class_name": "map_loot_box",
-      "base_class_name": "map_feature",
+      "class_name": "loot_box",
+      "base_class_name": "feature",
       "class_description": "a gaming loot box",
       "fields": {
 
       }
     },
     {
-      "class_name": "map_loot_spot",
-      "base_class_name": "map_feature",
+      "class_name": "loot_spot",
+      "base_class_name": "feature",
       "class_description": "a gaming loot spot",
       "fields": {
 
       }
     },
     {
-      "class_name": "map_switch",
-      "base_class_name": "map_feature",
-      "class_description": "a gaming switch",
-      "fields": {
-
-      }
-    },
-    {
-      "class_name": "map_wall",
-      "base_class_name": "map_feature",
+      "class_name": "wall",
+      "base_class_name": "feature",
       "class_description": "a gaming wall",
       "fields": {
         "passable": "boolean"
       }
     },
     {
-      "class_name": "map_door",
-      "base_class_name": "map_feature",
+      "class_name": "switcher",
+      "base_class_name": "feature",
+      "class_description": "a gaming switch",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "door",
+      "base_class_name": "feature",
       "class_description": "a gaming door",
       "fields": {
         "open": "boolean"
       }
     },
     {
-      "class_name": "map_surface",
-      "base_class_name": "map_feature",
+      "class_name": "surface",
+      "base_class_name": "feature",
       "class_description": "a gaming surface",
       "fields": {
         "mechanic": "string",
@@ -287,14 +282,40 @@
     },
     {
       "class_name": "decoration",
-      "base_class_name": "map_feature",
+      "base_class_name": "feature",
       "class_description": "a gaming decoration, like clouds",
       "fields": {
       }
     },
     {
+      "class_name": "light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "lumens": "double",
+        "color": "vector"
+      }
+    },
+    {
+      "class_name": "spot_light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "direction": "vector",
+        "fov": "double"
+      }
+    },
+    {
+      "class_name": "globe_light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "radius": "double"
+      }
+    },
+    {
       "class_name": "camera",
-      "base_class_name": "map_feature",
+      "base_class_name": "feature",
       "class_description": "A camera in the system",
       "fields": {
         "fov": "double",
@@ -303,63 +324,10 @@
       }
     },
     {
-      "class_name": "spawn",
-      "base_class_name": "map_feature",
-      "class_description": "A place to launch players",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "npc_spawn",
-      "base_class_name": "map_feature",
-      "class_description": "A place to launch npcs",
-      "fields": {
-        "spawn_classes": [ "string" ],
-        "frequency_seconds": "double",
-        "remaining_seconds": "double"
-      }
-    },
-    {
-      "class_name": "player_spawn",
-      "base_class_name": "map_feature",
-      "class_description": "A place to launch players",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "map_item_type",
-      "base_class_name": "sys_object",
-      "class_description": "a type of an item",
-      "fields": {
-        "name": "string",
-        "description": "string",
-        "items": [ "item" ]
-      }
-    },
-    {
-      "class_name": "map_item",
-      "base_class_name": "piece",
-      "class_description": "an item to be used during the game",
-      "parents": [ "game_map", "map_item_type" ],
-      "fields": {
-      }
-    },
-    {
-      "class_name": "effect_type",
-      "base_class_name": "map_item_type",
-      "class_description": "a type of an effect",
-      "fields": {
-        "frequency_seconds": "double",
-        "remaining_seconds": "double",
-        "remaining_count": "double",
-        "name": "string",
-        "effect": [ "effect" ]
-      }
-    },
-    {
       "class_name": "effect",
-      "base_class_name": "map_item",
+      "base_class_name": "piece",
       "class_description": "a gaming item",
+      "parents": [ "shot", "spell", "stick", "artifact" ],
       "fields": {
         "frequency_seconds": "double",
         "remaining_seconds": "double",
@@ -368,155 +336,134 @@
       }
     },
     {
-      "class_name": "tool_type",
-      "base_class_name": "map_item",
-      "class_description": "general activatable thing",
+      "class_name": "delivery",
+      "base_class_name": "piece",
+      "class_description": "general consumable thing",
+      "fields": {
+        "effect": "effect"
+      }
+    },
+    {
+      "class_name": "carryable",
+      "base_class_name": "piece",
+      "class_description": "general carryable thing",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "consumable",
+      "base_class_name": "carryable",
+      "class_description": "general consumable thing",
       "fields": {
 
       }
     },
     {
-      "class_name": "firearm_type",
-      "base_class_name": "tool_type",
-      "class_description": "weapon for the shot",
+      "class_name": "tool",
+      "base_class_name": "carryable",
+      "class_description": "general activatable thing",
       "fields": {
-        "magazine": [ "magazine_type" ]
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "consumable"
+        }
       }
     },
     {
-      "class_name": "magazine_type",
-      "base_class_name": "map_item_type",
-      "class_description": "a magazine for the firearm",
-      "parents": [ "firearm_type" ],
+      "class_name": "consumable",
+      "base_class_name": "carryable",
+      "class_description": "general consumable thing",
       "fields": {
-        "ammunition": [ "ammunition_type" ],
-        "magazines": [ "magazine" ]
-      }
-    },
-    {
-      "class_name": "ammunition_type",
-      "base_class_name": "map_item_type",
-      "class_description": "ammo for the firearm",
-      "parents": [ "magazine_type" ],
-      "fields": {
-        "shot": [ "shot_type" ],
-        "ammunition": [ "ammunition" ]
-      }
-    },
-    {
-      "class_name": "shot_type",
-      "base_class_name": "map_item_type",
-      "class_description": "an effect of a weapon",
-      "fields": {
-        "effect": [ "effect_type" ],
-        "shots": [ "shot" ]
+
       }
     },
     {
       "class_name": "firearm",
-      "base_class_name": "map_tool",
+      "base_class_name": "tool",
       "class_description": "weapon for the shot",
-      "parents": [ "firearm_type" ],
       "fields": {
-
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "magazine"
+        }
       }
     },
     {
       "class_name": "magazine",
-      "base_class_name": "map_item",
+      "base_class_name": "carryable",
       "class_description": "a magazine for the firearm",
-      "parents": [ "firearm_type" ],
+      "parents": [ "firearm" ],
       "fields": {
-
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "ammunition"
+        }
       }
     },
     {
       "class_name": "ammunition",
-      "base_class_name": "map_item",
+      "base_class_name": "carryable",
       "class_description": "ammo for the firearm",
-      "parents": [ "ammunition_type" ],
       "fields": {
-
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "shot"
+        }
       }
     },
     {
       "class_name": "shot",
-      "base_class_name": "map_item",
+      "base_class_name": "piece",
       "class_description": "an effect of a weapon",
-      "parents": [ "shot_type" ],
       "fields": {
-        "effect": [ "effect_type" ]
-      }
-    },
-    {
-      "class_name": "wand_type",
-      "base_class_name": "map_tool_type",
-      "class_description": "a magic thing that launches spells",
-      "fields": {
-        "spells": [ "spell_type" ]
-      }
-    },
-    {
-      "class_name": "spell_type",
-      "base_class_name": "map_tool",
-      "class_description": "a travelling spell with effects",
-      "parents": [ "wand_type" ],
-      "fields": {
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
       }
     },
     {
       "class_name": "wand",
-      "base_class_name": "map_tool",
+      "base_class_name": "tool",
       "class_description": "a magic thing that launches spells",
       "fields": {
-
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "spell"
+        }
       }
     },
     {
       "class_name": "spell",
-      "base_class_name": "map_tool",
+      "base_class_name": "carryable",
       "class_description": "a travelling spell with effects",
       "fields": {
-      }
-    },
-    {
-      "class_name": "stick_type",
-      "base_class_name": "map_tool_type",
-      "class_description": "general stick",
-      "fields": {
-        "reach": "double"
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
       }
     },
     {
       "class_name": "stick",
-      "base_class_name": "map_tool",
+      "base_class_name": "tool",
       "class_description": "general stick",
-      "parents": [ "stick_type" ],
       "fields": {
-      }
-    },
-    {
-      "class_name": "artifact_type",
-      "base_class_name": "map_tool",
-      "class_description": "general artifact",
-      "fields": {
-        "effect_type": [ "effect_type" ]
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
       }
     },
     {
       "class_name": "artifact",
-      "base_class_name": "map_tool",
+      "base_class_name": "tool",
       "class_description": "general artifact",
       "fields": {
-        "effect_type": [ "effect_type" ]
-      }
-    },
-    {
-      "class_name": "stick",
-      "base_class_name": "map_tool",
-      "class_description": "general stick",
-      "parents": [ "stick_type" ],
-      "fields": {
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
       }
     }
   ],
