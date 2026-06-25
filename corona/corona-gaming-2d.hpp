@@ -637,6 +637,7 @@ namespace corona
 			{
 				feature::put_json(_gbus, _src);
 			}
+
 		};
 
 		class lootspot : public feature
@@ -693,13 +694,22 @@ namespace corona
 			switcher& operator =(const switcher& _src) = default;
 			switcher& operator =(switcher&& _src) = default;
 
+            std::vector<std::shared_ptr<piece>> on_pieces;
+			std::vector<std::shared_ptr<piece>> off_pieces;
+
 			virtual void get_json(json& _dest)
 			{
+
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
+			}
+
+			virtual std::shared_ptr<piece> use()
+			{
+
 			}
 		};
 
@@ -1597,40 +1607,71 @@ namespace corona
 				return response;
 			}
 
-			corona_client_response extend_selection(std::string input_name)
+			corona_client_response extend_selection(std::string input_name, chest_item *ci)
 			{
 				corona_client_response response;
 				auto player = attach_player(input_name);
 				if (player) {
 					response.success = true;
-					;
+					player->extend_selection(ci);
 				}
 				return response;
 			}
 
 			corona_client_response throw_selection(std::string input_name)
 			{
-
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					player->throw_selection(this);
+				}
+				return response;
 			}
 
 			corona_client_response drop_selection(std::string input_name)
 			{
-
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					player->drop_selection(this);
+				}
+				return response;
 			}
 
 			corona_client_response use_selection(std::string input_name)
 			{
-
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					player->use_selection(this);
+				}
+				return response;
 			}
 
 			corona_client_response select_next(std::string input_name)
 			{
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					player->select_next();
+				}
+				return response;
 
 			}
 
 			corona_client_response select_previous(std::string input_name)
 			{
-
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					player->select_previous();
+				}
+				return response;
 			}
 
 			corona_client_response add_pieces(json _pieces)

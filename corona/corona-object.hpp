@@ -60,6 +60,19 @@ namespace corona
 
            return ci;
        }
+
+       corona_client_response save(corona_instance instance)
+       {
+            corona_client_response response;
+
+            json_parser jp;
+            json request = jp.create_object();
+            get_json(request);
+
+            response = bus->put_object(corona_instance::local, request);
+       
+            return response;
+       }
     };
 
     template <typename T> class corona_object_factory
