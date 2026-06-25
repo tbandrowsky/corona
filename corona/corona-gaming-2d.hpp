@@ -1104,7 +1104,7 @@ namespace corona
 				}
 			}
 
-			virtual void select_none()
+			virtual void clear_selection()
 			{
 				if (selection)
 				{
@@ -1403,13 +1403,13 @@ namespace corona
 				return response;
 			}
 
-			corona_client_response velocity(std::string input_name, DirectX::XMVECTOR v)
+			corona_client_response displace(std::string input_name, DirectX::XMVECTOR d)
 			{
 				corona_client_response response;
 				auto player = attach_player(input_name);
 				if (player) {
 					response.success = true;
-					player->velocity(a);
+					player->displace(d);
 				}
 				return response;
 			}
@@ -1420,18 +1420,9 @@ namespace corona
 				auto player = attach_player(input_name);
 				if (player) {
 					response.success = true;
-					player->accelerate(a);
+					player->clear_selection();
 				}
 				return response;
-			}
-			corona_client_response clear_selection(std::string input_name)
-			{
-
-			}
-
-			corona_client_response clear_selection(std::string input_name)
-			{
-
 			}
 
 			corona_client_response extend_selection(std::string input_name)
