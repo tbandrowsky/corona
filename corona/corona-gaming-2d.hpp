@@ -317,11 +317,21 @@ namespace corona
 				return rect;
 			}
 
-			void accelerate(double _elapsed_secs)
+			virtual void accelerate(DirectX::XMVECTOR _acceleration)
 			{
 				using namespace DirectX;
+				acceleration = XMVectorAdd(acceleration, _acceleration);
+			}
 
-				velocity = XMVectorAdd(velocity, XMVectorScale(acceleration, static_cast<float>(_elapsed_secs)));
+			virtual void displace(DirectX::XMVECTOR _displacement)
+			{
+				using namespace DirectX;
+				velocity = XMVectorAdd(velocity, _displacement);
+			}
+
+			virtual std::shared_ptr<piece> use()
+			{
+
 			}
 
 			void slide_piece(collision_result& collision, std::shared_ptr<piece> _other)
@@ -709,18 +719,23 @@ namespace corona
 			light& operator =(const light& _src) = default;
 			light& operator =(light&& _src) = default;
 
+			bool is_on = true;
+
 			virtual void get_json(json& _dest)
 			{
 				piece::get_json(_dest);
+                _dest.put_member_bool("is_on", is_on);
 			}
 
 			virtual void put_json(game_bus& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
+                is_on = _src["is_on"].as_bool();
 			}
+
 		};
 
-		class spot_light : public feature
+		class spot_light : public light
 		{
 		public:
 
@@ -732,16 +747,17 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-				feature::get_json(_dest);
+				light::get_json(_dest);
 			}
 
 			virtual void put_json(game_bus& _gbus, json& _src)
 			{
-				feature::put_json(_gbus, _src);
+				light::put_json(_gbus.frame_factory, _src);
 			}
+
 		};
 
-		class globe_light : public feature
+		class globe_light : public light
 		{
 		public:
 
@@ -931,6 +947,90 @@ namespace corona
 			}
 		};
 
+		class wand : public tool
+		{
+		public:
+
+			wand() = default;
+			wand(const wand& _src) = default;
+			wand(wand&& _src) = default;
+			wand& operator =(const wand& _src) = default;
+			wand& operator =(wand&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				tool::get_json(_dest);
+			}
+
+			virtual void put_json(game_bus& _gbus, json& _src)
+			{
+				tool::put_json(_gbus, _src);
+			}
+		};
+
+		class spell : public carryable
+		{
+		public:
+
+			spell() = default;
+			spell(const spell& _src) = default;
+			spell(spell&& _src) = default;
+			spell& operator =(const spell& _src) = default;
+			spell& operator =(spell&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				carryable::get_json(_dest);
+			}
+
+			virtual void put_json(game_bus& _gbus, json& _src)
+			{
+				carryable::put_json(_gbus, _src);
+			}
+		};
+
+		class stick : public tool
+		{
+		public:
+
+			stick() = default;
+			stick(const stick& _src) = default;
+			stick(stick&& _src) = default;
+			stick& operator =(const stick& _src) = default;
+			stick& operator =(stick&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				tool::get_json(_dest);
+			}
+
+			virtual void put_json(game_bus& _gbus, json& _src)
+			{
+				tool::put_json(_gbus, _src);
+			}
+		};
+
+		class artifact : public tool
+		{
+		public:
+
+			artifact() = default;
+			artifact(const artifact& _src) = default;
+			artifact(artifact&& _src) = default;
+			artifact& operator =(const artifact& _src) = default;
+			artifact& operator =(artifact&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				tool::get_json(_dest);
+			}
+
+			virtual void put_json(game_bus& _gbus, json& _src)
+			{
+				tool::put_json(_gbus, _src);
+			}
+		};
+
 		class actor : public piece
 		{
 		public:
@@ -1031,90 +1131,8 @@ namespace corona
 				}
 			}
 
-		};
 
-		class wand : public tool
-		{
-		public:
 
-			wand() = default;
-			wand(const wand& _src) = default;
-			wand(wand&& _src) = default;
-			wand& operator =(const wand& _src) = default;
-			wand& operator =(wand&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-				tool::get_json(_dest);
-			}
-
-			virtual void put_json(game_bus& _gbus, json& _src)
-			{
-				tool::put_json(_gbus, _src);
-			}
-		};
-
-		class spell : public carryable
-		{
-		public:
-
-			spell() = default;
-			spell(const spell& _src) = default;
-			spell(spell&& _src) = default;
-			spell& operator =(const spell& _src) = default;
-			spell& operator =(spell&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-				carryable::get_json(_dest);
-			}
-
-			virtual void put_json(game_bus& _gbus, json& _src)
-			{
-				carryable::put_json(_gbus, _src);
-			}
-		};
-
-		class stick : public tool
-		{
-		public:
-
-			stick() = default;
-			stick(const stick& _src) = default;
-			stick(stick&& _src) = default;
-			stick& operator =(const stick& _src) = default;
-			stick& operator =(stick&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-				tool::get_json(_dest);
-			}
-
-			virtual void put_json(game_bus& _gbus, json& _src)
-			{
-				tool::put_json(_gbus, _src);
-			}
-		};
-
-		class artifact : public tool
-		{
-		public:
-
-			artifact() = default;
-			artifact(const artifact& _src) = default;
-			artifact(artifact&& _src) = default;
-			artifact& operator =(const artifact& _src) = default;
-			artifact& operator =(artifact&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-				tool::get_json(_dest);
-			}
-
-			virtual void put_json(game_bus& _gbus, json& _src)
-			{
-				tool::put_json(_gbus, _src);
-			}
 		};
 
 
@@ -1384,6 +1402,7 @@ namespace corona
 				}
 				return response;
 			}
+
 			corona_client_response velocity(std::string input_name, DirectX::XMVECTOR v)
 			{
 				corona_client_response response;
