@@ -70,15 +70,17 @@ namespace corona
         std::map<std::string, fn_create_object> factory_map;
         lockable factory_lock;
 
+        comm_bus_app_interface* bus;
 
     public:
 
+        corona_object_factory(comm_bus_app_interface* _bus) {
+            bus = _bus;
+        }
         corona_object_factory(const corona_object_factory& _src) = default;
         corona_object_factory(corona_object_factory&& _src) = default;
         corona_object_factory& operator =(const corona_object_factory& _src) = default;
         corona_object_factory& operator =(corona_object_factory&& _src) = default;
-
-        comm_bus_app_interface* bus;
 
         void register_class(std::string _class_name, fn_create_object _ctor)
         {
@@ -86,23 +88,51 @@ namespace corona
             factory_map.insert_or_assign(_class_name, _ctor);
         }
 
-        std::shared_ptr<T> create_object(json ji)
+        template <typename U = T>
+        std::shared_ptr<U> get_object(corona_instance _instance, std::string class_name, int64_t object_id, bool include_children)
+        {
+            std::shared_ptr<U> result;
+            json_parser jp;
+
+            json request = jp.create_object();
+            request.put_member(class_name_field, class_name);
+            request.put_member_i64(object_id_field, object_id);
+            request.put_member("include_children", include_children);
+
+            auto ccr = bus->get_object(_instance, request);
+
+            if (ccr.success) {
+                result = create_object<U>(ccr.data);
+            }
+
+            return result;
+        }
+
+        template <typename U=T> 
+        std::shared_ptr<U> create_object(json ji)
         {
             scope_lock lock(factory_lock);
-            std::shared_ptr<T> sp;
+            std::shared_ptr<U> sp;
 
             if (ji.object()) {
                 std::string class_name = ji[class_name_field].as_string();
 
                 auto foundit = factory_map.find(class_name);
                 if (foundit != std::end(factory_map)) {
-                    sp = foundit->second(ji, bus);
+                    auto p = foundit->second(ji, bus);
+                    sp = std::dynamic_pointer_cast<U>(p);
+                    if (sp) {
+                        if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
+                            sp->bus = bus;
+                        }
+                    }
                 }
             }
             return sp;
         }
 
-        std::vector<std::shared_ptr<T>> create_array(json j)
+        template <typename U=T>
+        std::vector<std::shared_ptr<U>> create_array(json j)
         {
             scope_lock lock(factory_lock);
             std::vector<std::shared_ptr<T>> object_list;
@@ -115,12 +145,9 @@ namespace corona
 
                     if (ji.object()) 
                     {
-                        std::string class_name = ji[class_name_field].as_string();
-
-                        auto foundit = factory_map.find(class_name);
-                        if (foundit != std::end(factory_map)) {
-                            auto object = foundit->second(ji, bus);
-                            object_list.push_back(object);
+                        auto obj = create_object<U>(ji);
+                        if (obj) {
+                            object_list.push_back(obj);
                         }
                     }
                 }

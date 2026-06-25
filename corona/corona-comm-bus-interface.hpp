@@ -130,14 +130,15 @@ namespace corona
 
 		static comm_bus_app_interface* global_bus;
 
-		game_engine			local_gaming;
-		audio_synth_engine	local_audio_synth;
+		std::shared_ptr<corona::game::engine> local_gaming;
+		audio_synth_engine	 local_audio_synth;
 
 		comm_bus_app_interface()
 		{
 			if (global_bus == nullptr) {
 				global_bus = this;
 			}
+            local_gaming = std::make_shared<corona::game::engine>(this);
 		}
 
 		virtual ~comm_bus_app_interface()
@@ -514,15 +515,15 @@ namespace corona
 			return result;
 		}
 
-		virtual std::shared_ptr<game_session> local_start_game_session(json _game)
+		virtual std::shared_ptr<corona::game::game> local_start_game_session(json _game)
 		{
-            auto new_session = local_gaming.new_game_session(_game);
+            auto new_session = local_gaming.new_game(_game);
 			return new_session;
 		}
 
-		virtual corona_client_response local_stop_game_session(std::shared_ptr<game_session> _session)
+		virtual corona_client_response local_stop_game_session(std::shared_ptr<corona::game::game> _session)
 		{
-			local_gaming.close_game_session(_session);
+			local_gaming.close_game(_session);
 		}
 
 

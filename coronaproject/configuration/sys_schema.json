@@ -370,14 +370,6 @@
       }
     },
     {
-      "class_name": "consumable",
-      "base_class_name": "carryable",
-      "class_description": "general consumable thing",
-      "fields": {
-
-      }
-    },
-    {
       "class_name": "firearm",
       "base_class_name": "tool",
       "class_description": "weapon for the shot",

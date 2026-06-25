@@ -426,11 +426,21 @@ namespace corona
 
 		using piece_factory = corona_object_factory<piece>;
 
-		class game_bus 
+		class game_factory 
 		{
 		public:
 			piece_factory piece_factory;
 			frame_factory frame_factory;
+
+            game_factory(comm_bus_app_interface *bus) : piece_factory(bus), frame_factory(bus) 
+			{
+				;
+			}
+
+            game_factory(const game_factory& _src) = default;
+            game_factory(game_factory&& _src) = default;
+            game_factory& operator =(const game_factory& _src) = default;
+            game_factory& operator =(game_factory&& _src) = default;
 		};
 
 		class feature : public piece
@@ -448,7 +458,59 @@ namespace corona
 				piece::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece::put_json(_gbus.frame_factory, _src);
+			}
+		};
+
+		class effect : public piece
+		{
+		public:
+
+			virtual void get_json(json& _dest)
+			{
+				piece::get_json(_dest);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece::put_json(_gbus.frame_factory, _src);
+			}
+
+		};
+
+		class delivery : public piece
+		{
+		public:
+
+			virtual void get_json(json& _dest)
+			{
+				piece::get_json(_dest);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece::put_json(_gbus.frame_factory, _src);
+			}
+		};
+
+		class feature : public piece
+		{
+		public:
+
+			feature() = default;
+			feature(const feature& _src) = default;
+			feature(feature&& _src) = default;
+			feature& operator =(const feature& _src) = default;
+			feature& operator =(feature&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				piece::get_json(_dest);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -469,7 +531,7 @@ namespace corona
 				feature::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				feature::put_json(_gbus, _src);
 			}
@@ -490,7 +552,7 @@ namespace corona
 				spawn::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				spawn::put_json(_gbus, _src);
 			}
@@ -517,7 +579,7 @@ namespace corona
 				_dest.put_member("spawn_classes", j);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				spawn::put_json(_gbus, _src);
 				json jsc = _src["spawn_classes"];
@@ -551,7 +613,7 @@ namespace corona
 				piece::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -571,7 +633,7 @@ namespace corona
 				feature::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				feature::put_json(_gbus, _src);
 			}
@@ -591,7 +653,7 @@ namespace corona
 				feature::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				feature::put_json(_gbus, _src);
 			}
@@ -615,7 +677,7 @@ namespace corona
 				_dest.put_member("passable", passable);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 				passable = _src["passable"].as_bool();
@@ -635,7 +697,7 @@ namespace corona
 			{
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -654,7 +716,7 @@ namespace corona
 			{
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -680,7 +742,7 @@ namespace corona
 				_dest.put_member("friction_multiplier", friction_multiplier);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 				mechanic = _src["mechanic"].as_string();
@@ -703,7 +765,7 @@ namespace corona
 
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -727,7 +789,7 @@ namespace corona
                 _dest.put_member_bool("is_on", is_on);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
                 is_on = _src["is_on"].as_bool();
@@ -750,9 +812,9 @@ namespace corona
 				light::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				light::put_json(_gbus.frame_factory, _src);
+				light::put_json(_gbus, _src);
 			}
 
 		};
@@ -772,7 +834,7 @@ namespace corona
 				feature::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				feature::put_json(_gbus, _src);
 			}
@@ -793,7 +855,7 @@ namespace corona
 				camera::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				camera::put_json(_gbus, _src);
 			}
@@ -814,7 +876,7 @@ namespace corona
 				corona_object::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				corona_object::put_json(_src);
 			}
@@ -835,7 +897,7 @@ namespace corona
 				carryable::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
 			}
@@ -856,7 +918,7 @@ namespace corona
 				carryable::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
 			}
@@ -877,7 +939,7 @@ namespace corona
 				tool::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				tool::put_json(_gbus, _src);
 			}
@@ -898,7 +960,7 @@ namespace corona
 				carryable::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
 			}
@@ -919,7 +981,7 @@ namespace corona
 				carryable::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
 			}
@@ -941,7 +1003,7 @@ namespace corona
 				piece::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
                 piece::put_json(_gbus.frame_factory, _src);
 			}
@@ -962,7 +1024,7 @@ namespace corona
 				tool::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				tool::put_json(_gbus, _src);
 			}
@@ -983,7 +1045,7 @@ namespace corona
 				carryable::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
 			}
@@ -1004,7 +1066,7 @@ namespace corona
 				tool::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				tool::put_json(_gbus, _src);
 			}
@@ -1025,7 +1087,7 @@ namespace corona
 				tool::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				tool::put_json(_gbus, _src);
 			}
@@ -1054,7 +1116,7 @@ namespace corona
 				_dest.put_member_bool("dead", dead);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.frame_factory, _src);
 				input_device = _src["input_device"].as_int();
@@ -1104,6 +1166,14 @@ namespace corona
 				}
 			}
 
+			virtual void extend_selection(chest_item *_ci)
+			{
+				if (selection && _ci)
+				{
+					selection->extend(*_ci);
+				}
+			}
+
 			virtual void clear_selection()
 			{
 				if (selection)
@@ -1131,8 +1201,6 @@ namespace corona
 				}
 			}
 
-
-
 		};
 
 
@@ -1150,7 +1218,7 @@ namespace corona
 				actor::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				actor::put_json(_gbus, _src);
 			}
@@ -1170,7 +1238,7 @@ namespace corona
 				actor::get_json(_dest);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				actor::put_json(_gbus, _src);
 			}
@@ -1233,7 +1301,7 @@ namespace corona
 				_dest.put_member("pieces", j);
 			}
 
-			virtual void put_json(game_bus& _gbus, json& _src)
+			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				name = _src["name"].as_string();
 				json j = _src["pieces"];
@@ -1286,17 +1354,20 @@ namespace corona
 		class game : public job, public corona_object
 		{
 
+			game_factory factories;
+
 		public:
 
-			game()
+			game(comm_bus_app_interface *_bus, json& _src) : factories(_bus)
 			{
-				;
-			}
-
-			game(std::shared_ptr<comm_bus_app_interface> _bus, json& _src)
-			{
+				init();
 				put_json(_src);
 			}
+
+            game(const game& _src) = default;
+            game(game&& _src) = default;
+            game& operator =(const game& _src) = default;
+            game& operator =(game&& _src) = default;
 
 			std::shared_ptr<comm_bus_app_interface> bus;
 			std::string			name;
@@ -1307,6 +1378,107 @@ namespace corona
 			std::shared_ptr<map> map;
 			std::shared_ptr<state_event> handlers;
 			world_state state;
+
+			void init()
+			{
+				factories.frame_factory.register_class("animation_frame", [](json& _src, comm_bus_app_interface *_bus) -> std::shared_ptr<animation_frame> {
+					return std::make_shared<animation_frame>(_src);
+					});
+				factories.frame_factory.register_class("bitmap_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
+					return std::make_shared<bitmap_frame>(_src);
+					});
+				factories.frame_factory.register_class("vector_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<vector_frame> {
+					return std::make_shared<vector_frame>(_src);
+					});
+
+				factories.piece_factory.register_class("piece", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<piece> {
+					return std::make_shared<piece>(_src);
+					});
+				factories.piece_factory.register_class("actor", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<actor> {
+					return std::make_shared<actor>(_src);
+					});
+				factories.piece_factory.register_class("player", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<player> {
+					return std::make_shared<player>(_src);
+					});
+				factories.piece_factory.register_class("npc", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<npc> {
+					return std::make_shared<npc>(_src);
+					});
+				factories.piece_factory.register_class("feature", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+					return std::make_shared<feature>(_src);
+					});
+				factories.piece_factory.register_class("loot_box", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootbox> {
+					return std::make_shared<lootbox>(_src);
+					});
+				factories.piece_factory.register_class("loot_spot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootspot> {
+					return std::make_shared<lootspot>(_src);
+					});
+				factories.piece_factory.register_class("wall", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wall> {
+					return std::make_shared<wall>(_src);
+					});
+				factories.piece_factory.register_class("switcher", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<switcher> {
+					return std::make_shared<switcher>(_src);
+					});
+				factories.piece_factory.register_class("door", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<door> {
+					return std::make_shared<door>(_src);
+					});
+				factories.piece_factory.register_class("surface", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<surface> {
+					return std::make_shared<surface>(_src);
+					});
+				factories.piece_factory.register_class("decoration", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<decoration> {
+					return std::make_shared<decoration>(_src);
+					});
+				factories.piece_factory.register_class("light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<light> {
+					return std::make_shared<light>(_src);
+					});
+				factories.piece_factory.register_class("spot_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spot_light> {
+					return std::make_shared<spot_light>(_src);
+					});
+				factories.piece_factory.register_class("globe_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<globe_light> {
+					return std::make_shared<globe_light>(_src);
+					});
+				factories.piece_factory.register_class("camera", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<camera> {
+					return std::make_shared<camera>(_src);
+					});
+				factories.piece_factory.register_class("effect", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
+					return std::make_shared<effect>(_src);
+					});
+				factories.piece_factory.register_class("delivery", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<delivery> {
+					return std::make_shared<delivery>(_src);
+					});
+				factories.piece_factory.register_class("carryable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
+					return std::make_shared<carryable>(_src);
+					});
+				factories.piece_factory.register_class("consumable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<consumable> {
+					return std::make_shared<consumable>(_src);
+					});
+				factories.piece_factory.register_class("tool", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<tool> {
+					return std::make_shared<tool>(_src);
+					});
+				factories.piece_factory.register_class("firearm", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<firearm> {
+					return std::make_shared<firearm>(_src);
+					});
+				factories.piece_factory.register_class("magazine", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<magazine> {
+					return std::make_shared<magazine>(_src);
+					});
+				factories.piece_factory.register_class("ammunition", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<ammunition> {
+					return std::make_shared<ammunition>(_src);
+					});
+				factories.piece_factory.register_class("shot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<shot> {
+					return std::make_shared<shot>(_src);
+					});
+				factories.piece_factory.register_class("wand", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wand> {
+					return std::make_shared<wand>(_src);
+					});
+				factories.piece_factory.register_class("spell", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spell> {
+					return std::make_shared<spell>(_src);
+					});
+				factories.piece_factory.register_class("stick", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<stick> {
+					return std::make_shared<stick>(_src);
+					});
+				factories.piece_factory.register_class("artifact", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<artifact> {
+					return std::make_shared<artifact>(_src);
+					});
+			}
 
 			void set_lobby()
 			{
@@ -1427,7 +1599,13 @@ namespace corona
 
 			corona_client_response extend_selection(std::string input_name)
 			{
-
+				corona_client_response response;
+				auto player = attach_player(input_name);
+				if (player) {
+					response.success = true;
+					;
+				}
+				return response;
 			}
 
 			corona_client_response throw_selection(std::string input_name)
@@ -1712,7 +1890,6 @@ namespace corona
 				collision_event closest_collision;
 				for (int i = 0; i < map->pieces.size(); i++) {
 					auto pc = map->pieces[i];
-					pc->reset_frame();
 					collision_event collision = model_piece(map, i, delta);
 					if (collision.piece_1) {
 						if (closest_collision.piece_1) {
@@ -1825,16 +2002,15 @@ namespace corona
 
 		class engine
 		{
-			std::shared_ptr<comm_bus_app_interface> bus;
+			comm_bus_app_interface *bus;
 			corona_instance instance = corona_instance::local;
 			std::vector<std::shared_ptr<game>> games;
 
 		public:
 
-			engine(std::shared_ptr<comm_bus_app_interface> _db) : bus(_db)
+			engine(comm_bus_app_interface* _db) : bus(_db)
 			{
 			}
-
 
 			std::shared_ptr<game> new_game(json _game_key)
 			{
@@ -1862,9 +2038,8 @@ namespace corona
 				auto ccr = bus->copy_object(instance, copy_plan);
 				if (ccr.success) {
 					json new_session = ccr.data;
-					std::shared_ptr<game_session> session = std::make_shared<game_session>();
-					session->put_json(new_session);
-					sessions.push_back(session);
+					std::shared_ptr<game> session = std::make_shared<game>(bus, new_session);
+					games.push_back(session);
 					return session;
 				}
 
@@ -1876,15 +2051,14 @@ namespace corona
 				json_parser jp;
 				auto result = bus->get_object(instance, _session_key);
 				if (result.success) {
-					std::shared_ptr<session> session = std::make_shared<session>();
-					session->put_json(result.data);
-					sessions.push_back(session);
+					std::shared_ptr<game> session = std::make_shared<game>(bus, result.data);
+					games.push_back(session);
 					return session;
 				}
 				return nullptr;
 			}
 
-			void save_game(std::shared_ptr<session> _session)
+			void save_game(std::shared_ptr<game> _session)
 			{
 				json_parser jp;
 				json jsession = jp.create_object();
@@ -1892,10 +2066,10 @@ namespace corona
 				bus->put_object(instance, jsession);
 			}
 
-			void close_game(std::shared_ptr<session> _session)
+			void close_game(std::shared_ptr<game> _session)
 			{
 				_session->set_exit();
-				std::remove(sessions.begin(), sessions.end(), _session);
+				std::remove(games.begin(), games.end(), _session);
 			}
 		};
 
