@@ -158,8 +158,8 @@
           "label": "Duration"
         },
         "time_point": "double",
-        "destination": "rectangle",
-        "carry_point": "vector",
+        "draw_rectangle": "rectangle",
+        "fire_point": "vector",
         "sound": "audio"
       }
     },
@@ -200,7 +200,8 @@
         "direction": "vector",
         "sound": "audio",
         "frames": [ "frame" ],
-        "schedule": "animation_scheduler"
+        "schedule": "animation_scheduler",
+        "carry_point": "vector"
       }
     },
     {

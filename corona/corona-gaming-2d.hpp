@@ -40,22 +40,23 @@ namespace corona
 			std::string         text;
 		};
 
-		class animation_frame : public corona_object
+		class frame : public corona_object
 		{
 		public:
 			std::string			state;
 			double				duration;
 			double				time_point;
-			rectangle			destination;
-			DirectX::XMVECTOR	carry_point;
+			rectangle			draw_rectangle;
+			DirectX::XMVECTOR	fire_point;
+            audio_function      sound;
 
-			animation_frame() {
-				class_name = "animation_frame";
+			frame() {
+				class_name = "frame";
 			}
-			animation_frame(const animation_frame& _src) = default;
-			animation_frame(animation_frame&& _src) = default;
-			animation_frame& operator =(const animation_frame& _src) = default;
-			animation_frame& operator =(animation_frame&& _src) = default;
+			frame(const frame& _src) = default;
+			frame(frame&& _src) = default;
+			frame& operator =(const frame& _src) = default;
+			frame& operator =(frame&& _src) = default;
 
 			virtual void get_json(json& _dest)
 			{
@@ -65,8 +66,8 @@ namespace corona
 				_dest.put_member("state", state);
 				_dest.put_member("duration", duration);
 				_dest.put_member("time_point", time_point);
-				_dest.put_member("destination", destination);
-				_dest.put_member("carry_point", carry_point);
+				_dest.put_member("draw_rectangle", draw_rectangle);
+				_dest.put_member("fire_point", fire_point);
 			}
 
 			virtual void put_json(json& _src)
@@ -75,13 +76,15 @@ namespace corona
 				state = _src["state"].as_string();
 				duration = _src["duration"].as_double();
 				time_point = _src["time_point"].as_double();
-				destination = _src["destination"].as_rectangle();
-				carry_point = _src["carry_point"].as_vector();
+				draw_rectangle = _src["draw_rectangle"].as_rectangle();
+				fire_point = _src["fire_point"].as_vector();
+                json jsound = _src["sound"];
+                sound = audio_graph::from_json(jsound);
 			}
 
 			virtual void draw(direct2dContext& _context, point _location)
 			{
-				;
+
 			}
 
             virtual void create_asset(direct2dContext& _context)
@@ -90,7 +93,7 @@ namespace corona
 			}
 		};
 
-		class bitmap_frame : public animation_frame
+		class bitmap_frame : public frame
 		{
 		public:
 			bitmapInstanceDto bitmap;
@@ -106,7 +109,7 @@ namespace corona
             virtual void get_json(json& _dest)
 			{
 				json_parser jp;
-				animation_frame::get_json(_dest);
+				frame::get_json(_dest);
 				json jbitmap = jp.create_object();
 				bitmap.get_json(jbitmap);
 				_dest.put_member("bitmap", jbitmap);
@@ -114,27 +117,44 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				animation_frame::put_json(_src);
+				frame::put_json(_src);
 				json jbitmap = _src["bitmap"];
 				bitmap.put_json(jbitmap);
             }
 
 			virtual void draw(direct2dContext& _context, point _location)
 			{
-				bitmap.x = _location.x;
-				bitmap.y = _location.y;
+				bitmap.x = _location.x + draw_rectangle.x;
+				bitmap.y = _location.y + draw_rectangle.y;
+                if (draw_rectangle.w > 0 && draw_rectangle.h > 0) {
+					bitmap.width = draw_rectangle.w;
+					bitmap.height = draw_rectangle.h;
+				}
 				_context.drawBitmap(&bitmap);
 			}
 
 			virtual void create_asset(direct2dContext& _context)
 			{
-;
+
+                if (_context.hasBitmap(bitmap.bitmapName)) {
+					return;
+				}
+
+				if (bitmap.bitmapPath.size() == 0) {
+                    bus->log_warning("bitmap_frame::create_asset: bitmapPath is empty, cannot create asset");
+					return;
+				}
+
+				bitmapRequest request = {};
+				request.filename = bitmap.bitmapPath;
+				request.name = bitmap.bitmapName;
+				request.cropEnabled = false;
+				point pt = { bitmap.width, bitmap.height };
+				request.sizes.push_back(pt);
 			}
-
-
 		};
 
-		class vector_frame : public animation_frame
+		class vector_frame : public frame
 		{
 		public:
 			pathDto path;
@@ -153,7 +173,7 @@ namespace corona
 			virtual void get_json(json& _dest)
 			{
 				json_parser jp;
-				animation_frame::get_json(_dest);
+				frame::get_json(_dest);
 				json jpath = jp.create_object();
 				path.get_json(jpath);
 				_dest.put_member("path", jpath);
@@ -168,7 +188,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				animation_frame::put_json(_src);
+				frame::put_json(_src);
 				json jpath = _src["path"];
 				path.put_json(jpath);
 				json jfill = _src["fill"];
@@ -181,10 +201,11 @@ namespace corona
 			virtual void draw(direct2dContext& _context, point _location)
 			{
 				pathImmediateDto pid;
+                pid.position.x = _location.x + draw_rectangle.x;
+                pid.position.y = _location.y + draw_rectangle.y;
                 pid.path = path;
                 pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
-				pid.position = _location;
 				pid.rotation = 0;
                 pid.strokeWidth = stroke_width;
                 _context.drawPath(&pid);
@@ -192,27 +213,30 @@ namespace corona
 
 			virtual void create_asset(direct2dContext& _context)
 			{
-				;
+				_context.setBrush(&fill);
+				_context.setBrush(&stroke);
 			}
 
 
 		};
 
-		using frame_factory = corona_object_factory<animation_frame>;
+		using frame_factory = corona_object_factory<frame>;
 
 		class animation : public corona_object
 		{
 		public:
 			std::string										state;
 			double											duration;
-            rectangle										destination;
+            rectangle										draw_rectangle;
 			DirectX::XMVECTOR								direction;
             audio_function									sound;
-            std::vector<std::shared_ptr<animation_frame>>	frames;
+            std::vector<std::shared_ptr<frame>>	frames;
 			animation_scheduler								schedule;
+            int												current_frame_index;
 
 			animation() {
                 class_name = "animation";
+				current_frame_index = 0;
 			}
 
 			animation(const animation& _src) = default;
@@ -225,7 +249,7 @@ namespace corona
                 corona_object::get_json(_dest);
                 _dest.put_member("state", state);
 				_dest.put_member("duration", duration);
-                _dest.put_member("destination", destination);
+                _dest.put_member("draw_rectangle", draw_rectangle);
                 _dest.put_member("direction", direction);
                 json_parser jp;
                 json jframes = jp.create_array();
@@ -242,7 +266,7 @@ namespace corona
                 corona_object::put_json(_src);
 				state = _src["state"].as_string();
 				duration = _src["duration"].as_double();
-				destination = _src["destination"].as_rectangle();
+				draw_rectangle = _src["draw_rectangle"].as_rectangle();
 				direction = _src["direction"].as_vector();
 				json jframes = _src["frames"];
 				frames.clear();
@@ -271,6 +295,12 @@ namespace corona
 
 				index = index % frames.size();
 
+				if (current_frame_index != index)
+				{
+					current_frame_index = index;
+					bus->play_audio(sound, 1.0, -1.0);
+				}
+
 				auto frame = frames[index];
 
 				frame->draw(_context, _location);
@@ -280,8 +310,8 @@ namespace corona
 
 		class piece : public corona_object
 		{
-		public:
 
+		public:
 			piece() {
 				class_name = "piece";
 			}
@@ -289,6 +319,15 @@ namespace corona
 			piece(piece&& _src) = default;
 			piece& operator =(const piece& _src) = default;
 			piece& operator =(piece&& _src) = default;
+
+		private:
+
+			std::shared_ptr<chest_field> inventory;
+			std::vector<piece> inventory_pieces;
+
+			void update_inventory_pieces();
+
+		public:
 
 			std::string name;
 			std::string state;
@@ -302,7 +341,6 @@ namespace corona
 			double		mass = 1.0;
 			double      full_hit_points = 1.0;
 			double      hit_points = 1.0;
-			std::shared_ptr<chest_field> inventory;
 
 			virtual void get_json(json& _dest)
 			{
@@ -377,6 +415,12 @@ namespace corona
 
 			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
 			{
+                for (auto animation : animations) {
+					if (animation->state == state) {
+						animation->draw(_context, _elapsed, _location);
+					}
+				}
+
 
 			}
 
@@ -1253,6 +1297,17 @@ namespace corona
 			}
 		};
 
+		class selection_analysis
+		{
+		public:
+			tool* selected_tool;
+			magazine* selected_magazine;
+			ammunition* selected_ammunition;
+			wand* selected_wand;
+			spell* selected_spell;
+			piece* selected_piece;
+		};
+
 		class actor : public piece
 		{
 		public:
@@ -1285,6 +1340,8 @@ namespace corona
 				ready = _src["ready"].as_bool();
 				dead = _src["dead"].as_bool();
 			}
+
+			selection_analysis analyze_selected(game* _game);
 
 			// and now, we can extend the selection and the inventory
 
@@ -1460,8 +1517,8 @@ namespace corona
 
 			void init()
 			{
-				factories.frame_factory.register_class("animation_frame", [](json& _src, comm_bus_app_interface *_bus) -> std::shared_ptr<animation_frame> {
-					return std::make_shared<animation_frame>(_src);
+				factories.frame_factory.register_class("frame", [](json& _src, comm_bus_app_interface *_bus) -> std::shared_ptr<frame> {
+					return std::make_shared<frame>(_src);
 					});
 				factories.frame_factory.register_class("bitmap_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
 					return std::make_shared<bitmap_frame>(_src);
@@ -2192,6 +2249,25 @@ namespace corona
 		void piece::use(game* _game, piece* _piece)
 		{
 
+				
+		}
+
+/*		std::shared_ptr<chest_field> inventory;
+		std::vector<piece> corona_pieces;
+
+		*/
+		
+		void piece::update_inventory_pieces()
+		{
+			for (auto piece : inventory_pieces) {
+				piece->save();
+			}
+			inventory_pieces.clear();
+			for (auto item : inventory->items) 
+			{
+                auto load_piece = _game->factories.piece_factory.get_object(corona_instance::local, item.part_class, item.part_id, true);
+                inventory_pieces.push_back(load_piece);
+			}
 		}
 
 		void actor::select_next()
@@ -2250,62 +2326,63 @@ namespace corona
 			}
 		}
 
-		void actor::use_selection(game* _game)
+		selection_analysis actor::analyze_selected(game* _game)
 		{
+			selection_analysis sa;
+
+			sa = {};
+
 			if (selection)
 			{
-				tool* selected_tool = nullptr;
 
-				magazine* selected_magazine = nullptr;
-				ammunition* selected_ammunition = nullptr;
-
-                wand* selected_wand = nullptr;
-                spell* selected_spell = nullptr;
-
-                piece* selected_piece = nullptr;
-
-				for (auto itm : selection->selections) 
+				for (auto itm : selection->selections)
 				{
 					auto piece = _game->factories.piece_factory.get_object(corona_instance::local, itm.part_class, itm.part_id, true);
 
-					if (selected_piece == nullptr) 
+					if (sa.selected_piece == nullptr)
 					{
-						selected_piece = piece.get();
-                    }
+						sa.selected_piece = piece.get();
+					}
 
 					if (std::is_base_of_v<tool, decltype(*piece)>) {
-						selected_tool = dynamic_cast<tool*>(piece.get());
+						sa.selected_tool = dynamic_cast<tool*>(piece.get());
 					}
 					else if (std::is_base_of_v<consumable, decltype(*piece)>) {
-						selected_magazine = dynamic_cast<magazine*>(piece.get());
+						sa.selected_magazine = dynamic_cast<magazine*>(piece.get());
 					}
 					else if (std::is_base_of_v<ammunition, decltype(*piece)>) {
-						selected_ammunition = dynamic_cast<ammunition*>(piece.get());
+						sa.selected_ammunition = dynamic_cast<ammunition*>(piece.get());
 					}
 					else if (std::is_base_of_v<wand, decltype(*piece)>) {
-						selected_wand = dynamic_cast<wand*>(piece.get());
+						sa.selected_wand = dynamic_cast<wand*>(piece.get());
 					}
 					else if (std::is_base_of_v<spell, decltype(*piece)>) {
-						selected_spell = dynamic_cast<spell*>(piece.get());
+						sa.selected_spell = dynamic_cast<spell*>(piece.get());
 					}
 				}
+			}
 
-                if (selected_tool) {
-					selected_tool->use(_game, this);
-				}
-				else if (selected_wand) {
-					selected_wand->use(_game, this);
-				}
-				else if (selected_magazine) {
-					selected_magazine->use(_game, this);
-				}
-				else if (selected_ammunition) {
-					selected_ammunition->use(_game, this);
-				}
-				else if (selected_spell) {
-					selected_spell->use(_game, this);
-				}
+			return sa;
+		}
 
+		void actor::use_selection(game* _game)
+		{
+            selection_analysis sa = analyze_selected();
+
+            if (sa.selected_tool) {
+				sa.selected_tool->use(_game, this);
+			}
+			else if (sa.selected_wand) {
+				sa.selected_wand->use(_game, this);
+			}
+			else if (sa.selected_magazine) {
+				sa.selected_magazine->use(_game, this);
+			}
+			else if (sa.selected_ammunition) {
+				sa.selected_ammunition->use(_game, this);
+			}
+			else if (sa.selected_spell) {
+				sa.selected_spell->use(_game, this);
 			}
 		}
 
@@ -2358,6 +2435,7 @@ namespace corona
 		{
 			;
 		}
+
 
 	}
 

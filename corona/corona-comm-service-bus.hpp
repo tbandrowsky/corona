@@ -2133,11 +2133,11 @@ Bind get classes
 			"properties": {
 				"class_name": {
 					"type": "string",
-					"description": "class of destination."
+					"description": "class of draw_rectangle."
 				},
 				"object_id": {
 					"type": "number",
-					"description": "id of destination."
+					"description": "id of draw_rectangle."
 				},
 				"path": {
 					"type": "string",

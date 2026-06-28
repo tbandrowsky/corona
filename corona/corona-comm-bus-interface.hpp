@@ -120,6 +120,8 @@ namespace corona
 
 		std::multimap<UINT, windows_event_waiter> windows_waiters;
 		std::multimap<std::string, topic_event_waiter> topic_waiters;
+		std::shared_ptr<corona::game::engine_interface> local_gaming;
+		audio_synth_engine	 local_audio_synth;
 
 	public:
 
@@ -129,9 +131,6 @@ namespace corona
 		time_t elapsed_seconds = 0;
 
 		static comm_bus_app_interface* global_bus;
-
-		std::shared_ptr<corona::game::engine_interface> local_gaming;
-		audio_synth_engine	 local_audio_synth;
 
 		comm_bus_app_interface()
 		{
@@ -524,6 +523,11 @@ namespace corona
 		{
 			local_gaming->close_game(_session);
 		}
+
+		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0)
+		{
+			local_audio_synth.play(_generator, _volume, _duration);
+        }
 
 
 	protected:
