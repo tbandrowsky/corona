@@ -130,7 +130,7 @@ namespace corona
 
 		static comm_bus_app_interface* global_bus;
 
-		std::shared_ptr<corona::game::engine> local_gaming;
+		std::shared_ptr<corona::game::engine_interface> local_gaming;
 		audio_synth_engine	 local_audio_synth;
 
 		comm_bus_app_interface()
@@ -138,7 +138,7 @@ namespace corona
 			if (global_bus == nullptr) {
 				global_bus = this;
 			}
-            local_gaming = std::make_shared<corona::game::engine>(this);
+            local_gaming = corona::game::engine_factory::create_engine(this);
 		}
 
 		virtual ~comm_bus_app_interface()
@@ -208,7 +208,6 @@ namespace corona
 		virtual corona_client_response local_add_item_chest(json add_to_chest_request) = 0;
 		virtual corona_client_response local_remove_item_chest(json remove_from_chest_request) = 0;
 		virtual corona_client_response local_move_item_chest(json move_chest_request) = 0;
-		virtual corona_client_response local_get_object(json move_chest_request) = 0;
 
 		virtual corona_client_response create_object(corona_instance _instance, std::string class_name) = 0;
 		virtual corona_client_response run_object(corona_instance _instance, json object_information) = 0;
@@ -515,15 +514,15 @@ namespace corona
 			return result;
 		}
 
-		virtual std::shared_ptr<corona::game::game> local_start_game_session(json _game)
+		virtual std::shared_ptr<corona::game::game_interface> local_start_game_session(json _game)
 		{
-            auto new_session = local_gaming.new_game(_game);
+            auto new_session = local_gaming->new_game(_game);
 			return new_session;
 		}
 
-		virtual corona_client_response local_stop_game_session(std::shared_ptr<corona::game::game> _session)
+		virtual corona_client_response local_stop_game_session(std::shared_ptr<corona::game::game_interface> _session)
 		{
-			local_gaming.close_game(_session);
+			local_gaming->close_game(_session);
 		}
 
 

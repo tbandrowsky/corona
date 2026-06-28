@@ -137,6 +137,11 @@ namespace corona
 			this->getDeviceContext()->Clear(color);
 		}
 
+		virtual bool hasBitmap(std::string _name)
+		{
+			return bitmaps.contains(_name);
+        }
+
 		virtual std::string setBitmap(bitmapRequest* _bitmap)
 		{
 			std::string filename, name;

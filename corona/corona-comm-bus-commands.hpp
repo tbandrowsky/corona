@@ -2381,7 +2381,7 @@ namespace corona
 
 	private:
 
-		std::shared_ptr<game_session> session;
+		std::shared_ptr<corona::game::game_interface> session;
 
 	public:
 		corona_instance instance = corona_instance::local;
@@ -2447,7 +2447,7 @@ namespace corona
 	{
 
 	private:
-		std::shared_ptr<game_session> session;
+		std::shared_ptr<corona::game::game_interface> session;
 
 	public:
 
@@ -2465,7 +2465,7 @@ namespace corona
 			return topic;
 		}
 
-		virtual std::shared_ptr<game_session> get_session()
+		virtual std::shared_ptr<corona::game::game_interface> get_session()
 		{
             return session;
 		}

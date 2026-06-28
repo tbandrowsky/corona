@@ -466,30 +466,6 @@ namespace corona
 	}
 
 
-	class chest_item
-	{
-	public:
-
-		std::string part_class;
-		int64_t		part_id;
-		double      quantity;
-
-		virtual void get_json(json& _dest)
-		{
-			_dest.put_member_string("part_class", part_class);
-			_dest.put_member_i64("part_id", part_id);
-			_dest.put_member_double("quantity", quantity);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			part_class = _src["part_class"].as_string();
-			part_id = _src["part_id"].as_int64_t();
-			quantity = _src["quantity"].as_double();
-		}
-
-	};
-
 	class selection_field_options_interface
 	{
 	public:
@@ -6194,6 +6170,22 @@ namespace corona
 			put_field_object<generalBrushRequest, field_types::ft_brush, brush_field_options_interface>(_dest, _name, _src);
 		}
 
+		virtual void put_bitmap(json& _dest, const std::string& _name, std::shared_ptr<bitmapInstanceDto>& _src) override
+		{
+			put_field_object<bitmapInstanceDto, field_types::ft_bitmap, bitmap_field_options_interface>(_dest, _name, _src);
+		}
+
+
+		virtual void put_chest(json& _dest, const std::string& _name, chest_field& _src) override
+		{
+			put_field_object<chest_field, field_types::ft_chest, chest_field_options_interface>(_dest, _name, _src);
+		}
+
+		virtual void put_selection(json& _dest, const std::string& _name, selection_field& _src) override
+		{
+			put_field_object<selection_field, field_types::ft_selection, selection_field_options_interface>(_dest, _name, _src);
+		}
+
 		virtual void put_path(json& _dest, const std::string& _name, pathDto& _src) override
 		{
 			put_field_object<pathDto, field_types::ft_path, path_field_options_interface>(_dest, _name, _src);
@@ -6208,6 +6200,7 @@ namespace corona
 		{
 			put_field_object<bitmapInstanceDto, field_types::ft_bitmap, bitmap_field_options_interface>(_dest, _name, _src);
 		}
+
 
 		virtual json get_objects(corona_database_interface* _db, json _key, bool _include_children, class_permissions _grant) 
 		{

@@ -36,6 +36,29 @@
   ],
   "classes": [
     {
+      "class_name": "function_scheduler",
+      "base_class_name": "sys_object",
+      "class_description": "A timer that invoked periodically",
+      "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "duration_seconds": "string",
+        "enabled": "bool"
+      }
+    },
+    {
+      "class_name": "animation_scheduler",
+      "base_class_name": "sys_object",
+      "class_description": "A timer that selects a frame",
+      "fields": {
+        "current_seconds": "double",
+        "total_seconds": "double",
+        "enabled": "bool",
+        "current_index": "int64",
+        "schedule": ["double"]
+      }
+    },
+    {
       "class_name": "activity",
       "base_class_name": "sys_object",
       "class_description": "An activity",
@@ -176,7 +199,8 @@
         "destination": "rectangle",
         "direction": "vector",
         "sound": "audio",
-        "frames": [ "frame" ]
+        "frames": [ "frame" ],
+        "schedule": "animation_scheduler"
       }
     },
     {
@@ -228,7 +252,34 @@
     {
       "class_name": "feature",
       "base_class_name": "piece",
-      "class_description": "a static feature on a map"
+      "class_description": "a static feature on a map",
+      "fields": {
+        "scheduler": "scheduler"
+      }
+    },
+    {
+      "class_name": "spawn",
+      "base_class_name": "feature",
+      "class_description": "a gaming spawn point",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "player_spawn",
+      "base_class_name": "feature",
+      "class_description": "player_spawn",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "npc_spawn",
+      "base_class_name": "feature",
+      "class_description": "npc spawn",
+      "fields": {
+        "spawn_classes": [ "string" ]
+      }
     },
     {
       "class_name": "loot_box",

@@ -75,6 +75,161 @@ namespace corona
        }
     };
 
+    template <typename T> class function_scheduler : public corona_object
+    {
+    public:
+
+
+        function_scheduler(double _seconds, T _value, std::function<void(T src)> _task)
+            : remaining_seconds(0), frequency_seconds(_seconds), duration_seconds(_seconds), task(_task), value(_value)
+        {
+
+        }
+
+        function_scheduler()
+        {
+            frequency_seconds = 1;
+            remaining_seconds = 0;
+            duration_seconds = 2;
+            enabled = false;
+            value = {};
+            task = {};
+        }
+
+        function_scheduler(const function_scheduler& _src) = default;
+        function_scheduler(function_scheduler&& _src) = default;
+        function_scheduler& operator=(const function_scheduler& _src) = default;
+        function_scheduler& operator=(function_scheduler&& _src) = default;
+
+        std::function<void(T src)>	task;
+        double						frequency_seconds;
+        double						remaining_seconds;
+        double						duration_seconds;
+        T							value;
+        bool						enabled;
+
+        void execute(double elapsed)
+        {
+            if (!enabled)
+                return;
+
+            duration_seconds -= elapsed;
+            remaining_seconds -= elapsed;
+
+            if (duration_seconds < 0) {
+                return;
+            }
+
+            if (remaining_seconds <= 0.0)
+            {
+                try
+                {
+                    if (task)
+                    {
+                        task(value);
+                    }
+                }
+                catch (std::exception exc)
+                {
+                }
+                remaining_seconds = frequency_seconds;
+            }
+        }
+
+        void get_json(json& _dest)
+        {
+            corona_object::get_json(_dest);
+            _dest.put_member("frequency_seconds", frequency_seconds);
+            _dest.put_member("remaining_seconds", remaining_seconds);
+            _dest.put_member("duration_seconds", duration_seconds);
+            _dest.put_member("enabled", enabled);
+        }
+
+        void put_json(json& _src)
+        {
+            corona_object::put_json(_src);
+            frequency_seconds = _src["frequency_seconds"].as_double();
+            remaining_seconds = _src["remaining_seconds"].as_double();
+            duration_seconds = _src["duration_seconds"].as_double();
+            enabled = _src["enabled"].as_bool();
+        }
+    };
+
+    class animation_scheduler : public corona_object
+    {
+    public:
+
+
+        animation_scheduler()
+        {
+            enabled = false;
+        }
+
+        animation_scheduler(const animation_scheduler& _src) = default;
+        animation_scheduler(animation_scheduler&& _src) = default;
+        animation_scheduler& operator=(const animation_scheduler& _src) = default;
+        animation_scheduler& operator=(animation_scheduler&& _src) = default;
+
+        std::vector<double>			schedule;
+        double						current_seconds;
+        double                      total_seconds;
+        bool						enabled;
+        int                         current_index;
+
+        int execute(double elapsed)
+        {
+            if (!enabled)
+                return 0;
+
+            if (schedule.size() > 0) {
+
+                current_seconds = fmod(elapsed + current_seconds, total_seconds);
+                double t = 0;
+                while (t < current_seconds) {
+                    t += schedule[current_index];
+                    if (t >= current_seconds) {
+                        return current_index;
+                    }
+                    current_index = (current_index + 1) % schedule.size();
+                }
+
+            }
+            return 0;
+        }
+
+        void get_json(json& _dest)
+        {
+            corona_object::get_json(_dest);
+            _dest.put_member("current_seconds", current_seconds);
+            _dest.put_member("total_seconds", total_seconds);
+            _dest.put_member("enabled", enabled);
+            _dest.put_member("current_index", current_index);
+            json_parser jp;
+            json jschedule = jp.create_array();
+            for (const auto& e : schedule) {
+                jschedule.push_back(e);
+            }
+            _dest.put_member("schedule", jschedule);
+        }
+
+        void put_json(json& _src)
+        {
+            corona_object::put_json(_src);
+            current_seconds = _src["current_seconds"].as_double();
+            total_seconds = _src["total_seconds"].as_double();
+            enabled = _src["enabled"].as_bool();
+            current_index = _src["current_index"].as_int();
+
+            schedule.clear();
+            total_seconds = 0.0;
+
+            for (auto e : _src["schedule"].as_array()) {
+                schedule.push_back(e.as_double());
+            }
+        }
+    };
+
+
     template <typename T> class corona_object_factory
     {
 
@@ -84,10 +239,11 @@ namespace corona
         lockable factory_lock;
 
         comm_bus_app_interface* bus;
+        std::map<std::string, json> class_cache;
 
     public:
 
-        corona_object_factory(comm_bus_app_interface* _bus) {
+        corona_object_factory(comm_bus_app_interface* _bus) noexcept {
             bus = _bus;
         }
         corona_object_factory(const corona_object_factory& _src) = default;
@@ -99,6 +255,32 @@ namespace corona
         {
             scope_lock lock(factory_lock);
             factory_map.insert_or_assign(_class_name, _ctor);
+        }
+
+        // you can do this before or after register classes
+        // but, it is best to do it after, so that you can register the classes first, and then get the list of classes from the bus.
+        // and someday we want to filter this so that it is just the classes and descendants 
+        // of a particular item, so the corona api will have be tweaked to allow this.
+        void init(corona_instance _instance)
+        {
+            auto result = bus->get_classes(_instance);
+            if (!result.success) {
+                bus->log_error(result.message, __FILE__, __LINE__);
+                throw std::runtime_error(result.message);
+            }
+
+            if (result.data.array()) {
+                for (int i = 0; i < result.data.size(); i++) {
+                    auto jclass = result.data.get_element(i);
+                    if (!jclass.object()) {
+                        continue;
+                    }
+                    std::string class_name = jclass[class_name_field].as_string();
+                    if (!class_name.empty()) {
+                        class_cache[class_name] = jclass;
+                    }
+                }
+            }
         }
 
         template <typename U = T>

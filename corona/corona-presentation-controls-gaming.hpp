@@ -6,7 +6,7 @@ namespace corona
 	class game_session_control :
 		public draw_control
 	{
-		std::shared_ptr<game_session> current_session;
+		std::shared_ptr<corona::game::game> current_session;
 		std::map<std::string, std::shared_ptr<image_control>> images;
 
 	public:
@@ -79,15 +79,6 @@ namespace corona
 
 		virtual void create_game_assets(std::shared_ptr<direct2dContext>& _context)
 		{
-            for (auto map : current_session->maps) {
-				for (auto piece : map->pieces) {
-					std::string image_name = piece->image_name;
-					if (!image_name.empty() && !images.contains(image_name)) {
-                        std::shared_ptr<image_control> image = std::make_shared<image_control>(this, id_counter::next(), image_name);
-                        images.insert_or_assign(image_name, image);
-                    }
-				}
-			}
 
 			for (auto& [name, image] : images) {
 				image->create(_context, host);
@@ -96,24 +87,17 @@ namespace corona
 
 		virtual void draw_game_frame(std::shared_ptr<direct2dContext>& _context)
 		{
-			for (auto m : current_session->maps) {
-				for (auto p : m->pieces) {
-					for (auto s : p->sprites) {
-
-					}
-				}
-			}
 		}
 
-        std::shared_ptr<game_session> &get_session() 
+        std::shared_ptr<corona::game::game_interface> get_session()
 		{ 
-			return current_session; 
+			return std::dynamic_pointer_cast<corona::game::game_interface>(current_session); 
 		}
 
-		std::shared_ptr<game_session> set_session(std::shared_ptr<game_session>& _session) 
+		std::shared_ptr<corona::game::game_interface> set_session(std::shared_ptr<corona::game::game>& _session)
 		{ 
 			if (current_session) {
-				current_session->game_running = false;
+				current_session->state = corona::game::game_state::exit;
             }
 			auto session = current_session;
 			current_session = _session; 

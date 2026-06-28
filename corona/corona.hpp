@@ -128,9 +128,6 @@ namespace corona {
 #include "corona-object_id_box.hpp"
 
 #include "corona-locks.hpp"
-
-#include "corona-audio-synth.hpp"
-
 #include "corona-system-monitor-bus.hpp"
 #include "corona-test.hpp"
 
@@ -164,6 +161,9 @@ namespace corona {
 #include "corona-visual.hpp"
 #include "corona-control-data.hpp"
 #include "corona-interfaces.hpp"
+
+#include "corona-audio-synth.hpp"
+
 #include "corona-comm-bus-interface.hpp"
 
 // and higher level for corona-express-table
@@ -279,6 +279,11 @@ namespace corona {
 // this is a representation of a menu, that can be a win32 menu
 #include "corona-presentation-menu.hpp"
 
+// the gaming engine is a layer that uses Corona db, rendered by the presentation control, 
+// hosted by the app bus, and ultimately the service bus
+#include "corona-gaming-2d.hpp"
+
+
 // these are all the controls that can be on a presentation
 #include "corona-presentation-controls-base.hpp"
 #include "corona-comm-bus-commands.hpp"
@@ -303,10 +308,6 @@ namespace corona {
 #include "corona-presentation.hpp"
 #include "corona-directapplication.hpp"
 
-// the gaming engine is a layer that uses Corona db, rendered by the presentation control, 
-// hosted by the app bus, and ultimately the service bus
-#include "corona-gaming-2d.hpp"
- 
 // the easiest way to let an application be a web service.
 // this little bad boy uses the Windows HTTP Server stack 
 // and so yes a corona applications cheesy web server is 

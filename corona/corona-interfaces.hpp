@@ -87,4 +87,79 @@ namespace corona
 		virtual corona_client_response query_objects(json _query) = 0;
 		virtual corona_client_response copy_objects(json _copy) = 0;
 	};
+	
+	class chest_item
+	{
+	public:
+
+		std::string part_class;
+		int64_t		part_id;
+		double      quantity;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member_string("part_class", part_class);
+			_dest.put_member_i64("part_id", part_id);
+			_dest.put_member_double("quantity", quantity);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			part_class = _src["part_class"].as_string();
+			part_id = _src["part_id"].as_int64_t();
+			quantity = _src["quantity"].as_double();
+		}
+
+	};
+
+	namespace game 
+	{
+
+		class game_interface
+		{
+		public:
+			virtual void set_lobby() = 0;
+			virtual void set_active() = 0;
+			virtual void set_paused() = 0;
+			virtual void set_complete() = 0;
+			virtual void set_exit() = 0;
+			virtual void start_play(std::string input_name) = 0;
+			virtual void check_all_ready() = 0;
+			virtual void check_all_dead() = 0;
+			virtual corona_client_response accelerate(std::string input_name, DirectX::XMVECTOR a) = 0;
+			virtual corona_client_response displace(std::string input_name, DirectX::XMVECTOR d) = 0;
+			virtual corona_client_response clear_selection(std::string input_name) = 0;
+			virtual corona_client_response extend_selection(std::string input_name, chest_item* ci) = 0;
+			virtual corona_client_response throw_selection(std::string input_name) = 0;
+			virtual corona_client_response drop_selection(std::string input_name) = 0;
+			virtual corona_client_response use_selection(std::string input_name) = 0;
+			virtual corona_client_response select_next(std::string input_name) = 0;
+			virtual corona_client_response select_previous(std::string input_name) = 0;
+			virtual corona_client_response add_pieces(json _pieces) = 0;
+			virtual corona_client_response remove_pieces(json _pieces) = 0;
+			virtual corona_client_response purchase_pieces(std::string input_name, json _for_sale, json _price) = 0;
+			virtual void get_json(json& _dest) = 0;
+			virtual void put_json(json& _src) = 0;
+			virtual job* get_next_job() = 0;
+		};
+
+		class engine_interface
+		{
+		public:
+
+			std::shared_ptr<game_interface> new_game(json _game_key);
+			std::shared_ptr<game_interface> load_game(json _session_key);
+			void save_game(std::shared_ptr<game_interface> _session);
+			void close_game(std::shared_ptr<game_interface> _session);
+		};
+
+		class engine_factory
+		{
+			public:
+
+            static std::shared_ptr<engine_interface> create_engine(system_monitoring_interface* _bus);
+		};
+
+	};
+
 }
