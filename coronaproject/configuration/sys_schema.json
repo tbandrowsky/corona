@@ -55,92 +55,7 @@
         "total_seconds": "double",
         "enabled": "bool",
         "current_index": "int64",
-        "schedule": ["double"]
-      }
-    },
-    {
-      "class_name": "activity",
-      "base_class_name": "sys_object",
-      "class_description": "An activity",
-      "full_text": [ "name", "description", "image" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 100
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "image": "bitmap"
-      }
-    },
-    {
-      "class_name": "world",
-      "base_class_name": "activity",
-      "class_description": "A world in the system",
-      "full_text": [ "name", "description", "image" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "First Name",
-          "max_length": 100
-        },
-        "description": {
-          "field_type": "string",
-          "label": "First Name"
-        },
-        "map": "map",
-        "games": [ "game" ]
-      },
-      "indexes": {
-        "game_name_index": {
-          "index_keys": [ "name" ]
-        }
-      }
-    },
-    {
-      "class_name": "essay",
-      "base_class_name": "activity",
-      "class_description": "An essay in the system",
-      "full_text": [ "name", "description", "text" ],
-      "fields": {
-        "text": "string"
-      }
-    },
-    {
-      "class_name": "map",
-      "base_class_name": "sys_object",
-      "class_description": "a gaming map",
-      "parents": [ "world", "session" ],
-      "fields": {
-        "image": "string",
-        "pieces": [ "piece" ]
-      }
-    },
-    {
-      "class_name": "game",
-      "base_class_name": "sys_object",
-      "class_description": "a gaming session",
-      "parents": [ "world" ],
-      "fields": {
-        "map": "map",
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 100
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State",
-          "max_length": 20,
-          "enumeration": [ "lobby", "active", "paused", "complete", "exit" ]
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        }
+        "schedule": [ "double" ]
       }
     },
     {
@@ -227,6 +142,16 @@
       }
     },
     {
+      "class_name": "piece_list",
+      "base_class_name": "sys_object",
+      "class_description": "a list of gaming pieces",
+      "parents": [ "map", "switcher" ],
+      "fields": {
+        "state": "string",
+        "pieces ": [ "piece" ]
+      }
+    },
+    {
       "class_name": "actor",
       "base_class_name": "piece",
       "class_description": "a gaming player",
@@ -279,7 +204,8 @@
       "base_class_name": "feature",
       "class_description": "npc spawn",
       "fields": {
-        "spawn_classes": [ "string" ]
+        "spawn_classes": [ "string" ],
+        "scheduler": "function_scheduler"
       }
     },
     {
@@ -311,7 +237,8 @@
       "base_class_name": "feature",
       "class_description": "a gaming switch",
       "fields": {
-
+        "state": "string",
+        "sets": [ "pieces" ]
       }
     },
     {
@@ -319,7 +246,7 @@
       "base_class_name": "feature",
       "class_description": "a gaming door",
       "fields": {
-        "open": "boolean"
+
       }
     },
     {
@@ -426,6 +353,7 @@
       "base_class_name": "tool",
       "class_description": "weapon for the shot",
       "fields": {
+        "magazine_types": [ "string" ],
         "inventory": {
           "field_type": "chest",
           "item_class": "magazine"
@@ -438,6 +366,8 @@
       "class_description": "a magazine for the firearm",
       "parents": [ "firearm" ],
       "fields": {
+        "magazine_type": "string",
+        "ammunition_types": [ "string" ],
         "inventory": {
           "field_type": "chest",
           "item_class": "ammunition"
@@ -449,6 +379,11 @@
       "base_class_name": "carryable",
       "class_description": "ammo for the firearm",
       "fields": {
+        "ammunition_type": "string",
+        "shot_class": "string",
+        "shot_muzzle_velocity": "double",
+        "shot_mass": "double",
+        "shot_impulse": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "shot"
@@ -504,10 +439,96 @@
       "base_class_name": "tool",
       "class_description": "general artifact",
       "fields": {
+        "radius": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"
         }
+      }
+    },
+    {
+      "class_name": "map",
+      "base_class_name": "piece_list",
+      "class_description": "a gaming map",
+      "parents": [ "world", "session" ],
+      "fields": {
+        "name": "string",
+        "description": "string"
+      }
+    },
+    {
+      "class_name": "game",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming session",
+      "parents": [ "world" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "map": "map",
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 20,
+          "enumeration": [ "lobby", "active", "paused", "complete", "exit" ]
+        }
+      }
+    },
+    {
+      "class_name": "world",
+      "base_class_name": "activity",
+      "class_description": "A world in the system",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "map": "map",
+        "games": [ "game" ]
+      },
+      "indexes": {
+        "game_name_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "essay",
+      "base_class_name": "activity",
+      "class_description": "An essay in the system",
+      "full_text": [ "name", "description", "text" ],
+      "fields": {
+        "text": "string"
+      }
+    },
+    {
+      "class_name": "activity",
+      "base_class_name": "sys_object",
+      "class_description": "An activity",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "image": "bitmap"
       }
     }
   ],

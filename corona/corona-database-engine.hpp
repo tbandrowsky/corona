@@ -520,6 +520,33 @@ namespace corona
 			put_json(_src);
 		}
 
+		chest_item *find_first_any(std::vector<std::string> class_names)
+		{
+			for (auto& item : items) {
+				if (std::find(class_names.begin(), class_names.end(), item.second.part_class) != class_names.end()) {
+					return &item.second;
+				}
+			}
+			return nullptr;
+		}
+
+		chest_item* use(int _quantity)
+		{
+            chest_item* ci = nullptr;
+
+			for (auto& item : items) {
+				if (item.second.quantity >= _quantity) {
+					item.second.quantity -= _quantity;
+                    ci = &item.second;
+					break;
+				}
+			}
+            if (ci->quantity == 0) {
+				items.erase(ci->part_class);
+			}
+			return ci;
+		}
+
 		chest_item* get_first()
 		{
 			if (!options) return nullptr;

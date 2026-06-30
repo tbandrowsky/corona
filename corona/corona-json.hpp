@@ -4507,13 +4507,87 @@ namespace corona
 			return result;
 		}
 
-		template <typename container> json from_string_container(container& _src)
+		json jarray_to_jmap(json& _src, std::vector<std::string>& _keys)
+		{
+			json result(std::make_shared<json_object>());
+
+			if (_src.array()) 
+			{
+				for (size_t i = 0; i < _src.size(); i++) {
+                    json jitem = _src.get_element(i);
+                    json jkey = jitem.extract(_keys);
+					auto key_string = jkey.as_string();
+					result.put_member(key_string, jitem);
+				}
+			}
+			
+			return result;
+		}
+
+		std::map<std::string, bool> jarray_to_string_map(json& _src)
+		{
+			std::map<std::string, bool> result;
+
+			if (_src.array())
+			{
+				for (size_t i = 0; i < _src.size(); i++) {
+					json jitem = _src.get_element(i);
+					auto key_string = jitem.as_string();
+					result.insert_or_assign(key_string, true);
+				}
+			}
+
+			return result;
+		}
+
+		std::map<std::string, bool> jarray_to_string_map(json& _src, std::vector<std::string>& _keys)
+		{
+			std::map<std::string, bool> result;
+
+			if (_src.array())
+			{
+				for (size_t i = 0; i < _src.size(); i++) {
+					json jitem = _src.get_element(i);
+					json jkey = jitem.extract(_keys);
+					auto key_string = jkey.as_string();
+					result.insert_or_assign(key_string, true);
+				}
+			}
+
+			return result;
+		}
+
+		json map_to_jarray(std::map<std::string, bool>& _src)
+		{
+			json_parser jp;
+			json result(std::make_shared<json_array>());
+			for (const auto& [key, value] : _src) {
+				json jitem = jp.from_string(key);
+				if (value) {
+					result.push_back(jitem);
+				}
+			}
+			return result;
+		}
+
+		template <typename container> json vector_to_jarray(container& _src)
 		{
             json result(std::make_shared<json_array>());
 			for (std::string& s : _src) {
 				std::shared_ptr<json_string> dd = std::make_shared<json_string>();
 				dd->set_value(s);
 				result.push_back(dd);
+			}
+			return result;
+		}
+
+		template <typename container> json map_to_jobject(container& _src)
+		{
+			json result(std::make_shared<json_object>());
+			for (const auto& [key, value] : _src) {
+				std::shared_ptr<json_string> jvalue = std::make_shared<json_string>();
+				jvalue->set_value(value);
+				result.put_member(key, jvalue);
 			}
 			return result;
 		}

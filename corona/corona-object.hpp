@@ -73,6 +73,11 @@ namespace corona
        
             return response;
        }
+
+       bool identity_matches(corona_object& _src)
+       {
+           return (class_name == _src.class_name) && (object_id == _src.object_id);
+       }
     };
 
     template <typename T> class function_scheduler : public corona_object
@@ -108,16 +113,16 @@ namespace corona
         T							value;
         bool						enabled;
 
-        void execute(double elapsed)
+        bool execute(double elapsed)
         {
             if (!enabled)
-                return;
+                return false;
 
             duration_seconds -= elapsed;
             remaining_seconds -= elapsed;
 
             if (duration_seconds < 0) {
-                return;
+                return false;
             }
 
             if (remaining_seconds <= 0.0)
@@ -133,7 +138,10 @@ namespace corona
                 {
                 }
                 remaining_seconds = frequency_seconds;
+                return true
             }
+
+            return false;
         }
 
         void get_json(json& _dest)
@@ -289,6 +297,10 @@ namespace corona
             std::shared_ptr<U> result;
             json_parser jp;
 
+            if (class_name.empty() || object_id <= 0 || !factory_map.contains(class_name)) {
+                return result;
+            }
+
             json request = jp.create_object();
             request.put_member(class_name_field, class_name);
             request.put_member_i64(object_id_field, object_id);
@@ -324,6 +336,43 @@ namespace corona
                 }
             }
             return sp;
+        }
+
+        template <typename U = T>
+        std::shared_ptr<U> create_object(std::string class_name)
+        {
+            scope_lock lock(factory_lock);
+            std::shared_ptr<U> sp;
+
+            auto foundit = factory_map.find(class_name);
+            if (foundit != std::end(factory_map)) {
+                auto p = foundit->second(ji, bus);
+                sp = std::dynamic_pointer_cast<U>(p);
+                if (sp) {
+                    if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
+                        sp->bus = bus;
+                        auto response = _bus->create_object(instance, create_class_name);
+
+                        if (response.success) {
+                            sp->put_json(response.data);
+                            bus->put_object(instance, response.data);
+                        }
+                    }
+                }
+            }
+            return sp;
+        }
+
+        std::shared_ptr<typename U = T> get_inventory(chest_field& _cf)
+        {
+            std::vector<std::shared_ptr<U>> inventory;
+            for (auto& item : _cf.items) {
+                auto obj = get_object<U>(corona_instance::local, item.second.part_class, item.second.part_id, false);
+                if (obj) {
+                    inventory.push_back(obj);
+                }
+            }
+            return inventory;
         }
 
         template <typename U=T>

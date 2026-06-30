@@ -9,7 +9,6 @@ namespace corona
 	// or, we say all access is through local corona, so that, they can be stitched into a fabric.
 	namespace game
 	{
-
 		class game;
 
 		struct collision_result
@@ -244,47 +243,6 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
-			virtual void get_json(json& _dest)
-			{
-                corona_object::get_json(_dest);
-                _dest.put_member("state", state);
-				_dest.put_member("duration", duration);
-                _dest.put_member("draw_rectangle", draw_rectangle);
-                _dest.put_member("direction", direction);
-                json_parser jp;
-                json jframes = jp.create_array();
-				for (auto& frame : frames) {
-					json jframe = jp.create_object();
-					frame->get_json(jframe);
-					jframes.push_back(jframe);
-                }
-                _dest.put_member("frames", jframes);
-			}
-
-			virtual void put_json(frame_factory& _factory, json& _src)
-			{
-                corona_object::put_json(_src);
-				state = _src["state"].as_string();
-				duration = _src["duration"].as_double();
-				draw_rectangle = _src["draw_rectangle"].as_rectangle();
-				direction = _src["direction"].as_vector();
-				json jframes = _src["frames"];
-				frames.clear();
-
-				if (jframes.array()) {
-					for (int i = 0; i < jframes.size(); i++) {
-						auto jframe = jframes.get_element(i);
-						if (!jframe.object()) {
-							continue;
-						}
-                        auto frame = _factory.create_object(jframe);
-						frame->put_json(jframe);
-						frames.push_back(frame);
-					}
-				}
-                json jsound = _src["sound"];
-                sound = audio_graph::from_json(jsound);
-			}
 
 			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
 			{
@@ -306,6 +264,48 @@ namespace corona
 				frame->draw(_context, _location);
 			}
 
+			virtual void put_json(frame_factory& _factory, json& _src)
+			{
+				corona_object::put_json(_src);
+				state = _src["state"].as_string();
+				duration = _src["duration"].as_double();
+				draw_rectangle = _src["draw_rectangle"].as_rectangle();
+				direction = _src["direction"].as_vector();
+				json jframes = _src["frames"];
+				frames.clear();
+
+				if (jframes.array()) {
+					for (int i = 0; i < jframes.size(); i++) {
+						auto jframe = jframes.get_element(i);
+						if (!jframe.object()) {
+							continue;
+						}
+						auto frame = _factory.create_object(jframe);
+						frame->put_json(jframe);
+						frames.push_back(frame);
+					}
+				}
+				json jsound = _src["sound"];
+				sound = audio_graph::from_json(jsound);
+			}
+
+			virtual void get_json(json& _dest)
+			{
+				corona_object::get_json(_dest);
+				_dest.put_member("state", state);
+				_dest.put_member("duration", duration);
+				_dest.put_member("draw_rectangle", draw_rectangle);
+				_dest.put_member("direction", direction);
+				json_parser jp;
+				json jframes = jp.create_array();
+				for (auto& frame : frames) {
+					json jframe = jp.create_object();
+					frame->get_json(jframe);
+					jframes.push_back(jframe);
+				}
+				_dest.put_member("frames", jframes);
+			}
+
 		};
 
 		class piece : public corona_object
@@ -320,12 +320,9 @@ namespace corona
 			piece& operator =(const piece& _src) = default;
 			piece& operator =(piece&& _src) = default;
 
-		private:
+		protected:
 
 			std::shared_ptr<chest_field> inventory;
-			std::vector<piece> inventory_pieces;
-
-			void update_inventory_pieces();
 
 		public:
 
@@ -420,8 +417,6 @@ namespace corona
 						animation->draw(_context, _elapsed, _location);
 					}
 				}
-
-
 			}
 
 			virtual void collide(collision_result& collision, std::shared_ptr<piece> _other)
@@ -556,26 +551,67 @@ namespace corona
 
 		using piece_factory = corona_object_factory<piece>;
 
-		class game_factory 
+		class game_factory
 		{
 		public:
 			piece_factory piece_factory;
 			frame_factory frame_factory;
 
-            game_factory(comm_bus_app_interface *bus) noexcept : piece_factory(bus), frame_factory(bus)
+			game_factory(comm_bus_app_interface* bus) noexcept : piece_factory(bus), frame_factory(bus)
 			{
 				;
-			}			
+			}
 
-            game_factory(const game_factory& _src) = default;
-            game_factory(game_factory&& _src) = default;
-            game_factory& operator =(const game_factory& _src) = default;
-            game_factory& operator =(game_factory&& _src) = default;
+			game_factory(const game_factory& _src) = default;
+			game_factory(game_factory&& _src) = default;
+			game_factory& operator =(const game_factory& _src) = default;
+			game_factory& operator =(game_factory&& _src) = default;
 
-            void init(corona_instance instance)
+			void init(corona_instance instance)
 			{
 				piece_factory.init(instance);
 				frame_factory.init(instance);
+			}
+
+			std::shared_ptr<piece> create_piece(std::string _class_name);
+
+		};
+
+		class piece_list : public corona_object
+		{
+		public:
+			piece_list() {
+				class_name = "piece_list";
+			}
+			piece_list(const piece_list& _src) = default;
+			piece_list(piece_list&& _src) = default;
+			piece_list& operator =(const piece_list& _src) = default;
+			piece_list& operator =(piece_list&& _src) = default;
+
+			std::string state;
+            std::vector<std::shared_ptr<piece>> pieces;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+				_dest.put_member("state", state);
+				json j = jp.create_array();
+				for (const auto& p : pieces) {
+                    json pj = jp.create_object();
+                    p->get_json(pj);
+                    j.push_back(pj);
+				}
+				_dest.put_member("pieces", j);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				corona_object::put_json(_src);
+				state = _src["state"].as_string();
+                json jpieces = _src["pieces"];
+				pieces = _gbus.piece_factory.create_array(jpieces);
 			}
 		};
 
@@ -705,6 +741,7 @@ namespace corona
 		{
 		public:
 
+			function_scheduler<npc_spawn> scheduler;
 			std::vector<std::string> spawn_classes;
 
 			npc_spawn() {
@@ -719,15 +756,19 @@ namespace corona
 			{
 				spawn::get_json(_dest);
 				json_parser jp;
-				json j = jp.from_string_container(spawn_classes);
+				json j = jp.vector_to_jarray(spawn_classes);
 				_dest.put_member("spawn_classes", j);
+                json jscheduler = jp.create_object();
+				scheduler.get_json(jscheduler);
+                _dest.put_member("task_scheduler", jscheduler);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				spawn::put_json(_gbus, _src);
 				json jsc = _src["spawn_classes"];
-				json timer = _src["task_scheduler"];
+				json jtimer = _src["task_scheduler"];
+                scheduler.put_json(jtimer);
 				spawn_classes = jsc.to_string_array();
 			}
 
@@ -741,8 +782,27 @@ namespace corona
 				result = spawn_classes[index];
 			}
 
-			virtual void run(game* _game, date_time _time)
+            virtual void spawn(game* _game)
 			{
+				std::string spawn_class = get_spawn_class();
+				if (spawn_class.size() > 0) {
+					json_parser jp;
+                    json spawn_class = jp.create_object();
+					spawn_class.put_member(class_name_field, spawn_class);
+					auto new_piece = _game->factories.piece_factory.create_object(spawn_class);
+					if (new_piece) {
+						new_piece->position = this->position;
+                        new_piece->facing = this->facing;
+						_game->game_map->pieces.push_back(new_piece);
+					}
+				}
+			}
+
+			virtual void run(game* _game, double _elapsed_seconds)
+			{
+                if (scheduler.execute(_elapsed_seconds)) {
+					spawn(_game);
+				}
 			}
 
 		};
@@ -791,6 +851,7 @@ namespace corona
 			{
 				feature::put_json(_gbus, _src);
 			}
+
 		};
 
 
@@ -820,6 +881,7 @@ namespace corona
 			}
 		};
 
+
 		class switcher : public feature
 		{
 		public:
@@ -832,25 +894,52 @@ namespace corona
 			switcher& operator =(const switcher& _src) = default;
 			switcher& operator =(switcher&& _src) = default;
 
-            std::vector<std::shared_ptr<piece>> on_pieces;
-			std::vector<std::shared_ptr<piece>> off_pieces;
+			std::string state;
+            std::vector<std::shared_ptr<piece_list>> sets;
 
 			virtual void get_json(json& _dest)
 			{
-
+				feature::get_json(_dest);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				feature::put_json(_gbus, _src);
+
+                json jsets = _src["sets"];
+
+				for (int i = 0; i < jsets.size(); i++) 
+				{
+                    json jset = jsets.get_element(i);
+                    auto set = std::make_shared<piece_list>();
+                    set->put_json(_gbus, jset);
+
+                    sets.push_back(set);
+                }
 			}
 
 			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
 			virtual void use(game* _game, piece* _piece)
 			{
-				
+                if (state.empty()) {
+					if (sets.size() > 0) {
+						state = sets[0]->state;
+					}
+				}
+				else {
+					for (int i = 0; i < sets.size(); i++) {
+						if (sets[i]->state == state) {
+							int next_index = i;
+							do {
+								next_index = (i + 1) % sets.size();
+                            } while (next_index != i && sets[next_index]->state == state);
+							state = sets[next_index]->state;
+                            _game->switch_changed(this, state);
+							break;
+						}
+					}
+				}
 			}
-
 		};
 
 		class door : public feature
@@ -858,6 +947,7 @@ namespace corona
 		public:
 			door() {
 				class_name = "door";
+				state = "closed";
 			}
 			door(const door& _src) = default;
 			door(door&& _src) = default;
@@ -866,17 +956,26 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
+                feature::get_json(_dest);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				feature::put_json(_gbus, _src);
 			}
 
-			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
+			// the player uses the piece, and then, 
+			// that changes the state.
+			// the animation system picks this up while rendering
 			virtual void use(game* _game, piece* _piece)
 			{
-
+				if (state == "open") {
+					state = "closed";
+				}
+				else {
+					state = "open";
+				}
+				_game->door_changed(this, state);
 			}
 
 		};
@@ -965,6 +1064,7 @@ namespace corona
 			virtual void use(game* _game, piece* _piece)
 			{
                 is_on = !is_on;
+				_game->light_changed(this, state);
 			}
 
 		};
@@ -1060,6 +1160,7 @@ namespace corona
 			{
 				corona_object::put_json(_src);
 			}
+
 		};
 
 		class tool : public carryable
@@ -1070,7 +1171,7 @@ namespace corona
 				class_name = "tool";
 			}
 			tool(const tool& _src) = default;
-			tool(tool&& _src) = default;
+			tool(tool&& _src) = default; 
 			tool& operator =(const tool& _src) = default;
 			tool& operator =(tool&& _src) = default;
 
@@ -1109,52 +1210,31 @@ namespace corona
 			}
 		};
 
-		class firearm : public tool
+		class shot : public piece
 		{
+
 		public:
 
-			firearm() {
-				class_name = "firearm";
+			shot() {
+				class_name = "shot";
 			}
-			firearm(const firearm& _src) = default;
-			firearm(firearm&& _src) = default;
-			firearm& operator =(const firearm& _src) = default;
-			firearm& operator =(firearm&& _src) = default;
+			shot(const shot& _src) = default;
+			shot(shot&& _src) = default;
+			shot& operator =(const shot& _src) = default;
+			shot& operator =(shot&& _src) = default;
+
+			std::string shot_type;
 
 			virtual void get_json(json& _dest)
 			{
-				tool::get_json(_dest);
+				piece::get_json(_dest);
+				_dest.put_member("shot_type", shot_type);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				tool::put_json(_gbus, _src);
-			}
-
-			virtual void use(game* _game, piece* _piece);
-
-		};
-
-		class magazine : public carryable
-		{
-		public:
-
-			magazine() {
-				class_name = "magazine";
-			}
-			magazine(const magazine& _src) = default;
-			magazine(magazine&& _src) = default;
-			magazine& operator =(const magazine& _src) = default;
-			magazine& operator =(magazine&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-				carryable::get_json(_dest);
-			}
-
-			virtual void put_json(game_factory& _gbus, json& _src)
-			{
-				carryable::put_json(_gbus, _src);
+				piece::put_json(_gbus.frame_factory, _src);
+				shot_type = _src["shot_type"].as_string();
 			}
 		};
 
@@ -1170,40 +1250,161 @@ namespace corona
 			ammunition& operator =(const ammunition& _src) = default;
 			ammunition& operator =(ammunition&& _src) = default;
 
+			std::string ammunition_type;
+			std::string shot_class;
+			double shot_muzzle_velocity;
+			double shot_mass;
+			double shot_impulse;
+
 			virtual void get_json(json& _dest)
 			{
 				carryable::get_json(_dest);
+				_dest.put_member("ammunition_type", ammunition_type);
+				_dest.put_member("shot_class", shot_class);
+				_dest.put_member("shot_muzzle_velocity", shot_muzzle_velocity);
+				_dest.put_member("shot_mass", shot_mass);
+				_dest.put_member("shot_impulse", shot_impulse);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				carryable::put_json(_gbus, _src);
+				ammunition_type = _src["ammunition_type"].as_string();
+				shot_class = _src["shot_class"].as_string();
+				shot_muzzle_velocity = _src["shot_muzzle_velocity"].as_double();
+                shot_mass = _src["shot_mass"].as_double();
+                shot_impulse = _src["shot_impulse"].as_double();
 			}
 		};
 
-		class shot : public piece
+		class magazine : public carryable
 		{
-
 		public:
 
-			shot() {
-				class_name = "shot";
+			magazine() {
+				class_name = "magazine";
 			}
-			shot(const shot& _src) = default;
-			shot(shot&& _src) = default;
-			shot& operator =(const shot& _src) = default;
-			shot& operator =(shot&& _src) = default;
+			magazine(const magazine& _src) = default;
+			magazine(magazine&& _src) = default;
+			magazine& operator =(const magazine& _src) = default;
+			magazine& operator =(magazine&& _src) = default;
+
+			std::string magazine_type;
+			std::map<std::string,bool> ammunition_types;
 
 			virtual void get_json(json& _dest)
 			{
-				piece::get_json(_dest);
+				carryable::get_json(_dest);
+				json_parser jp;
+				_dest.put_member("magazine_type", magazine_type);
+				json jammo_types = jp.vector_to_jarray(ammunition_types);
+                _dest.put_member("ammunition_types", jammo_types);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-                piece::put_json(_gbus.frame_factory, _src);
+				json_parser jp;
+
+				carryable::put_json(_gbus, _src);
+
+				magazine_type = _src["magazine_type"].as_string();
+                json jammo_types = _src["ammunition_types"];
+				ammunition_types = jp.jarray_to_string_map(jammo_types);
+			}
+
+			virtual chest_item *discharge(game* _game, piece* _piece)
+			{
+				chest_item* discharged = nullptr;
+				if (inventory) {
+					if (auto *cf = inventory->use(1)) {
+						discharged = cf;
+					}
+				}
+                return discharged;
 			}
 		};
+
+		class firearm : public tool
+		{
+		public:
+
+			firearm() {
+				class_name = "firearm";
+			}
+			firearm(const firearm& _src) = default;
+			firearm(firearm&& _src) = default;
+			firearm& operator =(const firearm& _src) = default;
+			firearm& operator =(firearm&& _src) = default;
+
+            std::map<std::string, bool> magazine_types;
+
+			virtual void get_json(json& _dest)
+			{
+				carryable::get_json(_dest);
+				json_parser jp;
+				json jmagazine_types = jp.map_to_jarray(magazine_types);
+				_dest.put_member("magazine_types", jmagazine_types);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				json_parser jp;
+				carryable::put_json(_gbus, _src);
+
+				json jmagazine_types = _src["magazine_types"];
+				magazine_types = jp.jarray_to_string_map(jmagazine_types);
+			}
+
+            virtual void load(game* _game, piece* _piece, magazine* _magazine)
+			{
+				if (inventory) {
+					if (magazine_types.contains(_magazine->magazine_type)) {
+						auto ci = _magazine->make_chest_item(1);
+						inventory->add_part(ci);
+					}
+				}
+			}
+
+			virtual void use(game* _game, piece* _piece)
+			{
+				if (inventory) {
+                    // see if we have any magazines that are compatible with this firearm
+                    // these are the ones in the firearm inventory (that is, the magazine is in the firearm, not in the player inventory)
+					auto compatible_magazines = _game->factories.piece_factory.get_inventory(*inventory);
+					for (auto& mag : compatible_magazines) {
+						if (magazine_types.contains( mag->magazine_type )) {
+							// we have a compatible magazine, so we can fire the firearm
+							// we will consume one round of ammunition from the magazine
+                            // and we can discharge the firearm, which reduces the inventory in the magazine by one
+                            auto discharged = mag->discharge(_game, _piece);
+							if (discharged) {
+								// now the shot is fired.  So now we can create the shot corresponding 
+								// to the ammunition.
+								auto round = _game->factories.piece_factory.get_object<ammunition>(corona_instance::local, discharged->part_class, discharged->part_id, false);
+								if (round) {
+									auto new_shot = _game->factories.piece_factory.create_object(round->shot_class);
+									if (new_shot) {
+										new_shot->position = _piece->position;
+										new_shot->facing = _piece->facing;
+                                        new_shot->mass = round->shot_mass;
+										DirectX::XMVECTOR normalized_facing = DirectX::XMVector3Normalize(_piece->facing);
+										auto scaled = DirectX::XMVectorScale(normalized_facing, static_cast<float>(round->shot_muzzle_velocity));
+                                        auto new_velocity = DirectX::XMVectorAdd(_piece->velocity, scaled);
+                                        new_shot->velocity = new_velocity;
+										_game->game_map->pieces.push_back(new_shot);
+										double recoil_acceleration = - (new_shot->mass * round->shot_muzzle_velocity) / (_piece->mass * round->shot_impulse);
+										auto recoil_vector = DirectX::XMVectorScale(normalized_facing, static_cast<float>(recoil_acceleration);
+                                        _piece->acceleration = DirectX::XMVectorAdd(_piece->acceleration, recoil_vector);
+									}
+								}
+							}
+						}
+					}
+                }
+			}
+
+		};
+
 
 		class wand : public tool
 		{
@@ -1399,7 +1600,7 @@ namespace corona
 			}
 		};
 
-		class map
+        class map : public piece_list
 		{
 		public:
 
@@ -1411,11 +1612,8 @@ namespace corona
 			map& operator =(const map& _src) = default;
 			map& operator =(map&& _src) = default;
 
-			std::string class_name;
-			int64_t object_id;
 			std::string name;
-
-			std::vector<std::shared_ptr<piece>> pieces;
+			std::string description;
 
 			// C++20 view functions - no separate storage needed
 			template<std::derived_from<piece> T>
@@ -1442,9 +1640,19 @@ namespace corona
 			auto shots() const { return get_pieces_of_type<shot>(); }
 			auto surfaces() const { return get_pieces_of_type<surface>(); }
 
-			virtual void get_json(json& _dest);
-			virtual void put_json(game_factory& _gbus, json& _src);
+			virtual void get_json(json& _dest)
+			{
+				piece_list::get_json(_dest);
+				_dest.put_member("name", name);
+                _dest.put_member("description", description);
+			}
 
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece_list::put_json(_gbus, _src);
+				name = _src["name"].as_string();
+                description = _src["description"].as_string();
+			}
 		};
 
 		enum class game_state
@@ -1511,9 +1719,14 @@ namespace corona
 			timer				frame_timer;
 			lockable			map_locker;
 			std::map<game_state, std::shared_ptr<state_event>> event_handlers;
-			std::shared_ptr<map> map;
+			std::shared_ptr<map> game_map;
 			std::shared_ptr<state_event> handlers;
 			game_state state;
+
+            std::shared_ptr<corona_bus_command> on_all_players_ready;
+			std::shared_ptr<corona_bus_command> on_all_players_dead;
+			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_use;
+			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_shot;
 
 			void init()
 			{
@@ -1623,11 +1836,11 @@ namespace corona
 				// Remove all players from the pieces collection
 				auto is_player = [](const auto& piece) {
 					return std::dynamic_pointer_cast<player>(piece) != nullptr;
-					};
-				map->pieces.erase(
-					std::remove_if(map->pieces.begin(), map->pieces.end(), is_player),
-					map->pieces.end()
-				);
+				};
+				game_map->pieces.erase(
+						std::remove_if(game_map->pieces.begin(), game_map->pieces.end(), is_player),
+						game_map->pieces.end()
+					);
 				state = game_state::lobby;
                 handlers = event_handlers[state];
 			}
@@ -1681,7 +1894,7 @@ namespace corona
 			void check_all_ready()
 			{
 				if (state == game_state::lobby) {
-					auto players_view = map->players();
+					auto players_view = game_map->players();
 					bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
 						return player->ready;
 					});
@@ -1693,7 +1906,7 @@ namespace corona
 
 			void check_all_dead()
 			{
-				auto players_view = map->players();
+				auto players_view = game_map->players();
 				bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
 					return player->dead;
 					});
@@ -1824,7 +2037,7 @@ namespace corona
 				_dest.put_member("description", description);
 				json j = jp.create_array();
 				json jmap = jp.create_object();
-				map->get_json(jmap);
+				game_map->get_json(jmap);
 				j.push_back(jmap);
 				_dest.put_member("map", j);
 
@@ -1852,7 +2065,7 @@ namespace corona
 				name = _src["name"].as_string();
 				description = _src["description"].as_string();
 				json j = _src["map"];
-				map = std::make_shared<game>();
+				game_map = std::make_shared<map>();
 				std::string state_string = _src["state"].as_string();
 			}
 
@@ -1958,7 +2171,7 @@ namespace corona
 			std::shared_ptr<player> attach_player(std::string input_name)
 			{
 				// Search for existing player with this input device
-				for (auto player : map->players()) {
+				for (auto player : game_map->players()) {
 					if (player->input_device == input_name) {
 						return player;
 					}
@@ -1967,7 +2180,7 @@ namespace corona
 				std::shared_ptr<player> new_player = std::make_shared<player>();
 				new_player->name = input_name;
 				new_player->ready = false;
-				map->pieces.push_back(new_player);
+				game_map->pieces.push_back(new_player);
 				return new_player;
 			}
 
@@ -2165,6 +2378,42 @@ namespace corona
 
 		};
 
+		class world : public corona_object
+		{
+		public:
+			std::string name;
+			std::string description;
+            std::shared_ptr<map> map;
+            std::vector<std::shared_ptr<game>> games;
+
+			world() {
+				class_name = "world";
+            }
+            world(const world& _src) = default;
+            world(world&& _src) = default;
+            world& operator =(const world& _src) = default;
+            world& operator =(world&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+                _dest.put_member("name", name);
+                _dest.put_member("description", description);
+				json_parser jp;
+                json jmap = jp.create_object();
+                map->get_json(jmap);
+                _dest.put_member("map", jmap);
+			}
+
+			virtual void put_json(game_factory& _factory, json& _src)
+			{
+				name = _src["name"].as_string();
+				description = _src["description"].as_string();
+				json jmap = _src["map"];
+				map = std::make_shared<map>();
+				map->put_json(_factory, jmap);
+            }
+		};
+
 		class engine
 		{
 			comm_bus_app_interface *bus;
@@ -2177,7 +2426,7 @@ namespace corona
 			{
 			}
 
-			std::shared_ptr<game> new_game(json _game_key)
+			std::shared_ptr<game> new_game(json _world_key)
 			{
 				json_parser jp;
 
@@ -2187,14 +2436,14 @@ namespace corona
 				json copy_plan = jp.create_object();
 
 				json copy_from = jp.create_object();
-				copy_from.copy_member("class_name", _game_key);
-				copy_from.copy_member("object_id", _game_key);
+				copy_from.copy_member("class_name", _world_key);
+				copy_from.copy_member("object_id", _world_key);
 
 				json copy_to = jp.create_object();
-				copy_to.put_member_string("class_name", "session");
+				copy_to.put_member_string("class_name", "game");
 
 				json copy_transform = jp.create_object();
-				copy_transform.put_member_string("class_name", "session");
+				copy_transform.put_member_string("class_name", "game");
 
 				copy_plan.put_member("from", copy_from);
 				copy_plan.put_member("to", copy_to);
@@ -2211,10 +2460,10 @@ namespace corona
 				return nullptr;
 			}
 
-			std::shared_ptr<game> load_game(json _session_key)
+			std::shared_ptr<game> load_game(json _game_key)
 			{
 				json_parser jp;
-				auto result = bus->get_object(instance, _session_key);
+				auto result = bus->get_object(instance, _game_key);
 				if (result.success) {
 					std::shared_ptr<game> session = std::make_shared<game>(bus, result.data);
 					games.push_back(session);
@@ -2223,18 +2472,18 @@ namespace corona
 				return nullptr;
 			}
 
-			void save_game(std::shared_ptr<game> _session)
+			void save_game(std::shared_ptr<game> _game)
 			{
 				json_parser jp;
 				json jsession = jp.create_object();
-				_session->get_json(jsession);
+				_game->get_json(jsession);
 				bus->put_object(instance, jsession);
 			}
 
-			void close_game(std::shared_ptr<game> _session)
+			void close_game(std::shared_ptr<game> _game)
 			{
-				_session->set_exit();
-				std::remove(games.begin(), games.end(), _session);
+				_game->set_exit();
+				std::remove(games.begin(), games.end(), _game);
 			}
 		};
 
@@ -2251,24 +2500,7 @@ namespace corona
 
 				
 		}
-
-/*		std::shared_ptr<chest_field> inventory;
-		std::vector<piece> corona_pieces;
-
-		*/
 		
-		void piece::update_inventory_pieces()
-		{
-			for (auto piece : inventory_pieces) {
-				piece->save();
-			}
-			inventory_pieces.clear();
-			for (auto item : inventory->items) 
-			{
-                auto load_piece = _game->factories.piece_factory.get_object(corona_instance::local, item.part_class, item.part_id, true);
-                inventory_pieces.push_back(load_piece);
-			}
-		}
 
 		void actor::select_next()
 		{
@@ -2408,11 +2640,9 @@ namespace corona
 			}
 		}
 
-		void map::get_json(json& _dest)
+		void piece_list::get_json(json& _dest)
 		{
 			json_parser jp;
-
-			_dest.put_member("pieces", name);
 
 			json j = jp.create_array();
 			for (auto& s : pieces) {
@@ -2423,11 +2653,9 @@ namespace corona
 			_dest.put_member("pieces", j);
 		}
 
-		void map::put_json(game_factory& _gbus, json& _src)
+		void piece_list::put_json(game_factory& _gbus, json& _src)
 		{
-			name = _src["name"].as_string();
 			json j = _src["pieces"];
-
 			pieces = _gbus.piece_factory.create_array(j);
 		}
 
