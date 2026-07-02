@@ -95,12 +95,14 @@ namespace corona
 		std::string part_class;
 		int64_t		part_id;
 		double      quantity;
+        json	    lot_data;
 
 		virtual void get_json(json& _dest)
 		{
 			_dest.put_member_string("part_class", part_class);
 			_dest.put_member_i64("part_id", part_id);
 			_dest.put_member_double("quantity", quantity);
+            _dest.put_member("lot_data", lot_data);
 		}
 
 		virtual void put_json(json& _src)
@@ -108,6 +110,7 @@ namespace corona
 			part_class = _src["part_class"].as_string();
 			part_id = _src["part_id"].as_int64_t();
 			quantity = _src["quantity"].as_double();
+            lot_data = _src["lot_data"];
 		}
 
 	};

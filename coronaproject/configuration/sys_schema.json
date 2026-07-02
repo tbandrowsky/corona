@@ -120,24 +120,44 @@
       }
     },
     {
-      "class_name": "piece",
+      "class_name": "piece_type",
       "base_class_name": "sys_object",
-      "class_description": "a gaming piece",
-      "parents": [ "map" ],
+      "class_description": "a type of gaming piece",
       "fields": {
         "name": "string",
         "description": "string",
+        "animations": [ "animation" ],
+        "instance_type": "string",
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
+        "state": "string",
+        "pieces": [ "piece" ],
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "piece_type"
+        }
+      }
+    },
+    {
+      "class_name": "piece",
+      "base_class_name": "sys_object",
+      "class_description": "a gaming piece",
+      "parents": [ "map", "piece_type" ],
+      "fields": {
+        "name": "string",
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
         "state": "string",
         "position": "vector",
         "size": "vector",
         "velocity": "vector",
         "facing": "vector",
-        "animations": [ "animation" ],
-        "mass": "double",
-        "full_hit_points": "double",
+        "acceleration": "vector",
         "inventory": {
           "field_type": "chest",
-          "item_class": "item"
+          "item_class": "piece"
         }
       }
     },
@@ -149,6 +169,17 @@
       "fields": {
         "state": "string",
         "pieces ": [ "piece" ]
+      }
+    },
+    {
+      "class_name": "actor_type",
+      "base_class_name": "piece_type",
+      "class_description": "a gaming player",
+      "fields": {
+        "crawling_velocity": "double",
+        "walking_velocity": "double",
+        "running_velocity": "double",
+        "throwing_velocity": "double"
       }
     },
     {
@@ -176,11 +207,18 @@
       }
     },
     {
+      "class_name": "feature_type",
+      "base_class_name": "piece_type",
+      "class_description": "a static feature on a map",
+      "fields": {
+        "scheduler": "scheduler"
+      }
+    },
+    {
       "class_name": "feature",
       "base_class_name": "piece",
       "class_description": "a static feature on a map",
       "fields": {
-        "scheduler": "scheduler"
       }
     },
     {
@@ -197,6 +235,15 @@
       "class_description": "player_spawn",
       "fields": {
 
+      }
+    },
+    {
+      "class_name": "npc_spawn_type",
+      "base_class_name": "feature",
+      "class_description": "npc spawn",
+      "fields": {
+        "spawn_classes": [ "string" ],
+        "scheduler": "function_scheduler"
       }
     },
     {
@@ -250,13 +297,20 @@
       }
     },
     {
-      "class_name": "surface",
-      "base_class_name": "feature",
+      "class_name": "surface_type",
+      "base_class_name": "feature_type",
       "class_description": "a gaming surface",
       "fields": {
         "mechanic": "string",
         "acceleration_multiplier": "double",
         "friction_multiplier": "double"
+      }
+    },
+    {
+      "class_name": "surface",
+      "base_class_name": "feature",
+      "class_description": "a gaming surface",
+      "fields": {
       }
     },
     {
@@ -303,15 +357,22 @@
       }
     },
     {
-      "class_name": "effect",
-      "base_class_name": "piece",
+      "class_name": "effect_type",
+      "base_class_name": "piece_type",
       "class_description": "a gaming item",
-      "parents": [ "shot", "spell", "stick", "artifact" ],
       "fields": {
         "frequency_seconds": "double",
         "remaining_seconds": "double",
-        "remaining_count": "double",
-        "name": "string"
+        "remaining_count": "double"
+      }
+    },
+    {
+      "class_name": "effect",
+      "base_class_name": "piece",
+      "class_description": "a gaming item",
+      "fields": {
+        "remaining_seconds": "double",
+        "remaining_count": "double"
       }
     },
     {
@@ -349,14 +410,36 @@
       }
     },
     {
+      "class_name": "firearm_type",
+      "base_class_name": "piece_type",
+      "class_description": "weapon for the shot",
+      "fields": {
+        "magazine_types": [ "string" ]
+      }
+    },
+    {
       "class_name": "firearm",
       "base_class_name": "tool",
       "class_description": "weapon for the shot",
       "fields": {
-        "magazine_types": [ "string" ],
         "inventory": {
           "field_type": "chest",
           "item_class": "magazine"
+        }
+      }
+    },
+    {
+      "class_name": "magazine_type",
+      "base_class_name": "piece_type",
+      "class_description": "a magazine for the firearm",
+      "parents": [ "firearm_type" ],
+      "fields": {
+        "magazine_type": "string",
+        "ammunition_types": [ "string" ]
+      },
+      "indexes": {
+        "magazine_type_index": {
+          "index_keys": [ "magazine_type" ]
         }
       }
     },
@@ -366,11 +449,31 @@
       "class_description": "a magazine for the firearm",
       "parents": [ "firearm" ],
       "fields": {
-        "magazine_type": "string",
-        "ammunition_types": [ "string" ],
         "inventory": {
           "field_type": "chest",
           "item_class": "ammunition"
+        }
+      }
+    },
+    {
+      "class_name": "ammunition_type",
+      "base_class_name": "piece_type",
+      "class_description": "ammo for the firearm",
+      "fields": {
+        "ammunition_type": "string",
+        "shot_class": "string",
+        "shot_muzzle_velocity": "double",
+        "shot_mass": "double",
+        "shot_impulse": "double",
+        "shot_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "shot_type"
+        }
+      },
+      "indexes": {
+        "ammunition_type_index": {
+          "index_keys": [ "ammunition_type" ]
         }
       }
     },
@@ -379,14 +482,22 @@
       "base_class_name": "carryable",
       "class_description": "ammo for the firearm",
       "fields": {
-        "ammunition_type": "string",
-        "shot_class": "string",
-        "shot_muzzle_velocity": "double",
-        "shot_mass": "double",
-        "shot_impulse": "double",
+      }
+    },
+    {
+      "class_name": "shot_type",
+      "base_class_name": "piece_type",
+      "class_description": "an effect of a weapon",
+      "fields": {
+        "shot_type": "string",
         "inventory": {
           "field_type": "chest",
-          "item_class": "shot"
+          "item_class": "effect"
+        }
+      },
+      "indexes": {
+        "shot_type_index": {
+          "index_keys": [ "shot_type" ]
         }
       }
     },
@@ -402,10 +513,11 @@
       }
     },
     {
-      "class_name": "wand",
-      "base_class_name": "tool",
+      "class_name": "wand_type",
+      "base_class_name": "piece_type",
       "class_description": "a magic thing that launches spells",
       "fields": {
+        "spell_types": [ "string" ],
         "inventory": {
           "field_type": "chest",
           "item_class": "spell"
@@ -413,9 +525,44 @@
       }
     },
     {
+      "class_name": "wand",
+      "base_class_name": "tool",
+      "class_description": "a magic thing that launches spells",
+      "fields": {
+        "spell_types": [ "string" ],
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "spell"
+        }
+      }
+    },
+    {
+      "class_name": "spell_type",
+      "base_class_name": "piece_type",
+      "class_description": "a travelling spell with effects",
+      "fields": {
+        "spell_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
+      }
+    },
+    {
       "class_name": "spell",
       "base_class_name": "carryable",
       "class_description": "a travelling spell with effects",
+      "fields": {
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
+      }
+    },
+    {
+      "class_name": "stick_type",
+      "base_class_name": "tool",
+      "class_description": "general stick",
       "fields": {
         "inventory": {
           "field_type": "chest",

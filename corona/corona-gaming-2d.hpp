@@ -308,6 +308,96 @@ namespace corona
 
 		};
 
+		class piece_type : public corona_object
+		{
+
+		public:
+			piece_type() {
+				class_name = "piece";
+			}
+			piece_type(const piece_type& _src) = default;
+			piece_type(piece_type&& _src) = default;
+			piece_type& operator =(const piece_type& _src) = default;
+			piece_type& operator =(piece_type&& _src) = default;
+
+			std::string name;
+			std::string state;
+			std::vector<std::shared_ptr<animation>> animations;
+
+			std::shared_ptr<chest_field> inventory;
+
+			double		mass = 1.0;
+			double      full_health = 1.0;
+			double      health = 1.0;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+
+				_dest.put_member("name", name);
+				_dest.put_member("state", state);
+				_dest.put_member("mass", mass);
+
+				json j = jp.create_array();
+				for (auto& s : animations) {
+					json jsprite = jp.create_object();
+					s->get_json(jsprite);
+					j.push_back(jsprite);
+				}
+				_dest.put_member("animations", j);
+
+				json jinventory = jp.create_object();
+
+				if (inventory) {
+					inventory->get_json(jinventory);
+				}
+
+			}
+
+			virtual void put_json(frame_factory& _factory, json& _src)
+			{
+				corona_object::put_json(_src);
+
+				name = _src["name"].as_string();
+				state = _src["state"].as_string();
+				mass = _src["mass"].as_double();
+
+				if (fabs(mass) < 0.0001) {
+					mass = 1.0;
+				}
+
+				json janimations = _src["animations"];
+				animations.clear();
+				for (int i = 0; i < janimations.size(); i++) {
+					auto janimation = janimations.get_element(i);
+					if (!janimation.object()) {
+						continue;
+					}
+					auto new_animation = std::make_shared<animation>();
+					new_animation->put_json(_factory, janimation);
+					animations.push_back(new_animation);
+				}
+
+				inventory = std::make_shared<chest_field>();
+				if (_src.has_member("inventory")) {
+					json jinventory = _src["inventory"];
+					inventory->put_json(jinventory);
+				}
+			}
+
+			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
+			{
+				for (auto animation : animations) {
+					if (animation->state == state) {
+						animation->draw(_context, _elapsed, _location);
+					}
+				}
+			}
+		};
+
+
 		class piece : public corona_object
 		{
 
@@ -320,12 +410,6 @@ namespace corona
 			piece& operator =(const piece& _src) = default;
 			piece& operator =(piece&& _src) = default;
 
-		protected:
-
-			std::shared_ptr<chest_field> inventory;
-
-		public:
-
 			std::string name;
 			std::string state;
 			std::vector<std::shared_ptr<animation>> animations;
@@ -335,9 +419,11 @@ namespace corona
 			DirectX::XMVECTOR facing = {};
 			DirectX::XMVECTOR acceleration = {};
 
+			std::shared_ptr<chest_field> inventory;
+
 			double		mass = 1.0;
-			double      full_hit_points = 1.0;
-			double      hit_points = 1.0;
+			double      full_health = 1.0;
+			double      health = 1.0;
 
 			virtual void get_json(json& _dest)
 			{
@@ -353,8 +439,8 @@ namespace corona
 				_dest.put_member("facing", facing);
 				_dest.put_member("acceleration", acceleration);
 				_dest.put_member("mass", mass);
-				_dest.put_member("full_hit_points", full_hit_points);
-				_dest.put_member("hit_points", hit_points);	
+				_dest.put_member("health", health);
+				_dest.put_member("full_health", full_health);
 
 				json j = jp.create_array();
 				for (auto& s : animations) {
@@ -451,113 +537,44 @@ namespace corona
 			}
 
             // the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
-			virtual void use(game* _game, piece *_piece);
+			virtual void use(game* _game, piece *_user);
+
+			// the user uses the piece, with a consumable piece
+			virtual void load(game* _game, piece* _user, chest_item& _item);
+
+			// the user uses the piece, with a consumable piece
+			virtual void unload(game* _game, piece* _user, chest_item& _item);
+
+			// the user drops the selection
+            virtual void drop(game* _game, chest_item& _item);
+
+			// the user picks up the object
+			virtual void pickup(game* _game, piece* _user, piece *_pickup);
 
 			// this gets called on every piece, to apply accelerations, make animation calculations, 
             // and other time-based calculations. The default implementation does nothing.
             // _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(game* _game, double _elapsed);
+			virtual void run(game* _game, piece *_user, double _elapsed);
 
-			void slide_piece(collision_result& collision, std::shared_ptr<piece> _other)
-			{
-				using namespace DirectX;
-
-				auto piece1 = this;
-				auto piece2 = _other;
-
-				// Get masses
-				float m1 = static_cast<float>(piece1->mass);
-				float m2 = static_cast<float>(piece2->mass);
-
-				// Get velocities
-				XMVECTOR v1 = piece1->velocity;
-				XMVECTOR v2 = piece2->velocity;
-
-				// Calculate velocity difference
-				XMVECTOR v_diff = XMVectorSubtract(v1, v2);
-
-				// Calculate position difference (for collision normal)
-				XMVECTOR p_diff = XMVectorSubtract(piece1->position, piece2->position);
-
-				// Get length to figure out our total velocity
-				XMVECTOR p_length = XMVector3Length(piece1->velocity);
-				double l = XMVectorGetX(p_length);
-
-				// And, that will be our slide velocity, which is the total velocity projected onto the collision normal
-				if (collision.collision_side == intersection_side::intersection_side_top || collision.collision_side == intersection_side::intersection_side_bottom) {
-					double xvl = XMVectorGetX(v1);
-					if (xvl < 0) {
-						l = -l;
-					}
-					// If we hit top or bottom, we want to slide along the x axis
-					piece1->velocity = XMVectorSet(l, 0.0f, 0.0f, 0.0f);
-				}
-				else if (collision.collision_side == intersection_side::intersection_side_left || collision.collision_side == intersection_side::intersection_side_right) {
-					double yvl = XMVectorGetY(v1);
-					if (yvl < 0) {
-						l = -l;
-					}
-					// If we hit left or right, we want to slide along the y axis
-					piece1->velocity = XMVectorSet(0.0f, l, 0.0f, 0.0f);
-				}
-			}
-
-			void recoil_piece(collision_result& collision, std::shared_ptr<piece> _other)
-			{
-				using namespace DirectX;
-
-				auto piece1 = this;
-				auto piece2 = _other;
-
-				// Get masses
-				float m1 = static_cast<float>(piece1->mass);
-				float m2 = static_cast<float>(piece2->mass);
-
-				// Get velocities
-				XMVECTOR v1 = piece1->velocity;
-				XMVECTOR v2 = piece2->velocity;
-
-				// Calculate velocity difference
-				XMVECTOR v_diff = XMVectorSubtract(v1, v2);
-
-				// Calculate position difference (for collision normal)
-				XMVECTOR p_diff = XMVectorSubtract(piece1->position, piece2->position);
-
-				// Normalize position difference to get collision normal
-				XMVECTOR normal = XMVector3Normalize(p_diff);
-
-				// Calculate relative velocity along collision normal
-				float v_rel_normal = XMVectorGetX(XMVector3Dot(v_diff, normal));
-
-				// Only proceed if objects are moving towards each other
-				if (v_rel_normal > 0) {
-					return;
-				}
-
-				// Calculate impulse scalar for elastic collision
-				float impulse = (2.0f * m2 * v_rel_normal) / (m1 + m2);
-
-				// Update velocities based on elastic collision
-				piece1->velocity = XMVectorSubtract(v1, XMVectorScale(normal, impulse));
-				piece2->velocity = XMVectorAdd(v2, XMVectorScale(normal, (impulse * m1) / m2));
-
-				// Set accelerations to zero after collision
-				piece1->acceleration = XMVectorZero();
-				piece2->acceleration = XMVectorZero();
-			}
 
 		};
 
 		using piece_factory = corona_object_factory<piece>;
+
+        using general_factory = corona_object_factory<corona_object>;
 
 		class game_factory
 		{
 		public:
 			piece_factory piece_factory;
 			frame_factory frame_factory;
+			general_factory general_factory;
 
-			game_factory(comm_bus_app_interface* bus) noexcept : piece_factory(bus), frame_factory(bus)
+			using object_action = std::function<void(game* _game, piece* _direct_object, piece* _actor)>;
+			using object_interaction = std::function<void(game* _game, piece* _a, piece* _b)>;
+
+			game_factory(comm_bus_app_interface* bus) noexcept : piece_factory(bus), frame_factory(bus), general_factory(bus)
 			{
 				;
 			}
@@ -670,6 +687,19 @@ namespace corona
 				piece::put_json(_gbus.frame_factory, _src);
 			}
 
+			virtual void load(game* _game, piece* _user, piece* _consumable);
+
+			// the user drops the selection
+			virtual void drop(game* _game, piece* _user);
+
+			// the user picks up the obect
+			virtual void pickup(game* _game, piece* _user, piece* _pickup);
+
+			// this gets called on every piece, to apply accelerations, make animation calculations, 
+			// and other time-based calculations. The default implementation does nothing.
+			// _elapsed_seconds is the time since the last call to run, in seconds.
+			// this will be quite fractional.
+			virtual void run(game* _game, piece* _user, double _elapsed);
 		};
 
 		class delivery : public piece
@@ -1312,6 +1342,22 @@ namespace corona
 				ammunition_types = jp.jarray_to_string_map(jammo_types);
 			}
 
+			// now we load the ammunition
+			virtual void load(game* _game, piece* _user, piece* _consumable)
+			{
+				if (auto ammo = dynamic_cast<ammunition*>(_consumable)) {
+					std::vector<std::string> class_names = { "ammunition" };
+					auto found = _user->inventory->find_first_any(class_names);
+					if (found)
+					{
+						// we found a magazine in the firearm, so we will remove it and put it back in the player's inventory
+						inventory->remove_part(*found);
+						_user->inventory->add_part(*found);
+					}
+				}
+			}
+
+            // discharges the magazine, which means it removes one round of ammunition from the magazine and returns it as a chest_item. If the magazine is empty, it returns nullptr.
 			virtual chest_item *discharge(game* _game, piece* _piece)
 			{
 				chest_item* discharged = nullptr;
@@ -1403,8 +1449,27 @@ namespace corona
                 }
 			}
 
-		};
+			// now we load the ammunition 
+			virtual void load(game* _game, piece* _user, chest_item& _item)
+			{
+                auto ammo = _game->factories.piece_factory.get_object<ammunition>(corona_instance::local, _item.part_class, _item.part_id, false);
+				if (ammo) {
+					std::vector<std::string> class_names = { "ammunition" };
+					auto found = _user->inventory->find_first_any(class_names);
+					if (found)
+					{
+						inventory->add_part(*found);
+					}
+				}
+			}
 
+			// this gets called on every piece, to apply accelerations, make animation calculations, 
+			// and other time-based calculations. The default implementation does nothing.
+			// _elapsed_seconds is the time since the last call to run, in seconds.
+			// this will be quite fractional.
+			virtual void run(game* _game, piece* _user, double _elapsed);
+
+		};
 
 		class wand : public tool
 		{
@@ -2139,6 +2204,7 @@ namespace corona
 					break;
 				case gamepad_button::DpadDown:
 					break;
+
 				case gamepad_button::DpadLeft:
 					break;
 				case gamepad_button::DpadRight:
@@ -2501,6 +2567,38 @@ namespace corona
 				
 		}
 		
+		// the user uses the piece, with a consumable piece
+		void piece::load(game* _game, piece* _user, chest_item& _item)
+		{
+			;
+		}
+
+		// the user uses the piece, with a consumable piece
+		void piece::unload(game* _game, piece* _user, chest_item& _item)
+		{
+
+		}
+
+		// the user drops the selection
+		void piece::drop(game* _game, chest_item& _item)
+		{
+
+		}
+
+		// the user picks up the obect
+		void piece::pickup(game* _game, piece* _user, piece* _pickup)
+		{
+
+		}
+
+		// this gets called on every piece, to apply accelerations, make animation calculations, 
+		// and other time-based calculations. The default implementation does nothing.
+		// _elapsed_seconds is the time since the last call to run, in seconds.
+		// this will be quite fractional.
+		void run(game* _game, piece* _user, double _elapsed)
+		{
+
+		}
 
 		void actor::select_next()
 		{
