@@ -208,7 +208,7 @@ namespace corona
 			return result;
 		}
 
-		bool parse_reference(object_reference_type& _result, const char* _src, const char** _modified)
+		bool parse_reference(object_reference& _result, const char* _src, const char** _modified)
 		{
 			bool result = false;
 			_src = eat_white(_src);
@@ -216,12 +216,10 @@ namespace corona
 			{
 				_result.class_name = "";
 				result = true;
-				while (isalnum(*_src) or *_src == '_')
+				while (isalnum(*_src) or *_src == '_' or *_src == '-' or *_src == '->')
 				{
 					check_line(_src);
-					if (*_src != '_') {
-						_result.class_name += *_src;
-					}
+					_result.class_name += *_src;
 					_src++;
 				}
 				_src = eat_white(_src);
@@ -1297,7 +1295,7 @@ namespace corona
 	class json_reference : public json_value
 	{
 	public:
-		object_reference_type value;
+		object_reference value;
 
 		virtual std::string to_key() const
 		{
@@ -2514,13 +2512,13 @@ namespace corona
 			return result;
 		}
 
-		object_reference_type as_object_reference_type() const
+		object_reference as_object_reference() const
 		{
 			auto value_ref = reference_impl();
 			if (value_ref)
 				return value_ref->value;
 			else
-				return object_reference_type();
+				return object_reference();
 		}
 
 		bool as_bool() const
@@ -2910,6 +2908,12 @@ namespace corona
 			else if (_new_type == field_types::ft_array) {
 				put_member_array(_key);
 			}
+			else if (_new_type == field_types::ft_reference) {
+				std::string s = get_member(_key).as_string();
+				object_reference ref; 
+				ref = s;
+				put_member(_key, ref);
+			}
 			else if (_new_type == field_types::ft_string) {
 				std::string s = get_member(_key).as_string();
 				put_member(_key, s);
@@ -3080,7 +3084,7 @@ namespace corona
 			return *this;
 		}
 
-		json put_member(std::string _key, object_reference_type _value)
+		json put_member(std::string _key, object_reference _value)
 		{
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
@@ -3148,7 +3152,7 @@ namespace corona
 			return *this;
 		}
 
-		json put_member_reference(std::string _key, object_reference_type _ref)
+		json put_member_reference(std::string _key, object_reference _ref)
 		{
 			if (not object_impl()) {
 				throw std::logic_error("Not an object");
@@ -3515,7 +3519,7 @@ namespace corona
 			return *this;
 		}
 
-		json put_element(int _index, object_reference_type _value)
+		json put_element(int _index, object_reference _value)
 		{
 			if (not array_impl()) {
 				throw std::logic_error("Not an array");
@@ -3774,6 +3778,20 @@ namespace corona
 			{
 				auto vsource = std::dynamic_pointer_cast<json_datetime>(source_value);
 				auto vdest = std::dynamic_pointer_cast<json_datetime>(dest_value);
+				if (vsource->value < vdest->value) {
+					comparison_result = -1;
+				}
+				else if (vsource->value > vdest->value) {
+					comparison_result = 1;
+				}
+			}
+			break;
+
+			case field_types::ft_reference:
+			{
+				auto vsource = std::dynamic_pointer_cast<json_reference>(source_value);
+				auto vdest = std::dynamic_pointer_cast<json_reference>(dest_value);
+				
 				if (vsource->value < vdest->value) {
 					comparison_result = -1;
 				}
@@ -4935,7 +4953,7 @@ namespace corona
 				}
 				else if (member_type == "reference")
 				{
-					object_reference_type ort;
+					object_reference ort;
 					if (parse_reference(ort, _src, &new_src))
 					{
 						auto js = std::make_shared<json_reference>();

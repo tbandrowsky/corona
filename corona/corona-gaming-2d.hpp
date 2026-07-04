@@ -81,7 +81,7 @@ namespace corona
                 sound = audio_graph::from_json(jsound);
 			}
 
-			virtual void draw(direct2dContext& _context, point _location)
+			virtual void draw(direct2dContext& _context, point _location) 
 			{
 
 			}
@@ -321,14 +321,17 @@ namespace corona
 			piece_type& operator =(piece_type&& _src) = default;
 
 			std::string name;
-			std::string state;
+			std::string description;
+			std::string piece_class_name;
 			std::vector<std::shared_ptr<animation>> animations;
-
-			std::shared_ptr<chest_field> inventory;
 
 			double		mass = 1.0;
 			double      full_health = 1.0;
 			double      health = 1.0;
+
+			std::string state;
+
+			std::shared_ptr<chest_field> inventory;
 
 			virtual void get_json(json& _dest)
 			{
@@ -397,7 +400,6 @@ namespace corona
 			}
 		};
 
-
 		class piece : public corona_object
 		{
 
@@ -420,6 +422,7 @@ namespace corona
 			DirectX::XMVECTOR acceleration = {};
 
 			std::shared_ptr<chest_field> inventory;
+			object_reference owner;
 
 			double		mass = 1.0;
 			double      full_health = 1.0;
@@ -441,6 +444,7 @@ namespace corona
 				_dest.put_member("mass", mass);
 				_dest.put_member("health", health);
 				_dest.put_member("full_health", full_health);
+                _dest.put_member("owner", owner);
 
 				json j = jp.create_array();
 				for (auto& s : animations) {
@@ -470,9 +474,7 @@ namespace corona
 				facing = _src["facing"].as_vector();
 				acceleration = _src["acceleration"].as_vector();
 				mass = _src["mass"].as_double();
-				hit_points = _src["hit_points"].as_double();
-				full_hit_points = _src["full_hit_points"].as_double();
-
+				owner = _src["owner"].as_object_reference();
 				if (fabs(mass) < 0.0001) {
 					mass = 1.0;
 				}
@@ -551,6 +553,9 @@ namespace corona
 			// the user picks up the object
 			virtual void pickup(game* _game, piece* _user, piece *_pickup);
 
+			// the user walks over the object
+			virtual void stepon(game* _game, piece* _user, piece* _pickup);
+
 			// this gets called on every piece, to apply accelerations, make animation calculations, 
             // and other time-based calculations. The default implementation does nothing.
             // _elapsed_seconds is the time since the last call to run, in seconds.
@@ -566,6 +571,8 @@ namespace corona
 
 		class game_factory
 		{
+			comm_bus_app_interface* bus;
+
 		public:
 			piece_factory piece_factory;
 			frame_factory frame_factory;
@@ -574,7 +581,7 @@ namespace corona
 			using object_action = std::function<void(game* _game, piece* _direct_object, piece* _actor)>;
 			using object_interaction = std::function<void(game* _game, piece* _a, piece* _b)>;
 
-			game_factory(comm_bus_app_interface* bus) noexcept : piece_factory(bus), frame_factory(bus), general_factory(bus)
+			game_factory(comm_bus_app_interface* _bus) noexcept : bus(_bus), piece_factory(_bus), frame_factory(_bus), general_factory(_bus)
 			{
 				;
 			}
@@ -590,7 +597,7 @@ namespace corona
 				frame_factory.init(instance);
 			}
 
-			std::shared_ptr<piece> create_piece(std::string _class_name);
+			std::shared_ptr<piece> create_piece_of_type(std::string _piece_type_name);
 
 		};
 
@@ -816,10 +823,8 @@ namespace corona
 			{
 				std::string spawn_class = get_spawn_class();
 				if (spawn_class.size() > 0) {
-					json_parser jp;
-                    json spawn_class = jp.create_object();
-					spawn_class.put_member(class_name_field, spawn_class);
-					auto new_piece = _game->factories.piece_factory.create_object(spawn_class);
+
+					auto new_piece = _game->factories.create_piece_of_type(spawn_class);
 					if (new_piece) {
 						new_piece->position = this->position;
                         new_piece->facing = this->facing;
@@ -964,7 +969,7 @@ namespace corona
 								next_index = (i + 1) % sets.size();
                             } while (next_index != i && sets[next_index]->state == state);
 							state = sets[next_index]->state;
-                            _game->switch_changed(this, state);
+                            _game->switch_used(this, state);
 							break;
 						}
 					}
@@ -1005,7 +1010,7 @@ namespace corona
 				else {
 					state = "open";
 				}
-				_game->door_changed(this, state);
+				_game->door_used(this, state);
 			}
 
 		};
@@ -1094,7 +1099,7 @@ namespace corona
 			virtual void use(game* _game, piece* _piece)
 			{
                 is_on = !is_on;
-				_game->light_changed(this, state);
+				_game->light_used(this, state);
 			}
 
 		};
@@ -1320,6 +1325,7 @@ namespace corona
 			magazine& operator =(magazine&& _src) = default;
 
 			std::string magazine_type;
+			double capacity;
 			std::map<std::string,bool> ammunition_types;
 
 			virtual void get_json(json& _dest)
@@ -1346,14 +1352,11 @@ namespace corona
 			virtual void load(game* _game, piece* _user, piece* _consumable)
 			{
 				if (auto ammo = dynamic_cast<ammunition*>(_consumable)) {
-					std::vector<std::string> class_names = { "ammunition" };
-					auto found = _user->inventory->find_first_any(class_names);
-					if (found)
-					{
-						// we found a magazine in the firearm, so we will remove it and put it back in the player's inventory
-						inventory->remove_part(*found);
-						_user->inventory->add_part(*found);
-					}
+					_game->transfer_piece(this, _consumable, _user, 
+						[this](const std::string& _src) -> bool 
+						{
+							return ammunition_types.contains(_src);
+						}, -1);
 				}
 			}
 
@@ -1572,6 +1575,42 @@ namespace corona
 			wand* selected_wand;
 			spell* selected_spell;
 			piece* selected_piece;
+		};
+
+		class actor_type : public piece_type
+		{
+		public:
+
+			actor_type() {
+				class_name = "actor_type";
+			}
+			actor_type(const actor_type& _src) = default;
+			actor_type(actor_type&& _src) = default;
+			actor_type& operator =(const actor_type& _src) = default;
+			actor_type& operator =(actor_type&& _src) = default;
+
+			double crawling_velocity;
+			double walking_velocity;
+			double running_velocity;
+			double throwing_velocity;
+
+			virtual void get_json(json& _dest)
+			{
+				piece_type::get_json(_dest);
+				_dest.put_member("crawling_velocity", crawling_velocity);
+				_dest.put_member("walking_velocity", walking_velocity);
+				_dest.put_member("running_velocity", running_velocity);
+				_dest.put_member("throwing_velocity", throwing_velocity);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece_type::put_json(_gbus.frame_factory, _src);
+				crawling_velocity = _src["crawling_velocity"].as_double();
+				walking_velocity = _src["walking_velocity"].as_double();
+				running_velocity = _src["running_velocity"].as_double();
+				throwing_velocity = _src["throwing_velocity"].as_double();
+			}
 		};
 
 		class actor : public piece
@@ -2080,19 +2119,100 @@ namespace corona
 				return response;
 			}
 
-			corona_client_response add_pieces(json _pieces)
+			corona_client_response create_piece(piece *_dest_inventory, std::string _piece_type_class, int _quantity)
 			{
+				corona_client_response response;
 
+                auto new_piece = factories.piece_factory.create_object(_piece_type_class);
+
+				if (new_piece)
+				{
+					// create a new chest item for the piece we made, 
+					// that is, what's going into the inventory
+					auto ci = new_piece->make_chest_item(_quantity);
+
+					// then, we figure out, who dest inventory is, 
+					// and that is the owner of our new piece
+					auto dest_ref = _dest_inventory->make_chest_item(1);
+					new_piece->owner = dest_ref.reference;
+
+					_dest_inventory->inventory->add_part(ci);
+					_dest_inventory->save(corona_instance::local);
+					response.success = true;
+				}
+
+				return response;
 			}
 
-			corona_client_response remove_pieces(json _pieces)
+			corona_client_response fill_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _class_names, int _level)
 			{
+				corona_client_response response;
 
+				if (_level < 0) {
+					return response;
+				}
+
+				int quantity_on_hand = 0;
+				for (auto& citem : _dest->inventory->items)
+				{
+					
+				}
+
+				auto found = std::ranges::find_if();
+
+				if (found != _src->inventory->items.end())
+				{
+					chest_item ci = found->second;
+					if (_quantity > -1) {
+						if (_quantity > ci.quantity) {
+							_quantity = ci.quantity;
+						}
+						ci.quantity = _quantity;
+						_dest->inventory->add_part(ci);
+						_src->inventory->remove_part(ci);
+					}
+					else
+					{
+						_dest->inventory->add_part(ci);
+						_src->inventory->remove_part(ci);
+					}
+					_dest->save(corona_instance::local);
+					_src->save(corona_instance::local);
+					response.success = true;
+				}
+				return response;
 			}
 
-			corona_client_response purchase_pieces(std::string input_name, json _for_sale, json _price)
+			corona_client_response transfer_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _class_names, int _quantity = -1)
 			{
+				corona_client_response response;
+ 
+				auto found = std::find_if(_src->inventory->items.begin(), _src->inventory->items.end(), [&](const std::pair<std::string, chest_item>& ci) {
+					auto class_name = ci.second.reference.class_name;
+					return _class_names(class_name);
+					});
 
+				if (found != _src->inventory->items.end())
+				{
+					chest_item ci = found->second;
+					if (_quantity > -1) {
+						if (_quantity > ci.quantity) {
+							_quantity = ci.quantity;
+						}
+						ci.quantity = _quantity;
+						_dest->inventory->add_part(ci);
+						_src->inventory->remove_part(ci);
+					}
+					else 
+					{
+						_dest->inventory->add_part(ci);
+						_src->inventory->remove_part(ci);
+					}
+					_dest->save(corona_instance::local);
+					_src->save(corona_instance::local);
+					response.success = true;
+				}
+				return response;
 			}
 
 			virtual void get_json(json& _dest)
@@ -2762,6 +2882,34 @@ namespace corona
 			;
 		}
 
+		std::shared_ptr<piece> game_factory::create_piece_of_type(std::string _piece_type_name )
+		{		
+			std::shared_ptr<piece> new_piece;
+			json_parser jp;
+			
+			json filter = jp.create_object();
+			filter.put_member_string("class_name", "piece_type");
+            filter.put_member_string("name", _piece_type_name);
+			auto response = bus->query_objects(corona_instance::local, filter);
+
+			if (response.success) {
+                auto found_pieces = general_factory.create_array(response.data);
+                if (found_pieces.size() > 0) {
+					auto found_piece_type = std::dynamic_pointer_cast<piece_type>(found_pieces[0]);
+					std::string instance_class_name = found_piece_type->piece_class_name;
+					new_piece = piece_factory.create_object(instance_class_name);
+					if (new_piece) {
+						new_piece->name = found_piece_type->name;
+						new_piece->animations = found_piece_type->animations;
+						new_piece->full_health = found_piece_type->full_health;
+						new_piece->health = found_piece_type->full_health;
+						new_piece->state = found_piece_type->state;
+					}
+				}
+			}
+
+			return new_piece;
+		}
 
 	}
 

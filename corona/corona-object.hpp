@@ -54,8 +54,8 @@ namespace corona
        {
            chest_item ci;
 
-           ci.part_class = class_name;
-           ci.part_id = object_id;
+           ci.reference.class_name = class_name;
+           ci.reference.object_id = object_id;
            ci.quantity = _quantity;
 
            return ci;

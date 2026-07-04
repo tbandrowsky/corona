@@ -534,15 +534,14 @@ namespace corona
 		{
             chest_item* ci = nullptr;
 
+			// you'll have to clean up the inventory at some point
+			// to remove zero items, but not now.
 			for (auto& item : items) {
 				if (item.second.quantity >= _quantity) {
 					item.second.quantity -= _quantity;
                     ci = &item.second;
 					break;
 				}
-			}
-            if (ci->quantity == 0) {
-				items.erase(ci->part_class);
 			}
 			return ci;
 		}
@@ -3161,7 +3160,7 @@ namespace corona
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
 				bool is_legit = true;
-				object_reference_type chumpy = _object_to_test.as_object_reference_type();
+				object_reference chumpy = _object_to_test.as_object_reference();
 
 				if (chumpy and reference_class_descendants.contains(chumpy.class_name))
 				{

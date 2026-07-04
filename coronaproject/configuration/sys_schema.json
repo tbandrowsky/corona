@@ -126,8 +126,8 @@
       "fields": {
         "name": "string",
         "description": "string",
+        "piece_class_name": "string",
         "animations": [ "animation" ],
-        "instance_type": "string",
         "mass": "double",
         "health": "double",
         "full_health": "double",
@@ -136,6 +136,11 @@
         "inventory": {
           "field_type": "chest",
           "item_class": "piece_type"
+        }
+      }, 
+      "indexes": {
+        "piece_type_index": {
+          "index_keys": [ "name" ]
         }
       }
     },
@@ -155,6 +160,7 @@
         "velocity": "vector",
         "facing": "vector",
         "acceleration": "vector",
+        "owner": "->piece",
         "inventory": {
           "field_type": "chest",
           "item_class": "piece"
@@ -242,7 +248,7 @@
       "base_class_name": "feature",
       "class_description": "npc spawn",
       "fields": {
-        "spawn_classes": [ "string" ],
+        "spawn_types": [ "string" ],
         "scheduler": "function_scheduler"
       }
     },
@@ -251,7 +257,7 @@
       "base_class_name": "feature",
       "class_description": "npc spawn",
       "fields": {
-        "spawn_classes": [ "string" ],
+        "spawn_types": [ "string" ],
         "scheduler": "function_scheduler"
       }
     },
@@ -285,7 +291,7 @@
       "class_description": "a gaming switch",
       "fields": {
         "state": "string",
-        "sets": [ "pieces" ]
+        "sets": [ "piece_list" ]
       }
     },
     {
@@ -435,6 +441,7 @@
       "parents": [ "firearm_type" ],
       "fields": {
         "magazine_type": "string",
+        "capacity": "double",
         "ammunition_types": [ "string" ]
       },
       "indexes": {

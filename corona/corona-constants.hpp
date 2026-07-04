@@ -107,7 +107,7 @@ namespace corona
 		relative_ptr_type	  row_id;
 	};
 
-	struct object_reference_type
+	struct object_reference
 	{
 		std::string class_name;
 		int64_t		object_id;
@@ -117,7 +117,7 @@ namespace corona
 			return not class_name.empty() and object_id > 0;
 		}
 
-		object_reference_type& operator = (std::string& _src)
+		object_reference& operator = (std::string& _src)
 		{
 			std::regex ortexpr("([A-Za-z0-9_]+)([:])([0-9]+)", std::regex_constants::syntax_option_type::ECMAScript);
 
