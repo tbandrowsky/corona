@@ -4509,6 +4509,14 @@ namespace corona
 			return result;
 		}
 
+		json from_reference(object_reference _d)
+		{
+			std::shared_ptr<json_reference> dd = std::make_shared<json_reference>();
+			dd->value = _d;
+			json result(dd);
+			return result;
+		}
+
 		json from_datetime(date_time _d)
 		{
 			std::shared_ptr<json_datetime> dd = std::make_shared<json_datetime>();

@@ -137,7 +137,7 @@
           "field_type": "chest",
           "item_class": "piece_type"
         }
-      }, 
+      },
       "indexes": {
         "piece_type_index": {
           "index_keys": [ "name" ]
@@ -159,7 +159,6 @@
         "size": "vector",
         "velocity": "vector",
         "facing": "vector",
-        "acceleration": "vector",
         "owner": "->piece",
         "inventory": {
           "field_type": "chest",
@@ -241,15 +240,6 @@
       "class_description": "player_spawn",
       "fields": {
 
-      }
-    },
-    {
-      "class_name": "npc_spawn_type",
-      "base_class_name": "feature",
-      "class_description": "npc spawn",
-      "fields": {
-        "spawn_types": [ "string" ],
-        "scheduler": "function_scheduler"
       }
     },
     {
@@ -367,6 +357,7 @@
       "base_class_name": "piece_type",
       "class_description": "a gaming item",
       "fields": {
+        "effect_type": "string",
         "frequency_seconds": "double",
         "remaining_seconds": "double",
         "remaining_count": "double"
@@ -377,16 +368,9 @@
       "base_class_name": "piece",
       "class_description": "a gaming item",
       "fields": {
+        "effect_type": "string",
         "remaining_seconds": "double",
         "remaining_count": "double"
-      }
-    },
-    {
-      "class_name": "delivery",
-      "base_class_name": "piece",
-      "class_description": "general consumable thing",
-      "fields": {
-        "effect": "effect"
       }
     },
     {
@@ -420,7 +404,7 @@
       "base_class_name": "piece_type",
       "class_description": "weapon for the shot",
       "fields": {
-        "magazine_types": [ "string" ]
+        "magazine_type": "string"
       }
     },
     {
@@ -428,6 +412,8 @@
       "base_class_name": "tool",
       "class_description": "weapon for the shot",
       "fields": {
+        "fire_point": "vector",
+        "magazine_type": "string",
         "inventory": {
           "field_type": "chest",
           "item_class": "magazine"
@@ -442,7 +428,7 @@
       "fields": {
         "magazine_type": "string",
         "capacity": "double",
-        "ammunition_types": [ "string" ]
+        "ammunition_type": "string"
       },
       "indexes": {
         "magazine_type_index": {
@@ -456,6 +442,9 @@
       "class_description": "a magazine for the firearm",
       "parents": [ "firearm" ],
       "fields": {
+        "magazine_type": "string",
+        "capacity": "double",
+        "ammunition_type": "string",
         "inventory": {
           "field_type": "chest",
           "item_class": "ammunition"
@@ -468,11 +457,10 @@
       "class_description": "ammo for the firearm",
       "fields": {
         "ammunition_type": "string",
-        "shot_class": "string",
+        "shot_type": "string",
         "shot_muzzle_velocity": "double",
         "shot_mass": "double",
         "shot_impulse": "double",
-        "shot_type": "string",
         "inventory": {
           "field_type": "chest",
           "item_class": "shot_type"
@@ -489,6 +477,15 @@
       "base_class_name": "carryable",
       "class_description": "ammo for the firearm",
       "fields": {
+        "ammunition_type": "string",
+        "shot_type": "string",
+        "shot_muzzle_velocity": "double",
+        "shot_mass": "double",
+        "shot_impulse": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "shot"
+        }
       }
     },
     {
@@ -513,6 +510,8 @@
       "base_class_name": "piece",
       "class_description": "an effect of a weapon",
       "fields": {
+        "shot_type": "string",
+        "effect_type": "string",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"
@@ -524,7 +523,7 @@
       "base_class_name": "piece_type",
       "class_description": "a magic thing that launches spells",
       "fields": {
-        "spell_types": [ "string" ],
+        "spell_type": "string",
         "inventory": {
           "field_type": "chest",
           "item_class": "spell"
@@ -536,7 +535,8 @@
       "base_class_name": "tool",
       "class_description": "a magic thing that launches spells",
       "fields": {
-        "spell_types": [ "string" ],
+        "spell_type": "string",
+        "fire_point": "vector",
         "inventory": {
           "field_type": "chest",
           "item_class": "spell"
@@ -549,6 +549,8 @@
       "class_description": "a travelling spell with effects",
       "fields": {
         "spell_type": "string",
+        "effect_type": "string",
+        "spell_velocity": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"
@@ -560,6 +562,9 @@
       "base_class_name": "carryable",
       "class_description": "a travelling spell with effects",
       "fields": {
+        "spell_type": "string",
+        "effect_type": "string",
+        "spell_velocity": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"
@@ -568,12 +573,13 @@
     },
     {
       "class_name": "stick_type",
-      "base_class_name": "tool",
+      "base_class_name": "piece_type",
       "class_description": "general stick",
       "fields": {
+        "stick_type": "string",
         "inventory": {
           "field_type": "chest",
-          "item_class": "effect"
+          "item_class": "hit_type"
         }
       }
     },
@@ -582,6 +588,35 @@
       "base_class_name": "tool",
       "class_description": "general stick",
       "fields": {
+        "stick_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "hit"
+        }
+      }
+    },
+    {
+      "class_name": "hit_type",
+      "base_class_name": "piece_type",
+      "class_description": "a hit piece formed",
+      "fields": {
+        "hit_type": "string",
+        "effect_type": "string",
+        "hit_lifetime": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "hit"
+        }
+      }
+    },
+    {
+      "class_name": "hit",
+      "base_class_name": "piece",
+      "class_description": "a hit piece formed",
+      "fields": {
+        "hit_type": "string",
+        "effect_type": "string",
+        "hit_lifetime": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"
@@ -589,11 +624,13 @@
       }
     },
     {
-      "class_name": "artifact",
-      "base_class_name": "tool",
-      "class_description": "general artifact",
+      "class_name": "spell",
+      "base_class_name": "carryable",
+      "class_description": "a travelling spell with effects",
       "fields": {
-        "radius": "double",
+        "spell_type": "string",
+        "effect_type": "string",
+        "spell_velocity": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "effect"

@@ -151,6 +151,17 @@ namespace corona
 		{
 			return std::format("{0}:{1}", class_name, object_id);
 		}
+
+		operator bool() const
+		{
+			return not class_name.empty() and object_id > 0;
+        }
+
+		bool operator < (const object_reference& _src) const
+		{
+            return std::tie(class_name, object_id) < std::tie(_src.class_name, _src.object_id);
+		}
+
 	};
 
 	int64_t giga_to_bytes(int _ct)

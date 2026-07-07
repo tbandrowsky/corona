@@ -50,12 +50,18 @@ namespace corona
            updated = _src["updated"].as_date_time();
        }
 
-       chest_item make_chest_item(int _quantity)
+       virtual std::string get_item_type()
+       {
+           return class_name;
+       }
+
+       virtual chest_item to_chest_item(int _quantity)
        {
            chest_item ci;
 
            ci.reference.class_name = class_name;
            ci.reference.object_id = object_id;
+           ci.item_type = get_item_type();
            ci.quantity = _quantity;
 
            return ci;
@@ -77,6 +83,49 @@ namespace corona
        bool identity_matches(corona_object& _src)
        {
            return (class_name == _src.class_name) && (object_id == _src.object_id);
+       }
+
+       virtual std::shared_ptr<corona_object> clone()
+       {
+           json_parser jp;
+           json body = jp.create_object();
+           get_json(body);
+           auto p = std::make_shared<corona_object>(*this);
+           p->put_json(body);
+           return p;
+       }
+
+       template <typename T>
+       std::shared_ptr<T> copy_as(corona_instance instance)
+       {
+           std::shared_ptr<T> result;
+           std::shared_ptr<corona_object> obj = copy(instance);
+           result = std::dynamic_pointer_cast<T>(obj);
+           return result;
+       }
+
+       virtual std::shared_ptr<corona_object> copy(corona_instance instance)
+       {
+           std::shared_ptr<corona_object> obj;
+
+           auto create_response = bus->create_object(instance, class_name);
+
+           if (create_response.success) {
+
+               json_parser jp;
+               json body = jp.create_object();
+               get_json(body);
+
+               body.copy_member("object_id", create_response.data);
+               body.copy_member("created", create_response.data);
+               body.copy_member("created_by", create_response.data);
+               body.copy_member("updated", create_response.data);
+               body.copy_member("updated_by", create_response.data);
+
+               obj = std::make_shared<corona_object>(*this);
+               obj->put_json(body);
+           }
+           return obj;
        }
     };
 
@@ -315,6 +364,13 @@ namespace corona
             return result;
         }
 
+        template<typename U = T> 
+        std::shared_ptr<U> get_object(object_reference& ref, bool _children)
+        {
+            auto obj = get_object<U>(corona_instance _instance, ref.class_name, ref.object_id, false);
+            return obj;
+        }
+
         template <typename U=T> 
         std::shared_ptr<U> create_object(json ji)
         {
@@ -351,7 +407,7 @@ namespace corona
                 if (sp) {
                     if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
                         sp->bus = bus;
-                        auto response = _bus->create_object(instance, create_class_name);
+                        auto response = _bus->create_object(instance, class_name);
 
                         if (response.success) {
                             sp->put_json(response.data);
@@ -361,18 +417,6 @@ namespace corona
                 }
             }
             return sp;
-        }
-
-        std::shared_ptr<typename U = T> get_inventory(chest_field& _cf)
-        {
-            std::vector<std::shared_ptr<U>> inventory;
-            for (auto& item : _cf.items) {
-                auto obj = get_object<U>(corona_instance::local, item.second.part_class, item.second.part_id, false);
-                if (obj) {
-                    inventory.push_back(obj);
-                }
-            }
-            return inventory;
         }
 
         template <typename U=T>

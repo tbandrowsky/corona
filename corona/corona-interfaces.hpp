@@ -92,13 +92,15 @@ namespace corona
 	{
 	public:
 
-		object_reference reference;
+		object_reference	  reference;
+		std::string			  item_type;
 		double				  quantity;
 
 		virtual void get_json(json& _dest)
 		{
             std::string temp = reference;
 			_dest.put_member("reference", temp);
+			_dest.put_member("item_type", item_type);
 			_dest.put_member_double("quantity", quantity);
 		}
 
@@ -107,7 +109,20 @@ namespace corona
             std::string temp = _src["reference"].as_string();
 			reference = temp;
 			quantity = _src["quantity"].as_double();
+            item_type = _src["item_type"].as_string();
 		}
+
+		bool operator == (const chest_item& _other) const
+		{
+			return reference.class_name == _other.reference.class_name and reference.object_id == _other.reference.object_id;
+        }
+
+		bool operator < (const chest_item& _other) const
+		{
+			if (reference.class_name < _other.reference.class_name) return true;
+			if (reference.class_name > _other.reference.class_name) return false;
+			return reference.object_id < _other.reference.object_id;
+        }
 	};
 
 	namespace game 

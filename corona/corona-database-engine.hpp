@@ -499,14 +499,16 @@ namespace corona
 	class chest_field_options_interface
 	{
 	public:
-		std::string part_class;
-		std::string units;
+		std::string allowed_class_name;
+		std::string allowed_item_type;
+		std::string unit_name;
+        int			max_items;
 	};
 
 	class chest_field 
 	{
 	public:
-		std::map<std::string, chest_item> items;
+		std::map<object_reference, chest_item> items;
 		std::shared_ptr<chest_field_options_interface> options;
 
 		chest_field() = default;
@@ -520,16 +522,6 @@ namespace corona
 			put_json(_src);
 		}
 
-		chest_item *find_first_any(std::vector<std::string> class_names)
-		{
-			for (auto& item : items) {
-				if (std::find(class_names.begin(), class_names.end(), item.second.part_class) != class_names.end()) {
-					return &item.second;
-				}
-			}
-			return nullptr;
-		}
-
 		chest_item* use(int _quantity)
 		{
             chest_item* ci = nullptr;
@@ -539,17 +531,29 @@ namespace corona
 			for (auto& item : items) {
 				if (item.second.quantity >= _quantity) {
 					item.second.quantity -= _quantity;
-                    ci = &item.second;
+					ci = &item.second;
 					break;
 				}
 			}
 			return ci;
 		}
 
-		chest_item* get_first()
+		chest_item *match(std::string _class_name, std::string _item_type) const
 		{
 			if (!options) return nullptr;
-			auto iter = items.begin();
+			for (auto item : items) {
+				if ((_class_name.empty() || (_class_name == item.first.class_name)) && (_item_type.empty() || item.second.item_type == _item_type))
+				{
+					return &item.second;
+				}
+			}
+			return nullptr;
+		}
+
+		chest_item* find(const object_reference& _ref)
+		{
+			if (!options) return nullptr;
+			auto iter = items.find(_ref);
 			if (iter != items.end()) {
 				auto& cf = iter->second;
 				return &cf;
@@ -561,13 +565,13 @@ namespace corona
 		{
 			if (!options) return;
 
-			auto iter = items.find(_item.part_class);
+			auto iter = items.find(_item.reference);
 			if (iter != items.end()) {
 				iter->second.quantity += _item.quantity;
 			}
 			else
 			{
-				items.insert_or_assign(_item.part_class, _item);
+				items.insert_or_assign(_item.reference, _item);
 			}
 		}
 
@@ -575,7 +579,7 @@ namespace corona
 		{
 			if (!options) return false;
 
-			auto iter = items.find(_item.part_class);
+			auto iter = items.find(_item.reference);
 			if (iter != items.end()) {
 				if (iter->second.quantity < _item.quantity) {
 					return false;
@@ -587,7 +591,7 @@ namespace corona
 			}
 			else
 			{
-				items.insert_or_assign(_item.part_class, _item);
+				items.insert_or_assign(_item.reference, _item);
 			}
 		}
 
@@ -612,49 +616,6 @@ namespace corona
 				}
 			}
 			return true;
-		}
-
-		chest_item* find_next(chest_item& _item)
-		{
-			if (!options) return nullptr;
-
-            auto it = items.upper_bound(_item.part_class);
-			if (it != items.end()) {
-				auto& cf = it->second;
-				return &cf;
-			}
-
-			it = items.begin();
-			if (it != items.end()) {
-				auto& cf = it->second;
-				return &cf;
-			}
-
-			return nullptr;
-		}
-
-		chest_item* find_previous(chest_item& _item)
-		{
-			if (!options) return nullptr;
-
-			auto it = items.lower_bound(_item.part_class);
-			if (it != items.end()) {
-				if (it->second.part_class == _item.part_class) {
-					it--;
-				}
-			}
-			if (it != items.end()) {
-				auto& cf = it->second;
-				return &cf;
-			}
-
-			it = items.begin();
-			if (it != items.end()) {
-				auto& cf = it->second;
-				return &cf;
-			}
-
-			return nullptr;
 		}
 
 		virtual void get_json(json& _dest)
@@ -688,54 +649,42 @@ namespace corona
 					json jitem = jitems.get_element(i);
 					chest_item item;
 					item.put_json(jitem);
-					items.insert_or_assign(item.part_class, item);
+					items.insert_or_assign(item.reference, item);
 				}
 			}
 		}
-
 	};
 
 	class selection_field
 	{
 	public:
 
-		std::vector<chest_item> selections;	
+		std::map<object_reference, bool> selections;
 
 		void clear()
 		{
 			selections.clear();
         }
 
-		void create(const chest_item& _item)
+		void create(const object_reference& _item)
 		{
 			selections.clear();
-			selections.push_back(_item);
+			selections[_item] = true;
         }
 
-		void extend(const chest_item& _item)
+		void extend(const object_reference& _item)
 		{
-            auto sel = std::find_if(selections.begin(), selections.end(), [&_item](const chest_item& i) { return i.part_class == _item.part_class and i.part_id == _item.part_id; });
-			if (sel == selections.end()) {
-				selections.push_back(_item);
-			}
+			selections[_item] = true;
 		}
 
-		void remove(const chest_item& _item)
+		void remove(const object_reference& _item)
 		{
-			auto sel = std::find_if(selections.begin(), selections.end(), [&_item](const chest_item& i) { return i.part_class == _item.part_class and i.part_id == _item.part_id; });
-			if (sel != selections.end()) {
-				selections.erase(sel);
-			}
+            selections.erase(_item);
 		}
 
-		chest_item* get_first()
+		virtual bool is_selected(chest_item* _item)
 		{
-			auto iter = selections.begin();
-			if (iter != selections.end()) {
-				auto& cf = *iter;
-				return &cf;
-			}
-			return nullptr;
+			return selections.contains(_item->reference);
 		}
 
 		virtual void get_json(json& _dest)
@@ -743,9 +692,8 @@ namespace corona
 			json_parser jp;
 			json dest_array = jp.create_array();		
 
-			for (auto& item : selections) {
-				json jitem = jp.create_object();
-				item.get_json(jitem);
+			for (const auto& sel : selections) {
+				json jitem = jp.from_reference(sel.first);
 				dest_array.push_back(jitem);
 			}
 
@@ -759,16 +707,98 @@ namespace corona
 			selections.clear();
 			json arr = _src["selections"];
 			if (arr.array()) {
-				for (int i = 0; i < _src.size(); i++) {
-					json jitem = _src.get_element(i);
-					chest_item item;
-					item.put_json(jitem);
-					selections.push_back(item);
+				for (int i = 0; i < arr.size(); i++) {
+					json jitem = arr.get_element(i);
+                    auto ref = jitem.as_object_reference();
+					selections[ref] = true;
 				}
 			}
 		}
 	};
 
+	class selection_command_requirement 
+	{
+	public:
+		std::string name;
+		std::string class_name;
+		std::string item_type;
+	};
+
+	class selection_command
+	{
+	public:
+		std::string command_name;
+        std::vector<std::shared_ptr<selection_command_requirement>> requirements;
+
+		bool matches(chest_field& _src, selection_field& _selection) const
+		{
+			return std::all_of(requirements.begin(), requirements.end(), [_src, _selection](const auto& scr) {
+				auto item = _src.match(scr->class_name, scr->item_type);
+			});
+		}
+
+		std::map<std::string, std::vector<chest_item*>> get_build_map(chest_field& _src, selection_field& _selection)
+		{
+			std::map<std::string, std::vector<chest_item*>> items;
+
+			for (auto fr : requirements) {
+				auto matched_item = _src.match(fr->class_name, fr->item_type);
+				if (matched_item) {
+					if (!items.contains(fr->name)) {
+						std::vector<chest_item*> work_order;
+						items.insert_or_assign(fr->name, work_order);
+					}
+					else {
+						items[fr->name].push_back(matched_item);
+					}
+				}
+				else 
+				{
+					items.clear();
+					return items;
+				}
+			}
+
+			return items;
+		}
+	};
+
+	class selection_commands 
+	{
+		std::map<std::string, std::shared_ptr<selection_command>> commands;
+
+	public:
+
+		selection_commands() = default;
+		selection_commands(const selection_commands& _src) = default;
+		selection_commands(selection_commands&& _src) = default;
+		selection_commands& operator = (const selection_commands& _src) = default;
+		selection_commands& operator = (selection_commands&& _src) = default;
+
+		void put(std::string _name, std::shared_ptr<selection_command> _command)
+		{
+			commands[_name] = _command;
+		}
+
+		std::shared_ptr<selection_command> get(std::string _name)
+		{
+			return commands[_name];
+		}
+
+		std::vector<std::shared_ptr<selection_command>> get_commands_for_selection(chest_field& _all_items, selection_field& _selected_items)
+		{
+			std::vector<std::shared_ptr<selection_command>> matching_commands;
+
+			for (auto& command : commands) {
+				if (command.second->matches(_all_items, _selected_items)) {
+					matching_commands.push_back(command.second);
+				}
+			}
+
+			return matching_commands;
+		}
+
+	};
 
 	class class_permissions {
 	public:
@@ -792,7 +822,7 @@ namespace corona
 		}
 	};
 
-	class corona_database_interface;
+ 	class corona_database_interface;
 
 	class child_bridge_interface
 	{
@@ -2033,6 +2063,8 @@ namespace corona
 	/// </summary>
 	class chest_field_options : public field_options_base, public chest_field_options_interface
 	{
+        std::map<std::string, bool> all_allowed_classes;
+
 	public:
 
 		chest_field_options() = default;
@@ -2042,50 +2074,50 @@ namespace corona
 		chest_field_options& operator = (chest_field_options&& _src) = default;
 		virtual ~chest_field_options	() = default;
 
-		std::string part_class;
-		std::string quantity_units;
-
 		virtual void get_json(json& _dest)
 		{
 			field_options_base::get_json(_dest);
 
-            _dest.put_member("part_class", part_class);
-            _dest.put_member("quantity_units", quantity_units);
+            _dest.put_member("allowed_class_name", allowed_class_name);
+            _dest.put_member("allowed_item_type", allowed_item_type);	
+            _dest.put_member("unit_name", unit_name);
+            _dest.put_member("max_items", max_items);
 
 			json_parser jp;
 		}
 
-		std::map<std::string, std::string> get_part_fields()
-		{
-			std::map<std::string, std::string> result;
-			result["part_class"] = part_class;
-			result["quantity_units"] = quantity_units;
-			return result;
-        }
-
 		virtual void put_json(json& _src)
 		{
 			field_options_base::put_json(_src);
-            part_class = _src["part_class"].as_string();
-			quantity_units = _src["quantity_units"].as_string();
+			allowed_class_name = _src["allowed_class_name"].as_string();
+			allowed_item_type = _src["allowed_item_type"].as_string();
+			unit_name = _src["unit_name"].as_string();
+			max_items = _src["max_items"].as_int();
 		}
-
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
-
+            if (allowed_class_name.empty()) {
+				return;
+			}
+			auto descendants = _db->get_class_descendants(allowed_class_name);
+            all_allowed_classes.insert_or_assign(allowed_class_name, true);
+            for (auto descendant : descendants) {
+				all_allowed_classes.insert_or_assign(descendant, true);
+			}
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
+			bool acceptable = false;
+
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
-				bool is_legit = true;
 
 				if (_object_to_test.array())
 				{
                     for (auto obj : _object_to_test)
 					{
-						bool acceptable = obj.object();
+						acceptable = obj.object();
 						if (not acceptable) {
 							validation_error ve;
 							ve.class_name = _class_name;
@@ -2097,7 +2129,20 @@ namespace corona
 							return false;
 						}
 
-                        std::string object_class_name = obj[class_name_field].as_string();
+						if (allowed_class_name.empty() == false) {
+                            std::string object_class_name = obj[class_name_field].as_string();
+							acceptable = all_allowed_classes.contains(object_class_name);
+                            if (!acceptable) {
+								validation_error ve;
+								ve.class_name = _class_name;
+								ve.field_name = _field_name;
+								ve.filename = get_file_name(__FILE__);
+								ve.line_number = __LINE__;
+								ve.message = "Invalid class name for chest item: " + object_class_name;
+								_validation_errors.push_back(ve);
+								return false;
+							}
+						}
 					}
 				}
 				else
@@ -2112,7 +2157,7 @@ namespace corona
 					return false;
 				}
 			}
-			return false;
+			return acceptable;
 		}
 
 		virtual bool is_relational_children() override
@@ -2148,12 +2193,6 @@ namespace corona
 			field_options_base::get_json(_dest);
 
 			json_parser jp;
-		}
-
-		std::map<std::string, std::string> get_part_fields()
-		{
-			std::map<std::string, std::string> result;
-			return result;
 		}
 
 		virtual void put_json(json& _src)
