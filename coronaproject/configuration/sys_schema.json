@@ -181,6 +181,7 @@
       "base_class_name": "piece_type",
       "class_description": "a gaming player",
       "fields": {
+        "stopped_velocity": "double",
         "crawling_velocity": "double",
         "walking_velocity": "double",
         "running_velocity": "double",
@@ -192,7 +193,12 @@
       "base_class_name": "piece",
       "class_description": "a gaming player",
       "fields": {
-        "selection": "selection"
+        "selection": "selection",
+        "stopped_velocity": "double",
+        "crawling_velocity": "double",
+        "walking_velocity": "double",
+        "running_velocity": "double",
+        "throwing_velocity": "double"
       }
     },
     {

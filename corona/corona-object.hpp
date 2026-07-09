@@ -55,6 +55,16 @@ namespace corona
            return class_name;
        }
 
+       virtual object_reference to_reference()
+       {
+           object_reference ref;
+
+           ref.class_name = class_name;
+           ref.object_id = object_id;
+
+           return ref;
+       }
+
        virtual chest_item to_chest_item(int _quantity)
        {
            chest_item ci;
