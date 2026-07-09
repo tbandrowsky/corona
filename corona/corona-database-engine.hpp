@@ -538,16 +538,24 @@ namespace corona
 			return ci;
 		}
 
-		chest_item *match(std::string _class_name, std::string _item_type) const
+		bool match(std::vector<chest_item>& _matches, std::string _class_name, std::string _item_type, double _quantity) const
 		{
-			if (!options) return nullptr;
-			for (auto item : items) {
+			if (!options) return false;
+			double found_quantity = 0.0;
+
+			for (auto& item : items) {
 				if ((_class_name.empty() || (_class_name == item.first.class_name)) && (_item_type.empty() || item.second.item_type == _item_type))
 				{
-					return &item.second;
+					chest_item temp = item.second;
+					double new_found_quantity = found_quantity + item.second.quantity;
+					if (new_found_quantity > _quantity) {
+                        temp.quantity = new_found_quantity - item.second.quantity;
+					}
+					_matches.push_back(temp);
 				}
 			}
-			return nullptr;
+
+			return found_quantity >= _quantity;
 		}
 
 		chest_item* find(const object_reference& _ref)
@@ -716,89 +724,122 @@ namespace corona
 		}
 	};
 
-	class selection_command_requirement 
+	namespace selection_commands
 	{
-	public:
-		std::string name;
-		std::string class_name;
-		std::string item_type;
-	};
 
-	class selection_command
-	{
-	public:
-		std::string command_name;
-        std::vector<std::shared_ptr<selection_command_requirement>> requirements;
-
-		bool matches(chest_field& _src, selection_field& _selection) const
+		class requirement
 		{
-			return std::all_of(requirements.begin(), requirements.end(), [_src, _selection](const auto& scr) {
-				auto item = _src.match(scr->class_name, scr->item_type);
-			});
-		}
+		public:
+			std::string name;
+			std::string class_name;
+			std::string item_type;
+			double		quantity;
 
-		std::map<std::string, std::vector<chest_item*>> get_build_map(chest_field& _src, selection_field& _selection)
+			requirement() = default;
+			requirement(const requirement& _src) = default;
+			requirement(requirement&& _src) = default;
+			requirement& operator = (const requirement& _src) = default;
+			requirement& operator = (requirement&& _src) = default;
+		};
+
+		class match
 		{
-			std::map<std::string, std::vector<chest_item*>> items;
+		public:
+			std::shared_ptr<requirement> requirement;
+			std::vector<chest_item> matches;
 
-			for (auto fr : requirements) {
-				auto matched_item = _src.match(fr->class_name, fr->item_type);
-				if (matched_item) {
-					if (!items.contains(fr->name)) {
-						std::vector<chest_item*> work_order;
-						items.insert_or_assign(fr->name, work_order);
-					}
-					else {
-						items[fr->name].push_back(matched_item);
-					}
+			operator bool()
+			{
+                return requirement && matches.size() > 0;
+			}
+
+			chest_item first()
+			{
+				if (matches.size() > 0) {
+					return matches[0];
 				}
-				else 
+				return chest_item();
+            }
+		};
+
+		class command
+		{
+		public:
+			std::string command_name;
+			std::vector<std::shared_ptr<requirement>> requirements;
+
+			bool matches(std::vector<match>& _matched_items, chest_field& _src, selection_field& _selection) const
+			{
+				for (auto& req : requirements)
 				{
-					items.clear();
-					return items;
-				}
+					match mx;
+					bool matches = _src.match(mx.matches, req->class_name, req->item_type, req->quantity);
+					if (!matches) {
+						_matched_items.clear();
+						return false;
+					}
+					_matched_items.push_back(mx);
+				};
+				return true;
 			}
 
-			return items;
-		}
-	};
-
-	class selection_commands 
-	{
-		std::map<std::string, std::shared_ptr<selection_command>> commands;
-
-	public:
-
-		selection_commands() = default;
-		selection_commands(const selection_commands& _src) = default;
-		selection_commands(selection_commands&& _src) = default;
-		selection_commands& operator = (const selection_commands& _src) = default;
-		selection_commands& operator = (selection_commands&& _src) = default;
-
-		void put(std::string _name, std::shared_ptr<selection_command> _command)
-		{
-			commands[_name] = _command;
-		}
-
-		std::shared_ptr<selection_command> get(std::string _name)
-		{
-			return commands[_name];
-		}
-
-		std::vector<std::shared_ptr<selection_command>> get_commands_for_selection(chest_field& _all_items, selection_field& _selected_items)
-		{
-			std::vector<std::shared_ptr<selection_command>> matching_commands;
-
-			for (auto& command : commands) {
-				if (command.second->matches(_all_items, _selected_items)) {
-					matching_commands.push_back(command.second);
-				}
+			bool matches(chest_field& _src, selection_field& _selection) const
+			{
+				std::vector<match> dummy_matches;
+				return matches(dummy_matches, _src, _selection);
 			}
 
-			return matching_commands;
-		}
+			virtual match get_match(std::vector<match>& _matched_items, std::shared_ptr<requirement> _req)
+			{
+				match m;
+				auto found = std::find_if(_matched_items.begin(), _matched_items.end(), [&_req](const match& _match)->bool {
+					return _req == _match.requirement;
+					});
+				if (found != std::end(_matched_items)) {
+					m = *found;
+				}
+				return m;
+			}
+		};
 
-	};
+		class command_collection
+		{
+			std::map<std::string, std::shared_ptr<command>> commands;
+
+		public:
+
+			command_collection() = default;
+			command_collection(const command_collection& _src) = default;
+			command_collection(command_collection&& _src) = default;
+			command_collection& operator = (const command_collection& _src) = default;
+			command_collection& operator = (command_collection&& _src) = default;
+
+			void put(std::shared_ptr<command> _command)
+			{
+				commands[_command->command_name] = _command;
+			}
+
+			std::shared_ptr<command> get(std::string _name)
+			{
+				return commands[_name];
+			}
+
+			std::vector<std::shared_ptr<command>> get_commands_for_selection(chest_field& _all_items, selection_field& _selected_items)
+			{
+				std::vector<std::shared_ptr<command>> matching_commands;
+
+				for (auto& command : commands) {
+					if (command.second->matches(_all_items, _selected_items)) {
+						matching_commands.push_back(command.second);
+					}
+				}
+
+				return matching_commands;
+			}
+
+		};
+
+	}
 
 	class class_permissions {
 	public:

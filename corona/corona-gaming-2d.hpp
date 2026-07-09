@@ -15,8 +15,12 @@ namespace corona
 		template <typename T> class item_holder
 		{
 		public:
-			chest_item* container;
+			chest_item container;
             std::shared_ptr<T> item_object;
+
+			operator bool() const {
+				return item_object != nullptr;
+            }
 		};
 
 		struct collision_result
@@ -409,6 +413,13 @@ namespace corona
 
 		};
 
+		class piece_state
+		{
+		public:
+			std::string state;
+			double state_duration;
+		};
+
 		class piece : public corona_object
 		{
 
@@ -438,6 +449,9 @@ namespace corona
 			double      full_health = 1.0;
 			double      health = 1.0;
 			bool		remove = false;
+			double		state_time = 0.0;
+
+
 
 			virtual void get_json(json& _dest)
 			{
@@ -545,6 +559,20 @@ namespace corona
 			// this will be quite fractional.
 			virtual void run(game* _game, piece *_user, double _elapsed);
 
+			template <typename T>
+			std::shared_ptr<T> get_item_ptr(game* _game, std::string _class_name, std::string _type_name)
+			{
+				std::shared_ptr<T> holder;
+				if (inventory) {
+					auto item = inventory->match(_class_name, _type_name);
+					if (item) {
+						holder = _game->factories.piece_factory(_game, item);
+						return std::dynamic_pointer_cast<T>(item);
+					}
+				}
+				return holder;
+			}
+
             template <typename T>
 			item_holder<T> get_item(game* _game, std::string _class_name, std::string _type_name)
 			{
@@ -557,19 +585,47 @@ namespace corona
                         return std::dynamic_pointer_cast<T>(item);
                     }
                 }
-				return nullptr;
+				return holder;
 			}
 
 			template <typename T>
-			std::shared_ptr<T> get_item(game* _game, chest_item *_src)
+			std::shared_ptr<T> get_item_ptr(game* _game, chest_item& _src)
 			{
+				std::shared_ptr<T> holder;
 				if (inventory) {
-					auto item = inventory->find(_src);
+					auto item = inventory->find(&_src);
 					if (item) {
-						return std::dynamic_pointer_cast<T>(item);
+						holder = _game->factories.piece_factory.get_object<T>(item->reference, false);
 					}
 				}
-				return nullptr;
+				return holder;
+			}
+
+			template <typename T>
+			item_holder<T> get_item(game* _game, chest_item& _src)
+			{
+				item_holder<T> holder;
+				if (inventory) {
+					auto item = inventory->find(&_src);
+					if (item) {
+                        holder.container = *item;
+						holder.item_object = _game->factories.piece_factory.get_object<T>(item->reference, false);
+					}
+				}
+				return holder;
+			}
+
+			bool remove_item(game* _game, corona_object* _src)
+			{
+				if (inventory) {
+                    auto _src_ref = _src->to_chest_item(1).reference;
+					auto item = inventory->find(_src_ref);
+					if (item) {
+						inventory->remove_part(*item);
+						return true;
+					}
+				}
+				return false;
 			}
 
 			virtual void use(game* _game, piece* _piece);
@@ -718,10 +774,6 @@ namespace corona
 				piece_factory.init(instance);
 				frame_factory.init(instance);
 			}
-
-			std::shared_ptr<piece> create_piece_of_type(std::string _piece_type_name);
-			std::shared_ptr<piece> clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
-
 		};
 
 		class piece_list : public corona_object
@@ -939,7 +991,7 @@ namespace corona
 				std::string spawn_class = get_spawn_class();
 				if (spawn_class.size() > 0) {
 
-					auto new_piece = _game->factories.create_piece_of_type(spawn_class);
+					auto new_piece = _game->create_piece_of_type(spawn_class);
 					if (new_piece) {
 						new_piece->position = this->position;
                         new_piece->facing = this->facing;
@@ -1887,23 +1939,23 @@ namespace corona
 
 		public:
 
-			game(comm_bus_app_interface *_bus, json& _src) : factories(_bus), bus(_bus)
+			game(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
 			{
 				init();
 				put_json(_src);
 			}
 
-            game(const game& _src) = default;
-            game(game&& _src) = default;
-            game& operator =(const game& _src) = default;
-            game& operator =(game&& _src) = default;
+			game(const game& _src) = default;
+			game(game&& _src) = default;
+			game& operator =(const game& _src) = default;
+			game& operator =(game&& _src) = default;
 
 
 			game_factory factories;
-			selection_commands selections;
+			corona::selection_commands::command_collection selections;
 			collision_commands collisions;
 
-			comm_bus_app_interface *bus;
+			comm_bus_app_interface* bus;
 			std::string			name;
 			std::string			description;
 			timer				frame_timer;
@@ -1913,489 +1965,40 @@ namespace corona
 			std::shared_ptr<state_event> handlers;
 			game_state state;
 
-            std::shared_ptr<corona_bus_command> on_all_players_ready;
+			void init();
+
+			std::shared_ptr<corona_bus_command> on_all_players_ready;
 			std::shared_ptr<corona_bus_command> on_all_players_dead;
 			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_use;
 			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_shot;
 
-			void init()
-			{
 
-				
-				factories.frame_factory.register_class("frame", [](json& _src, comm_bus_app_interface *_bus) -> std::shared_ptr<frame> {
-					return std::make_shared<frame>(_src);
-					});
-				factories.frame_factory.register_class("bitmap_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
-					return std::make_shared<bitmap_frame>(_src);
-					});
-				factories.frame_factory.register_class("vector_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<vector_frame> {
-					return std::make_shared<vector_frame>(_src);
-					});
+			std::shared_ptr<piece> create_piece_of_type(std::string _piece_type_name);
+			std::shared_ptr<piece> create_piece_of_class(std::string _class_name);
+			std::shared_ptr<piece> clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity);
+			double fill_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _level);
+			double transfer_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity);
+			double transfer_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity);
+			double copy_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity);
+			double copy_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity);
 
-				factories.piece_factory.register_class("piece", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<piece> {
-					return std::make_shared<piece>(_src);
-					});
-				factories.piece_factory.register_class("actor", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<actor> {
-					return std::make_shared<actor>(_src);
-					});
-				factories.piece_factory.register_class("player", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<player> {
-					return std::make_shared<player>(_src);
-					});
-				factories.piece_factory.register_class("npc", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<npc> {
-					return std::make_shared<npc>(_src);
-					});
-				factories.piece_factory.register_class("feature", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-					return std::make_shared<feature>(_src);
-					});
-				factories.piece_factory.register_class("spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-					return std::make_shared<spawn>(_src);
-					});
-				factories.piece_factory.register_class("player_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-					return std::make_shared<spawn>(_src);
-					});
-				factories.piece_factory.register_class("npc_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-					return std::make_shared<spawn>(_src);
-					});
-				factories.piece_factory.register_class("loot_box", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootbox> {
-					return std::make_shared<lootbox>(_src);
-					});
-				factories.piece_factory.register_class("loot_spot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootspot> {
-					return std::make_shared<lootspot>(_src);
-					});
-				factories.piece_factory.register_class("wall", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wall> {
-					return std::make_shared<wall>(_src);
-					});
-				factories.piece_factory.register_class("switcher", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<switcher> {
-					return std::make_shared<switcher>(_src);
-					});
-				factories.piece_factory.register_class("door", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<door> {
-					return std::make_shared<door>(_src);
-					});
-				factories.piece_factory.register_class("surface", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<surface> {
-					return std::make_shared<surface>(_src);
-					});
-				factories.piece_factory.register_class("decoration", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<decoration> {
-					return std::make_shared<decoration>(_src);
-					});
-				factories.piece_factory.register_class("light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<light> {
-					return std::make_shared<light>(_src);
-					});
-				factories.piece_factory.register_class("spot_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spot_light> {
-					return std::make_shared<spot_light>(_src);
-					});
-				factories.piece_factory.register_class("globe_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<globe_light> {
-					return std::make_shared<globe_light>(_src);
-					});
-				factories.piece_factory.register_class("camera", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<camera> {
-					return std::make_shared<camera>(_src);
-					});
-				factories.piece_factory.register_class("effect", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
-					return std::make_shared<effect>(_src);
-					});
-				factories.piece_factory.register_class("delivery", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<delivery> {
-					return std::make_shared<delivery>(_src);
-					});
-				factories.piece_factory.register_class("carryable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
-					return std::make_shared<carryable>(_src);
-					});
-				factories.piece_factory.register_class("consumable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<consumable> {
-					return std::make_shared<consumable>(_src);
-					});
-				factories.piece_factory.register_class("tool", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<tool> {
-					return std::make_shared<tool>(_src);
-					});
-				factories.piece_factory.register_class("firearm", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<firearm> {
-					return std::make_shared<firearm>(_src);
-					});
-				factories.piece_factory.register_class("magazine", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<magazine> {
-					return std::make_shared<magazine>(_src);
-					});
-				factories.piece_factory.register_class("ammunition", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<ammunition> {
-					return std::make_shared<ammunition>(_src);
-					});
-				factories.piece_factory.register_class("shot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<shot> {
-					return std::make_shared<shot>(_src);
-					});
-				factories.piece_factory.register_class("wand", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wand> {
-					return std::make_shared<wand>(_src);
-					});
-				factories.piece_factory.register_class("spell", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spell> {
-					return std::make_shared<spell>(_src);
-					});
-				factories.piece_factory.register_class("stick", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<stick> {
-					return std::make_shared<stick>(_src);
-					});
-				factories.piece_factory.register_class("artifact", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<artifact> {
-					return std::make_shared<artifact>(_src);
-					});
+			void handle_gamepad_button_up(gamepad_button_up_event gpbd);
+			void handle_gamepad_button_down(gamepad_button_down_event gpbd);
+			void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu);
+			void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd);
+			void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd);
 
-				factories.init(corona_instance::local);
-
-
-			}
-
-			void set_lobby()
-			{
-				// Remove all players from the pieces collection
-				auto is_player = [](const auto& piece) {
-					return std::dynamic_pointer_cast<player>(piece) != nullptr;
-				};
-				game_map->pieces.erase(
-						std::remove_if(game_map->pieces.begin(), game_map->pieces.end(), is_player),
-						game_map->pieces.end()
-					);
-				state = game_state::lobby;
-                handlers = event_handlers[state];
-			}
-
-			void set_active()
-			{
-				state = game_state::active;
-				handlers = event_handlers[state];
-			}
-
-			void set_paused()
-			{
-				state = game_state::paused;
-				handlers = event_handlers[state];
-			}
-
-			void set_complete()
-			{
-				state = game_state::complete;
-				handlers = event_handlers[state];
-			}
-
-			void set_exit()
-			{
-				state = game_state::exit;
-				handlers = event_handlers[state];
-			}
-
-			void start_play(std::string input_name)
-			{
-				auto player = attach_player(input_name);
-
-				if (state == game_state::lobby) {
-					player->ready = !player->ready;
-				}
-				else if (state == game_state::active) {
-					player->dead = false;
-					set_paused();
-				}
-				else if (state == game_state::paused) {
-					set_active();
-				}
-				else if (state == game_state::complete) {
-					set_lobby();
-				}
-				else if (state == game_state::exit) {
-					; // do nothing, we're exiting anyway
-				}
-			}
-
-			void check_all_ready()
-			{
-				if (state == game_state::lobby) {
-					auto players_view = game_map->players();
-					bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
-						return player->ready;
-					});
-					if (all_ready) {
-						set_active();
-					}
-				}
-			}
-
-			void check_all_dead()
-			{
-				auto players_view = game_map->players();
-				bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
-					return player->dead;
-					});
-				if (all_dead) { 
-					set_complete();
-				}
-			}
-
-			double fill_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _level)
-			{
-				double quantity_filled = 0;
-
-				if (_level < 0 || !_dest->inventory || !_src->inventory) {
-					return quantity_filled;
-				}
-
-				// Calculate current quantity on hand
-				double quantity_on_hand = 0;
-				for (const auto& [key, item] : _dest->inventory->items)
-				{
-					if (_type_names(item.item_type)) {
-						quantity_on_hand += item.quantity;
-					}
-				}
-
-				// Only fill if below the level
-				if (quantity_on_hand < _level)
-				{
-					double fill_amount = _level - quantity_on_hand;
-
-					// Transfer items from source to destination
-					for (auto& [key, src_item] : _src->inventory->items)
-					{
-						if (_type_names(src_item.item_type) && fill_amount > 0) {
-							chest_item transfer_item = src_item;
-							double transfer_amount = std::min(fill_amount, src_item.quantity);
-
-							transfer_item.quantity = transfer_amount;
-							quantity_filled += transfer_amount;
-							fill_amount -= transfer_amount;
-							quantity_on_hand += transfer_amount;
-
-							_dest->inventory->add_part(transfer_item);
-							_src->inventory->remove_part(transfer_item);
-
-							if (quantity_on_hand >= _level) {
-								break;
-							}
-						}
-					}
-
-					// Save both pieces through the bus
-					json_parser jp;
-					json jdest = jp.create_object();
-					json jsrc = jp.create_object();
-					_dest->get_json(jdest);
-					_src->get_json(jsrc);
-					bus->put_object(corona_instance::local, jdest);
-					bus->put_object(corona_instance::local, jsrc);
-				}
-
-				return quantity_filled;
-			}
-
-			double transfer_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity)
-			{
-				double quantity_transferred = 0;
-
-				if (_quantity <= 0 || !_dest->inventory || !_src->inventory) {
-					return quantity_transferred;
-				}
-
-				double remaining = _quantity;
-
-				// Transfer items from source to destination
-				for (auto& [key, src_item] : _src->inventory->items)
-				{
-					if (_type_names(src_item.item_type) && remaining > 0) {
-						chest_item transfer_item = src_item;
-						double transfer_amount = std::min(remaining, src_item.quantity);
-
-						transfer_item.quantity = transfer_amount;
-						quantity_transferred += transfer_amount;
-						remaining -= transfer_amount;
-
-						_dest->inventory->add_part(transfer_item);
-						_src->inventory->remove_part(transfer_item);
-
-						if (remaining <= 0) {
-							break;
-						}
-					}
-				}
-
-				// Save both pieces through the bus if any transfer occurred
-				if (quantity_transferred > 0) {
-					json_parser jp;
-					json jdest = jp.create_object();
-					json jsrc = jp.create_object();
-					_dest->get_json(jdest);
-					_src->get_json(jsrc);
-					bus->put_object(corona_instance::local, jdest);
-					bus->put_object(corona_instance::local, jsrc);
-				}
-
-				return quantity_transferred;
-			}
-
-			double copy_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity)
-			{
-				double quantity_transferred = 0;
-
-				if (_quantity <= 0 || !_dest->inventory || !_src->inventory) {
-					return quantity_transferred;
-				}
-
-				double remaining = _quantity;
-
-				// Transfer items from source to destination
-				for (auto& [key, src_item] : _src->inventory->items)
-				{
-					if (_type_names(src_item.item_type) && remaining > 0) {
-						auto new_piece = create_piece(_dest, src_item.reference.class_name,  _quantity);
-						break;
-					}
-				}
-
-				// Save both pieces through the bus if any transfer occurred
-				if (quantity_transferred > 0) {
-					json_parser jp;
-					json jdest = jp.create_object();
-					json jsrc = jp.create_object();
-					_dest->get_json(jdest);
-					_src->get_json(jsrc);
-					bus->put_object(corona_instance::local, jdest);
-					bus->put_object(corona_instance::local, jsrc);
-				}
-
-				return quantity_transferred;
-			}
-
-			double transfer_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity)
-			{
-				return transfer_piece(_dest, _src, _user, [_type_name](const std::string _tn) {
-					return _type_name == _tn;
-					}, _quantity);
-			}
-
-			double copy_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity)
-			{
-				return copy_piece(_dest, _src, _user, [_type_name](const std::string _tn) {
-					return _type_name == _tn;
-					}, _quantity);
-			}
-
-			virtual void get_json(json& _dest)
-			{
-				json_parser jp;
-				_dest.put_member("name", name);
-				_dest.put_member("description", description);
-				json j = jp.create_array();
-				json jmap = jp.create_object();
-				game_map->get_json(jmap);
-				j.push_back(jmap);
-				_dest.put_member("map", j);
-
-				switch (state) {
-				case game_state::lobby:
-					_dest.put_member_string("state", "lobby");
-					break;
-				case game_state::active:
-					_dest.put_member_string("state", "active");
-					break;
-				case game_state::paused:
-					_dest.put_member_string("state", "paused");
-					break;
-				case game_state::complete:
-					_dest.put_member_string("state", "complete");
-					break;
-				case game_state::exit:
-					_dest.put_member_string("state", "exit");
-					break;
-				}
-			}
-
-			virtual void put_json(json& _src)
-			{
-				name = _src["name"].as_string();
-				description = _src["description"].as_string();
-				json j = _src["map"];
-				game_map = std::make_shared<map>();
-				std::string state_string = _src["state"].as_string();
-			}
-
-			job* get_next_job()
-			{
-				if (state != game_state::exit)
-				{
-					return this;
-				}
-				else
-				{
-					return nullptr;
-				}
-			}
-
-
-			void handle_gamepad_button_up(gamepad_button_up_event gpbd)
-			{
-				auto player = attach_player(gpbd.state);
-				switch (gpbd.button)
-				{
-				case gamepad_button::A:
-					break;
-				case gamepad_button::B:
-					break;
-				case gamepad_button::X:  
-					break;
-				case gamepad_button::Y:
-					break;
-				case gamepad_button::LeftShoulder:
-					break;
-				case gamepad_button::RightShoulder:
-					break;
-				case gamepad_button::Back:
-					break;
-				case gamepad_button::Start:
-					break;
-				case gamepad_button::DpadUp:
-					break;
-				case gamepad_button::DpadDown:
-					break;
-				case gamepad_button::DpadLeft:
-					break;
-				case gamepad_button::DpadRight:
-					break;
-				}
-			}
-
-			void handle_gamepad_button_down(gamepad_button_down_event gpbd)
-			{
-				auto player = attach_player(gpbd.state);
-				switch (gpbd.button)
-				{
-				case gamepad_button::A:
-					break;
-				case gamepad_button::B:
-					break;
-				case gamepad_button::X:  					
-					break;
-				case gamepad_button::Y:
-					break;
-				case gamepad_button::LeftShoulder:
-					break;
-				case gamepad_button::RightShoulder:
-					break;
-				case gamepad_button::Back:
-					break;
-				case gamepad_button::Start:
-					break;
-				case gamepad_button::DpadUp:
-					break;
-				case gamepad_button::DpadDown:
-					break;
-
-				case gamepad_button::DpadLeft:
-					break;
-				case gamepad_button::DpadRight:
-					break;
-				}
-			}
-
-			void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
-			{
-				auto player = attach_player(gptu.state);
-			}
-
-			void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
-			{
-				auto player = attach_player(gptd.state);
-			}
-
-			void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
-			{
-				auto player = attach_player(gpbd.state);
-			}
+			void set_lobby();
+			void set_active();
+			void set_paused();
+			void set_complete();
+			void set_exit();
+			void start_play(std::string input_name);
+			void check_all_ready();
+			void check_all_dead();
+			virtual void get_json(json& _dest);
+			virtual void put_json(json& _src);
+			virtual job* get_next_job();
 
 		private:
 
@@ -2404,249 +2007,97 @@ namespace corona
 
 			DirectX::XMVECTOR zero_vector = {};
 
-			std::shared_ptr<player> attach_player(std::string input_name)
-			{
-				// Search for existing player with this input device
-				for (auto player : game_map->players()) {
-					if (player->input_device == input_name) {
-						return player;
-					}
-				}
-				// Create new player and add to pieces only
-				std::shared_ptr<player> new_player = std::make_shared<player>();
-				new_player->name = input_name;
-				new_player->ready = false;
-				game_map->pieces.push_back(new_player);
-				return new_player;
-			}
-
-			std::shared_ptr<player> attach_player(XINPUT_STATE& _input_state)
-			{
-                return attach_player(std::to_string(_input_state.dwPacketNumber));
-			}
+			std::shared_ptr<player> attach_player(std::string input_name);
+			std::shared_ptr<player> attach_player(XINPUT_STATE& _input_state);
 
 			// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 			// and only finds their state
-			collision_event model_piece(std::shared_ptr<map> _map, int _piece_index, double _elapsed_secs) const
-			{
-				using namespace DirectX;
+			collision_event model_piece(std::shared_ptr<map> _map, int _piece_index, double _elapsed_secs) const;
+			collision_event find_closest_collision(double delta) const;
 
-				auto _piece = _map->pieces[_piece_index];
+			void run_active(double delta);
+			void run_complete(double delta);
+			void run_lobby(double delta);
+			void run_paused(double delta);
+			void run_exit(double delta);
 
-				collision_event event = {};
-				collision_result collision = {};
-
-				// can't be accelerated or accelerate anything if it's not moving or accelerating.
-				// no kinetic energy
-				if (XMVector3Equal(_piece->acceleration, zero_vector) &&
-					XMVector3Equal(_piece->velocity, zero_vector)) {
-					return event;
-				}
-
-				for (int i = _piece_index + 1; i < _map->pieces.size(); i++) 
-				{
-					auto& other = _map->pieces[i];
-
-					double st = 0.0, et = _elapsed_secs, mt = et / 2.0;
-
-					bool collision_detected = false;
-					intersection_side collision_side;
-
-					while (fabs(et - st) > 0.001) {
-						rectangle piece_rect = _piece->get_rectangle(mt);
-						rectangle other_rect = other->get_rectangle(mt);
-						if (auto sides = rectangle_math::intersect(&piece_rect, &other_rect)) {
-							collision_detected = true;
-							et = mt; // Collision detected, search in the earlier half
-							collision_side = sides;
-						}
-						else 
-						{
-							st = mt; // No collision, search in the later half
-						}
-						mt = (st + et) / 2.0;
-					}
-
-					if (collision_detected) {
-
-					
-						// We already have a collision, so we need to determine which one is sooner
-						if (mt < collision.time_of_collision) {
-							collision.time_of_collision = mt;
-							collision.collision_side = collision_side;
-							event.collision = collision;
-							event.piece_1 = _piece;
-							event.piece_2 = other;
-						}
-					}
-				}
-
-				return event;
-			}
-
-			void run_lobby(double delta)
-			{
-				;
-			}
-
-			collision_event find_closest_collision(double delta) const
-			{
-				collision_event closest_collision;
-				for (int i = 0; i < game_map->pieces.size(); i++) {
-					auto pc = game_map->pieces[i];
-					collision_event collision = model_piece(game_map, i, delta);
-					if (collision.piece_1) {
-						if (closest_collision.piece_1) {
-							if (collision.collision.time_of_collision < closest_collision.collision.time_of_collision) {
-								closest_collision = collision;
-							}
-						}
-						else {
-							closest_collision = collision;
-						}
-					}
-				}
-				return closest_collision;
-			}
-
-			void run_active(double delta)
-			{
-				// we have to resolve collision effects first, because, 
-				// that gives us new accelerations.
-
-				// in the model, physical quantities are given in seconds, so, we can apply the ax, ay to terms
-				// and that gives us simple linear models.
-				// for other models, we can additionally scale the time so that seconds could be weeks,
-				// months or years.
-
-				double remaining = delta;
-
-				while (remaining > 0.001) {
-
-					collision_event closest_collision = find_closest_collision(remaining);
-
-					if (closest_collision.piece_1) {
-						// move pieces to the point of collision
-						for (int i = 0; i < game_map->pieces.size(); i++) {
-							auto pc = game_map->pieces[i];
-							pc->move(closest_collision.collision.time_of_collision);
-						}
-						// resolve collision effects here and update accelerations accordingly
-						// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
-						remaining -= closest_collision.collision.time_of_collision;
-
-						closest_collision.piece_1->collide(closest_collision.collision, closest_collision.piece_2);
-					}
-					else
-					{
-						// no more collisions, we can move all pieces for the remaining time
-						for (int i = 0; i < game_map->pieces.size(); i++) {
-							auto pc = game_map->pieces[i];
-							pc->move(remaining);
-						}
-						remaining = 0;
-					}
-				}
-			}
-
-			void run_complete(double delta)
-			{
-				;
-			}
-
-			void run_paused(double delta)
-			{
-				;
-			}
-
-			void run_exit(double delta)
-			{
-				;
-			}
-
-			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
-			{
-				job_notify notify;
-				json_parser jp;
-
-				notify.shouldDelete = false;
-
-				double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
-				double delta = current_elapsed_seconds - last_elapsed_seconds;
-
-				last_elapsed_seconds = current_elapsed_seconds;
-
-				switch (state) {
-				case game_state::lobby:
-					run_lobby(delta);
-					break;
-				case game_state::active:
-					run_active(delta);
-					break;
-				case game_state::complete:
-					run_complete(delta);
-					break;
-				case game_state::paused:
-					run_paused(delta);
-					break;
-				case game_state::exit:
-					run_exit(delta);
-					break;
-				}
-
-				return notify;
-			}
+			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
 
 		};
 
-		class player_command : public selection_command
+		class player_command : public corona::selection_commands::command
 		{
+
+
 		public:
+
+			template <typename T> T* get_item_ptr(game* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
+			{
+				if (!_src) return nullptr;
+
+				auto m = get_match(_matches, _requirement);
+
+				if (m)
+				{
+					auto item = _src->get_item<T>(_game, m.first());
+					return item;
+				}
+				return nullptr;
+			}
 
 			virtual void run(game* _game, player* _actor) = 0;
 		};
 
-		class fire_command : public selection_command
+		class fire_command : public player_command
 		{
 		public:
 
+			std::shared_ptr<corona::selection_commands::requirement> r_firearm = std::make_shared<corona::selection_commands::requirement>();
+
 			fire_command()
 			{
-				command_name = "Fire";
+				using namespace corona::selection_commands;
 
-				std::shared_ptr<selection_command_requirement> scr = std::make_shared<selection_command_requirement>();
-				scr->name = "firearm";
-				scr->class_name = "firearm";
-				scr->item_type = "";
-				requirements.push_back(scr);
+				command_name = "fire";
+
+				r_firearm = std::make_shared<requirement>();
+				r_firearm->name = "firearm";
+				r_firearm->class_name = "firearm";
+				r_firearm->item_type = "";
+				requirements.push_back(r_firearm);
 			}
 
 			virtual void run(game* _game, player* _actor)
 			{
-				auto bm = get_build_map(*_actor->inventory.get(), *_actor->selection.get());
-				if (bm.empty())
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
 					return;
 
-				auto _arm = _actor->get_item<firearm>(_game, bm["firearm"][0]);
+                auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
+
 				if (_arm) {
-					auto _mag = _arm->get_item<magazine>(_game, "magazine", _arm->magazine_type);
-					if (_mag.item_object) {
-						auto _ammo = _mag.item_object->get_item<ammunition>(_game, "ammunition", _mag.item_object->ammunition_type);
-						if (_ammo.item_object && _ammo.container->quantity > 1) {
-                            _ammo.container->quantity -= 1;
-                            auto _shot = _mag.item_object->get_item<shot>(_game, "shot", _ammo.item_object->shot_type);
-							if (_shot.item_object) {
-								auto new_shot = std::make_shared<shot>(_shot.item_object);
-								new_shot->position = DirectX::XMVectorAdd(_shot.item_object->position, _actor->position);
+
+					auto _mag = _arm->get_item_ptr<magazine>(_game, "magazine", _arm->magazine_type);
+					if (_mag) {
+						auto _ammo = _mag->get_item<ammunition>(_game, "ammunition", _mag->ammunition_type);
+						if (_ammo && _ammo.container.quantity > 1) {
+							_ammo.container.quantity -= 1;
+							auto _shot = _ammo.item_object->get_item_ptr<shot>(_game, "shot", _ammo.item_object->shot_type);
+							if (_shot) {
+
+								auto new_shot = std::make_shared<shot>(_shot);
+								new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
 								new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
 								new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
                                 new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _ammo.item_object->shot_muzzle_velocity);
-                                // add the new shot to the game map
                                 _game->game_map->pieces.push_back(new_shot);
-                                // now calculate the recoil effect on the player
+
                                 DirectX::XMVECTOR recoil = DirectX::XMVectorScale(new_shot->facing, -_ammo.item_object->shot_muzzle_velocity * _ammo.item_object->shot_mass / _actor->mass);
                                 _actor->velocity = DirectX::XMVectorAdd(_actor->velocity, recoil);
-								_actor->state = "fire";
 							}
                         }
 					}
@@ -2654,55 +2105,170 @@ namespace corona
 			}
 		};
 
-		class cast_command : public selection_command
+		class cast_command : public player_command
 		{
 		public:
 
+			std::shared_ptr<corona::selection_commands::requirement> r_cast = std::make_shared<corona::selection_commands::requirement>();
+
 			cast_command()
 			{
-				command_name = "Cast";
+				command_name = "cast";
 
-				std::shared_ptr<selection_command_requirement> scr = std::make_shared<selection_command_requirement>();
-                scr->name = "wand";
-				scr->class_name = "tool";
-				scr->item_type = "";
-				requirements.push_back(scr);
+				r_cast->name = "wand";
+				r_cast->class_name = "wand";
+				r_cast->item_type = "";
+				requirements.push_back(r_cast);
 			}
 
 			virtual void run(game* _game, player* _actor)
 			{
-				auto bm = get_build_map(*_actor->inventory.get(), *_actor->selection.get());
-				if (bm.empty())
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
 					return;
 
-				auto _arm = _actor->get_item<wand>(_game, bm["wand"][0]);
-				if (_arm) {
-					auto _shot = _arm->get_item<spell>(_game, "spell", _arm->spell_type);
-					if (_shot.item_object) {
-						auto new_shot = std::make_shared<shot>(_shot.item_object);
-						new_shot->position = DirectX::XMVectorAdd(_shot.item_object->position, _actor->position);
-						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
+				auto _wand = get_item_ptr<wand>(_game, _actor, found_matches, r_cast);
+
+				if (_wand) {
+					auto _shot = _wand->get_item_ptr<spell>(_game, "spell", _wand->spell_type);
+					if (_shot) {
+						auto new_shot = std::make_shared<shot>(_shot);
+						new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
+						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _wand->fire_point);
 						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
-						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot.item_object->spell_velocity);
-						// add the new shot to the game map
+						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot->spell_velocity);
 						_game->game_map->pieces.push_back(new_shot);
-						_actor->state = "cast";
 					}
 				}
 			}
 		};
 
-		class hit_command : public selection_command
+		class hit_command : public player_command
 		{
 		public:
 
+			std::shared_ptr<corona::selection_commands::requirement> r_hit = std::make_shared<corona::selection_commands::requirement>();
+
 			hit_command()
 			{
-				command_name = "Hit";
+				command_name = "hit";
+				r_hit->name = "stick";
+				r_hit->class_name = "stick";
+				r_hit->item_type = "";
+				requirements.push_back(r_hit);
+			}
+
+			virtual void run(game* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return;
+
+				auto _stick = get_item_ptr<stick>(_game, _actor, found_matches, r_hit);
+
+				if (_stick) {
+					auto _hit = _stick->get_item_ptr<hit>(_game, "hit", _stick->hit_type);
+					if (_hit) {
+						auto new_hit = std::make_shared<hit>(_hit);
+						new_hit->position = DirectX::XMVectorAdd(_hit->position, _actor->position);
+						new_hit->facing = DirectX::XMVector2Normalize(_actor->facing);
+						new_hit->velocity = DirectX::XMVectorZero();
+						// add the new hit to the game map
+						_game->game_map->pieces.push_back(new_hit);
+						_actor->state = "hit";
+					}
+				}
+			}
+		};
+
+		class drop_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_drop = std::make_shared<corona::selection_commands::requirement>();
+
+			drop_command()
+			{
+				command_name = "drop";
+				r_drop->name = "piece";
+				r_drop->class_name = "piece";
+				r_drop->item_type = "";
+				requirements.push_back(r_drop);
+			}
+
+			virtual void run(game* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return;
+
+				auto target = _game->create_piece_of_type("lootspot");
+
+				for (auto& fm : found_matches) {
+					for (auto& ci : fm.matches) {
+                        _actor->inventory->remove_part(ci);
+                        target->inventory->add_part(ci);
+					}
+				}
+
+                target->position = DirectX::XMVectorAdd(_actor->position, DirectX::XMVectorScale(_actor->facing, 1.0));
+				target->velocity = DirectX::XMVectorScale(_actor->facing, 1.0);
+                target->acceleration = DirectX::XMVectorZero();
+			}
+
+		};
+
+		class reload_command : public player_command
+		{
+		public:
+
+			std::string loading_class;
+			std::string loaded_class;
+
+			reload_command(std::string _command_name, std::string _loading_class, std::string _loaded_class)
+			{
+				loading_class = _loaded_class;
+                loaded_class = _loaded_class;
+                command_name = _command_name;
+			}
+
+			reload_command()
+			{
+				command_name = "reload";
+				loading_class = "firearm";
+				loaded_class = "magazine";
+				init();
+            }
+
+            reload_command(const reload_command& _src) = default;
+            reload_command(reload_command&& _src) = default;
+            reload_command& operator =(const reload_command& _src) = default;
+            reload_command& operator =(reload_command&& _src) = default;
+
+			void init()
+			{
 
 				std::shared_ptr<selection_command_requirement> scr = std::make_shared<selection_command_requirement>();
-                scr->name = "hit";
-				scr->class_name = "stick";
+				scr->name = command_name;
+				scr->class_name = loading_class;
+				scr->item_type = "";
+				requirements.push_back(scr);
+
+				scr = std::make_shared<selection_command_requirement>();
+				scr->name = command_name;
+				scr->class_name = loaded_class;
 				scr->item_type = "";
 				requirements.push_back(scr);
 			}
@@ -2713,39 +2279,94 @@ namespace corona
 				if (bm.empty())
 					return;
 
-				auto _arm = _actor->get_item<stick>(_game, bm["stick"][0]);
+				auto _arm = _actor->get_item<firearm>(_game, bm[loading_class][0]);
+
 				if (_arm) {
-					auto _shot = _arm->get_item<hit>(_game, "hit", _arm->hit_type);
-					if (_shot.item_object) {
-						auto new_shot = std::make_shared<shot>(_shot.item_object);
-						new_shot->position = DirectX::XMVectorAdd(_shot.item_object->position, _actor->position);
-						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
-						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
-						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot.item_object->spell_velocity);
-						// add the new shot to the game map
-						_game->game_map->pieces.push_back(new_shot);
-						_actor->state = "cast";
+					std::string mag_class_name;
+					auto old_mag_ref = _arm->inventory->match(mag_class_name, _arm->magazine_type);
+					if (old_mag_ref) {
+						auto old_mag = _arm->get_item<magazine>(_game, old_mag_ref);
+						if (old_mag) {
+							// we have a valid old magazine, and we're going to put the empty in the actor's inventory
+							old_mag->owner = _actor->to_chest_item(1).reference;
+                            _arm->remove_item(_game, old_mag.get());
+						}
+					}
+
+					auto _mag = _actor->get_item<magazine>(_game, bm[loaded_class][0]);
+                    // we're going to reload, and we have a compatible magazine, so, we can do the reload.
+					if (_mag) {
+                        auto chest_ref = _arm->to_chest_item(1);
+						auto mag_part = _mag->to_chest_item(1);
+                        _mag->owner = chest_ref.reference;
+                        _arm->inventory->add_part(mag_part);
 					}
 				}
 			}
 		};
 
-		class drop_command : public selection_command
+		class build_command : public player_command
 		{
 		public:
 
-		};
+			std::vector<chest_item> reactants;
+			std::vector<chest_item> products;
 
-		class use_command : public selection_command
-		{
-		public:
+			build_command(std::string& _command_name,
+				std::vector<chest_item>& _reactants, 
+				std::vector<chest_item>& _products)
+			{
+				reactants = _reactants;
+				products = _products;
+				command_name = _command_name;
+			}
 
-		};
+			build_command()
+			{
+				command_name = "build";
+				reactants = {};
+				products = {};
+				init();
+			}
 
-		class reload_command : public selection_command
-		{
-		public:
+			build_command(const build_command& _src) = default;
+			build_command(build_command&& _src) = default;
+			build_command& operator =(const build_command& _src) = default;
+			build_command& operator =(build_command&& _src) = default;
 
+			void init()
+			{
+				
+                // each reactant is a requirement, and the whole question is, 
+				// do we have the things we need to make our stuff
+
+                for (auto& r : reactants) {
+					std::shared_ptr<selection_command_requirement> scr = std::make_shared<selection_command_requirement>();
+					scr->name = command_name;
+					scr->class_name = r.reference.class_name;
+					scr->item_type = r.item_type;
+					requirements.push_back(scr);
+				}
+			}
+
+			virtual void run(game* _game, actor* _actor)
+			{
+				auto bm = get_build_map(*_actor->inventory.get(), *_actor->selection.get());
+				if (bm.empty())
+					return;
+
+                for (auto bm_iter = bm.begin(); bm_iter != bm.end(); ++bm_iter) {
+					auto& class_name = bm_iter->first;
+					auto& chest_items = bm_iter->second;
+					// remove the reactants from the actor's inventory
+					for (auto& chest_item : chest_items) {
+						auto item = _actor->get_item<piece>(_game, chest_item);
+						if (item) {
+							_actor->remove_item(_game, item.get());
+						}
+					}
+				}
+			}
 		};
 
 		class world : public corona_object
@@ -2779,7 +2400,6 @@ namespace corona
 				name = _src["name"].as_string();
 				description = _src["description"].as_string();
 				json jmap = _src["map"];
-				map = std::make_shared<map>();
 				map->put_json(_factory, jmap);
             }
 		};
@@ -2886,19 +2506,20 @@ namespace corona
 
 		void actor::select_next()
 		{
+			selection->clear();
 			if (selection && inventory) {
-				auto selected = selection->get_first();
-				if (selected) {
-					auto* inventory_item = inventory->find_next(*selected);
-					if (inventory_item) {
-						selection->clear();
-						selection->extend(*inventory_item);
+				auto selected = selection->selections.begin();
+				if (selected != std::end(selection->selections)) {
+                    auto iter = inventory->items.upper_bound(selected->first);
+					if (iter != std::end(inventory->items)) {
+						selection->extend(iter->second.reference);
 					}
 				}
-				else {
-					auto first_item = selected;
-					if (first_item) {
-						selection->extend(*first_item);
+				else 
+				{
+                    auto default_item = inventory->items.begin();
+					if (default_item != std::end(inventory->items)) {
+						selection->extend(default_item->second.reference);
 					}
 				}
 			}
@@ -2906,19 +2527,24 @@ namespace corona
 
 		void actor::select_previous()
 		{
+			selection->clear();
 			if (selection && inventory) {
-				auto selected = selection->get_first();
-				if (selected) {
-					auto* inventory_item = inventory->find_previous(*selected);
-					if (inventory_item) {
-						selection->clear();
-						selection->extend(*inventory_item);
+				auto selected = selection->selections.begin();
+				if (selected != std::end(selection->selections)) {
+					auto iter = inventory->items.lower_bound(selected->first);
+					if (iter != std::end(inventory->items)) {
+                        auto reverse_iter = std::make_reverse_iterator(iter);
+						reverse_iter++;
+                        if (reverse_iter != std::rend(inventory->items)) {
+							selection->extend(reverse_iter->second.reference);
+						}
 					}
 				}
-				else {
-					auto first_item = selected;
-					if (first_item) {
-						selection->extend(*first_item);
+				else
+				{
+					auto default_item = inventory->items.begin();
+					if (default_item != std::end(inventory->items)) {
+						selection->extend(default_item->second.reference);
 					}
 				}
 			}
@@ -2928,7 +2554,7 @@ namespace corona
 		{
 			if (selection && _ci)
 			{
-				selection->extend(*_ci);
+				selection->extend(_ci->reference);
 			}
 		}
 
@@ -2959,7 +2585,7 @@ namespace corona
 			pieces = _gbus.piece_factory.create_array(j);
 		}
 
-		std::shared_ptr<piece> game_factory::clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
+		std::shared_ptr<piece> game::clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
 		{
 			std::shared_ptr<piece>  response;
 
@@ -2967,7 +2593,7 @@ namespace corona
 
 			if (existing_reference) {
 
-				auto existing_piece = this->piece_factory.get_object(existing_reference->reference, true);
+				auto existing_piece = factories.piece_factory.get_object(existing_reference->reference, true);
 
 				if (existing_piece)
 				{
@@ -2990,7 +2616,7 @@ namespace corona
 			return response;
 		}
 
-		std::shared_ptr<piece> game_factory::create_piece_of_type(std::string _piece_type_name )
+		std::shared_ptr<piece> game::create_piece_of_type(std::string _piece_type_name )
 		{		
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -3001,11 +2627,11 @@ namespace corona
 			auto response = bus->query_objects(corona_instance::local, filter);
 
 			if (response.success) {
-                auto found_pieces = general_factory.create_array(response.data);
+                auto found_pieces = factories.general_factory.create_array(response.data);
                 if (found_pieces.size() > 0) {
 					auto found_piece_type = std::dynamic_pointer_cast<piece_type>(found_pieces[0]);
 					std::string instance_class_name = found_piece_type->piece_class_name;
-					new_piece = piece_factory.create_object(instance_class_name);
+					new_piece = factories.piece_factory.create_object(instance_class_name);
 					if (new_piece) {
 						new_piece->name = found_piece_type->name;
 						new_piece->animations = found_piece_type->animations;
@@ -3017,6 +2643,689 @@ namespace corona
 			}
 
 			return new_piece;
+		}
+
+		std::shared_ptr<piece> game::create_piece_of_class(std::string _class_name)
+		{
+			std::shared_ptr<piece> new_piece;
+			json_parser jp;
+
+			auto new_piece = factories.piece_factory.create_object(_class_name);
+			return new_piece;
+		}
+
+		double game::fill_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _level)
+		{
+			double quantity_filled = 0;
+
+			if (_level < 0 || !_dest->inventory || !_src->inventory) {
+				return quantity_filled;
+			}
+
+			// Calculate current quantity on hand
+			double quantity_on_hand = 0;
+			for (const auto& [key, item] : _dest->inventory->items)
+			{
+				if (_type_names(item.item_type)) {
+					quantity_on_hand += item.quantity;
+				}
+			}
+
+			// Only fill if below the level
+			if (quantity_on_hand < _level)
+			{
+				double fill_amount = _level - quantity_on_hand;
+
+				// Transfer items from source to destination
+				for (auto& [key, src_item] : _src->inventory->items)
+				{
+					if (_type_names(src_item.item_type) && fill_amount > 0) {
+						chest_item transfer_item = src_item;
+						double transfer_amount = std::min(fill_amount, src_item.quantity);
+
+						transfer_item.quantity = transfer_amount;
+						quantity_filled += transfer_amount;
+						fill_amount -= transfer_amount;
+						quantity_on_hand += transfer_amount;
+
+						_dest->inventory->add_part(transfer_item);
+						_src->inventory->remove_part(transfer_item);
+
+						if (quantity_on_hand >= _level) {
+							break;
+						}
+					}
+				}
+
+				// Save both pieces through the bus
+				json_parser jp;
+				json jdest = jp.create_object();
+				json jsrc = jp.create_object();
+				_dest->get_json(jdest);
+				_src->get_json(jsrc);
+				bus->put_object(corona_instance::local, jdest);
+				bus->put_object(corona_instance::local, jsrc);
+			}
+
+			return quantity_filled;
+		}
+
+		double game::transfer_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity)
+		{
+			double quantity_transferred = 0;
+
+			if (_quantity <= 0 || !_dest->inventory || !_src->inventory) {
+				return quantity_transferred;
+			}
+
+			double remaining = _quantity;
+
+			// Transfer items from source to destination
+			for (auto& [key, src_item] : _src->inventory->items)
+			{
+				if (_type_names(src_item.item_type) && remaining > 0) {
+					chest_item transfer_item = src_item;
+					double transfer_amount = std::min(remaining, src_item.quantity);
+
+					transfer_item.quantity = transfer_amount;
+					quantity_transferred += transfer_amount;
+					remaining -= transfer_amount;
+
+					_dest->inventory->add_part(transfer_item);
+					_src->inventory->remove_part(transfer_item);
+
+					if (remaining <= 0) {
+						break;
+					}
+				}
+			}
+
+			// Save both pieces through the bus if any transfer occurred
+			if (quantity_transferred > 0) {
+				json_parser jp;
+				json jdest = jp.create_object();
+				json jsrc = jp.create_object();
+				_dest->get_json(jdest);
+				_src->get_json(jsrc);
+				bus->put_object(corona_instance::local, jdest);
+				bus->put_object(corona_instance::local, jsrc);
+			}
+
+			return quantity_transferred;
+		}
+
+		double game::copy_piece(piece* _dest, piece* _src, piece* _user, std::function<bool(const std::string&)> _type_names, double _quantity)
+		{
+			double quantity_transferred = 0;
+
+			if (_quantity <= 0 || !_dest->inventory || !_src->inventory) {
+				return quantity_transferred;
+			}
+
+			double remaining = _quantity;
+
+			// Transfer items from source to destination
+			for (auto& [key, src_item] : _src->inventory->items)
+			{
+				if (_type_names(src_item.item_type) && remaining > 0) {
+					auto new_piece = create_piece_of_type(src_item.item_type);
+					break;
+				}
+			}
+
+			// Save both pieces through the bus if any transfer occurred
+			if (quantity_transferred > 0) {
+				json_parser jp;
+				json jdest = jp.create_object();
+				json jsrc = jp.create_object();
+				_dest->get_json(jdest);
+				_src->get_json(jsrc);
+				bus->put_object(corona_instance::local, jdest);
+				bus->put_object(corona_instance::local, jsrc);
+			}
+
+			return quantity_transferred;
+		}
+
+		double game::transfer_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity)
+		{
+			return transfer_piece(_dest, _src, _user, [_type_name](const std::string _tn) {
+				return _type_name == _tn;
+				}, _quantity);
+		}
+
+		double game::copy_piece(piece* _dest, piece* _src, piece* _user, std::string _type_name, double _quantity)
+		{
+			return copy_piece(_dest, _src, _user, [_type_name](const std::string _tn) {
+				return _type_name == _tn;
+				}, _quantity);
+		}
+
+		void game::init()
+		{
+
+			factories.frame_factory.register_class("frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<frame> {
+				return std::make_shared<frame>(_src);
+				});
+			factories.frame_factory.register_class("bitmap_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
+				return std::make_shared<bitmap_frame>(_src);
+				});
+			factories.frame_factory.register_class("vector_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<vector_frame> {
+				return std::make_shared<vector_frame>(_src);
+				});
+
+			factories.piece_factory.register_class("piece", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<piece> {
+				return std::make_shared<piece>(_src);
+				});
+			factories.piece_factory.register_class("actor", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<actor> {
+				return std::make_shared<actor>(_src);
+				});
+			factories.piece_factory.register_class("player", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<player> {
+				return std::make_shared<player>(_src);
+				});
+			factories.piece_factory.register_class("npc", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<npc> {
+				return std::make_shared<npc>(_src);
+				});
+			factories.piece_factory.register_class("feature", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return std::make_shared<feature>(_src);
+				});
+			factories.piece_factory.register_class("spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return std::make_shared<spawn>(_src);
+				});
+			factories.piece_factory.register_class("player_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return std::make_shared<spawn>(_src);
+				});
+			factories.piece_factory.register_class("npc_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return std::make_shared<spawn>(_src);
+				});
+			factories.piece_factory.register_class("loot_box", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootbox> {
+				return std::make_shared<lootbox>(_src);
+				});
+			factories.piece_factory.register_class("loot_spot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootspot> {
+				return std::make_shared<lootspot>(_src);
+				});
+			factories.piece_factory.register_class("wall", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wall> {
+				return std::make_shared<wall>(_src);
+				});
+			factories.piece_factory.register_class("switcher", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<switcher> {
+				return std::make_shared<switcher>(_src);
+				});
+			factories.piece_factory.register_class("door", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<door> {
+				return std::make_shared<door>(_src);
+				});
+			factories.piece_factory.register_class("surface", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<surface> {
+				return std::make_shared<surface>(_src);
+				});
+			factories.piece_factory.register_class("decoration", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<decoration> {
+				return std::make_shared<decoration>(_src);
+				});
+			factories.piece_factory.register_class("light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<light> {
+				return std::make_shared<light>(_src);
+				});
+			factories.piece_factory.register_class("spot_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spot_light> {
+				return std::make_shared<spot_light>(_src);
+				});
+			factories.piece_factory.register_class("globe_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<globe_light> {
+				return std::make_shared<globe_light>(_src);
+				});
+			factories.piece_factory.register_class("camera", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<camera> {
+				return std::make_shared<camera>(_src);
+				});
+			factories.piece_factory.register_class("effect", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
+				return std::make_shared<effect>(_src);
+				});
+			factories.piece_factory.register_class("delivery", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<delivery> {
+				return std::make_shared<delivery>(_src);
+				});
+			factories.piece_factory.register_class("carryable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
+				return std::make_shared<carryable>(_src);
+				});
+			factories.piece_factory.register_class("consumable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<consumable> {
+				return std::make_shared<consumable>(_src);
+				});
+			factories.piece_factory.register_class("tool", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<tool> {
+				return std::make_shared<tool>(_src);
+				});
+			factories.piece_factory.register_class("firearm", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<firearm> {
+				return std::make_shared<firearm>(_src);
+				});
+			factories.piece_factory.register_class("magazine", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<magazine> {
+				return std::make_shared<magazine>(_src);
+				});
+			factories.piece_factory.register_class("ammunition", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<ammunition> {
+				return std::make_shared<ammunition>(_src);
+				});
+			factories.piece_factory.register_class("shot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<shot> {
+				return std::make_shared<shot>(_src);
+				});
+			factories.piece_factory.register_class("wand", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wand> {
+				return std::make_shared<wand>(_src);
+				});
+			factories.piece_factory.register_class("spell", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spell> {
+				return std::make_shared<spell>(_src);
+				});
+			factories.piece_factory.register_class("stick", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<stick> {
+				return std::make_shared<stick>(_src);
+				});
+			factories.piece_factory.register_class("artifact", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<artifact> {
+				return std::make_shared<artifact>(_src);
+				});
+
+			selections.put(std::make_shared<fire_command>());
+			selections.put(std::make_shared<fire_command>());
+
+			factories.init(corona_instance::local);
+
+
+		}
+
+		void game::handle_gamepad_button_up(gamepad_button_up_event gpbd)
+		{
+			auto player = attach_player(gpbd.state);
+			switch (gpbd.button)
+			{
+			case gamepad_button::A:
+				break;
+			case gamepad_button::B:
+				break;
+			case gamepad_button::X:
+				break;
+			case gamepad_button::Y:
+				break;
+			case gamepad_button::LeftShoulder:
+				break;
+			case gamepad_button::RightShoulder:
+				break;
+			case gamepad_button::Back:
+				break;
+			case gamepad_button::Start:
+				break;
+			case gamepad_button::DpadUp:
+				break;
+			case gamepad_button::DpadDown:
+				break;
+			case gamepad_button::DpadLeft:
+				break;
+			case gamepad_button::DpadRight:
+				break;
+			}
+		}
+
+		void game::handle_gamepad_button_down(gamepad_button_down_event gpbd)
+		{
+			auto player = attach_player(gpbd.state);
+			switch (gpbd.button)
+			{
+			case gamepad_button::A:
+				break;
+			case gamepad_button::B:
+				break;
+			case gamepad_button::X:
+				break;
+			case gamepad_button::Y:
+				break;
+			case gamepad_button::LeftShoulder:
+				player->select_next();
+				break;
+			case gamepad_button::RightShoulder:
+				player->select_previous();
+				break;
+			case gamepad_button::Back:
+				break;
+			case gamepad_button::Start:
+				break;
+			case gamepad_button::DpadUp:
+				break;
+			case gamepad_button::DpadDown:
+				break;
+
+			case gamepad_button::DpadLeft:
+				break;
+			case gamepad_button::DpadRight:
+				break;
+			}
+		}
+
+		void game::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
+		{
+			auto player = attach_player(gptu.state);
+		}
+
+		void game::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
+		{
+			auto player = attach_player(gptd.state);
+		}
+
+		void game::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
+		{
+			auto player = attach_player(gpbd.state);
+		}
+
+		std::shared_ptr<player> game::attach_player(std::string input_name)
+		{
+			// Search for existing player with this input device
+			for (auto player : game_map->players()) {
+				if (player->input_device == input_name) {
+					return player;
+				}
+			}
+			// Create new player and add to pieces only
+			std::shared_ptr<player> new_player = std::make_shared<player>();
+			new_player->name = input_name;
+			new_player->ready = false;
+			game_map->pieces.push_back(new_player);
+			return new_player;
+		}
+
+		std::shared_ptr<player> game::attach_player(XINPUT_STATE& _input_state)
+		{
+			return attach_player(std::to_string(_input_state.dwPacketNumber));
+		}
+
+		// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
+		// and only finds their state
+		collision_event game::model_piece(std::shared_ptr<map> _map, int _piece_index, double _elapsed_secs) const
+		{
+			using namespace DirectX;
+
+			auto _piece = _map->pieces[_piece_index];
+
+			collision_event event = {};
+			collision_result collision = {};
+
+			// can't be accelerated or accelerate anything if it's not moving or accelerating.
+			// no kinetic energy
+			if (XMVector3Equal(_piece->acceleration, zero_vector) &&
+				XMVector3Equal(_piece->velocity, zero_vector)) {
+				return event;
+			}
+
+			for (int i = _piece_index + 1; i < _map->pieces.size(); i++)
+			{
+				auto& other = _map->pieces[i];
+
+				double st = 0.0, et = _elapsed_secs, mt = et / 2.0;
+
+				bool collision_detected = false;
+				intersection_side collision_side;
+
+				while (fabs(et - st) > 0.001) {
+					rectangle piece_rect = _piece->get_rectangle(mt);
+					rectangle other_rect = other->get_rectangle(mt);
+					if (auto sides = rectangle_math::intersect(&piece_rect, &other_rect)) {
+						collision_detected = true;
+						et = mt; // Collision detected, search in the earlier half
+						collision_side = sides;
+					}
+					else
+					{
+						st = mt; // No collision, search in the later half
+					}
+					mt = (st + et) / 2.0;
+				}
+
+				if (collision_detected) {
+
+
+					// We already have a collision, so we need to determine which one is sooner
+					if (mt < collision.time_of_collision) {
+						collision.time_of_collision = mt;
+						collision.collision_side = collision_side;
+						event.collision = collision;
+						event.piece_1 = _piece;
+						event.piece_2 = other;
+					}
+				}
+			}
+
+			return event;
+		}
+
+		void game::run_lobby(double delta)
+		{
+			;
+		}
+
+		collision_event game::find_closest_collision(double delta) const
+		{
+			collision_event closest_collision;
+			for (int i = 0; i < game_map->pieces.size(); i++) {
+				auto pc = game_map->pieces[i];
+				collision_event collision = model_piece(game_map, i, delta);
+				if (collision.piece_1) {
+					if (closest_collision.piece_1) {
+						if (collision.collision.time_of_collision < closest_collision.collision.time_of_collision) {
+							closest_collision = collision;
+						}
+					}
+					else {
+						closest_collision = collision;
+					}
+				}
+			}
+			return closest_collision;
+		}
+
+		void game::run_active(double delta)
+		{
+			// we have to resolve collision effects first, because, 
+			// that gives us new accelerations.
+
+			// in the model, physical quantities are given in seconds, so, we can apply the ax, ay to terms
+			// and that gives us simple linear models.
+			// for other models, we can additionally scale the time so that seconds could be weeks,
+			// months or years.
+
+			double remaining = delta;
+
+			while (remaining > 0.001) {
+
+				collision_event closest_collision = find_closest_collision(remaining);
+
+				if (closest_collision.piece_1) {
+					// move pieces to the point of collision
+					for (int i = 0; i < game_map->pieces.size(); i++) {
+						auto pc = game_map->pieces[i];
+						pc->move(closest_collision.collision.time_of_collision);
+					}
+					// resolve collision effects here and update accelerations accordingly
+					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
+					remaining -= closest_collision.collision.time_of_collision;
+				}
+				else
+				{
+					// no more collisions, we can move all pieces for the remaining time
+					for (int i = 0; i < game_map->pieces.size(); i++) {
+						auto pc = game_map->pieces[i];
+						pc->move(remaining);
+					}
+					remaining = 0;
+				}
+			}
+		}
+
+		void game::run_complete(double delta)
+		{
+			;
+		}
+
+		void game::run_paused(double delta)
+		{
+			;
+		}
+
+		void game::run_exit(double delta)
+		{
+			;
+		}
+
+		job_notify game::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		{
+			job_notify notify;
+			json_parser jp;
+
+			notify.shouldDelete = false;
+
+			double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
+			double delta = current_elapsed_seconds - last_elapsed_seconds;
+
+			last_elapsed_seconds = current_elapsed_seconds;
+
+			switch (state) {
+			case game_state::lobby:
+				run_lobby(delta);
+				break;
+			case game_state::active:
+				run_active(delta);
+				break;
+			case game_state::complete:
+				run_complete(delta);
+				break;
+			case game_state::paused:
+				run_paused(delta);
+				break;
+			case game_state::exit:
+				run_exit(delta);
+				break;
+			}
+
+			return notify;
+		}
+
+
+		void game::set_lobby()
+		{
+			// Remove all players from the pieces collection
+			auto is_player = [](const auto& piece) {
+				return std::dynamic_pointer_cast<player>(piece) != nullptr;
+				};
+			game_map->pieces.erase(
+				std::remove_if(game_map->pieces.begin(), game_map->pieces.end(), is_player),
+				game_map->pieces.end()
+			);
+			state = game_state::lobby;
+			handlers = event_handlers[state];
+		}
+
+		void game::set_active()
+		{
+			state = game_state::active;
+			handlers = event_handlers[state];
+		}
+
+		void game::set_paused()
+		{
+			state = game_state::paused;
+			handlers = event_handlers[state];
+		}
+
+		void game::set_complete()
+		{
+			state = game_state::complete;
+			handlers = event_handlers[state];
+		}
+
+		void game::set_exit()
+		{
+			state = game_state::exit;
+			handlers = event_handlers[state];
+		}
+
+		void game::start_play(std::string input_name)
+		{
+			auto player = attach_player(input_name);
+
+			if (state == game_state::lobby) {
+				player->ready = !player->ready;
+			}
+			else if (state == game_state::active) {
+				player->dead = false;
+				set_paused();
+			}
+			else if (state == game_state::paused) {
+				set_active();
+			}
+			else if (state == game_state::complete) {
+				set_lobby();
+			}
+			else if (state == game_state::exit) {
+				; // do nothing, we're exiting anyway
+			}
+		}
+
+		void game::check_all_ready()
+		{
+			if (state == game_state::lobby) {
+				auto players_view = game_map->players();
+				bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
+					return player->ready;
+					});
+				if (all_ready) {
+					set_active();
+				}
+			}
+		}
+
+		void game::check_all_dead()
+		{
+			auto players_view = game_map->players();
+			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
+				return player->dead;
+				});
+			if (all_dead) {
+				set_complete();
+			}
+		}
+
+		void game::get_json(json& _dest)
+		{
+			json_parser jp;
+			_dest.put_member("name", name);
+			_dest.put_member("description", description);
+			json j = jp.create_array();
+			json jmap = jp.create_object();
+			game_map->get_json(jmap);
+			j.push_back(jmap);
+			_dest.put_member("map", j);
+
+			switch (state) {
+			case game_state::lobby:
+				_dest.put_member_string("state", "lobby");
+				break;
+			case game_state::active:
+				_dest.put_member_string("state", "active");
+				break;
+			case game_state::paused:
+				_dest.put_member_string("state", "paused");
+				break;
+			case game_state::complete:
+				_dest.put_member_string("state", "complete");
+				break;
+			case game_state::exit:
+				_dest.put_member_string("state", "exit");
+				break;
+			}
+		}
+
+		void game::put_json(json& _src)
+		{
+			name = _src["name"].as_string();
+			description = _src["description"].as_string();
+			json j = _src["map"];
+			game_map = std::make_shared<map>();
+			std::string state_string = _src["state"].as_string();
+		}
+
+		job* game::get_next_job()
+		{
+			if (state != game_state::exit)
+			{
+				return this;
+			}
+			else
+			{
+				return nullptr;
+			}
 		}
 
 	}
