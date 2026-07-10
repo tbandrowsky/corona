@@ -2015,7 +2015,7 @@ namespace corona
 
 
 			game_factory factories;
-			corona::selection_commands::command_collection selections;
+			corona::selection_commands::command_collection selection_rules;
 			collision_commands collisions;
 
 			comm_bus_app_interface* bus;
@@ -2111,7 +2111,7 @@ namespace corona
 				return nullptr;
 			}
 
-			virtual void run(game* _game, player* _actor) = 0;
+			virtual bool run(game* _game, player* _actor) = 0;
 		};
 
 		class fire_command : public player_command
@@ -2133,7 +2133,7 @@ namespace corona
 				requirements.push_back(r_firearm);
 			}
 
-			virtual void run(game* _game, player* _actor)
+			virtual bool run(game* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2141,7 +2141,7 @@ namespace corona
 
 				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
                 auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
 
@@ -2164,10 +2164,14 @@ namespace corona
 
                                 DirectX::XMVECTOR recoil = DirectX::XMVectorScale(new_shot->facing, -_ammo.item_object->shot_muzzle_velocity * _ammo.item_object->shot_mass / _actor->mass);
                                 _actor->velocity = DirectX::XMVectorAdd(_actor->velocity, recoil);
+
+								return true;
 							}
                         }
 					}
                 }
+
+				return false;
 			}
 		};
 
@@ -2187,7 +2191,7 @@ namespace corona
 				requirements.push_back(r_cast);
 			}
 
-			virtual void run(game* _game, player* _actor)
+			virtual bool run(game* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2195,7 +2199,7 @@ namespace corona
 
 				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
 				auto _wand = get_item_ptr<wand>(_game, _actor, found_matches, r_cast);
 
@@ -2208,8 +2212,11 @@ namespace corona
 						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
 						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot->spell_velocity);
 						_game->game_map->pieces.push_back(new_shot);
+						return true;
 					}
 				}
+
+				return false;
 			}
 		};
 
@@ -2228,7 +2235,7 @@ namespace corona
 				requirements.push_back(r_hit);
 			}
 
-			virtual void run(game* _game, actor* _actor)
+			virtual bool run(game* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2238,7 +2245,7 @@ namespace corona
 
 				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
 				auto _stick = get_item_ptr<stick>(_game, _actor, found_matches, r_hit);
 
@@ -2252,8 +2259,11 @@ namespace corona
 						// add the new hit to the game map
 						_game->game_map->pieces.push_back(new_hit);
 						_actor->state = "hit";
+						return true;
 					}
 				}
+
+				return false;
 			}
 		};
 
@@ -2272,7 +2282,7 @@ namespace corona
 				requirements.push_back(r_drop);
 			}
 
-			virtual void run(game* _game, actor* _actor)
+			virtual bool run(game* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2282,7 +2292,7 @@ namespace corona
 
 				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
 				auto target = _game->create_piece_of_type("lootspot");
 
@@ -2298,6 +2308,8 @@ namespace corona
                 target->acceleration = DirectX::XMVectorZero();
 
                 _game->game_map->pieces.push_back(target);
+
+				return true;
 			}
 
 		};
@@ -2348,7 +2360,7 @@ namespace corona
 				requirements.push_back(r_magazine);
 			}
 
-			virtual void run(game* _game, actor* _actor)
+			virtual bool run(game* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2356,7 +2368,7 @@ namespace corona
 
 				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
 				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
 				auto _mag = get_item_ptr<magazine>(_game, _actor, found_matches, r_magazine);
@@ -2372,7 +2384,11 @@ namespace corona
 
 					// and the chest item for the magazine...
                     _actor->inventory->add_part(_mag->to_chest_item(1.0));
+					return true;
 				}
+
+				return false;
+
 			}
 		};
 
@@ -2472,7 +2488,7 @@ namespace corona
 				}
 			}
 
-			virtual void run(game* _game, actor* _actor)
+			virtual bool run(game* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2480,13 +2496,21 @@ namespace corona
 
 				bool bm = matches(requirement_matches, *_actor->inventory.get(), *_actor->selection.get());
 				if (!bm)
-					return;
+					return false;
 
 				for (auto &fm : requirement_matches) {
                     for (auto& ci : fm.matches) {
 						_actor->inventory->remove_part(ci);
 					}
 				}
+
+				for (auto fm : products) {
+                    auto new_piece = _game->create_piece_of_type(fm.class_name);
+                    auto new_chest_item = new_piece->to_chest_item(fm.quantity);
+                    _actor->inventory->add_part(new_chest_item);
+				}
+
+				return true;
 			}
 		};
 
@@ -3040,11 +3064,11 @@ namespace corona
 				return std::make_shared<artifact>(_src);
 				});
 
-			selections.put(fire_c);
-			selections.put(cast_c);
-			selections.put(hit_c);
-			selections.put(reload_c);
-			selections.put(drop_c);
+			selection_rules.put(fire_c);
+			selection_rules.put(cast_c);
+			selection_rules.put(hit_c);
+			selection_rules.put(reload_c);
+			selection_rules.put(drop_c);
 
 		}
 
@@ -3131,7 +3155,7 @@ namespace corona
 		{
 			auto player = attach_player(gptd.state);
 
-			std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selections.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
+			std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selection_rules.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
 
 			if (gptd.trigger == gamepad_trigger::LeftTrigger) 
 			{
