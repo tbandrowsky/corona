@@ -3046,13 +3046,6 @@ namespace corona
 			selections.put(reload_c);
 			selections.put(drop_c);
 
-
-            // we could add a build command, and will, once this shebang loads from a json more than it does.
-
-			/// selections.put(std::make_shared<build_command>());
-
-			// factories.init(corona_instance::local);
-
 		}
 
 		void game::handle_gamepad_button_up(gamepad_button_up_event gpbd)
@@ -3140,15 +3133,27 @@ namespace corona
 
 			std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selections.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
 
-			if (gptd.trigger == gamepad_trigger::LeftTrigger) {
-
-				auto command_range = std::find_if(commands.begin(), commands.end(), [](std::shared_ptr<corona::selection_commands::command>& _src) {
-					return _src->requirements == 
+			if (gptd.trigger == gamepad_trigger::LeftTrigger) 
+			{
+				auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
+						return _src == fire_c || _src == reload_c || _src == hit_c || _src == cast_c;
 					});
 
-				if (commands.size()) {
-					auto cmd = commands[0];
-					std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(cmd);
+				if (command_range != std::end(commands)) {
+					std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
+					if (pcmd) {
+						pcmd->run(this, player.get());
+					}
+				}
+			}
+			else if (gptd.trigger == gamepad_trigger::RightTrigger) 
+			{
+				auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
+					return _src == drop_c;
+					});
+
+				if (command_range != std::end(commands)) {
+					std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
 					if (pcmd) {
 						pcmd->run(this, player.get());
 					}
