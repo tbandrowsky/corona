@@ -523,6 +523,12 @@ namespace corona
 				}
 			}
 
+            template <typename T> bool is()
+			{
+				auto T*d = std::dynamic_cast<T>(this);
+				return d != nullptr;
+            }
+
 			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
 			{
                 for (auto animation : animations) {
@@ -639,12 +645,12 @@ namespace corona
 		class collision_command_key
 		{
 		public:
-			std::string moving_piece_class;
-			std::string impact_piece_class;
+			std::string piece1_class;
+			std::string piece2_class;
 
 			bool operator < (const collision_command_key& _other) const
 			{
-                return std::tie(moving_piece_class, impact_piece_class) < std::tie(_other.moving_piece_class, _other.impact_piece_class);
+				return std::tie(piece1_class, piece2_class) < std::tie(_other.piece1_class, _other.piece2_class);
 			}
 		};
 
@@ -658,7 +664,7 @@ namespace corona
 			collision_command& operator =(const collision_command& _src) = default;
             collision_command& operator =(collision_command&& _src) = default;
 
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 
 			}
@@ -668,10 +674,10 @@ namespace corona
 		{
 		public:
 
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
-				auto hit_piece = dynamic_cast<hit *>(_moving_piece);
-				_game->factories.clone_piece(_impact_piece, _moving_piece, "effect", hit_piece->effect_type, 1);
+				
+				_game->factories.clone_piece(_event.impact_piece, _event.moving_piece, "effect", hit_piece->effect_type, 1);
 				hit_piece->remove = true;
 			}
 		};
@@ -679,7 +685,7 @@ namespace corona
 		class shot_collision_command: public collision_command
 		{
 		public:
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 				auto hit_piece = dynamic_cast<shot*>(_moving_piece);
 				_game->factories.clone_piece(_impact_piece, _moving_piece, "effect", hit_piece->effect_type, 1);
@@ -690,7 +696,7 @@ namespace corona
 		class spell_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 				auto hit_piece = dynamic_cast<spell*>(_moving_piece);
 				_game->factories.clone_piece(_impact_piece, _moving_piece, "effect", hit_piece->effect_type, 1);
@@ -701,7 +707,7 @@ namespace corona
 		class wall_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 
 			}
@@ -710,7 +716,7 @@ namespace corona
 		class surface_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 
 			}
@@ -719,7 +725,7 @@ namespace corona
 		class feature_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, piece* _moving_piece, piece* _impact_piece)
+			virtual void run(game* _game, collision_event& _event)
 			{
 
 			}
@@ -737,11 +743,11 @@ namespace corona
 
             std::map<collision_command_key, std::shared_ptr<collision_command>> commands;
 
-			void register_command(std::string _moving_piece_class, std::string _impact_piece_class, std::shared_ptr<collision_command> _command)
+			void register_command(std::string _piece1_class, std::string _piece2_class, std::shared_ptr<collision_command> _command)
 			{
 				collision_command_key key;
-				key.moving_piece_class = _moving_piece_class;
-				key.impact_piece_class = _impact_piece_class;
+				key.piece1_class = _piece1_class;
+				key.piece2_class = _piece2_class;
 				commands[key] = _command;
             }
 
@@ -2036,8 +2042,6 @@ namespace corona
 
 			std::shared_ptr<corona_bus_command> on_all_players_ready;
 			std::shared_ptr<corona_bus_command> on_all_players_dead;
-			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_use;
-			std::map<std::string, std::shared_ptr<corona_bus_command>> on_player_shot;
 
 			std::shared_ptr<piece> create_piece_of_type(std::string _piece_type_name);
 			std::shared_ptr<piece> create_piece_of_class(std::string _class_name);
