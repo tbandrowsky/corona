@@ -125,32 +125,49 @@ namespace corona
         }
 	};
 
+	class corona_object_interface
+	{
+	public:
+
+		std::string  class_name;
+		int64_t      object_id;
+
+		std::string  created_by;
+		date_time    created;
+
+		std::string  updated_by;
+		date_time    updated;
+
+		corona_object_interface() = default;
+		corona_object_interface(const corona_object_interface& _src) = default;
+		corona_object_interface(corona_object_interface&& _src) = default;
+		corona_object_interface& operator =(const corona_object_interface& _src) = default;
+		corona_object_interface& operator =(corona_object_interface&& _src) = default;
+
+		virtual void get_json(json& _dest) = 0;
+		virtual void put_json(json& _src) = 0;
+		virtual std::string get_item_type() = 0;
+		virtual object_reference to_reference() = 0;
+		virtual chest_item to_chest_item(int _quantity) = 0;
+		virtual bool identity_matches(corona_object_interface& _src) = 0;
+		virtual std::shared_ptr<corona_object_interface> clone() = 0;
+
+	};
+
 	namespace game 
 	{
 
 		class game_interface
 		{
 		public:
+
+			virtual std::shared_ptr<corona_object_interface> get_piece(object_reference& _reference, bool include_children) = 0;
 			virtual void set_lobby() = 0;
 			virtual void set_active() = 0;
 			virtual void set_paused() = 0;
 			virtual void set_complete() = 0;
 			virtual void set_exit() = 0;
 			virtual void start_play(std::string input_name) = 0;
-			virtual void check_all_ready() = 0;
-			virtual void check_all_dead() = 0;
-			virtual corona_client_response accelerate(std::string input_name, DirectX::XMVECTOR a) = 0;
-			virtual corona_client_response displace(std::string input_name, DirectX::XMVECTOR d) = 0;
-			virtual corona_client_response clear_selection(std::string input_name) = 0;
-			virtual corona_client_response extend_selection(std::string input_name, chest_item* ci) = 0;
-			virtual corona_client_response throw_selection(std::string input_name) = 0;
-			virtual corona_client_response drop_selection(std::string input_name) = 0;
-			virtual corona_client_response use_selection(std::string input_name) = 0;
-			virtual corona_client_response select_next(std::string input_name) = 0;
-			virtual corona_client_response select_previous(std::string input_name) = 0;
-			virtual corona_client_response add_pieces(json _pieces) = 0;
-			virtual corona_client_response remove_pieces(json _pieces) = 0;
-			virtual corona_client_response purchase_pieces(std::string input_name, json _for_sale, json _price) = 0;
 			virtual void get_json(json& _dest) = 0;
 			virtual void put_json(json& _src) = 0;
 			virtual job* get_next_job() = 0;

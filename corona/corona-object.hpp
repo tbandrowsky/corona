@@ -4,20 +4,13 @@
 namespace corona
 {
 
-    class corona_object
+    class corona_object : public corona_object_interface
     {
+
+    protected:
+        comm_bus_app_interface* bus;
+
     public:
-
-       comm_bus_app_interface* bus;
-
-       std::string  class_name;
-       int64_t      object_id;
-
-       std::string  created_by;
-       date_time    created;
-
-       std::string  updated_by;
-       date_time    updated;
 
        corona_object() = default;
        corona_object(const corona_object& _src) = default;
@@ -30,7 +23,7 @@ namespace corona
 
        }
 
-       void get_json(json& _dest)
+       virtual void get_json(json& _dest)
        {
            _dest.put_member_string(class_name_field, class_name);
            _dest.put_member_i64(object_id_field, object_id);
@@ -40,7 +33,7 @@ namespace corona
            _dest.put_member("updated", updated);
        }
 
-       void put_json(json& _src)
+       virtual void put_json(json& _src)
        {
            class_name = _src[class_name_field].as_string();
            object_id = _src[object_id_field].as_int64_t();
@@ -77,7 +70,7 @@ namespace corona
            return ci;
        }
 
-       corona_client_response save(corona_instance instance)
+       virtual corona_client_response save(corona_instance instance)
        {
             corona_client_response response;
 
@@ -90,12 +83,12 @@ namespace corona
             return response;
        }
 
-       bool identity_matches(corona_object& _src)
+       virtual bool identity_matches(corona_object& _src)
        {
            return (class_name == _src.class_name) && (object_id == _src.object_id);
        }
 
-       virtual std::shared_ptr<corona_object> clone()
+       virtual std::shared_ptr<corona_object_interface> clone()
        {
            json_parser jp;
            json body = jp.create_object();
@@ -114,7 +107,7 @@ namespace corona
            return result;
        }
 
-       virtual std::shared_ptr<corona_object> copy(corona_instance instance)
+       virtual std::shared_ptr<corona_object_interface> copy(corona_instance instance)
        {
            std::shared_ptr<corona_object> obj;
 
@@ -197,7 +190,7 @@ namespace corona
                 {
                 }
                 remaining_seconds = frequency_seconds;
-                return true
+                return true;
             }
 
             return false;
@@ -307,6 +300,7 @@ namespace corona
 
         comm_bus_app_interface* bus;
         std::map<std::string, json> class_cache;
+        corona_instance instance = corona_instance::local;
 
     public:
 
@@ -377,7 +371,7 @@ namespace corona
         template<typename U = T> 
         std::shared_ptr<U> get_object(object_reference& ref, bool _children)
         {
-            auto obj = get_object<U>(corona_instance _instance, ref.class_name, ref.object_id, false);
+            auto obj = get_object<U>(instance, ref.class_name, ref.object_id, false);
             return obj;
         }
 
@@ -412,12 +406,15 @@ namespace corona
 
             auto foundit = factory_map.find(class_name);
             if (foundit != std::end(factory_map)) {
+                json_parser jp;
+                json ji = jp.create_object();
+                ji.put_member("class_name", class_name);
                 auto p = foundit->second(ji, bus);
                 sp = std::dynamic_pointer_cast<U>(p);
                 if (sp) {
                     if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
                         sp->bus = bus;
-                        auto response = _bus->create_object(instance, class_name);
+                        auto response = bus->create_object(instance, class_name);
 
                         if (response.success) {
                             sp->put_json(response.data);

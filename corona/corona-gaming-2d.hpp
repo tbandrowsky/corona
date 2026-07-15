@@ -10,7 +10,81 @@ namespace corona
 	// or, we say all access is through local corona, so that, they can be stitched into a fabric.
 	namespace game
 	{
-		class game;
+
+		class piece_base : public corona_object {
+		public:
+			piece_base() {
+				class_name = "piece";
+			}
+			piece_base(const piece_base& _src) = default;
+			piece_base(piece_base&& _src) = default;
+			piece_base& operator =(const piece_base& _src) = default;
+			piece_base& operator =(piece_base&& _src) = default;
+
+			std::string name;
+			std::string state;
+			DirectX::XMVECTOR position = {};
+			DirectX::XMVECTOR size = {};
+			DirectX::XMVECTOR velocity = {};
+			DirectX::XMVECTOR facing = {};
+			DirectX::XMVECTOR acceleration = {};
+
+			std::shared_ptr<chest_field> inventory;
+			object_reference owner;
+
+			double		mass = 1.0;
+			double      full_health = 1.0;
+			double      health = 1.0;
+			bool		remove = false;
+			double		state_time = 0.0;
+
+			template <typename T> bool is()
+			{
+				auto T* d = std::dynamic_cast<T*>(this);
+				return d != nullptr;
+			}
+
+
+			rectangle get_rectangle(double _elapsed) const
+			{
+				using namespace DirectX;
+
+				XMVECTOR this_position_start = XMVectorAdd(position, XMVectorScale(velocity, static_cast<float>(_elapsed)));
+
+				rectangle rect;
+				rect.x = XMVectorGetX(this_position_start);
+				rect.y = XMVectorGetY(this_position_start);
+				rect.w = XMVectorGetX(size);
+				rect.h = XMVectorGetY(size);
+				return rect;
+			}
+
+			// this gets called on every piece, to apply accelerations, make animation calculations, 
+			// and other time-based calculations. The default implementation does nothing.
+			// _elapsed_seconds is the time since the last call to run, in seconds.
+			// this will be quite fractional.
+			virtual void run(double _elapsed)
+			{
+				velocity = DirectX::XMVectorAdd(velocity, DirectX::XMVectorScale(acceleration, static_cast<float>(_elapsed)));
+				position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(velocity, static_cast<float>(_elapsed)));
+			}
+
+		};
+		
+		class game_app_interface : public game_interface {
+		public:
+
+
+			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name) = 0;
+			virtual std::shared_ptr<piece_base> create_piece_of_class(std::string _class_name) = 0;
+			virtual std::shared_ptr<piece_base> clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity) = 0;
+			virtual double fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level) = 0;
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0;
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0;
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
+
+		};
 
 		template <typename T> class item_holder
 		{
@@ -420,7 +494,7 @@ namespace corona
 			double state_duration;
 		};
 
-		class piece : public corona_object
+		class piece : public piece_base
 		{
 
 		public:
@@ -433,25 +507,82 @@ namespace corona
 			piece& operator =(const piece& _src) = default;
 			piece& operator =(piece&& _src) = default;
 
-			std::string name;
-			std::string state;
 			std::vector<std::shared_ptr<animation>> animations;
-			DirectX::XMVECTOR position = {};
-			DirectX::XMVECTOR size = {};
-			DirectX::XMVECTOR velocity = {};
-			DirectX::XMVECTOR facing = {};
-			DirectX::XMVECTOR acceleration = {};
 
-			std::shared_ptr<chest_field> inventory;
-			object_reference owner;
+			template <typename T>
+			std::shared_ptr<T> get_item_ptr(game_app_interface*	_game, std::string _class_name, std::string _type_name)
+			{
+				std::shared_ptr<T> holder;
+				if (inventory) {
+					auto item = inventory->match(_class_name, _type_name);
+					if (item) {
+						holder = _game->get_piece<T>(item->reference, false);
+						return std::dynamic_pointer_cast<T>(holder);
+					}
+				}
+				return holder;
+			}
 
-			double		mass = 1.0;
-			double      full_health = 1.0;
-			double      health = 1.0;
-			bool		remove = false;
-			double		state_time = 0.0;
+            template <typename T>
+			item_holder<T> get_item(game_app_interface* _game, std::string _class_name, std::string _type_name)
+			{
+				item_holder<T> holder;
+				if (inventory) {
+                    auto item = inventory->match(_class_name, _type_name);
+                    if (item) {
+						holder.container = item;
+                        holder.item_object = _game->get_piece<T>(item->reference, false);
+                        return std::dynamic_pointer_cast<T>(item);
+                    }
+                }
+				return holder;
+			}
 
+			template <typename T>
+			std::shared_ptr<T> get_item_ptr(game_app_interface* _game, chest_item& _src)
+			{
+				std::shared_ptr<T> holder;
+				if (inventory) {
+					auto item = inventory->find(&_src);
+					if (item) {
+						holder = _game->get_piece<T>(item->reference, false);
+					}
+				}
+				return holder;
+			}
 
+			template <typename T>
+			item_holder<T> get_item(game_app_interface* _game, chest_item& _src)
+			{
+				item_holder<T> holder;
+				if (inventory) {
+					auto item = inventory->find(&_src);
+					if (item) {
+                        holder.container = *item;
+						holder.item_object = _game->get_piece<T>(item->reference, false);
+					}
+				}
+				return holder;
+			}
+
+			bool remove_item(game_app_interface* _game, corona_object* _src)
+			{
+				if (inventory) {
+                    auto _src_ref = _src->to_reference();
+					auto item = inventory->find(_src_ref);
+					if (item) {
+						inventory->remove_part(*item);
+						return true;
+					}
+				}
+				return false;
+			}					
+			virtual void use(game_app_interface* _game, piece* _piece);
+
+			virtual void run(game_app_interface* _game, double _elapsed)
+			{
+				piece_base::run(_elapsed);
+			}
 
 			virtual void get_json(json& _dest)
 			{
@@ -468,7 +599,7 @@ namespace corona
 				_dest.put_member("mass", mass);
 				_dest.put_member("health", health);
 				_dest.put_member("full_health", full_health);
-                _dest.put_member("owner", owner);
+				_dest.put_member("owner", owner);
 
 				json j = jp.create_array();
 				for (auto& s : animations) {
@@ -488,7 +619,7 @@ namespace corona
 
 			virtual void put_json(frame_factory& _factory, json& _src)
 			{
-                corona_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				remove = false;
 				name = _src["name"].as_string();
@@ -506,7 +637,7 @@ namespace corona
 
 				json janimations = _src["animations"];
 				animations.clear();
-                for (int i = 0; i < janimations.size(); i++) {
+				for (int i = 0; i < janimations.size(); i++) {
 					auto janimation = janimations.get_element(i);
 					if (!janimation.object()) {
 						continue;
@@ -523,118 +654,14 @@ namespace corona
 				}
 			}
 
-            template <typename T> bool is()
-			{
-				auto T*d = std::dynamic_cast<T>(this);
-				return d != nullptr;
-            }
-
 			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
 			{
-                for (auto animation : animations) {
+				for (auto animation : animations) {
 					if (animation->state == state) {
 						animation->draw(_context, _elapsed, _location);
 					}
 				}
 			}
-
-
-			rectangle get_rectangle(double _elapsed) const
-			{
-				using namespace DirectX;
-
-				XMVECTOR this_position_start = XMVectorAdd(position, XMVectorScale(velocity, static_cast<float>(_elapsed)));
-
-				rectangle rect;
-				rect.x = XMVectorGetX(this_position_start);
-				rect.y = XMVectorGetY(this_position_start);
-				rect.w = XMVectorGetX(size);
-				rect.h = XMVectorGetY(size);
-				return rect;
-			}
-
-			virtual void move(double _elapsed)
-			{
-                velocity = DirectX::XMVectorAdd(velocity, DirectX::XMVectorScale(acceleration, static_cast<float>(_elapsed)));
-                position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(velocity, static_cast<float>(_elapsed)));
-			}
-
-			// this gets called on every piece, to apply accelerations, make animation calculations, 
-            // and other time-based calculations. The default implementation does nothing.
-            // _elapsed_seconds is the time since the last call to run, in seconds.
-			// this will be quite fractional.
-			virtual void run(game* _game, piece *_user, double _elapsed);
-
-			template <typename T>
-			std::shared_ptr<T> get_item_ptr(game* _game, std::string _class_name, std::string _type_name)
-			{
-				std::shared_ptr<T> holder;
-				if (inventory) {
-					auto item = inventory->match(_class_name, _type_name);
-					if (item) {
-						holder = _game->factories.piece_factory(_game, item);
-						return std::dynamic_pointer_cast<T>(item);
-					}
-				}
-				return holder;
-			}
-
-            template <typename T>
-			item_holder<T> get_item(game* _game, std::string _class_name, std::string _type_name)
-			{
-				item_holder<T> holder;
-				if (inventory) {
-                    auto item = inventory->match(_class_name, _type_name);
-                    if (item) {
-						holder.container = item;
-                        holder.item_object = _game->factories.piece_factory(_game, item);
-                        return std::dynamic_pointer_cast<T>(item);
-                    }
-                }
-				return holder;
-			}
-
-			template <typename T>
-			std::shared_ptr<T> get_item_ptr(game* _game, chest_item& _src)
-			{
-				std::shared_ptr<T> holder;
-				if (inventory) {
-					auto item = inventory->find(&_src);
-					if (item) {
-						holder = _game->factories.piece_factory.get_object<T>(item->reference, false);
-					}
-				}
-				return holder;
-			}
-
-			template <typename T>
-			item_holder<T> get_item(game* _game, chest_item& _src)
-			{
-				item_holder<T> holder;
-				if (inventory) {
-					auto item = inventory->find(&_src);
-					if (item) {
-                        holder.container = *item;
-						holder.item_object = _game->factories.piece_factory.get_object<T>(item->reference, false);
-					}
-				}
-				return holder;
-			}
-
-			bool remove_item(game* _game, corona_object* _src)
-			{
-				if (inventory) {
-                    auto _src_ref = _src->to_reference();
-					auto item = inventory->find(_src_ref);
-					if (item) {
-						inventory->remove_part(*item);
-						return true;
-					}
-				}
-				return false;
-			}
-
-			virtual void use(game* _game, piece* _piece);
 
 		};
 
@@ -664,70 +691,114 @@ namespace corona
 			collision_command& operator =(const collision_command& _src) = default;
             collision_command& operator =(collision_command&& _src) = default;
 
-			virtual void run(game* _game, collision_event& _event)
+			virtual void run(game_app_interface* _game, collision_event& _event)
 			{
 
 			}
 		};
 
-		class hit_collision_command : public collision_command
+		template <typename TARGET, typename EFFECT_BEARER>
+		class effect_collision_command : public collision_command
 		{
 		public:
 
-			virtual void run(game* _game, collision_event& _event)
+			virtual void run(game_app_interface* _game, collision_event& _event)
 			{
-				
-				_game->factories.clone_piece(_event.impact_piece, _event.moving_piece, "effect", hit_piece->effect_type, 1);
-				hit_piece->remove = true;
+                collision_command::run(_game, _event);
+
+				auto h = _event.get_piece<EFFECT_BEARER>();
+				auto p = _event.get_piece<TARGET>();
+
+				if (h && p) {
+					h->remove = true;
+					_game->transfer_piece(p.get(), h.get(), "effect", 1);
+				}
 			}
 		};
 
-		class shot_collision_command: public collision_command
+		class use_plate_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, collision_event& _event)
-			{
-				auto hit_piece = dynamic_cast<shot*>(_moving_piece);
-				_game->factories.clone_piece(_impact_piece, _moving_piece, "effect", hit_piece->effect_type, 1);
-				hit_piece->remove = true;
-			}
-        };
 
-		class spell_collision_command : public collision_command
-		{
-		public:
-			virtual void run(game* _game, collision_event& _event)
+			virtual void run(game_app_interface* _game, collision_event& _event)
 			{
-				auto hit_piece = dynamic_cast<spell*>(_moving_piece);
-				_game->factories.clone_piece(_impact_piece, _moving_piece, "effect", hit_piece->effect_type, 1);
-				hit_piece->remove = true;
-			}
-		};
+				collision_command::run(_game, _event);
 
-		class wall_collision_command : public collision_command
-		{
-		public:
-			virtual void run(game* _game, collision_event& _event)
-			{
+				auto h = _event.get_piece<use_plate>();
+                auto p = _event.get_piece<player>();
 
+				if (h && p) {
+					auto found_it = std::find_if(_game->game_map->pieces.begin(), _game->game_map->pieces.end(), [&](const std::shared_ptr<piece>& p) {
+						return h->target_piece == p->to_reference();
+					});
+                    if (found_it != _game->game_map->pieces.end()) {
+						auto target_piece = found_it->get();
+						target_piece->use(_game, p.get());
+					}
+				}
 			}
 		};
 
-		class surface_collision_command : public collision_command
+		class loot_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, collision_event& _event)
-			{
 
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto h = _event.get_piece<lootspot>();
+				auto p = _event.get_piece<player>();
+
+				if (h && p) {
+					p->inventory->loot(*h->inventory.get());
+				}
 			}
 		};
 
-		class feature_collision_command : public collision_command
+		class stop_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game* _game, collision_event& _event)
+			virtual void run(game_app_interface* _game, collision_event& _event)
 			{
+				collision_command::run(_game, _event);
 
+				auto p = _event.get_piece<player>();
+				auto w = _event.get_piece<wall>();
+
+				if (p && w) {
+					switch (_event.collision.collision_side) {
+						case intersection_side::intersection_side_top:
+							p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
+                            break;
+                        case intersection_side::intersection_side_bottom:
+							p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
+							break;
+						case intersection_side::intersection_side_left:
+							p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
+							break;
+						case intersection_side::intersection_side_right:
+							p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
+                            break;
+					}
+				}
+
+				w->remove = true;
+			}
+		};
+
+		class use_collision_command : public collision_command
+		{
+		public:
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+                auto p = _event.get_piece<player>();
+                auto t = _event.get_piece<feature>();
+				if (p && t) {
+					t->use(_game, p.get());
+				}
 			}
 		};
 
@@ -762,8 +833,8 @@ namespace corona
 			frame_factory frame_factory;
 			general_factory general_factory;
 
-			using object_action = std::function<void(game* _game, piece* _direct_object, piece* _actor)>;
-			using object_interaction = std::function<void(game* _game, piece* _a, piece* _b)>;
+			using object_action = std::function<void(game_app_interface* _game, piece* _direct_object, piece* _actor)>;
+			using object_interaction = std::function<void(game_app_interface* _game, piece* _a, piece* _b)>;
 
 			game_factory(comm_bus_app_interface* _bus) noexcept : bus(_bus), piece_factory(_bus), frame_factory(_bus), general_factory(_bus)
 			{
@@ -851,9 +922,41 @@ namespace corona
 				scheduler.put_json(timer);
 			}
 
-			virtual void run(game* _game, double _elapsed)
+			virtual void run(game_app_interface* _game, double _elapsed)
 			{
 				scheduler.execute(_elapsed);
+			}
+		};
+
+		class use_plate : public feature
+		{
+		public:
+
+			use_plate() {
+				class_name = "use_plate";
+			}
+			use_plate(const use_plate& _src) = default;
+			use_plate(use_plate&& _src) = default;
+			use_plate& operator =(const use_plate& _src) = default;
+			use_plate& operator =(use_plate&& _src) = default;
+
+			object_reference target_piece;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+				piece::get_json(_dest);
+                _dest.put_member("target_piece", target_piece);
+			}
+
+			virtual void put_json(game_factory& _gbus, json& _src)
+			{
+				piece::put_json(_gbus.frame_factory, _src);
+                target_piece = _src["target_piece"].as_object_reference();
+			}
+
+			virtual void run(game_app_interface* _game, double _elapsed)
+			{
 			}
 		};
 
@@ -879,26 +982,19 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(game* _game, piece* _user, double _elapsed);
+			virtual void run(game_app_interface* _game, double _elapsed);
 		};
 
-		class delivery : public piece
+		class wound_effect : public effect
 		{
 		public:
-
-			delivery() {
-				class_name = "delivery";
+			wound_effect() {
+				class_name = "wound_effect";
 			}
 
-			virtual void get_json(json& _dest)
-			{
-				piece::get_json(_dest);
-			}
-
-			virtual void put_json(game_factory& _gbus, json& _src)
-			{
-				piece::put_json(_gbus.frame_factory, _src);
-			}
+			double hit_points_sec = 0.0;
+			double duration_seconds = 0.0;
+			double effect_remaining = 0.0;
 		};
 
 		class spawn : public feature
@@ -992,7 +1088,7 @@ namespace corona
 				result = spawn_classes[index];
 			}
 
-            virtual void spawn(game* _game)
+            virtual void spawn(game_app_interface* _game)
 			{
 				std::string spawn_class = get_spawn_class();
 				if (spawn_class.size() > 0) {
@@ -1006,8 +1102,9 @@ namespace corona
 				}
 			}
 
-			virtual void run(game* _game, double _elapsed_seconds)
+			virtual void run(game_app_interface* _game, double _elapsed_seconds)
 			{
+                spawn::run(_game, _elapsed_seconds);
                 if (scheduler.execute(_elapsed_seconds)) {
 					spawn(_game);
 				}
@@ -1127,7 +1224,7 @@ namespace corona
 			}
 
 			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
-			virtual void use(game* _game, piece* _piece)
+			virtual void use(game_app_interface* _game, piece* _piece)
 			{
                 if (state.empty()) {
 					if (sets.size() > 0) {
@@ -1174,7 +1271,7 @@ namespace corona
 			// the player uses the piece, and then, 
 			// that changes the state.
 			// the animation system picks this up while rendering
-			virtual void use(game* _game, piece* _piece)
+			virtual void use(game_app_interface* _game, piece* _piece)
 			{
 				if (state == "open") {
 					state = "closed";
@@ -1267,7 +1364,7 @@ namespace corona
 			}
 
 			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
-			virtual void use(game* _game, piece* _piece)
+			virtual void use(game_app_interface* _game, piece* _piece)
 			{
                 is_on = !is_on;
 			}
@@ -1556,7 +1653,7 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(game* _game, piece* _user, double _elapsed);
+			virtual void run(game_app_interface* _game, double _elapsed);
 
 		};
 
@@ -1622,11 +1719,6 @@ namespace corona
                 spell_type = _src["spell_type"].as_string();
 			}
 
-			virtual void run(game* _game, piece* _user, double _elapsed)
-			{
-
-			}
-
 		};
 
 		class stick : public tool
@@ -1689,9 +1781,9 @@ namespace corona
                 hit_lifetime = _src["hit_lifetime"].as_double();
 			}
 
-			virtual void run(game* _game, piece* _user, double _elapsed)
+			virtual void run(game_app_interface* _game, double _elapsed)
 			{
-				
+                piece::run(_game, _elapsed);
                 hit_lifetime -= _elapsed;
                 if (hit_lifetime <= 0) {
 					remove = true;
@@ -2001,9 +2093,20 @@ namespace corona
 			std::shared_ptr<piece> piece_1;
 			std::shared_ptr<piece> piece_2;
 			collision_result collision;
+
+			template <typename T> std::shared_ptr<T> get_piece()
+			{
+                if (piece_1 && piece_1->is_a<T>()) {
+					return std::dynamic_pointer_cast<T>(piece_1);
+				}
+				else if (piece_2 && piece_2->is_a<T>()) {
+					return std::dynamic_pointer_cast<T>(piece_2);
+				}
+				return nullptr;
+			}
 		};
 
-		class game : public job, public corona_object, public game_interface
+		class game : public job, public corona_object, public game_app_interface
 		{
 
 		public:
@@ -2043,14 +2146,6 @@ namespace corona
 			std::shared_ptr<corona_bus_command> on_all_players_ready;
 			std::shared_ptr<corona_bus_command> on_all_players_dead;
 
-			std::shared_ptr<piece> create_piece_of_type(std::string _piece_type_name);
-			std::shared_ptr<piece> create_piece_of_class(std::string _class_name);
-			std::shared_ptr<piece> clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity);
-			double fill_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _level);
-			double transfer_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
-			double transfer_piece(piece* _dest, piece* _src, std::string _type_name, double _quantity);
-			double copy_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
-			double copy_piece(piece* _dest, piece* _src, std::string _type_name, double _quantity);
 
 			void handle_gamepad_button_up(gamepad_button_up_event gpbd);
 			void handle_gamepad_button_down(gamepad_button_down_event gpbd);
@@ -2064,14 +2159,24 @@ namespace corona
 			void set_complete();
 			void set_exit();
 			void start_play(std::string input_name);
-			void check_all_ready();
-			void check_all_dead();
 			virtual void get_json(json& _dest);
 			virtual void put_json(json& _src);
 			virtual job* get_next_job();
 
+			virtual std::shared_ptr<corona_object_interface> get_piece(object_reference& _reference, bool include_children);
+
+			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name);
+			virtual std::shared_ptr<piece_base> create_piece_of_class(std::string _class_name);
+			virtual std::shared_ptr<piece_base> clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity);			virtual double fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level) = 0;
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
+
 		private:
 
+			void check_all_ready();
+			void check_all_dead();
 
 			double last_elapsed_seconds;
 
@@ -2101,7 +2206,7 @@ namespace corona
 
 		public:
 
-			template <typename T> T* get_item_ptr(game* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
+			template <typename T> T* get_item_ptr(game_app_interface* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
 			{
 				if (!_src) return nullptr;
 
@@ -2115,7 +2220,7 @@ namespace corona
 				return nullptr;
 			}
 
-			virtual bool run(game* _game, player* _actor) = 0;
+			virtual bool run(game_app_interface* _game, player* _actor) = 0;
 		};
 
 		class fire_command : public player_command
@@ -2137,7 +2242,7 @@ namespace corona
 				requirements.push_back(r_firearm);
 			}
 
-			virtual bool run(game* _game, player* _actor)
+			virtual bool run(4 _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2195,7 +2300,7 @@ namespace corona
 				requirements.push_back(r_cast);
 			}
 
-			virtual bool run(game* _game, player* _actor)
+			virtual bool run(game_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2239,7 +2344,7 @@ namespace corona
 				requirements.push_back(r_hit);
 			}
 
-			virtual bool run(game* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2286,7 +2391,7 @@ namespace corona
 				requirements.push_back(r_drop);
 			}
 
-			virtual bool run(game* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2364,7 +2469,7 @@ namespace corona
 				requirements.push_back(r_magazine);
 			}
 
-			virtual bool run(game* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2492,7 +2597,7 @@ namespace corona
 				}
 			}
 
-			virtual bool run(game* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2634,21 +2739,11 @@ namespace corona
 			return result;
 		}
 
-		// this gets called on every piece, to apply accelerations, make animation calculations, 
-		// and other time-based calculations. The default implementation does nothing.
-		// _elapsed_seconds is the time since the last call to run, in seconds.
-		// this will be quite fractional.
-		void piece::run(game* _game, piece* _user, double _elapsed)
-		{
-
-		}
-
-		/// <summary>
 		/// gets called when a piece is used by a player.  default impl does nothing, and use is like a blah verb.
 		/// </summary>
 		/// <param name="_game"></param>
 		/// <param name="_user"></param>
-		void piece::use(game* _game, piece* _user)
+		void piece::use(game_app_interface* _game, piece* _user)
 		{
 
 		}
@@ -2734,6 +2829,12 @@ namespace corona
 			pieces = _gbus.piece_factory.create_array(j);
 		}
 
+		std::shared_ptr<corona_object_interface> game::get_piece(object_reference& _reference, bool include_children)
+		{
+            auto response = bus->get_object(instance, _reference);
+		}
+
+
 		std::shared_ptr<piece> game::clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
 		{
 			std::shared_ptr<piece>  response;
@@ -2754,7 +2855,7 @@ namespace corona
 					if (existing_piece)
 					{
 						// this creates and saves the piece in the database
-						auto new_piece = existing_piece->copy_as<piece>(corona_instance::local);
+						auto new_piece = existing_piece->copy_as<piece>(instance);
 
 						// create a new chest item for the piece we made, 
 						// that is, what's going into the inventory
@@ -2765,7 +2866,7 @@ namespace corona
 						new_piece->owner = _dest_inventory->to_reference();
 
 						_dest_inventory->inventory->add_part(ci);
-						_dest_inventory->save(corona_instance::local);
+						_dest_inventory->save(instance);
 					}
 				}
 			}
@@ -2773,7 +2874,7 @@ namespace corona
 			return response;
 		}
 
-		std::shared_ptr<piece> game::create_piece_of_type(std::string _piece_type_name )
+		std::shared_ptr<piece_base> game::create_piece_of_type(std::string _piece_type_name )
 		{		
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -2781,7 +2882,7 @@ namespace corona
 			json filter = jp.create_object();
 			filter.put_member_string("class_name", "piece_type");
             filter.put_member_string("name", _piece_type_name);
-			auto response = bus->query_objects(corona_instance::local, filter);
+			auto response = bus->query_objects(instance, filter);
 
 			if (response.success) {
                 auto found_pieces = factories.general_factory.create_array(response.data);
@@ -2802,7 +2903,7 @@ namespace corona
 			return new_piece;
 		}
 
-		std::shared_ptr<piece> game::create_piece_of_class(std::string _class_name)
+		std::shared_ptr<piece_base> game::create_piece_of_class(std::string _class_name)
 		{
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -2811,7 +2912,7 @@ namespace corona
 			return new_piece;
 		}
 
-		double game::fill_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _level)
+		double game::fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level)
 		{
 			double quantity_filled = 0;
 
@@ -2860,14 +2961,14 @@ namespace corona
 				json jsrc = jp.create_object();
 				_dest->get_json(jdest);
 				_src->get_json(jsrc);
-				bus->put_object(corona_instance::local, jdest);
-				bus->put_object(corona_instance::local, jsrc);
+				bus->put_object(instance, jdest);
+				bus->put_object(instance, jsrc);
 			}
 
 			return quantity_filled;
 		}
 
-		double game::transfer_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double game::transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -2904,14 +3005,14 @@ namespace corona
 				json jsrc = jp.create_object();
 				_dest->get_json(jdest);
 				_src->get_json(jsrc);
-				bus->put_object(corona_instance::local, jdest);
-				bus->put_object(corona_instance::local, jsrc);
+				bus->put_object(instance, jdest);
+				bus->put_object(instance, jsrc);
 			}
 
 			return quantity_transferred;
 		}
 
-		double game::copy_piece(piece* _dest, piece* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double game::copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -2937,21 +3038,21 @@ namespace corona
 				json jsrc = jp.create_object();
 				_dest->get_json(jdest);
 				_src->get_json(jsrc);
-				bus->put_object(corona_instance::local, jdest);
-				bus->put_object(corona_instance::local, jsrc);
+				bus->put_object(instance, jdest);
+				bus->put_object(instance, jsrc);
 			}
 
 			return quantity_transferred;
 		}
 
-		double game::transfer_piece(piece* _dest, piece* _src, std::string _type_name, double _quantity)
+		double game::transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return transfer_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
 				}, _quantity);
 		}
 
-		double game::copy_piece(piece* _dest, piece* _src, std::string _type_name, double _quantity)
+		double game::copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return copy_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
@@ -2985,6 +3086,9 @@ namespace corona
 				});
 			factories.piece_factory.register_class("feature", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
 				return std::make_shared<feature>(_src);
+				});
+			factories.piece_factory.register_class("use_plate", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<use_plate> {
+				return std::make_shared<use_plate>(_src);
 				});
 			factories.piece_factory.register_class("spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
 				return std::make_shared<spawn>(_src);
@@ -3031,9 +3135,6 @@ namespace corona
 			factories.piece_factory.register_class("effect", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
 				return std::make_shared<effect>(_src);
 				});
-			factories.piece_factory.register_class("delivery", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<delivery> {
-				return std::make_shared<delivery>(_src);
-				});
 			factories.piece_factory.register_class("carryable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
 				return std::make_shared<carryable>(_src);
 				});
@@ -3074,11 +3175,24 @@ namespace corona
 			selection_rules.put(reload_c);
 			selection_rules.put(drop_c);
 
+            collisions.register_command("shot", "player", std::make_shared<effect_collision_command<player, shot>>());
+			collisions.register_command("spell", "player", std::make_shared<effect_collision_command<player, spell>>());
+			collisions.register_command("hit", "player", std::make_shared<effect_collision_command<player, hit>>());
+
+			collisions.register_command("shot", "feature", std::make_shared<effect_collision_command<feature, shot>>());
+			collisions.register_command("spell", "feature", std::make_shared<effect_collision_command<feature, spell>>());
+			collisions.register_command("hit", "feature", std::make_shared<effect_collision_command<feature, hit>>());
+
+			collisions.register_command("player", "use_plate", std::make_shared<use_plate_collision_command>());
+			collisions.register_command("player", "loot_spot", std::make_shared<loot_collision_command>());
+			collisions.register_command("player", "player", std::make_shared<stop_collision_command>());
+			collisions.register_command("player", "wall", std::make_shared<stop_collision_command>());
 		}
 
 		void game::handle_gamepad_button_up(gamepad_button_up_event gpbd)
 		{
 			auto player = attach_player(gpbd.state);
+
 			switch (gpbd.button)
 			{
 			case gamepad_button::A:
@@ -3111,6 +3225,7 @@ namespace corona
 		void game::handle_gamepad_button_down(gamepad_button_down_event gpbd)
 		{
 			auto player = attach_player(gpbd.state);
+
 			switch (gpbd.button)
 			{
 			case gamepad_button::A:
@@ -3319,7 +3434,7 @@ namespace corona
 					// move pieces to the point of collision
 					for (int i = 0; i < game_map->pieces.size(); i++) {
 						auto pc = game_map->pieces[i];
-						pc->move(closest_collision.collision.time_of_collision);
+						pc->run(closest_collision.collision.time_of_collision);
 					}
 					// resolve collision effects here and update accelerations accordingly
 					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
