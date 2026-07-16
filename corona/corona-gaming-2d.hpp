@@ -40,7 +40,7 @@ namespace corona
 
 			template <typename T> bool is()
 			{
-				auto T* d = std::dynamic_cast<T*>(this);
+				T* d = dynamic_cast<T*>(this);
 				return d != nullptr;
 			}
 
@@ -83,7 +83,9 @@ namespace corona
 			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0;
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
-
+			virtual std::shared_ptr<piece_base> find(object_reference _piece_ref);
+			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref);
+			virtual void put(std::shared_ptr<piece_base> _src);
 		};
 
 		template <typename T> class item_holder
@@ -512,15 +514,15 @@ namespace corona
 			template <typename T>
 			std::shared_ptr<T> get_item_ptr(game_app_interface*	_game, std::string _class_name, std::string _type_name)
 			{
-				std::shared_ptr<T> holder;
+				std::shared_ptr<corona_object_interface> holder;
 				if (inventory) {
 					auto item = inventory->match(_class_name, _type_name);
 					if (item) {
-						holder = _game->get_piece<T>(item->reference, false);
+						holder = _game->get_piece(item->reference, false);
 						return std::dynamic_pointer_cast<T>(holder);
 					}
 				}
-				return holder;
+				return nullptr;
 			}
 
             template <typename T>
@@ -531,8 +533,9 @@ namespace corona
                     auto item = inventory->match(_class_name, _type_name);
                     if (item) {
 						holder.container = item;
-                        holder.item_object = _game->get_piece<T>(item->reference, false);
-                        return std::dynamic_pointer_cast<T>(item);
+						auto obj = _game->get_piece(item->reference, false);
+						holder.item_object = std::dynamic_pointer_cast<T>(obj);
+                        return holder;
                     }
                 }
 				return holder;
@@ -541,14 +544,15 @@ namespace corona
 			template <typename T>
 			std::shared_ptr<T> get_item_ptr(game_app_interface* _game, chest_item& _src)
 			{
-				std::shared_ptr<T> holder;
+				std::shared_ptr<corona_object_interface> holder;
 				if (inventory) {
 					auto item = inventory->find(&_src);
 					if (item) {
-						holder = _game->get_piece<T>(item->reference, false);
+						holder = _game->get_piece(item->reference, false);
+						return std::dynamic_pointer_cast<T>(holder);
 					}
 				}
-				return holder;
+				return nullptr;
 			}
 
 			template <typename T>
@@ -558,8 +562,9 @@ namespace corona
 				if (inventory) {
 					auto item = inventory->find(&_src);
 					if (item) {
+						auto obj = _game->get_piece(item->reference, false);
                         holder.container = *item;
-						holder.item_object = _game->get_piece<T>(item->reference, false);
+						holder.item_object = std::dynamic_pointer_cast<T>(obj);
 					}
 				}
 				return holder;
@@ -669,161 +674,6 @@ namespace corona
 
         using general_factory = corona_object_factory<corona_object>;
 
-		class collision_command_key
-		{
-		public:
-			std::string piece1_class;
-			std::string piece2_class;
-
-			bool operator < (const collision_command_key& _other) const
-			{
-				return std::tie(piece1_class, piece2_class) < std::tie(_other.piece1_class, _other.piece2_class);
-			}
-		};
-
-		class collision_command
-		{
-		public:
-
-			collision_command() = default;
-            collision_command(const collision_command& _src) = default;
-            collision_command(collision_command&& _src) = default;
-			collision_command& operator =(const collision_command& _src) = default;
-            collision_command& operator =(collision_command&& _src) = default;
-
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-
-			}
-		};
-
-		template <typename TARGET, typename EFFECT_BEARER>
-		class effect_collision_command : public collision_command
-		{
-		public:
-
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-                collision_command::run(_game, _event);
-
-				auto h = _event.get_piece<EFFECT_BEARER>();
-				auto p = _event.get_piece<TARGET>();
-
-				if (h && p) {
-					h->remove = true;
-					_game->transfer_piece(p.get(), h.get(), "effect", 1);
-				}
-			}
-		};
-
-		class use_plate_collision_command : public collision_command
-		{
-		public:
-
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-				collision_command::run(_game, _event);
-
-				auto h = _event.get_piece<use_plate>();
-                auto p = _event.get_piece<player>();
-
-				if (h && p) {
-					auto found_it = std::find_if(_game->game_map->pieces.begin(), _game->game_map->pieces.end(), [&](const std::shared_ptr<piece>& p) {
-						return h->target_piece == p->to_reference();
-					});
-                    if (found_it != _game->game_map->pieces.end()) {
-						auto target_piece = found_it->get();
-						target_piece->use(_game, p.get());
-					}
-				}
-			}
-		};
-
-		class loot_collision_command : public collision_command
-		{
-		public:
-
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-				collision_command::run(_game, _event);
-
-				auto h = _event.get_piece<lootspot>();
-				auto p = _event.get_piece<player>();
-
-				if (h && p) {
-					p->inventory->loot(*h->inventory.get());
-				}
-			}
-		};
-
-		class stop_collision_command : public collision_command
-		{
-		public:
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-				collision_command::run(_game, _event);
-
-				auto p = _event.get_piece<player>();
-				auto w = _event.get_piece<wall>();
-
-				if (p && w) {
-					switch (_event.collision.collision_side) {
-						case intersection_side::intersection_side_top:
-							p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
-                            break;
-                        case intersection_side::intersection_side_bottom:
-							p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
-							break;
-						case intersection_side::intersection_side_left:
-							p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
-							break;
-						case intersection_side::intersection_side_right:
-							p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
-                            break;
-					}
-				}
-
-				w->remove = true;
-			}
-		};
-
-		class use_collision_command : public collision_command
-		{
-		public:
-			virtual void run(game_app_interface* _game, collision_event& _event)
-			{
-				collision_command::run(_game, _event);
-
-                auto p = _event.get_piece<player>();
-                auto t = _event.get_piece<feature>();
-				if (p && t) {
-					t->use(_game, p.get());
-				}
-			}
-		};
-
-		class collision_commands
-		{
-		public:
-
-			collision_commands() = default;
-			collision_commands(const collision_commands& _src) = default;
-			collision_commands(collision_commands&& _src) = default;
-			collision_commands& operator =(const collision_commands& _src) = default;
-			collision_commands& operator =(collision_commands&& _src) = default;
-
-            std::map<collision_command_key, std::shared_ptr<collision_command>> commands;
-
-			void register_command(std::string _piece1_class, std::string _piece2_class, std::shared_ptr<collision_command> _command)
-			{
-				collision_command_key key;
-				key.piece1_class = _piece1_class;
-				key.piece2_class = _piece2_class;
-				commands[key] = _command;
-            }
-
-		};
-
 		class game_factory
 		{
 			comm_bus_app_interface* bus;
@@ -903,7 +753,7 @@ namespace corona
 			feature& operator =(const feature& _src) = default;
 			feature& operator =(feature&& _src) = default;
 
-			function_scheduler<piece> scheduler;
+			function_scheduler<piece *> scheduler;
 
 
 			virtual void get_json(json& _dest)
@@ -968,6 +818,11 @@ namespace corona
 				class_name = "feature";
 			}
 
+			effect(const effect& _src) = default;
+			effect(effect&& _src) = default;
+			effect & operator=(const effect& _src) = default;
+			effect & operator=(effect&& _src) = default;
+
 			virtual void get_json(json& _dest)
 			{
 				piece::get_json(_dest);
@@ -982,7 +837,10 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(game_app_interface* _game, double _elapsed);
+			virtual void run(game_app_interface* _game, double _elapsed)
+			{
+
+			}
 		};
 
 		class wound_effect : public effect
@@ -1047,7 +905,7 @@ namespace corona
 		{
 		public:
 
-			function_scheduler<npc_spawn> scheduler;
+			function_scheduler<npc_spawn *> scheduler;
 			std::vector<std::string> spawn_classes;
 
 			npc_spawn() {
@@ -1097,7 +955,7 @@ namespace corona
 					if (new_piece) {
 						new_piece->position = this->position;
                         new_piece->facing = this->facing;
-						_game->game_map->pieces.push_back(new_piece);
+						_game->put(new_piece);
 					}
 				}
 			}
@@ -2096,23 +1954,635 @@ namespace corona
 
 			template <typename T> std::shared_ptr<T> get_piece()
 			{
-                if (piece_1 && piece_1->is_a<T>()) {
+				if (piece_1 && piece_1->is<T>()) {
 					return std::dynamic_pointer_cast<T>(piece_1);
 				}
-				else if (piece_2 && piece_2->is_a<T>()) {
+				else if (piece_2 && piece_2->is<T>()) {
 					return std::dynamic_pointer_cast<T>(piece_2);
 				}
 				return nullptr;
 			}
 		};
 
+		class collision_command_key
+		{
+		public:
+			std::string piece1_class;
+			std::string piece2_class;
+
+			bool operator < (const collision_command_key& _other) const
+			{
+				return std::tie(piece1_class, piece2_class) < std::tie(_other.piece1_class, _other.piece2_class);
+			}
+		};
+
+		class collision_command
+		{
+		public:
+
+			collision_command() = default;
+			collision_command(const collision_command& _src) = default;
+			collision_command(collision_command&& _src) = default;
+			collision_command& operator =(const collision_command& _src) = default;
+			collision_command& operator =(collision_command&& _src) = default;
+
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+
+			}
+		};
+
+		template <typename TARGET, typename EFFECT_BEARER>
+		class effect_collision_command : public collision_command
+		{
+		public:
+
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto h = _event.get_piece<EFFECT_BEARER>();
+				auto p = _event.get_piece<TARGET>();
+
+				if (h && p) {
+					h->remove = true;
+					_game->transfer_piece(p.get(), h.get(), "effect", 1);
+				}
+			}
+		};
+
+		class use_plate_collision_command : public collision_command
+		{
+		public:
+
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto h = _event.get_piece<use_plate>();
+				auto p = _event.get_piece<player>();
+
+				if (h && p) {
+					h->use(_game, p.get());
+				}
+			}
+		};
+
+		class loot_collision_command : public collision_command
+		{
+		public:
+
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto h = _event.get_piece<lootspot>();
+				auto p = _event.get_piece<player>();
+
+				if (h && p) {
+					p->inventory->loot(*h->inventory.get());
+				}
+			}
+		};
+
+		class stop_collision_command : public collision_command
+		{
+		public:
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto p = _event.get_piece<player>();
+				auto w = _event.get_piece<wall>();
+
+				if (p && w) {
+					switch (_event.collision.collision_side) {
+					case intersection_side::intersection_side_top:
+						p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
+						break;
+					case intersection_side::intersection_side_bottom:
+						p->velocity = DirectX::XMVectorSetY(p->velocity, 0);
+						break;
+					case intersection_side::intersection_side_left:
+						p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
+						break;
+					case intersection_side::intersection_side_right:
+						p->velocity = DirectX::XMVectorSetX(p->velocity, 0);
+						break;
+					}
+				}
+
+				w->remove = true;
+			}
+		};
+
+		class use_collision_command : public collision_command
+		{
+		public:
+			virtual void run(game_app_interface* _game, collision_event& _event)
+			{
+				collision_command::run(_game, _event);
+
+				auto p = _event.get_piece<player>();
+				auto t = _event.get_piece<feature>();
+				if (p && t) {
+					t->use(_game, p.get());
+				}
+			}
+		};
+
+		class collision_commands
+		{
+		public:
+
+			collision_commands() = default;
+			collision_commands(const collision_commands& _src) = default;
+			collision_commands(collision_commands&& _src) = default;
+			collision_commands& operator =(const collision_commands& _src) = default;
+			collision_commands& operator =(collision_commands&& _src) = default;
+
+			std::map<collision_command_key, std::shared_ptr<collision_command>> commands;
+
+			void register_command(std::string _piece1_class, std::string _piece2_class, std::shared_ptr<collision_command> _command)
+			{
+				collision_command_key key;
+				key.piece1_class = _piece1_class;
+				key.piece2_class = _piece2_class;
+				commands[key] = _command;
+			}
+
+		};
+
+		class player_command : public corona::selection_commands::command
+		{
+
+
+		public:
+
+			template <typename T> T* get_item_ptr(game_app_interface* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
+			{
+				if (!_src) return nullptr;
+
+				auto m = get_match(_matches, _requirement);
+
+				if (m)
+				{
+					auto item = _src->get_item<T>(_game, m.first());
+					return item;
+				}
+				return nullptr;
+			}
+
+			virtual bool run(game_app_interface* _game, player* _actor) = 0;
+		};
+
+		class fire_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_firearm = std::make_shared<corona::selection_commands::requirement>();
+
+			fire_command()
+			{
+				using namespace corona::selection_commands;
+
+				command_name = "fire";
+
+				r_firearm = std::make_shared<requirement>();
+				r_firearm->name = "firearm";
+				r_firearm->class_name = "firearm";
+				r_firearm->item_type = "";
+				requirements.push_back(r_firearm);
+			}
+
+			virtual bool run(game_app_interface* _game, player* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
+
+				if (_arm) {
+
+					auto _mag = _arm->get_item_ptr<magazine>(_game, "magazine", _arm->magazine_type);
+					if (_mag) {
+						auto _ammo = _mag->get_item<ammunition>(_game, "ammunition", _mag->ammunition_type);
+						if (_ammo && _ammo.container.quantity > 1) {
+							_ammo.container.quantity -= 1;
+							auto _shot = _ammo.item_object->get_item_ptr<shot>(_game, "shot", _ammo.item_object->shot_type);
+							if (_shot) {
+
+								auto new_shot = std::make_shared<shot>(_shot);
+								new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
+								new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
+								new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
+								new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _ammo.item_object->shot_muzzle_velocity);
+								_game->put(new_shot);
+
+								DirectX::XMVECTOR recoil = DirectX::XMVectorScale(new_shot->facing, -_ammo.item_object->shot_muzzle_velocity * _ammo.item_object->shot_mass / _actor->mass);
+								_actor->velocity = DirectX::XMVectorAdd(_actor->velocity, recoil);
+
+								return true;
+							}
+						}
+					}
+				}
+
+				return false;
+			}
+		};
+
+		class cast_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_cast = std::make_shared<corona::selection_commands::requirement>();
+
+			cast_command()
+			{
+				command_name = "cast";
+
+				r_cast->name = "wand";
+				r_cast->class_name = "wand";
+				r_cast->item_type = "";
+				requirements.push_back(r_cast);
+			}
+
+			virtual bool run(game_app_interface* _game, player* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				auto _wand = get_item_ptr<wand>(_game, _actor, found_matches, r_cast);
+
+				if (_wand) {
+					auto _shot = _wand->get_item_ptr<spell>(_game, "spell", _wand->spell_type);
+					if (_shot) {
+						auto new_shot = std::make_shared<shot>(_shot);
+						new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
+						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _wand->fire_point);
+						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
+						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot->spell_velocity);
+						_game->put(new_shot);
+						return true;
+					}
+				}
+
+				return false;
+			}
+		};
+
+		class hit_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_hit = std::make_shared<corona::selection_commands::requirement>();
+
+			hit_command()
+			{
+				command_name = "hit";
+				r_hit->name = "stick";
+				r_hit->class_name = "stick";
+				r_hit->item_type = "";
+				requirements.push_back(r_hit);
+			}
+
+			virtual bool run(game_app_interface* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				requirements.clear();
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				auto _stick = get_item_ptr<stick>(_game, _actor, found_matches, r_hit);
+
+				if (_stick) {
+					auto _hit = _stick->get_item_ptr<hit>(_game, "hit", _stick->hit_type);
+					if (_hit) {
+						auto new_hit = std::make_shared<hit>(_hit);
+						new_hit->position = DirectX::XMVectorAdd(_hit->position, _actor->position);
+						new_hit->facing = DirectX::XMVector2Normalize(_actor->facing);
+						new_hit->velocity = DirectX::XMVectorZero();
+						// add the new hit to the game map
+						_game->put(new_hit);
+						_actor->state = "hit";
+						return true;
+					}
+				}
+
+				return false;
+			}
+		};
+
+		class drop_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_drop = std::make_shared<corona::selection_commands::requirement>();
+
+			drop_command()
+			{
+				command_name = "drop";
+				r_drop->name = "piece";
+				r_drop->class_name = "piece";
+				r_drop->item_type = "";
+				requirements.push_back(r_drop);
+			}
+
+			virtual bool run(game_app_interface* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				requirements.clear();
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				auto target = _game->create_piece_of_type("lootspot");
+
+				for (auto& fm : found_matches) {
+					for (auto& ci : fm.matches) {
+						_actor->inventory->remove_part(ci);
+						target->inventory->add_part(ci);
+					}
+				}
+
+				target->position = DirectX::XMVectorAdd(_actor->position, DirectX::XMVectorScale(_actor->facing, 1.0));
+				target->velocity = DirectX::XMVectorScale(_actor->facing, 1.0);
+				target->acceleration = DirectX::XMVectorZero();
+
+				_game->put(target);
+
+				return true;
+			}
+
+		};
+
+		class reload_command : public player_command
+		{
+		public:
+
+			std::shared_ptr<corona::selection_commands::requirement> r_firearm = std::make_shared<corona::selection_commands::requirement>();
+			std::shared_ptr<corona::selection_commands::requirement> r_magazine = std::make_shared<corona::selection_commands::requirement>();
+
+			std::string loading_class;
+			std::string loaded_class;
+
+			reload_command(std::string _command_name, std::string _loading_class, std::string _loaded_class)
+			{
+				command_name = _command_name;
+				loading_class = _loaded_class;
+				loaded_class = _loaded_class;
+				init();
+			}
+
+			reload_command()
+			{
+				command_name = "reload";
+				loading_class = "firearm";
+				loaded_class = "magazine";
+				init();
+			}
+
+			reload_command(const reload_command& _src) = default;
+			reload_command(reload_command&& _src) = default;
+			reload_command& operator =(const reload_command& _src) = default;
+			reload_command& operator =(reload_command&& _src) = default;
+
+			void init()
+			{
+				requirements.clear();
+
+				r_firearm->name = command_name;
+				r_firearm->class_name = loading_class;
+				r_firearm->item_type = "";
+				requirements.push_back(r_firearm);
+
+				r_magazine->name = command_name;
+				r_magazine->class_name = loaded_class;
+				r_magazine->item_type = "";
+				requirements.push_back(r_magazine);
+			}
+
+			virtual bool run(game_app_interface* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> found_matches;
+
+				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
+				auto _mag = get_item_ptr<magazine>(_game, _actor, found_matches, r_magazine);
+
+				if (_arm) {
+					std::string mag_class_name;
+
+					// move the magazines out of the gun and into the actor's inventory
+					_game->transfer_piece(_actor, _arm, loaded_class, 1.0);
+
+					// we have the magazine that was selected,
+					_mag->owner = _actor->to_reference();
+
+					// and the chest item for the magazine...
+					_actor->inventory->add_part(_mag->to_chest_item(1.0));
+					return true;
+				}
+
+				return false;
+
+			}
+		};
+
+		class build_reactant
+		{
+		public:
+			std::string class_name;
+			std::string type_name;
+			double      quantity;
+			bool	    consume;
+
+			void get_json(json& _dest)
+			{
+				_dest.put_member_string("class_name", class_name);
+				_dest.put_member_string("type_name", type_name);
+				_dest.put_member_double("quantity", quantity);
+				_dest.put_member_bool("consume", consume);
+			}
+
+			void put_json(json& _src)
+			{
+				class_name = _src["class_name"].as_string();
+				type_name = _src["type_name"].as_string();
+				quantity = _src["quantity"].as_double();
+				consume = _src["consume"].as_bool();
+			}
+		};
+
+		class build_product
+		{
+		public:
+			std::string class_name;
+			std::string type_name;
+			double      quantity;
+
+			void get_json(json& _dest)
+			{
+				_dest.put_member_string("class_name", class_name);
+				_dest.put_member_string("type_name", type_name);
+				_dest.put_member_double("quantity", quantity);
+			}
+
+			void put_json(json& _src)
+			{
+				class_name = _src["class_name"].as_string();
+				type_name = _src["type_name"].as_string();
+				quantity = _src["quantity"].as_double();
+			}
+		};
+
+		class build_command : public player_command
+		{
+		public:
+
+			std::vector<build_reactant> reactants;
+			std::vector<build_product> products;
+
+			std::vector<std::shared_ptr<corona::selection_commands::requirement>> r_reactants;
+
+			build_command(std::string& _command_name,
+				std::vector<build_reactant>& _reactants,
+				std::vector<build_product>& _products)
+			{
+				reactants = _reactants;
+				products = _products;
+				command_name = _command_name;
+				init();
+			}
+
+			build_command()
+			{
+				command_name = "build";
+				reactants = {};
+				products = {};
+				init();
+			}
+
+			build_command(const build_command& _src) = default;
+			build_command(build_command&& _src) = default;
+			build_command& operator =(const build_command& _src) = default;
+			build_command& operator =(build_command&& _src) = default;
+
+			void init()
+			{
+
+				// each reactant is a requirement, and the whole question is, 
+				// do we have the things we need to make our stuff
+				requirements.clear();
+
+				for (auto& r : reactants) {
+					std::shared_ptr<corona::selection_commands::requirement> scr = std::make_shared<corona::selection_commands::requirement>();
+					scr->name = command_name;
+					scr->class_name = r.class_name;
+					scr->item_type = r.type_name;
+					scr->quantity = r.quantity;
+					requirements.push_back(scr);
+				}
+			}
+
+			virtual bool run(game_app_interface* _game, actor* _actor)
+			{
+				using namespace corona::selection_commands;
+
+				std::vector<match> requirement_matches;
+
+				bool bm = matches(requirement_matches, *_actor->inventory.get(), *_actor->selection.get());
+				if (!bm)
+					return false;
+
+				for (auto& fm : requirement_matches) {
+					for (auto& ci : fm.matches) {
+						_actor->inventory->remove_part(ci);
+					}
+				}
+
+				for (auto fm : products) {
+					auto new_piece = _game->create_piece_of_type(fm.class_name);
+					auto new_chest_item = new_piece->to_chest_item(fm.quantity);
+					_actor->inventory->add_part(new_chest_item);
+				}
+
+				return true;
+			}
+		};
+
+		class world : public corona_object
+		{
+		public:
+			std::string name;
+			std::string description;
+			std::shared_ptr<map> map;
+			std::vector<std::shared_ptr<game_app_interface>> games;
+
+			world() {
+				class_name = "world";
+			}
+			world(const world& _src) = default;
+			world(world&& _src) = default;
+			world& operator =(const world& _src) = default;
+			world& operator =(world&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				_dest.put_member("name", name);
+				_dest.put_member("description", description);
+				json_parser jp;
+				json jmap = jp.create_object();
+				map->get_json(jmap);
+				_dest.put_member("map", jmap);
+			}
+
+			virtual void put_json(game_factory& _factory, json& _src)
+			{
+				name = _src["name"].as_string();
+				description = _src["description"].as_string();
+				json jmap = _src["map"];
+				map->put_json(_factory, jmap);
+			}
+		};
+
 		class game : public job, public corona_object, public game_app_interface
 		{
+
+			corona_instance instance;
+
+            lockable game_locker;
 
 		public:
 
 			game(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
 			{
+				instance = corona_instance::local;
 				init();
 				put_json(_src);
 			}
@@ -2200,463 +2670,6 @@ namespace corona
 
 		};
 
-		class player_command : public corona::selection_commands::command
-		{
-
-
-		public:
-
-			template <typename T> T* get_item_ptr(game_app_interface* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
-			{
-				if (!_src) return nullptr;
-
-				auto m = get_match(_matches, _requirement);
-
-				if (m)
-				{
-					auto item = _src->get_item<T>(_game, m.first());
-					return item;
-				}
-				return nullptr;
-			}
-
-			virtual bool run(game_app_interface* _game, player* _actor) = 0;
-		};
-
-		class fire_command : public player_command
-		{
-		public:
-
-			std::shared_ptr<corona::selection_commands::requirement> r_firearm = std::make_shared<corona::selection_commands::requirement>();
-
-			fire_command()
-			{
-				using namespace corona::selection_commands;
-
-				command_name = "fire";
-
-				r_firearm = std::make_shared<requirement>();
-				r_firearm->name = "firearm";
-				r_firearm->class_name = "firearm";
-				r_firearm->item_type = "";
-				requirements.push_back(r_firearm);
-			}
-
-			virtual bool run(4 _game, player* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				std::vector<match> found_matches;
-
-				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-                auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
-
-				if (_arm) {
-
-					auto _mag = _arm->get_item_ptr<magazine>(_game, "magazine", _arm->magazine_type);
-					if (_mag) {
-						auto _ammo = _mag->get_item<ammunition>(_game, "ammunition", _mag->ammunition_type);
-						if (_ammo && _ammo.container.quantity > 1) {
-							_ammo.container.quantity -= 1;
-							auto _shot = _ammo.item_object->get_item_ptr<shot>(_game, "shot", _ammo.item_object->shot_type);
-							if (_shot) {
-
-								auto new_shot = std::make_shared<shot>(_shot);
-								new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
-								new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
-								new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
-                                new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _ammo.item_object->shot_muzzle_velocity);
-                                _game->game_map->pieces.push_back(new_shot);
-
-                                DirectX::XMVECTOR recoil = DirectX::XMVectorScale(new_shot->facing, -_ammo.item_object->shot_muzzle_velocity * _ammo.item_object->shot_mass / _actor->mass);
-                                _actor->velocity = DirectX::XMVectorAdd(_actor->velocity, recoil);
-
-								return true;
-							}
-                        }
-					}
-                }
-
-				return false;
-			}
-		};
-
-		class cast_command : public player_command
-		{
-		public:
-
-			std::shared_ptr<corona::selection_commands::requirement> r_cast = std::make_shared<corona::selection_commands::requirement>();
-
-			cast_command()
-			{
-				command_name = "cast";
-
-				r_cast->name = "wand";
-				r_cast->class_name = "wand";
-				r_cast->item_type = "";
-				requirements.push_back(r_cast);
-			}
-
-			virtual bool run(game_app_interface* _game, player* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				std::vector<match> found_matches;
-
-				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-				auto _wand = get_item_ptr<wand>(_game, _actor, found_matches, r_cast);
-
-				if (_wand) {
-					auto _shot = _wand->get_item_ptr<spell>(_game, "spell", _wand->spell_type);
-					if (_shot) {
-						auto new_shot = std::make_shared<shot>(_shot);
-						new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
-						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _wand->fire_point);
-						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
-						new_shot->velocity = DirectX::XMVectorScale(new_shot->facing, _shot->spell_velocity);
-						_game->game_map->pieces.push_back(new_shot);
-						return true;
-					}
-				}
-
-				return false;
-			}
-		};
-
-		class hit_command : public player_command
-		{
-		public:
-
-			std::shared_ptr<corona::selection_commands::requirement> r_hit = std::make_shared<corona::selection_commands::requirement>();
-
-			hit_command()
-			{
-				command_name = "hit";
-				r_hit->name = "stick";
-				r_hit->class_name = "stick";
-				r_hit->item_type = "";
-				requirements.push_back(r_hit);
-			}
-
-			virtual bool run(game_app_interface* _game, actor* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				requirements.clear();
-
-				std::vector<match> found_matches;
-
-				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-				auto _stick = get_item_ptr<stick>(_game, _actor, found_matches, r_hit);
-
-				if (_stick) {
-					auto _hit = _stick->get_item_ptr<hit>(_game, "hit", _stick->hit_type);
-					if (_hit) {
-						auto new_hit = std::make_shared<hit>(_hit);
-						new_hit->position = DirectX::XMVectorAdd(_hit->position, _actor->position);
-						new_hit->facing = DirectX::XMVector2Normalize(_actor->facing);
-						new_hit->velocity = DirectX::XMVectorZero();
-						// add the new hit to the game map
-						_game->game_map->pieces.push_back(new_hit);
-						_actor->state = "hit";
-						return true;
-					}
-				}
-
-				return false;
-			}
-		};
-
-		class drop_command : public player_command
-		{
-		public:
-
-			std::shared_ptr<corona::selection_commands::requirement> r_drop = std::make_shared<corona::selection_commands::requirement>();
-
-			drop_command()
-			{
-				command_name = "drop";
-				r_drop->name = "piece";
-				r_drop->class_name = "piece";
-				r_drop->item_type = "";
-				requirements.push_back(r_drop);
-			}
-
-			virtual bool run(game_app_interface* _game, actor* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				requirements.clear();
-
-				std::vector<match> found_matches;
-
-				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-				auto target = _game->create_piece_of_type("lootspot");
-
-				for (auto& fm : found_matches) {
-					for (auto& ci : fm.matches) {
-                        _actor->inventory->remove_part(ci);
-                        target->inventory->add_part(ci);
-					}
-				}
-
-                target->position = DirectX::XMVectorAdd(_actor->position, DirectX::XMVectorScale(_actor->facing, 1.0));
-				target->velocity = DirectX::XMVectorScale(_actor->facing, 1.0);
-                target->acceleration = DirectX::XMVectorZero();
-
-                _game->game_map->pieces.push_back(target);
-
-				return true;
-			}
-
-		};
-
-		class reload_command : public player_command
-		{
-		public:
-
-			std::shared_ptr<corona::selection_commands::requirement> r_firearm = std::make_shared<corona::selection_commands::requirement>();
-			std::shared_ptr<corona::selection_commands::requirement> r_magazine = std::make_shared<corona::selection_commands::requirement>();
-
-			std::string loading_class;
-			std::string loaded_class;
-
-			reload_command(std::string _command_name, std::string _loading_class, std::string _loaded_class)
-			{
-				command_name = _command_name;
-				loading_class = _loaded_class;
-                loaded_class = _loaded_class;
-				init();
-			}
-
-			reload_command()
-			{
-				command_name = "reload";
-				loading_class = "firearm";
-				loaded_class = "magazine";
-				init();
-            }
-
-            reload_command(const reload_command& _src) = default;
-            reload_command(reload_command&& _src) = default;
-            reload_command& operator =(const reload_command& _src) = default;
-            reload_command& operator =(reload_command&& _src) = default;
-
-			void init()
-			{
-				requirements.clear();
-
-				r_firearm->name = command_name;
-				r_firearm->class_name = loading_class;
-				r_firearm->item_type = "";
-				requirements.push_back(r_firearm);
-
-				r_magazine->name = command_name;
-				r_magazine->class_name = loaded_class;
-				r_magazine->item_type = "";
-				requirements.push_back(r_magazine);
-			}
-
-			virtual bool run(game_app_interface* _game, actor* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				std::vector<match> found_matches;
-
-				bool bm = matches(found_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
-				auto _mag = get_item_ptr<magazine>(_game, _actor, found_matches, r_magazine);
-
-				if (_arm) {
-					std::string mag_class_name;
-
-                    // move the magazines out of the gun and into the actor's inventory
-					_game->transfer_piece(_actor, _arm, loaded_class, 1.0);
-					
-					// we have the magazine that was selected,
-                    _mag->owner = _actor->to_reference();
-
-					// and the chest item for the magazine...
-                    _actor->inventory->add_part(_mag->to_chest_item(1.0));
-					return true;
-				}
-
-				return false;
-
-			}
-		};
-
-		class build_reactant
-		{
-		public:
-            std::string class_name;
-			std::string type_name;
-			double      quantity;
-            bool	    consume;
-
-			void get_json(json& _dest)
-			{
-				_dest.put_member_string("class_name", class_name);
-                _dest.put_member_string("type_name", type_name);
-				_dest.put_member_double("quantity", quantity);
-				_dest.put_member_bool("consume", consume);	
-			}
-
-			void put_json(json& _src)
-			{
-				class_name = _src["class_name"].as_string();
-                type_name = _src["type_name"].as_string();
-                quantity = _src["quantity"].as_double();
-                consume = _src["consume"].as_bool();
-            }
-		};
-
-		class build_product
-		{
-		public:
-			std::string class_name;
-			std::string type_name;
-			double      quantity;
-
-			void get_json(json& _dest)
-			{
-				_dest.put_member_string("class_name", class_name);
-				_dest.put_member_string("type_name", type_name);
-				_dest.put_member_double("quantity", quantity);
-			}
-
-			void put_json(json& _src)
-			{
-				class_name = _src["class_name"].as_string();
-				type_name = _src["type_name"].as_string();
-				quantity = _src["quantity"].as_double();
-			}
-		};
-
-		class build_command : public player_command
-		{
-		public:
-
-			std::vector<build_reactant> reactants;
-			std::vector<build_product> products;
-
-			std::vector<std::shared_ptr<corona::selection_commands::requirement>> r_reactants;
-
-			build_command(std::string& _command_name,
-				std::vector<build_reactant>& _reactants,
-				std::vector<build_product>& _products)
-			{
-				reactants = _reactants;
-				products = _products;
-				command_name = _command_name;
-				init();
-			}
-
-			build_command()
-			{
-				command_name = "build";
-				reactants = {};
-				products = {};
-				init();
-			}
-
-			build_command(const build_command& _src) = default;
-			build_command(build_command&& _src) = default;
-			build_command& operator =(const build_command& _src) = default;
-			build_command& operator =(build_command&& _src) = default;
-
-			void init()
-			{
-				
-                // each reactant is a requirement, and the whole question is, 
-				// do we have the things we need to make our stuff
-				requirements.clear();
-
-                for (auto& r : reactants) {
-					std::shared_ptr<corona::selection_commands::requirement> scr = std::make_shared<corona::selection_commands::requirement>();
-					scr->name = command_name;
-					scr->class_name = r.class_name;
-					scr->item_type = r.type_name;
-                    scr->quantity = r.quantity;
-					requirements.push_back(scr);
-				}
-			}
-
-			virtual bool run(game_app_interface* _game, actor* _actor)
-			{
-				using namespace corona::selection_commands;
-
-				std::vector<match> requirement_matches;
-
-				bool bm = matches(requirement_matches, *_actor->inventory.get(), *_actor->selection.get());
-				if (!bm)
-					return false;
-
-				for (auto &fm : requirement_matches) {
-                    for (auto& ci : fm.matches) {
-						_actor->inventory->remove_part(ci);
-					}
-				}
-
-				for (auto fm : products) {
-                    auto new_piece = _game->create_piece_of_type(fm.class_name);
-                    auto new_chest_item = new_piece->to_chest_item(fm.quantity);
-                    _actor->inventory->add_part(new_chest_item);
-				}
-
-				return true;
-			}
-		};
-
-		class world : public corona_object
-		{
-		public:
-			std::string name;
-			std::string description;
-            std::shared_ptr<map> map;
-            std::vector<std::shared_ptr<game>> games;
-
-			world() {
-				class_name = "world";
-            }
-            world(const world& _src) = default;
-            world(world&& _src) = default;
-            world& operator =(const world& _src) = default;
-            world& operator =(world&& _src) = default;
-
-			virtual void get_json(json& _dest)
-			{
-                _dest.put_member("name", name);
-                _dest.put_member("description", description);
-				json_parser jp;
-                json jmap = jp.create_object();
-                map->get_json(jmap);
-                _dest.put_member("map", jmap);
-			}
-
-			virtual void put_json(game_factory& _factory, json& _src)
-			{
-				name = _src["name"].as_string();
-				description = _src["description"].as_string();
-				json jmap = _src["map"];
-				map->put_json(_factory, jmap);
-            }
-		};
 
 		class engine
 		{
@@ -2810,32 +2823,15 @@ namespace corona
 			}
 		}
 
-		void piece_list::get_json(json& _dest)
-		{
-			json_parser jp;
-
-			json j = jp.create_array();
-			for (auto& s : pieces) {
-				json jitem = jp.create_object();
-				s->get_json(jitem);
-				j.push_back(jitem);
-			}
-			_dest.put_member("pieces", j);
-		}
-
-		void piece_list::put_json(game_factory& _gbus, json& _src)
-		{
-			json j = _src["pieces"];
-			pieces = _gbus.piece_factory.create_array(j);
-		}
 
 		std::shared_ptr<corona_object_interface> game::get_piece(object_reference& _reference, bool include_children)
 		{
-            auto response = bus->get_object(instance, _reference);
+			json_parser jp;
+            json params = jp.from_reference(_reference);
+            auto response = bus->get_object(instance, params);
 		}
 
-
-		std::shared_ptr<piece> game::clone_piece(piece* _dest_inventory, piece* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
+		std::shared_ptr<piece_base> game::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
 		{
 			std::shared_ptr<piece>  response;
 
@@ -2908,7 +2904,7 @@ namespace corona
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
 
-			auto new_piece = factories.piece_factory.create_object(_class_name);
+			new_piece = factories.piece_factory.create_object(_class_name);
 			return new_piece;
 		}
 
@@ -3061,6 +3057,8 @@ namespace corona
 
 		void game::init()
 		{
+
+			factories.init(instance);
 
 			factories.frame_factory.register_class("frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<frame> {
 				return std::make_shared<frame>(_src);
@@ -3434,7 +3432,7 @@ namespace corona
 					// move pieces to the point of collision
 					for (int i = 0; i < game_map->pieces.size(); i++) {
 						auto pc = game_map->pieces[i];
-						pc->run(closest_collision.collision.time_of_collision);
+						pc->run(this, closest_collision.collision.time_of_collision);
 					}
 					// resolve collision effects here and update accelerations accordingly
 					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
@@ -3445,7 +3443,7 @@ namespace corona
 					// no more collisions, we can move all pieces for the remaining time
 					for (int i = 0; i < game_map->pieces.size(); i++) {
 						auto pc = game_map->pieces[i];
-						pc->move(remaining);
+						pc->run(this, remaining);
 					}
 					remaining = 0;
 				}

@@ -1856,6 +1856,16 @@ namespace corona
 
 			log_command_stop("edit_object", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
+		}			
+
+		virtual corona_client_response  get_object(corona_instance _instance, object_reference _key)
+		{
+			corona_client_response response;
+            json request = json_parser().create_object();
+            request.put_member(class_name_field, _key.class_name);
+            request.put_member_i64(object_id_field, _key.object_id);
+            response = get_object(_instance, request);
+			return response;
 		}
 
 		virtual corona_client_response  get_object(corona_instance _instance, json object_information)

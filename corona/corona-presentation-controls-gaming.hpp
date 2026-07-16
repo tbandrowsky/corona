@@ -94,15 +94,14 @@ namespace corona
 			return std::dynamic_pointer_cast<corona::game::game_interface>(current_session); 
 		}
 
-		std::shared_ptr<corona::game::game_interface> set_session(std::shared_ptr<corona::game::game>& _session)
+		std::shared_ptr<corona::game::game_app_interface> set_session(std::shared_ptr<corona::game::game_app_interface>& _session)
 		{ 
 			if (current_session) {
-				current_session->state = corona::game::game_state::exit;
+				current_session->set_exit();
             }
 			auto session = current_session;
-			current_session = _session; 
+			current_session = std::dynamic_pointer_cast<corona::game::game>(_session); 
 			return session;
 		}
 	};
-
 }

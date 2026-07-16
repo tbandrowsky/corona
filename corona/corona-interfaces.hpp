@@ -149,7 +149,6 @@ namespace corona
 		virtual std::string get_item_type() = 0;
 		virtual object_reference to_reference() = 0;
 		virtual chest_item to_chest_item(int _quantity) = 0;
-		virtual bool identity_matches(corona_object_interface& _src) = 0;
 		virtual std::shared_ptr<corona_object_interface> clone() = 0;
 
 	};

@@ -88,6 +88,20 @@ namespace corona
            return (class_name == _src.class_name) && (object_id == _src.object_id);
        }
 
+       template <typename T>
+       bool is()
+       {
+           T* t = dyanamic_cast<T>(this);
+           return t != nullptr;
+       }
+
+       template <typename T>
+       T *as()
+       {
+           T* t = dyanamic_cast<T>(this);
+           return t;
+       }
+
        virtual std::shared_ptr<corona_object_interface> clone()
        {
            json_parser jp;
@@ -257,7 +271,7 @@ namespace corona
             return 0;
         }
 
-        void get_json(json& _dest)
+        virtual void get_json(json& _dest)
         {
             corona_object::get_json(_dest);
             _dest.put_member("current_seconds", current_seconds);
@@ -272,7 +286,7 @@ namespace corona
             _dest.put_member("schedule", jschedule);
         }
 
-        void put_json(json& _src)
+        virtual void put_json(json& _src)
         {
             corona_object::put_json(_src);
             current_seconds = _src["current_seconds"].as_double();
