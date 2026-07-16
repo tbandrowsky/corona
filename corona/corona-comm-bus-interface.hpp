@@ -26,87 +26,6 @@ namespace corona
 	class corona_bus_command;
 	class control_base;
 
-	class event_waiter
-	{
-	public:
-		HANDLE hevent;
-
-		event_waiter() : hevent(INVALID_HANDLE_VALUE)
-		{
-			hevent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-		}
-
-		event_waiter(const event_waiter& _waiter)
-		{
-			::DuplicateHandle(GetCurrentProcess(),
-				_waiter.hevent,
-				GetCurrentProcess(),
-				&hevent,
-				0,
-				FALSE,
-				DUPLICATE_SAME_ACCESS);
-		}
-
-		event_waiter operator = (const event_waiter& _src)
-		{
-			::DuplicateHandle(GetCurrentProcess(),
-				_src.hevent,
-				GetCurrentProcess(),
-				&hevent,
-				0,
-				FALSE,
-				DUPLICATE_SAME_ACCESS);
-			return *this;
-		}
-
-		event_waiter(event_waiter&& _src)
-		{
-			hevent = _src.hevent;
-			_src.hevent = INVALID_HANDLE_VALUE;
-		}
-
-		event_waiter& operator = (event_waiter&& _src)
-		{
-			hevent = _src.hevent;
-			_src.hevent = INVALID_HANDLE_VALUE;
-			return *this;
-		}
-
-		virtual ~event_waiter()
-		{
-			if (hevent != INVALID_HANDLE_VALUE)
-				::CloseHandle(hevent);
-		}
-
-		void wait()
-		{
-			::WaitForSingleObject(hevent, INFINITE);
-		}
-	};
-
-	class topic_event_waiter : public event_waiter
-	{
-	public:
-		std::string topic;
-
-		topic_event_waiter()
-		{
-
-		}
-	};
-
-
-	class windows_event_waiter : public event_waiter
-	{
-	public:
-		UINT msg;
-		UINT control_id;
-
-		windows_event_waiter() : msg(0), control_id(0)
-		{
-
-		}
-	};
 
 	enum class corona_instance
 	{
@@ -118,8 +37,8 @@ namespace corona
 	class comm_bus_app_interface : public system_monitoring_interface
 	{
 
-		std::multimap<UINT, windows_event_waiter> windows_waiters;
-		std::multimap<std::string, topic_event_waiter> topic_waiters;
+	protected:
+
 		std::shared_ptr<corona::game::engine_interface> local_gaming;
 		audio_synth_engine	 local_audio_synth;
 
@@ -248,30 +167,6 @@ namespace corona
 			DWORD current_thread = ::GetCurrentThreadId();
 			// UI threads have message queues
 			return current_thread == gui_thread_id;
-		}
-
-		void check_windows_queue(MSG* _msg)
-		{
-			auto waiters = windows_waiters.find(_msg->message);
-			while (waiters != std::end(windows_waiters))
-			{
-				auto temp_waiter = waiters;
-				auto& waiter = *waiters;
-				SetEvent(waiter.second.hevent);
-				waiters++;
-			}
-		}
-
-		void check_topic(std::string _topic)
-		{
-			auto waiters = topic_waiters.find(_topic);
-			while (waiters != std::end(topic_waiters))
-			{
-				auto& waiter = *waiters;
-				SetEvent(waiter.second.hevent);
-				waiters++;
-			}
-			topic_waiters.erase(_topic);
 		}
 
 		virtual void log_error(corona_client_response& ccr, const char* _file = nullptr, int _line = 0)

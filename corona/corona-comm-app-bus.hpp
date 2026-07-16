@@ -31,34 +31,7 @@ namespace corona
 
 		lockable login_lock;
 
-		std::multimap<UINT, windows_event_waiter> windows_waiters;
-		std::multimap<std::string, topic_event_waiter> topic_waiters;
-
 		corona_client client;
-
-		void check_windows_queue(MSG* _msg)
-		{
-			auto waiters = windows_waiters.find(_msg->message);
-			while (waiters != std::end(windows_waiters))
-			{
-				auto temp_waiter = waiters;
-				auto& waiter = *waiters;
-				SetEvent(waiter.second.hevent);
-				waiters++;
-			}
-		}
-
-		void check_topic(std::string _topic)
-		{
-			auto waiters = topic_waiters.find(_topic);
-			while (waiters != std::end(topic_waiters))
-			{
-				auto& waiter = *waiters;
-				SetEvent(waiter.second.hevent);
-				waiters++;
-			}
-			topic_waiters.erase(_topic);
-		}
 
 		relative_ptr_type read_json(std::string _file_name, json& item)
 		{
@@ -2249,30 +2222,6 @@ namespace corona
 				}
 			}
 			log_command_stop("select_page stop", target_note, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-		}
-
-		void when(UINT topic, std::function<void()> _runnable)
-		{
-			windows_event_waiter evt;
-			evt.msg = topic;
-			std::pair<UINT,windows_event_waiter> pair;
-			pair.first = topic;
-			pair.second = evt;
-			windows_waiters.insert(pair);
-			::WaitForSingleObject(evt.hevent, INFINITE);
-			_runnable();
-		}
-
-		void when(std::string _topic, std::function<void()> _runnable)
-		{
-			topic_event_waiter evt;
-			evt.topic = _topic;
-			std::pair<std::string, topic_event_waiter> pair;
-			pair.first = _topic;
-			pair.second = evt;
-			topic_waiters.insert(pair);
-			::WaitForSingleObject(evt.hevent, INFINITE);
-			_runnable();
 		}
 
 		virtual HINSTANCE get_instance() override
