@@ -7,9 +7,6 @@ namespace corona
     class corona_object : public corona_object_interface
     {
 
-    protected:
-        comm_bus_app_interface* bus;
-
     public:
 
        corona_object() = default;
@@ -22,6 +19,8 @@ namespace corona
        {
 
        }
+
+       comm_bus_app_interface* bus = nullptr;
 
        virtual void get_json(json& _dest)
        {
@@ -116,7 +115,7 @@ namespace corona
        std::shared_ptr<T> copy_as(corona_instance instance)
        {
            std::shared_ptr<T> result;
-           std::shared_ptr<corona_object> obj = copy(instance);
+           std::shared_ptr<corona_object_interface> obj = copy(instance);
            result = std::dynamic_pointer_cast<T>(obj);
            return result;
        }
@@ -403,7 +402,7 @@ namespace corona
                     auto p = foundit->second(ji, bus);
                     sp = std::dynamic_pointer_cast<U>(p);
                     if (sp) {
-                        if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
+                        if constexpr ( std::is_base_of_v<corona_object, U>) {
                             sp->bus = bus;
                         }
                     }
@@ -425,17 +424,6 @@ namespace corona
                 ji.put_member("class_name", class_name);
                 auto p = foundit->second(ji, bus);
                 sp = std::dynamic_pointer_cast<U>(p);
-                if (sp) {
-                    if (constexpr bool is_base_of = std::is_base_of_v<corona_object, U>::value) {
-                        sp->bus = bus;
-                        auto response = bus->create_object(instance, class_name);
-
-                        if (response.success) {
-                            sp->put_json(response.data);
-                            bus->put_object(instance, response.data);
-                        }
-                    }
-                }
             }
             return sp;
         }

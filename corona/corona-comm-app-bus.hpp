@@ -868,6 +868,23 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response remote_copy_object(json copy_request)  override
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.copy_objects(copy_request);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
 		virtual corona_client_response  local_create_user(json user_information)  
 		{
 			corona_client_response response;
@@ -1890,6 +1907,27 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response  copy_object(corona_instance _instance, json _copy_request)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("copy_object", _copy_request[class_name_field].as_string(), dt);
+			corona_client_response response;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_copy_object(_copy_request);
+			}
+			else
+			{
+				response = remote_copy_object(_copy_request);
+			}
+			if (!response.success) {
+				log_error(response, __FILE__, __LINE__);
+			}
+
+			return response;
+		}
 
 		virtual corona_client_response  query_objects(corona_instance _instance, json query_information)
 		{

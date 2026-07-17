@@ -2411,14 +2411,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
-            auto ctrl = _bus->find_control(form_name);
-			game_session_control *session_control = dynamic_cast<game_session_control*>(ctrl);
-			if (session_control) {
-                session_control->set_session(session);
-			}
-			return response.data;
-		}
+		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -2471,16 +2464,7 @@ namespace corona
             return session;
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
-		{
-			json_parser jp;
-			json obj;
-
-			auto ctrl = _bus->find_control(form_name);
-			auto session_control = dynamic_cast<game_session_control*>(ctrl);
-            session = session_control->get_session();
-			return obj;
-		}
+		virtual json create_request(comm_bus_app_interface* _bus);
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
@@ -2523,11 +2507,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			get_session()->set_lobby();
-			return response;
-		}
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
 	};
 
 	class corona_game_set_active : public corona_game_command
@@ -2537,11 +2517,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			get_session()->set_active();
-			return response;
-		}
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
 	};
 
 	class corona_game_set_paused : public corona_game_command
@@ -2551,25 +2527,17 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			get_session()->set_paused();
-			return response;
-		}
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
 	};
 
 	class corona_game_set_complete : public corona_game_command
 	{
 	public:
-		corona_game_set_complete() : corona_game_set_complete("set_paused")
+		corona_game_set_complete() : corona_game_command("set_complete")
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			get_session()->set_complete();
-			return response;
-		}
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
 	};
 
 	class corona_game_set_exit : public corona_game_command
@@ -2579,11 +2547,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
-		{
-			get_session()->set_exit();
-			return response;
-		}
+		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
 	};
 
 	class corona_set_property_command : public corona_form_command
@@ -2781,9 +2745,29 @@ namespace corona
 				_dest = std::make_shared<corona_start_game_command>();
 				_dest->put_json(_src);
 			}
-			else if (class_name == "stop_game")
+			else if (class_name == "set_lobby")
 			{
-				_dest = std::make_shared<corona_stop_game_command>();
+				_dest = std::make_shared<corona_game_set_lobby>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "set_active")
+			{
+				_dest = std::make_shared<corona_game_set_active>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "set_complete")
+			{
+				_dest = std::make_shared<corona_game_set_complete>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "set_paused")
+			{
+				_dest = std::make_shared<corona_game_set_paused>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "set_exit")
+			{
+				_dest = std::make_shared<corona_game_set_exit>();
 				_dest->put_json(_src);
 			}
 		}

@@ -1406,6 +1406,11 @@ namespace corona
 			value = std::make_shared<std::string>(_src);
 		}
 
+		virtual void set_value(std::string _src)
+		{
+			value = std::make_shared<std::string>(_src);
+		}
+
 		virtual std::string to_key() const
 		{
 			return *value;
@@ -4602,7 +4607,7 @@ namespace corona
 			for (std::string& s : _src) {
 				std::shared_ptr<json_string> dd = std::make_shared<json_string>();
 				dd->set_value(s);
-				result.push_back(dd);
+				result.array_impl()->elements.push_back(dd);
 			}
 			return result;
 		}

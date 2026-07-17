@@ -169,9 +169,9 @@ namespace corona
                 sound = audio_graph::from_json(jsound);
 			}
 
-			virtual void draw(direct2dContext& _context, point _location) 
+			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location) 
 			{
-
+				;
 			}
 
             virtual void create_asset(direct2dContext& _context)
@@ -209,10 +209,10 @@ namespace corona
 				bitmap.put_json(jbitmap);
             }
 
-			virtual void draw(direct2dContext& _context, point _location)
+			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
-				bitmap.x = _location.x + draw_rectangle.x;
-				bitmap.y = _location.y + draw_rectangle.y;
+				bitmap.x = DirectX::XMVectorGetX(_location) + draw_rectangle.x;
+				bitmap.y = DirectX::XMVectorGetY(_location) + draw_rectangle.y;
                 if (draw_rectangle.w > 0 && draw_rectangle.h > 0) {
 					bitmap.width = draw_rectangle.w;
 					bitmap.height = draw_rectangle.h;
@@ -285,11 +285,11 @@ namespace corona
 				stroke_width = _src["stroke_width"].as_double();
 			}
 
-			virtual void draw(direct2dContext& _context, point _location)
+			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
 				pathImmediateDto pid;
-                pid.position.x = _location.x + draw_rectangle.x;
-                pid.position.y = _location.y + draw_rectangle.y;
+                pid.position.x = DirectX::XMVectorGetX(_location) + draw_rectangle.x;
+                pid.position.y = DirectX::XMVectorGetY(_location) + draw_rectangle.y;
                 pid.path = path;
                 pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
@@ -331,8 +331,15 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
+			virtual void create_asset(direct2dContext& _context)
+			{
+				for (auto f : frames) 
+				{
+					f->create_asset(_context);
+				}
+			}
 
-			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
+			virtual void draw(direct2dContext& _context, double _elapsed, DirectX::XMVECTOR& _location)
 			{
 				if (frames.size() == 0)
 					return;
@@ -478,14 +485,6 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
-			{
-				for (auto animation : animations) {
-					if (animation->state == state) {
-						animation->draw(_context, _elapsed, _location);
-					}
-				}
-			}
 
 		};
 
@@ -516,8 +515,11 @@ namespace corona
 			{
 				std::shared_ptr<corona_object_interface> holder;
 				if (inventory) {
-					auto item = inventory->match(_class_name, _type_name);
-					if (item) {
+					// std::vector<chest_item>& _matches, std::string _class_name, std::string _item_type, double _quantity
+                    std::vector<chest_item> found_matches;
+                    bool matches = inventory->match(found_matches, _class_name, _type_name, 1.0);
+					if (matches && !found_matches.empty()) {
+						auto item = found_matches.front();
 						holder = _game->get_piece(item->reference, false);
 						return std::dynamic_pointer_cast<T>(holder);
 					}
@@ -530,10 +532,11 @@ namespace corona
 			{
 				item_holder<T> holder;
 				if (inventory) {
-                    auto item = inventory->match(_class_name, _type_name);
-                    if (item) {
-						holder.container = item;
-						auto obj = _game->get_piece(item->reference, false);
+					std::vector<chest_item> found_matches;
+					bool matches = inventory->match(found_matches, _class_name, _type_name, 1.0);
+                    if (matches && !found_matches.empty()) {
+						holder.container = found_matches.front();
+						auto obj = _game->get_piece(holder.container.reference, false);
 						holder.item_object = std::dynamic_pointer_cast<T>(obj);
                         return holder;
                     }
@@ -659,11 +662,11 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context, double _elapsed, point _location)
+			virtual void draw(direct2dContext& _context, double _elapsed)
 			{
 				for (auto animation : animations) {
 					if (animation->state == state) {
-						animation->draw(_context, _elapsed, _location);
+						animation->draw(_context, _elapsed, position);
 					}
 				}
 			}
@@ -2257,7 +2260,7 @@ namespace corona
 				requirements.push_back(r_hit);
 			}
 
-			virtual bool run(game_app_interface* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2304,7 +2307,7 @@ namespace corona
 				requirements.push_back(r_drop);
 			}
 
-			virtual bool run(game_app_interface* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2382,7 +2385,7 @@ namespace corona
 				requirements.push_back(r_magazine);
 			}
 
-			virtual bool run(game_app_interface* _game, actor* _actor)
+			virtual bool run(game_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2574,12 +2577,7 @@ namespace corona
 		class game : public job, public corona_object, public game_app_interface
 		{
 
-			corona_instance instance;
-
-            lockable game_locker;
-
 		public:
-
 			game(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
 			{
 				instance = corona_instance::local;
@@ -2592,30 +2590,7 @@ namespace corona
 			game& operator =(const game& _src) = default;
 			game& operator =(game&& _src) = default;
 
-
-			game_factory factories;
-			corona::selection_commands::command_collection selection_rules;
-			collision_commands collisions;
-
-			comm_bus_app_interface* bus;
-			std::string			name;
-			std::string			description;
-			timer				frame_timer;
-			lockable			map_locker;
-			std::shared_ptr<map> game_map;
-			game_state state;
-
 			void init();
-
-			std::shared_ptr<fire_command> fire_c = std::make_shared<fire_command>();
-			std::shared_ptr<cast_command> cast_c = std::make_shared<cast_command>();
-			std::shared_ptr<hit_command> hit_c = std::make_shared<hit_command>();
-			std::shared_ptr<reload_command> reload_c = std::make_shared<reload_command>();
-			std::shared_ptr<drop_command> drop_c = std::make_shared<drop_command>();
-
-			std::shared_ptr<corona_bus_command> on_all_players_ready;
-			std::shared_ptr<corona_bus_command> on_all_players_dead;
-
 
 			void handle_gamepad_button_up(gamepad_button_up_event gpbd);
 			void handle_gamepad_button_down(gamepad_button_down_event gpbd);
@@ -2634,16 +2609,53 @@ namespace corona
 			virtual job* get_next_job();
 
 			virtual std::shared_ptr<corona_object_interface> get_piece(object_reference& _reference, bool include_children);
-
+            
 			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name);
 			virtual std::shared_ptr<piece_base> create_piece_of_class(std::string _class_name);
-			virtual std::shared_ptr<piece_base> clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity);			virtual double fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level) = 0;
+			virtual std::shared_ptr<piece_base> clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity);
+			virtual double fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level);
 			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
 			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
 
+			void create_assets(direct2dContext& _src);
+			void draw(direct2dContext& _src);
+
+			template <typename T> std::shared_ptr<T> create_piece_impl(json _src)
+			{
+				if (!game_map) return nullptr;
+				auto piece = std::make_shared<T>();
+                piece->put_json(factories, _src);
+				return piece;
+            }
+
 		private:
+
+			corona_instance instance;
+
+			lockable game_locker;
+
+			std::shared_ptr<fire_command> fire_c = std::make_shared<fire_command>();
+			std::shared_ptr<cast_command> cast_c = std::make_shared<cast_command>();
+			std::shared_ptr<hit_command> hit_c = std::make_shared<hit_command>();
+			std::shared_ptr<reload_command> reload_c = std::make_shared<reload_command>();
+			std::shared_ptr<drop_command> drop_c = std::make_shared<drop_command>();
+
+			std::shared_ptr<corona_bus_command> on_all_players_ready;
+			std::shared_ptr<corona_bus_command> on_all_players_dead;
+
+			game_factory factories;
+			corona::selection_commands::command_collection selection_rules;
+			collision_commands collisions;
+
+			comm_bus_app_interface* bus;
+			std::string			name;
+			std::string			description;
+			timer				frame_timer;
+			lockable			map_locker;
+			std::shared_ptr<map> game_map;
+			game_state state;
 
 			void check_all_ready();
 			void check_all_dead();
@@ -2667,6 +2679,7 @@ namespace corona
 			void run_exit(double delta);
 
 			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
+			virtual bool queued(job_queue* _queue);
 
 		};
 
@@ -2681,6 +2694,16 @@ namespace corona
 
 			engine(comm_bus_app_interface* _db) : bus(_db)
 			{
+			}
+
+            engine(const engine& _src) = default;
+            engine(engine&& _src) = default;
+            engine& operator =(const engine& _src) = default;
+            engine& operator =(engine&& _src) = default;
+
+			virtual ~engine()
+			{
+
 			}
 
 			std::shared_ptr<game> new_game(json _world_key)
@@ -3189,6 +3212,8 @@ namespace corona
 
 		void game::handle_gamepad_button_up(gamepad_button_up_event gpbd)
 		{
+            scope_lock locker(game_locker);
+
 			auto player = attach_player(gpbd.state);
 
 			switch (gpbd.button)
@@ -3222,6 +3247,8 @@ namespace corona
 
 		void game::handle_gamepad_button_down(gamepad_button_down_event gpbd)
 		{
+			scope_lock locker(game_locker);
+
 			auto player = attach_player(gpbd.state);
 
 			switch (gpbd.button)
@@ -3265,11 +3292,15 @@ namespace corona
 
 		void game::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
 		{
+			scope_lock locker(game_locker);
+
 			auto player = attach_player(gptu.state);
 		}
 
 		void game::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
 		{
+			scope_lock locker(game_locker);
+
 			auto player = attach_player(gptd.state);
 
 			std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selection_rules.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
@@ -3304,11 +3335,15 @@ namespace corona
 
 		void game::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
 		{
+			scope_lock locker(game_locker);
+
 			auto player = attach_player(gpbd.state);
 		}
 
 		std::shared_ptr<player> game::attach_player(std::string input_name)
 		{
+			scope_lock locker(game_locker);
+
 			// Search for existing player with this input device
 			for (auto player : game_map->players()) {
 				if (player->input_device == input_name) {
@@ -3325,6 +3360,8 @@ namespace corona
 
 		std::shared_ptr<player> game::attach_player(XINPUT_STATE& _input_state)
 		{
+			scope_lock locker(game_locker);
+
 			return attach_player(std::to_string(_input_state.dwPacketNumber));
 		}
 
@@ -3465,12 +3502,19 @@ namespace corona
 			;
 		}
 
+		bool game::queued(job_queue* _callingQueue)
+		{
+			return true;
+		}
+
 		job_notify game::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
 			job_notify notify;
 			json_parser jp;
 
 			notify.shouldDelete = false;
+
+			scope_lock locker(game_locker);
 
 			double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
 			double delta = current_elapsed_seconds - last_elapsed_seconds;
@@ -3629,6 +3673,17 @@ namespace corona
 			}
 		}
 
-	}
+		void game::create_assets(direct2dContext& _src)
+		{
+			for (auto p : game_map->pieces) {
+				
+			}
+		}
 
+		void game::draw(direct2dContext& _src)
+		{
+
+		}
+
+	}
 }

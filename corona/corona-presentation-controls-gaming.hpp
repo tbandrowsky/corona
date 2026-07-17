@@ -7,7 +7,6 @@ namespace corona
 		public draw_control
 	{
 		std::shared_ptr<corona::game::game> current_session;
-		std::map<std::string, std::shared_ptr<image_control>> images;
 
 	public:
 
@@ -77,18 +76,6 @@ namespace corona
 			draw_control::put_json(_src);
 		}
 
-		virtual void create_game_assets(std::shared_ptr<direct2dContext>& _context)
-		{
-
-			for (auto& [name, image] : images) {
-				image->create(_context, host);
-            }
-		}
-
-		virtual void draw_game_frame(std::shared_ptr<direct2dContext>& _context)
-		{
-		}
-
         std::shared_ptr<corona::game::game_interface> get_session()
 		{ 
 			return std::dynamic_pointer_cast<corona::game::game_interface>(current_session); 
@@ -103,5 +90,74 @@ namespace corona
 			current_session = std::dynamic_pointer_cast<corona::game::game>(_session); 
 			return session;
 		}
+
+	private:
+
+		void init()
+		{
+			on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control*) {
+				if (current_session) {
+					current_session->draw(*_context);
+                }
+			};
+
+			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control*) {
+				if (current_session) {
+					current_session->create_assets(*_context);
+				}
+			};
+		}
 	};
+
+	json corona_start_game_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		auto ctrl = _bus->find_control(form_name);
+		game_session_control* session_control = dynamic_cast<game_session_control*>(ctrl);
+		if (session_control) {
+			session_control->set_session(session);
+		}
+		return response.data;
+	}
+
+	json corona_game_command::create_request(comm_bus_app_interface* _bus)
+	{
+		json_parser jp;
+		json obj;
+
+		auto ctrl = _bus->find_control(form_name);
+		auto session_control = dynamic_cast<game_session_control*>(ctrl);
+		auto temp = session_control->get_session();
+		session = std::dynamic_pointer_cast<corona::game::game_app_interface>(temp);
+		return obj;
+	}
+
+	corona_client_response corona_game_set_lobby::execute_request(json request, comm_bus_app_interface* _bus)
+	{
+		get_session()->set_lobby();
+		return response;
+	}
+
+	corona_client_response corona_game_set_active::execute_request(json request, comm_bus_app_interface* _bus)
+	{
+		get_session()->set_active();
+		return response;
+	}
+
+	corona_client_response corona_game_set_paused::execute_request(json request, comm_bus_app_interface* _bus)
+	{
+		get_session()->set_paused();
+		return response;
+	}
+
+	corona_client_response corona_game_set_complete::execute_request(json request, comm_bus_app_interface* _bus)
+	{
+		get_session()->set_complete();
+		return response;
+	}
+
+	corona_client_response corona_game_set_exit::execute_request(json request, comm_bus_app_interface* _bus)
+	{
+		get_session()->set_exit();
+		return response;
+	}
+
 }

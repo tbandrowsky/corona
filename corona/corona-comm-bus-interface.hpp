@@ -94,10 +94,10 @@ namespace corona
 		virtual corona_client_response remote_put_class(json _class_data) = 0;
 		virtual corona_client_response remote_create_object(std::string class_name) = 0;
 		virtual corona_client_response remote_run_object(json object_information) = 0;
-		virtual corona_client_response remote_edit_object(json object_information) = 0;
+		virtual corona_client_response remote_edit_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
 		virtual corona_client_response remote_put_object(json object_information) = 0;
-		virtual corona_client_response remote_get_object(json object_information) = 0;
-		virtual corona_client_response remote_delete_object(json object_information) = 0;
+		virtual corona_client_response remote_get_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
+		virtual corona_client_response remote_delete_object(std::string _class_name, int64_t _object_id) = 0;
 		virtual corona_client_response remote_query_objects(json object_information) = 0;
 		virtual corona_client_response remote_query(json query_body) = 0;
 		virtual corona_client_response remote_add_item_chest(json add_to_chest_request) = 0;
@@ -116,7 +116,7 @@ namespace corona
 		virtual corona_client_response local_put_class(json _class_data) = 0;
 		virtual corona_client_response local_create_object(std::string class_name) = 0;
 		virtual corona_client_response local_run_object(json object_information) = 0;
-		virtual corona_client_response local_edit_object(json object_information) = 0;
+		virtual corona_client_response local_edit_object(std::string _class_name, int64_t _object_id) = 0;
 		virtual corona_client_response local_put_object(json object_information) = 0;
 		virtual corona_client_response local_get_object(json object_information) = 0;
 		virtual corona_client_response local_delete_object(json object_information) = 0;
@@ -154,9 +154,6 @@ namespace corona
 		virtual void update_focus_list() = 0;
 
 		virtual void error(json _error) = 0;
-
-		virtual void when(UINT topic, std::function<void()> _runnable) = 0;
-		virtual void when(std::string _topic, std::function<void()> _runnable) = 0;
 
 		virtual void select_page(std::string _path, json _obj) = 0;
 		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json _obj, bool _reset_nav = false) = 0;
