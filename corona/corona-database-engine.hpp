@@ -465,46 +465,6 @@ namespace corona
 		system_monitoring_interface::active_mon->log_function_stop("parse_child_field", "complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 	}
 
-
-	class selection_field_options_interface
-	{
-	public:
-	};
-
-	class rectangle_field_options_interface
-	{
-	public:
-	};
-
-	class path_field_options_interface
-	{
-	public:
-	};
-
-	class brush_field_options_interface
-	{
-	public:
-	};
-
-	class bitmap_field_options_interface
-	{
-	public:
-	};
-
-    class audio_field_options_interface
-	{
-	public:
-	};
-
-	class chest_field_options_interface
-	{
-	public:
-		std::string allowed_class_name;
-		std::string allowed_item_type;
-		std::string unit_name;
-        int			max_items;
-	};
-
 	class chest_field 
 	{
 	public:
@@ -667,7 +627,20 @@ namespace corona
 	{
 	public:
 
+		std::shared_ptr<selection_field_options_interface> options;
 		std::map<object_reference, bool> selections;
+
+		selection_field(std::shared_ptr<selection_field_options_interface> _options, json _src) : options(_options)
+		{
+			put_json(_src);
+		}
+
+        selection_field() = default;
+        selection_field(const selection_field& _src) = default;
+        selection_field(selection_field&& _src) = default;
+		selection_field& operator=(const selection_field& _src) = default;
+		selection_field& operator=(selection_field&& _src) = default;
+
 
 		void clear()
 		{
@@ -6083,12 +6056,18 @@ namespace corona
 
 			if (cfi != std::end(fields)) {
 				if (cfi->second->get_field_type() == ft) {
-					auto field_options = cfi->second->get_options();
-					auto chest_field_options = std::dynamic_pointer_cast<options_interface_type>(field_options);
-					if (chest_field_options) {
-						json chest_data = _src[_name];
-						if (chest_data.object()) {
-							cf = std::make_shared<object_type>(chest_field_options, chest_data);
+					auto existing_field_options = cfi->second->get_options();
+					auto field_options = std::dynamic_pointer_cast<options_interface_type>(existing_field_options);
+					if (field_options) {
+						json field_data = _src[_name];
+						if (field_data.object()) {
+							if constexpr (std::is_base_of_v<rectangle, object_type>) {
+								cf = std::make_shared<rectangle>();
+							}
+							else 
+							{
+								cf = std::make_shared<object_type>(field_options, field_data);
+							}
 						}
 						else {
 							throw std::logic_error(std::format("field {0} data is not an array", _name));

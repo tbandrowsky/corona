@@ -411,7 +411,7 @@ namespace corona
 			return new_session;
 		}
 
-		virtual corona_client_response local_stop_game_session(std::shared_ptr<corona::game::game_interface> _session)
+		virtual void local_stop_game_session(std::shared_ptr<corona::game::game_interface> _session)
 		{
 			local_gaming->close_game(_session);
 		}

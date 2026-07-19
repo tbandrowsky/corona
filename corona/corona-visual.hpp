@@ -17,6 +17,21 @@ For Future Consideration
 
 namespace corona {
 
+	class path_field_options_interface
+	{
+	public:
+	};
+
+	class brush_field_options_interface
+	{
+	public:
+	};
+
+	class bitmap_field_options_interface
+	{
+	public:
+	};
+
 	using ccolor = D2D1_COLOR_F;
 
 	struct sizeCrop
@@ -930,6 +945,17 @@ namespace corona {
 		std::string name;
 		std::vector<std::shared_ptr<pathBaseDto>> points;
 
+        pathDto() = default;
+        pathDto(const pathDto& _request) = default;
+        pathDto(pathDto&& _request) = default;
+        pathDto& operator = (const pathDto& _request) = default;
+        pathDto& operator = (pathDto&& _request) = default;
+
+		pathDto(std::shared_ptr<path_field_options_interface> _iface, json _data)
+		{
+            put_json(_data);
+		}
+
 		pathDto& addLineTo(double x, double y)
 		{
 			std::shared_ptr<pathLineDto> ndto = std::make_shared<pathLineDto>();
@@ -1075,6 +1101,11 @@ namespace corona {
 		{
 			clear();
 			put_json(_j);
+		}
+
+		generalBrushRequest(std::shared_ptr<brush_field_options_interface> _iface, json _data)
+		{
+			put_json(_data);
 		}
 
 		generalBrushRequest(const generalBrushRequest& _src) = default;
@@ -1346,6 +1377,17 @@ namespace corona {
 		bool selected = false;
 		double alpha = 1;
 		rectangle source_rectangle = {};
+
+        bitmapInstanceDto() = default;
+		bitmapInstanceDto(const bitmapInstanceDto& _dto) = default;
+		bitmapInstanceDto(bitmapInstanceDto&& _dto) = default;
+		bitmapInstanceDto& operator = (const bitmapInstanceDto& _dto) = default;
+		bitmapInstanceDto& operator = (bitmapInstanceDto&& _dto) = default;
+
+		bitmapInstanceDto(std::shared_ptr<bitmap_field_options_interface> _iface, json _data)
+		{
+			put_json(_data);
+		}
 
 		bool contains(point pt)
 		{

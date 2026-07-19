@@ -17,12 +17,18 @@ For Future Consideration
 
 namespace corona {
 
+	class rectangle_field_options_interface
+	{
+	public:
+	};
+
 	struct rectangle
 	{
 		double x = 0, y = 0, w = 0, h = 0;
 
 		double right() const { return x + w; }
 		double bottom() const { return y + h; }
+
 	};
 
 	enum intersection_side {

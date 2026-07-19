@@ -339,7 +339,7 @@ namespace corona
         {
             auto result = bus->get_classes(_instance);
             if (!result.success) {
-                bus->log_error(result.message, __FILE__, __LINE__);
+                bus->log_warning(result.message, __FILE__, __LINE__);
                 throw std::runtime_error(result.message);
             }
 

@@ -153,6 +153,26 @@ namespace corona
 
 	};
 
+
+	class selection_field_options_interface
+	{
+	public:
+	};
+
+	class audio_field_options_interface
+	{
+	public:
+	};
+
+	class chest_field_options_interface
+	{
+	public:
+		std::string allowed_class_name;
+		std::string allowed_item_type;
+		std::string unit_name;
+		int			max_items;
+	};
+
 	namespace game 
 	{
 

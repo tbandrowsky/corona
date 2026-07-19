@@ -520,7 +520,7 @@ namespace corona
                     bool matches = inventory->match(found_matches, _class_name, _type_name, 1.0);
 					if (matches && !found_matches.empty()) {
 						auto item = found_matches.front();
-						holder = _game->get_piece(item->reference, false);
+						holder = _game->get_piece(item.reference, false);
 						return std::dynamic_pointer_cast<T>(holder);
 					}
 				}
@@ -947,6 +947,7 @@ namespace corona
 				std::uniform_int_distribution<> dist(0, spawn_classes.size() - 1);
 				int index = dist(gen);
 				result = spawn_classes[index];
+				return result;
 			}
 
             virtual void spawn(game_app_interface* _game)
@@ -2118,20 +2119,18 @@ namespace corona
 
 		class player_command : public corona::selection_commands::command
 		{
-
-
 		public:
 
-			template <typename T> T* get_item_ptr(game_app_interface* _game, piece* _src, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
+			template <typename T> std::shared_ptr<T> find_match_by_requirement(game_app_interface* _game, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
 			{
-				if (!_src) return nullptr;
-
 				auto m = get_match(_matches, _requirement);
 
 				if (m)
 				{
-					auto item = _src->get_item<T>(_game, m.first());
-					return item;
+                    auto first = m.first();
+					auto item = _game->get_piece(first.reference, false);
+                    auto typed_item = std::dynamic_pointer_cast<T>(item);
+					return typed_item;
 				}
 				return nullptr;
 			}
@@ -2168,7 +2167,7 @@ namespace corona
 				if (!bm)
 					return false;
 
-				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
+				auto _arm = find_match_by_requirement<firearm>(_game, found_matches, r_firearm);
 
 				if (_arm) {
 
@@ -2180,7 +2179,8 @@ namespace corona
 							auto _shot = _ammo.item_object->get_item_ptr<shot>(_game, "shot", _ammo.item_object->shot_type);
 							if (_shot) {
 
-								auto new_shot = std::make_shared<shot>(_shot);
+								auto new_shot_obj = _shot->copy(corona_instance::local);
+                                auto new_shot = std::dynamic_pointer_cast<shot>(new_shot_obj);
 								new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
 								new_shot->position = DirectX::XMVectorAdd(new_shot->position, _arm->fire_point);
 								new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
@@ -2226,12 +2226,13 @@ namespace corona
 				if (!bm)
 					return false;
 
-				auto _wand = get_item_ptr<wand>(_game, _actor, found_matches, r_cast);
+				auto _wand = find_match_by_requirement<wand>(_game, found_matches, r_cast);
 
 				if (_wand) {
 					auto _shot = _wand->get_item_ptr<spell>(_game, "spell", _wand->spell_type);
 					if (_shot) {
-						auto new_shot = std::make_shared<shot>(_shot);
+						auto new_shot_obj = _shot->copy(corona_instance::local);
+						auto new_shot = std::dynamic_pointer_cast<shot>(new_shot_obj);
 						new_shot->position = DirectX::XMVectorAdd(_shot->position, _actor->position);
 						new_shot->position = DirectX::XMVectorAdd(new_shot->position, _wand->fire_point);
 						new_shot->facing = DirectX::XMVector2Normalize(_actor->facing);
@@ -2272,12 +2273,13 @@ namespace corona
 				if (!bm)
 					return false;
 
-				auto _stick = get_item_ptr<stick>(_game, _actor, found_matches, r_hit);
+				auto _stick = find_match_by_requirement<stick>(_game,  found_matches, r_hit);
 
 				if (_stick) {
 					auto _hit = _stick->get_item_ptr<hit>(_game, "hit", _stick->hit_type);
 					if (_hit) {
-						auto new_hit = std::make_shared<hit>(_hit);
+						auto new_hit_obj = _hit->copy(corona_instance::local);
+						auto new_hit = std::dynamic_pointer_cast<hit>(new_hit_obj);
 						new_hit->position = DirectX::XMVectorAdd(_hit->position, _actor->position);
 						new_hit->facing = DirectX::XMVector2Normalize(_actor->facing);
 						new_hit->velocity = DirectX::XMVectorZero();
@@ -2395,14 +2397,14 @@ namespace corona
 				if (!bm)
 					return false;
 
-				auto _arm = get_item_ptr<firearm>(_game, _actor, found_matches, r_firearm);
-				auto _mag = get_item_ptr<magazine>(_game, _actor, found_matches, r_magazine);
+				auto _arm = find_match_by_requirement<firearm>(_game,  found_matches, r_firearm);
+				auto _mag = find_match_by_requirement<magazine>(_game,  found_matches, r_magazine);
 
 				if (_arm) {
 					std::string mag_class_name;
 
 					// move the magazines out of the gun and into the actor's inventory
-					_game->transfer_piece(_actor, _arm, loaded_class, 1.0);
+					_game->transfer_piece(_actor, _arm.get(), loaded_class, 1.0);
 
 					// we have the magazine that was selected,
 					_mag->owner = _actor->to_reference();
@@ -2849,9 +2851,14 @@ namespace corona
 
 		std::shared_ptr<corona_object_interface> game::get_piece(object_reference& _reference, bool include_children)
 		{
+			std::shared_ptr<corona_object_interface> result;
 			json_parser jp;
             json params = jp.from_reference(_reference);
             auto response = bus->get_object(instance, params);
+			if (response.success) {
+				result->put_json(response.data);
+			}
+			return result;
 		}
 
 		std::shared_ptr<piece_base> game::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
@@ -3083,111 +3090,113 @@ namespace corona
 
 			factories.init(instance);
 
-			factories.frame_factory.register_class("frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<frame> {
-				return std::make_shared<frame>(_src);
+			factories.frame_factory.register_class("frame", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<frame> {
+				auto f = std::make_shared<frame>();
+                f->put_json(_src);
+				return f;
 				});
-			factories.frame_factory.register_class("bitmap_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
-				return std::make_shared<bitmap_frame>(_src);
+			factories.frame_factory.register_class("bitmap_frame", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<bitmap_frame> {
+				auto f = std::make_shared<bitmap_frame>();
+				f->put_json(_src);
+				return f;
 				});
-			factories.frame_factory.register_class("vector_frame", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<vector_frame> {
-				return std::make_shared<vector_frame>(_src);
+			factories.frame_factory.register_class("vector_frame", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<vector_frame> {
+				auto f = std::make_shared<vector_frame>();
+				f->put_json(_src);
+				return f;
 				});
-
-			factories.piece_factory.register_class("piece", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<piece> {
-				return std::make_shared<piece>(_src);
+			factories.piece_factory.register_class("actor", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<actor> {
+				return create_piece_impl<actor>(_src);
 				});
-			factories.piece_factory.register_class("actor", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<actor> {
-				return std::make_shared<actor>(_src);
+			factories.piece_factory.register_class("player", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<player> {
+				return create_piece_impl<player>(_src);
 				});
-			factories.piece_factory.register_class("player", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<player> {
-				return std::make_shared<player>(_src);
+			factories.piece_factory.register_class("npc", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<npc> {
+				return create_piece_impl<npc>(_src);
 				});
-			factories.piece_factory.register_class("npc", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<npc> {
-				return std::make_shared<npc>(_src);
+			factories.piece_factory.register_class("feature", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return create_piece_impl<feature>(_src);
 				});
-			factories.piece_factory.register_class("feature", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-				return std::make_shared<feature>(_src);
+			factories.piece_factory.register_class("use_plate", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<use_plate> {
+				return create_piece_impl<use_plate>(_src);
 				});
-			factories.piece_factory.register_class("use_plate", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<use_plate> {
-				return std::make_shared<use_plate>(_src);
+			factories.piece_factory.register_class("spawn", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return create_piece_impl<spawn>(_src);
 				});
-			factories.piece_factory.register_class("spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-				return std::make_shared<spawn>(_src);
+			factories.piece_factory.register_class("player_spawn", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return create_piece_impl<player_spawn>(_src);
 				});
-			factories.piece_factory.register_class("player_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-				return std::make_shared<spawn>(_src);
+			factories.piece_factory.register_class("npc_spawn", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
+				return create_piece_impl<npc_spawn>(_src);
 				});
-			factories.piece_factory.register_class("npc_spawn", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<feature> {
-				return std::make_shared<spawn>(_src);
+			factories.piece_factory.register_class("loot_box", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootbox> {
+				return create_piece_impl <lootbox>(_src);
 				});
-			factories.piece_factory.register_class("loot_box", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootbox> {
-				return std::make_shared<lootbox>(_src);
+			factories.piece_factory.register_class("loot_spot", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootspot> {
+				return create_piece_impl<lootspot>(_src);
 				});
-			factories.piece_factory.register_class("loot_spot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<lootspot> {
-				return std::make_shared<lootspot>(_src);
+			factories.piece_factory.register_class("wall", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wall> {
+				return create_piece_impl<wall>(_src);
 				});
-			factories.piece_factory.register_class("wall", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wall> {
-				return std::make_shared<wall>(_src);
+			factories.piece_factory.register_class("switcher", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<switcher> {
+				return create_piece_impl<switcher>(_src);
 				});
-			factories.piece_factory.register_class("switcher", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<switcher> {
-				return std::make_shared<switcher>(_src);
+			factories.piece_factory.register_class("door", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<door> {
+				return create_piece_impl<door>(_src);
 				});
-			factories.piece_factory.register_class("door", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<door> {
-				return std::make_shared<door>(_src);
+			factories.piece_factory.register_class("surface", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<surface> {
+				return create_piece_impl<surface>(_src);
 				});
-			factories.piece_factory.register_class("surface", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<surface> {
-				return std::make_shared<surface>(_src);
+			factories.piece_factory.register_class("decoration", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<decoration> {
+				return create_piece_impl<decoration>(_src);
 				});
-			factories.piece_factory.register_class("decoration", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<decoration> {
-				return std::make_shared<decoration>(_src);
+			factories.piece_factory.register_class("light", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<light> {
+				return create_piece_impl<light>(_src);
 				});
-			factories.piece_factory.register_class("light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<light> {
-				return std::make_shared<light>(_src);
+			factories.piece_factory.register_class("spot_light", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spot_light> {
+				return create_piece_impl<spot_light>(_src);
 				});
-			factories.piece_factory.register_class("spot_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spot_light> {
-				return std::make_shared<spot_light>(_src);
+			factories.piece_factory.register_class("globe_light", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<globe_light> {
+				return create_piece_impl<globe_light>(_src);
 				});
-			factories.piece_factory.register_class("globe_light", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<globe_light> {
-				return std::make_shared<globe_light>(_src);
+			factories.piece_factory.register_class("camera", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<camera> {
+				return create_piece_impl<camera>(_src);
 				});
-			factories.piece_factory.register_class("camera", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<camera> {
-				return std::make_shared<camera>(_src);
+			factories.piece_factory.register_class("effect", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
+				return create_piece_impl<effect>(_src);
 				});
-			factories.piece_factory.register_class("effect", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<effect> {
-				return std::make_shared<effect>(_src);
+			factories.piece_factory.register_class("carryable", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
+				return create_piece_impl<carryable>(_src);
 				});
-			factories.piece_factory.register_class("carryable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<carryable> {
-				return std::make_shared<carryable>(_src);
+			factories.piece_factory.register_class("consumable", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<consumable> {
+				return create_piece_impl<consumable>(_src);
 				});
-			factories.piece_factory.register_class("consumable", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<consumable> {
-				return std::make_shared<consumable>(_src);
+			factories.piece_factory.register_class("tool", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<tool> {
+				return create_piece_impl<tool>(_src);
 				});
-			factories.piece_factory.register_class("tool", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<tool> {
-				return std::make_shared<tool>(_src);
+			factories.piece_factory.register_class("firearm", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<firearm> {
+				return create_piece_impl<firearm>(_src);
 				});
-			factories.piece_factory.register_class("firearm", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<firearm> {
-				return std::make_shared<firearm>(_src);
+			factories.piece_factory.register_class("magazine", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<magazine> {
+				return create_piece_impl<magazine>(_src);
 				});
-			factories.piece_factory.register_class("magazine", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<magazine> {
-				return std::make_shared<magazine>(_src);
+			factories.piece_factory.register_class("ammunition", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<ammunition> {
+				return create_piece_impl<ammunition>(_src);
 				});
-			factories.piece_factory.register_class("ammunition", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<ammunition> {
-				return std::make_shared<ammunition>(_src);
+			factories.piece_factory.register_class("shot", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<shot> {
+				return create_piece_impl<shot>(_src);
 				});
-			factories.piece_factory.register_class("shot", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<shot> {
-				return std::make_shared<shot>(_src);
+			factories.piece_factory.register_class("wand", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wand> {
+				return create_piece_impl<wand>(_src);
 				});
-			factories.piece_factory.register_class("wand", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<wand> {
-				return std::make_shared<wand>(_src);
+			factories.piece_factory.register_class("spell", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spell> {
+				return create_piece_impl<spell>(_src);
 				});
-			factories.piece_factory.register_class("spell", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<spell> {
-				return std::make_shared<spell>(_src);
+			factories.piece_factory.register_class("stick", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<stick> {
+				return create_piece_impl<stick>(_src);
 				});
-			factories.piece_factory.register_class("stick", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<stick> {
-				return std::make_shared<stick>(_src);
-				});
-			factories.piece_factory.register_class("artifact", [](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<artifact> {
-				return std::make_shared<artifact>(_src);
+			factories.piece_factory.register_class("artifact", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<artifact> {
+				return create_piece_impl<artifact>(_src);
 				});
 
 			selection_rules.put(fire_c);
