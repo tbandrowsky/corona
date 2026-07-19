@@ -1294,12 +1294,12 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-				camera::get_json(_dest);
+				feature::get_json(_dest);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				camera::put_json(_gbus, _src);
+				feature::put_json(_gbus, _src);
 			}
 		};
 
