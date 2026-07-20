@@ -144,12 +144,12 @@ namespace corona
 		corona_object_interface& operator =(const corona_object_interface& _src) = default;
 		corona_object_interface& operator =(corona_object_interface&& _src) = default;
 
-		virtual void get_json(json& _dest) = 0;
+		virtual void get_json(json& _dest) const = 0;
 		virtual void put_json(json& _src) = 0;
-		virtual std::string get_item_type() = 0;
-		virtual object_reference to_reference() = 0;
-		virtual chest_item to_chest_item(int _quantity) = 0;
-		virtual std::shared_ptr<corona_object_interface> clone() = 0;
+		virtual std::string get_item_type() const = 0;
+		virtual object_reference to_reference() const = 0;
+		virtual chest_item to_chest_item(int _quantity) const = 0;
+		virtual std::shared_ptr<corona_object_interface> clone() const = 0;
 
 	};
 

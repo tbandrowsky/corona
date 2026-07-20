@@ -652,13 +652,27 @@
       }
     },
     {
+      "class_name": "piece_code",
+      "base_class_name": "sys_object",
+      "class_description": "a short string that means a piece",
+      "parents": [ "map" ],
+      "fields": {
+        "piece_code": "string",
+        "piece_type": "string"
+      }
+    },
+    {
       "class_name": "map",
-      "base_class_name": "piece_list",
+      "base_class_name": "sys_object",
       "class_description": "a gaming map",
       "parents": [ "world", "session" ],
       "fields": {
         "name": "string",
-        "description": "string"
+        "description": "string",
+        "contents": "[ piece_list ]",
+        "tile_strings": [ "string" ],
+        "tile_size": "vector",
+        "tile_codes": [ "piece_code" ]
       }
     },
     {
@@ -778,7 +792,7 @@
         "box": "edit_field_box"
       }
     },
-    "card_fields": [ "first_name", "last_name" ],
+    "card_fields": [ "first_name", "last_name", "name", "description" ],
     "classes": {
       "game_session": "default"
     },

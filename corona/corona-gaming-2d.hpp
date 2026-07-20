@@ -11,6 +11,32 @@ namespace corona
 	namespace game
 	{
 
+		class piece_code : public corona_object
+		{
+		public:
+			std::string piece_code;
+            std::string piece_class;
+			std::string piece_type;
+
+			virtual void get_json(json& _dest) const
+			{
+				json_parser jp;
+				corona_object::get_json(_dest);
+				_dest.put_member("piece_code", piece_code);
+				_dest.put_member("piece_class", piece_class);
+				_dest.put_member("piece_type", piece_type);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+                piece_code = _src["piece_code"].as_string();
+                piece_class = _src["piece_class"].as_string();
+                piece_type = _src["piece_type"].as_string();
+			}
+
+		};
+
 		class piece_base : public corona_object {
 		public:
 			piece_base() {
@@ -44,7 +70,6 @@ namespace corona
 				return d != nullptr;
 			}
 
-
 			rectangle get_rectangle(double _elapsed) const
 			{
 				using namespace DirectX;
@@ -73,7 +98,6 @@ namespace corona
 		
 		class game_app_interface : public game_interface {
 		public:
-
 
 			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name) = 0;
 			virtual std::shared_ptr<piece_base> create_piece_of_class(std::string _class_name) = 0;
@@ -174,7 +198,7 @@ namespace corona
 				;
 			}
 
-            virtual void create_asset(direct2dContext& _context)
+            virtual void create_assets(direct2dContext& _context)
 			{
 				;
 			}
@@ -220,7 +244,7 @@ namespace corona
 				_context.drawBitmap(&bitmap);
 			}
 
-			virtual void create_asset(direct2dContext& _context)
+			virtual void create_assets(direct2dContext& _context)
 			{
 
                 if (_context.hasBitmap(bitmap.bitmapName)) {
@@ -298,7 +322,7 @@ namespace corona
                 _context.drawPath(&pid);
 			}
 
-			virtual void create_asset(direct2dContext& _context)
+			virtual void create_assets(direct2dContext& _context)
 			{
 				_context.setBrush(&fill);
 				_context.setBrush(&stroke);
@@ -331,11 +355,11 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
-			virtual void create_asset(direct2dContext& _context)
+			virtual void create_assets(direct2dContext& _context)
 			{
 				for (auto f : frames) 
 				{
-					f->create_asset(_context);
+					f->create_assets(_context);
 				}
 			}
 
@@ -662,6 +686,14 @@ namespace corona
 				}
 			}
 
+			virtual void create_assets(direct2dContext& _context)
+			{
+				for (auto a : animations)
+				{
+					a->create_assets(_context);
+				}
+			}
+
 			virtual void draw(direct2dContext& _context, double _elapsed)
 			{
 				for (auto animation : animations) {
@@ -706,6 +738,9 @@ namespace corona
 			}
 		};
 
+		using piece_collection = std::map<object_reference, std::shared_ptr<piece>>;
+		using piece_collection_iterator = std::map<object_reference, std::shared_ptr<piece>>::iterator;
+
 		class piece_list : public corona_object
 		{
 		public:
@@ -718,7 +753,7 @@ namespace corona
 			piece_list& operator =(piece_list&& _src) = default;
 
 			std::string state;
-            std::vector<std::shared_ptr<piece>> pieces;
+            std::map<object_reference, std::shared_ptr<piece>> pieces;
 
 			virtual void get_json(json& _dest)
 			{
@@ -727,7 +762,7 @@ namespace corona
 				corona_object::get_json(_dest);
 				_dest.put_member("state", state);
 				json j = jp.create_array();
-				for (const auto& p : pieces) {
+				for (const auto& [id, p] : pieces) {
                     json pj = jp.create_object();
                     p->get_json(pj);
                     j.push_back(pj);
@@ -740,8 +775,22 @@ namespace corona
 				corona_object::put_json(_src);
 				state = _src["state"].as_string();
                 json jpieces = _src["pieces"];
-				pieces = _gbus.piece_factory.create_array(jpieces);
+				if (jpieces.array()) {
+					pieces.clear();
+					for (int i = 0; i < jpieces.size(); i++) {
+						auto jpiece = jpieces.get_element(i);
+						if (!jpiece.object()) {
+							continue;
+						}
+						auto new_piece = _gbus.piece_factory.create_object(jpiece);
+						new_piece->put_json(_gbus.frame_factory, jpiece);
+						pieces[new_piece->to_reference()] = new_piece;
+                    }
+				}
 			}
+
+			piece_collection_iterator begin() { return pieces.begin(); }
+			piece_collection_iterator end() { return pieces.end(); }
 		};
 
 		class feature : public piece
@@ -1880,11 +1929,12 @@ namespace corona
 			}
 		};
 
-        class map : public piece_list
+        class map : public corona_object
 		{
 		public:
 
-			map() {
+			map() 
+			{
 				class_name = "map";
 			}
 			map(const map& _src) = default;
@@ -1895,13 +1945,20 @@ namespace corona
 			std::string name;
 			std::string description;
 
+			std::shared_ptr<piece_list> current;
+			std::shared_ptr<piece_list> start;
+
+			std::vector<std::string> tile_strings;
+			DirectX::XMVECTOR tile_size;
+            std::map<std::string, piece_code> tile_codes;
+
 			// C++20 view functions - no separate storage needed
 			template<std::derived_from<piece> T>
 			auto get_pieces_of_type() const {
-				return pieces 
-					| std::views::transform([](const auto& p) { 
-						return std::dynamic_pointer_cast<T>(p); 
-					  })
+				return current->pieces
+					| std::views::transform([](const auto& p) {
+							return std::dynamic_pointer_cast<T>(p.second);
+						})
 					| std::views::filter([](const auto& p) { return p != nullptr; });
 			}
 
@@ -1922,16 +1979,131 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-				piece_list::get_json(_dest);
+                corona_object::get_json(_dest);
+
 				_dest.put_member("name", name);
                 _dest.put_member("description", description);
+
+				json_parser jp;
+				json ts = jp.create_array(tile_strings);
+
+                _dest.put_member("tile_strings", ts);
+                _dest.put_member("tile_size", tile_size);
+
+                json jabbreviations = jp.create_array();
+                for (const auto& [key, value] : tile_codes) {
+                    json jabbreviation = jp.create_object();
+                    value.get_json(jabbreviation);
+                    jabbreviations.push_back(jabbreviation);
+                }
+                _dest.put_member("tile_codes", jabbreviations);
+
+				json piece_list_array = jp.create_array();
+
+				if (current) {
+					json jcurrent = jp.create_object();
+					current->get_json(jcurrent);
+					piece_list_array.push_back(jcurrent);
+				}
+
+				if (start) {
+					json jstart = jp.create_object();
+					start->get_json(jstart);
+					piece_list_array.push_back(jstart);
+				}
+                _dest.put_member("contents", piece_list_array);
+				
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece_list::put_json(_gbus, _src);
+                corona_object::put_json(_src);
+
 				name = _src["name"].as_string();
                 description = _src["description"].as_string();
+
+                tile_strings = _src["tile_strings"].to_string_array();
+                tile_size = _src["tile_size"].as_vector();
+                tile_codes.clear();
+
+				auto jtile_codes = _src["tile_codes"].as_array();
+				for (int i = 0; i < jtile_codes.size(); i++) {
+					piece_code tc;
+					json j = jtile_codes.get_element(i);
+					if (j.object()) {
+						tc.put_json(j);
+						tile_codes[tc.piece_code] = tc;
+					}
+				}
+
+				current = std::make_shared<piece_list>();
+                start = std::make_shared<piece_list>();
+
+                json jcontents = _src["contents"];
+				if (jcontents.array()) {
+					for (int i = 0; i < jcontents.size(); i++) {
+						json j = jcontents.get_element(i);
+						if (j.object()) {
+							auto pl = std::make_shared<piece_list>();
+							pl->put_json(_gbus, j);
+                            if (pl->state == "start") {
+								start = pl;
+							}
+							else if (pl->state == "current") {
+								current = pl;
+							}
+						}
+					}
+				}
+			}
+
+			virtual void construct(game_app_interface& _gbus)
+			{
+                current->pieces.clear();
+
+				if (tile_strings.size() > 0 && tile_codes.size() > 0)
+				{
+                    DirectX::XMVECTOR icurrent = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+					DirectX::XMVECTOR irow = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+					DirectX::XMVECTOR icol = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+                    DirectX::XMVECTOR tile_position = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+
+					for (auto& ts : tile_strings) {
+						auto row = split(ts, ' ');
+						for (auto pa : row) 
+						{
+							if (tile_codes.find(pa) != tile_codes.end()) {
+								auto& pc = tile_codes[pa];
+								auto p = _gbus.create_piece_of_type(pc.piece_type);
+								if (p) {
+									p->position = DirectX::XMVectorMultiply(icurrent, tile_size);
+									p->size = tile_size;
+                                    auto pn = std::dynamic_pointer_cast<piece>(p);
+                                    current->pieces.insert_or_assign(pn->to_reference(), pn);
+								}
+							}
+                            else 
+							{
+								auto p = _gbus.create_piece_of_type(pa);
+								if (p) {
+									p->position = DirectX::XMVectorMultiply(icurrent, tile_size);
+									p->size = tile_size;
+									auto pn = std::dynamic_pointer_cast<piece>(p);
+									current->pieces.insert_or_assign(pn->to_reference(), pn);
+								}
+							}
+							icurrent = DirectX::XMVectorAdd(icurrent, icol);							
+						}
+                        DirectX::XMVectorSetX(icurrent, 0.0f);
+						icurrent = DirectX::XMVectorAdd(icurrent, irow);
+					}
+				}
+
+                for (auto [k,p] : start->pieces) {
+					auto np = p->copy(corona_instance::local);
+                    auto np_cast = std::dynamic_pointer_cast<piece>(np);
+					current->pieces.insert_or_assign(np_cast->to_reference(), np_cast);
+				}
 			}
 		};
 
@@ -2619,6 +2791,7 @@ namespace corona
 			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref);
 			virtual void put(std::shared_ptr<piece_base> _src);
 
+			void create_map();
 			void create_assets(direct2dContext& _src);
 			void draw(direct2dContext& _src);
 
@@ -2669,7 +2842,7 @@ namespace corona
 
 			// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 			// and only finds their state
-			collision_event model_piece(std::shared_ptr<map> _map, int _piece_index, double _elapsed_secs) const;
+			collision_event model_piece(std::shared_ptr<map> _map, piece_collection_iterator _current, double _elapsed_secs) const;
 			collision_event find_closest_collision(double delta) const;
 
 			void run_active(double delta);
@@ -2733,6 +2906,7 @@ namespace corona
 				if (ccr.success) {
 					json new_session = ccr.data;
 					std::shared_ptr<game> session = std::make_shared<game>(bus, new_session);
+					session->create_map();
 					games.push_back(session);
 					return session;
 				}
@@ -2846,6 +3020,13 @@ namespace corona
 			}
 		}
 
+		void game::create_map()
+		{
+			if (game_map) 
+			{
+				game_map->construct(*this);
+			}
+		}
 
 		std::shared_ptr<corona_object_interface> game::get_piece(object_reference& _reference, bool include_children)
 		{
@@ -3352,17 +3533,18 @@ namespace corona
 			scope_lock locker(game_locker);
 
 			// Search for existing player with this input device
-			for (auto player : game_map->players()) {
-				if (player->input_device == input_name) {
-					return player;
+			for (auto pl : game_map->players()) {
+				if (pl->input_device == input_name) {
+					return pl;
 				}
 			}
 			// Create new player and add to pieces only
-			std::shared_ptr<player> new_player = std::make_shared<player>();
-			new_player->name = input_name;
-			new_player->ready = false;
-			game_map->pieces.push_back(new_player);
-			return new_player;
+			auto npl = create_piece_of_class("player");
+			auto plt = std::dynamic_pointer_cast<player>(npl);
+			plt->input_device = input_name;
+			plt->ready = false;
+			game_map->current->pieces.insert_or_assign(plt->to_reference(), plt);
+			return plt;
 		}
 
 		std::shared_ptr<player> game::attach_player(XINPUT_STATE& _input_state)
@@ -3374,11 +3556,11 @@ namespace corona
 
 		// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 		// and only finds their state
-		collision_event game::model_piece(std::shared_ptr<map> _map, int _piece_index, double _elapsed_secs) const
+		collision_event game::model_piece(std::shared_ptr<map> _map, piece_collection_iterator _current, double _elapsed_secs) const
 		{
 			using namespace DirectX;
 
-			auto _piece = _map->pieces[_piece_index];
+			auto _piece =  _current->second;
 
 			collision_event event = {};
 			collision_result collision = {};
@@ -3389,10 +3571,13 @@ namespace corona
 				XMVector3Equal(_piece->velocity, zero_vector)) {
 				return event;
 			}
+			
+			auto cpiece = _current;
+			cpiece++;
 
-			for (int i = _piece_index + 1; i < _map->pieces.size(); i++)
+			while (cpiece != _map->current->end())
 			{
-				auto& other = _map->pieces[i];
+				auto& other = cpiece->second;
 
 				double st = 0.0, et = _elapsed_secs, mt = et / 2.0;
 
@@ -3426,6 +3611,8 @@ namespace corona
 						event.piece_2 = other;
 					}
 				}
+
+				cpiece++;
 			}
 
 			return event;
@@ -3439,9 +3626,9 @@ namespace corona
 		collision_event game::find_closest_collision(double delta) const
 		{
 			collision_event closest_collision;
-			for (int i = 0; i < game_map->pieces.size(); i++) {
-				auto pc = game_map->pieces[i];
-				collision_event collision = model_piece(game_map, i, delta);
+			for (auto ipiece = game_map->current->begin(); ipiece != game_map->current->end(); ipiece++) {
+				auto pc = ipiece->second;
+				collision_event collision = model_piece(game_map, ipiece, delta);
 				if (collision.piece_1) {
 					if (closest_collision.piece_1) {
 						if (collision.collision.time_of_collision < closest_collision.collision.time_of_collision) {
@@ -3474,9 +3661,9 @@ namespace corona
 
 				if (closest_collision.piece_1) {
 					// move pieces to the point of collision
-					for (int i = 0; i < game_map->pieces.size(); i++) {
-						auto pc = game_map->pieces[i];
-						pc->run(this, closest_collision.collision.time_of_collision);
+
+					for (auto px = game_map->current->begin(); px != game_map->current->end(); px++) {
+						px->second->run(this, closest_collision.collision.time_of_collision);
 					}
 					// resolve collision effects here and update accelerations accordingly
 					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
@@ -3485,9 +3672,8 @@ namespace corona
 				else
 				{
 					// no more collisions, we can move all pieces for the remaining time
-					for (int i = 0; i < game_map->pieces.size(); i++) {
-						auto pc = game_map->pieces[i];
-						pc->run(this, remaining);
+					for (auto px = game_map->current->begin(); px != game_map->current->end(); px++) {
+						px->second->run(this, remaining);
 					}
 					remaining = 0;
 				}
@@ -3552,14 +3738,6 @@ namespace corona
 
 		void game::set_lobby()
 		{
-			// Remove all players from the pieces collection
-			auto is_player = [](const auto& piece) {
-				return std::dynamic_pointer_cast<player>(piece) != nullptr;
-				};
-			game_map->pieces.erase(
-				std::remove_if(game_map->pieces.begin(), game_map->pieces.end(), is_player),
-				game_map->pieces.end()
-			);
 			state = game_state::lobby;
 		}
 
@@ -3682,8 +3860,8 @@ namespace corona
 
 		void game::create_assets(direct2dContext& _src)
 		{
-			for (auto p : game_map->pieces) {
-				
+			for (auto p : game_map->current->pieces) {
+				p->create_asset(_src);
 			}
 		}
 

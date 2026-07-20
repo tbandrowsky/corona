@@ -22,7 +22,7 @@ namespace corona
 
        comm_bus_app_interface* bus = nullptr;
 
-       virtual void get_json(json& _dest)
+       virtual void get_json(json& _dest) const
        {
            _dest.put_member_string(class_name_field, class_name);
            _dest.put_member_i64(object_id_field, object_id);
@@ -42,12 +42,12 @@ namespace corona
            updated = _src["updated"].as_date_time();
        }
 
-       virtual std::string get_item_type()
+       virtual std::string get_item_type() const
        {
            return class_name;
        }
 
-       virtual object_reference to_reference()
+       virtual object_reference to_reference() const
        {
            object_reference ref;
 
@@ -57,7 +57,7 @@ namespace corona
            return ref;
        }
 
-       virtual chest_item to_chest_item(int _quantity)
+       virtual chest_item to_chest_item(int _quantity) const
        {
            chest_item ci;
 
@@ -101,7 +101,7 @@ namespace corona
            return t;
        }
 
-       virtual std::shared_ptr<corona_object_interface> clone()
+       virtual std::shared_ptr<corona_object_interface> clone() const
        {
            json_parser jp;
            json body = jp.create_object();
