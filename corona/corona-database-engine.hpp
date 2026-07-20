@@ -8973,11 +8973,45 @@ private:
 			json field_mappings = _application_schema["fields"];
 			json class_mappings = _application_schema["classes"];
 			json team_mappings = _application_schema["teams"];
+			json object_list = _application_schema["objects"];
 
 			json result = jp.create_object();
 			json pages = jp.create_array();
 			json card_sources = jp.create_object();
             json form_sources = jp.create_object();
+
+			// and objects
+
+			if (object_list.array()) {
+				for (int j = 0; j < object_list.size(); j++) {
+					json object_definition = object_list.get_element(j).clone();
+					json put_object_request = create_system_request(object_definition);
+					json create_result = put_object(put_object_request);
+					if (not create_result[success_field].as_bool()) {
+						system_monitoring_interface::active_mon->log_warning(create_result[message_field].as_string());
+					}
+					else {
+						json result = create_result[data_field];
+						for (auto class_result : result.get_members()) {
+							json items = class_result.second;
+							if (items.array()) {
+								for (auto item : items) {
+									if (not item[success_field].as_bool()) {
+										system_monitoring_interface::active_mon->log_warning(item[message_field].as_string(), __FILE__, __LINE__);
+									}
+									else {
+										json item_data = item[data_field];
+										std::string new_class_name = item_data[class_name_field].as_string();
+										int64_t object_id = item_data[object_id_field].as_int64_t();
+										std::string object_created = std::format("object {0} {1} saved", new_class_name, object_id);
+										system_monitoring_interface::active_mon->log_information(object_created);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 
             // get the list of classes from the database
 

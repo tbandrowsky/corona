@@ -665,7 +665,7 @@
       "class_name": "map",
       "base_class_name": "sys_object",
       "class_description": "a gaming map",
-      "parents": [ "world", "session" ],
+      "parents": [ "world" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -766,7 +766,7 @@
       "string": {
         "class_name": "edit_field",
         "box": "edit_field_box"
-      }, 
+      },
       "datetime": {
         "class_name": "datetimepicker_field",
         "box": "edit_field_box"
@@ -796,6 +796,46 @@
     "classes": {
       "game_session": "default"
     },
+    "objects": [
+      {
+
+
+      },
+      {
+        "class_name": "world",
+        "map": {
+          "class_name": "map",
+          "name": "",
+          "description": "",
+          "tile_size": "32,32,0",
+          "tile_strings": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        }
+      },
+      {
+
+      },
+      {
+
+      },
+      {
+
+      },
+      {
+
+      }
+    ],
     "teams": { 
       "app_team": {
         "search_groups": [
