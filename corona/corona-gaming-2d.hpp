@@ -83,9 +83,9 @@ namespace corona
 			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0;
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
-			virtual std::shared_ptr<piece_base> find(object_reference _piece_ref);
-			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref);
-			virtual void put(std::shared_ptr<piece_base> _src);
+			virtual std::shared_ptr<piece_base> find(object_reference _piece_ref) = 0;
+			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref) = 0;
+			virtual void put(std::shared_ptr<piece_base> _src) = 0;
 		};
 
 		template <typename T> class item_holder
@@ -1511,11 +1511,6 @@ namespace corona
                 fire_point = _src["fire_point"].as_vector();
 			}
 
-			// this gets called on every piece, to apply accelerations, make animation calculations, 
-			// and other time-based calculations. The default implementation does nothing.
-			// _elapsed_seconds is the time since the last call to run, in seconds.
-			// this will be quite fractional.
-			virtual void run(game_app_interface* _game, double _elapsed);
 
 		};
 
@@ -2620,6 +2615,9 @@ namespace corona
 			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity);
 			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity);
+			virtual std::shared_ptr<piece_base> find(object_reference _piece_ref);
+			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref);
+			virtual void put(std::shared_ptr<piece_base> _src);
 
 			void create_assets(direct2dContext& _src);
 			void draw(direct2dContext& _src);
@@ -2686,11 +2684,11 @@ namespace corona
 		};
 
 
-		class engine
+        class engine : public engine_interface
 		{
 			comm_bus_app_interface *bus;
 			corona_instance instance = corona_instance::local;
-			std::vector<std::shared_ptr<game>> games;
+			std::vector<std::shared_ptr<game_interface>> games;
 
 		public:
 
@@ -2708,7 +2706,7 @@ namespace corona
 
 			}
 
-			std::shared_ptr<game> new_game(json _world_key)
+			std::shared_ptr<game_interface> new_game(json _world_key)
 			{
 				json_parser jp;
 
@@ -2742,7 +2740,7 @@ namespace corona
 				return nullptr;
 			}
 
-			std::shared_ptr<game> load_game(json _game_key)
+			std::shared_ptr<game_interface> load_game(json _game_key)
 			{
 				json_parser jp;
 				auto result = bus->get_object(instance, _game_key);
@@ -2754,7 +2752,7 @@ namespace corona
 				return nullptr;
 			}
 
-			void save_game(std::shared_ptr<game> _game)
+			void save_game(std::shared_ptr<game_interface> _game)
 			{
 				json_parser jp;
 				json jsession = jp.create_object();
@@ -2762,7 +2760,7 @@ namespace corona
 				bus->put_object(instance, jsession);
 			}
 
-			void close_game(std::shared_ptr<game> _game)
+			void close_game(std::shared_ptr<game_interface> _game)
 			{
 				_game->set_exit();
 				std::remove(games.begin(), games.end(), _game);
@@ -3694,5 +3692,40 @@ namespace corona
 
 		}
 
+		std::shared_ptr<piece_base> game::find(object_reference _piece_ref)
+		{
+			for (auto& piece : game_map->pieces) {
+				if (piece->to_reference() == _piece_ref) {
+					return piece;
+				}
+			}
+			return nullptr;
+		}
+
+		std::shared_ptr<piece_base> game::erase(object_reference _piece_ref)
+		{
+			auto it = std::find_if(game_map->pieces.begin(), game_map->pieces.end(),
+				[&](auto& p) { return p->to_reference() == _piece_ref; });
+
+			if (it != game_map->pieces.end()) {
+				auto result = *it;
+				game_map->pieces.erase(it);
+				return result;
+			}
+			return nullptr;
+		}
+
+		void game::put(std::shared_ptr<piece_base> _src)
+		{
+			auto p = find(_src->to_reference());
+
+			if (p) {
+				*p = *_src;
+			}
+			else {
+                auto pp = std::dynamic_pointer_cast<piece>(_src);
+				game_map->pieces.push_back(pp);
+			}
+		}
 	}
 }

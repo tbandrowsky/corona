@@ -196,10 +196,10 @@ namespace corona
 		{
 		public:
 
-			std::shared_ptr<game_interface> new_game(json _game_key);
-			std::shared_ptr<game_interface> load_game(json _session_key);
-			void save_game(std::shared_ptr<game_interface> _session);
-			void close_game(std::shared_ptr<game_interface> _session);
+			virtual std::shared_ptr<game_interface> new_game(json _game_key) = 0;
+			virtual std::shared_ptr<game_interface> load_game(json _session_key) = 0;
+			virtual void save_game(std::shared_ptr<game_interface> _session) = 0;
+			virtual void close_game(std::shared_ptr<game_interface> _session) = 0;
 		};
 
 		class engine_factory
