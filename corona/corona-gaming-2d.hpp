@@ -3860,8 +3860,8 @@ namespace corona
 
 		void game::create_assets(direct2dContext& _src)
 		{
-			for (auto p : game_map->current->pieces) {
-				p->create_asset(_src);
+			for (auto &p : game_map->current->pieces) {
+				p.second->create_assets(_src);
 			}
 		}
 
@@ -3872,38 +3872,28 @@ namespace corona
 
 		std::shared_ptr<piece_base> game::find(object_reference _piece_ref)
 		{
-			for (auto& piece : game_map->pieces) {
-				if (piece->to_reference() == _piece_ref) {
-					return piece;
-				}
+			auto pi = game_map->current->pieces.find(_piece_ref);
+			if (pi != std::end(game_map->current->pieces)) {
+				return std::dynamic_pointer_cast<piece_base>( pi->second);
 			}
 			return nullptr;
 		}
 
 		std::shared_ptr<piece_base> game::erase(object_reference _piece_ref)
 		{
-			auto it = std::find_if(game_map->pieces.begin(), game_map->pieces.end(),
-				[&](auto& p) { return p->to_reference() == _piece_ref; });
-
-			if (it != game_map->pieces.end()) {
-				auto result = *it;
-				game_map->pieces.erase(it);
-				return result;
+			auto pi = game_map->current->pieces.find(_piece_ref);
+			if (pi != std::end(game_map->current->pieces)) {
+				auto rx = pi->second;
+				game_map->current->pieces.erase(pi);
+				return std::dynamic_pointer_cast<piece_base>(rx);
 			}
 			return nullptr;
 		}
 
 		void game::put(std::shared_ptr<piece_base> _src)
 		{
-			auto p = find(_src->to_reference());
-
-			if (p) {
-				*p = *_src;
-			}
-			else {
-                auto pp = std::dynamic_pointer_cast<piece>(_src);
-				game_map->pieces.push_back(pp);
-			}
+			auto dc = std::dynamic_pointer_cast<piece>(_src);
+			game_map->current->pieces.insert_or_assign(dc->to_reference(), dc);
 		}
 	}
 }
