@@ -176,7 +176,7 @@ namespace corona
 	namespace game 
 	{
 
-		class game_interface
+		class adventure_interface
 		{
 		public:
 
@@ -196,10 +196,10 @@ namespace corona
 		{
 		public:
 
-			virtual std::shared_ptr<game_interface> new_game(json _game_key) = 0;
-			virtual std::shared_ptr<game_interface> load_game(json _session_key) = 0;
-			virtual void save_game(std::shared_ptr<game_interface> _session) = 0;
-			virtual void close_game(std::shared_ptr<game_interface> _session) = 0;
+			virtual std::shared_ptr<adventure_interface> new_adventure(json _game_key) = 0;
+			virtual std::shared_ptr<adventure_interface> load_adventure(json _session_key) = 0;
+			virtual void save_adventure(std::shared_ptr<adventure_interface> _session) = 0;
+			virtual void close_adventure(std::shared_ptr<adventure_interface> _session) = 0;
 		};
 
 		class engine_factory

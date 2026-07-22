@@ -96,7 +96,7 @@ namespace corona
 
 		};
 		
-		class game_app_interface : public game_interface {
+		class adventure_app_interface : public adventure_interface {
 		public:
 
 			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name) = 0;
@@ -443,12 +443,11 @@ namespace corona
 			std::string description;
 			std::string piece_class_name;
 			std::vector<std::shared_ptr<animation>> animations;
-
 			double		mass = 1.0;
+			double		health = 1.0;
 			double      full_health = 1.0;
-			double      health = 1.0;
-
 			std::string state;
+			json		defaults;
 
 			std::shared_ptr<chest_field> inventory;
 
@@ -459,8 +458,8 @@ namespace corona
 				corona_object::get_json(_dest);
 
 				_dest.put_member("name", name);
-				_dest.put_member("state", state);
-				_dest.put_member("mass", mass);
+				_dest.put_member("description", description);
+				_dest.put_member("piece_class_name", piece_class_name);
 
 				json j = jp.create_array();
 				for (auto& s : animations) {
@@ -469,6 +468,12 @@ namespace corona
 					j.push_back(jsprite);
 				}
 				_dest.put_member("animations", j);
+
+				_dest.put_member("mass", mass);
+				_dest.put_member("health", health);
+				_dest.put_member("full_health", full_health);
+				_dest.put_member("state", state);
+				_dest.put_member("defaults", defaults);
 
 				json jinventory = jp.create_object();
 
@@ -483,12 +488,10 @@ namespace corona
 				corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
-				state = _src["state"].as_string();
-				mass = _src["mass"].as_double();
+				description = _src["description"].as_string();
+				piece_class_name = _src["piece_class_name"].as_string();
 
-				if (fabs(mass) < 0.0001) {
-					mass = 1.0;
-				}
+
 
 				json janimations = _src["animations"];
 				animations.clear();
@@ -500,6 +503,17 @@ namespace corona
 					auto new_animation = std::make_shared<animation>();
 					new_animation->put_json(_factory, janimation);
 					animations.push_back(new_animation);
+				}
+
+				mass = _src["mass"].as_double();
+				state = _src["state"].as_string();
+                health = _src["health"].as_double();
+                full_health = _src["full_health"].as_double();
+                state = _src["state"].as_string();
+                defaults = _src["defaults"];
+
+				if (fabs(mass) < 0.0001) {
+					mass = 1.0;
 				}
 
 				inventory = std::make_shared<chest_field>();
@@ -535,7 +549,7 @@ namespace corona
 			std::vector<std::shared_ptr<animation>> animations;
 
 			template <typename T>
-			std::shared_ptr<T> get_item_ptr(game_app_interface*	_game, std::string _class_name, std::string _type_name)
+			std::shared_ptr<T> get_item_ptr(adventure_app_interface*	_game, std::string _class_name, std::string _type_name)
 			{
 				std::shared_ptr<corona_object_interface> holder;
 				if (inventory) {
@@ -552,7 +566,7 @@ namespace corona
 			}
 
             template <typename T>
-			item_holder<T> get_item(game_app_interface* _game, std::string _class_name, std::string _type_name)
+			item_holder<T> get_item(adventure_app_interface* _game, std::string _class_name, std::string _type_name)
 			{
 				item_holder<T> holder;
 				if (inventory) {
@@ -569,7 +583,7 @@ namespace corona
 			}
 
 			template <typename T>
-			std::shared_ptr<T> get_item_ptr(game_app_interface* _game, chest_item& _src)
+			std::shared_ptr<T> get_item_ptr(adventure_app_interface* _game, chest_item& _src)
 			{
 				std::shared_ptr<corona_object_interface> holder;
 				if (inventory) {
@@ -583,7 +597,7 @@ namespace corona
 			}
 
 			template <typename T>
-			item_holder<T> get_item(game_app_interface* _game, chest_item& _src)
+			item_holder<T> get_item(adventure_app_interface* _game, chest_item& _src)
 			{
 				item_holder<T> holder;
 				if (inventory) {
@@ -597,7 +611,7 @@ namespace corona
 				return holder;
 			}
 
-			bool remove_item(game_app_interface* _game, corona_object* _src)
+			bool remove_item(adventure_app_interface* _game, corona_object* _src)
 			{
 				if (inventory) {
                     auto _src_ref = _src->to_reference();
@@ -609,9 +623,9 @@ namespace corona
 				}
 				return false;
 			}					
-			virtual void use(game_app_interface* _game, piece* _piece);
+			virtual void use(adventure_app_interface* _game, piece* _piece);
 
-			virtual void run(game_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _elapsed)
 			{
 				piece_base::run(_elapsed);
 			}
@@ -707,7 +721,6 @@ namespace corona
 
 		using piece_factory = corona_object_factory<piece>;
 
-        using general_factory = corona_object_factory<corona_object>;
 
 		class game_factory
 		{
@@ -716,12 +729,11 @@ namespace corona
 		public:
 			piece_factory piece_factory;
 			frame_factory frame_factory;
-			general_factory general_factory;
 
-			using object_action = std::function<void(game_app_interface* _game, piece* _direct_object, piece* _actor)>;
-			using object_interaction = std::function<void(game_app_interface* _game, piece* _a, piece* _b)>;
+			using object_action = std::function<void(adventure_app_interface* _game, piece* _direct_object, piece* _actor)>;
+			using object_interaction = std::function<void(adventure_app_interface* _game, piece* _a, piece* _b)>;
 
-			game_factory(comm_bus_app_interface* _bus) noexcept : bus(_bus), piece_factory(_bus), frame_factory(_bus), general_factory(_bus)
+			game_factory(comm_bus_app_interface* _bus) noexcept : bus(_bus), piece_factory(_bus), frame_factory(_bus)
 			{
 				;
 			}
@@ -824,7 +836,7 @@ namespace corona
 				scheduler.put_json(timer);
 			}
 
-			virtual void run(game_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _elapsed)
 			{
 				scheduler.execute(_elapsed);
 			}
@@ -857,7 +869,7 @@ namespace corona
                 target_piece = _src["target_piece"].as_object_reference();
 			}
 
-			virtual void run(game_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _elapsed)
 			{
 			}
 		};
@@ -889,7 +901,7 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(game_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _elapsed)
 			{
 
 			}
@@ -999,7 +1011,7 @@ namespace corona
 				return result;
 			}
 
-            virtual void spawn(game_app_interface* _game)
+            virtual void spawn(adventure_app_interface* _game)
 			{
 				std::string spawn_class = get_spawn_class();
 				if (spawn_class.size() > 0) {
@@ -1013,7 +1025,7 @@ namespace corona
 				}
 			}
 
-			virtual void run(game_app_interface* _game, double _elapsed_seconds)
+			virtual void run(adventure_app_interface* _game, double _elapsed_seconds)
 			{
                 spawn::run(_game, _elapsed_seconds);
                 if (scheduler.execute(_elapsed_seconds)) {
@@ -1135,7 +1147,7 @@ namespace corona
 			}
 
 			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
-			virtual void use(game_app_interface* _game, piece* _piece)
+			virtual void use(adventure_app_interface* _game, piece* _piece)
 			{
                 if (state.empty()) {
 					if (sets.size() > 0) {
@@ -1182,7 +1194,7 @@ namespace corona
 			// the player uses the piece, and then, 
 			// that changes the state.
 			// the animation system picks this up while rendering
-			virtual void use(game_app_interface* _game, piece* _piece)
+			virtual void use(adventure_app_interface* _game, piece* _piece)
 			{
 				if (state == "open") {
 					state = "closed";
@@ -1275,7 +1287,7 @@ namespace corona
 			}
 
 			// the user uses the piece, which may change its state or cause it to be consumed. The default implementation does nothing and returns a copy of the piece.
-			virtual void use(game_app_interface* _game, piece* _piece)
+			virtual void use(adventure_app_interface* _game, piece* _piece)
 			{
                 is_on = !is_on;
 			}
@@ -1687,7 +1699,7 @@ namespace corona
                 hit_lifetime = _src["hit_lifetime"].as_double();
 			}
 
-			virtual void run(game_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _elapsed)
 			{
                 piece::run(_game, _elapsed);
                 hit_lifetime -= _elapsed;
@@ -1721,41 +1733,6 @@ namespace corona
 			}
 		};
 
-		class actor_type : public piece_type
-		{
-		public:
-
-			actor_type() {
-				class_name = "actor_type";
-			}
-			actor_type(const actor_type& _src) = default;
-			actor_type(actor_type&& _src) = default;
-			actor_type& operator =(const actor_type& _src) = default;
-			actor_type& operator =(actor_type&& _src) = default;
-
-			double crawling_velocity;
-			double walking_velocity;
-			double running_velocity;
-			double throwing_velocity;
-
-			virtual void get_json(json& _dest)
-			{
-				piece_type::get_json(_dest);
-				_dest.put_member("crawling_velocity", crawling_velocity);
-				_dest.put_member("walking_velocity", walking_velocity);
-				_dest.put_member("running_velocity", running_velocity);
-				_dest.put_member("throwing_velocity", throwing_velocity);
-			}
-
-			virtual void put_json(game_factory& _gbus, json& _src)
-			{
-				piece_type::put_json(_gbus.frame_factory, _src);
-				crawling_velocity = _src["crawling_velocity"].as_double();
-				walking_velocity = _src["walking_velocity"].as_double();
-				running_velocity = _src["running_velocity"].as_double();
-				throwing_velocity = _src["throwing_velocity"].as_double();
-			}
-		};
 
 		class actor : public piece
 		{
@@ -1929,18 +1906,18 @@ namespace corona
 			}
 		};
 
-        class map : public corona_object
+        class set : public corona_object
 		{
 		public:
 
-			map() 
+			set() 
 			{
-				class_name = "map";
+				class_name = "set";
 			}
-			map(const map& _src) = default;
-			map(map&& _src) = default;
-			map& operator =(const map& _src) = default;
-			map& operator =(map&& _src) = default;
+			set(const set& _src) = default;
+			set(set&& _src) = default;
+			set& operator =(const set& _src) = default;
+			set& operator =(set&& _src) = default;
 
 			std::string name;
 			std::string description;
@@ -2057,7 +2034,7 @@ namespace corona
 				}
 			}
 
-			virtual void construct(game_app_interface& _gbus)
+			virtual void construct(adventure_app_interface& _gbus)
 			{
                 current->pieces.clear();
 
@@ -2157,7 +2134,7 @@ namespace corona
 			collision_command& operator =(const collision_command& _src) = default;
 			collision_command& operator =(collision_command&& _src) = default;
 
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 
 			}
@@ -2168,7 +2145,7 @@ namespace corona
 		{
 		public:
 
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 				collision_command::run(_game, _event);
 
@@ -2186,7 +2163,7 @@ namespace corona
 		{
 		public:
 
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 				collision_command::run(_game, _event);
 
@@ -2203,7 +2180,7 @@ namespace corona
 		{
 		public:
 
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 				collision_command::run(_game, _event);
 
@@ -2219,7 +2196,7 @@ namespace corona
 		class stop_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 				collision_command::run(_game, _event);
 
@@ -2250,7 +2227,7 @@ namespace corona
 		class use_collision_command : public collision_command
 		{
 		public:
-			virtual void run(game_app_interface* _game, collision_event& _event)
+			virtual void run(adventure_app_interface* _game, collision_event& _event)
 			{
 				collision_command::run(_game, _event);
 
@@ -2288,7 +2265,7 @@ namespace corona
 		{
 		public:
 
-			template <typename T> std::shared_ptr<T> find_match_by_requirement(game_app_interface* _game, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
+			template <typename T> std::shared_ptr<T> find_match_by_requirement(adventure_app_interface* _game, std::vector<corona::selection_commands::match>& _matches, std::shared_ptr<corona::selection_commands::requirement> _requirement)
 			{
 				auto m = get_match(_matches, _requirement);
 
@@ -2302,7 +2279,7 @@ namespace corona
 				return nullptr;
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor) = 0;
+			virtual bool run(adventure_app_interface* _game, player* _actor) = 0;
 		};
 
 		class fire_command : public player_command
@@ -2324,7 +2301,7 @@ namespace corona
 				requirements.push_back(r_firearm);
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor)
+			virtual bool run(adventure_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2383,7 +2360,7 @@ namespace corona
 				requirements.push_back(r_cast);
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor)
+			virtual bool run(adventure_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2428,7 +2405,7 @@ namespace corona
 				requirements.push_back(r_hit);
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor)
+			virtual bool run(adventure_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2476,7 +2453,7 @@ namespace corona
 				requirements.push_back(r_drop);
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor)
+			virtual bool run(adventure_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2554,7 +2531,7 @@ namespace corona
 				requirements.push_back(r_magazine);
 			}
 
-			virtual bool run(game_app_interface* _game, player* _actor)
+			virtual bool run(adventure_app_interface* _game, player* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2682,7 +2659,7 @@ namespace corona
 				}
 			}
 
-			virtual bool run(game_app_interface* _game, actor* _actor)
+			virtual bool run(adventure_app_interface* _game, actor* _actor)
 			{
 				using namespace corona::selection_commands;
 
@@ -2708,21 +2685,21 @@ namespace corona
 			}
 		};
 
-		class world : public corona_object
+		class game : public corona_object
 		{
 		public:
 			std::string name;
 			std::string description;
-			std::shared_ptr<map> map;
-			std::vector<std::shared_ptr<game_app_interface>> games;
+			std::shared_ptr<set> stage;
+			std::vector<std::shared_ptr<adventure_app_interface>> games;
 
-			world() {
-				class_name = "world";
+			game() {
+				class_name = "game";
 			}
-			world(const world& _src) = default;
-			world(world&& _src) = default;
-			world& operator =(const world& _src) = default;
-			world& operator =(world&& _src) = default;
+			game(const game& _src) = default;
+			game(game&& _src) = default;
+			game& operator =(const game& _src) = default;
+			game& operator =(game&& _src) = default;
 
 			virtual void get_json(json& _dest)
 			{
@@ -2730,36 +2707,35 @@ namespace corona
 				_dest.put_member("description", description);
 				json_parser jp;
 				json jmap = jp.create_object();
-				map->get_json(jmap);
-				_dest.put_member("map", jmap);
+				stage->get_json(jmap);
+				_dest.put_member("stage", jmap);
 			}
 
 			virtual void put_json(game_factory& _factory, json& _src)
 			{
 				name = _src["name"].as_string();
 				description = _src["description"].as_string();
-				json jmap = _src["map"];
-				map->put_json(_factory, jmap);
+				json jmap = _src["stage"];
+				stage->put_json(_factory, jmap);
 			}
 		};
 
-		class game : public job, public corona_object, public game_app_interface
+		class adventure : public job, public corona_object, public adventure_app_interface
 		{
 
 		public:
-			game(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
+			adventure(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
 			{
+				class_name = "adventure";
 				instance = corona_instance::local;
 				init();
 				put_json(_src);
 			}
 
-			game(const game& _src) = default;
-			game(game&& _src) = default;
-			game& operator =(const game& _src) = default;
-			game& operator =(game&& _src) = default;
-
-			void init();
+			adventure(const adventure& _src) = default;
+			adventure(adventure&& _src) = default;
+			adventure& operator =(const adventure& _src) = default;
+			adventure& operator =(adventure&& _src) = default;
 
 			void handle_gamepad_button_up(gamepad_button_up_event gpbd);
 			void handle_gamepad_button_down(gamepad_button_down_event gpbd);
@@ -2791,13 +2767,13 @@ namespace corona
 			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref);
 			virtual void put(std::shared_ptr<piece_base> _src);
 
-			void create_map();
+			void create_stage();
 			void create_assets(direct2dContext& _src);
 			void draw(direct2dContext& _src);
 
 			template <typename T> std::shared_ptr<T> create_piece_impl(json _src)
 			{
-				if (!game_map) return nullptr;
+				if (!stage) return nullptr;
 				auto piece = std::make_shared<T>();
                 piece->put_json(factories, _src);
 				return piece;
@@ -2805,9 +2781,11 @@ namespace corona
 
 		private:
 
+			void init();
+
 			corona_instance instance;
 
-			lockable game_locker;
+			lockable adventure_locker;
 
 			std::shared_ptr<fire_command> fire_c = std::make_shared<fire_command>();
 			std::shared_ptr<cast_command> cast_c = std::make_shared<cast_command>();
@@ -2823,12 +2801,12 @@ namespace corona
 			collision_commands collisions;
 
 			comm_bus_app_interface* bus;
-			std::string			name;
-			std::string			description;
-			timer				frame_timer;
-			lockable			map_locker;
-			std::shared_ptr<map> game_map;
-			game_state state;
+			std::string				name;
+			std::string				description;
+			timer					frame_timer;
+			lockable				set_locker;
+			std::shared_ptr<set>	stage;
+			game_state				state;
 
 			void check_all_ready();
 			void check_all_dead();
@@ -2842,14 +2820,14 @@ namespace corona
 
 			// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 			// and only finds their state
-			collision_event model_piece(std::shared_ptr<map> _map, piece_collection_iterator _current, double _elapsed_secs) const;
+			collision_event model_piece(std::shared_ptr<set> _map, piece_collection_iterator _current, double _elapsed_secs) const;
 			collision_event find_closest_collision(double delta) const;
 
-			void run_active(double delta);
-			void run_complete(double delta);
-			void run_lobby(double delta);
-			void run_paused(double delta);
-			void run_exit(double delta);
+			virtual void run_active(double delta);
+			virtual void run_complete(double delta);
+			virtual void run_lobby(double delta);
+			virtual void run_paused(double delta);
+			virtual void run_exit(double delta);
 
 			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
 			virtual bool queued(job_queue* _queue);
@@ -2861,7 +2839,7 @@ namespace corona
 		{
 			comm_bus_app_interface *bus;
 			corona_instance instance = corona_instance::local;
-			std::vector<std::shared_ptr<game_interface>> games;
+			std::vector<std::shared_ptr<adventure_app_interface>> adventures;
 
 		public:
 
@@ -2879,7 +2857,7 @@ namespace corona
 
 			}
 
-			std::shared_ptr<game_interface> new_game(json _world_key)
+			std::shared_ptr<adventure_interface> new_adventure(json _world_key)
 			{
 				json_parser jp;
 
@@ -2896,7 +2874,7 @@ namespace corona
 				copy_to.put_member_string("class_name", "game");
 
 				json copy_transform = jp.create_object();
-				copy_transform.put_member_string("class_name", "game");
+				copy_transform.put_member_string("class_name", "adventure");
 
 				copy_plan.put_member("from", copy_from);
 				copy_plan.put_member("to", copy_to);
@@ -2905,28 +2883,28 @@ namespace corona
 				auto ccr = bus->copy_object(instance, copy_plan);
 				if (ccr.success) {
 					json new_session = ccr.data;
-					std::shared_ptr<game> session = std::make_shared<game>(bus, new_session);
-					session->create_map();
-					games.push_back(session);
+					std::shared_ptr<adventure> session = std::make_shared<adventure>(bus, new_session);
+					session->create_stage();
+					adventures.push_back(session);
 					return session;
 				}
 
 				return nullptr;
 			}
 
-			std::shared_ptr<game_interface> load_game(json _game_key)
+			std::shared_ptr<adventure_interface> load_adventure(json _game_key)
 			{
 				json_parser jp;
 				auto result = bus->get_object(instance, _game_key);
 				if (result.success) {
-					std::shared_ptr<game> session = std::make_shared<game>(bus, result.data);
-					games.push_back(session);
+					std::shared_ptr<adventure> session = std::make_shared<adventure>(bus, result.data);
+					adventures.push_back(session);
 					return session;
 				}
 				return nullptr;
 			}
 
-			void save_game(std::shared_ptr<game_interface> _game)
+			void save_adventure(std::shared_ptr<adventure_interface> _game)
 			{
 				json_parser jp;
 				json jsession = jp.create_object();
@@ -2934,10 +2912,10 @@ namespace corona
 				bus->put_object(instance, jsession);
 			}
 
-			void close_game(std::shared_ptr<game_interface> _game)
+			void close_adventure(std::shared_ptr<adventure_interface> _game)
 			{
 				_game->set_exit();
-				std::remove(games.begin(), games.end(), _game);
+				std::remove(adventures.begin(), adventures.end(), _game);
 			}
 		};
 
@@ -2953,7 +2931,7 @@ namespace corona
 		/// </summary>
 		/// <param name="_game"></param>
 		/// <param name="_user"></param>
-		void piece::use(game_app_interface* _game, piece* _user)
+		void piece::use(adventure_app_interface* _game, piece* _user)
 		{
 
 		}
@@ -3020,15 +2998,15 @@ namespace corona
 			}
 		}
 
-		void game::create_map()
+		void adventure::create_stage()
 		{
-			if (game_map) 
+			if (stage) 
 			{
-				game_map->construct(*this);
+				stage->construct(*this);
 			}
 		}
 
-		std::shared_ptr<corona_object_interface> game::get_piece(object_reference& _reference, bool include_children)
+		std::shared_ptr<corona_object_interface> adventure::get_piece(object_reference& _reference, bool include_children)
 		{
 			std::shared_ptr<corona_object_interface> result;
 			json_parser jp;
@@ -3040,7 +3018,7 @@ namespace corona
 			return result;
 		}
 
-		std::shared_ptr<piece_base> game::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
+		std::shared_ptr<piece_base> adventure::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
 		{
 			std::shared_ptr<piece>  response;
 
@@ -3079,7 +3057,7 @@ namespace corona
 			return response;
 		}
 
-		std::shared_ptr<piece_base> game::create_piece_of_type(std::string _piece_type_name )
+		std::shared_ptr<piece_base> adventure::create_piece_of_type(std::string _piece_type_name )
 		{		
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -3090,17 +3068,27 @@ namespace corona
 			auto response = bus->query_objects(instance, filter);
 
 			if (response.success) {
-                auto found_pieces = factories.general_factory.create_array(response.data);
-                if (found_pieces.size() > 0) {
-					auto found_piece_type = std::dynamic_pointer_cast<piece_type>(found_pieces[0]);
+				auto found_pieces = response.data;
+				json piece_data;
+
+				if (found_pieces.array() && found_pieces.size() > 0)
+				{
+					piece_data = found_pieces.get_element(0);
+				}
+				else if (found_pieces.object())
+				{
+					piece_data = found_pieces;
+				}
+
+				if (piece_data.object())
+				{
+					auto found_piece_type = std::make_shared<piece_type>();
+                    found_piece_type->put_json(factories.frame_factory, piece_data);
+
 					std::string instance_class_name = found_piece_type->piece_class_name;
 					new_piece = factories.piece_factory.create_object(instance_class_name);
 					if (new_piece) {
-						new_piece->name = found_piece_type->name;
-						new_piece->animations = found_piece_type->animations;
-						new_piece->full_health = found_piece_type->full_health;
-						new_piece->health = found_piece_type->full_health;
-						new_piece->state = found_piece_type->state;
+						new_piece->apply_json(found_piece_type->defaults);
 					}
 				}
 			}
@@ -3108,7 +3096,7 @@ namespace corona
 			return new_piece;
 		}
 
-		std::shared_ptr<piece_base> game::create_piece_of_class(std::string _class_name)
+		std::shared_ptr<piece_base> adventure::create_piece_of_class(std::string _class_name)
 		{
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -3117,7 +3105,7 @@ namespace corona
 			return new_piece;
 		}
 
-		double game::fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level)
+		double adventure::fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level)
 		{
 			double quantity_filled = 0;
 
@@ -3173,7 +3161,7 @@ namespace corona
 			return quantity_filled;
 		}
 
-		double game::transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -3217,7 +3205,7 @@ namespace corona
 			return quantity_transferred;
 		}
 
-		double game::copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double adventure::copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -3250,23 +3238,22 @@ namespace corona
 			return quantity_transferred;
 		}
 
-		double game::transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
+		double adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return transfer_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
 				}, _quantity);
 		}
 
-		double game::copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
+		double adventure::copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return copy_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
 				}, _quantity);
 		}
 
-		void game::init()
+		void adventure::init()
 		{
-
 			factories.init(instance);
 
 			factories.frame_factory.register_class("frame", [this](json& _src, comm_bus_app_interface* _bus) -> std::shared_ptr<frame> {
@@ -3398,9 +3385,9 @@ namespace corona
 			collisions.register_command("player", "wall", std::make_shared<stop_collision_command>());
 		}
 
-		void game::handle_gamepad_button_up(gamepad_button_up_event gpbd)
+		void adventure::handle_gamepad_button_up(gamepad_button_up_event gpbd)
 		{
-            scope_lock locker(game_locker);
+            scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gpbd.state);
 
@@ -3433,9 +3420,9 @@ namespace corona
 			}
 		}
 
-		void game::handle_gamepad_button_down(gamepad_button_down_event gpbd)
+		void adventure::handle_gamepad_button_down(gamepad_button_down_event gpbd)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gpbd.state);
 
@@ -3478,16 +3465,16 @@ namespace corona
 			}
 		}
 
-		void game::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
+		void adventure::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gptu.state);
 		}
 
-		void game::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
+		void adventure::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gptd.state);
 
@@ -3521,19 +3508,19 @@ namespace corona
 			}
 		}
 
-		void game::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
+		void adventure::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gpbd.state);
 		}
 
-		std::shared_ptr<player> game::attach_player(std::string input_name)
+		std::shared_ptr<player> adventure::attach_player(std::string input_name)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(adventure_locker);
 
 			// Search for existing player with this input device
-			for (auto pl : game_map->players()) {
+			for (auto pl : stage->players()) {
 				if (pl->input_device == input_name) {
 					return pl;
 				}
@@ -3543,20 +3530,20 @@ namespace corona
 			auto plt = std::dynamic_pointer_cast<player>(npl);
 			plt->input_device = input_name;
 			plt->ready = false;
-			game_map->current->pieces.insert_or_assign(plt->to_reference(), plt);
+			stage->current->pieces.insert_or_assign(plt->to_reference(), plt);
 			return plt;
 		}
 
-		std::shared_ptr<player> game::attach_player(XINPUT_STATE& _input_state)
+		std::shared_ptr<player> adventure::attach_player(XINPUT_STATE& _input_state)
 		{
-			scope_lock locker(game_locker);
+			scope_lock locker(set_locker);
 
 			return attach_player(std::to_string(_input_state.dwPacketNumber));
 		}
 
 		// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 		// and only finds their state
-		collision_event game::model_piece(std::shared_ptr<map> _map, piece_collection_iterator _current, double _elapsed_secs) const
+		collision_event adventure::model_piece(std::shared_ptr<set> _map, piece_collection_iterator _current, double _elapsed_secs) const
 		{
 			using namespace DirectX;
 
@@ -3618,17 +3605,17 @@ namespace corona
 			return event;
 		}
 
-		void game::run_lobby(double delta)
+		void adventure::run_lobby(double delta)
 		{
 			;
 		}
 
-		collision_event game::find_closest_collision(double delta) const
+		collision_event adventure::find_closest_collision(double delta) const
 		{
 			collision_event closest_collision;
-			for (auto ipiece = game_map->current->begin(); ipiece != game_map->current->end(); ipiece++) {
+			for (auto ipiece = stage->current->begin(); ipiece != stage->current->end(); ipiece++) {
 				auto pc = ipiece->second;
-				collision_event collision = model_piece(game_map, ipiece, delta);
+				collision_event collision = model_piece(stage, ipiece, delta);
 				if (collision.piece_1) {
 					if (closest_collision.piece_1) {
 						if (collision.collision.time_of_collision < closest_collision.collision.time_of_collision) {
@@ -3643,7 +3630,7 @@ namespace corona
 			return closest_collision;
 		}
 
-		void game::run_active(double delta)
+		void adventure::run_active(double delta)
 		{
 			// we have to resolve collision effects first, because, 
 			// that gives us new accelerations.
@@ -3680,34 +3667,34 @@ namespace corona
 			}
 		}
 
-		void game::run_complete(double delta)
+		void adventure::run_complete(double delta)
 		{
 			;
 		}
 
-		void game::run_paused(double delta)
+		void adventure::run_paused(double delta)
 		{
 			;
 		}
 
-		void game::run_exit(double delta)
+		void adventure::run_exit(double delta)
 		{
 			;
 		}
 
-		bool game::queued(job_queue* _callingQueue)
+		bool adventure::queued(job_queue* _callingQueue)
 		{
 			return true;
 		}
 
-		job_notify game::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		job_notify adventure::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
+			scope_lock locker(adventure_locker);
+
 			job_notify notify;
 			json_parser jp;
 
 			notify.shouldDelete = false;
-
-			scope_lock locker(game_locker);
 
 			double current_elapsed_seconds = frame_timer.get_elapsed_seconds();
 			double delta = current_elapsed_seconds - last_elapsed_seconds;
@@ -3735,33 +3722,32 @@ namespace corona
 			return notify;
 		}
 
-
-		void game::set_lobby()
+		void adventure::set_lobby()
 		{
 			state = game_state::lobby;
 		}
 
-		void game::set_active()
+		void adventure::set_active()
 		{
 			state = game_state::active;
 		}
 
-		void game::set_paused()
+		void adventure::set_paused()
 		{
 			state = game_state::paused;
 		}
 
-		void game::set_complete()
+		void adventure::set_complete()
 		{
 			state = game_state::complete;
 		}
 
-		void game::set_exit()
+		void adventure::set_exit()
 		{
 			state = game_state::exit;
 		}
 
-		void game::start_play(std::string input_name)
+		void adventure::start_play(std::string input_name)
 		{
 			auto player = attach_player(input_name);
 
@@ -3783,10 +3769,10 @@ namespace corona
 			}
 		}
 
-		void game::check_all_ready()
+		void adventure::check_all_ready()
 		{
 			if (state == game_state::lobby) {
-				auto players_view = game_map->players();
+				auto players_view = stage->players();
 				bool all_ready = std::ranges::all_of(players_view, [](const auto& player) {
 					return player->ready;
 					});
@@ -3796,9 +3782,9 @@ namespace corona
 			}
 		}
 
-		void game::check_all_dead()
+		void adventure::check_all_dead()
 		{
-			auto players_view = game_map->players();
+			auto players_view = stage->players();
 			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
 				return player->dead;
 				});
@@ -3807,14 +3793,14 @@ namespace corona
 			}
 		}
 
-		void game::get_json(json& _dest)
+		void adventure::get_json(json& _dest)
 		{
 			json_parser jp;
 			_dest.put_member("name", name);
 			_dest.put_member("description", description);
 			json j = jp.create_array();
 			json jmap = jp.create_object();
-			game_map->get_json(jmap);
+			stage->get_json(jmap);
 			j.push_back(jmap);
 			_dest.put_member("map", j);
 
@@ -3837,16 +3823,16 @@ namespace corona
 			}
 		}
 
-		void game::put_json(json& _src)
+		void adventure::put_json(json& _src)
 		{
 			name = _src["name"].as_string();
 			description = _src["description"].as_string();
 			json j = _src["map"];
-			game_map = std::make_shared<map>();
+			stage = std::make_shared<stage>();
 			std::string state_string = _src["state"].as_string();
 		}
 
-		job* game::get_next_job()
+		job* adventure::get_next_job()
 		{
 			if (state != game_state::exit)
 			{
@@ -3858,42 +3844,42 @@ namespace corona
 			}
 		}
 
-		void game::create_assets(direct2dContext& _src)
+		void adventure::create_assets(direct2dContext& _src)
 		{
-			for (auto &p : game_map->current->pieces) {
+			for (auto &p : stage->current->pieces) {
 				p.second->create_assets(_src);
 			}
 		}
 
-		void game::draw(direct2dContext& _src)
+		void adventure::draw(direct2dContext& _src)
 		{
 
 		}
 
-		std::shared_ptr<piece_base> game::find(object_reference _piece_ref)
+		std::shared_ptr<piece_base> adventure::find(object_reference _piece_ref)
 		{
-			auto pi = game_map->current->pieces.find(_piece_ref);
-			if (pi != std::end(game_map->current->pieces)) {
+			auto pi = stage->current->pieces.find(_piece_ref);
+			if (pi != std::end(stage->current->pieces)) {
 				return std::dynamic_pointer_cast<piece_base>( pi->second);
 			}
 			return nullptr;
 		}
 
-		std::shared_ptr<piece_base> game::erase(object_reference _piece_ref)
+		std::shared_ptr<piece_base> adventure::erase(object_reference _piece_ref)
 		{
-			auto pi = game_map->current->pieces.find(_piece_ref);
-			if (pi != std::end(game_map->current->pieces)) {
+			auto pi = stage->current->pieces.find(_piece_ref);
+			if (pi != std::end(stage->current->pieces)) {
 				auto rx = pi->second;
-				game_map->current->pieces.erase(pi);
+				stage->current->pieces.erase(pi);
 				return std::dynamic_pointer_cast<piece_base>(rx);
 			}
 			return nullptr;
 		}
 
-		void game::put(std::shared_ptr<piece_base> _src)
+		void adventure::put(std::shared_ptr<piece_base> _src)
 		{
 			auto dc = std::dynamic_pointer_cast<piece>(_src);
-			game_map->current->pieces.insert_or_assign(dc->to_reference(), dc);
+			stage->current->pieces.insert_or_assign(dc->to_reference(), dc);
 		}
 	}
 }

@@ -76,9 +76,9 @@ namespace corona
 			draw_control::put_json(_src);
 		}
 
-        std::shared_ptr<corona::game::game_interface> get_session()
+        std::shared_ptr<corona::game::adventure_interface> get_session()
 		{ 
-			return std::dynamic_pointer_cast<corona::game::game_interface>(current_session); 
+			return std::dynamic_pointer_cast<corona::game::adventure_interface>(current_session); 
 		}
 
 		std::shared_ptr<corona::game::game_app_interface> set_session(std::shared_ptr<corona::game::game_app_interface>& _session)

@@ -133,6 +133,7 @@
         "full_health": "double",
         "state": "string",
         "pieces": [ "piece" ],
+        "defaults": "object",
         "inventory": {
           "field_type": "chest",
           "item_class": "piece_type"
@@ -177,18 +178,6 @@
       }
     },
     {
-      "class_name": "actor_type",
-      "base_class_name": "piece_type",
-      "class_description": "a gaming player",
-      "fields": {
-        "stopped_velocity": "double",
-        "crawling_velocity": "double",
-        "walking_velocity": "double",
-        "running_velocity": "double",
-        "throwing_velocity": "double"
-      }
-    },
-    {
       "class_name": "actor",
       "base_class_name": "piece",
       "class_description": "a gaming player",
@@ -218,18 +207,11 @@
       }
     },
     {
-      "class_name": "feature_type",
-      "base_class_name": "piece_type",
-      "class_description": "a static feature on a map",
-      "fields": {
-        "scheduler": "scheduler"
-      }
-    },
-    {
       "class_name": "feature",
       "base_class_name": "piece",
       "class_description": "a static feature on a map",
       "fields": {
+        "scheduler": "scheduler"
       }
     },
     {
@@ -307,20 +289,13 @@
       }
     },
     {
-      "class_name": "surface_type",
-      "base_class_name": "feature_type",
+      "class_name": "surface",
+      "base_class_name": "feature",
       "class_description": "a gaming surface",
       "fields": {
         "mechanic": "string",
         "acceleration_multiplier": "double",
         "friction_multiplier": "double"
-      }
-    },
-    {
-      "class_name": "surface",
-      "base_class_name": "feature",
-      "class_description": "a gaming surface",
-      "fields": {
       }
     },
     {
@@ -367,22 +342,12 @@
       }
     },
     {
-      "class_name": "effect_type",
-      "base_class_name": "piece_type",
-      "class_description": "a gaming item",
-      "fields": {
-        "effect_type": "string",
-        "frequency_seconds": "double",
-        "remaining_seconds": "double",
-        "remaining_count": "double"
-      }
-    },
-    {
       "class_name": "effect",
       "base_class_name": "piece",
       "class_description": "a gaming item",
       "fields": {
         "effect_type": "string",
+        "frequency_seconds": "double",
         "remaining_seconds": "double",
         "remaining_count": "double"
       }
@@ -414,14 +379,6 @@
       }
     },
     {
-      "class_name": "firearm_type",
-      "base_class_name": "piece_type",
-      "class_description": "weapon for the shot",
-      "fields": {
-        "magazine_type": "string"
-      }
-    },
-    {
       "class_name": "firearm",
       "base_class_name": "tool",
       "class_description": "weapon for the shot",
@@ -431,22 +388,6 @@
         "inventory": {
           "field_type": "chest",
           "item_class": "magazine"
-        }
-      }
-    },
-    {
-      "class_name": "magazine_type",
-      "base_class_name": "piece_type",
-      "class_description": "a magazine for the firearm",
-      "parents": [ "firearm_type" ],
-      "fields": {
-        "magazine_type": "string",
-        "capacity": "double",
-        "ammunition_type": "string"
-      },
-      "indexes": {
-        "magazine_type_index": {
-          "index_keys": [ "magazine_type" ]
         }
       }
     },
@@ -463,26 +404,10 @@
           "field_type": "chest",
           "item_class": "ammunition"
         }
-      }
-    },
-    {
-      "class_name": "ammunition_type",
-      "base_class_name": "piece_type",
-      "class_description": "ammo for the firearm",
-      "fields": {
-        "ammunition_type": "string",
-        "shot_type": "string",
-        "shot_muzzle_velocity": "double",
-        "shot_mass": "double",
-        "shot_impulse": "double",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "shot_type"
-        }
       },
       "indexes": {
-        "ammunition_type_index": {
-          "index_keys": [ "ammunition_type" ]
+        "magazine_type_index": {
+          "index_keys": [ "magazine_type" ]
         }
       }
     },
@@ -503,23 +428,6 @@
       }
     },
     {
-      "class_name": "shot_type",
-      "base_class_name": "piece_type",
-      "class_description": "an effect of a weapon",
-      "fields": {
-        "shot_type": "string",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "effect"
-        }
-      },
-      "indexes": {
-        "shot_type_index": {
-          "index_keys": [ "shot_type" ]
-        }
-      }
-    },
-    {
       "class_name": "shot",
       "base_class_name": "piece",
       "class_description": "an effect of a weapon",
@@ -533,18 +441,6 @@
       }
     },
     {
-      "class_name": "wand_type",
-      "base_class_name": "piece_type",
-      "class_description": "a magic thing that launches spells",
-      "fields": {
-        "spell_type": "string",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "spell"
-        }
-      }
-    },
-    {
       "class_name": "wand",
       "base_class_name": "tool",
       "class_description": "a magic thing that launches spells",
@@ -554,20 +450,6 @@
         "inventory": {
           "field_type": "chest",
           "item_class": "spell"
-        }
-      }
-    },
-    {
-      "class_name": "spell_type",
-      "base_class_name": "piece_type",
-      "class_description": "a travelling spell with effects",
-      "fields": {
-        "spell_type": "string",
-        "effect_type": "string",
-        "spell_velocity": "double",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "effect"
         }
       }
     },
@@ -586,37 +468,11 @@
       }
     },
     {
-      "class_name": "stick_type",
-      "base_class_name": "piece_type",
-      "class_description": "general stick",
-      "fields": {
-        "stick_type": "string",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "hit_type"
-        }
-      }
-    },
-    {
       "class_name": "stick",
       "base_class_name": "tool",
       "class_description": "general stick",
       "fields": {
         "stick_type": "string",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "hit"
-        }
-      }
-    },
-    {
-      "class_name": "hit_type",
-      "base_class_name": "piece_type",
-      "class_description": "a hit piece formed",
-      "fields": {
-        "hit_type": "string",
-        "effect_type": "string",
-        "hit_lifetime": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "hit"
@@ -662,10 +518,10 @@
       }
     },
     {
-      "class_name": "map",
+      "class_name": "set",
       "base_class_name": "sys_object",
       "class_description": "a gaming map",
-      "parents": [ "world" ],
+      "parents": [ "theater" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -676,10 +532,10 @@
       }
     },
     {
-      "class_name": "game",
+      "class_name": "adventure",
       "base_class_name": "sys_object",
-      "class_description": "a gaming session",
-      "parents": [ "world" ],
+      "class_description": "playing a game is having an adventure",
+      "parents": [ "game" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -690,7 +546,7 @@
           "field_type": "string",
           "label": "Description"
         },
-        "map": "map",
+        "stage": "set",
         "state": {
           "field_type": "string",
           "label": "State",
@@ -700,9 +556,9 @@
       }
     },
     {
-      "class_name": "world",
+      "class_name": "game",
       "base_class_name": "activity",
-      "class_description": "A world in the system",
+      "class_description": "A world with rules one may adventure in",
       "full_text": [ "name", "description", "image" ],
       "fields": {
         "name": {
@@ -714,8 +570,8 @@
           "field_type": "string",
           "label": "Description"
         },
-        "map": "map",
-        "games": [ "game" ]
+        "stage": "set",
+        "adventures": [ "adventure" ]
       },
       "indexes": {
         "game_name_index": {
@@ -798,8 +654,124 @@
     },
     "objects": [
       {
-
-
+        "class_name": "piece_type",
+        "name": "wall-stone",
+        "description": "string",
+        "piece_class_name": "wall",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "frame",
+                "state": "default",
+                "duration": "5"
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "wall-stone",
+        "description": "string",
+        "piece_class_name": "wall",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "frame",
+                "state": "default",
+                "duration": "5"
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "floor-stone",
+        "description": "string",
+        "piece_class_name": "surface",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "frame",
+                "state": "default",
+                "duration": "5"
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "door-wood",
+        "description": "string",
+        "piece_class_name": "door",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "frame",
+                "state": "default",
+                "duration": "5"
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "door-wood",
+        "description": "string",
+        "piece_class_name": "door",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "frame",
+                "state": "default",
+                "duration": "5"
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
       },
       {
         "class_name": "world",
@@ -807,19 +779,50 @@
           "class_name": "map",
           "name": "",
           "description": "",
-          "tile_size": "32,32,0",
+          "tile_size": "100,100,0",
           "tile_strings": [
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
+            "W  W  W  W  W  W  W  W  W  W",
+            "W  F  F  F  F  F  F  F  L  W",
+            "W  *  F  W  W  W  W  W  F  W",
+            "W  F  F  F  F  F  F  W  F  W",
+            "W  F  F  F  F  L  1  W  F  W",
+            "W  F  W  W  W  W  W  W  F  W",
+            "W  F  W  L  F  D  P  F  F  W",
+            "W  F  W  W  W  W  W  F  W  W",
+            "W  F  F  W  F  F  W  F  F  W",
+            "W  1  F  W  F  F  1  F  F  W",
+            "W  L  F  W  F  F  W  L  F  W",
+            "W  W  W  W  W  W  W  W  W  W"
+          ],
+          "tile_codes": [
+            {
+              "piece_code": "W",
+              "piece_type": "wall-stone"
+            },
+            {
+              "piece_code": "F",
+              "piece_type": "floor-stone"
+            },
+            {
+              "piece_code": "D",
+              "piece_type": "door-wood"
+            },
+            {
+              "piece_code": "P",
+              "piece_type": "plate-door"
+            },
+            {
+              "piece_code": "*",
+              "piece_type": "spawn-player"
+            },
+            {
+              "piece_code": "1",
+              "piece_type": "spawn-monster"
+            },
+            {
+              "piece_code": "L",
+              "piece_type": "loot_spot"
+            }
           ]
         }
       },

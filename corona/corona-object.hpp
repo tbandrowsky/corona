@@ -42,6 +42,15 @@ namespace corona
            updated = _src["updated"].as_date_time();
        }
 
+       virtual void apply_json(json& _src)
+       {
+           json_parser jp;
+           json body = jp.create_object();
+           get_json(body);
+           body.merge(_src);
+           put_json(body);
+       }
+
        virtual std::string get_item_type() const
        {
            return class_name;

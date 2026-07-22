@@ -10091,7 +10091,6 @@ private:
 												}
 												else {
 													system_monitoring_interface::active_mon->log_warning(result[message_field].as_string(), __FILE__, __LINE__);
-
 												}
 											}
 											else {
@@ -10112,7 +10111,8 @@ private:
 											}
 										}
 									}
-									else {
+									else 
+									{
 										std::string msg = std::format("file {0} doesn't exist", filename);
 										system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 									}
