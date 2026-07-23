@@ -30,51 +30,6 @@
               "alter": "any"
             }
           ]
-        },
-        {
-          "class_name": "sys_team",
-          "team_name": "admin_team",
-          "team_description": "server admin team",
-          "team_domain": "countryvideogames.com",
-          "inventory_classes": [],
-          "allowed_teams": [],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "game_piece" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            },
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "map" ],
-              "get": "own",
-              "put": "own",
-              "delete": "own",
-              "alter": "none"
-            }
-
-          ]
-        },
-        {
-          "class_name": "sys_team",
-          "team_name": "player_team",
-          "team_description": "player team",
-          "team_domain": "*.com",
-          "inventory_classes": [],
-          "allowed_teams": [],
-          "permissions": [
-            {
-              "class_name": "sys_grant",
-              "grant_classes": [ "game" ],
-              "get": "any",
-              "put": "none",
-              "delete": "none",
-              "alter": "none"
-            }
-          ]
         }
       ]
     }
@@ -714,51 +669,53 @@
         "class_name": "piece_type",
         "name": "player",
         "description": "string",
-        "piece_class_name": "player",
-        "animations": [
-          {
-            "class_name": "animation",
-            "state": "default",
-            "duration": "5",
-            "frames": [
-              {
-                "class_name": "vector_frame",
-                "state": "default",
-                "duration": "5",
-                "path": {
-                  "points": [
-                    {
-                      "class_name": "line",
-                      "point": "0,0,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "100,0,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "100,100,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "0,100,0"
-                    }
-                  ]
-                },
-                "fill": {
-                  "class_name": "solid_brush",
-                  "color": "#D0D0B0"
-                },
-                "stroke": {
-                  "class_name": "solid_brush",
-                  "color": "#2020202"
-                },
-                "stroke_width":4
-              }
-            ],
-            "carry_point": "vector"
-          }
-        ],
+        "fields": {
+          "piece_class_name": "player",
+          "animations": [
+            {
+              "class_name": "animation",
+              "state": "default",
+              "duration": "5",
+              "frames": [
+                {
+                  "class_name": "vector_frame",
+                  "state": "default",
+                  "duration": "5",
+                  "path": {
+                    "points": [
+                      {
+                        "class_name": "line",
+                        "point": "0,0,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "100,0,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "100,100,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "0,100,0"
+                      }
+                    ]
+                  },
+                  "fill": {
+                    "class_name": "solid_brush",
+                    "color": "#D0D0B0"
+                  },
+                  "stroke": {
+                    "class_name": "solid_brush",
+                    "color": "#2020202"
+                  },
+                  "stroke_width": 4
+                }
+              ],
+              "carry_point": "vector"
+            }
+          ]
+        },
         "mass": "500",
         "health": "100",
         "full_health": "100"
@@ -766,6 +723,61 @@
       {
         "class_name": "piece_type",
         "name": "green-monster",
+        "description": "string",
+        "piece_class_name": "npc",
+        "fields": {
+          "animations": [
+            {
+              "class_name": "animation",
+              "state": "default",
+              "duration": "5",
+              "frames": [
+                {
+                  "class_name": "vector_frame",
+                  "state": "default",
+                  "duration": "5",
+                  "path": {
+                    "points": [
+                      {
+                        "class_name": "line",
+                        "point": "0,0,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "100,0,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "100,100,0"
+                      },
+                      {
+                        "class_name": "line",
+                        "point": "0,100,0"
+                      }
+                    ]
+                  },
+                  "fill": {
+                    "class_name": "solid_brush",
+                    "color": "#20D020"
+                  },
+                  "stroke": {
+                    "class_name": "solid_brush",
+                    "color": "#10C010"
+                  },
+                  "stroke_width": 4
+                }
+              ],
+              "carry_point": "vector"
+            }
+          ],
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "red-monster",
         "description": "string",
         "piece_class_name": "npc",
         "animations": [
@@ -800,11 +812,11 @@
                 },
                 "fill": {
                   "class_name": "solid_brush",
-                  "color": "#D0D0B0"
+                  "color": "#D02020"
                 },
                 "stroke": {
                   "class_name": "solid_brush",
-                  "color": "#2020202"
+                  "color": "#A02020"
                 },
                 "stroke_width": 4
               }
@@ -818,7 +830,7 @@
       },
       {
         "class_name": "piece_type",
-        "name": "wall-stone",
+        "name": "gun-small",
         "description": "string",
         "piece_class_name": "wall",
         "animations": [
@@ -853,11 +865,67 @@
                 },
                 "fill": {
                   "class_name": "solid_brush",
-                  "color": "#D0D0B0"
+                  "color": "#D0D0D0"
                 },
                 "stroke": {
                   "class_name": "solid_brush",
-                  "color": "#2020202"
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100",
+        "defaults": {
+          "magazine_type": "mag-small"
+        }
+      },
+      {
+        "class_name": "piece_type",
+        "name": "mag-small",
+        "description": "string",
+        "piece_class_name": "wall",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
                 },
                 "stroke_width": 4
               }
@@ -1018,7 +1086,7 @@
                   "class_name": "solid_brush",
                   "color": "#2020202"
                 },
-                "stroke_width":4
+                "stroke_width": 4
               }
             ],
             "carry_point": "vector"

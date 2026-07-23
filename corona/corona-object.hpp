@@ -200,11 +200,12 @@ namespace corona
         {
             corona_object::put_json(_src);
             json_parser jp;
-            _dest.put_member("grant_classes", jclasses);
-            _dest.put_member_string("get", grant_type_to_string(get_grant));
-            _dest.put_member_string("put", grant_type_to_string(put_grant));
-            _dest.put_member_string("delete", grant_type_to_string(delete_grant));
-            _dest.put_member_string("alter", grant_type_to_string(alter_grant));
+            json jclasses = _src["grant_classes"];
+            grant_classes = jclasses.to_string_array();
+            get_grant = string_to_grant_type(_src["get"].as_string());
+            put_grant = string_to_grant_type(_src["put"].as_string());
+            delete_grant = string_to_grant_type(_src["delete"].as_string());
+            alter_grant = string_to_grant_type(_src["alter"].as_string());
         }
 
     private:
