@@ -154,6 +154,85 @@ namespace corona
        }
     };
 
+    enum class corona_grant_type
+    {
+        none,
+        any,
+        own,
+        team,
+        teamorown
+    };
+
+    class corona_permission : public corona_object
+    {
+    public:
+        corona_permission() : get_grant(corona_grant_type::none), put_grant(corona_grant_type::none), delete_grant(corona_grant_type::none), alter_grant(corona_grant_type::none)
+        {
+
+        }
+        corona_permission(const corona_permission& _src) = default;
+        corona_permission(corona_permission&& _src) = default;
+        corona_permission& operator=(const corona_permission& _src) = default;
+        corona_permission& operator=(corona_permission&& _src) = default;
+
+        std::vector<std::string> grant_classes;
+        corona_grant_type get_grant;
+        corona_grant_type put_grant;
+        corona_grant_type delete_grant;
+        corona_grant_type alter_grant;
+
+        virtual void get_json(json& _dest) const override
+        {
+            corona_object::get_json(_dest);
+            json_parser jp;
+            json jclasses = jp.create_array();
+            for (const auto& e : grant_classes) {
+                jclasses.push_back(e);
+            }
+            _dest.put_member("grant_classes", jclasses);
+            _dest.put_member_string("get", grant_type_to_string(get_grant));
+            _dest.put_member_string("put", grant_type_to_string(put_grant));
+            _dest.put_member_string("delete", grant_type_to_string(delete_grant));
+            _dest.put_member_string("alter", grant_type_to_string(alter_grant));
+        }
+
+        virtual void put_json(json& _src) override
+        {
+            corona_object::put_json(_src);
+            json_parser jp;
+            _dest.put_member("grant_classes", jclasses);
+            _dest.put_member_string("get", grant_type_to_string(get_grant));
+            _dest.put_member_string("put", grant_type_to_string(put_grant));
+            _dest.put_member_string("delete", grant_type_to_string(delete_grant));
+            _dest.put_member_string("alter", grant_type_to_string(alter_grant));
+        }
+
+    private:
+
+        corona_grant_type string_to_grant_type( std::string _type) const
+        {
+            std::transform(_type.begin(), _type.end(), _type.begin(), [](unsigned char c) { return std::tolower(c); });
+            if (_type == "none") return corona_grant_type::none;
+            if (_type == "any") return corona_grant_type::any;
+            if (_type == "own") return corona_grant_type::own;
+            if (_type == "team") return corona_grant_type::team;
+            if (_type == "teamorown") return corona_grant_type::teamorown;
+            return corona_grant_type::none;
+        }
+
+        std::string grant_type_to_string(corona_grant_type _type) const
+        {
+            switch (_type) {
+            case corona_grant_type::none: return "none";
+            case corona_grant_type::any: return "any";
+            case corona_grant_type::own: return "own";
+            case corona_grant_type::team: return "team";
+            case corona_grant_type::teamorown: return "teamorown";
+            default: return "none";
+            }
+        }
+    };
+
     template <typename T> class function_scheduler : public corona_object
     {
     public:

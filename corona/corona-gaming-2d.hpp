@@ -312,9 +312,9 @@ namespace corona
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
 				pathImmediateDto pid;
+                pid.path = path;
                 pid.position.x = DirectX::XMVectorGetX(_location) + draw_rectangle.x;
                 pid.position.y = DirectX::XMVectorGetY(_location) + draw_rectangle.y;
-                pid.path = path;
                 pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
 				pid.rotation = 0;
@@ -2769,7 +2769,7 @@ namespace corona
 
 			void create_stage();
 			void create_assets(direct2dContext& _src);
-			void draw(direct2dContext& _src);
+			void draw(direct2dContext& _src, double _elapsed);
 
 			template <typename T> std::shared_ptr<T> create_piece_impl(json _src)
 			{
@@ -3649,7 +3649,7 @@ namespace corona
 				if (closest_collision.piece_1) {
 					// move pieces to the point of collision
 
-					for (auto px = game_map->current->begin(); px != game_map->current->end(); px++) {
+					for (auto px = stage->current->begin(); px != stage->current->end(); px++) {
 						px->second->run(this, closest_collision.collision.time_of_collision);
 					}
 					// resolve collision effects here and update accelerations accordingly
@@ -3659,7 +3659,7 @@ namespace corona
 				else
 				{
 					// no more collisions, we can move all pieces for the remaining time
-					for (auto px = game_map->current->begin(); px != game_map->current->end(); px++) {
+					for (auto px = stage->current->begin(); px != stage->current->end(); px++) {
 						px->second->run(this, remaining);
 					}
 					remaining = 0;
@@ -3802,7 +3802,7 @@ namespace corona
 			json jmap = jp.create_object();
 			stage->get_json(jmap);
 			j.push_back(jmap);
-			_dest.put_member("map", j);
+			_dest.put_member("stage", j);
 
 			switch (state) {
 			case game_state::lobby:
@@ -3827,9 +3827,24 @@ namespace corona
 		{
 			name = _src["name"].as_string();
 			description = _src["description"].as_string();
-			json j = _src["map"];
-			stage = std::make_shared<stage>();
+			json j = _src["stage"];
+			stage = std::make_shared<set>();
 			std::string state_string = _src["state"].as_string();
+            if (state_string == "lobby") {
+				state = game_state::lobby;
+			}
+			else if (state_string == "active") {
+				state = game_state::active;
+			}
+			else if (state_string == "paused") {
+				state = game_state::paused;
+			}
+			else if (state_string == "complete") {
+				state = game_state::complete;
+			}
+			else if (state_string == "exit") {
+				state = game_state::exit;
+			}
 		}
 
 		job* adventure::get_next_job()
@@ -3851,9 +3866,11 @@ namespace corona
 			}
 		}
 
-		void adventure::draw(direct2dContext& _src)
+		void adventure::draw(direct2dContext& _src, double _elapsed)
 		{
-
+			for (auto& p : stage->current->pieces) {
+				p.second->draw(_src, _elapsed);
+			}
 		}
 
 		std::shared_ptr<piece_base> adventure::find(object_reference _piece_ref)

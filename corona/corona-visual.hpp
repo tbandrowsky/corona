@@ -760,7 +760,7 @@ namespace corona {
 		void get_json(json& _dest)
 		{
 			_dest.put_member_vector("point", DirectX::XMVectorSet(point.x, point.y, point.z, 0));
-            _dest.put_member_string(class_name_field, "pathLineDto");
+            _dest.put_member_string(class_name_field, "line");
 		}
 
 		void put_json(json& _src)
@@ -805,7 +805,7 @@ namespace corona {
             _dest.put_member_double("angleDegrees", angleDegrees);
             _dest.put_member_double("radiusX", radiusX);
             _dest.put_member_double("radiusY", radiusY);
-			_dest.put_member_string("class_name", "pathArcDto");
+			_dest.put_member_string("class_name", "arc");
 		}
 
 		void put_json(json& _src) override
@@ -851,7 +851,7 @@ namespace corona {
 		{
 			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
 			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
-			_dest.put_member_string(class_name_field, "pathQuadraticBezierDto");
+			_dest.put_member_string(class_name_field, "quadbez");
 		}
 
 		void put_json(json& _src) override
@@ -901,7 +901,7 @@ namespace corona {
 			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
 			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
 			_dest.put_member_vector("point3", DirectX::XMVectorSet(point3.x, point3.y, point3.z, 0));
-			_dest.put_member_string(class_name_field, "pathBezierDto");
+			_dest.put_member_string(class_name_field, "bezier");
 		}
 
 		void put_json(json& _src) override
@@ -1011,7 +1011,7 @@ namespace corona {
 		void get_json(json& _dest)
 		{
 			_dest.put_member_string("name", name);
-			_dest.put_member_string(class_name_field, "pathDto");
+			_dest.put_member_string(class_name_field, "path");
 			json_parser jp;
 			json segments = jp.create_array();
 
@@ -1047,16 +1047,16 @@ namespace corona {
 					json jitem = jpoints.get_element(i);
 					std::string class_name = jitem["class_name"].as_string();
 					std::shared_ptr<pathBaseDto> item;
-					if (class_name == "pathLineDto") {
+					if (class_name == "line") {
 						item = std::make_shared<pathLineDto>();
 					}
-					else if (class_name == "pathArcDto") {
+					else if (class_name == "arc") {
 						item = std::make_shared<pathArcDto>();
 					}
-					else if (class_name == "pathQuadraticBezierDto") {
+					else if (class_name == "quadbez") {
 						item = std::make_shared<pathQuadraticBezierDto>();
 					}
-					else if (class_name == "pathBezierDto") {
+					else if (class_name == "bez") {
 						item = std::make_shared<pathBezierDto>();
 					}
 					else {
@@ -1350,7 +1350,15 @@ namespace corona {
         drawTextRequest& operator = (drawTextRequest&& _request) = default;
 	};
 
-	struct pathImmediateDto {
+	class pathImmediateDto {
+	public:
+
+        pathImmediateDto() = default;
+        pathImmediateDto(const pathImmediateDto& _request) = default;
+        pathImmediateDto(pathImmediateDto&& _request) = default;
+		pathImmediateDto& operator = (const pathImmediateDto& _request) = default;
+        pathImmediateDto& operator = (pathImmediateDto&& _request) = default;
+
 		pathDto path;
 		std::string fillBrushName,
 			borderBrushName;
@@ -1358,6 +1366,33 @@ namespace corona {
 		point position;
 		float rotation;
 		bool closed;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			json jpath = jp.create_object();
+			path.get_json(jpath);
+			_dest.put_member("fillBrushName", fillBrushName);
+			_dest.put_member("borderBrushName", borderBrushName);
+			_dest.put_member("strokeWidth", strokeWidth);
+			_dest.put_member_vector("position", DirectX::XMVectorSet(position.x, position.y, position.z, 0));
+			_dest.put_member("rotation", rotation);
+			_dest.put_member("closed", closed);
+        }
+
+		void put_json(json& _src)
+		{
+            json jpath = _src["path"];
+			path.put_json(jpath);
+			fillBrushName = _src["fillBrushName"].as_string();
+			borderBrushName = _src["borderBrushName"].as_string();
+			strokeWidth = _src["strokeWidth"].as_int();
+			position.x = _src["position"]["x"].as_double();
+			position.y = _src["position"]["y"].as_double();
+			position.z = _src["position"]["z"].as_double();
+			rotation = _src["rotation"].as_double();
+			closed = _src["closed"].as_bool();
+        }
 	};
 
 	struct pathInstance2dDto {

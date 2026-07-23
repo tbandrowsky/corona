@@ -405,22 +405,21 @@ namespace corona
 			return result;
 		}
 
-		virtual std::shared_ptr<corona::game::adventure_interface> local_start_game_session(json _game)
+		virtual std::shared_ptr<corona::game::adventure_interface> local_start_adventure(json _game)
 		{
-            auto new_session = local_gaming->new_game(_game);
+            auto new_session = local_gaming->new_adventure(_game);
 			return new_session;
 		}
 
-		virtual void local_stop_game_session(std::shared_ptr<corona::game::adventure_interface> _session)
+		virtual void local_stop_adventure(std::shared_ptr<corona::game::adventure_interface> _session)
 		{
-			local_gaming->close_game(_session);
+			local_gaming->close_adventure(_session);
 		}
 
 		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0)
 		{
 			local_audio_synth.play(_generator, _volume, _duration);
         }
-
 
 	protected:
 		std::map<int, std::shared_ptr<json_object>> batch_data;
