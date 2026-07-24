@@ -53,7 +53,6 @@ namespace corona
 			DirectX::XMVECTOR size = {};
 			DirectX::XMVECTOR velocity = {};
 			DirectX::XMVECTOR facing = {};
-			DirectX::XMVECTOR acceleration = {};
 
 			std::shared_ptr<chest_field> inventory;
 			object_reference owner;
@@ -88,10 +87,9 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(double _elapsed)
+			virtual void run(double _delta, double _elapsed)
 			{
-				velocity = DirectX::XMVectorAdd(velocity, DirectX::XMVectorScale(acceleration, static_cast<float>(_elapsed)));
-				position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(velocity, static_cast<float>(_elapsed)));
+				position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(velocity, static_cast<float>(_delta)));
 			}
 
 		};
@@ -623,9 +621,9 @@ namespace corona
 			}					
 			virtual void use(adventure_app_interface* _game, piece* _piece);
 
-			virtual void run(adventure_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
-				piece_base::run(_elapsed);
+				piece_base::run(_delta, _elapsed);
 			}
 
 			virtual void get_json(json& _dest)
@@ -672,7 +670,6 @@ namespace corona
 				size = _src["size"].as_vector();
 				velocity = _src["velocity"].as_vector();
 				facing = _src["facing"].as_vector();
-				acceleration = DirectX::XMVectorZero();
 				mass = _src["mass"].as_double();
 				owner = _src["owner"].as_object_reference();
 				if (fabs(mass) < 0.0001) {
@@ -706,11 +703,11 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context, double _elapsed)
+			virtual void draw(direct2dContext& _context, double _delta, double _elapsed)
 			{
 				for (auto animation : animations) {
 					if (animation->state == state) {
-						animation->draw(_context, _elapsed, position);
+						animation->draw(_context, _delta, position);
 					}
 				}
 			}
@@ -834,9 +831,9 @@ namespace corona
 				scheduler.put_json(timer);
 			}
 
-			virtual void run(adventure_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
-				scheduler.execute(_elapsed);
+				scheduler.execute(_delta);
 			}
 		};
 
@@ -867,7 +864,7 @@ namespace corona
                 target_piece = _src["target_piece"].as_object_reference();
 			}
 
-			virtual void run(adventure_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
 			}
 		};
@@ -899,7 +896,7 @@ namespace corona
 			// and other time-based calculations. The default implementation does nothing.
 			// _elapsed_seconds is the time since the last call to run, in seconds.
 			// this will be quite fractional.
-			virtual void run(adventure_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
 
 			}
@@ -1023,10 +1020,10 @@ namespace corona
 				}
 			}
 
-			virtual void run(adventure_app_interface* _game, double _elapsed_seconds)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
-                spawn::run(_game, _elapsed_seconds);
-                if (scheduler.execute(_elapsed_seconds)) {
+                spawn::run(_game, _delta, _elapsed);
+                if (scheduler.execute(_delta)) {
 					spawn(_game);
 				}
 			}
@@ -1694,9 +1691,9 @@ namespace corona
                 hit_lifetime = _src["hit_lifetime"].as_double();
 			}
 
-			virtual void run(adventure_app_interface* _game, double _elapsed)
+			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
-                piece::run(_game, _elapsed);
+                piece::run(_game, _delta, _elapsed);
                 hit_lifetime -= _elapsed;
                 if (hit_lifetime <= 0) {
 					remove = true;
@@ -2471,7 +2468,6 @@ namespace corona
 
 				target->position = DirectX::XMVectorAdd(_actor->position, DirectX::XMVectorScale(_actor->facing, 1.0));
 				target->velocity = DirectX::XMVectorScale(_actor->facing, 1.0);
-				target->acceleration = DirectX::XMVectorZero();
 
 				_game->put(target);
 
@@ -2719,6 +2715,7 @@ namespace corona
 		{
 
 		public:
+
 			adventure(comm_bus_app_interface* _bus, json& _src) : factories(_bus), bus(_bus)
 			{
 				class_name = "adventure";
@@ -2764,7 +2761,7 @@ namespace corona
 
 			void create_stage();
 			void create_assets(direct2dContext& _src);
-			void draw(direct2dContext& _src, double _elapsed);
+			void draw(direct2dContext& _src);
 
 			template <typename T> std::shared_ptr<T> create_piece_impl(json _src)
 			{
@@ -2773,6 +2770,11 @@ namespace corona
                 piece->put_json(factories, _src);
 				return piece;
             }
+
+			void update(double _elapsed)
+			{
+				;
+			}
 
 		private:
 
@@ -2807,6 +2809,7 @@ namespace corona
 			void check_all_dead();
 
 			double last_elapsed_seconds;
+            double last_delta_seconds;
 
 			DirectX::XMVECTOR zero_vector = {};
 
@@ -2818,11 +2821,11 @@ namespace corona
 			collision_event model_piece(std::shared_ptr<set> _map, piece_collection_iterator _current, double _elapsed_secs) const;
 			collision_event find_closest_collision(double delta) const;
 
-			virtual void run_active(double delta);
-			virtual void run_complete(double delta);
-			virtual void run_lobby(double delta);
-			virtual void run_paused(double delta);
-			virtual void run_exit(double delta);
+			virtual void run_active(double delta, double elapsed);
+			virtual void run_complete(double delta, double elapsed);
+			virtual void run_lobby(double delta, double elapsed);
+			virtual void run_paused(double delta, double elapsed);
+			virtual void run_exit(double delta, double elapsed);
 
 			virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success);
 			virtual bool queued(job_queue* _queue);
@@ -3551,8 +3554,7 @@ namespace corona
 
 			// can't be accelerated or accelerate anything if it's not moving or accelerating.
 			// no kinetic energy
-			if (XMVector3Equal(_piece->acceleration, zero_vector) &&
-				XMVector3Equal(_piece->velocity, zero_vector)) {
+			if (XMVector3Equal(_piece->velocity, zero_vector)) {
 				return event;
 			}
 			
@@ -3602,7 +3604,7 @@ namespace corona
 			return event;
 		}
 
-		void adventure::run_lobby(double delta)
+		void adventure::run_lobby(double delta, double elapsed)
 		{
 			;
 		}
@@ -3627,10 +3629,9 @@ namespace corona
 			return closest_collision;
 		}
 
-		void adventure::run_active(double delta)
+		void adventure::run_active(double delta, double elapsed)
 		{
-			// we have to resolve collision effects first, because, 
-			// that gives us new accelerations.
+			// we have to resolve collision effects first, 
 
 			// in the model, physical quantities are given in seconds, so, we can apply the ax, ay to terms
 			// and that gives us simple linear models.
@@ -3638,6 +3639,7 @@ namespace corona
 			// months or years.
 
 			double remaining = delta;
+            double start = elapsed - delta;
 
 			while (remaining > 0.001) {
 
@@ -3646,35 +3648,36 @@ namespace corona
 				if (closest_collision.piece_1) {
 					// move pieces to the point of collision
 
+					remaining -= closest_collision.collision.time_of_collision;
+
 					for (auto px = stage->current->begin(); px != stage->current->end(); px++) {
-						px->second->run(this, closest_collision.collision.time_of_collision);
+						px->second->run(this, closest_collision.collision.time_of_collision, start + closest_collision.collision.time_of_collision);
 					}
 					// resolve collision effects here and update accelerations accordingly
 					// for example, if piece_1 is a player and piece_2 is a wall, we might want to stop the player's movement in the direction of the wall.
-					remaining -= closest_collision.collision.time_of_collision;
 				}
 				else
 				{
 					// no more collisions, we can move all pieces for the remaining time
 					for (auto px = stage->current->begin(); px != stage->current->end(); px++) {
-						px->second->run(this, remaining);
+						px->second->run(this, remaining, elapsed);
 					}
 					remaining = 0;
 				}
 			}
 		}
 
-		void adventure::run_complete(double delta)
+		void adventure::run_complete(double delta, double elapsed)
 		{
 			;
 		}
 
-		void adventure::run_paused(double delta)
+		void adventure::run_paused(double delta, double elapsed)
 		{
 			;
 		}
 
-		void adventure::run_exit(double delta)
+		void adventure::run_exit(double delta, double elapsed)
 		{
 			;
 		}
@@ -3697,22 +3700,25 @@ namespace corona
 			double delta = current_elapsed_seconds - last_elapsed_seconds;
 
 			last_elapsed_seconds = current_elapsed_seconds;
+			last_delta_seconds = delta;
+
+			if (delta <= 0.0) return notify;
 
 			switch (state) {
 			case game_state::lobby:
-				run_lobby(delta);
+				run_lobby(delta, current_elapsed_seconds);
 				break;
 			case game_state::active:
-				run_active(delta);
+				run_active(delta, current_elapsed_seconds);
 				break;
 			case game_state::complete:
-				run_complete(delta);
+				run_complete(delta, current_elapsed_seconds);
 				break;
 			case game_state::paused:
-				run_paused(delta);
+				run_paused(delta, current_elapsed_seconds);
 				break;
 			case game_state::exit:
-				run_exit(delta);
+				run_exit(delta, current_elapsed_seconds);
 				break;
 			}
 
@@ -3863,10 +3869,10 @@ namespace corona
 			}
 		}
 
-		void adventure::draw(direct2dContext& _src, double _elapsed)
+		void adventure::draw(direct2dContext& _src)
 		{
 			for (auto& p : stage->current->pieces) {
-				p.second->draw(_src, _elapsed);
+				p.second->draw(_src, last_delta_seconds, last_elapsed_seconds);
 			}
 		}
 

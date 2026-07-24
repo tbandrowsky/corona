@@ -2381,7 +2381,7 @@ namespace corona
 
 	private:
 
-		std::shared_ptr<corona::game::game_app_interface> session;
+		std::shared_ptr<corona::game::adventure_app_interface> session;
 
 	public:
 		corona_instance instance = corona_instance::local;
@@ -2407,7 +2407,7 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
 			auto temp = _bus->local_start_game_session(request);
-			session = std::dynamic_pointer_cast<corona::game::game_app_interface>(temp);
+			session = std::dynamic_pointer_cast<corona::game::adventure_app_interface>(temp);
 			return response;
 		}
 
@@ -2441,7 +2441,7 @@ namespace corona
 	{
 
 	private:
-		std::shared_ptr<corona::game::game_app_interface> session;
+		std::shared_ptr<corona::game::adventure_app_interface> session;
 
 	public:
 
@@ -2459,7 +2459,7 @@ namespace corona
 			return topic;
 		}
 
-		virtual std::shared_ptr<corona::game::game_app_interface> get_session()
+		virtual std::shared_ptr<corona::game::adventure_app_interface> get_session()
 		{
             return session;
 		}

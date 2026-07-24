@@ -3,20 +3,20 @@
 namespace corona
 {
 
-	class game_session_control :
+	class adventure_control :
 		public draw_control
 	{
-		std::shared_ptr<corona::game::game> current_session;
+		std::shared_ptr<corona::game::adventure> current_session;
 
 	public:
 
-		game_session_control() { 
+		adventure_control() { 
 			; 
 		}
 
-		game_session_control(const game_session_control& _src) = default;
+		adventure_control(const adventure_control& _src) = default;
 
-		game_session_control(control_base* _parent, int _id) : draw_control(_parent, _id) 
+		adventure_control(control_base* _parent, int _id) : draw_control(_parent, _id) 
 		{ 
 			; 
 		}
@@ -56,11 +56,11 @@ namespace corona
 			});
 		}
 
-		virtual ~game_session_control() { ; }
+		virtual ~adventure_control() { ; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
-			auto tv = std::make_shared<game_session_control>(*this);
+			auto tv = std::make_shared<adventure_control>(*this);
 			tv->current_session = current_session;
 			return tv;
 		}
@@ -81,14 +81,21 @@ namespace corona
 			return std::dynamic_pointer_cast<corona::game::adventure_interface>(current_session); 
 		}
 
-		std::shared_ptr<corona::game::game_app_interface> set_session(std::shared_ptr<corona::game::game_app_interface>& _session)
+		std::shared_ptr<corona::game::adventure_app_interface> set_session(std::shared_ptr<corona::game::adventure_app_interface>& _session)
 		{ 
 			if (current_session) {
 				current_session->set_exit();
             }
 			auto session = current_session;
-			current_session = std::dynamic_pointer_cast<corona::game::game>(_session); 
+			current_session = std::dynamic_pointer_cast<corona::game::adventure>(_session); 
 			return session;
+		}
+
+		virtual void on_update(double _time)
+		{
+			if (current_session) {
+				current_session->update(_time);
+            }
 		}
 
 	private:
@@ -111,7 +118,7 @@ namespace corona
 
 	json corona_start_game_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
 		auto ctrl = _bus->find_control(form_name);
-		game_session_control* session_control = dynamic_cast<game_session_control*>(ctrl);
+		adventure_control* session_control = dynamic_cast<adventure_control*>(ctrl);
 		if (session_control) {
 			session_control->set_session(session);
 		}
@@ -124,9 +131,9 @@ namespace corona
 		json obj;
 
 		auto ctrl = _bus->find_control(form_name);
-		auto session_control = dynamic_cast<game_session_control*>(ctrl);
+		auto session_control = dynamic_cast<adventure_control*>(ctrl);
 		auto temp = session_control->get_session();
-		session = std::dynamic_pointer_cast<corona::game::game_app_interface>(temp);
+		session = std::dynamic_pointer_cast<corona::game::adventure_app_interface>(temp);
 		return obj;
 	}
 
