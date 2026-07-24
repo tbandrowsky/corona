@@ -427,7 +427,6 @@
         "shot_type": "string",
         "shot_muzzle_velocity": "double",
         "shot_mass": "double",
-        "shot_impulse": "double",
         "inventory": {
           "field_type": "chest",
           "item_class": "shot"
@@ -669,53 +668,51 @@
         "class_name": "piece_type",
         "name": "player",
         "description": "string",
-        "fields": {
-          "piece_class_name": "player",
-          "animations": [
-            {
-              "class_name": "animation",
-              "state": "default",
-              "duration": "5",
-              "frames": [
-                {
-                  "class_name": "vector_frame",
-                  "state": "default",
-                  "duration": "5",
-                  "path": {
-                    "points": [
-                      {
-                        "class_name": "line",
-                        "point": "0,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,100,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "0,100,0"
-                      }
-                    ]
-                  },
-                  "fill": {
-                    "class_name": "solid_brush",
-                    "color": "#D0D0B0"
-                  },
-                  "stroke": {
-                    "class_name": "solid_brush",
-                    "color": "#2020202"
-                  },
-                  "stroke_width": 4
-                }
-              ],
-              "carry_point": "vector"
-            }
-          ]
-        },
+        "piece_class_name": "player",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
         "mass": "500",
         "health": "100",
         "full_health": "100"
@@ -725,52 +722,50 @@
         "name": "green-monster",
         "description": "string",
         "piece_class_name": "npc",
-        "fields": {
-          "animations": [
-            {
-              "class_name": "animation",
-              "state": "default",
-              "duration": "5",
-              "frames": [
-                {
-                  "class_name": "vector_frame",
-                  "state": "default",
-                  "duration": "5",
-                  "path": {
-                    "points": [
-                      {
-                        "class_name": "line",
-                        "point": "0,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,100,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "0,100,0"
-                      }
-                    ]
-                  },
-                  "fill": {
-                    "class_name": "solid_brush",
-                    "color": "#20D020"
-                  },
-                  "stroke": {
-                    "class_name": "solid_brush",
-                    "color": "#10C010"
-                  },
-                  "stroke_width": 4
-                }
-              ],
-              "carry_point": "vector"
-            }
-          ],
-        },
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#20D020"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#10C010"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
         "mass": "500",
         "health": "100",
         "full_health": "100"
@@ -832,7 +827,7 @@
         "class_name": "piece_type",
         "name": "gun-small",
         "description": "string",
-        "piece_class_name": "wall",
+        "piece_class_name": "firearm",
         "animations": [
           {
             "class_name": "animation",
@@ -888,7 +883,7 @@
         "class_name": "piece_type",
         "name": "mag-small",
         "description": "string",
-        "piece_class_name": "wall",
+        "piece_class_name": "magazine",
         "animations": [
           {
             "class_name": "animation",
@@ -933,10 +928,262 @@
             "carry_point": "vector"
           }
         ],
+        "defaults": {
+          "ammunition_type": "ammo-small",
+          "inventory": [
+            {
+              "item_type": "ammo-small",
+              "quantity": 10
+            }
+          ]
+        },
         "mass": "500",
         "health": "100",
         "full_health": "100"
       },
+      {
+        "class_name": "piece_type",
+        "name": "ammo-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "defaults": {
+          "ammunition_type": "ammo-small"
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "shot-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "defaults": {
+          "shot_type": "shot-small",
+          "inventory": [
+            {
+              "item_type": "stomach-wound",
+              "quantity": 1
+            }
+          ]
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "shot-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "defaults": {
+          "shot_type": "shot-small",
+          "inventory": [
+            {
+              "item_type": "wound-stomach",
+              "quantity": 1
+            }
+          ]
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "wound-stomach",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "carry_point": "vector"
+          }
+        ],
+        "defaults": {
+          "shot_type": "shot-small",
+          "inventory": [
+            {
+              "item_type": "stomach-wound",
+              "quantity": 1
+            }
+          ]
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+
       {
         "class_name": "piece_type",
         "name": "wall-stone",
@@ -1206,7 +1453,7 @@
         "class_name": "piece_type",
         "name": "spawn-monster",
         "description": "string",
-        "piece_class_name": "player_spawn",
+        "piece_class_name": "npc_spawn",
         "animations": [
           {
             "class_name": "animation",
@@ -1250,6 +1497,9 @@
                 }
               }
             ],
+            "defaults": {
+              "spawn_types": [ "red-monster", "green-monster" ]
+            },
             "carry_point": "vector"
           }
         ],

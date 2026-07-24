@@ -491,8 +491,6 @@ namespace corona
 				description = _src["description"].as_string();
 				piece_class_name = _src["piece_class_name"].as_string();
 
-
-
 				json janimations = _src["animations"];
 				animations.clear();
 				for (int i = 0; i < janimations.size(); i++) {
@@ -1482,7 +1480,6 @@ namespace corona
 			std::string shot_type;
 			double shot_muzzle_velocity;
 			double shot_mass;
-			double shot_impulse;
 
 			virtual void get_json(json& _dest)
 			{
@@ -1491,7 +1488,6 @@ namespace corona
 				_dest.put_member("shot_type", shot_type);
 				_dest.put_member("shot_muzzle_velocity", shot_muzzle_velocity);
 				_dest.put_member("shot_mass", shot_mass);
-				_dest.put_member("shot_impulse", shot_impulse);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
@@ -1501,7 +1497,6 @@ namespace corona
 				shot_type = _src["shot_type"].as_string();
 				shot_muzzle_velocity = _src["shot_muzzle_velocity"].as_double();
                 shot_mass = _src["shot_mass"].as_double();
-                shot_impulse = _src["shot_impulse"].as_double();
 			}
 		};
 
@@ -3088,7 +3083,9 @@ namespace corona
 					std::string instance_class_name = found_piece_type->piece_class_name;
 					new_piece = factories.piece_factory.create_object(instance_class_name);
 					if (new_piece) {
-						new_piece->apply_json(found_piece_type->defaults);
+						if (found_piece_type->defaults.object()) {
+							new_piece->apply_json(found_piece_type->defaults);
+						}
 					}
 				}
 			}

@@ -114,14 +114,12 @@ namespace corona
 
 		bool operator == (const chest_item& _other) const
 		{
-			return reference.class_name == _other.reference.class_name and reference.object_id == _other.reference.object_id;
+			return reference == _other.reference;
         }
 
 		bool operator < (const chest_item& _other) const
 		{
-			if (reference.class_name < _other.reference.class_name) return true;
-			if (reference.class_name > _other.reference.class_name) return false;
-			return reference.object_id < _other.reference.object_id;
+			return reference < _other.reference;
         }
 	};
 
