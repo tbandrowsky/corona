@@ -460,6 +460,7 @@ namespace corona
 		inline control_builder& code(std::string _text) { return code(_text, nullptr, id_counter::next()); }
 		inline control_builder& label(std::string _text) { return label(_text, nullptr, id_counter::next()); }
 		inline control_builder& placeholder(std::string _text) { return placeholder(_text, nullptr, id_counter::next()); }
+		inline control_builder& adventure(std::string _text) { return adventure(_text, nullptr, id_counter::next()); }
 
 		inline control_builder& error(call_status _status) { return error(_status, nullptr, id_counter::next()); }
 		inline control_builder& status(call_status _status) { return status(_status, nullptr, id_counter::next()); }
@@ -475,6 +476,7 @@ namespace corona
 		inline control_builder& label(int _id, std::string _text) { return label(_text, nullptr, _id); }
 		inline control_builder& placeholder(int _id, std::string _text) { return placeholder(_text, nullptr, _id); }
 		inline control_builder& error(int _id, std::string _text) { return error(_text, nullptr, _id); }
+		inline control_builder& adventure(int _id, std::string _text) { return adventure(_text, nullptr, _id); }
 
 		inline control_builder& title(int _id, std::function<void(title_control&)> _settings) { return title("", _settings, _id); }
 		inline control_builder& subtitle(int _id, std::function<void(subtitle_control&)> _settings) { return subtitle("", _settings, _id); }
@@ -487,6 +489,7 @@ namespace corona
 		inline control_builder& label(int _id, std::function<void(label_control&)> _settings) { return label("", _settings, _id); }
 		inline control_builder& error(int _id, std::function<void(error_control&)> _settings) { return error("", _settings, id_counter::next()); }
 		inline control_builder& placeholder(int _id, std::function<void(placeholder_control&)> _settings) { return placeholder("", _settings, id_counter::next()); }
+		inline control_builder& adventure(int _id, std::function<void(adventure_control&)> _settings) { return adventure("", _settings, id_counter::next()); }
 
 		inline control_builder& title(std::string _text, std::function<void(title_control&)> _settings) { return title(_text, _settings, id_counter::next()); }
 		inline control_builder& subtitle(std::string _text, std::function<void(subtitle_control&)> _settings) { return subtitle(_text, _settings, id_counter::next()); }
@@ -499,6 +502,7 @@ namespace corona
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
 		inline control_builder& error(std::string _text, std::function<void(error_control&)> _settings) { return error(_text, _settings, id_counter::next()); }
 		inline control_builder& placeholder(std::string _text, std::function<void(placeholder_control&)> _settings) { return placeholder(_text, _settings, id_counter::next()); }
+		inline control_builder& adventure(std::string _text, std::function<void(adventure_control&)> _settings) { return adventure(_text, _settings, id_counter::next()); }
 
 		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(id_counter::next(), _text, _settings ); }
 
@@ -1020,6 +1024,16 @@ namespace corona
 			if (_settings) {
 				_settings(*tc);
 
+			}
+			return *this;
+		}
+
+		control_builder& adventure(std::string text, std::function<void(adventure_control&)> _settings, int _id)
+		{
+			auto tc = create<adventure_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
 			}
 			return *this;
 		}
@@ -2725,6 +2739,13 @@ namespace corona
 		else if (class_name == "placeholder")
 		{
 			placeholder(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
+		else if (class_name == "adventure")
+		{
+			adventure(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});

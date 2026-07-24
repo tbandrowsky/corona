@@ -2388,12 +2388,12 @@ namespace corona
 
 		corona_start_game_command()
 		{
-			topic = "get_games";
+			topic = "start_game";
 		}
 
 		virtual std::string get_name()
 		{
-			return "get_games";
+			return "start_game";
 		}
 
 		virtual json create_request(comm_bus_app_interface* _bus)
@@ -2406,7 +2406,7 @@ namespace corona
 
 		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
 		{
-			auto temp = _bus->local_start_game_session(request);
+			auto temp = _bus->local_start_adventure(request);
 			session = std::dynamic_pointer_cast<corona::game::adventure_app_interface>(temp);
 			return response;
 		}

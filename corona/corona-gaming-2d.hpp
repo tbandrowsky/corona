@@ -3864,6 +3864,8 @@ namespace corona
 
 		void adventure::create_assets(direct2dContext& _src)
 		{
+			scope_lock locker(adventure_locker);
+
 			for (auto &p : stage->current->pieces) {
 				p.second->create_assets(_src);
 			}
@@ -3871,6 +3873,8 @@ namespace corona
 
 		void adventure::draw(direct2dContext& _src)
 		{
+            scope_lock locker(adventure_locker);
+
 			for (auto& p : stage->current->pieces) {
 				p.second->draw(_src, last_delta_seconds, last_elapsed_seconds);
 			}
@@ -3878,6 +3882,8 @@ namespace corona
 
 		std::shared_ptr<piece_base> adventure::find(object_reference _piece_ref)
 		{
+			scope_lock locker(adventure_locker);
+
 			auto pi = stage->current->pieces.find(_piece_ref);
 			if (pi != std::end(stage->current->pieces)) {
 				return std::dynamic_pointer_cast<piece_base>( pi->second);
@@ -3887,6 +3893,8 @@ namespace corona
 
 		std::shared_ptr<piece_base> adventure::erase(object_reference _piece_ref)
 		{
+			scope_lock locker(adventure_locker);
+
 			auto pi = stage->current->pieces.find(_piece_ref);
 			if (pi != std::end(stage->current->pieces)) {
 				auto rx = pi->second;
@@ -3898,6 +3906,8 @@ namespace corona
 
 		void adventure::put(std::shared_ptr<piece_base> _src)
 		{
+			scope_lock locker(adventure_locker);
+
 			auto dc = std::dynamic_pointer_cast<piece>(_src);
 			stage->current->pieces.insert_or_assign(dc->to_reference(), dc);
 		}
