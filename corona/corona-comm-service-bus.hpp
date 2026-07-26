@@ -23,7 +23,7 @@ namespace corona
 	namespace fs = std::filesystem;
 
 
-	class comm_bus_service : public system_monitoring_interface
+    class service_app_bus : public comm_bus_interface
 	{
 
 	public:
@@ -51,7 +51,7 @@ namespace corona
 		std::string listen_point;
 		std::function<void(const std::string& _msg, const char* _file, int _line)> on_logged_error;
 
-		comm_bus_service(json _system_config,
+		service_app_bus(json _system_config,
 			json _server_config,
 			std::function<void(const std::string& _msg, const char* _file, int _line)> _on_logged_error,
 			bool _is_service = false
@@ -170,7 +170,7 @@ namespace corona
 			change_to_folder(current_path);
 		}
 
-		virtual ~comm_bus_service()
+		virtual ~service_app_bus()
 		{
 			// stop the web
 			db_api_server.stop();
@@ -183,11 +183,16 @@ namespace corona
 			system_monitoring_interface::active_mon = system_monitoring_interface::global_mon;
 		}
 
-        comm_bus_service() = delete;
-        comm_bus_service(const comm_bus_service&) = delete;
-        comm_bus_service& operator=(const comm_bus_service&) = delete;
-        comm_bus_service(comm_bus_service&&) = delete;
-        comm_bus_service& operator=(comm_bus_service&&) = delete;
+        service_app_bus() = delete;
+        service_app_bus(const service_app_bus&) = delete;
+        service_app_bus& operator=(const service_app_bus&) = delete;
+        service_app_bus(service_app_bus&&) = delete;
+        service_app_bus& operator=(service_app_bus&&) = delete;
+
+		static service_app_bus* get_service()
+		{
+			return dynamic_cast<service_app_bus*>(system_monitoring_interface::active_mon);
+		}
 
 		void prove_system()
 		{
@@ -417,7 +422,7 @@ namespace corona
 			return result;
 		}
 
-		std::function<bool(comm_bus_service* _service, json& _command)> command_handler = [this](comm_bus_service* _service, json& _command)->bool {
+		std::function<bool(service_app_bus* _service, json& _command)> command_handler = [this](service_app_bus* _service, json& _command)->bool {
 			// this is the default command handler, which does nothing.
 			// it can be overridden by the application.
 			// 
@@ -2629,8 +2634,9 @@ Bind get classes
 			}
 		}
 
+		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0) {
 
-
+		}
 	};
 }
 

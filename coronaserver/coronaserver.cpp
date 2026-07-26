@@ -38,7 +38,7 @@ SERVICE_STATUS          gSvcStatus;
 SERVICE_STATUS_HANDLE   gSvcStatusHandle;
 HANDLE                  ghSvcStopEvent = NULL;
 
-std::vector<std::shared_ptr<corona::comm_bus_service>> services;
+std::vector<std::shared_ptr<corona::service_app_bus>> services;
 bool exit_flag = false;
 std::string config_filename = "config.json";
 
@@ -122,7 +122,7 @@ static void RunConsole()
                     std::string server_name = server["application_name"].as_string();
                     std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
-                    auto service = std::make_shared<corona::comm_bus_service>(
+                    auto service = std::make_shared<corona::service_app_bus>(
                         config,
                         server,
                         [server_name](const std::string& _msg, const char* _file, int _line) {
@@ -331,7 +331,7 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv)
                 std::string server_name = server["application_name"].as_string();
                 std::cout << "launching " << server_name << " on " << listen_point << std::endl;
 
-                auto service = std::make_shared<corona::comm_bus_service>(
+                auto service = std::make_shared<corona::service_app_bus>(
                     config,
                     server,
                     [server_name](const std::string& _msg, const char* _file, int _line) {

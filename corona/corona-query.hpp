@@ -42,6 +42,7 @@ namespace corona
 	public:
 
 		bool froms_preloaded = false;
+        comm_bus_interface* comm_bus = nullptr;
 
 		virtual void get_json(json& _dest)
 		{
@@ -366,7 +367,8 @@ namespace corona
 				return stage_output;
 			}
 			else if (stage_input.object()) {
-				auto svc = comm_bus_app_interface::get_service();
+
+				auto svc = _src->comm_bus;
 				if (svc) {
 					std::string class_name = put_class_name;
 					if (class_name.empty()) {
@@ -388,7 +390,7 @@ namespace corona
 				return stage_output;
 			}
 			else if (stage_input.array()) {
-				auto svc = comm_bus_app_interface::get_service();
+				auto svc = _src->comm_bus;
 				if (svc) {
 					for (auto item : stage_input) {
 						if (item.object()) {
@@ -472,7 +474,7 @@ namespace corona
 				return stage_output;
 			}
 			else if (stage_input.object()) {
-				auto svc = comm_bus_app_interface::get_service();
+				auto svc = _src->comm_bus;
 				if (svc) {
 					auto response = svc->delete_object(corona_instance::local, stage_input);
 					if (response.success) {
@@ -486,7 +488,7 @@ namespace corona
 				return stage_output;
 			}
 			else if (stage_input.array()) {
-				auto svc = comm_bus_app_interface::get_service();
+				auto svc = _src->comm_bus;
 				if (svc) {
 					for (auto item : stage_input) {
 						if (item.object()) {
@@ -1448,7 +1450,7 @@ namespace corona
 					{
 						std::string msg = std::format("'{0}' that does not have a source. Egs source_name:path.path.path", member.first, path);
 						_src->add_error("projection", member.first, msg, __FILE__, __LINE__);
-						comm_bus_app_interface::global_bus->log_warning(msg, __FILE__, __LINE__);
+						system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
 					}
 				}
                 stage_output.push_back(temp_object);
@@ -1578,7 +1580,7 @@ namespace corona
 			if (source_name.empty()) {
 				std::string msg = "Missing source name in query_select_many";
 				_src->add_error("projection", "source_name", msg, __FILE__, __LINE__);
-				comm_bus_app_interface::global_bus->log_warning(msg, __FILE__, __LINE__);
+				system_monitoring_interface::global_mon->log_warning(msg, __FILE__, __LINE__);
 			}
 			else
 			{

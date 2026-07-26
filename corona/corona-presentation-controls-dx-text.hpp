@@ -96,7 +96,7 @@ namespace corona
 											if (controls.size() >= 3) {
 												std::string control_name = controls[1];
 												std::string value_name = controls[2];
-												auto ctrl = comm_bus_app_interface::get_service()->find_control(control_name);
+												auto ctrl = comm_desktop_bus_interface::get_service()->find_control(control_name);
 												if (ctrl) {
 													result_data = ctrl->get_data();
 												}

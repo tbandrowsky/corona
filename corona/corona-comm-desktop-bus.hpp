@@ -23,7 +23,7 @@ For Future Consideration
 namespace corona
 {
 
-	class desktop_app_bus : public comm_bus_app_interface
+	class desktop_app_bus : public comm_desktop_bus_interface
 	{
 	protected:
 
@@ -52,6 +52,7 @@ namespace corona
 		}
 
 		json								local_db_config;
+
 
 	public:
 
@@ -2363,7 +2364,7 @@ namespace corona
 			std::string control_name = class_page.second;
 			std::string class_name = class_page.first;
 
-			auto wcontrol = comm_bus_app_interface::global_bus->as<desktop_app_bus>()->get_page(control_name);
+			auto wcontrol = comm_desktop_bus_interface::global_bus->as<desktop_app_bus>()->get_page(control_name);
 			if (auto pcontrol = wcontrol.lock())
 			{
 				if (pcontrol->root && pcontrol->root->children.size() > 0)
@@ -2376,13 +2377,13 @@ namespace corona
 
 	void items_view::update_selection()
 	{
-		int batch_id = comm_bus_app_interface::global_bus->start_batch();
+		int batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (rows.size() > 0) {
 			if (select_command) {
-				comm_bus_app_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, select_command);
+				comm_desktop_bus_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, select_command);
 			}
 		} else if (empty_command) {
-			comm_bus_app_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, empty_command);
+			comm_desktop_bus_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, empty_command);
         }
 	}
 

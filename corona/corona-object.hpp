@@ -15,12 +15,12 @@ namespace corona
        corona_object& operator =(const corona_object& _src) = default;
        corona_object& operator =(corona_object&& _src) = default;
 
-       corona_object(comm_bus_app_interface* _bus) : bus(_bus)
+       corona_object(comm_bus_interface* _bus) : bus(_bus)
        {
 
        }
 
-       comm_bus_app_interface* bus = nullptr;
+       comm_bus_interface* bus = nullptr;
 
        virtual void get_json(json& _dest) const
        {
@@ -78,6 +78,25 @@ namespace corona
            return ci;
        }
 
+       virtual bool operator < (corona_object& _src)
+       {
+           return to_reference() < _src.to_reference();
+       }
+
+       template <typename T>
+       bool is()
+       {
+           T* t = dyanamic_cast<T>(this);
+           return t != nullptr;
+       }
+
+       template <typename T>
+       T* as()
+       {
+           T* t = dyanamic_cast<T>(this);
+           return t;
+       }
+
        virtual corona_client_response save(corona_instance instance)
        {
             corona_client_response response;
@@ -89,25 +108,6 @@ namespace corona
             response = bus->put_object(corona_instance::local, request);
        
             return response;
-       }
-
-       virtual bool identity_matches(corona_object& _src)
-       {
-           return (class_name == _src.class_name) && (object_id == _src.object_id);
-       }
-
-       template <typename T>
-       bool is()
-       {
-           T* t = dyanamic_cast<T>(this);
-           return t != nullptr;
-       }
-
-       template <typename T>
-       T *as()
-       {
-           T* t = dyanamic_cast<T>(this);
-           return t;
        }
 
        virtual std::shared_ptr<corona_object_interface> clone() const
@@ -395,18 +395,18 @@ namespace corona
     template <typename T> class corona_object_factory
     {
 
-        using fn_create_object = std::function<std::shared_ptr<T>(json& _src, comm_bus_app_interface* _bus)>;
+        using fn_create_object = std::function<std::shared_ptr<T>(json& _src, comm_bus_interface* _bus)>;
 
         std::map<std::string, fn_create_object> factory_map;
         lockable factory_lock;
 
-        comm_bus_app_interface* bus;
+        comm_bus_interface* bus;
         std::map<std::string, json> class_cache;
         corona_instance instance = corona_instance::local;
 
     public:
 
-        corona_object_factory(comm_bus_app_interface* _bus) noexcept {
+        corona_object_factory(comm_bus_interface* _bus) noexcept {
             bus = _bus;
         }
         corona_object_factory(const corona_object_factory& _src) = default;

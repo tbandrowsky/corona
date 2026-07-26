@@ -289,7 +289,7 @@ namespace corona
 
 	public:
 
-		comm_bus_app_interface* bus;
+		comm_desktop_bus_interface* bus;
 
 		template <typename control_type> std::shared_ptr<control_type> get(int _id)
 		{
@@ -1918,7 +1918,7 @@ namespace corona
 				bool is_selected = tp.pane.name == this->current_tab_name;
 				tp.tab_button->selected_state = is_selected;
 				if (is_selected) {
-					auto service = comm_bus_app_interface::get_service();
+					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
 					json tab_data = jp.create_object();
 					if (tp.pane.member_name.empty() || tp.pane.member_name == ".") {
@@ -3016,7 +3016,7 @@ namespace corona
         current_presentation = _nav->presentation;
         current_page = _nav->parent_page;
 
-		auto service = comm_bus_app_interface::get_service();
+		auto service = comm_desktop_bus_interface::get_service();
 
 		if (data.object() && save_on_unload) {
 			service->put_object(corona_instance::local, data);
@@ -3075,7 +3075,7 @@ namespace corona
         navigate(_batch_id, new_frame);
 	}
 
-	json corona_set_property_command::execute(comm_bus_app_interface* bus)
+	json corona_set_property_command::execute(comm_desktop_bus_interface* bus)
 	{
 		json obj;
 		control_base* cb = {};
@@ -3098,7 +3098,7 @@ namespace corona
 	}
 
 
-	json corona_navigate_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+	json corona_navigate_command::handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 		if (response.success) {
 			auto control = _bus->find_control(target_frame);
 			auto frame = dynamic_cast<frame_layout*>(control);
@@ -3114,7 +3114,7 @@ namespace corona
 		return response.data;
 	}
 
-	json corona_select_tab_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+	json corona_select_tab_command::handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 		if (response.success) {
 			auto found_control = _bus->find_control(tab_control);
 			if (found_control) {

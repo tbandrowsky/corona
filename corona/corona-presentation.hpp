@@ -37,7 +37,7 @@ namespace corona {
 		json json_pages;
 		std::vector<int> focus_list;
 
-		comm_bus_app_interface *bus;
+		comm_desktop_bus_interface *bus;
 
 		json apply_template(json& _page_data);
 		std::map<std::string, json> pages_json;
@@ -50,7 +50,7 @@ namespace corona {
 		std::map<std::string, std::shared_ptr<page>> pages;
 		std::weak_ptr<applicationBase> window_host;
 
-		presentation(comm_bus_app_interface* _com_bus) : bus(_com_bus)
+		presentation(comm_desktop_bus_interface* _com_bus) : bus(_com_bus)
 		{
 			default_push_button_id = 0;
 			default_focus_id = 0;
@@ -58,7 +58,7 @@ namespace corona {
 			last_mouse_click = {};
 		}
 
-		presentation(comm_bus_app_interface *_com_bus, std::weak_ptr<applicationBase> _window_host) : window_host(_window_host), bus(_com_bus)
+		presentation(comm_desktop_bus_interface *_com_bus, std::weak_ptr<applicationBase> _window_host) : window_host(_window_host), bus(_com_bus)
 		{
 			default_push_button_id = 0;
 			default_focus_id = 0;
@@ -954,7 +954,7 @@ namespace corona {
 		kde.control_id = _ctrl_id;
 		kde.key = _key;
 		kde.bus = bus;
-		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
+		kde.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_key_up(_ctrl_id, kde);
 		}
@@ -968,7 +968,7 @@ namespace corona {
 		kde.control_id = 0;
 		kde.absolute_point = *_point;
 		kde.bus = bus;
-		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
+		kde.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_mouse_move(0, kde);
 			cp->root->set_mouse(*_point, nullptr, nullptr, nullptr, nullptr);
@@ -984,7 +984,7 @@ namespace corona {
 		kde.relative_point = {};
         kde.delta = _delta;	
 		kde.bus = bus;
-		kde.batch_id = comm_bus_app_interface::global_bus->start_batch();
+		kde.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_mouse_wheel(0, kde);
 		}
@@ -1028,7 +1028,7 @@ namespace corona {
 					mcel.relative_point.z = 0;
 				}
 				mcel.bus = p->bus;
-				mcel.batch_id = comm_bus_app_interface::global_bus->start_batch();
+				mcel.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
 				cp->handle_mouse_left_click(_item->id, mcel);
 
@@ -1065,7 +1065,7 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
-				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
+				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
 				cp->handle_mouse_click(_item->id, mce);
 
@@ -1097,7 +1097,7 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
-				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
+				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
 				cp->handle_mouse_click(_item->id, mce);
 				});
@@ -1118,7 +1118,7 @@ namespace corona {
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
-				mce.batch_id = comm_bus_app_interface::global_bus->start_batch();
+				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
 				cp->handle_mouse_click(_item->id, mce);
 				mouse_right_click_event mcel;

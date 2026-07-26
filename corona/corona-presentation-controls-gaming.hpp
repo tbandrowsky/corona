@@ -116,7 +116,7 @@ namespace corona
 		}
 	};
 
-	json corona_start_game_command::handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+	json corona_start_game_command::handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 		auto ctrl = _bus->find_control(form_name);
 		adventure_control* session_control = dynamic_cast<adventure_control*>(ctrl);
 		if (session_control) {
@@ -125,7 +125,7 @@ namespace corona
 		return response.data;
 	}
 
-	json corona_game_command::create_request(comm_bus_app_interface* _bus)
+	json corona_game_command::create_request(comm_desktop_bus_interface* _bus)
 	{
 		json_parser jp;
 		json obj;
@@ -137,31 +137,31 @@ namespace corona
 		return obj;
 	}
 
-	corona_client_response corona_game_set_lobby::execute_request(json request, comm_bus_app_interface* _bus)
+	corona_client_response corona_game_set_lobby::execute_request(json request, comm_desktop_bus_interface* _bus)
 	{
 		get_session()->set_lobby();
 		return response;
 	}
 
-	corona_client_response corona_game_set_active::execute_request(json request, comm_bus_app_interface* _bus)
+	corona_client_response corona_game_set_active::execute_request(json request, comm_desktop_bus_interface* _bus)
 	{
 		get_session()->set_active();
 		return response;
 	}
 
-	corona_client_response corona_game_set_paused::execute_request(json request, comm_bus_app_interface* _bus)
+	corona_client_response corona_game_set_paused::execute_request(json request, comm_desktop_bus_interface* _bus)
 	{
 		get_session()->set_paused();
 		return response;
 	}
 
-	corona_client_response corona_game_set_complete::execute_request(json request, comm_bus_app_interface* _bus)
+	corona_client_response corona_game_set_complete::execute_request(json request, comm_desktop_bus_interface* _bus)
 	{
 		get_session()->set_complete();
 		return response;
 	}
 
-	corona_client_response corona_game_set_exit::execute_request(json request, comm_bus_app_interface* _bus)
+	corona_client_response corona_game_set_exit::execute_request(json request, comm_desktop_bus_interface* _bus)
 	{
 		get_session()->set_exit();
 		return response;

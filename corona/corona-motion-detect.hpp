@@ -168,7 +168,7 @@ namespace corona
 	public:
 
 		friend class cursor;
-		comm_bus_app_interface* bus;
+		comm_desktop_bus_interface* bus;
 
 		pixel_frame() : width(0), height(0),  size_pixels(0), bus(nullptr)
 		{
@@ -184,7 +184,7 @@ namespace corona
 			}
 		}
 
-		pixel_frame(comm_bus_app_interface* _bus, pixel_type *_src, unsigned int _width, unsigned int _height)
+		pixel_frame(comm_desktop_bus_interface* _bus, pixel_type *_src, unsigned int _width, unsigned int _height)
 			: bus(_bus), width(_width), height(_height), size_pixels(_height* _width)
 		{
 			pixels.resize(size_pixels);
@@ -716,7 +716,7 @@ namespace corona
 	{
 	public:
 
-		comm_bus_app_interface* bus;
+		comm_desktop_bus_interface* bus;
 		timer	frame_timer;
 		int		frame_counter;
 		double	last_frame_seconds;
@@ -760,7 +760,7 @@ namespace corona
 			reset_defaults();
 		}
 
-		void set_bus(comm_bus_app_interface* _bus)
+		void set_bus(comm_desktop_bus_interface* _bus)
 		{
 			bus = _bus;
 			activation_frame.bus = _bus;

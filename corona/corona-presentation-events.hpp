@@ -54,7 +54,7 @@ namespace corona {
 		int control_id;
 		int batch_id;
 		control_base* control;
-		comm_bus_app_interface* bus;
+		comm_desktop_bus_interface* bus;
 	};
 
 	class command_event : public control_event

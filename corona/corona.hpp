@@ -328,7 +328,7 @@ namespace corona {
 // it's not really complete per se, but it is so much easier now
 // that this will continue.
 // this one is for GUI applications
-#include "corona-comm-app-bus.hpp"
+#include "corona-comm-desktop-bus.hpp"
 
 // the communication bus allows all the services in a corona 
 // application to talk to each.  It also implements publish / subscribe.

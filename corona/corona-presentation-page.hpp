@@ -85,7 +85,7 @@ namespace corona
 		{
 			if (root) 
 			{
-				int batch_id = corona::comm_bus_app_interface::global_bus->start_batch();
+				int batch_id = corona::comm_desktop_bus_interface::global_bus->start_batch();
 				root->refresh(batch_id);
 			}
         }
@@ -589,7 +589,7 @@ namespace corona
 		void handle_onload(std::shared_ptr<page> _pg)
 		{
 			scope_lock locker(binding_lock);
-			int batch_id = corona::comm_bus_app_interface::global_bus->start_batch();
+			int batch_id = corona::comm_desktop_bus_interface::global_bus->start_batch();
 			_pg->root->loaded(batch_id);
 		}
 

@@ -33,8 +33,39 @@ namespace corona
 		local = 1
 	};
 
+	class comm_bus_interface : public system_monitoring_interface
+	{
+	public:
 
-	class comm_bus_app_interface : public system_monitoring_interface
+		virtual corona_client_response create_object(corona_instance _instance, std::string class_name) = 0;
+		virtual corona_client_response run_object(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response edit_object(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response put_object(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response get_object(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response delete_object(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response query_objects(corona_instance _instance, json object_information) = 0;
+		virtual corona_client_response query(corona_instance _instance, json query_body) = 0;
+		virtual corona_client_response copy_object(corona_instance _instance, json query_body) = 0;
+
+		virtual corona_client_response add_item_chest(corona_instance _instance, json add_to_chest_request) = 0;
+		virtual corona_client_response remove_item_chest(corona_instance _instance, json remove_from_chest_request) = 0;
+		virtual corona_client_response move_item_chest(corona_instance _instance, json move_chest_request) = 0;
+
+		virtual corona_client_response register_user(corona_instance _instance, json _user) = 0;
+		virtual corona_client_response confirm_user(corona_instance _instance, std::string _user_name, std::string _confirmation_code) = 0;
+		virtual corona_client_response send_user(corona_instance _instance, std::string _user_name) = 0;
+		virtual corona_client_response login(corona_instance _instance, std::string _user_name, std::string _password) = 0;
+		virtual corona_client_response login(corona_instance _instance) = 0;
+		virtual corona_client_response set_password(corona_instance _instance, std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
+		virtual corona_client_response get_classes(corona_instance _instance) = 0;
+		virtual corona_client_response get_class(corona_instance _instance, std::string class_name) = 0;
+		virtual corona_client_response put_class(corona_instance _instance, json _class_data) = 0;
+
+		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0) = 0;
+
+	};
+
+    class comm_desktop_bus_interface : public comm_bus_interface
 	{
 
 	protected:
@@ -49,9 +80,9 @@ namespace corona
 		time_t command_current = 0;
 		time_t elapsed_seconds = 0;
 
-		static comm_bus_app_interface* global_bus;
+		static comm_desktop_bus_interface* global_bus;
 
-		comm_bus_app_interface()
+		comm_desktop_bus_interface()
 		{
 			if (global_bus == nullptr) {
 				global_bus = this;
@@ -59,14 +90,14 @@ namespace corona
             local_gaming = corona::game::engine_factory::create_engine(this);
 		}
 
-		virtual ~comm_bus_app_interface()
+		virtual ~comm_desktop_bus_interface()
 		{
 			if (global_bus == this) {
 				global_bus = nullptr;
 			}
 		}
 
-		static comm_bus_app_interface* get_service()
+		static comm_desktop_bus_interface* get_service()
 		{
 			return global_bus;
 		}
@@ -126,30 +157,6 @@ namespace corona
 		virtual corona_client_response local_add_item_chest(json add_to_chest_request) = 0;
 		virtual corona_client_response local_remove_item_chest(json remove_from_chest_request) = 0;
 		virtual corona_client_response local_move_item_chest(json move_chest_request) = 0;
-
-		virtual corona_client_response create_object(corona_instance _instance, std::string class_name) = 0;
-		virtual corona_client_response run_object(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response edit_object(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response put_object(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response get_object(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response delete_object(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response query_objects(corona_instance _instance, json object_information) = 0;
-		virtual corona_client_response query(corona_instance _instance, json query_body) = 0;
-		virtual corona_client_response copy_object(corona_instance _instance, json query_body) = 0;
-
-		virtual corona_client_response add_item_chest(corona_instance _instance, json add_to_chest_request) = 0;
-		virtual corona_client_response remove_item_chest(corona_instance _instance, json remove_from_chest_request) = 0;
-		virtual corona_client_response move_item_chest(corona_instance _instance, json move_chest_request) = 0;
-
-		virtual corona_client_response register_user(corona_instance _instance, json _user) = 0;
-		virtual corona_client_response confirm_user(corona_instance _instance, std::string _user_name, std::string _confirmation_code) = 0;
-		virtual corona_client_response send_user(corona_instance _instance, std::string _user_name) = 0;
-		virtual corona_client_response login(corona_instance _instance, std::string _user_name, std::string _password) = 0;
-		virtual corona_client_response login(corona_instance _instance) = 0;
-		virtual corona_client_response set_password(corona_instance _instance, std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
-		virtual corona_client_response get_classes(corona_instance _instance) = 0;
-		virtual corona_client_response get_class(corona_instance _instance, std::string class_name) = 0;
-		virtual corona_client_response put_class(corona_instance _instance, json _class_data) = 0;
 
 		virtual void update_focus_list() = 0;
 
@@ -425,7 +432,7 @@ namespace corona
 		std::map<int, std::shared_ptr<json_object>> batch_data;
 	};
 
-	comm_bus_app_interface* comm_bus_app_interface::global_bus = nullptr;
+	comm_desktop_bus_interface* comm_desktop_bus_interface::global_bus = nullptr;
 
 	class corona_bus_command : public json_serializable
 	{
@@ -438,8 +445,8 @@ namespace corona
 			;
 		}
 
-		virtual json execute(int _batch_id, comm_bus_app_interface* _bus) = 0;
-		virtual json execute_sync(int _batch_id, comm_bus_app_interface* _bus) = 0;
+		virtual json execute(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
+		virtual json execute_sync(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
 
 		virtual void set_parameter(std::string _name, std::string _value)
 		{

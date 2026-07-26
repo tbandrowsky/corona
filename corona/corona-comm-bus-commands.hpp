@@ -91,26 +91,26 @@ namespace corona
 			;
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus) {
+		virtual json create_request(comm_desktop_bus_interface* _bus) {
 			json_parser jp;
 
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			corona_client_response response = {};
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus)
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus)
 		{
 			return response.data;
 		}
 
-		virtual void start_message(comm_bus_app_interface* _bus);
-		virtual void stop_message(comm_bus_app_interface* _bus);
-		virtual corona_client_response& stop_message(corona_client_response _src, comm_bus_app_interface* _bus);
+		virtual void start_message(comm_desktop_bus_interface* _bus);
+		virtual void stop_message(comm_desktop_bus_interface* _bus);
+		virtual corona_client_response& stop_message(corona_client_response _src, comm_desktop_bus_interface* _bus);
 
         virtual void set_parameter(std::string _name, std::string _value)
 		{
@@ -131,7 +131,7 @@ namespace corona
 			}
 		}
 
-		virtual json execute(int _batch_id, comm_bus_app_interface* bus)
+		virtual json execute(int _batch_id, comm_desktop_bus_interface* bus)
 		{
 			batch_id = _batch_id;
 			start_message(bus);
@@ -160,7 +160,7 @@ namespace corona
 			return request;
 		}
 
-		virtual json execute_sync_impl(int _batch_id, comm_bus_app_interface* bus)
+		virtual json execute_sync_impl(int _batch_id, comm_desktop_bus_interface* bus)
 		{
 			batch_id = _batch_id;
 			start_message(bus);
@@ -184,7 +184,7 @@ namespace corona
 			return request;
 		}
 
-		virtual json execute_sync(int _batch_id, comm_bus_app_interface* bus)
+		virtual json execute_sync(int _batch_id, comm_desktop_bus_interface* bus)
 		{
             if (bus->is_on_ui_thread()) {
                 json request = execute_sync_impl(_batch_id, bus);
@@ -287,7 +287,7 @@ namespace corona
 			return "navigate";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus) 
+		virtual json create_request(comm_desktop_bus_interface* _bus) 
 		{
 			json_parser jp;
 			json result = jp.create_object();
@@ -305,7 +305,7 @@ namespace corona
 			return result;
 		}
 
-		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		virtual corona_client_response execute_request(json _context, comm_desktop_bus_interface* bus)
 		{
 			corona_client_response response = {};
 			response.success = true;
@@ -313,7 +313,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus);
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -364,7 +364,7 @@ namespace corona
 			return "select_frame";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json result = jp.create_object();
@@ -382,7 +382,7 @@ namespace corona
 			return result;
 		}
 
-		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		virtual corona_client_response execute_request(json _context, comm_desktop_bus_interface* bus)
 		{
 			corona_client_response response = {};
 			response.success = true;
@@ -390,7 +390,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			if (response.success) {
 				_bus->select_frame(batch_id, target_frame, source_frame, response.data, false);
 			}
@@ -451,7 +451,7 @@ namespace corona
 			return "select_tab";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json result = jp.create_object();
@@ -459,14 +459,14 @@ namespace corona
 			return result;
 		}
 
-		virtual corona_client_response execute_request(json _context, comm_bus_app_interface* bus)
+		virtual corona_client_response execute_request(json _context, comm_desktop_bus_interface* bus)
 		{
 			corona_client_response response = {};
 			response.success = true;
 			response.data = _context;
 			return response;
 		}
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -522,7 +522,7 @@ namespace corona
 			return "list_add_chest";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -540,13 +540,13 @@ namespace corona
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->add_item_chest(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			if (response.success) {
                 _bus->object_updated(response.data);
 			}
@@ -601,7 +601,7 @@ namespace corona
 			return "list_remove_chest";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -619,13 +619,13 @@ namespace corona
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->remove_item_chest(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			if (response.success) {
 				_bus->object_updated(response.data);
 			}
@@ -682,7 +682,7 @@ namespace corona
 			return "list_move_chest";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -712,13 +712,13 @@ namespace corona
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->remove_item_chest(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			if (response.success) {
 				json from_object = _bus->get_form_data(table_form);
 				json to_object = _bus->get_form_data(form_name);
@@ -786,7 +786,7 @@ namespace corona
 			return "register_user";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -807,12 +807,12 @@ namespace corona
 
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			return _bus->register_user(instance, request);
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -880,7 +880,7 @@ namespace corona
 			return "confirm_user";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -889,12 +889,12 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			return _bus->confirm_user(instance, request[user_name_field].as_string(), request[validation_code_field].as_string());
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -948,7 +948,7 @@ namespace corona
 		}
 
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -957,12 +957,12 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			return _bus->send_user(instance, request[user_name_field].as_string());
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1016,7 +1016,7 @@ namespace corona
 			return "password_user";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1025,7 +1025,7 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			std::string user_name = request[user_name_field].as_string();
 			std::string validation_code = request[validation_code_field].as_string();
@@ -1034,7 +1034,7 @@ namespace corona
 			return _bus->set_password(instance, user_name, validation_code, password1, password2);
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1092,7 +1092,7 @@ namespace corona
 			return "login_user";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1101,14 +1101,14 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			std::string user_name = request[user_name_field].as_string();
 			std::string password = request[user_password_field].as_string();
 			return _bus->login(instance, user_name, password);
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1203,7 +1203,7 @@ namespace corona
 			return "get_classes";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1212,20 +1212,20 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			corona_client_response response = _bus->get_classes(instance);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			control_base* cb_table = {};
 
 			if (not table_name.empty())
 				cb_table = _bus->find_control(table_name);
 
 			if (not cb_table) {
-				comm_bus_app_interface::global_bus->log_warning(std::format("{0} table for search command not found", table_name), __FILE__, __LINE__);
+				comm_desktop_bus_interface::global_bus->log_warning(std::format("{0} table for search command not found", table_name), __FILE__, __LINE__);
 			}
 
 			json_parser jp;
@@ -1286,7 +1286,7 @@ namespace corona
 			topic = "get_class";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1295,14 +1295,14 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			std::string user_name = request[user_name_field].as_string();
 			std::string password = request[user_password_field].as_string();
 			return _bus->login(instance, user_name, password);
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1323,7 +1323,7 @@ namespace corona
 			topic = "put_class";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1332,12 +1332,12 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			return _bus->put_class(instance, request);
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1367,7 +1367,7 @@ namespace corona
 			return "create_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json parent_key = jp.create_object();
@@ -1389,7 +1389,7 @@ namespace corona
 			return parent_key;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->create_object(instance, create_class_name);
 
@@ -1406,7 +1406,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 
 			_bus->object_updated(response.data);
 			if (select_frame) {
@@ -1482,7 +1482,7 @@ namespace corona
 			return "list_select_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1494,13 +1494,13 @@ namespace corona
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->edit_object(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			if (response.success) {
 				std::string class_name = response.data["object"][class_name_field].as_string();
 				auto source_it = sources->pages_by_class.find(class_name);
@@ -1568,7 +1568,7 @@ namespace corona
 			return "save_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1580,7 +1580,7 @@ namespace corona
 			return jp.create_object();
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->put_object(instance, request);
 			std::string class_name = request["class_name"].as_string();
@@ -1594,7 +1594,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			if (response.cooked_data.object()) {
 				control_base* cb = _bus->find_control(form_name);
 				if (cb) {
@@ -1654,7 +1654,7 @@ namespace corona
 			return "load_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1663,13 +1663,13 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->get_object(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -1718,7 +1718,7 @@ namespace corona
 			return "delete_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1764,7 +1764,7 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			corona_client_response response;
 			response.success = false;
@@ -1776,7 +1776,7 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			if (response.success) {
 				_bus->object_deleted(deleted_object);
 			}
@@ -1874,7 +1874,7 @@ namespace corona
 		}
 
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -1946,7 +1946,7 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			corona_client_response ccr;
             ccr.message = "Copied to clipboard";
@@ -1954,7 +1954,7 @@ namespace corona
 			return ccr;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -2009,7 +2009,7 @@ namespace corona
 		}
 
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -2018,13 +2018,13 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->run_object(instance, request);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -2090,7 +2090,7 @@ namespace corona
 			return "query_object";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			control_base* cb_form = {};
@@ -2102,7 +2102,7 @@ namespace corona
 				cb_form = _bus->find_control(form_name);
 
 			if (not cb_form) {
-				comm_bus_app_interface::global_bus->log_warning(std::format("{0} form for search command not found", form_name), __FILE__, __LINE__);
+				comm_desktop_bus_interface::global_bus->log_warning(std::format("{0} form for search command not found", form_name), __FILE__, __LINE__);
 			}
 
 			if (cb_form)
@@ -2117,7 +2117,7 @@ namespace corona
 			return object_data;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			corona_client_response response;
 			json_parser jp;
@@ -2148,12 +2148,12 @@ namespace corona
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response,  comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 			control_base* cb_table = {};
 			if (not table_name.empty())
 				cb_table = _bus->find_control(table_name);
 			if (not cb_table) {
-				comm_bus_app_interface::global_bus->log_warning(std::format("{0} table for search command not found", table_name), __FILE__, __LINE__);
+				comm_desktop_bus_interface::global_bus->log_warning(std::format("{0} table for search command not found", table_name), __FILE__, __LINE__);
 			}
 			if (response.success) {
 				if (cb_table) {
@@ -2251,7 +2251,7 @@ namespace corona
 			return "script";
 		}
 
-		virtual json execute(comm_bus_app_interface* bus)
+		virtual json execute(comm_desktop_bus_interface* bus)
 		{
 			json obj;
 			for (auto comm : commands) {
@@ -2335,7 +2335,7 @@ namespace corona
 			return "get_games";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 
@@ -2344,13 +2344,13 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->local_get_games();
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			auto ctrl = _bus->find_control(form_name);
 			if (ctrl) {
 				ctrl->set_items(response.data);
@@ -2396,7 +2396,7 @@ namespace corona
 			return "start_game";
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus)
+		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json obj;
@@ -2404,14 +2404,14 @@ namespace corona
 			return obj;
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto temp = _bus->local_start_adventure(request);
 			session = std::dynamic_pointer_cast<corona::game::adventure_app_interface>(temp);
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus);
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus);
 
 		virtual void get_json(json& _dest)
 		{
@@ -2464,14 +2464,14 @@ namespace corona
             return session;
 		}
 
-		virtual json create_request(comm_bus_app_interface* _bus);
+		virtual json create_request(comm_desktop_bus_interface* _bus);
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus)
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			return response;
 		}
 
-		virtual json handle_response(corona_client_response response, comm_bus_app_interface* _bus) {
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			return response.data;
 		}
 
@@ -2507,7 +2507,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus);
 	};
 
 	class corona_game_set_active : public corona_game_command
@@ -2517,7 +2517,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus);
 	};
 
 	class corona_game_set_paused : public corona_game_command
@@ -2527,7 +2527,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus);
 	};
 
 	class corona_game_set_complete : public corona_game_command
@@ -2537,7 +2537,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus);
 	};
 
 	class corona_game_set_exit : public corona_game_command
@@ -2547,7 +2547,7 @@ namespace corona
 		{
 		}
 
-		virtual corona_client_response execute_request(json request, comm_bus_app_interface* _bus);
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus);
 	};
 
 	class corona_set_property_command : public corona_form_command
@@ -2571,7 +2571,7 @@ namespace corona
 			return "set_property";
 		}
 
-		virtual json execute(comm_bus_app_interface* bus);
+		virtual json execute(comm_desktop_bus_interface* bus);
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
@@ -2773,7 +2773,7 @@ namespace corona
 		}
 	}
 
-	void corona_form_command::start_message(comm_bus_app_interface* _bus)
+	void corona_form_command::start_message(comm_desktop_bus_interface* _bus)
 	{
 		return;
 
@@ -2796,7 +2796,7 @@ namespace corona
 		dest->execute(_bus);
 	}
 
-	void corona_form_command::stop_message(comm_bus_app_interface* _bus)
+	void corona_form_command::stop_message(comm_desktop_bus_interface* _bus)
 	{
 		auto dest = std::make_shared<corona_set_property_command>();
 		json_parser jp;
@@ -2817,7 +2817,7 @@ namespace corona
 		dest->execute(_bus);
 	}
 
-	corona_client_response& corona_form_command::stop_message(corona_client_response _src, comm_bus_app_interface* _bus)
+	corona_client_response& corona_form_command::stop_message(corona_client_response _src, comm_desktop_bus_interface* _bus)
 	{
 		auto dest = std::make_shared<corona_set_property_command>();
 		json_parser jp;

@@ -764,7 +764,7 @@ namespace corona
 		virtual void refresh(int _batch_id)
 		{
 			if (onrefresh_command) {
-				corona::comm_bus_app_interface::global_bus->run_command(_batch_id, onrefresh_command);
+				comm_desktop_bus_interface::get_service()->run_command(_batch_id, onrefresh_command);
 			}
 			for (auto child : children) {
 				child->refresh(_batch_id);

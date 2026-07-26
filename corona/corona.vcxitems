@@ -117,7 +117,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-xinput.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-motion-detect.hpp" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)corona-comm-app-bus.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-comm-desktop-bus.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-publicity-stunts.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-express-table.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona_service_locator.h" />

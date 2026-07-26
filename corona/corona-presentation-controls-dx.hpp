@@ -466,7 +466,7 @@ namespace corona
 
             on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _ctrl) ->void
                 {
-                    comm_bus_app_interface::global_bus->run_ui([this]() ->void {
+                   comm_desktop_bus_interface::get_service()->run_ui([this]() ->void {
                         start();
                         });
                 };
@@ -1861,7 +1861,7 @@ namespace corona
             if (enable_source_frame.empty() || enable_class_name.empty()) {
                 return true; // No enabling conditions, always enabled
             }
-            auto* bus = comm_bus_app_interface::get_service();
+            auto* bus = comm_desktop_bus_interface::get_service();
             auto frame = bus->find_control(enable_source_frame);
             if (frame) {
                 auto target = frame->get_data();

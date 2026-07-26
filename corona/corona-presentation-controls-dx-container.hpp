@@ -450,7 +450,7 @@ namespace corona
 				// the drag is, the command is invoked synchronously, so you don't want to do data loads on on_load, just yet.
 				// although for small objects it might well be ok.
 				onload_command->data = get_data();
-				corona::comm_bus_app_interface::global_bus->exec_command(_batch_id, onload_command);
+				corona::comm_desktop_bus_interface::get_service()->exec_command(_batch_id, onload_command);
 			}
 		}
 
