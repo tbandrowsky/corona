@@ -4817,14 +4817,14 @@ namespace corona
 
 			for (auto parent : parents)
 			{
-				if (jfields.has_member(parent)) {
-					continue;
+				if (!jfields.has_member(parent)) {
+					jfields.put_member(parent, std::string("int64"));
 				}
-				else {
-					std::string parent_name = (std::string)parent;
-					jfields.put_member(parent_name, std::string("int64"));
-					std::string parent_class_name = parent_name + "_class";
-					jfields.put_member(parent_class_name, std::string("string"));
+
+				std::string pclass_name = parent + "_class";
+
+				if (!jfields.has_member(pclass_name)) {
+					jfields.put_member(pclass_name, std::string("string"));
 				}
 			}
 
@@ -4876,13 +4876,14 @@ namespace corona
 					else if (jfield.second.array())
 					{
 						field->set_field_type(field_types::ft_array);
-						cod.is_array = true;
+						cod.is_array = true; 
 						for (auto jfield_grant : jfield.second) {
 							if (jfield_grant.is_string())
 							{
 								std::shared_ptr<child_object_class> coc = std::make_shared<child_object_class>();
                                 coc->class_name = jfield_grant.as_string();
 								coc->copy_values.insert_or_assign(class_name, object_id_field);
+								coc->copy_values.insert_or_assign(class_name + "_class", class_name_field);
 								cod.child_classes.push_back( coc );
 							}
                         }

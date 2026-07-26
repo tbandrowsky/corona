@@ -66,67 +66,6 @@
       }
     },
     {
-      "class_name": "frame",
-      "base_class_name": "game_base",
-      "class_description": "a gaming piece",
-      "parents": [ "animation" ],
-      "fields": {
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "duration": {
-          "field_type": "double",
-          "label": "Duration"
-        },
-        "time_point": "double",
-        "draw_rectangle": "rectangle",
-        "fire_point": "vector",
-        "sound": "audio"
-      }
-    },
-    {
-      "class_name": "bitmap_frame",
-      "base_class_name": "frame",
-      "class_description": "a gaming piece of an image",
-      "fields": {
-        "image": "bitmap"
-      }
-    },
-    {
-      "class_name": "vector_frame",
-      "base_class_name": "frame",
-      "class_description": "a gaming piece of an image",
-      "fields": {
-        "shape": "path",
-        "fill": "brush",
-        "stroke": "brush",
-        "stroke_width": "double"
-      }
-    },
-    {
-      "class_name": "animation",
-      "base_class_name": "game_base",
-      "class_description": "a gaming piece",
-      "parents": [ "piece" ],
-      "fields": {
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "duration": {
-          "field_type": "double",
-          "label": "Duration"
-        },
-        "destination": "rectangle",
-        "direction": "vector",
-        "sound": "audio",
-        "frames": [ "frame" ],
-        "schedule": "animation_scheduler",
-        "carry_point": "vector"
-      }
-    },
-    {
       "class_name": "piece_type",
       "base_class_name": "game_base",
       "class_description": "a type of gaming piece",
@@ -173,6 +112,67 @@
           "item_class": "piece"
         },
         "animations": [ "animation" ]
+      }
+    },
+    {
+      "class_name": "animation",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "piece" ],
+      "fields": {
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "duration": {
+          "field_type": "double",
+          "label": "Duration"
+        },
+        "destination": "rectangle",
+        "direction": "vector",
+        "sound": "audio",
+        "frames": [ "frame" ],
+        "schedule": "animation_scheduler",
+        "carry_point": "vector"
+      }
+    },
+    {
+      "class_name": "frame",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "animation" ],
+      "fields": {
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "duration": {
+          "field_type": "double",
+          "label": "Duration"
+        },
+        "time_point": "double",
+        "draw_rectangle": "rectangle",
+        "fire_point": "vector",
+        "sound": "audio"
+      }
+    },
+    {
+      "class_name": "bitmap_frame",
+      "base_class_name": "frame",
+      "class_description": "a gaming piece of an image",
+      "fields": {
+        "image": "bitmap"
+      }
+    },
+    {
+      "class_name": "vector_frame",
+      "base_class_name": "frame",
+      "class_description": "a gaming piece of an image",
+      "fields": {
+        "shape": "path",
+        "fill": "brush",
+        "stroke": "brush",
+        "stroke_width": "double"
       }
     },
     {
@@ -549,7 +549,7 @@
           "label": "Name",
           "max_length": 100
         },
-        "team_name":  {
+        "team_name": {
           "field_type": "string",
           "label": "Team Name",
           "max_length": 100
