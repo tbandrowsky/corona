@@ -2919,7 +2919,7 @@ namespace corona
 
 		std::shared_ptr<engine_interface> engine_factory::create_engine(system_monitoring_interface*_bus)
 		{
-			auto busorama = dynamic_cast<comm_bus_interface*>(_bus);
+			auto busorama = dynamic_cast<comm_desktop_bus_interface*>(_bus);
             auto ptr = std::make_shared<engine>(busorama);
             auto result = std::dynamic_pointer_cast<engine_interface>(ptr);
 			return result;
