@@ -587,11 +587,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\card.json" />
+    <None Include="configuration\source_templates\card_container.json" />
+    <None Include="configuration\source_templates\card_container_small.json" />
     <None Include="configuration\source_templates\create_command_class.json" />
     <None Include="configuration\source_templates\adventure_details.json" />
+    <None Include="configuration\source_templates\home.json" />
+    <None Include="configuration\source_templates\object_container.json" />
+    <None Include="configuration\source_templates\object_details.json" />
+    <None Include="configuration\source_templates\pages.json" />
     <None Include="configuration\source_templates\search.json" />
     <None Include="configuration\source_templates\search_command_class.json" />
     <None Include="configuration\source_templates\search_group.json" />
+    <None Include="configuration\source_templates\styles.json" />
     <None Include="configuration\source_templates\tab_list.json" />
     <None Include="configuration\source_templates\object.json" />
     <None Include="configuration\source_templates\tab_container.json" />
