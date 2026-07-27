@@ -9,7 +9,49 @@
           "width":"100 pixels"
         },
       "button_margin":{ "amount":20.000000, "units":"pixels" },
-      "card_sources":{ "person":"card_person" },
+      "card_sources":
+        {
+          "activity":"card_activity",
+          "actor":"card_actor",
+          "ammunition":"card_ammunition",
+          "animation":"card_animation",
+          "animation_scheduler":"card_animation_scheduler",
+          "bitmap_frame":"card_bitmap_frame",
+          "camera":"card_camera",
+          "carryable":"card_carryable",
+          "consumable":"card_consumable",
+          "decoration":"card_decoration",
+          "door":"card_door",
+          "effect":"card_effect",
+          "essay":"card_essay",
+          "feature":"card_feature",
+          "firearm":"card_firearm",
+          "frame":"card_frame",
+          "function_scheduler":"card_function_scheduler",
+          "game":"card_game",
+          "globe_light":"card_globe_light",
+          "hit":"card_hit",
+          "light":"card_light",
+          "loot_box":"card_loot_box",
+          "loot_spot":"card_loot_spot",
+          "magazine":"card_magazine",
+          "npc":"card_npc",
+          "piece":"card_piece",
+          "piece_type":"card_piece_type",
+          "player":"card_player",
+          "set":"card_set",
+          "shot":"card_shot",
+          "spawn":"card_spawn",
+          "spot_light":"card_spot_light",
+          "stick":"card_stick",
+          "surface":"card_surface",
+          "switcher":"card_switcher",
+          "tool":"card_tool",
+          "use_plate":"card_use_plate",
+          "vector_frame":"card_vector_frame",
+          "wall":"card_wall",
+          "wand":"card_wand"
+        },
       "card_text_box":
         {
           "height":{ "amount":14.000000, "units":"pixels" },
@@ -60,7 +102,49 @@
           "height":{ "amount":60.000000, "units":"pixels" },
           "width":{ "amount":200.000000, "units":"pixels" }
         },
-      "form_sources":{ "person":"object_person" },
+      "form_sources":
+        {
+          "activity":"object_activity",
+          "actor":"object_actor",
+          "ammunition":"object_ammunition",
+          "animation":"object_animation",
+          "animation_scheduler":"object_animation_scheduler",
+          "bitmap_frame":"object_bitmap_frame",
+          "camera":"object_camera",
+          "carryable":"object_carryable",
+          "consumable":"object_consumable",
+          "decoration":"object_decoration",
+          "door":"object_door",
+          "effect":"object_effect",
+          "essay":"object_essay",
+          "feature":"object_feature",
+          "firearm":"object_firearm",
+          "frame":"object_frame",
+          "function_scheduler":"object_function_scheduler",
+          "game":"object_game",
+          "globe_light":"object_globe_light",
+          "hit":"object_hit",
+          "light":"object_light",
+          "loot_box":"object_loot_box",
+          "loot_spot":"object_loot_spot",
+          "magazine":"object_magazine",
+          "npc":"object_npc",
+          "piece":"object_piece",
+          "piece_type":"object_piece_type",
+          "player":"object_player",
+          "set":"object_set",
+          "shot":"object_shot",
+          "spawn":"object_spawn",
+          "spot_light":"object_spot_light",
+          "stick":"object_stick",
+          "surface":"object_surface",
+          "switcher":"object_switcher",
+          "tool":"object_tool",
+          "use_plate":"object_use_plate",
+          "vector_frame":"object_vector_frame",
+          "wall":"object_wall",
+          "wand":"object_wand"
+        },
       "full_container":
         {
           "height":{ "amount":1.000000, "units":"container" },
@@ -116,11 +200,483 @@
 
       { "class_name":"import", "file_name":"pages\\page_home.json" },
 
-      { "class_name":"import", "file_name":"pages\\card_person.json" },
+      { "class_name":"import", "file_name":"pages\\card_activity.json" },
 
-      { "class_name":"import", "file_name":"pages\\object_person.json" },
+      { "class_name":"import", "file_name":"pages\\object_activity.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_person.json" },
+      { "class_name":"import", "file_name":"pages\\tab_activity.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_actor.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_actor_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_actor.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_actor.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_ammunition.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_ammunition_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_ammunition.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_ammunition.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_animation.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_animation_frames.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_animation.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_animation.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_animation_scheduler.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_animation_scheduler_schedule.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_animation_scheduler.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_animation_scheduler.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_bitmap_frame.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_bitmap_frame.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_bitmap_frame.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_camera.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_camera_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_camera.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_camera.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_carryable.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_carryable_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_carryable.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_carryable.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_consumable.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_consumable_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_consumable.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_consumable.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_decoration.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_decoration_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_decoration.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_decoration.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_door.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_door_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_door.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_door.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_effect.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_effect_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_effect.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_effect.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_essay.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_essay.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_essay.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_feature.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_feature_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_feature.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_feature.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_firearm.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_firearm_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_firearm.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_firearm.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_frame.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_frame.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_frame.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_function_scheduler.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_function_scheduler.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_function_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_game.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_game_adventures.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_game.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_game.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_globe_light.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_globe_light_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_globe_light.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_globe_light.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_hit.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_hit_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_hit.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_hit.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_light.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_light_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_light.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_light.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_loot_box.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_loot_box_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_loot_box.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_loot_box.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_loot_spot.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_loot_spot_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_loot_spot.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_loot_spot.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_magazine.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_magazine_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_magazine.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_magazine.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_npc.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_npc_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_npc.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_npc.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_piece.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_piece_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_piece.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_piece.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_piece_type.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_piece_type_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_piece_type_pieces.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_piece_type.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_piece_type.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_player.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_player_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_player.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_player.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_set.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_set_contents.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_set_tile_codes.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_set_tile_strings.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_set.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_set.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_shot.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_shot_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_shot.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shot.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_spawn.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_spawn_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_spawn.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_spawn.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_spot_light.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_spot_light_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_spot_light.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_spot_light.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_stick.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_stick_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_stick.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_stick.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_surface.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_surface_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_surface.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_surface.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_switcher.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_switcher_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_switcher_sets.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_switcher.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_switcher.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_tool.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_tool_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_tool.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_tool.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_use_plate.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_use_plate_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_use_plate.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_use_plate.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_vector_frame.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_vector_frame.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_vector_frame.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_wall.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_wall_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_wall.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_wall.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_wand.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_wand_animations.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_wand.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_wand.json" },
 
       { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],

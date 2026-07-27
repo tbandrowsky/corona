@@ -686,7 +686,7 @@
       "magazine": "default",
       "ammunition": "default",
       "shot": "default",
-      "wand": "spell",
+      "wand": "default",
       "stick": "default",
       "hit": "default",
       "set": "default",

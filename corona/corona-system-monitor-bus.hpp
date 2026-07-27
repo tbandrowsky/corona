@@ -108,7 +108,9 @@ namespace corona
 
 		void test_colors()
 		{
-			auto xout = get_log_file();
+			auto& xcout = get_log_file();
+			std::osyncstream xout(xcout);
+
 			date_time start_time = date_time::now();
 			timer tx;
 			log_command_start("Startup", "Color Test", start_time, __FILE__, __LINE__);
@@ -178,23 +180,20 @@ namespace corona
 		bool is_service = false;
 		std::ofstream log_file;
 
-		std::osyncstream get_log_file()
+		std::ostream &get_log_file()
 		{
 			if (is_service) {
 				if (not log_file.is_open()) {
 					log_file.open(log_file_name, std::ios::out | std::ios::app);
 				}
-				return std::osyncstream( log_file );
+				return log_file;
 			}
 
-			return std::osyncstream( std::cout );
+			return std::cout;
 		}
 
-		void file_line(const char* _file, int _line)
+		void file_line(std::osyncstream& xout, const char* _file, int _line)
 		{
-
-			auto xout = get_log_file();
-
 			if (_file) {
 				const char* last_post = _file;
 				const char* fn = _file;
@@ -300,7 +299,9 @@ namespace corona
 
 			try {
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
+
 
 				xout << Logusercommand;
 				xout << std::format("{0:<30}{1:<55}{2:<25}",
@@ -308,7 +309,7 @@ namespace corona
 					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 			}
@@ -341,7 +342,9 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
+
 
 				xout << Logusercommand;
 				xout << std::format("{0:<30}{1:<55}{2:<25}",
@@ -349,7 +352,7 @@ namespace corona
 					trim(_message, 55),
 					std::format("{0} secs",_elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl << std::endl;
 
@@ -385,7 +388,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				xout << Logcommand;
 				xout << std::format("{0:<30}{1:<55}{2:<25}",
@@ -393,7 +397,7 @@ namespace corona
 					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 			}
@@ -427,7 +431,8 @@ namespace corona
 
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				if (_command_name.empty())
 					_command_name = " ";
@@ -440,7 +445,7 @@ namespace corona
 					_message,
 					std::format("{0} secs", _elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 
@@ -478,7 +483,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -488,7 +494,7 @@ namespace corona
 				trim(_message, 55),
 				_request_time.format("%D %H:%M start")
 			);
-			file_line(_file, _line);
+			file_line(xout, _file, _line);
 			xout << Normal;
 			xout << std::endl;
 
@@ -521,7 +527,9 @@ namespace corona
 #endif
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
+
 
 			if (_api_name.empty())
 				_api_name = " ";
@@ -536,7 +544,7 @@ namespace corona
 				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
 			);
-			file_line(_file, _line);
+			file_line(xout, _file, _line);
 			xout << Normal;
 			xout << std::endl;
 
@@ -572,7 +580,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -581,7 +590,7 @@ namespace corona
 					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 
@@ -620,7 +629,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -629,7 +639,7 @@ namespace corona
 					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 
@@ -663,7 +673,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -674,7 +685,7 @@ namespace corona
 				trim(cmessage, 55),
 				_request_time.format("%D %H:%M start")
 			);
-			file_line(cfilename, _line);
+			file_line(xout, cfilename, _line);
 			xout << Normal;
 			xout << std::endl;
 
@@ -709,8 +720,9 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
-				
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
+
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
 				xout << Logapi;
@@ -721,7 +733,7 @@ namespace corona
 				trim(_message, 55),
 				std::format("{0} secs", _elapsed_seconds)
 			);
-			file_line(cfilename, _line);
+			file_line(xout, cfilename, _line);
 			xout << Normal;
 			xout << std::endl;
 			}
@@ -754,7 +766,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -766,7 +779,7 @@ namespace corona
 					trim(_message, 55),
 					_request_time.format("%D %H:%M start")
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 
@@ -798,7 +811,8 @@ namespace corona
 				}
 #endif
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 					std::string sindent(_indent, ' ');
 					_function_name = sindent + _function_name;
@@ -812,7 +826,7 @@ namespace corona
 					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 			}
@@ -896,7 +910,8 @@ namespace corona
 #endif
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 			xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
@@ -910,7 +925,7 @@ namespace corona
 					_message,
 					" "
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 			}
 			else {
 				xout << _message;
@@ -942,7 +957,8 @@ namespace corona
 
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logactivity;
 			xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
@@ -955,7 +971,7 @@ namespace corona
 				trim(_message, 55),
 				_time.format("%D %H:%M")
 			);
-			file_line(_file, _line);
+			file_line(xout, _file, _line);
 			xout << Normal;
 			xout << std::endl;
 			}
@@ -982,7 +998,8 @@ namespace corona
 #endif
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -995,7 +1012,7 @@ namespace corona
 					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 			}
@@ -1014,7 +1031,8 @@ namespace corona
 
 			try {
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 				xout << Logcommand;
 				xout << std::format("{0:<5}", " ");
@@ -1027,7 +1045,7 @@ namespace corona
 					trim(_message, 55),
 					std::format("{0} secs", _elapsed_seconds)
 				);
-				file_line(_file, _line);
+				file_line(xout, _file, _line);
 				xout << Normal;
 				xout << std::endl;
 			}
@@ -1053,7 +1071,8 @@ namespace corona
 
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
 			xout << Logapi;
@@ -1105,8 +1124,9 @@ namespace corona
 				message_slice = _message.substr(0, l);
 				_message = _message.substr(l);
 				 try {
-					auto xout = get_log_file();
-					xout << Logcommand;
+					 auto& xcout = get_log_file();
+					 std::osyncstream xout(xcout);
+					 xout << Logcommand;
 					xout << std::format("{0:<5}", " ");
 					xout << Logapi;
 					xout << std::format("{0:<5}", " ");
@@ -1116,7 +1136,7 @@ namespace corona
 					xout << std::format("{0:<80}",
 						trim(message_slice, 80)
 					);
-					file_line(_file, _line);
+					file_line(xout, _file, _line);
 					xout << Normal;
 					xout << std::endl;
 				}
@@ -1144,7 +1164,8 @@ namespace corona
 
 
 			try {
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 				xout << Logcommand;
 			xout << std::format("{0:<5}", " ");
 			xout << Logapi;
@@ -1155,7 +1176,7 @@ namespace corona
 			xout << std::format("{0:<80}",
 				trim(exc.what(), 80)
 			);
-			file_line(_file, _line);
+			file_line(xout, _file, _line);
 			xout << std::endl;
 			xout << Normal;
 			}
@@ -1170,7 +1191,8 @@ namespace corona
 		{
 			try {
 
-				auto xout = get_log_file();
+				auto& xcout = get_log_file();
+				std::osyncstream xout(xcout);
 
 			std::string sindent(_indent, ' ');
 			if (_src.object())

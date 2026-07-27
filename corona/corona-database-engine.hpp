@@ -9158,6 +9158,7 @@ private:
 						}
 
 						if (errors.size() > 0) {
+							log_warning("UX NOT CREATED");
 							log_errors(errors);
 							return jp.create_object();
 						}
