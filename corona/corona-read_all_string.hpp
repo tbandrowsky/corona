@@ -27,6 +27,12 @@ namespace corona {
 
 		try {
 
+            if (!std::filesystem::exists(p)) {
+				std::string message = std::format("{0}: file does not exist", _filename);
+				std::osyncstream(std::cout) << std::endl << std::endl << message << std::endl << std::endl;
+				return results;
+			}
+
 			int64_t length = std::filesystem::file_size(p);
 			if (length > 0)
 			{
@@ -59,7 +65,7 @@ namespace corona {
         catch (std::exception& e) {
 			std::string err = e.what();
             std::string message = std::format("{0}: {1}", _filename, err);
-            std::cout << std::endl << std::endl << message << std::endl << std::endl;
+            std::osyncstream(std::cout) << std::endl << std::endl << message << std::endl << std::endl;
 		}
 		return results;
 	}

@@ -349,6 +349,12 @@ namespace corona
 				read_json(pages_config_filename, pages_json);
 				read_json(styles_config_filename, styles_json);
 
+                if (pages_json.empty() || styles_json.empty())
+				{
+					log_warning("poll_pages: pages or styles json is empty", __FILE__, __LINE__);
+					return;
+				}
+		
 				timer tx;
 				date_time t = date_time::now();
 
@@ -2090,6 +2096,12 @@ namespace corona
 			date_time dt = date_time::now();
 			log_function_start("load_pages", "", dt);
 			run_ui([this, _pages, _select_default]() ->void {
+
+                json p = _pages["pages"];
+                if (p.empty()) {
+					log_warning("load_pages called with empty pages", __FILE__, __LINE__);
+					return;
+				}
 
 				timer tx;
 				date_time dt = date_time::now();
