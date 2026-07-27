@@ -8968,9 +8968,40 @@ private:
 
 		*/
 
+        virtual json read_json(validation_error_collection& _errors, std::string _file_name)
+		{
+			json_parser jp;
+			json result = jp.from_file(_file_name);
+			if (result[class_name_field].as_string() == parse_error_class) {
+				json errs = result["errors"].as_array();
+                for (int i = 0; i < errs.size(); i++) {
+					json err = errs.get_element(i);
+					validation_error ve;
+                    ve.filename = _file_name;
+                    ve.line_number = err["line"].as_int();
+                    ve.message = err["error"].as_string();
+					ve.field_name = err["topic"].as_string();
+					ve.class_name = _file_name;
+					_errors.push_back(ve);
+				}
+			}
+			if (result.empty()) {
+				validation_error ve;
+				ve.filename = _file_name;
+				ve.line_number = 0;
+				ve.message = std::format("File {0} is empty or not found", _file_name);
+				ve.field_name = "";
+				ve.class_name = _file_name;
+				_errors.push_back(ve);
+            }
+			return result;
+		}
 
 		virtual json create_application(json _application_schema)
 		{
+
+			validation_error_collection errors;
+
 			json_parser jp;
 
 			json field_mappings = _application_schema["fields"];
@@ -8992,6 +9023,7 @@ private:
 					json create_result = put_object(put_object_request);
 					if (not create_result[success_field].as_bool()) {
 						system_monitoring_interface::active_mon->log_warning(create_result[message_field].as_string());
+						log_error_array(create_result);
 					}
 					else {
 						json result = create_result[data_field];
@@ -9027,17 +9059,17 @@ private:
 			// read the templates from the files.  everything is json object and we're just manipulating them
 			// in a C++ equivalent of what node.js might do.
 			
-			json card_template = jp.from_file(this->config_path + "source_templates\\card.json");
+			json card_template = read_json(errors, this->config_path + "source_templates\\card.json");
 
-			json card_container_template = jp.from_file(this->config_path + "source_templates\\card_container.json");
-			json object_template = jp.from_file(this->config_path + "source_templates\\object.json");
-			json object_details = jp.from_file(this->config_path + "source_templates\\object_details.json");
-			json object_container_template = jp.from_file(this->config_path + "source_templates\\object_container.json");
+			json card_container_template = read_json(errors, this->config_path + "source_templates\\card_container.json");
+			json object_template = read_json(errors, this->config_path + "source_templates\\object.json");
+			json object_details = read_json(errors, this->config_path + "source_templates\\object_details.json");
+			json object_container_template = read_json(errors, this->config_path + "source_templates\\object_container.json");
 
-			json tab_edit_template = jp.from_file(this->config_path + "source_templates\\tab_edit.json");
-			json tab_list_template = jp.from_file(this->config_path + "source_templates\\tab_list.json");
-			json tab_container_template = jp.from_file(this->config_path + "source_templates\\tab_container.json");
-			json home_template = jp.from_file(this->config_path + "source_templates\\home.json");
+			json tab_edit_template = read_json(errors, this->config_path + "source_templates\\tab_edit.json");
+			json tab_list_template = read_json(errors, this->config_path + "source_templates\\tab_list.json");
+			json tab_container_template = read_json(errors, this->config_path + "source_templates\\tab_container.json");
+			json home_template = read_json(errors, this->config_path + "source_templates\\home.json");
 			json home_page = home_template.clone();
 
 			home_page.apply_abbreviations({
@@ -9045,13 +9077,13 @@ private:
 				{ "$title_name",  _application_schema["application_name"] }
                 });
 
-			json pages_template = jp.from_file(this->config_path + "source_templates\\pages.json");
-			json styles_template = jp.from_file(this->config_path + "source_templates\\styles.json");
+			json pages_template = read_json(errors, this->config_path + "source_templates\\pages.json");
+			json styles_template = read_json(errors, this->config_path + "source_templates\\styles.json");
 
-            json search_template = jp.from_file(this->config_path + "source_templates\\search.json");
-            json search_group_template = jp.from_file(this->config_path + "source_templates\\search_group.json");
-			json search_command_class_template = jp.from_file(this->config_path + "source_templates\\search_command_class.json");
-			json create_command_class_template = jp.from_file(this->config_path + "source_templates\\create_command_class.json");
+            json search_template = read_json(errors, this->config_path + "source_templates\\search.json");
+            json search_group_template = read_json(errors, this->config_path + "source_templates\\search_group.json");
+			json search_command_class_template = read_json(errors, this->config_path + "source_templates\\search_command_class.json");
+			json create_command_class_template = read_json(errors, this->config_path + "source_templates\\create_command_class.json");
 
 			json pages_array = pages_template["pages"];
             json abbreviations = pages_template["abbreviations"];
@@ -9063,6 +9095,11 @@ private:
 			pages.push_back(home_page);
 
 			std::map<std::string, bool> card_fields;
+
+			if (errors.size() > 0) {
+				log_errors(errors);
+				return jp.create_object();
+			}
 
             json ja = _application_schema["card_fields"];
 			if (ja.array()) {
@@ -9092,7 +9129,7 @@ private:
 
                         if (class_ux_map.is_string() && class_ux_map.as_string() == "default") 
 						{
-							class_ux_map = create_ux_map(classd, card_fields);
+							class_ux_map = create_ux_map(errors, classd, card_fields);
 						}
 
 						if (class_ux_map.empty()) 
@@ -9101,23 +9138,28 @@ private:
 						}
 
 						// Generate card page
-						json card_pages = generate_card_pages(card_template, classd, class_ux_map, field_mappings);
+						json card_pages = generate_card_pages(errors, card_template, classd, class_ux_map, field_mappings);
 						if (!card_pages.empty()) {
                             card_sources.put_member(class_name, std::format("card_{}", class_name));
 							pages.push_back_array(card_pages);
 						}
 
 						// Generate object details page
-						json object_pages = generate_object_pages(object_template, classd, class_ux_map, field_mappings, tab_list_template);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
 						}
 
 						// Generate container/list page
-						json tab_edit_pages = generate_tab_edit_pages(tab_edit_template, classd, class_ux_map, field_mappings);
+						json tab_edit_pages = generate_tab_edit_pages(errors, tab_edit_template, classd, class_ux_map, field_mappings);
 						if (!tab_edit_pages.empty()) {
 							pages.push_back_array(tab_edit_pages);
+						}
+
+						if (errors.size() > 0) {
+							log_errors(errors);
+							return jp.create_object();
 						}
 					}
 				}
@@ -9276,7 +9318,7 @@ private:
         }
 */
 
-	json create_ux_map(read_class_sp& classd, std::map<std::string, bool>& _card_fields)
+	json create_ux_map(validation_error_collection& vec, read_class_sp& classd, std::map<std::string, bool>& _card_fields)
 	{
 		json_parser jp;
 		json ux_map = jp.create_object();
@@ -9376,7 +9418,7 @@ private:
 		return ux_map;
     }
 
-	json generate_card_pages(json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
+	json generate_card_pages(validation_error_collection& vec, json& card_template, read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
 
@@ -9399,6 +9441,17 @@ private:
 
 					// Check if this field should be displayed on the card
 					auto cfm = class_mappings["card"]["fields"];
+
+                    if (not cfm.array()) {
+						validation_error ve;
+                        ve.class_name = class_name;
+						ve.count = 1;
+                        ve.message = "card.fields must be supplied for " + class_name;
+                        ve.filename = __FILE__;
+                        ve.line_number = __LINE__;
+						
+						return pages;
+					}
 
 					for (int i = 0; i < cfm.size(); i++) {
 						auto field = cfm.get_element(i);
@@ -9450,7 +9503,7 @@ private:
 			return field_mappings["string"];
 		}
 
-		json generate_tab_edit_pages(json& tab_template, 
+		json generate_tab_edit_pages(validation_error_collection& _errors, json& tab_template, 
 			read_class_sp& classd, json& class_mappings, json& field_mappings)
 		{
 			json_parser jp;
@@ -9470,6 +9523,17 @@ private:
 
 			// Populate card contents
 			auto cfm = class_mappings["tab_edit"]["fields"];
+
+			if (!cfm.array()) {
+				validation_error ve;
+				ve.class_name = classd->get_class_name();
+                ve.filename = __FILE__;
+				ve.line_number = __LINE__;
+				ve.count = 1;
+                ve.message = "tab_edit.fields must be supplied for " + classd->get_class_name();
+				_errors.push_back(ve);
+				return jp.create_object();
+			}
 
 			for (int i = 0; i < cfm.size(); i++) {
 				auto field = cfm.get_element(i);
@@ -9527,7 +9591,7 @@ private:
 			return pages;
 		}
 
-		json generate_object_pages(json& object_template,
+		json generate_object_pages(validation_error_collection& _errors, json& object_template,
 			read_class_sp& classd,
 			json& class_mappings, json& field_mappings, json& tab_list_template)
 		{

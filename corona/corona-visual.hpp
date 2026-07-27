@@ -1151,7 +1151,9 @@ namespace corona {
 
 		const char *get_name()
 		{
-			const char *name = nullptr;
+			static const char* empty = "";
+			const char* name = empty;
+
 			switch (brush_type) {
 			case brush_types::solid_brush_type:
 				name = solid_brush->name.c_str();
