@@ -35,6 +35,8 @@ For Future Consideration
 #include <cstdlib>
 #include <compare>
 #include <tuple>
+
+#include <syncstream>
 #include <iostream>
 #include <memory>
 #include <exception>
