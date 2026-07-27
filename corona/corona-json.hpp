@@ -4498,6 +4498,30 @@ namespace corona
 
 		json from_cartesian(json& _array_of_arrays);
 
+		json create_something(field_types& _ft)
+		{
+			json result;
+			switch (_ft)
+			{
+			case field_types::ft_bool:
+				result = std::make_shared<json_bool>();
+				break;
+			case field_types::ft_datetime:
+				result = std::make_shared<json_datetime>();
+				break;
+			case field_types::ft_double:
+				result = std::make_shared<json_double>();
+				break;
+			case field_types::ft_int64:
+				result = std::make_shared<json_int64>();
+				break;
+			case field_types::ft_string:
+				result = std::make_shared<json_string>();
+				break;
+			}
+			return result;
+		}
+
 		json from_double(double _d)
 		{
 			std::shared_ptr<json_double> dd = std::make_shared<json_double>();

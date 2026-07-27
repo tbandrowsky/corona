@@ -501,20 +501,6 @@
       }
     },
     {
-      "class_name": "spell",
-      "base_class_name": "carryable",
-      "class_description": "a travelling spell with effects",
-      "fields": {
-        "spell_type": "string",
-        "effect_type": "string",
-        "spell_velocity": "double",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "effect"
-        }
-      }
-    },
-    {
       "class_name": "piece_code",
       "base_class_name": "sys_object",
       "class_description": "a short string that means a piece",
@@ -568,6 +554,24 @@
       }
     },
     {
+      "class_name": "activity",
+      "base_class_name": "game_base",
+      "class_description": "An activity",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "image": "bitmap"
+      }
+    },
+    {
       "class_name": "game",
       "base_class_name": "activity",
       "class_description": "A world with rules one may adventure in",
@@ -598,24 +602,6 @@
       "full_text": [ "name", "description", "text" ],
       "fields": {
         "text": "string"
-      }
-    },
-    {
-      "class_name": "activity",
-      "base_class_name": "game_base",
-      "class_description": "An activity",
-      "full_text": [ "name", "description", "image" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 100
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "image": "bitmap"
       }
     }
   ],

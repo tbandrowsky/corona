@@ -5793,7 +5793,6 @@ namespace corona
 
 						// if the user was a stooser and saved the query results with the object,
 						// blank that out here because we will run that on load
-						write_object.erase_member("class_color");
 
 						bool use_write_object = false;
 
@@ -5885,7 +5884,9 @@ namespace corona
 											if (obj_to_delete.compare(obj_to_add) != 0) {
 												iop.objects_to_delete.push_back(obj_to_delete);
 											}
-											iop.objects_to_add.push_back(obj_to_add);
+											if (obj_to_add.size() > 0) {
+												iop.objects_to_add.push_back(obj_to_add);
+											}
 										}
 									}
 									else
@@ -6833,7 +6834,11 @@ namespace corona
 				activity activio;
 				activio.db = this;
 				ci = std::make_shared<class_implementation>();
-				ci->create(&activio, _class_definition);
+				bool created = ci->create(&activio, _class_definition);
+				if (!created) {
+                    log_warning("Failed to create class " + class_name);
+					log_errors(activio.errors);
+                }
 			}
 			auto perms = get_system_permission();
 			ci->init_validation(this, perms);
@@ -8121,7 +8126,6 @@ private:
 			_user.erase_member("home_team");
 			_user.erase_member("allowed_teams");
 			_user.erase_member("create_options");
-			_user.erase_member("class_color");
 			json children = jp.create_array();
 			json items = jp.create_array();
 			items.push_back(_user);
@@ -8311,7 +8315,6 @@ private:
 
 				json permissions = team["permissions"];
 
-				json class_colors = jp.create_object();
 				json leaf_classes = jp.create_array();
 				json root_classes = jp.create_array();
 				if (permissions.array()) 
@@ -8337,7 +8340,6 @@ private:
 							}
 						}
 						grant.put_member("all_granted_classes", granted_all);
-						grant.put_member("class_colors", class_colors);
 						grant.put_member("leaf_classes", leaf_classes);
 						grant.put_member("root_classes", root_classes);
 					}
@@ -12129,13 +12131,9 @@ grant_type=authorization_code
 				int64_t total_objects = 0;
 
 				if (object_definition.object()) {
-					object_definition.erase_member("class_color");
                     total_objects = 1;
 				}
 				else if (object_definition.array()) {
-					object_definition.for_each_element([](json& _item) {
-						_item.erase_member("class_color");
-						});
                     total_objects = object_definition.size();
 				}
 
@@ -12696,28 +12694,23 @@ grant_type=authorization_code
 			else 
 			{
 				fld.field_value = nullptr;
-				if (fld.index_required) {
-					validation_error ve;
-					ve.message = "indexed field missing from object";
-					ve.class_name = class_definition->get_class_name();
-					ve.field_name = fld.field_definition->get_field_name();
-					ve.filename = __FILE__;
-					ve.line_number = __LINE__;
-					errors.push_back(ve);
-                    succeeded = false;
-                }
-
-				auto options = fld.field_definition->get_options();
-				if (options && options->is_required()) {
-					validation_error ve;
-					ve.message = "required field missing from object";
-					ve.class_name = class_definition->get_class_name();
-					ve.field_name = fld.field_definition->get_field_name();
-					ve.filename = __FILE__;
-					ve.line_number = __LINE__;
-					errors.push_back(ve);
-					succeeded = false;
-                }
+				if (!fld.index_required) {
+					auto options = fld.field_definition->get_options();
+					if (options && options->is_required()) {
+						validation_error ve;
+						ve.message = "required field missing from object";
+						ve.class_name = class_definition->get_class_name();
+						ve.field_name = fld.field_definition->get_field_name();
+						ve.filename = __FILE__;
+						ve.line_number = __LINE__;
+						errors.push_back(ve);
+						succeeded = false;
+					}
+				}
+				else 
+				{
+					succeeded = true;
+				}
 			}
         }
 
