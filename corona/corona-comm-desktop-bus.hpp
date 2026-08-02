@@ -2189,6 +2189,7 @@ namespace corona
 				return;
 			}
 
+
 			std::string _page;
 			std::string _target_frame;
 			std::string _frame_contents_page;
@@ -2218,6 +2219,11 @@ namespace corona
 			}
 
 			auto current_page = presentation_layer->get_current_page();
+
+			if (!current_page) {
+				log_warning("no current page", __FILE__, __LINE__);
+				return;
+			}
 						
 			if (current_page && !presentation_layer->pages.contains(_page)) {
 				_target_frame = _page;

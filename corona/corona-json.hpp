@@ -2636,6 +2636,49 @@ namespace corona
 			return nullptr;
 		}
 
+		json find_member_impl(std::queue<std::string>& _path)
+		{
+			json result;
+
+			auto obj_impl = object_impl();
+			if (!obj_impl || _path.empty())
+				return result;
+
+			std::string member_name = _path.front();
+			_path.pop();
+
+			auto member = obj_impl->members.find(member_name);
+
+			if (member != std::end(obj_impl->members))
+			{
+				if (member->second->get_field_type() == field_types::ft_object) {
+					json child_object = member->second;
+					result = child_object.find_member_impl(_path);
+					if (!result.empty()) {
+						_path.push(member_name);
+						return result;
+					}
+				}
+				else if (member->second->get_field_type() == field_types::ft_array)
+				{
+					json child_array(member->second);
+
+					for (int i = 0; i < child_array.size(); i++) {
+						json child_object = child_array.get_element(i);
+						if (child_object.object()) {
+							result = child_object.find_member_impl(_path);
+							if (!result.empty()) {
+								_path.push(member_name);
+								return result;
+							}
+						}
+					}
+				}
+			}
+			_path.push(member_name);
+			return result;
+		}
+
 		json find_member(const std::string _path)
 		{
 			json result;
@@ -2647,50 +2690,12 @@ namespace corona
 			std::vector<std::string> keys;
 
 			keys = split(_path, '.');
-
-			int ik = 0;
-			int iks = keys.size() - 1;
-
-			while (ik < iks)
-			{
-				auto member = obj_impl->members.find(keys[ik]);
-
-				if (member == std::end(obj_impl->members))
-				{
-					return result;
-				}
-
-				if (member->second->get_field_type() == field_types::ft_array) 
-				{
-                    json child_array(member->second);
-
-					for (int i = 0; i < child_array.size(); i++) {
-						json child_object = child_array.get_element(i);
-						if (child_object.object()) {
-                            auto it_start = keys.begin() + ik + 1;
-							auto it_end = keys.end();
-							std::string child_path = concat(it_start, it_end, ".");
-							json temp = child_object.find_member(child_path);
-							return temp;
-						}
-					}
-				}
-
-				if (member->second->get_field_type() != field_types::ft_object)
-				{
-					return result;
-				}
-				
-                obj_impl = dynamic_cast<json_object *>(member->second.get());
-				ik++;
+            std::queue<std::string> path_queue;
+			for (auto k : keys) {
+				path_queue.push(k);
 			}
 
-			if (obj_impl) {
-				auto member = obj_impl->members.find(keys[ik]);
-                if (member != std::end(obj_impl->members)) {
-					result.set(member->second);
-				}
-			}
+			result = find_member_impl(path_queue);
  
 			return result;
 		}
