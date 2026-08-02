@@ -9357,10 +9357,21 @@ private:
                 tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
 				tab.put_member_bool("list", false);
+				tabs.push_back(tab);
+			}
+			else if (field->get_field_type() == field_types::ft_chest) {
+				json tab = jp.create_object();
+				std::string tab_name = "tab_" + field_class;
+				tab.put_member_string("page_name", tab_name);
+				tab.put_member("name", field->get_label());
+				tab.put_member("member_name", field->get_field_name());
+				tab.put_member_bool("list", false);
+				tab.put_member_bool("chest", true);
+				tabs.push_back(tab);
 			}
 			else if (field->get_field_type() == field_types::ft_array) {
 				json tab = jp.create_object();
-				std::string tab_name = "tab_" + field_class + "_list";
+				std::string tab_name = "tab_list_" + classd->get_class_name() + "_" + field->get_field_name();
 				tab.put_member_string("page_name", tab_name);
 				tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());

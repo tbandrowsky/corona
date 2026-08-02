@@ -1395,6 +1395,52 @@ namespace corona
 
 	};
 
+	class chest_view : public items_view
+	{
+	public:
+
+		chest_view(control_base* _parent, int _id) : items_view(_parent, _id)
+		{
+
+		}
+
+		virtual void get_json(json& _dest) override
+		{
+			items_view::get_json(_dest);
+		}
+
+		virtual void put_json(json& _src) override
+		{
+			json_parser jp;
+			json copy = _src.clone();
+			json sorcery = copy["sources"];
+            if (!sorcery.has_member("chest_item")) {
+				sorcery.put_member_string("chest_item", "card_chest_item");
+			}
+			items_view::put_json(copy);
+		}
+
+		virtual json set_data(json _data) override
+		{
+			json result;
+            json chest_param = _data.clone();
+			if (chest_param.array()) {
+				for (int i = 0; i < chest_param.size(); i++) {
+					json item = chest_param.get_element(i);
+					if (!item.has_member("class_name")) {
+						item.put_member_string("class_name", "chest_item");
+					}
+                }
+				result = items_view::set_data(chest_param);
+			} 
+			else
+			{
+				result = items_view::set_data(_data);
+			}
+			return result;
+		}
+	};
+
 	class row_view_layout :
 		public row_layout
 	{

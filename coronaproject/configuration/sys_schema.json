@@ -1575,7 +1575,7 @@
         }
       }
     ],
-    "teams": { 
+    "teams": {
       "app_team": {
         "search_groups": [
           {
@@ -1601,8 +1601,15 @@
             "classes": [
               "animation"
             ]
+          },
+          {
+            "title": "Essays",
+            "classes": [
+              "essay"
+            ]
           }
-        ]
+        ],
+        "new_objects": [ "game", "essay", "piece_type" ]
       }
     }
   }

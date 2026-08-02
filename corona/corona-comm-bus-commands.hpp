@@ -372,7 +372,7 @@ namespace corona
 			if (data.object() || data.array()) {
 				result = data;
 			}
-			else {
+			else if (!form_name.empty()) {
 				control_base* cb = _bus->find_control(form_name);
 				if (cb != nullptr) {
 					result = cb->get_data();
@@ -2033,7 +2033,7 @@ namespace corona
 		{
 			using namespace std::literals;
 
-			_dest.put_member("class_name", "search_objects"sv);
+			_dest.put_member("class_name", "run_object"sv);
 			_dest.put_member("search_class_name", search_class_name);
 			_dest.put_member("form_name", form_name);
 			_dest.put_member("table_name", table_name);
@@ -2050,7 +2050,7 @@ namespace corona
 			std::vector<std::string> missing;
 
 			if (not _src.has_members(missing, { "form_name", "table_name", "search_class_name" })) {
-				system_monitoring_interface::active_mon->log_warning("search_objects_command missing:");
+				system_monitoring_interface::active_mon->log_warning("run_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -2069,7 +2069,7 @@ namespace corona
 
 	};
 
-	class corona_query_command : public corona_form_command
+	class corona_run_query_command : public corona_form_command
 	{
 	public:
 		std::string			table_name = "";
@@ -2080,14 +2080,14 @@ namespace corona
 		corona_instance instance = corona_instance::local;
 		std::string			hit_words = "";
 
-		corona_query_command()
+		corona_run_query_command()
 		{
-			topic = "query";
+			topic = "run_query";
 		}
 
 		virtual std::string get_name()
 		{
-			return "query_object";
+			return "run_query";
 		}
 
 		virtual json create_request(comm_desktop_bus_interface* _bus)
@@ -2183,7 +2183,7 @@ namespace corona
 		{
 			using namespace std::literals;
 
-			_dest.put_member("class_name", "query"sv);
+			_dest.put_member("class_name", "run_query"sv);
 			_dest.put_member("form_name", form_name);
 			_dest.put_member("table_name", table_name);
 			_dest.put_member("detail_frame", form_name);
@@ -2738,6 +2738,16 @@ namespace corona
 			else if (class_name == "get_games")
 			{
 				_dest = std::make_shared<corona_get_games_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "run_object")
+			{
+				_dest = std::make_shared<corona_run_object_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "run_query")
+			{
+				_dest = std::make_shared<corona_run_query_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "start_game")

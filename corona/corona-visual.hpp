@@ -444,6 +444,7 @@ namespace corona {
 		{
 			_dest.put_member("name", name);
 			_dest.put_member("bitmap_name", bitmapName);
+			_dest.put_member_string("class_name", "bitmap_brush");
 		}
 
 		void put_json(json& _src)
@@ -485,6 +486,7 @@ namespace corona {
 		{
 			json_parser jp;
 
+			_dest.put_member_string("class_name", "linear_brush");
 			_dest.put_member("name", name);
 
 			json jstart, jstop, jsize, jstops;
@@ -577,6 +579,7 @@ namespace corona {
 			json_parser jp;
 
 			_dest.put_member("name", name);
+			_dest.put_member_string("class_name", "radial_brush");
 
 			json jcenter, joffset, jsize, jstops, jstop;
 
@@ -669,6 +672,7 @@ namespace corona {
 		{
 			json_parser jp;
 			_dest.put_member("name", name);
+			_dest.put_member_string("class_name", "solid_brush");
 
 			json jcolor = jp.create_object();
 			corona::get_json(_dest, brushColor);
@@ -1225,6 +1229,14 @@ namespace corona {
 			return *this;
 		}
 
+		generalBrushRequest operator = (bitmapBrushRequest sbr)
+		{
+			clear();
+			brush_type = brush_types::bitmap_brush_type;
+			bitmap_brush = std::make_shared<bitmapBrushRequest>(sbr);
+			return *this;
+		}
+
 		void setColor(std::string _color)
 		{
 			solidBrushRequest sbr;
@@ -1314,21 +1326,25 @@ namespace corona {
 			{
 				solidBrushRequest sbr;
 				sbr.put_json(_src);
+                *this = sbr;
 			}
 			else if (jtype == "linear_brush")
 			{
 				linearGradientBrushRequest lgbr;
 				lgbr.put_json(_src);
+                *this = lgbr;
 			}
 			else if (jtype == "radial_brush")
 			{
 				radialGradientBrushRequest rgbr;
 				rgbr.put_json(_src);
+                *this = rgbr;
 			}
 			else if (jtype == "bitmap_brush")
 			{
-				radialGradientBrushRequest rgbr;
-				rgbr.put_json(_src);
+				bitmapBrushRequest bgbr;
+				bgbr.put_json(_src);
+                *this = bgbr;
 			}
 		}
 

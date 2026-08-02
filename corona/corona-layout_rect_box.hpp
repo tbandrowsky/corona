@@ -28,8 +28,7 @@ namespace corona {
 		pixels = 3,
 		font = 4,
 		font_golden_ratio = 5,
-		percent_child = 6,
-		text = 7
+		percent_contents = 6
 	};
 
 	class measure 
@@ -143,19 +142,14 @@ namespace corona {
 		return measure(pct, measure_units::percent_aspect);
 	}
 
-	measure operator ""_children(long double pct)
+	measure operator ""_contents(long double pct)
 	{
-		return measure(pct, measure_units::percent_child);
+		return measure(pct, measure_units::percent_contents);
 	}
 
 	measure operator ""_font(long double fnt)
 	{
 		return measure(fnt, measure_units::font);
-	}
-
-	measure operator ""_text(long double fnt)
-	{
-		return measure(fnt, measure_units::text);
 	}
 
 	measure operator ""_fontgr(long double fnt)

@@ -3,7 +3,7 @@
   "name": "$search_group_name",
   "box": {
     "width": "100 pixels",
-    "height": "1.0 container"
+    "height": "1.0 contents"
   },
   "view_style": {
     "box_fill_brush": {

@@ -9,7 +9,7 @@
 
   },
   "on_click": {
-    "class_name": "query",
+    "class_name": "run_query",
     "form_name": "search_top_bar",
     "table_name": "result_table",
     "detail_frame": "frame_selected",
@@ -27,7 +27,7 @@
         {
           "class_name": "result",
           "source": "objects",
-          "name": "objects"
+          "name": "final"
         }
       ]
     }

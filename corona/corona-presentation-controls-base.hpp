@@ -660,7 +660,7 @@ namespace corona
 
 		control_base& set_size(std::string _str, measure _height)
 		{
-			box.width = measure( _str.size(), measure_units::text );
+			box.width = measure( _str.size(), measure_units::percent_contents );
 			box.height = _height;
 			return *this;
 		}
@@ -1023,9 +1023,12 @@ namespace corona
 			double font_height = 12.0;
 			sz = font_height * box.width.amount / 1.618;
 		}
-		else if (length.units == measure_units::text)
+		else if (length.units == measure_units::percent_contents)
 		{
-
+			for (auto c : children)
+			{
+				sz += c->get_size(nullptr).x;
+            }
 		}
 
 		return sz;
@@ -1075,9 +1078,12 @@ namespace corona
 			double font_height = 12.0;
 			sz = font_height * box.height.amount / 1.618;
 		}
-		else if (length.units == measure_units::text)
+		else if (length.units == measure_units::percent_contents)
 		{
-
+			for (auto c : children)
+			{
+				sz += c->get_size(nullptr).y;
+			}
 		}
 
 		return sz;

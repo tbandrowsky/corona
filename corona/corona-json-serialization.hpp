@@ -77,8 +77,8 @@ namespace corona
 		case measure_units::percent_aspect:
 			_dest.put_member("units", "aspect"sv);
 			break;
-		case measure_units::percent_child:
-			_dest.put_member("units", "child"sv);
+		case measure_units::percent_contents:
+			_dest.put_member("units", "content"sv);
 			break;
 		case measure_units::percent_container:
 			_dest.put_member("units", "container"sv);
@@ -88,9 +88,6 @@ namespace corona
 			break;
 		case measure_units::pixels:
 			_dest.put_member("units", "pixels"sv);
-			break;
-		case measure_units::text:
-			_dest.put_member("units", "text"sv);
 			break;
 		default:
 			std::cout << "measure unit undefined" << std::endl;
@@ -161,9 +158,9 @@ namespace corona
 		{
 			_dest.units = measure_units::percent_aspect;
 		}
-		else if (sunits == "child")
+		else if (sunits == "contents")
 		{
-			_dest.units = measure_units::percent_child;
+			_dest.units = measure_units::percent_contents;
 		}
 		else if (sunits == "container")
 		{
@@ -180,10 +177,6 @@ namespace corona
 		else if (sunits == "px")
 		{
 			_dest.units = measure_units::pixels;
-		}
-		else if (sunits == "text")
-		{
-			_dest.units = measure_units::text;
 		}
 		else
 		{
