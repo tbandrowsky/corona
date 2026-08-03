@@ -2410,6 +2410,11 @@ namespace corona
 			return value_base == nullptr or value_base->is_empty();
 		}
 
+		bool null() const
+		{
+			return value_base == nullptr;
+		}
+
 		bool error()
 		{
 			std::string class_check;
@@ -2636,13 +2641,19 @@ namespace corona
 			return nullptr;
 		}
 
-		json find_member_impl(std::queue<std::string>& _path)
+		json find_member_impl(std::queue<std::string> _path)
 		{
 			json result;
 
-			auto obj_impl = object_impl();
-			if (!obj_impl || _path.empty())
+			if (_path.empty()) {
+				result = *this;
 				return result;
+			}
+
+			auto obj_impl = object_impl();
+			if (!obj_impl || _path.empty()) {
+				return result;
+			}
 
 			std::string member_name = _path.front();
 			_path.pop();
@@ -2651,13 +2662,15 @@ namespace corona
 
 			if (member != std::end(obj_impl->members))
 			{
-				if (member->second->get_field_type() == field_types::ft_object) {
+				if (_path.empty())
+				{
+					result = member->second;
+					return result;
+				}
+				else if (member->second->get_field_type() == field_types::ft_object) {
 					json child_object = member->second;
 					result = child_object.find_member_impl(_path);
-					if (!result.empty()) {
-						_path.push(member_name);
-						return result;
-					}
+					return result;
 				}
 				else if (member->second->get_field_type() == field_types::ft_array)
 				{
@@ -2667,15 +2680,13 @@ namespace corona
 						json child_object = child_array.get_element(i);
 						if (child_object.object()) {
 							result = child_object.find_member_impl(_path);
-							if (!result.empty()) {
-								_path.push(member_name);
+							if (!result.null()) {
 								return result;
 							}
 						}
 					}
 				}
 			}
-			_path.push(member_name);
 			return result;
 		}
 

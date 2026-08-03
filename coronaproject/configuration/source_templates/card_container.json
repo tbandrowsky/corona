@@ -46,11 +46,6 @@
           },
           "children": [
             {
-              "class_name": "paragraph",
-              "text": "",
-              "box": "card_text_box"
-            },
-            {
               "class_name": "chaptersubtitle",
               "text": "{class_name}",
               "box": "chaptersubtitle_box"

@@ -95,7 +95,7 @@
       "class_name": "piece",
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
-      "parents": [ "map", "piece_type" ],
+      "parents": [ "piece_type" ],
       "fields": {
         "name": "string",
         "mass": "double",
@@ -118,7 +118,7 @@
       "class_name": "animation",
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
-      "parents": [ "piece" ],
+      "parents": [ "piece", "piece_type" ],
       "fields": {
         "state": {
           "field_type": "string",
@@ -508,6 +508,11 @@
       "fields": {
         "piece_code": "string",
         "piece_type": "string"
+      },
+      "indexes": {
+        "idx_piece_code_type": {
+          "index_keys": "piece_type"
+        }
       }
     },
     {

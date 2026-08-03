@@ -781,7 +781,8 @@ namespace corona
 { field_types::ft_path, "path"  },
 { field_types::ft_brush, "brush"  },
 { field_types::ft_bitmap, "bitmap"  },
-{ field_types::ft_audio, "audio"  }
+{ field_types::ft_audio, "audio"  },
+{ field_types::ft_reference, "reference"  },
 	};
 
 	std::map<field_types, std::string> field_type_names_openapi = {
@@ -801,7 +802,8 @@ namespace corona
 { field_types::ft_path, "path"  },
 { field_types::ft_brush, "brush"  },
 { field_types::ft_bitmap, "bitmap"  },
-{ field_types::ft_audio, "audio"  }
+{ field_types::ft_audio, "audio"  },
+{ field_types::ft_reference, "reference"  }
 	};
 
 	auto toHex(unsigned char i)

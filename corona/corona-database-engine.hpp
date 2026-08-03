@@ -1645,11 +1645,8 @@ namespace corona
 				{
 					std::string _dest_key = member.first;
 					std::string _src_key = member.second.as_string();
-					if (not (_src_key.empty() or _dest_key.empty()))
-					{
-						json value = _src[_src_key];
-						_dest.share_member(_dest_key, value);
-					}
+					json value = _src[_src_key];
+					_dest.put_member(_dest_key, value);
 				}
 			}
 		}
@@ -1663,13 +1660,10 @@ namespace corona
 
 			for (auto member : members)
 			{
-				std::string _dest_key = member.first;
-				std::string _src_key = member.second.as_string();
-				if (not (_src_key.empty() or _dest_key.empty()))
-				{
-					json value = _src[_src_key];
-					key.share_member(_dest_key, value);
-				}
+				std::string src_key = member.second.as_string();
+				std::string dest_key = member.first;
+                json v = _src[src_key];
+                key.put_member(dest_key, v);
 			}
 
 			return key;
@@ -2158,6 +2152,7 @@ namespace corona
 							}
 						}
 					}
+					return true;
 				}
 				else
 				{
@@ -2243,6 +2238,7 @@ namespace corona
 
 						std::string object_class_name = obj[class_name_field].as_string();
 					}
+					return true;
 				}
 				else
 				{
@@ -2372,8 +2368,7 @@ namespace corona
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
-				bool is_legit = true;
-
+				
 				if (!_object_to_test.object())
 				{
 					validation_error ve;
@@ -2385,6 +2380,8 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				}
+
+				return true;
 			}
 			return false;
 		}
@@ -2442,57 +2439,42 @@ namespace corona
 
 				if (_object_to_test.object())
 				{
-					for (auto obj : _object_to_test)
-					{
-						bool acceptable = obj.object();
+					bool acceptable = _object_to_test.object();
 
-						if (not acceptable) {
-							validation_error ve;
-							ve.class_name = _class_name;
-							ve.field_name = _field_name;
-							ve.filename = get_file_name(__FILE__);
-							ve.line_number = __LINE__;
-							ve.message = "Element must be a rectangle.";
-							_validation_errors.push_back(ve);
-							return false;
-						}
-
-                        if (obj.has_members({ "x", "y", "width", "height" })) {
-							if (not (obj["x"].is_double() && obj["y"].is_double() && obj["width"].is_double() && obj["height"].is_double())) {
-								validation_error ve;
-								ve.class_name = _class_name;
-								ve.field_name = _field_name;
-								ve.filename = get_file_name(__FILE__);
-								ve.line_number = __LINE__;
-								ve.message = "rectangle must have double x, y, width, and height.";
-								_validation_errors.push_back(ve);
-								return false;
-							}
-						}
-						else {
-							validation_error ve;
-							ve.class_name = _class_name;
-							ve.field_name = _field_name;
-							ve.filename = get_file_name(__FILE__);
-							ve.line_number = __LINE__;
-							ve.message = "rectangle must have x, y, width, and height.";
-							_validation_errors.push_back(ve);
-							return false;
-						}
-
-						std::string object_class_name = obj[class_name_field].as_string();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a rectangle.";
+						_validation_errors.push_back(ve);
+						return false;
 					}
-				}
-				else
-				{
-					validation_error ve;
-					ve.class_name = _class_name;
-					ve.field_name = _field_name;
-					ve.filename = get_file_name(__FILE__);
-					ve.line_number = __LINE__;
-					ve.message = "Value must be an rectangle for a rectangle field.";
-					_validation_errors.push_back(ve);
-					return false;
+
+                    if (_object_to_test.has_members({ "x", "y", "width", "height" })) {
+						if (not (_object_to_test["x"].is_double() && _object_to_test["y"].is_double() && _object_to_test["width"].is_double() && _object_to_test["height"].is_double())) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "rectangle must have double x, y, width, and height.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+						return true;
+					}
+					else {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "rectangle must have x, y, width, and height.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
 				}
 			}
 			return false;
@@ -2551,46 +2533,43 @@ namespace corona
 
 				if (_object_to_test.object())
 				{
-					for (auto obj : _object_to_test)
-					{
-						bool acceptable = obj.object();
+					bool acceptable = _object_to_test.object();
 
-						if (not acceptable) {
-							validation_error ve;
-							ve.class_name = _class_name;
-							ve.field_name = _field_name;
-							ve.filename = get_file_name(__FILE__);
-							ve.line_number = __LINE__;
-							ve.message = "Element must be a bitmap reference.";
-							_validation_errors.push_back(ve);
-							return false;
-						}
-
-						if (obj.has_members({ "x", "y", "width", "height", "bitmapName"})) {
-							if (not (obj["x"].is_double() && obj["y"].is_double() && obj["width"].is_double() && obj["height"].is_double())) {
-								validation_error ve;
-								ve.class_name = _class_name;
-								ve.field_name = _field_name;
-								ve.filename = get_file_name(__FILE__);
-								ve.line_number = __LINE__;
-								ve.message = "bitmap must have double x, y, width, and height.";
-								_validation_errors.push_back(ve);
-								return false;
-							}
-						}
-						else {
-							validation_error ve;
-							ve.class_name = _class_name;
-							ve.field_name = _field_name;
-							ve.filename = get_file_name(__FILE__);
-							ve.line_number = __LINE__;
-							ve.message = "bitmap must have x, y, width, and height and a bitmapName, and a bitmapPath optional.";
-							_validation_errors.push_back(ve);
-							return false;
-						}
-
-						std::string object_class_name = obj[class_name_field].as_string();
+					if (not acceptable) {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "Element must be a bitmap reference.";
+						_validation_errors.push_back(ve);
+						return false;
 					}
+
+					if (_object_to_test.has_members({ "x", "y", "width", "height", "bitmapName"})) {
+						if (not (_object_to_test["x"].is_double() && _object_to_test["y"].is_double() && _object_to_test["width"].is_double() && _object_to_test["height"].is_double())) {
+							validation_error ve;
+							ve.class_name = _class_name;
+							ve.field_name = _field_name;
+							ve.filename = get_file_name(__FILE__);
+							ve.line_number = __LINE__;
+							ve.message = "bitmap must have double x, y, width, and height.";
+							_validation_errors.push_back(ve);
+							return false;
+						}
+					}
+					else {
+						validation_error ve;
+						ve.class_name = _class_name;
+						ve.field_name = _field_name;
+						ve.filename = get_file_name(__FILE__);
+						ve.line_number = __LINE__;
+						ve.message = "bitmap must have x, y, width, and height and a bitmapName, and a bitmapPath optional.";
+						_validation_errors.push_back(ve);
+						return false;
+					}
+
+					return true;
 				}
 				else
 				{
@@ -2669,6 +2648,8 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				}
+
+				return true;
 			}
 			return false;
 		}
@@ -2712,6 +2693,7 @@ namespace corona
 				bridges->get_json(jctors);
 				_dest.share_member("child_objects", jctors);
 			}
+			_dest.put_member_string("fundamental_type", field_type_names[fundamental_type]);
 		}
 
 		virtual void put_json(json& _src)
@@ -2723,6 +2705,8 @@ namespace corona
 			if (jctors.object()) {
 				bridges->put_json(jctors);
 			}
+			std::string ft = _src["fundamental_type"].as_string();
+			fundamental_type = allowed_field_types[ft];
 		}
 
 		virtual void put_definition(child_object_definition& _cod)
@@ -3809,6 +3793,11 @@ namespace corona
 				options = std::make_shared<rectangle_field_options>();
 				options->put_json(_src);
 			}
+			else if (field_type == field_types::ft_reference)
+			{
+				options = std::make_shared<reference_field_options>();
+				options->put_json(_src);
+			}
 			else if (field_type == field_types::ft_bitmap)
 			{
 				options = std::make_shared<bitmap_field_options>();
@@ -3827,37 +3816,6 @@ namespace corona
 			else if (field_type == field_types::ft_function)
 			{
 				;
-			}
-			else
-			{
-				reference_definition rd = reference_definition::parse_definition(s.c_str());
-
-				if (not rd.is_undefined)
-				{
-					auto obj_options = std::make_shared<reference_field_options>();
-					obj_options->put_definition(rd);
-					options = obj_options;
-				}
-				else {
-
-					child_object_definition cod = child_object_definition::parse_definition(s.c_str(), _classd->get_class_name());
-
-					if (not cod.is_undefined)
-					{
-						if (not cod.is_array)
-						{
-							auto obj_options = std::make_shared<object_field_options>();
-							obj_options->put_definition(cod);
-							options = obj_options;
-						}
-						else
-						{
-							auto arr_options = std::make_shared<array_field_options>();
-							arr_options->put_definition(cod);
-							options = arr_options;
-						}
-					}
-				}
 			}
 		}
 
@@ -4845,7 +4803,21 @@ namespace corona
 					{
 						auto fi = allowed_field_types.find(jfield.second.as_string());
 						if (fi != std::end(allowed_field_types)) {
+
+							// if this is an array or an object whose type is one of our primitive types
 							field->set_field_type( fi->second);
+							if (field->get_field_type() == field_types::ft_array)
+							{
+								auto options = std::make_shared<array_field_options>();
+								options->fundamental_type = field_types::ft_array;
+								field->set_options(options);
+							}
+							else if (field->get_field_type() == field_types::ft_object)
+							{
+								auto options = std::make_shared<object_field_options>();
+								options->fundamental_type = field_types::ft_object;
+								field->set_options(options);
+							}
 						}
 						else {
 							auto parse_temp = jfield.second.as_string();
@@ -4855,6 +4827,9 @@ namespace corona
 								rd = reference_definition::parse_definition(parse_temp.c_str());
 								if (not rd.is_undefined) {
 									field->set_field_type(field_types::ft_reference);
+                                    auto options = std::make_shared<reference_field_options>();
+                                    options->put_definition(rd);
+									field->set_options(options);
 								}
 							}
 							else if (cod.is_array)
@@ -4877,19 +4852,35 @@ namespace corona
 					{
 						field->set_field_type(field_types::ft_array);
 						cod.is_array = true; 
-						for (auto jfield_grant : jfield.second) {
-							if (jfield_grant.is_string())
+						std::shared_ptr<child_object_class> coc;
+
+						for (auto jelement_class_name : jfield.second) {
+							if (jelement_class_name.is_string())
 							{
-								std::shared_ptr<child_object_class> coc = std::make_shared<child_object_class>();
-                                coc->class_name = jfield_grant.as_string();
-								coc->copy_values.insert_or_assign(class_name, object_id_field);
-								coc->copy_values.insert_or_assign(class_name + "_class", class_name_field);
-								cod.child_classes.push_back( coc );
+								auto ecn = jelement_class_name.as_string();
+								auto found_type = allowed_field_types.find(ecn);
+								if (found_type != std::end(allowed_field_types)) {
+									auto options = std::make_shared<array_field_options>();
+									options->fundamental_type = found_type->second;
+									field->set_options(options);
+									break;
+								}
+								else 
+								{
+									coc = std::make_shared<child_object_class>();
+									coc->class_name = ecn;
+									coc->copy_values.insert_or_assign(class_name, object_id_field);
+									coc->copy_values.insert_or_assign(class_name + "_class", class_name_field);
+									cod.child_classes.push_back(coc);
+								}
 							}
                         }
-						auto afo = std::make_shared<array_field_options>();
-						afo->put_definition(cod);
-						field->set_options(afo);
+
+						if (coc) {
+							auto afo = std::make_shared<array_field_options>();
+							afo->put_definition(cod);
+							field->set_options(afo);
+						}
 					}
 					else
 					{
@@ -5840,9 +5831,11 @@ namespace corona
 												if (bridge) {
 													bridge->copy(obj, write_object);
 												}
+												else {
+                                                    log_warning(std::format("No bridge found for {0} in {1}", obj_class_name, fld->get_field_name()));
+												}
 												child_objects.push_back(obj);
 											}
-											json empty_array = jp.create_array();
 											write_object.erase_member(fld->get_field_name());
 										}
 									}
@@ -5857,6 +5850,9 @@ namespace corona
 											auto bridge = bridges->get_bridge(obj_class_name);
 											if (bridge) {
 												bridge->copy(obj, write_object);
+											}
+											else {
+												log_warning(std::format("No bridge found for {0} in {1}", obj_class_name, fld->get_field_name()));
 											}
 											json empty;
 											write_object.erase_member(fld->get_field_name());
@@ -9589,13 +9585,16 @@ private:
 			auto parameters = tab_list_page.find_member("using.parameters");
 			if (parameters.object()) {
 				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
-			}
 
-			// Populate card contents
-			auto contents = tab_list_page.find_member("$tab_contents");
-			if (contents.array()) {
-				json target = contents.find_object_with_member("json_field_name");
-				target.put_member_string("json_field_name", member_name);
+				std::string tab_list_command_name = "tl_" + class_name + "_" + member_name + "_commands";
+				std::string tab_list_table_name = "tl_" + class_name + "_" + member_name + "_table";
+
+				json abbrevations = jp.create_object();
+                abbrevations.put_member_string("$tab_list_commands", tab_list_command_name);
+				abbrevations.put_member_string("$tab_list_table", tab_list_table_name);
+				abbrevations.put_member_string("$json_field_name", member_name);
+				abbrevations.put_member_string("$empty_text", "No " + member_name);
+                parameters.apply_abbreviations(abbrevations);
 			}
 
             pages.push_back(tab_list_page);
@@ -9831,6 +9830,8 @@ private:
 			{
 				system_monitoring_interface::active_mon->log_warning("classes not found in schema");
 			}
+
+			class_cache.clear();
 
 			if (jschema.has_member("users"))
 			{

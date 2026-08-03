@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "tab_list",
+  "page_name": "$tab_list",
   "using": {
     "page_name": "tab_container",
     "parameters": {
@@ -11,7 +11,7 @@
         },
         {
           "class_name": "row",
-          "name": "tab_list_commands",
+          "name": "$tab_list_commands",
           "box": {
             "width": "1.0 container",
             "height": "50 pixels"
@@ -21,18 +21,18 @@
         },
         {
           "class_name": "items_view",
-          "name": "tab_list_table",
-          "json_field_name": "projects",
+          "name": "$tab_list_table",
+          "json_field_name": "$json_field_name",
           "box": {
             "width": "1.0 container",
             "height": "1.0 remaining"
           },
           "sources": "card_sources",
-          "empty_text": "",
+          "empty_text": "$empty_text",
           "select_command": {
             "class_name": "list_select_object",
             "target_frame": "page_home.frame_selected",
-            "table_name": "tab_list_table",
+            "table_name": "$tab_list_table",
             "sources": "form_sources"
           }
         }
