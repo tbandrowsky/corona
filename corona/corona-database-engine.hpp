@@ -9174,33 +9174,6 @@ private:
 					json team_spec = tm.second;
 					json search_groups = team_spec["search_groups"];
 					team_page.put_member("page_name", "home_" + team_name);
-					json team_add_target = jp.create_array();
-					json team_create_options = team_spec["new_objects"];
-
-					if (team_create_options.array()) {
-                        for (int i = 0; i < team_create_options.size(); i++) {
-                            auto option = team_create_options.get_element(i);
-							std::string class_name = option.as_string();
-							auto classd = read_lock_class(class_name);
-							if (classd) {
-								json create_command = create_command_class_template.clone();
-								create_command.apply_abbreviations({
-									{ "$create_button_class", jp.from_string( classd->get_class_name() ) },
-									{ "$create_button_name", jp.from_string( "create_" + classd->get_class_name() + "_button" ) },
-									{ "$create_button_image", jp.from_string( std::format("assets\\{}.png", classd->get_class_name()) ) },
-									{ "$create_button_text", jp.from_string( classd->get_class_name() ) },
-									{ "$create_button_message", jp.from_string( "new " + classd->get_class_name()) },
-									{ "$class_edit_page", form_sources[ classd->get_class_name() ] }
-									});
-								team_add_target.push_back(create_command);
-							}
-						}
-						team_page.apply_abbreviations({
-							{ "$team_name", jp.from_string(team_name) },
-							{ "$new_object_commands", team_add_target }
-						});
-					}
-
                     json ux_search_groups = jp.create_array();
 
 					if (search_groups.array()) {
@@ -9217,23 +9190,51 @@ private:
                             std::string sg_search_edit_control = sg["edit_text_control"].as_string();
 							std::string sg_search_results_text = sg["result_text"].as_string();
 							std::string sg_search_edit_text = sg["edit_text"].as_string();
+							json sg_new_objects = sg["new_objects"];
+							std::string sg_search_commands_control = sg["commands_control"].as_string();
+
+                            std::set<std::string> new_object_classes;
+
+							if (sg_new_objects.array()) {
+
+								for (int i = 0; i < sg_new_objects.size(); i++) {
+									auto option = sg_new_objects.get_element(i).as_string();
+                                    new_object_classes.insert(option);
+								}
+							}
 
 							for (auto sg_class : sg_classes) {
 
                                 auto sgclassd = read_lock_class(sg_class);
 
+								json create_command = create_command_class_template.clone();
 								json search_command = search_command_class_template.clone();
+								json search_create_commands = jp.create_array();
+
+								if (new_object_classes.contains(sg_class)) {
+									create_command.apply_abbreviations({
+										{ "$create_button_class", jp.from_string(sgclassd->get_class_name()) },
+										{ "$create_button_name", jp.from_string("create_" + sgclassd->get_class_name() + "_button") },
+										{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", sgclassd->get_class_name())) },
+										{ "$create_button_text", jp.from_string(sgclassd->get_class_name()) },
+										{ "$create_button_message", jp.from_string("new " + sgclassd->get_class_name()) },
+										{ "$class_edit_page", form_sources[sgclassd->get_class_name()] }
+										});
+									search_create_commands.push_back(create_command);
+								}
 
 								search_command.apply_abbreviations({
 									{ "$search_button_class", jp.from_string( sgclassd->get_class_name() ) },
-									{ "$search_button_name", jp.from_string( "create_" + sgclassd->get_class_name() + "_button" ) },
+									{ "$search_button_name", jp.from_string( "query_" + sgclassd->get_class_name() + "_button" ) },
 									{ "$search_button_image", jp.from_string( std::format("assets\\{}.png", sgclassd->get_class_name()) ) },
 									{ "$search_button_text", jp.from_string( sgclassd->get_class_name() ) },
 									{ "$result_text_control", jp.from_string(sg_search_results_control) },
 									{ "$edit_text_control", jp.from_string(sg_search_edit_control) },
 									{ "$result_text", jp.from_string(sg_search_results_text) },
 									{ "$edit_text", jp.from_string(sg_search_edit_text) },
-                                    });
+									{ "$create_commands", search_create_commands },
+									{ "$commands_control", jp.from_string(sg_search_commands_control) },
+									});
 
                                 search_group_commands.push_back(search_command);
 							}
@@ -12757,24 +12758,26 @@ grant_type=authorization_code
 			if (it != std::end(oimpl->members)) {
 				
 				fld.field_value = it->second;
-				auto obj_type = fld.field_value->get_field_type();
-				auto member_type = fld.field_definition->get_field_type();
+				if (fld.field_value) {
+					auto obj_type = fld.field_value->get_field_type();
+					auto member_type = fld.field_definition->get_field_type();
 
-				if (member_type == field_types::ft_query) {
-					continue;
-                }
+					if (member_type == field_types::ft_query) {
+						continue;
+					}
 
-				fld.field_value = it->second;
-				if (member_type != obj_type) {
-					_object.change_member_type(fld.field_definition->get_field_name(), member_type);
-                    fld.field_value = oimpl->members[fld.field_definition->get_field_name()];
-				}
-                json test_value(fld.field_value);
-				bool accept_result = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);
+					fld.field_value = it->second;
+					if (member_type != obj_type) {
+						_object.change_member_type(fld.field_definition->get_field_name(), member_type);
+						fld.field_value = oimpl->members[fld.field_definition->get_field_name()];
+					}
+					json test_value(fld.field_value);
+					bool accept_result = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);
 
-                if (accept_result == false) 
-				{
-					succeeded = false;
+					if (accept_result == false)
+					{
+						succeeded = false;
+					}
 				}
 			}
 			else 

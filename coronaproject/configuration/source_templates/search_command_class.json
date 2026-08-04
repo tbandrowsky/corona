@@ -9,13 +9,15 @@
   },
   "on_click": {
     "class_name": "run_query",
-    "form_name": "search_top_bar",
+    "form_name": "search_ceremony",
     "table_name": "result_table",
     "detail_frame": "frame_selected",
     "result_text": "$result_text",
     "edit_text": "$edit_text",
     "result_text_control": "$result_text_control",
     "edit_text_control": "$edit_text_control",
+    "result_commands": [ "$create_commands" ],
+    "result_commands_control": "$commands_control",
     "query": {
       "from": [
         {

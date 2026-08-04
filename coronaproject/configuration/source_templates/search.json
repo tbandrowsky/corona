@@ -117,8 +117,9 @@
                     "width": "1.0 container",
                     "height": "80 pixels"
                   },
+                  "name": "new_object_commands",
                   "children": [
-                    "$new_object_commands"
+                    
                   ]
                 },
                 {
@@ -146,6 +147,15 @@
                 }
               ]
             },
+            {
+              "class_name": "paragraph",
+              "name": "frame_spacer",
+              "box": {
+                "width": "10 pixels",
+                "height": "1.0 container"
+              }
+            },
+
             {
               "class_name": "column",
               "name": "object_edit_bar",
@@ -228,6 +238,14 @@
               ]
             },
             {
+              "class_name": "paragraph",
+              "name": "frame_spacer",
+              "box": {
+                "width": "10 pixels",
+                "height": "1.0 container"
+              }
+            },
+            {
               "class_name": "column",
               "name": "frame_bar",
               "box": {
@@ -242,7 +260,6 @@
                     "width": "1.0 container",
                     "height": "1.0 remaining"
                   },
-                  "padding": "8 pixels",
                   "children": [
                     {
                       "class_name": "frame",

@@ -1716,19 +1716,50 @@ namespace corona
 
 			on_create = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
 				{
-					;
 				};
 
             std::shared_ptr<column_layout> main = std::make_shared<column_layout>();
 			main->set_size(1.0_container, 1.0_container);
 
+			linearGradientBrushRequest tab_brush;
+			tab_brush.gradientStops.push_back({ toColor("202020"), 0.0f });
+			tab_brush.gradientStops.push_back({ toColor("202020"), 1.8f });
+			tab_brush.gradientStops.push_back({ toColor("333333"), 1.0f });
+			tab_brush.name = "tab_row_style_brush";
+			tab_brush.start.x = 0;
+			tab_brush.start.y = 0;
+			tab_brush.stop.x = 0;
+			tab_brush.stop.y = 75;
+			std::shared_ptr<viewStyleRequest> tab_back_style = std::make_shared<viewStyleRequest>();
+			tab_back_style->name = "tab_back_style";
+			tab_back_style->box_fill_brush = tab_brush;
+
 			std::shared_ptr<row_layout> tab_row = std::make_shared<row_layout>();
             tab_row->set_size(1.0_container, 50.0_px);
+            tab_row->set_style(tab_back_style);
             main->children.push_back(tab_row);
+
+			linearGradientBrushRequest separator_brush;
+			separator_brush.gradientStops.push_back({ toColor("404070"), 0.0f });
+			separator_brush.gradientStops.push_back({ toColor("000000"), 1.0f });
+			separator_brush.name = "tab_row_style_brush";
+			separator_brush.start.x = 0;
+			separator_brush.start.y = 0;
+			separator_brush.stop.x = 0;
+			separator_brush.stop.y = 16;
+			std::shared_ptr<viewStyleRequest> tab_row_style = std::make_shared<viewStyleRequest>();
+			tab_row_style->name = "tab_row_style";
+			tab_row_style->box_fill_brush = separator_brush;
+
+			auto tab_separator = std::make_shared<draw_control>();
+			tab_separator->set_size(1.0_container, 8.0_px);
+            tab_separator->set_style(tab_row_style);
+			main->children.push_back(tab_separator);
 
             content_frame = std::make_shared<frame_layout>();
 			content_frame->set_size(1.0_container, 1.0_remaining);
 			content_frame->set_name(content_frame_name);
+			content_frame->set_padding(16.0_px);
 			main->children.push_back(content_frame);
 
 			for (int i = 0; i < tab_panes.size(); i++)
@@ -1739,6 +1770,7 @@ namespace corona
                 }
                 std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
 				btn->set_size(100.00_px, 50.0_px);
+				btn->draw_style = gradient_button_styles::tab_style;
 				btn->button_text = dat.pane.name;
 				if (dat.pane.image_name.size()) {
 					btn->set_image(dat.pane.image_name);

@@ -1953,7 +1953,7 @@ namespace corona
 		remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
 		for (auto child : children) {
 			auto sz = child->get_size(this);
-			point item_origin = { bounds.x, bounds.y, 0.0 };
+			point item_origin = { inner_bounds.x, inner_bounds.y, 0.0 };
 			point item_position = child->get_position(this);
 			item_origin.x += item_position.x;
 			item_origin.y += item_position.y;

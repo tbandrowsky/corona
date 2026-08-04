@@ -288,10 +288,12 @@ namespace corona {
 
 // these are all the controls that can be on a presentation
 #include "corona-presentation-controls-base.hpp"
-#include "corona-comm-bus-commands.hpp"
 #include "corona-presentation-controls-dx.hpp"
 #include "corona-presentation-controls-dx-container.hpp"
 #include "corona-presentation-controls-dx-text.hpp"
+
+#include "corona-comm-bus-commands.hpp"
+
 #include "corona-presentation-controls-gaming.hpp"
 #include "corona-presentation-controls-win32.hpp"
 

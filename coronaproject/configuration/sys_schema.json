@@ -1592,7 +1592,8 @@
             "result_text": "Found {count} games",
             "edit_text": "Editing game",
             "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text"
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
           },
           {
             "title": "Piece Types",
@@ -1603,7 +1604,8 @@
             "result_text": "Found {count} piece types",
             "edit_text": "Editing piece type",
             "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text"
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
           },
           {
             "title": "Pieces",
@@ -1614,7 +1616,8 @@
             "result_text": "Found {count} pieces",
             "edit_text": "Editing piece",
             "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text"
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
           },
           {
             "title": "Animations",
@@ -1625,7 +1628,8 @@
             "result_text": "Found {count} animations",
             "edit_text": "Editing animation",
             "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text"
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
           },
           {
             "title": "Essays",
@@ -1636,7 +1640,8 @@
             "result_text": "Found {count} essays",
             "edit_text": "Editing essay",
             "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text"
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
           }
         ]
       }

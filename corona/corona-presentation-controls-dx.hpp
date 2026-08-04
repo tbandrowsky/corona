@@ -1205,6 +1205,12 @@ namespace corona
 
     };
 
+    enum class gradient_button_styles {
+        button_style,
+        tab_style
+    };
+    gradient_button_styles  draw_style;
+
     class gradient_button_control : public draw_control
     {
     public:
@@ -1221,6 +1227,9 @@ namespace corona
         bool button_down = false;
         bool selected_state_enabled = false;
         bool selected_state = false;
+
+        std::string base_name;
+        gradient_button_styles draw_style = gradient_button_styles::button_style;
 
         gradient_button_control()
         {
@@ -1241,13 +1250,77 @@ namespace corona
 
         gradient_button_control(control_base* _parent, int _id, std::string _base_name) : draw_control(_parent, _id)
         {
-            buttonFaceNormal.name = _base_name + "_face_normal";
-            buttonFaceOver.name = _base_name + "_face_over";
-            buttonFaceDown.name = _base_name + "_face_down";
+            base_name = _base_name;
 
-            foregroundNormal.name = _base_name + "_fore_normal";
-            foregroundOver.name = _base_name + "_fore_over";
-            foregroundDown.name = _base_name + "_fore_down";
+            set_button_style();
+        }
+
+        virtual ~gradient_button_control()
+        {
+            ;
+        }
+
+        virtual void set_tab_style()
+        {
+
+
+            buttonFaceNormal.name = base_name + "_face_normal";
+            buttonFaceOver.name = base_name + "_face_over";
+            buttonFaceDown.name = base_name + "_face_down";
+            foregroundNormal.name = base_name + "_fore_normal";
+            foregroundOver.name = base_name + "_fore_over";
+            foregroundDown.name = base_name + "_fore_down";
+
+            std::string face_step = "#79726eff";
+            std::string light_step = "#8b8b8bff";
+            std::string other_light_step = "#686868ff";
+            std::string dark_step = "#3b413cff";
+            std::string darkest_step = "#353535ff";
+            std::string overdarkest_step = "#252525ff";
+
+            buttonFaceNormal.gradientStops = {
+                { toColor(darkest_step), 0.0 },
+                { toColor(other_light_step), 0.5 },
+                { toColor(other_light_step), 0.95 },
+                { toColor(darkest_step), 1.0 },
+            };
+
+            buttonFaceOver.gradientStops = {
+                { toColor(darkest_step), 0.0 },
+                { toColor(light_step), 0.5 },
+                { toColor(light_step), 0.95 },
+                { toColor(overdarkest_step), 1.0 },
+            };
+
+            buttonFaceDown.gradientStops = {
+                { toColor(darkest_step), 0.0 },
+                { toColor(light_step), 0.1 },
+                { toColor(light_step), 0.9 },
+                { toColor(overdarkest_step), 1.0 },
+            };
+
+            buttonBackLight.gradientStops = {
+                { toColor("#00000000"), 0.0 },
+                { toColor("#C0C0C040"), 0.9 },
+                { toColor("#E0F0E0FF"), 1.0 }
+            };
+
+            foregroundNormal.brushColor = toColor("#C5C6CA");
+            foregroundOver.brushColor = toColor("#F5F6FA");
+            foregroundDown.brushColor = toColor("#FFD700");
+
+        }
+
+        virtual void set_button_style()
+        {
+
+
+            buttonFaceNormal.name = base_name + "_face_normal";
+            buttonFaceOver.name = base_name + "_face_over";
+            buttonFaceDown.name = base_name + "_face_down";
+            foregroundNormal.name = base_name + "_fore_normal";
+            foregroundOver.name = base_name + "_fore_over";
+            foregroundDown.name = base_name + "_fore_down";
 
             std::string face_step = "#79726eff";
             std::string light_step = "#8b8b8bff";
@@ -1284,11 +1357,56 @@ namespace corona
             foregroundNormal.brushColor = toColor("#C5C6CA");
             foregroundOver.brushColor = toColor("#F5F6FA");
             foregroundDown.brushColor = toColor("#FFD700");
+
         }
 
-        virtual ~gradient_button_control()
+        void set_button_bounds(rectangle draw_bounds)
         {
-            ;
+            set_button_style();
+            buttonFaceNormal.start.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceNormal.start.y = draw_bounds.y;
+            buttonFaceNormal.stop.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceNormal.stop.y = draw_bounds.y + draw_bounds.h;
+
+            buttonFaceDown.start.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceDown.start.y = draw_bounds.y;
+            buttonFaceDown.stop.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceDown.stop.y = draw_bounds.y + draw_bounds.h;
+
+            buttonFaceOver.start.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceOver.start.y = draw_bounds.y;
+            buttonFaceOver.stop.x = draw_bounds.x + draw_bounds.w / 2;
+            buttonFaceOver.stop.y = draw_bounds.y + draw_bounds.h;
+
+            buttonBackLight.center = rectangle_math::center(draw_bounds);
+            buttonBackLight.offset = {};
+            buttonBackLight.radiusX = draw_bounds.w / 2.0;
+            buttonBackLight.radiusY = draw_bounds.h / 2.0;
+        }
+
+        void set_tab_bounds(rectangle draw_bounds)
+        {
+            set_tab_style();
+            buttonFaceNormal.start.x = draw_bounds.x;
+            buttonFaceNormal.start.y = draw_bounds.y + draw_bounds.h / 2;
+            buttonFaceNormal.stop.x = draw_bounds.x + draw_bounds.w;
+            buttonFaceNormal.stop.y = draw_bounds.y + draw_bounds.h / 2;
+
+            buttonFaceDown.start.x = draw_bounds.x;
+            buttonFaceDown.start.y = draw_bounds.y + draw_bounds.h / 2;
+            buttonFaceDown.stop.x = draw_bounds.x + draw_bounds.w;
+            buttonFaceDown.stop.y = draw_bounds.y + draw_bounds.h / 2;
+
+            buttonFaceOver.start.x = draw_bounds.x;
+            buttonFaceOver.start.y = draw_bounds.y + draw_bounds.h / 2;
+            buttonFaceOver.stop.x = draw_bounds.x + draw_bounds.w;
+            buttonFaceOver.stop.y = draw_bounds.y + draw_bounds.h / 2;
+
+            buttonBackLight.center = rectangle_math::center(draw_bounds);
+            buttonBackLight.offset = {};
+            buttonBackLight.radiusX = draw_bounds.w / 2.0;
+            buttonBackLight.radiusY = draw_bounds.h / 2.0;
+
         }
 
         virtual void draw_button(std::shared_ptr<direct2dContext>& _context, std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape)
@@ -1296,25 +1414,12 @@ namespace corona
             if (auto phost = host.lock()) {
                 auto draw_bounds = inner_bounds;
 
-                buttonFaceNormal.start.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceNormal.start.y = draw_bounds.y;
-                buttonFaceNormal.stop.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceNormal.stop.y = draw_bounds.y + draw_bounds.h;
-
-                buttonFaceDown.start.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceDown.start.y = draw_bounds.y;
-                buttonFaceDown.stop.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceDown.stop.y = draw_bounds.y + draw_bounds.h;
-
-                buttonFaceOver.start.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceOver.start.y = draw_bounds.y;
-                buttonFaceOver.stop.x = draw_bounds.x + draw_bounds.w / 2;
-                buttonFaceOver.stop.y = draw_bounds.y + draw_bounds.h;
-
-                buttonBackLight.center = rectangle_math::center(draw_bounds);
-                buttonBackLight.offset = {};
-                buttonBackLight.radiusX = draw_bounds.w / 2.0;
-                buttonBackLight.radiusY = draw_bounds.h / 2.0;
+                if (draw_style == gradient_button_styles::tab_style) {
+                    set_tab_bounds(inner_bounds);
+                }
+                else {
+                    set_button_bounds(inner_bounds);
+                }
 
                 _context->setLinearGradientBrush(&this->buttonFaceNormal);
                 _context->setLinearGradientBrush(&this->buttonFaceDown);
@@ -1825,6 +1930,7 @@ namespace corona
         std::string         enable_source_frame;
         std::string         enable_class_name;
 
+
         command_button_control() : gradient_button_control() {
             init_text_styles();
             icon = "";
@@ -2048,8 +2154,18 @@ namespace corona
 
             _dest.put_member("enable_source_frame", enable_source_frame);
             _dest.put_member("enable_class_name", enable_class_name);
+
+            switch (draw_style) 
+            {
+                case gradient_button_styles::button_style:
+                    _dest.put_member_string("draw_style", "button");
+                    break;
+                case gradient_button_styles::tab_style:
+                    _dest.put_member_string("draw_style", "tab");
+                    break;
+            }
         }
-        
+       
 
         virtual void put_json(json& _src)
         {
@@ -2080,6 +2196,13 @@ namespace corona
             enable_source_frame = _src["enable_source_frame"].as_string();
             enable_class_name = _src["enable_class_name"].as_string();
 
+            std::string style = _src["draw_style"].as_string();
+            if (style == "tab") {
+                draw_style = gradient_button_styles::tab_style;
+            }
+            else {
+                draw_style = gradient_button_styles::button_style;
+            }
         }
 
         virtual std::shared_ptr<control_base> clone()

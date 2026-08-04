@@ -1147,45 +1147,6 @@ namespace corona
 
 	};
 
-	class corona_class_page_map 
-	{
-	public:
-
-		std::map<std::string, std::string> pages_by_class;
-
-		virtual void get_json(json& _dest)
-		{
-			using namespace std::literals;
-			_dest.put_member("class_name", "class_page_map"sv);
-			json_parser jp;
-            json jclasses = jp.create_object();
-			for (auto &cd : pages_by_class) {
-				jclasses.put_member(cd.first, cd.second);
-			}
-            _dest.put_member("sources", jclasses);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			std::vector<std::string> missing;
-
-			if (not _src.has_members(missing, { "sources" })) {
-				system_monitoring_interface::active_mon->log_warning("sources missing:");
-				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
-					system_monitoring_interface::active_mon->log_warning(s);
-					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-				return;
-			}
-
-            json jclasses = _src["sources"];
-            auto class_members = jclasses.get_members();
-            for (auto cm : class_members) {
-				pages_by_class[ cm.first ] = cm.second.as_string();
-			}
-		}
-	};
 
 	class  corona_get_classes_command : public corona_form_command
 	{
@@ -2083,6 +2044,8 @@ namespace corona
         std::string         edit_text_control = "";
         std::string         result_text = "";
         std::string         edit_text = "";
+		std::vector<std::shared_ptr<command_button_control>> result_commands;
+        std::string			result_commands_control = "";
 
 		corona_run_query_command()
 		{
@@ -2194,6 +2157,20 @@ namespace corona
 						}
 					}
 				}
+				if (result_commands_control.size() > 0) {
+					control_base* cb_commands = _bus->find_control(result_commands_control);
+					if (cb_commands) {
+						auto tx_commands = dynamic_cast<container_control*>(cb_commands);
+						if (tx_commands) {
+							tx_commands->children.clear();
+							for (auto comm : result_commands) {
+								tx_commands->children.push_back(comm);
+                            }
+							auto bounds = tx_commands->get_inner_bounds();
+							tx_commands->arrange(nullptr, &bounds);
+						}
+					}
+				}
 			}
 			else {
 
@@ -2221,6 +2198,16 @@ namespace corona
 			_dest.put_member("edit_text_control", edit_text_control);
             _dest.put_member("result_text", result_text);
 			_dest.put_member("edit_text", edit_text);
+
+			json_parser jp;
+			json jcommands = jp.create_array();
+			for (auto comm : result_commands) {
+				json jcomm = jp.create_object();
+                comm->get_json(jcomm);
+				jcommands.push_back(jcomm);
+			}
+            _dest.put_member("result_commands", jcommands);
+            _dest.put_member("result_commands_control", result_commands_control);
 			corona::get_json(_dest, instance);
 		}
 
@@ -2264,7 +2251,16 @@ namespace corona
             edit_text_control = _src["edit_text_control"].as_string();
             result_text = _src["result_text"].as_string();
             edit_text = _src["edit_text"].as_string();	
-			
+            result_commands_control = _src["result_commands_control"].as_string();
+            json jcommands = _src["result_commands"];
+			if (jcommands.array()) {
+				for (int i = 0; i < jcommands.size(); i++) {
+					json jcomm = jcommands.get_element(i);;
+					std::shared_ptr<command_button_control> comm = std::make_shared<command_button_control>();
+					comm->put_json(jcomm);
+					result_commands.push_back(comm);
+				}
+            }			
 			corona::put_json(instance, _src);
 		}
 

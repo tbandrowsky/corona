@@ -151,6 +151,46 @@ namespace corona
 		}
 	};
 
+		class corona_class_page_map 
+	{
+	public:
+
+		std::map<std::string, std::string> pages_by_class;
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+			_dest.put_member("class_name", "class_page_map"sv);
+			json_parser jp;
+            json jclasses = jp.create_object();
+			for (auto &cd : pages_by_class) {
+				jclasses.put_member(cd.first, cd.second);
+			}
+            _dest.put_member("sources", jclasses);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+
+			if (not _src.has_members(missing, { "sources" })) {
+				system_monitoring_interface::active_mon->log_warning("sources missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+            json jclasses = _src["sources"];
+            auto class_members = jclasses.get_members();
+            for (auto cm : class_members) {
+				pages_by_class[ cm.first ] = cm.second.as_string();
+			}
+		}
+	};
+
 	class container_control_base : public json_serializable
 	{
 	public:
