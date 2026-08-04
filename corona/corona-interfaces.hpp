@@ -171,6 +171,11 @@ namespace corona
 		int			max_items;
 	};
 
+	class text_template_base {
+	public:
+		virtual void set_text_template(std::string _template) = 0;
+	};
+
 	namespace game 
 	{
 

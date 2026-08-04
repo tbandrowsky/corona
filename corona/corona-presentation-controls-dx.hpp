@@ -1966,13 +1966,13 @@ namespace corona
 
                         auto icon_it = segoeMDL2Icons.find(this->icon);
                         rectangle draw_bounds = *_bounds;
-                        draw_bounds.y += 8;
+                        draw_bounds.y += 12;
 
                         if (icon_it != segoeMDL2Icons.end()) {
                             _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
                         }
 
-                        draw_bounds.y += 8;
+                        draw_bounds.y += 12;
                         _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                        };
 
@@ -2100,17 +2100,18 @@ namespace corona
 
             if (shrink_image_more) {
                 layout_rect image_box;
-                image_box.height = .57_container;
-                image_box.width = 0.3_container;
-                image_box.x = 0.35_container;
+                image_box.height = .5_container;
+                image_box.width = .5_container;
+                image_box.x = .25_container;
+                image_box.y = .1_container;
                 image->set_box(image_box);
             }
             else {
                 layout_rect image_box;
-                image_box.height = .67_container;
-                image_box.width = 0.4_container;
-                image_box.x = 0.3_container;
-                image_box.y = -0.1_container;
+                image_box.height = .4_container;
+                image_box.width = .4_container;
+                image_box.x = .3_container;
+                image_box.y = .1_container;
                 image->set_box(image_box);
             }
 

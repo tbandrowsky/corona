@@ -29,33 +29,10 @@
               "class_name": "chaptersubtitle",
               "name": "search_common_text",
               "box": {
-                "width": "116 pixels",
+                "width": "350 pixels",
                 "height": "40 pixels"
               },
-              "text": "    SEARCH"
-            },
-            {
-              "class_name": "edit",
-              "name": "search_input",
-              "json_field_name": "full_text",
-              "placholder": "Search text",
-              "box": {
-                "width": "216 pixels",
-                "height": "32 pixels"
-              },
-              "text_style": {
-                "font_name": "Georgia",
-                "font_size": 18
-              }
-            },
-            {
-              "class_name": "chaptersubtitle",
-              "name": "search_results_text",
-              "box": {
-                "width": "8 pixels",
-                "height": "40 pixels"
-              },
-              "text": ""
+              "text": "SEARCH"
             },
             {
               "class_name": "chaptersubtitle",
@@ -64,7 +41,7 @@
                 "width": "400 pixels",
                 "height": "40 pixels"
               },
-              "text": "SELECT {class_name}"
+              "text": "{class_name} RESULTS"
             },
             {
               "class_name": "chaptersubtitle",
@@ -84,6 +61,7 @@
             "width": "1.0 container",
             "height": "1.0 remaining"
           },
+          "padding": "8 pixels",
           "children": [
             {
               "class_name": "column",
@@ -101,11 +79,26 @@
                   "class_name": "solid_brush",
                   "color": "010102"
                 },
-                "box_border_thickness": 4
+                "box_border_thickness": 0
               },
-              "padding": "8 pixels",
+              "padding": "0 pixels",
               "wrap": true,
               "children": [
+                {
+                  "class_name": "edit",
+                  "name": "search_input",
+                  "json_field_name": "full_text",
+                  "placholder": "Search text",
+                  "box": {
+                    "width": "216 pixels",
+                    "height": "32 pixels"
+                  },
+                  "text_style": {
+                    "font_name": "Georgia",
+                    "font_size": 18
+                  }
+                },
+
                 "$search_groups"
               ]
             },
@@ -118,6 +111,16 @@
                 "height": "1.0 container"
               },
               "children": [
+                {
+                  "class_name": "row",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "80 pixels"
+                  },
+                  "children": [
+                    "$new_object_commands"
+                  ]
+                },
                 {
                   "class_name": "items_view",
                   "name": "result_table",
@@ -170,7 +173,7 @@
                   "text": "back",
                   "box": {
                     "width": "100 pixels",
-                    "height": "50 pixels"
+                    "height": "75 pixels"
                   },
                   "on_click": {
                     "class_name": "navigate",
@@ -185,7 +188,7 @@
                   "text": "forward",
                   "box": {
                     "width": "100  pixels",
-                    "height": "50 pixels"
+                    "height": "75 pixels"
                   },
                   "on_click": {
                     "class_name": "navigate",
@@ -194,22 +197,13 @@
                   }
                 },
                 {
-                  "class_name": "chaptersubtitle",
-                  "name": "search_label_text",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "30 pixels"
-                  },
-                  "text": "Object"
-                },
-                {
                   "class_name": "command_button",
                   "name": "save_object",
                   "image": "assets\\save.png",
                   "text": "save",
                   "box": {
                     "width": "100  pixels",
-                    "height": "50 pixels"
+                    "height": "75 pixels"
                   },
                   "on_click": {
                     "class_name": "save_object",
@@ -224,22 +218,13 @@
                   "text": "delete",
                   "box": {
                     "width": "100  pixels",
-                    "height": "50 pixels"
+                    "height": "75 pixels"
                   },
                   "on_click": {
                     "class_name": "delete_object",
                     "target_frame": "frame_selected"
                   }
-                },
-                {
-                  "class_name": "chaptersubtitle",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "30 pixels"
-                  },
-                  "text": "Add"
-                },
-                "$new_object_commands"
+                }
               ]
             },
             {

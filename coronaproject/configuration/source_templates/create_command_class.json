@@ -5,7 +5,7 @@
   "text": "$create_button_text",
   "box": {
     "width": "100 pixels",
-    "height": "50 pixels"
+    "height": "75 pixels"
 
   },
   "on_click": {

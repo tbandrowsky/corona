@@ -23,6 +23,7 @@ For Future Consideration
 namespace corona
 {
 
+
 	class desktop_app_bus : public comm_desktop_bus_interface
 	{
 	protected:

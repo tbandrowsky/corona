@@ -1587,34 +1587,58 @@
             "title": "Games",
             "classes": [
               "game"
-            ]
+            ],
+            "new_objects": [ "game" ],
+            "result_text": "Found {count} games",
+            "edit_text": "Editing game",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text"
           },
           {
             "title": "Piece Types",
             "classes": [
               "piece_type"
-            ]
+            ],
+            "new_objects": [ "piece_type" ],
+            "result_text": "Found {count} piece types",
+            "edit_text": "Editing piece type",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text"
           },
           {
             "title": "Pieces",
             "classes": [
               "piece"
-            ]
+            ],
+            "new_objects": [ "piece" ],
+            "result_text": "Found {count} pieces",
+            "edit_text": "Editing piece",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text"
           },
           {
             "title": "Animations",
             "classes": [
               "animation"
-            ]
+            ],
+            "new_objects": [ "animation" ],
+            "result_text": "Found {count} animations",
+            "edit_text": "Editing animation",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text"
           },
           {
             "title": "Essays",
             "classes": [
               "essay"
-            ]
+            ],
+            "new_objects": [ "essay" ],
+            "result_text": "Found {count} essays",
+            "edit_text": "Editing essay",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text"
           }
-        ],
-        "new_objects": [ "game", "essay", "piece_type" ]
+        ]
       }
     }
   }

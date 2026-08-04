@@ -1627,13 +1627,28 @@ namespace corona
                 for (int j = start_row_index; j <= i; j++)
 				{
                     auto row_child = children[j];
+
 					rectangle child_bounds = row_child->get_bounds();
+
+					switch (content_cross_alignment) {
+						case visual_alignment::align_far:
+							child_bounds.y = current_position.y + (max_height - child_bounds.h);
+                            break;
+                        case visual_alignment::align_center:
+							child_bounds.y = current_position.y + (max_height - child_bounds.h) / 2.0;
+                            break;
+                        case visual_alignment::align_near:
+							child_bounds.y = current_position.y;
+							break;
+					}
+
                     child_bounds.x += line_center;
 					row_child->arrange(_parent, &child_bounds);
 				}
 
 				current_position.x = inner_bounds.x;
 				current_position.y += max_height + to_pixels_y(this, item_next_space);
+				max_height = 0;
 				last_index = i;
 			}
 
@@ -1643,6 +1658,11 @@ namespace corona
 				child_size.x,
 				child_size.y
 			};
+
+            if (child_size.y > max_height)
+			{
+				max_height = child_size.y;
+			}
 
 			child->arrange(this, &child_bounds);
 			current_position.x += child_size.x;
@@ -1656,10 +1676,25 @@ namespace corona
 			last_x = children[end]->get_bounds().right();
 			double line_center = (inner_bounds.right() - last_x) / 2.0;
 
+            double remaining_height = inner_bounds.bottom() - current_position.y;
+
 			for (int j = last_index; j <= end; j++)
 			{
 				auto row_child = children[j];
 				rectangle child_bounds = row_child->get_bounds();
+
+				switch (content_cross_alignment) {
+				case visual_alignment::align_far:
+					child_bounds.y = current_position.y + (remaining_height - child_bounds.h);
+					break;
+				case visual_alignment::align_center:
+					child_bounds.y = current_position.y + (remaining_height - child_bounds.h) / 2.0;
+					break;
+				case visual_alignment::align_near:
+					child_bounds.y = current_position.y;
+					break;
+				}
+
 				child_bounds.x += line_center;
 				row_child->arrange(_parent, &child_bounds);
 			}

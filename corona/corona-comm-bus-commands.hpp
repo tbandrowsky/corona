@@ -2079,6 +2079,10 @@ namespace corona
 		json				query_body;
 		corona_instance instance = corona_instance::local;
 		std::string			hit_words = "";
+		std::string         result_text_control = "";
+        std::string         edit_text_control = "";
+        std::string         result_text = "";
+        std::string         edit_text = "";
 
 		corona_run_query_command()
 		{
@@ -2149,6 +2153,8 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			json_parser jp;
+
 			control_base* cb_table = {};
 			if (not table_name.empty())
 				cb_table = _bus->find_control(table_name);
@@ -2164,6 +2170,28 @@ namespace corona
 					control_base* cb_form = _bus->find_control(detail_frame);
 					if (cb_form) {
 						cb_form->set_hit_word(hit_words);
+					}
+				}
+                json search_results = jp.create_object();
+                search_results.put_member("count", response.data.size());
+                if (result_text_control.size() > 0) {
+					control_base* cb_results = _bus->find_control(result_text_control);
+					if (cb_results) {
+						cb_results->set_data(search_results);
+						auto tx_results = dynamic_cast<text_template_base*>(cb_results);
+						if (tx_results) {
+							tx_results->set_text_template(result_text);
+						}
+					}
+				}
+				if (edit_text_control.size() > 0) {
+					control_base* cb_edit = _bus->find_control(edit_text_control);
+					if (cb_edit) {
+						cb_edit->set_data(search_results);
+						auto tx_edit = dynamic_cast<text_template_base*>(cb_edit);
+						if (tx_edit) {
+							tx_edit->set_text_template(edit_text);
+						}
 					}
 				}
 			}
@@ -2189,8 +2217,11 @@ namespace corona
 			_dest.put_member("detail_frame", form_name);
 			_dest.put_member("query", query_body);
             _dest.put_member("defaults_field", query_defaults_field);
+            _dest.put_member("result_text_control", result_text_control);
+			_dest.put_member("edit_text_control", edit_text_control);
+            _dest.put_member("result_text", result_text);
+			_dest.put_member("edit_text", edit_text);
 			corona::get_json(_dest, instance);
-
 		}
 
 		virtual void put_json(json& _src)
@@ -2229,6 +2260,10 @@ namespace corona
 				dates.put_member(s, jdt);
 			}
 			query_defaults.put_member("dates", dates);
+			result_text_control = _src["result_text_control"].as_string();
+            edit_text_control = _src["edit_text_control"].as_string();
+            result_text = _src["result_text"].as_string();
+            edit_text = _src["edit_text"].as_string();	
 			
 			corona::put_json(instance, _src);
 		}

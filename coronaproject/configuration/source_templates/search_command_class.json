@@ -5,14 +5,17 @@
   "text": "$search_button_text",
   "box": {
     "width": "100 pixels",
-    "height": "50 pixels"
-
+    "height": "75 pixels"
   },
   "on_click": {
     "class_name": "run_query",
     "form_name": "search_top_bar",
     "table_name": "result_table",
     "detail_frame": "frame_selected",
+    "result_text": "$result_text",
+    "edit_text": "$edit_text",
+    "result_text_control": "$result_text_control",
+    "edit_text_control": "$edit_text_control",
     "query": {
       "from": [
         {

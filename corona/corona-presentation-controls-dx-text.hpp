@@ -20,7 +20,7 @@ For Future Consideration
 
 namespace corona
 {
-	class text_display_control : public draw_control
+	class text_display_control : public draw_control, public text_template_base
 	{
 	public:
 		std::string			text;
@@ -55,6 +55,12 @@ namespace corona
 		}
 
 		void init();
+
+		virtual void set_text_template(std::string _text) override
+		{
+			template_text = _text;
+			update_text();
+        }
 
 		void update_text()
 		{

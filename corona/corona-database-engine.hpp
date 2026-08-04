@@ -9213,6 +9213,11 @@ private:
 							json search_group = search_group_template.clone();
                             json search_group_commands = jp.create_array();
 
+                            std::string sg_search_results_control = sg["result_text_control"].as_string();
+                            std::string sg_search_edit_control = sg["edit_text_control"].as_string();
+							std::string sg_search_results_text = sg["result_text"].as_string();
+							std::string sg_search_edit_text = sg["edit_text"].as_string();
+
 							for (auto sg_class : sg_classes) {
 
                                 auto sgclassd = read_lock_class(sg_class);
@@ -9224,6 +9229,10 @@ private:
 									{ "$search_button_name", jp.from_string( "create_" + sgclassd->get_class_name() + "_button" ) },
 									{ "$search_button_image", jp.from_string( std::format("assets\\{}.png", sgclassd->get_class_name()) ) },
 									{ "$search_button_text", jp.from_string( sgclassd->get_class_name() ) },
+									{ "$result_text_control", jp.from_string(sg_search_results_control) },
+									{ "$edit_text_control", jp.from_string(sg_search_edit_control) },
+									{ "$result_text", jp.from_string(sg_search_results_text) },
+									{ "$edit_text", jp.from_string(sg_search_edit_text) },
                                     });
 
                                 search_group_commands.push_back(search_command);
