@@ -13,6 +13,7 @@
         {
           "activity":"card_activity",
           "actor":"card_actor",
+          "adventure":"card_adventure",
           "ammunition":"card_ammunition",
           "animation":"card_animation",
           "animation_scheduler":"card_animation_scheduler",
@@ -106,6 +107,7 @@
         {
           "activity":"object_activity",
           "actor":"object_actor",
+          "adventure":"object_adventure",
           "ammunition":"object_ammunition",
           "animation":"object_animation",
           "animation_scheduler":"object_animation_scheduler",
@@ -216,6 +218,12 @@
       { "class_name":"import", "file_name":"pages\\object_actor.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_actor.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_adventure.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_adventure.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_adventure.json" },
 
       { "class_name":"import", "file_name":"pages\\card_ammunition.json" },
 

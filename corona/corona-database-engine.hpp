@@ -9383,25 +9383,6 @@ private:
 				tab.put_member("member_name", field->get_field_name());
 				tab.put_member_bool("list", true);
 
-				auto create_objects = field->get_allowed_classes();
-                json tab_commands = jp.create_array();
-                for (auto co : create_objects) {
-					json jcommand = jp.create_object();
-                    jcommand.put_member_string("class_name", "create_object");
-                    jcommand.put_member_string("create_class_name", co);
-					jcommand.put_member_string("constructor_frame", "frame_selected");
-
-					json jcopy = jp.create_object();
-                    jcopy.put_member_string(classd->get_class_name(), "object_id");
-					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
-
-					jcommand.put_member("constructor_copy", jcopy);
-					jcommand.put_member_string("source_frame", "frame_selected");
-					jcommand.put_member_string("target_frame", "frame_selected");
-					jcommand.put_member_string("message", "Create " + co);
-					tab_commands.push_back(jcommand);
-				}
-				tab.put_member("commands", tab_commands);
                 tabs.push_back(tab);
 			}
 			else if (field->get_field_class() != "sys_object")
@@ -9611,6 +9592,20 @@ private:
 							{ "$create_button_message", jp.from_string("new " + allowed_class) },
 							{ "$class_edit_page", form_sources[allowed_class] }
 					});
+					json click_command = new_item["on_click"];
+					click_command.put_member_string("create_class_name", allowed_class);
+					click_command.put_member_string("constructor_frame", "frame_selected");
+
+					json jcopy = jp.create_object();
+					jcopy.put_member_string(classd->get_class_name(), "object_id");
+					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
+
+					click_command.put_member("constructor_copy", jcopy);
+					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
+					click_command.put_member_string("source_frame", form);
+					click_command.put_member_string("target_frame", "frame_selected");
+					new_item.put_member_string("message", "Create " + allowed_class);
+
                     tab_create_commands.push_back(new_item);
 				}
 

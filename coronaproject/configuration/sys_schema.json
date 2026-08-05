@@ -654,7 +654,7 @@
         "box": "edit_field_box"
       }
     },
-    "card_fields": [ "first_name", "last_name", "name", "description" ],
+    "card_fields": [ "name", "description", "class_name" ],
     "classes": {
       "game": "default",
       "essay": "default",
@@ -698,9 +698,7 @@
       "stick": "default",
       "hit": "default",
       "set": "default",
-      "adventure": {
-
-      }
+      "adventure": "default"
     },
     "objects": [
       {

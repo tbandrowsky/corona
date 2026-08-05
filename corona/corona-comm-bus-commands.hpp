@@ -1361,7 +1361,20 @@ namespace corona
 					response.data.put_member(member.first, member.second);
 				}
 
-                _bus->put_object(instance, response.data);
+				if (request.object()) {
+					response.data.merge(request);
+				}
+
+				response = _bus->put_object(instance, response.data);
+				if (response.success) {
+					// this is because put_object can accept sets of objects, and the return
+					// is broken out by class, with different messages for each.
+					auto response_data = response.data[create_class_name];
+					if (response_data.array()) {
+						response_data = response_data.get_element(0);
+						response.data = response_data["data"];
+					}
+				}
 			}
 
 			return response;
