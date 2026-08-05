@@ -111,6 +111,7 @@ namespace corona
 
 		virtual void run_app_ui(HINSTANCE hInstance, LPSTR command_line, bool fullScreen) = 0;
 
+		virtual bool refresh_ux() = 0;
 		virtual HINSTANCE get_instance() = 0;
 		virtual std::string get_application_name() = 0;
 
@@ -316,6 +317,7 @@ namespace corona
 			}
 		}
 
+		virtual control_base* create_control(control_base* _src) = 0;
 		virtual control_base* find_control(int _id) = 0;
 		virtual control_base* find_control(std::string _name) = 0;
 

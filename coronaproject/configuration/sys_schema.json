@@ -69,6 +69,7 @@
       "class_name": "piece_type",
       "base_class_name": "game_base",
       "class_description": "a type of gaming piece",
+      "full_text": [ "name", "description", "piece_class_name", "inventory" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -96,6 +97,7 @@
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "parents": [ "piece_type" ],
+      "full_text": [ "name" ],
       "fields": {
         "name": "string",
         "mass": "double",
@@ -119,6 +121,7 @@
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "parents": [ "piece", "piece_type" ],
+      "full_text": [ "state" ],
       "fields": {
         "state": {
           "field_type": "string",
@@ -141,6 +144,7 @@
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "parents": [ "animation" ],
+      "full_text": [ "name" ],
       "fields": {
         "state": {
           "field_type": "string",
@@ -534,6 +538,7 @@
       "base_class_name": "game_base",
       "class_description": "playing a game is having an adventure",
       "parents": [ "game" ],
+      "full_text": [ "name", "description" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -580,7 +585,6 @@
       "class_name": "game",
       "base_class_name": "activity",
       "class_description": "A world with rules one may adventure in",
-      "full_text": [ "name", "description", "image" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -604,7 +608,6 @@
       "class_name": "essay",
       "base_class_name": "activity",
       "class_description": "An essay in the system",
-      "full_text": [ "name", "description", "text" ],
       "fields": {
         "text": "string"
       }

@@ -3,6 +3,7 @@
   "name": "$create_button_name",
   "image": "$create_button_image",
   "text": "$create_button_text",
+  "icon": "Add",
   "box": {
     "width": "100 pixels",
     "height": "75 pixels"

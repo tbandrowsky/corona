@@ -78,6 +78,20 @@ namespace corona
 			arrange(_parent, &bounds);
 		}
 
+		virtual void set_contents(std::vector<std::shared_ptr<control_base>> _controls)
+		{
+			children.clear();
+
+			for (auto srcchild : _controls)
+			{
+				auto new_child = srcchild->clone();
+				children.push_back(new_child);
+			}
+
+			recalculate_children();
+
+		}
+
 		virtual void set_contents(control_base *_parent, page_base *_contents)
 		{
 			auto new_root = _contents->root;
@@ -89,17 +103,7 @@ namespace corona
 				children.push_back(new_child);
 			}
 
-			remaining = { bounds.w, bounds.h, 0.0 };
-
-			for (auto child : children) {
-				auto sz = child->get_size(this);
-				point item_origin = {};
-				point item_position = child->get_position(this);
-				item_origin.x += item_position.x;
-				item_origin.y += item_position.y;
-				rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
-				child->arrange(this, &item_bounds);
-			}
+            recalculate_children();
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -200,6 +204,24 @@ namespace corona
 
 			corona::put_json(content_alignment, _src, "content_alignment" );
 			corona::put_json(content_cross_alignment, _src, "content_cross_alignment");
+		}
+
+		private:
+		
+		void recalculate_children()
+		{
+			remaining = { bounds.w, bounds.h, 0.0 };
+
+			for (auto child : children) {
+				auto sz = child->get_size(this);
+				point item_origin = {};
+				point item_position = child->get_position(this);
+				item_origin.x += item_position.x;
+				item_origin.y += item_position.y;
+				rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+				child->arrange(this, &item_bounds);
+			}
+			;
 		}
 	};
 

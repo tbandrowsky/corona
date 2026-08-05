@@ -32,13 +32,13 @@
                 "width": "350 pixels",
                 "height": "40 pixels"
               },
-              "text": "SEARCH"
+              "text": "TOPIC"
             },
             {
               "class_name": "chaptersubtitle",
               "name": "search_prompt_text",
               "box": {
-                "width": "400 pixels",
+                "width": "410 pixels",
                 "height": "40 pixels"
               },
               "text": "{class_name} RESULTS"

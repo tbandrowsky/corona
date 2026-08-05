@@ -2082,6 +2082,20 @@ namespace corona
 				});
 		}
 
+		virtual control_base* create_control(control_base* _src) override
+		{
+			if (presentation_layer) {
+                if (auto host = presentation_layer->window_host.lock()) {
+					if (auto window = host->getWindow().lock()) {
+						auto context = window->getContext();
+                        _src->create(context, host);
+						return _src;
+                    }
+				}
+			}
+			return nullptr;
+		}
+
 		virtual control_base* find_control(std::string _name) override
 		{
 			return presentation_layer->find_ptr<control_base>(_name);
@@ -2281,6 +2295,16 @@ namespace corona
 			}
 			log_command_stop("select_page stop", target_note, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
+
+		virtual bool refresh_ux() override
+		{
+			if (presentation_layer) {
+				presentation_layer->update_focus_list();
+				presentation_layer->onResize();
+				return true;
+			}
+			return false;
+        }
 
 		virtual HINSTANCE get_instance() override
 		{

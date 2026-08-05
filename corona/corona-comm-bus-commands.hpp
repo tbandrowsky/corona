@@ -2044,7 +2044,7 @@ namespace corona
         std::string         edit_text_control = "";
         std::string         result_text = "";
         std::string         edit_text = "";
-		std::vector<std::shared_ptr<command_button_control>> result_commands;
+		std::vector<std::shared_ptr<control_base>> result_commands;
         std::string			result_commands_control = "";
 
 		corona_run_query_command()
@@ -2162,12 +2162,8 @@ namespace corona
 					if (cb_commands) {
 						auto tx_commands = dynamic_cast<container_control*>(cb_commands);
 						if (tx_commands) {
-							tx_commands->children.clear();
-							for (auto comm : result_commands) {
-								tx_commands->children.push_back(comm);
-                            }
-							auto bounds = tx_commands->get_inner_bounds();
-							tx_commands->arrange(nullptr, &bounds);
+							tx_commands->set_contents(result_commands);
+							_bus->refresh_ux();
 						}
 					}
 				}

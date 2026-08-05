@@ -9141,7 +9141,7 @@ private:
 						}
 
 						// Generate object details page
-						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, create_command_class_template, form_sources);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
@@ -9583,7 +9583,7 @@ private:
 			return pages;
 		}
 
-		json generate_tab_list_pages(json& tab_list_template, const std::string& class_name, const std::string& member_name)
+		json generate_tab_list_pages(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
@@ -9596,11 +9596,27 @@ private:
 			if (parameters.object()) {
 				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
 
-				std::string tab_list_command_name = "tl_" + class_name + "_" + member_name + "_commands";
+                json tab_create_commands = jp.create_array();
+
 				std::string tab_list_table_name = "tl_" + class_name + "_" + member_name + "_table";
 
+                auto field = classd->get_field(member_name);
+				for (auto allowed_class : field->get_allowed_classes()) {
+					json new_item = create_command_class_template.clone();
+					new_item.apply_abbreviations({
+							{ "$create_button_class", jp.from_string(allowed_class) },
+							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
+							{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", allowed_class)) },
+							{ "$create_button_text", jp.from_string(allowed_class) },
+							{ "$create_button_message", jp.from_string("new " + allowed_class) },
+							{ "$class_edit_page", form_sources[allowed_class] }
+					});
+                    tab_create_commands.push_back(new_item);
+				}
+
 				json abbrevations = jp.create_object();
-                abbrevations.put_member_string("$tab_list_commands", tab_list_command_name);
+                abbrevations.put_member("$tab_list_commands", tab_create_commands);
+				abbrevations.put_member_string("$tab_list_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
 				abbrevations.put_member_string("$tab_list_table", tab_list_table_name);
 				abbrevations.put_member_string("$json_field_name", member_name);
 				abbrevations.put_member_string("$empty_text", "No " + member_name);
@@ -9614,7 +9630,7 @@ private:
 
 		json generate_object_pages(validation_error_collection& _errors, json& object_template,
 			read_class_sp& classd,
-			json& class_mappings, json& field_mappings, json& tab_list_template)
+			json& class_mappings, json& field_mappings, json& tab_list_template, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
 
@@ -9647,7 +9663,7 @@ private:
 
 				bool list = src_tab["list"].as_bool();
 				if (list) {
-					json tab_page = generate_tab_list_pages(tab_list_template, class_name, member_name);
+					json tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
 					result.push_back_array(tab_page);
 					new_tab.erase_member("list");
 					new_tab.copy_member("page_name", src_tab);

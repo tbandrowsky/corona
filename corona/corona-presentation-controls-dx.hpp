@@ -1983,7 +1983,7 @@ namespace corona
         {
             icon_style.fontName = "Segoe MDL2 Assets";
             icon_style.name = "command_button_icon_style";
-            icon_style.fontSize = 25;
+            icon_style.fontSize = 14;
             icon_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
             icon_style.character_spacing = 0;
             icon_style.italics = false;
@@ -2036,6 +2036,8 @@ namespace corona
 
                     draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
 
+                        auto icon_it = segoeMDL2Icons.find(this->icon);
+
                         if (add_circle_backlight)
                         {
                             auto dc = _context->getDeviceContext();
@@ -2045,10 +2047,24 @@ namespace corona
                             if (backlight_brush) {
                                 D2D1_ELLIPSE ellipse;
 
-                                ellipse.point.x = rectangle_math::center(*_bounds).x;
-                                ellipse.point.y = rectangle_math::center(*_bounds).y;
-                                ellipse.radiusX = _bounds->w / 3.3f;
-                                ellipse.radiusY = _bounds->h / 3.3f;
+                                if (icon_it != segoeMDL2Icons.end()) {
+                                    ellipse.radiusX = _bounds->w / 3.3f;
+                                    ellipse.radiusY = _bounds->h / 3.3f;
+                                    if (image) {
+                                        auto ibounds = image->get_bounds();
+                                        ellipse.point = rectangle_math::center(ibounds);
+                                    }
+                                    else {
+                                        ellipse.point.x = rectangle_math::center(*_bounds).x + 12;
+                                        ellipse.point.y = rectangle_math::center(*_bounds).y;
+                                    }
+                                }
+                                else {
+                                    ellipse.point.x = rectangle_math::center(*_bounds).x;
+                                    ellipse.point.y = rectangle_math::center(*_bounds).y;
+                                    ellipse.radiusX = _bounds->w / 3.3f;
+                                    ellipse.radiusY = _bounds->h / 3.3f;
+                                }
                                 dc->FillEllipse(ellipse, backlight_brush);
                                 backlight_brush->Release();
                             }
@@ -2070,16 +2086,24 @@ namespace corona
                             }
                         }
 
-                        auto icon_it = segoeMDL2Icons.find(this->icon);
                         rectangle draw_bounds = *_bounds;
-                        draw_bounds.y += 12;
 
                         if (icon_it != segoeMDL2Icons.end()) {
+                            draw_bounds.x += 4;
+                            draw_bounds.w = 16;
                             _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
+                            draw_bounds.x = inner_bounds.x;
+                            draw_bounds.y += 20;
+                            draw_bounds.w = inner_bounds.w;
+                            _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                        }
+                        else {
+                            draw_bounds.y += 20;
+                            _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                         }
 
                         draw_bounds.y += 12;
-                        _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                        
                        };
 
                     draw_button(_context, draw_shape);
@@ -2221,7 +2245,18 @@ namespace corona
             jimage.put_member("image_filename", _name);
             image->put_json(jimage);
 
-            if (shrink_image_more) {
+            auto icon_it = segoeMDL2Icons.find(icon);
+
+            if (icon_it != segoeMDL2Icons.end()) 
+            {
+                layout_rect image_box;
+                image_box.height = .4_container;
+                image_box.width = .4_container;
+                image_box.x = .4_container;
+                image_box.y = .1_container;
+                image->set_box(image_box);
+            }
+            else if (shrink_image_more) {
                 layout_rect image_box;
                 image_box.height = .5_container;
                 image_box.width = .5_container;

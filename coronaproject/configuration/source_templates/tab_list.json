@@ -6,17 +6,14 @@
     "parameters": {
       "$tab_contents": [
         {
-          "class_name": "paragraph",
-          "box": "card_text_box"
-        },
-        {
           "class_name": "row",
-          "name": "$tab_list_commands",
+          "name": "$tab_list_commands_name",
           "box": {
             "width": "1.0 container",
-            "height": "50 pixels"
+            "height": "75 pixels"
           },
           "children": [
+            "$tab_list_commands"
           ]
         },
         {
