@@ -121,21 +121,16 @@
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "parents": [ "piece", "piece_type" ],
-      "full_text": [ "state" ],
+      "full_text": [ "name" ],
       "fields": {
-        "state": {
+        "name": {
           "field_type": "string",
-          "label": "State"
-        },
-        "duration": {
-          "field_type": "double",
-          "label": "Duration"
+          "label": "Name"
         },
         "destination": "rectangle",
         "direction": "vector",
         "sound": "audio",
         "frames": [ "frame" ],
-        "schedule": "animation_scheduler",
         "carry_point": "vector"
       }
     },
@@ -146,15 +141,14 @@
       "parents": [ "animation" ],
       "full_text": [ "name" ],
       "fields": {
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "duration": {
+        "start_seconds": {
           "field_type": "double",
-          "label": "Duration"
+          "label": "Start Seconds"
         },
-        "time_point": "double",
+        "stop_seconds": {
+          "field_type": "double",
+          "label": "Stop Seconds"
+        },
         "draw_rectangle": "rectangle",
         "fire_point": "vector",
         "sound": "audio"

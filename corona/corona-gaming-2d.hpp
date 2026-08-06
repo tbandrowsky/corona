@@ -153,8 +153,8 @@ namespace corona
 		{
 		public:
 			std::string			state;
-			double				duration;
-			double				time_point;
+			double				start_seconds;
+			double				stop_seconds;
 			rectangle			draw_rectangle;
 			DirectX::XMVECTOR	fire_point;
             audio_function      sound;
@@ -173,8 +173,8 @@ namespace corona
 
 				corona_object::get_json(_dest);
 				_dest.put_member("state", state);
-				_dest.put_member("duration", duration);
-				_dest.put_member("time_point", time_point);
+				_dest.put_member("start_seconds", start_seconds);
+				_dest.put_member("stop_seconds", stop_seconds);
 				_dest.put_member("draw_rectangle", draw_rectangle);
 				_dest.put_member("fire_point", fire_point);
 			}
@@ -183,8 +183,8 @@ namespace corona
 			{
 				corona_object::get_json(_src);
 				state = _src["state"].as_string();
-				duration = _src["duration"].as_double();
-				time_point = _src["time_point"].as_double();
+				start_seconds = _src["start_seconds"].as_double();
+				stop_seconds = _src["stop_seconds"].as_double();
 				draw_rectangle = _src["draw_rectangle"].as_rectangle();
 				fire_point = _src["fire_point"].as_vector();
                 json jsound = _src["sound"];
@@ -334,18 +334,17 @@ namespace corona
 		class animation : public corona_object
 		{
 		public:
-			std::string										state;
-			double											duration;
-            rectangle										draw_rectangle;
+            std::string										name;	
+            rectangle										destination;
 			DirectX::XMVECTOR								direction;
-            audio_function									sound;
             std::vector<std::shared_ptr<frame>>	frames;
-			animation_scheduler								schedule;
-            int												current_frame_index;
+
+            double											duration;
+			double                                          total_animation_time;
 
 			animation() {
                 class_name = "animation";
-				current_frame_index = 0;
+				total_animation_time = (std::rand() % 100) *.01;
 			}
 
 			animation(const animation& _src) = default;
@@ -358,31 +357,28 @@ namespace corona
 				if (frames.size() == 0)
 					return;
 
-				int index = schedule.execute(_elapsed);
+                total_animation_time += _elapsed;
+                total_animation_time = fmod(total_animation_time, duration);
 
-				index = index % frames.size();
-
-				if (current_frame_index != index)
-				{
-					current_frame_index = index;
-					bus->play_audio(sound, 1.0, -1.0);
+                for (auto frame : frames) {
+					if (total_animation_time >= frame->start_seconds && total_animation_time <= frame->stop_seconds) {
+						frame->draw(_context, _location);
+					}
 				}
-
-				auto frame = frames[index];
-
-				frame->draw(_context, _location);
 			}
 
 			virtual void put_json(frame_factory& _factory, json& _src)
 			{
 				corona_object::put_json(_src);
-				state = _src["state"].as_string();
+
+				name = _src["name"].as_string();
 				duration = _src["duration"].as_double();
-				draw_rectangle = _src["draw_rectangle"].as_rectangle();
+				destination = _src["destination"].as_rectangle();
 				direction = _src["direction"].as_vector();
 				json jframes = _src["frames"];
 				frames.clear();
 
+                double total_time = 0.0;
 				if (jframes.array()) {
 					for (int i = 0; i < jframes.size(); i++) {
 						auto jframe = jframes.get_element(i);
@@ -391,19 +387,20 @@ namespace corona
 						}
 						auto frame = _factory.create_object(jframe);
 						frame->put_json(jframe);
+                        if (frame->stop_seconds > total_time) {
+							total_time = frame->stop_seconds;
+						}
 						frames.push_back(frame);
 					}
 				}
-				json jsound = _src["sound"];
-				sound = audio_graph::from_json(jsound);
 			}
 
 			virtual void get_json(json& _dest)
 			{
 				corona_object::get_json(_dest);
-				_dest.put_member("state", state);
+				_dest.put_member("state", name);
 				_dest.put_member("duration", duration);
-				_dest.put_member("draw_rectangle", draw_rectangle);
+				_dest.put_member("destination", destination);
 				_dest.put_member("direction", direction);
 				json_parser jp;
 				json jframes = jp.create_array();
