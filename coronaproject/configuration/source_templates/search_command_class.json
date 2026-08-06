@@ -18,6 +18,7 @@
     "edit_text_control": "$edit_text_control",
     "result_commands": [ "$create_commands" ],
     "result_commands_control": "$commands_control",
+    "update_filter": "$update_filter",
     "query": {
       "from": [
         {

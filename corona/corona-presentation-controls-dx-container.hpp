@@ -613,7 +613,6 @@ namespace corona
 		std::string												empty_text;
 
         bool													keep_position_on_set_data = true;
-		json													update_filter;
 
 		// we keep the set of controls here on the back end, because they are small as they are not dragging around any 
 		// back end bitmaps or windows.  (arranging doesn't create the assets on a control, create does)
@@ -1112,9 +1111,6 @@ namespace corona
 
 		virtual void object_deleted(json _item) override
 		{
-            if (update_filter.object() && update_filter.compare(_item)) {
-				return;
-			}
 			if (!data.array()) {
 				return;
 			}
@@ -1132,9 +1128,6 @@ namespace corona
 
 		virtual void object_updated(json _item) override
 		{
-			if (update_filter.object() && update_filter.compare(_item)) {
-				return;
-			}
 			if (!data.array()) {
 				return;
 			}
@@ -1353,7 +1346,6 @@ namespace corona
 				_dest.put_member("empty_command", jcommand);
 			}
 
-			_dest.put_member("update_filter", update_filter);
 			corona::get_json("selection_border", _dest, selection_border);
 			corona::get_json("focused_border", _dest, focused_border);
 			corona::get_json("scroll_knob", _dest, scroll_knob);
@@ -1421,10 +1413,6 @@ namespace corona
 				corona::put_json("scroll_knob_well_border", scroll_knob_selected, _src);
 			}
 			
-			update_filter = _src["update_filter"];
-			if (update_filter.object()) {
-				update_filter.set_natural_order();
-			}
 		}
 
 	};

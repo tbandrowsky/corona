@@ -847,6 +847,7 @@ namespace corona
 		virtual void put_json(json& _src) = 0;
 		virtual void copy(json& _dest, json& _src) = 0;
 		virtual json get_key(json& src) = 0;
+		virtual json get_copy_assignment() = 0;
 	};
 
 	class child_bridges_interface
@@ -1669,6 +1670,10 @@ namespace corona
 			return key;
 		}
 
+		virtual json get_copy_assignment() override
+		{
+			return copy_values;
+		}			
 	};
 
 	class child_bridges: public child_bridges_interface
@@ -9205,6 +9210,9 @@ private:
 
 							for (auto sg_class : sg_classes) {
 
+								json update_filter = jp.create_object();
+								update_filter.put_member(class_name_field, sg_class);
+
                                 auto sgclassd = read_lock_class(sg_class);
 
 								json create_command = create_command_class_template.clone();
@@ -9234,6 +9242,7 @@ private:
 									{ "$edit_text", jp.from_string(sg_search_edit_text) },
 									{ "$create_commands", search_create_commands },
 									{ "$commands_control", jp.from_string(sg_search_commands_control) },
+									{ "$update_filter", update_filter }
 									});
 
                                 search_group_commands.push_back(search_command);
@@ -9355,6 +9364,14 @@ private:
 			if (field_classes.size() > 0) {
 				field_class = field_classes[0];
 			}
+			
+			std::shared_ptr<child_bridges_interface> bridges;
+            bridges = field->get_bridges();
+			
+			std::shared_ptr<child_bridge_interface> bridge;
+			if (bridges) {
+				bridge = bridges->get_bridge(field_class);
+			}
 
 			if (field->get_field_type() == field_types::ft_object) {
 				json tab = jp.create_object();				
@@ -9382,7 +9399,10 @@ private:
 				tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
 				tab.put_member_bool("list", true);
-
+				if (bridge) {
+					json jcopy = bridge->get_copy_assignment();
+					tab.put_member("filter", jcopy);
+				}
                 tabs.push_back(tab);
 			}
 			else if (field->get_field_class() != "sys_object")
@@ -9584,6 +9604,8 @@ private:
                 auto field = classd->get_field(member_name);
 				for (auto allowed_class : field->get_allowed_classes()) {
 					json new_item = create_command_class_template.clone();
+
+                    json update_filter = jp.create_object();				
 					new_item.apply_abbreviations({
 							{ "$create_button_class", jp.from_string(allowed_class) },
 							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
@@ -9592,6 +9614,7 @@ private:
 							{ "$create_button_message", jp.from_string("new " + allowed_class) },
 							{ "$class_edit_page", form_sources[allowed_class] }
 					});
+
 					json click_command = new_item["on_click"];
 					click_command.put_member_string("create_class_name", allowed_class);
 					click_command.put_member_string("constructor_frame", "frame_selected");
