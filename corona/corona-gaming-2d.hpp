@@ -398,7 +398,7 @@ namespace corona
 			virtual void get_json(json& _dest)
 			{
 				corona_object::get_json(_dest);
-				_dest.put_member("state", name);
+				_dest.put_member("name", name);
 				_dest.put_member("duration", duration);
 				_dest.put_member("destination", destination);
 				_dest.put_member("direction", direction);
@@ -703,7 +703,7 @@ namespace corona
 			virtual void draw(direct2dContext& _context, double _delta, double _elapsed)
 			{
 				for (auto animation : animations) {
-					if (animation->state == state) {
+					if (animation->name == state) {
 						animation->draw(_context, _delta, position);
 					}
 				}
@@ -1722,6 +1722,30 @@ namespace corona
 			}
 		};
 
+		enum class actor_directions
+		{
+			up,
+			down,
+			left,
+			right
+		};
+
+		enum class actor_statuses
+		{
+			waiting,
+			playing,
+			dead
+		};
+
+		enum class actor_actions
+		{
+			standing,
+			crawling,
+			walking,
+			running,
+			throwing,
+			attacking
+		};
 
 		class actor : public piece
 		{
@@ -1739,6 +1763,10 @@ namespace corona
 			std::shared_ptr<selection_field>		selection;
 			bool									ready;
 			bool									dead;
+
+			actor_directions	actor_direction;
+            actor_statuses		actor_status;
+            actor_actions       actor_action;
 
 			double stopped_velocity;
 			double crawling_velocity;
@@ -1779,70 +1807,72 @@ namespace corona
 			virtual void extend_selection(chest_item* _ci);
 			virtual void clear_selection();
 
+			float get_travel_velocity()
+			{
+				switch (actor_action)
+				{
+					case actor_actions::standing:
+                        return 0.0;
+					case actor_actions::crawling:
+						return crawling_velocity;
+					case actor_actions::walking:
+                        return walking_velocity;
+					case actor_actions::running:
+                        return running_velocity;
+					case actor_actions::throwing:
+						return 0.0;
+					case actor_actions::attacking:
+						return 0.0;
+				}
+			}
+
 			virtual void move_left()
 			{
-				DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-				auto v = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(up, facing));
+                float d = get_travel_velocity();
+				DirectX::XMVECTOR left = DirectX::XMVectorSet(-d, 0.0f, 0.0f, 0.0f);
+				
+                actor_direction = actor_directions::left;
 			}
 
 			virtual void move_right()
 			{
-				DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-				auto v = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(up, facing));
-				v = DirectX::XMVectorNegate(v);
+				float d = get_travel_velocity();
+				DirectX::XMVECTOR right = DirectX::XMVectorSet(d, 0.0f, 0.0f, 0.0f);
+                actor_direction = actor_directions::right;
 			}
 
 			virtual void move_foward()
 			{
-				auto v = facing;
+				float d = get_travel_velocity();
+				DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, d, 0.0f, 0.0f);
+                actor_direction = actor_directions::up;
 			}
 
 			virtual void move_back()
 			{
-				auto v = DirectX::XMVectorNegate(facing);
-			}
-
-			virtual void move(DirectX::XMVECTOR _direction)
-			{
-				auto v = DirectX::XMVector3Normalize(_direction);
-
-				if (state == "stopped") 
-				{
-					state = "walking";
-				}
-				
-				if (state == "crawling")
-				{
-					velocity = DirectX::XMVectorScale(v, crawling_velocity);
-				}
-				else if (state == "walking")
-				{
-					velocity = DirectX::XMVectorScale(v, walking_velocity);
-				}
-				else if (state == "running")
-				{
-					velocity = DirectX::XMVectorScale(v, running_velocity);
-				}
+				float d = get_travel_velocity();
+				DirectX::XMVECTOR down = DirectX::XMVectorSet(0.0f, -d, 0.0f, 0.0f);
+				actor_direction = actor_directions::down;
 			}
 
 			void run()
 			{
-				state = "running";
+                actor_action = actor_actions::running;
 			}
 
 			void walk()
 			{
-				state = "walking";
+				actor_action = actor_actions::walking;
 			}
 
 			void crawl()
 			{
-				state = "crawling";
+				actor_action = actor_actions::crawling;
 			}
 
 			void stop()
 			{
-				state = "stopped";
+				actor_action = actor_actions::standing;
 			}
 
 			virtual void face(DirectX::XMVECTOR& _facing)
@@ -3510,6 +3540,24 @@ namespace corona
 			scope_lock locker(adventure_locker);
 
 			auto player = attach_player(gpbd.state);
+
+			if (fabs(gpbd.x) < fabs(gpbd.y)) {
+                if (gpbd.y > 0) {
+					player->move_foward();
+				}
+				else if (gpbd.y < 0) {
+					player->move_back();
+				}
+			}
+			else 
+			{
+				if (gpbd.x > 0) {
+					player->move_right();
+				}
+				else if (gpbd.x < 0) {
+					player->move_left();
+				}
+			}
 		}
 
 		std::shared_ptr<player> adventure::attach_player(std::string input_name)
