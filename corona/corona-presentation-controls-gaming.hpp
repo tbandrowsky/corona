@@ -163,12 +163,18 @@ namespace corona
 
 			if (!json_field_name.empty()) {
 				json janimations = _src[json_field_name];
+
 				animations.clear();				
+                current_selection.object = nullptr;
+                animation_rectangles.clear();
+				frame_rectangles.clear();
+
 				for (int i = 0; i < janimations.size(); i++) {
 					auto janimation = janimations.get_element(i);
 					auto new_animation = std::make_shared<game::animation>();
 					new_animation->put_json(factory, janimation);
 					animations.push_back(new_animation);
+					current_selection.object = new_animation;
 				}
 			}
 		}
@@ -213,6 +219,11 @@ namespace corona
             point frame_area_size = { animation_area_size.x, total_size.y * 0.4 };
 			point frame_select_size = { frame_area_size.x / 4.0, total_size.y / 2.0 };
             point animation_select_size = { animation_area_size.x / 2.0, animation_area_size.y / 4.0 };
+
+			if (current_selection.object) {
+
+
+			}
 
 			
 
