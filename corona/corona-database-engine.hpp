@@ -9740,6 +9740,19 @@ private:
 			system_monitoring_interface::active_mon->log_job_start("apply_schema", "Applying schema file", start_schema, __FILE__, __LINE__);
 			using namespace std::literals;
 
+			if (_schema.error()) {
+				json errs = _schema["errors"];
+				if (errs.array()) {
+					for (int i = 0; i < errs.size(); i++)
+					{
+						json erri = errs.get_element(i);
+						std::string message = std::format("{} @{}", erri["error"].as_string(), erri["line"].as_string());
+						log_warning(message);
+					}
+				}
+				return _schema;
+			}
+
 			if (not _schema.has_member("schema_name"))
 			{
 				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema name");

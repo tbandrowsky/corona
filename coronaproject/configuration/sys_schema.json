@@ -615,6 +615,10 @@
         "class_name": "memo_field",
         "box": "memo_field_box"
       },
+      "animations": {
+        "class_name": "animations",
+        "box": "memo_field_box"
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": "memo_field_box"
@@ -1422,40 +1426,38 @@
             "duration": "5",
             "frames": [
               {
-                {
-                  "class_name": "vector_frame",
-                  "state": "default",
-                  "duration": "5",
-                  "path": {
-                    "points": [
-                      {
-                        "class_name": "line",
-                        "point": "0,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,0,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "100,100,0"
-                      },
-                      {
-                        "class_name": "line",
-                        "point": "0,100,0"
-                      }
-                    ]
-                  },
-                  "fill": {
-                    "class_name": "solid_brush",
-                    "color": "#D0D0B0"
-                  },
-                  "stroke": {
-                    "class_name": "solid_brush",
-                    "color": "#2020202"
-                  },
-                  "stroke_width": 4
-                }
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "path": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
               }
             ],
             "defaults": {
