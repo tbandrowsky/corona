@@ -1,4 +1,3 @@
-
 #pragma once
 
 namespace corona
@@ -405,7 +404,9 @@ namespace corona
         corona_instance instance = corona_instance::local;
 
     public:
-
+        corona_object_factory() noexcept : bus(nullptr) {
+        }
+        
         corona_object_factory(comm_bus_interface* _bus) noexcept {
             bus = _bus;
         }

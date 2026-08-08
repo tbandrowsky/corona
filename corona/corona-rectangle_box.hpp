@@ -31,6 +31,16 @@ namespace corona {
 
 	};
 
+	DirectX::XMVECTOR to_point(const rectangle& _src) 
+	{
+		return DirectX::XMVectorSet((float)_src.x, (float)_src.y, 0.0f, 0.0f);
+	}
+
+	DirectX::XMVECTOR to_size(const rectangle& _src) 
+	{
+		return DirectX::XMVectorSet((float)_src.w, (float)_src.h, 0.0f, 0.0f);
+	}
+
 	enum intersection_side {
 		intersection_side_none = 0,
 		intersection_side_top = 1,

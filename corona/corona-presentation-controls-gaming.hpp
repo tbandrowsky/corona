@@ -116,28 +116,42 @@ namespace corona
 		}
 	};
 
-	class corona_object_rectangle
+	class corona_frame_rectangle
 	{
 	public:
 		rectangle rect;
-		std::shared_ptr<corona_object> object;
+		std::shared_ptr<game::frame> object;
+	};
+
+	class corona_animation_rectangle
+	{
+	public:
+		rectangle rect;
+		std::shared_ptr<game::animation> object;
 	};
 
 	class animations_control : public draw_control
 	{
 		json data;
 		std::vector<std::shared_ptr<game::animation>> animations;
-		game::frame_factory factory;
-		corona_object_rectangle					current_selection;
-        std::vector<corona_object_rectangle>    animation_rectangles;
-		std::vector<corona_object_rectangle>    frame_rectangles;
+		std::shared_ptr<game::frame_factory> factory;
+		std::vector<corona_animation_rectangle>		animation_rectangles;
+		std::vector<corona_frame_rectangle>			frame_rectangles;
+		corona_animation_rectangle					current_animation;
+		corona_frame_rectangle						current_frame;
+		double elapsed_seconds = 0.0;
+
 	public:
 
 		animations_control(const animations_control& _src) = default;
-		animations_control() = default;
-		animations_control(control_base* _parent, int _id) : draw_control(_parent, _id) 
+		animations_control() 
+		{
+            factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
+		}
+		animations_control(control_base* _parent, int _id) 
+			: draw_control(_parent, _id)
 		{ 
-			; 
+            factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
         }
 
 		virtual ~animations_control() { ; }
@@ -161,20 +175,22 @@ namespace corona
 		{
 			draw_control::put_json(_src);
 
+			animations.clear();
+			current_animation.object = nullptr;
+			current_frame.object = nullptr;
+
 			if (!json_field_name.empty()) {
 				json janimations = _src[json_field_name];
 
-				animations.clear();				
-                current_selection.object = nullptr;
                 animation_rectangles.clear();
 				frame_rectangles.clear();
 
 				for (int i = 0; i < janimations.size(); i++) {
 					auto janimation = janimations.get_element(i);
 					auto new_animation = std::make_shared<game::animation>();
-					new_animation->put_json(factory, janimation);
+					new_animation->put_json(*factory.get(), janimation);
 					animations.push_back(new_animation);
-					current_selection.object = new_animation;
+					current_animation.object = new_animation;
 				}
 			}
 		}
@@ -183,6 +199,14 @@ namespace corona
 		{
 			auto tv = std::make_shared<animations_control>(*this);
 			return tv;
+		}
+
+		virtual void on_update(double _time)
+		{
+			elapsed_seconds = _time;
+			for (auto child : children) {
+				child->on_update(_time);
+			}
 		}
 
 		void init()
@@ -195,11 +219,28 @@ namespace corona
 					animations_control* t = dynamic_cast<animations_control*>(_src);
 					if (t) {
 						t->set_default_styles();
+                        for (auto anim : t->animations) {
+							anim->create_assets(*_context);
+						}
 					}
 				};
 
 			on_draw = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src) {
 				animations_control* t = dynamic_cast<animations_control*>(_src);
+
+                for (auto& anim_rect : t->animation_rectangles) {
+					if (anim_rect.object) {
+						DirectX::XMVECTOR location = to_point(anim_rect.rect);
+						anim_rect.object->draw(*_context, t->elapsed_seconds, location);
+					}
+				}
+
+				for (auto& frame_rect : t->frame_rectangles) {
+                    if (frame_rect.object) {
+						DirectX::XMVECTOR location = to_point(frame_rect.rect);
+						frame_rect.object->draw(*_context, location);
+					}
+				}
 
 			};
 		}
@@ -212,21 +253,61 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override
 		{
 			draw_control::arrange(_parent, _ctx);
+
+			double num_frames_x = 4;
+			double num_frames_y = 2;
+			double num_animations_x = 2;
+			double num_animations_y = 4;
 			
 			point total_size = rectangle_math::size(_ctx);
             point animation_select_area_size = { total_size.x * 0.3, total_size.y };
-            point animation_area_size = { total_size.x * 0.7, total_size.y * 0.6 };
+			point animation_select_size = { animation_select_area_size.x / num_animations_x, animation_select_area_size.y / num_animations_y };
+			point animation_area_size = { total_size.x * 0.7, total_size.y * 0.6 };
             point frame_area_size = { animation_area_size.x, total_size.y * 0.4 };
-			point frame_select_size = { frame_area_size.x / 4.0, total_size.y / 2.0 };
-            point animation_select_size = { animation_area_size.x / 2.0, animation_area_size.y / 4.0 };
+			point frame_select_size = { frame_area_size.x / num_frames_x, total_size.y / num_frames_y };
 
-			if (current_selection.object) {
+			point base;
+			current_animation.rect.x = inner_bounds.x + animation_select_area_size.x;
+			current_animation.rect.y = inner_bounds.y;
+            current_animation.rect.w = animation_area_size.x;
+            current_animation.rect.h = animation_area_size.y;
 
-
+			if (current_animation.object) {
+                auto iter = current_animation.object->frames.begin();
+				for (int x = 0; x < num_frames_x; x++) {
+					for (int y = 0; y < num_frames_y; y++) {
+                        if (iter != std::end(current_animation.object->frames)) {
+							rectangle r;
+							r.x = x * frame_select_size.x;
+							r.y = y * frame_select_size.y;
+							r.w = frame_select_size.x;
+							r.h = frame_select_size.y;
+							frame_rectangles.push_back({ r, current_frame.object });
+							iter++;
+						}
+						else {
+							break;
+						}
+					}
+                }
 			}
-
-			
-
+            auto iter = animations.begin();
+            for (int x = 0; x < num_animations_x; x++) {
+				for (int y = 0; y < num_animations_y; y++) {
+					if (iter != animations.end()) {
+						rectangle r;
+						r.x = x * animation_select_size.x;
+						r.y = y * animation_select_size.y;
+						r.w = animation_select_size.x;
+						r.h = animation_select_size.y;
+						animation_rectangles.push_back({ r, *iter });
+						iter++;
+					}
+					else {
+						break;
+					}
+				}
+			}
 		}
 
 		virtual json get_data() override
@@ -247,8 +328,6 @@ namespace corona
 		}
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
-
-
 	};
 
 	json corona_start_game_command::handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {

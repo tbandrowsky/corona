@@ -28,6 +28,7 @@ namespace corona
 	class checkbox_list_control;
 	class radiobutton_list_control;
 	class placeholder_control;
+	class animations_control;
 
 	class horizontal_field_layout {
 	public:
@@ -462,6 +463,7 @@ namespace corona
 		inline control_builder& placeholder(std::string _text) { return placeholder(_text, nullptr, id_counter::next()); }
 		inline control_builder& adventure(std::string _text) { return adventure(_text, nullptr, id_counter::next()); }
 		inline control_builder& chest_view_create(std::string _text) { return chest_view_create(_text, nullptr, id_counter::next()); }
+		inline control_builder& animations(std::string _text) { return animations(_text, nullptr, id_counter::next()); }
 
 		inline control_builder& error(call_status _status) { return error(_status, nullptr, id_counter::next()); }
 		inline control_builder& status(call_status _status) { return status(_status, nullptr, id_counter::next()); }
@@ -479,6 +481,7 @@ namespace corona
 		inline control_builder& error(int _id, std::string _text) { return error(_text, nullptr, _id); }
 		inline control_builder& adventure(int _id, std::string _text) { return adventure(_text, nullptr, _id); }
 		inline control_builder& chest_view_create(int _id, std::string _text) { return chest_view_create(_text, nullptr, _id); }
+		inline control_builder& animations(int _id, std::string _text) { return animations(_text, nullptr, _id); }
 
 		inline control_builder& title(int _id, std::function<void(title_control&)> _settings) { return title("", _settings, _id); }
 		inline control_builder& subtitle(int _id, std::function<void(subtitle_control&)> _settings) { return subtitle("", _settings, _id); }
@@ -489,11 +492,12 @@ namespace corona
 		inline control_builder& paragraph(int _id, std::function<void(paragraph_control&)> _settings) { return paragraph("", _settings, _id); }
 		inline control_builder& code(int _id, std::function<void(code_control&)> _settings) { return code("", _settings, _id); }
 		inline control_builder& label(int _id, std::function<void(label_control&)> _settings) { return label("", _settings, _id); }
-		inline control_builder& error(int _id, std::function<void(error_control&)> _settings) { return error("", _settings, id_counter::next()); }
-		inline control_builder& placeholder(int _id, std::function<void(placeholder_control&)> _settings) { return placeholder("", _settings, id_counter::next()); }
-		inline control_builder& adventure(int _id, std::function<void(adventure_control&)> _settings) { return adventure("", _settings, id_counter::next()); }
+		inline control_builder& error(int _id, std::function<void(error_control&)> _settings) { return error("", _settings, _id); }
+		inline control_builder& placeholder(int _id, std::function<void(placeholder_control&)> _settings) { return placeholder("", _settings, _id); }
+		inline control_builder& adventure(int _id, std::function<void(adventure_control&)> _settings) { return adventure("", _settings, _id); }
 		inline control_builder& chest_view_create(int _id, std::function<void(corona::chest_view&)> _settings) { return chest_view_create("", _settings, _id); }
-		
+		inline control_builder& animations(int _id, std::function<void(corona::animations_control&)> _settings) { return animations("", _settings, _id); }
+
 		inline control_builder& title(std::string _text, std::function<void(title_control&)> _settings) { return title(_text, _settings, id_counter::next()); }
 		inline control_builder& subtitle(std::string _text, std::function<void(subtitle_control&)> _settings) { return subtitle(_text, _settings, id_counter::next()); }
 		inline control_builder& authorscredit(std::string _text, std::function<void(authorscredit_control&)> _settings) { return authorscredit(_text, _settings, id_counter::next()); }
@@ -504,9 +508,11 @@ namespace corona
 		inline control_builder& code(std::string _text, std::function<void(code_control&)> _settings) { return code(_text, _settings, id_counter::next()); }
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
 		inline control_builder& error(std::string _text, std::function<void(error_control&)> _settings) { return error(_text, _settings, id_counter::next()); }
+ 
 		inline control_builder& placeholder(std::string _text, std::function<void(placeholder_control&)> _settings) { return placeholder(_text, _settings, id_counter::next()); }
 		inline control_builder& adventure(std::string _text, std::function<void(adventure_control&)> _settings) { return adventure(_text, _settings, id_counter::next()); }
 		inline control_builder& chest_view_create(std::string _text, std::function<void(corona::chest_view&)> _settings) { return chest_view_create(_text, _settings, id_counter::next()); }
+		inline control_builder& animations(std::string _text, std::function<void(corona::animations_control&)> _settings) { return animations(_text, _settings, id_counter::next()); }
 
 		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(id_counter::next(), _text, _settings ); }
 
@@ -1042,6 +1048,16 @@ namespace corona
 			return *this;
 		}
 
+		control_builder& animations(std::string _text, std::function<void(animations_control&)> _settings, int _id)
+		{
+			auto tc = create<animations_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
 		control_builder& adventure(std::string text, std::function<void(adventure_control&)> _settings, int _id)
 		{
 			auto tc = create<adventure_control>(_id);
@@ -1427,6 +1443,7 @@ namespace corona
 			}
 			return *this;
 		}
+
 
 		control_builder& tab_button(int _id, std::function<void(tab_button_control&)> _settings = nullptr);
 		control_builder& tab_view(int _id, std::function<void(tab_view_control&)> _settings = nullptr);
@@ -2349,6 +2366,13 @@ namespace corona
 		else if (class_name == "password")
 		{
 			password(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
+		else if (class_name == "animations")
+		{
+			animations(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});
