@@ -1,0 +1,31 @@
+{
+  "class_name": "page",
+  "page_name": "$tab_custom",
+  "using": {
+    "page_name": "tab_container",
+    "parameters": {
+      "$tab_contents": [
+        {
+          "class_name": "row",
+          "name": "$tab_custom_commands_name",
+          "box": {
+            "width": "1.0 container",
+            "height": "75 pixels"
+          },
+          "children": [
+            "$tab_custom_commands"
+          ]
+        },
+        {
+          "class_name": "$tab_custom_class",
+          "name": "$tab_custom_item_name",
+          "json_field_name": "$json_field_name",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 remaining"
+          }
+        }
+      ]
+    }
+  }
+}

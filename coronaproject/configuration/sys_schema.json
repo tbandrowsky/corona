@@ -611,11 +611,11 @@
     "application_creator": "Todd Bandrowsky",
     "application_name": "Corona Video Game",
     "fields": {
-      "description": {
+      ".description": {
         "class_name": "memo_field",
         "box": "memo_field_box"
       },
-      "animations": {
+      ".animations": {
         "class_name": "animations",
         "box": "memo_field_box"
       },
