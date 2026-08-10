@@ -127,6 +127,16 @@ namespace corona {
 		D2D1_COLOR_F new_color = {};
 
 		int si = {}, r = {}, g = {}, b = {}, a = 255;
+
+		while (*_htmlColor && std::isspace(*_htmlColor))
+		{
+			_htmlColor++;
+        }
+		
+		if (*_htmlColor == '#') {
+            _htmlColor++;
+		}
+
 		int sz = strlen(_htmlColor);
 
 		if (sz > 0)
@@ -750,6 +760,7 @@ namespace corona {
 		inline pathQuadraticBezierDto* asPathQuadraticBezierDto() { return eType == e_line ? (pathQuadraticBezierDto*)this : NULL; }
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(json& _src) = 0;
+        virtual void move(double x, double y) = 0;
 	};
 
 	class pathLineDto : public pathBaseDto {
@@ -787,6 +798,12 @@ namespace corona {
             point.x = DirectX::XMVectorGetX(v);
             point.y = DirectX::XMVectorGetY(v);
             point.z = DirectX::XMVectorGetZ(v);
+		}
+
+		void move(double x, double y)
+		{
+            this->point.x += x;
+            this->point.y += y;
 		}
 
 	};
@@ -838,6 +855,12 @@ namespace corona {
 			radiusY = _src["radiusY"].as_double();
 		}
 
+		void move(double x, double y)
+		{
+			this->point.x += x;
+			this->point.y += y;
+		}
+
 	};
 
 	class pathQuadraticBezierDto : public pathBaseDto {
@@ -884,7 +907,17 @@ namespace corona {
 			point2.x = DirectX::XMVectorGetX(v2);
 			point2.y = DirectX::XMVectorGetY(v2);
 			point2.z = DirectX::XMVectorGetZ(v2);
+		
 		}
+
+		void move(double x, double y)
+		{
+			this->point1.x += x;
+			this->point1.y += y;
+			this->point2.x += x;
+			this->point2.y += y;
+		}
+
 	};
 
 	class pathBezierDto : public pathBaseDto {
@@ -942,6 +975,17 @@ namespace corona {
             point3.z = DirectX::XMVectorGetZ(v3);
 		}
 
+		void move(double x, double y)
+		{
+			this->point1.x += x;
+			this->point1.y += y;
+			this->point2.x += x;
+			this->point2.y += y;
+			this->point3.x += x;
+			this->point3.y += y;
+		}
+
+
 	};
 
 	class pathDto {
@@ -958,6 +1002,13 @@ namespace corona {
 		pathDto(std::shared_ptr<path_field_options_interface> _iface, json _data)
 		{
             put_json(_data);
+		}
+
+		void move(double dx, double dy)
+		{
+			for (auto item : points) {
+				item->move(dx, dy);
+			}
 		}
 
 		pathDto& addLineTo(double x, double y)
@@ -1030,7 +1081,7 @@ namespace corona {
 		{
 
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "name", "points"})) {
+			if (not _src.has_members(missing, { "points"})) {
 				system_monitoring_interface::active_mon->log_warning("pathDto needs a name and points");
 				system_monitoring_interface::active_mon->log_warning("is missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {

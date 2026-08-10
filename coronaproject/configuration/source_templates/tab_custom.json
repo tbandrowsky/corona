@@ -1,6 +1,6 @@
 {
   "class_name": "page",
-  "page_name": "$tab_custom",
+  "page_name": "tab_custom",
   "using": {
     "page_name": "tab_container",
     "parameters": {
@@ -18,7 +18,7 @@
         },
         {
           "class_name": "$tab_custom_class",
-          "name": "$tab_custom_item_name",
+          "name": "$tab_list_table_name",
           "json_field_name": "$json_field_name",
           "box": {
             "width": "1.0 container",

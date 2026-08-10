@@ -613,15 +613,11 @@
     "fields": {
       ".description": {
         "class_name": "memo_field",
-        "box": "memo_field_box"
-      },
-      ".animations": {
-        "class_name": "animations",
-        "box": "memo_field_box"
+        "box": "memo_field_box_large"
       },
       "string.memo": {
         "class_name": "memo_field",
-        "box": "memo_field_box"
+        "box": "memo_field_box_large"
       },
       "string": {
         "class_name": "edit_field",
@@ -714,7 +710,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -767,7 +763,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -820,7 +816,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -873,7 +869,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -929,7 +925,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -991,7 +987,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1047,7 +1043,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1109,7 +1105,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1164,7 +1160,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1217,7 +1213,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1270,7 +1266,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1323,7 +1319,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1376,7 +1372,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1429,7 +1425,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",
@@ -1485,7 +1481,7 @@
                 "class_name": "vector_frame",
                 "state": "default",
                 "duration": "5",
-                "path": {
+                "shape": {
                   "points": [
                     {
                       "class_name": "line",

@@ -181,7 +181,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::get_json(_src);
+				corona_object::put_json(_src);
 				state = _src["state"].as_string();
 				start_seconds = _src["start_seconds"].as_double();
 				stop_seconds = _src["stop_seconds"].as_double();
@@ -285,7 +285,7 @@ namespace corona
 				frame::get_json(_dest);
 				json jpath = jp.create_object();
 				path.get_json(jpath);
-				_dest.put_member("path", jpath);
+				_dest.put_member("shape", jpath);
 				json jfill = jp.create_object();
 				fill.get_json(jfill);
 				_dest.put_member("fill", jfill);
@@ -298,25 +298,36 @@ namespace corona
 			virtual void put_json(json& _src)
 			{
 				frame::put_json(_src);
-				json jpath = _src["path"];
+				json jpath = _src["shape"];
 				path.put_json(jpath);
 				json jfill = _src["fill"];
 				fill.put_json(jfill);
 				json jstroke = _src["stroke"];
 				stroke.put_json(jstroke);
 				stroke_width = _src["stroke_width"].as_double();
+                if (path.name.empty()) {
+					path.name = "frame_path_" + std::to_string(object_id);
+				}
+				if (!*fill.get_name()) {
+					fill.set_name( "frame_fill_" + std::to_string(object_id) );
+				}
+				if (!*stroke.get_name()) {
+					stroke.set_name( "frame_stroke_" + std::to_string(object_id));
+				}
 			}
 
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
 				pathImmediateDto pid;
                 pid.path = path;
-                pid.position.x = DirectX::XMVectorGetX(_location) + draw_rectangle.x;
-                pid.position.y = DirectX::XMVectorGetY(_location) + draw_rectangle.y;
                 pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
 				pid.rotation = 0;
                 pid.strokeWidth = stroke_width;
+				double xloc = DirectX::XMVectorGetX(_location);
+				double yloc = DirectX::XMVectorGetY(_location);
+                pid.path.move(xloc, yloc);
+
                 _context.drawPath(&pid);
 			}
 
@@ -358,7 +369,14 @@ namespace corona
 					return;
 
                 total_animation_time += _elapsed;
-                total_animation_time = fmod(total_animation_time, duration);
+
+				if (duration > 0.0) {
+					total_animation_time = fmod(total_animation_time, duration);
+				}
+				else 
+				{
+					total_animation_time = 0.0;
+				}
 
                 for (auto frame : frames) {
 					if (total_animation_time >= frame->start_seconds && total_animation_time <= frame->stop_seconds) {

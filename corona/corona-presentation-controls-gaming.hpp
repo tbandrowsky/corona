@@ -147,11 +147,13 @@ namespace corona
 		animations_control() 
 		{
             factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
+			init();
 		}
 		animations_control(control_base* _parent, int _id) 
 			: draw_control(_parent, _id)
 		{ 
             factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
+			init();
         }
 
 		virtual ~animations_control() { ; }
@@ -185,12 +187,14 @@ namespace corona
                 animation_rectangles.clear();
 				frame_rectangles.clear();
 
-				for (int i = 0; i < janimations.size(); i++) {
-					auto janimation = janimations.get_element(i);
-					auto new_animation = std::make_shared<game::animation>();
-					new_animation->put_json(*factory.get(), janimation);
-					animations.push_back(new_animation);
-					current_animation.object = new_animation;
+				if (janimations.array()) {
+					for (int i = 0; i < janimations.size(); i++) {
+						auto janimation = janimations.get_element(i);
+						auto new_animation = std::make_shared<game::animation>();
+						new_animation->put_json(*factory.get(), janimation);
+						animations.push_back(new_animation);
+						current_animation.object = new_animation;
+					}
 				}
 			}
 		}
@@ -214,6 +218,18 @@ namespace corona
 			set_origin(0.0_px, 0.0_px);
 			set_size(1.0_container, 1.2_fontgr);
 
+			factory->register_class("vector_frame", [](json& _src, comm_bus_interface* _bus) {
+				auto frame = std::make_shared<game::vector_frame>();
+				frame->put_json(_src);
+				return frame;
+				});
+
+			factory->register_class("bitmap_frame", [](json& _src, comm_bus_interface* _bus) {
+				auto frame = std::make_shared<game::bitmap_frame>();
+				frame->put_json(_src);
+				return frame;
+				});
+
 			on_create = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 				{
 					animations_control* t = dynamic_cast<animations_control*>(_src);
@@ -228,16 +244,24 @@ namespace corona
 			on_draw = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src) {
 				animations_control* t = dynamic_cast<animations_control*>(_src);
 
+				auto draw_bounds = _src->get_inner_bounds();
+
                 for (auto& anim_rect : t->animation_rectangles) {
 					if (anim_rect.object) {
-						DirectX::XMVECTOR location = to_point(anim_rect.rect);
+                        auto rect = anim_rect.rect;
+                        rect.x += draw_bounds.x;
+                        rect.y += draw_bounds.y;
+						DirectX::XMVECTOR location = to_point(rect);
 						anim_rect.object->draw(*_context, t->elapsed_seconds, location);
 					}
 				}
 
 				for (auto& frame_rect : t->frame_rectangles) {
                     if (frame_rect.object) {
-						DirectX::XMVECTOR location = to_point(frame_rect.rect);
+						auto rect = frame_rect.rect;
+                        rect.x += draw_bounds.x;
+                        rect.y += draw_bounds.y;
+						DirectX::XMVECTOR location = to_point(rect);
 						frame_rect.object->draw(*_context, location);
 					}
 				}
@@ -324,7 +348,48 @@ namespace corona
 		virtual json set_data(json _data) override
 		{
 			data = _data;
+			if (data.array()) {
+				set_items(data);
+			} else if (data.object() && data.has_member(json_field_name)) {
+				set_items(data[json_field_name]);
+            }
 			return data;
+		}
+
+		virtual bool set_items(json _data)
+		{
+			data = _data;
+
+			animations.clear();
+
+			int i;
+			rectangle item_bounds;
+			item_bounds.x = 0;
+			item_bounds.y = 0;
+			item_bounds.w = 0;
+			item_bounds.h = 0;
+
+			int matching_index = -1;
+
+			animations.clear();
+			current_animation.object = nullptr;
+			current_frame.object = nullptr;
+			animation_rectangles.clear();
+			frame_rectangles.clear();
+
+			if (data.array()) {
+				for (int i = 0; i < data.size(); i++) {
+					auto janimation = data.get_element(i);
+					auto new_animation = std::make_shared<game::animation>();
+					new_animation->put_json(*factory.get(), janimation);
+					animations.push_back(new_animation);
+					current_animation.object = new_animation;
+				}
+			}
+
+			arrange(this, &bounds);
+
+			return true;
 		}
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }

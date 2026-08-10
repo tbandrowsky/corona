@@ -2308,7 +2308,6 @@ namespace corona
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
 		{
 			if (field_options_base::accepts(_db, _validation_errors, _class_name, _field_name, _object_to_test)) {
-				bool is_legit = true;
 
 				if (!_object_to_test.object())
 				{
@@ -2321,6 +2320,8 @@ namespace corona
 					_validation_errors.push_back(ve);
 					return false;
 				}
+
+				return true;
 			}
 			return false;
 		}
@@ -9147,7 +9148,7 @@ private:
 						}
 
 						// Generate object details page
-						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, create_command_class_template, form_sources);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, create_command_class_template, form_sources);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
@@ -9374,6 +9375,7 @@ private:
 				bridge = bridges->get_bridge(field_class);
 			}
 
+
 			if (field->get_field_type() == field_types::ft_object) {
 				json tab = jp.create_object();				
                 std::string tab_name = "tab_" + field_class;
@@ -9399,7 +9401,12 @@ private:
 				tab.put_member_string("page_name", tab_name);
 				tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
+
 				tab.put_member_bool("list", true);
+                auto allowed_classes = field->get_allowed_classes();
+                if (allowed_classes.size() > 0)	 {
+					tab.put_member_string("ux_class", allowed_classes[0]);
+				}
 				if (bridge) {
 					json jcopy = bridge->get_copy_assignment();
 					tab.put_member("filter", jcopy);
@@ -9591,13 +9598,13 @@ private:
 			return pages;
 		}
 
-		json generate_tab_custom_pages(json& tab_custom_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
+		json generate_tab_custom_pages(json& tab_custom_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
-			json tab_list_page = tab_list_template.clone();
+			json tab_list_page = tab_custom_template.clone();
 			json pages = jp.create_array();
 
-			tab_list_page.put_member("page_name", "tab_custom_" + class_name + "_" + member_name);
+			tab_list_page.put_member("page_name", "tab_list_" + class_name + "_" + member_name);
 
 			// Set icon
 			auto parameters = tab_list_page.find_member("using.parameters");
@@ -9640,11 +9647,11 @@ private:
 				}
 
 				json abbrevations = jp.create_object();
-				abbrevations.put_member("$tab_list_commands", tab_create_commands);
-				abbrevations.put_member_string("$tab_list_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
-				abbrevations.put_member_string("$tab_list_table", tab_list_table_name);
+				abbrevations.put_member("$tab_custom_commands", tab_create_commands);
+				abbrevations.put_member("$tab_custom_class", _control_class);
+				abbrevations.put_member_string("$tab_custom_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
+				abbrevations.put_member_string("$tab_list_table_name", tab_list_table_name);
 				abbrevations.put_member_string("$json_field_name", member_name);
-				abbrevations.put_member_string("$empty_text", "No " + member_name);
 				parameters.apply_abbreviations(abbrevations);
 			}
 
@@ -9717,7 +9724,7 @@ private:
 
 		json generate_object_pages(validation_error_collection& _errors, json& object_template,
 			read_class_sp& classd,
-			json& class_mappings, json& field_mappings, json& tab_list_template, json& create_command_class_template, json& form_sources)
+			json& class_mappings, json& field_mappings, json& tab_list_template, json& tab_custom_template, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
 
@@ -9750,7 +9757,19 @@ private:
 
 				bool list = src_tab["list"].as_bool();
 				if (list) {
-					json tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
+					json tab_page;
+					if (src_tab.has_member("ux_class")) {
+						std::string ux_class = src_tab["ux_class"].as_string();
+						if (ux_class == "animation") {
+							tab_page = generate_tab_custom_pages(tab_custom_template, "animations", classd, class_name, member_name, create_command_class_template, form_sources);
+						}
+						else if (ux_class == "frame") {
+							tab_page = generate_tab_custom_pages(tab_custom_template, "frames", classd, class_name, member_name, create_command_class_template, form_sources);
+						}
+					}
+					else {
+						tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
+					}
 					result.push_back_array(tab_page);
 					new_tab.erase_member("list");
 					new_tab.copy_member("page_name", src_tab);

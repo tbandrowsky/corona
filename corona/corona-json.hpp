@@ -787,6 +787,12 @@ namespace corona
 			return value;
 		}
 
+		virtual DirectX::XMVECTOR to_vector() const
+		{
+			DirectX::XMVECTOR v = { value };
+			return v;
+		}
+
 	};
 
 	class json_vector : public json_value
@@ -1487,6 +1493,20 @@ namespace corona
 		virtual double to_double() const
 		{
 			return std::strtod((*value).c_str(), nullptr);
+		}
+
+		virtual DirectX::XMVECTOR to_vector() const
+		{
+			DirectX::XMVECTOR vx = {};
+            std::vector<std::string> parts = split(*value, ',');
+			int i = 0;
+            for (auto& part : parts) {
+				float st = strtod(part.c_str(), nullptr);
+                vx = DirectX::XMVectorSetByIndex(vx, st, i);
+				i++;
+				if (i >= 4) break;
+			}
+			return vx;
 		}
 
 	};
