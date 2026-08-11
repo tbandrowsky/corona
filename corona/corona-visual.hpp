@@ -761,6 +761,7 @@ namespace corona {
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(json& _src) = 0;
         virtual void move(double x, double y) = 0;
+        virtual std::shared_ptr<pathBaseDto> clone() = 0;
 	};
 
 	class pathLineDto : public pathBaseDto {
@@ -770,6 +771,11 @@ namespace corona {
 		pathLineDto() {
 			eType = ePathPointType::e_line;
 			point = {};
+		}
+
+		virtual std::shared_ptr<pathBaseDto> clone() override
+		{
+			return std::make_shared<pathLineDto>(*this);
 		}
 
 		void get_json(json& _dest)
@@ -818,6 +824,11 @@ namespace corona {
 		pathArcDto() {
 			eType = ePathPointType::e_arc;
 			point = {};
+		}
+
+		virtual std::shared_ptr<pathBaseDto> clone() override
+		{
+			return std::make_shared<pathArcDto>(*this);
 		}
 
 		void get_json(json& _dest) override
@@ -872,6 +883,11 @@ namespace corona {
 			eType = ePathPointType::e_quadractic_bezier;
 			point1 = {};
 			point2 = {};
+		}
+
+		virtual std::shared_ptr<pathBaseDto> clone() override
+		{
+			return std::make_shared<pathQuadraticBezierDto>(*this);
 		}
 
 		void get_json(json& _dest) override
@@ -931,6 +947,11 @@ namespace corona {
 			point1 = {};
 			point2 = {};
 			point3 = {};
+		}
+
+		virtual std::shared_ptr<pathBaseDto> clone() override
+		{
+			return std::make_shared<pathBezierDto>(*this);
 		}
 
 		void get_json(json& _dest) override
@@ -1002,6 +1023,17 @@ namespace corona {
 		pathDto(std::shared_ptr<path_field_options_interface> _iface, json _data)
 		{
             put_json(_data);
+		}
+
+		virtual pathDto clone()
+		{
+			pathDto temp;
+			temp.name = name;
+			for (auto pt : points) {
+				auto npt = pt->clone();
+				temp.points.push_back(npt);
+			}
+			return temp;
 		}
 
 		void move(double dx, double dy)

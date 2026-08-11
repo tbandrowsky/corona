@@ -319,7 +319,7 @@ namespace corona
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
 				pathImmediateDto pid;
-                pid.path = path;
+                pid.path = path.clone();
                 pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
 				pid.rotation = 0;
