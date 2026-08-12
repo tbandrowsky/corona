@@ -9766,6 +9766,9 @@ private:
 						else if (ux_class == "frame") {
 							tab_page = generate_tab_custom_pages(tab_custom_template, "frames", classd, class_name, member_name, create_command_class_template, form_sources);
 						}
+						else {
+							tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
+						}
 					}
 					else {
 						tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);

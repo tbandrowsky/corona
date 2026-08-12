@@ -241,7 +241,10 @@
 
       { "class_name":"import", "file_name":"pages\\card_animation.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_animation_frames.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_animation.json" },
 
@@ -402,7 +405,10 @@
 
       { "class_name":"import", "file_name":"pages\\card_game.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_game_adventures.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_game.json" },
 
@@ -506,7 +512,10 @@
         "file_name":"pages\\tab_list_piece_type_animations.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_piece_type_pieces.json"
+      },
 
       {
         "class_name":"import",
@@ -528,9 +537,15 @@
 
       { "class_name":"import", "file_name":"pages\\card_set.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_set_contents.json"
+      },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_set_tile_codes.json"
+      },
 
       {
         "class_name":"import",
@@ -606,7 +621,10 @@
         "file_name":"pages\\tab_list_switcher_animations.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_switcher_sets.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_switcher.json" },
 

@@ -1188,6 +1188,7 @@ namespace corona
 			}
 			door(const door& _src) = default;
 			door(door&& _src) = default;
+
 			door& operator =(const door& _src) = default;
 			door& operator =(door&& _src) = default;
 
