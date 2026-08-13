@@ -141,23 +141,216 @@ namespace corona
 			activity(activity&& _src) = default;
 			activity& operator =(const activity& _src) = default;
 			activity& operator =(activity&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+                _dest.put_member("name", name);
+                _dest.put_member("description", description);
+				auto jbm = jp.create_object();
+                bitmap.put_json(jbm);
+                _dest.put_member("image", jbm);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+
+				json jbm = _src["image"];
+				bitmap.put_json(jbm);
+				name = _src["name"].as_string();
+                description = _src["description"].as_string();
+			}
+
 		};
 
 		class essay : public activity
 		{
 		public:
 			std::string         text;
+
+			essay() {
+				class_name = "essay";
+			}
+			essay(const essay& _src) = default;
+			essay(essay&& _src) = default;
+			essay& operator =(const essay& _src) = default;
+			essay& operator =(essay&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+				_dest.put_member("name", name);
+				_dest.put_member("description", description);
+				auto jbm = jp.create_object();
+				bitmap.put_json(jbm);
+				_dest.put_member("image", jbm);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+
+				json jbm = _src["image"];
+				bitmap.put_json(jbm);
+				name = _src["name"].as_string();
+				description = _src["description"].as_string();
+			}
+
 		};
+
+		class timepoint_change : public corona_object
+		{
+		public:
+
+			timepoint_change() {
+				class_name = "timepoint_change";
+			}
+			timepoint_change(const timepoint_change& _src) = default;
+			timepoint_change(timepoint_change&& _src) = default;
+			timepoint_change& operator =(const timepoint_change& _src) = default;
+			timepoint_change& operator =(timepoint_change&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+			}
+
+
+		};
+
+		class value_change : public corona_object
+		{
+		public:
+
+			std::string frame_name;
+            json		new_values;
+
+			value_change() {
+				class_name = "value_change";
+			}
+			value_change(const value_change& _src) = default;
+			value_change(value_change&& _src) = default;
+			value_change& operator =(const value_change& _src) = default;
+			value_change& operator =(value_change&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+				_dest.put_member("new_values", new_values);
+				_dest.put_member("frame_name", frame_name);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+				new_values = _src["new_values"];
+				frame_name = _src["frame_name"].as_string();
+			}
+
+		};
+
+		class audio_change : public corona_object
+		{
+		public:
+
+			audio_function      sound;
+
+			audio_change() {
+				class_name = "audio_change";
+			}
+			audio_change(const audio_change& _src) = default;
+			audio_change(audio_change&& _src) = default;
+			audio_change& operator =(const audio_change& _src) = default;
+			audio_change& operator =(audio_change&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+				
+                json jsound = _src["sound"];
+                sound = audio_graph::from_json(jsound);
+			}
+
+		};
+
+		using timepoint_factory = corona_object_factory<timepoint_change>;
+
+		class timepoint : public corona_object
+		{
+		public:
+
+			double elapsed_seconds;
+            std::vector<std::shared_ptr<timepoint_change>> changes;
+
+			timepoint() {
+				class_name = "timepoint";
+			}
+			timepoint(const timepoint& _src) = default;
+			timepoint(timepoint&& _src) = default;
+			timepoint& operator =(const timepoint& _src) = default;
+			timepoint& operator =(timepoint&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				corona_object::get_json(_dest);
+
+                _dest.put_member("elapsed_seconds", elapsed_seconds);
+                json jchanges = jp.create_array();
+
+				for (auto item : changes) {
+                    json jitem = jp.create_object();
+                    item->get_json(jitem);
+                    jchanges.push_back(jitem);
+				}
+				_dest.put_member("changes", jchanges);
+			}
+
+			virtual void put_json(timepoint_factory& _tpf, json& _src)
+			{
+				corona_object::put_json(_src);
+				elapsed_seconds = _src["elapsed_seconds"].as_double();
+				changes.clear();
+                json jchanges = _src["changes"];
+				if (jchanges.array()) {
+					for (int i = 0; i < jchanges.size(); i++) {
+						json jchange = jchanges.get_element(i);
+						auto item = _tpf.create_object(jchange);
+						item->put_json(jchanges);
+						changes.push_back(item);
+					}
+				}
+			}
+
+		};
+
 
 		class frame : public corona_object
 		{
 		public:
-			std::string			state;
-			double				start_seconds;
-			double				stop_seconds;
-			rectangle			draw_rectangle;
-			DirectX::XMVECTOR	fire_point;
-            audio_function      sound;
+			std::string			name;
 
 			frame() {
 				class_name = "frame";
@@ -172,23 +365,13 @@ namespace corona
 				json_parser jp;
 
 				corona_object::get_json(_dest);
-				_dest.put_member("state", state);
-				_dest.put_member("start_seconds", start_seconds);
-				_dest.put_member("stop_seconds", stop_seconds);
-				_dest.put_member("draw_rectangle", draw_rectangle);
-				_dest.put_member("fire_point", fire_point);
+				_dest.put_member("name", name);
 			}
 
 			virtual void put_json(json& _src)
 			{
 				corona_object::put_json(_src);
-				state = _src["state"].as_string();
-				start_seconds = _src["start_seconds"].as_double();
-				stop_seconds = _src["stop_seconds"].as_double();
-				draw_rectangle = _src["draw_rectangle"].as_rectangle();
-				fire_point = _src["fire_point"].as_vector();
-                json jsound = _src["sound"];
-                sound = audio_graph::from_json(jsound);
+				name = _src["name"].as_string();
 			}
 
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location) 
@@ -233,12 +416,9 @@ namespace corona
 
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
-				bitmap.x = DirectX::XMVectorGetX(_location) + draw_rectangle.x;
-				bitmap.y = DirectX::XMVectorGetY(_location) + draw_rectangle.y;
-                if (draw_rectangle.w > 0 && draw_rectangle.h > 0) {
-					bitmap.width = draw_rectangle.w;
-					bitmap.height = draw_rectangle.h;
-				}
+				bitmap.x = DirectX::XMVectorGetX(_location);
+				bitmap.y = DirectX::XMVectorGetY(_location);
+
 				_context.drawBitmap(&bitmap);
 			}
 
@@ -341,6 +521,26 @@ namespace corona
 		};
 
 		using frame_factory = corona_object_factory<frame>;
+        using timeline_factory = corona_object_factory<timepoint>;
+
+		class animation_factory
+		{
+		public:
+			frame_factory		ff;
+			timepoint_factory	tpf;
+            timeline_factory    tlf;
+
+			animation_factory(comm_desktop_bus_interface* _bus) noexcept : ff(_bus), tpf(_bus), tlf(_bus) {
+
+			}
+
+			void init(corona_instance instance)
+			{
+                ff.init(instance);
+                tpf.init(instance);
+                tlf.init(instance);
+			}
+		};
 
 		class animation : public corona_object
 		{
@@ -348,10 +548,11 @@ namespace corona
             std::string										name;	
             rectangle										destination;
 			DirectX::XMVECTOR								direction;
-            std::vector<std::shared_ptr<frame>>	frames;
-
+            std::vector<std::shared_ptr<frame>>				frames;
+            std::vector<std::shared_ptr<timepoint>>			timeline;
             double											duration;
 			double                                          total_animation_time;
+			
 
 			animation() {
                 class_name = "animation";
@@ -363,10 +564,30 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
+			DirectX::XMVECTOR get_vector(std::string _frame_name, std::string member_name)
+			{
+				;
+			}
+
+			double get_double(std::string _frame_name, std::string member_name)
+			{
+				;
+			}
+
+			void put_vector(std::string _frame_name, double _time, std::string member_name, DirectX::XMVECTOR value)
+			{
+				;
+			}
+
+			void put_double(std::string _frame_name, double _time, std::string member_name, double value)
+			{
+				;
+			}
+
 			virtual void draw(direct2dContext& _context, double _elapsed, DirectX::XMVECTOR& _location)
 			{
 				if (frames.size() == 0)
-					return;
+					return;			
 
                 total_animation_time += _elapsed;
 
@@ -378,14 +599,25 @@ namespace corona
 					total_animation_time = 0.0;
 				}
 
-                for (auto frame : frames) {
-					if (total_animation_time >= frame->start_seconds && total_animation_time <= frame->stop_seconds) {
-						frame->draw(_context, _location);
+				auto current_time_point = std::lower_bound(timeline.begin(), timeline.end(), total_animation_time, [](const std::shared_ptr<timepoint>& a, double value) {
+					return a->elapsed_seconds < value;
+					});
+
+				if (current_time_point != timeline.end()) {
+                    double time_of_change = (*current_time_point)->elapsed_seconds;
+					current_time_point++;
+                    if (current_time_point != timeline.end()) {
+						double next_time_of_change = (*current_time_point)->elapsed_seconds;
+						if (total_animation_time >= time_of_change && total_animation_time < next_time_of_change) {
+							for (auto& change : (*current_time_point)->changes) {
+								// apply the change
+							}
+						}
 					}
 				}
 			}
 
-			virtual void put_json(frame_factory& _factory, json& _src)
+			virtual void put_json(animation_factory& _factory, json& _src)
 			{
 				corona_object::put_json(_src);
 
@@ -393,23 +625,46 @@ namespace corona
 				duration = _src["duration"].as_double();
 				destination = _src["destination"].as_rectangle();
 				direction = _src["direction"].as_vector();
+				
 				json jframes = _src["frames"];
 				frames.clear();
 
-                double total_time = 0.0;
 				if (jframes.array()) {
 					for (int i = 0; i < jframes.size(); i++) {
 						auto jframe = jframes.get_element(i);
 						if (!jframe.object()) {
 							continue;
 						}
-						auto frame = _factory.create_object(jframe);
+						auto frame = _factory.ff.create_object(jframe);
 						frame->put_json(jframe);
-                        if (frame->stop_seconds > total_time) {
-							total_time = frame->stop_seconds;
-						}
 						frames.push_back(frame);
 					}
+				}
+
+				json jtimeline = _src["timeline"];
+				timeline.clear();
+
+				double total_time = 0.0;
+				if (jtimeline.array()) {
+					for (int i = 0; i < jtimeline.size(); i++) {
+						auto jframe = jtimeline.get_element(i);
+						if (!jframe.object()) {
+							continue;
+						}
+						auto frame = _factory.tlf.create_object(jframe);
+						frame->put_json(_factory.tpf, jframe);
+						timeline.push_back(frame);
+					}
+				}
+
+				std::sort(timeline.begin(), timeline.end(), [](const std::shared_ptr<timepoint>& a, const std::shared_ptr<timepoint>& b) {
+					return a->elapsed_seconds < b->elapsed_seconds;
+                    });
+
+				duration = 0.0;
+				auto last = timeline.rbegin();
+                if (last != timeline.rend()) {
+					duration = last->get()->elapsed_seconds;
 				}
 			}
 
@@ -496,7 +751,7 @@ namespace corona
 
 			}
 
-			virtual void put_json(frame_factory& _factory, json& _src)
+			virtual void put_json(animation_factory& _factory, json& _src)
 			{
 				corona_object::put_json(_src);
 
@@ -674,7 +929,7 @@ namespace corona
 
 			}
 
-			virtual void put_json(frame_factory& _factory, json& _src)
+			virtual void put_json(animation_factory& _factory, json& _src)
 			{
 				corona_object::put_json(_src);
 
@@ -737,13 +992,13 @@ namespace corona
 			comm_bus_interface* bus;
 
 		public:
-			piece_factory piece_factory;
-			frame_factory frame_factory;
+			piece_factory pf;
+			animation_factory af;
 
 			using object_action = std::function<void(adventure_app_interface* _game, piece* _direct_object, piece* _actor)>;
 			using object_interaction = std::function<void(adventure_app_interface* _game, piece* _a, piece* _b)>;
 
-			game_factory(comm_desktop_bus_interface* _bus) noexcept : bus(_bus), piece_factory(_bus), frame_factory(_bus)
+			game_factory(comm_desktop_bus_interface* _bus) noexcept : bus(_bus), pf(_bus), af(_bus)
 			{
 				;
 			}
@@ -755,8 +1010,8 @@ namespace corona
 
 			void init(corona_instance instance)
 			{
-				piece_factory.init(instance);
-				frame_factory.init(instance);
+				pf.init(instance);
+				af.init(instance);
 			}
 		};
 
@@ -804,8 +1059,8 @@ namespace corona
 						if (!jpiece.object()) {
 							continue;
 						}
-						auto new_piece = _gbus.piece_factory.create_object(jpiece);
-						new_piece->put_json(_gbus.frame_factory, jpiece);
+						auto new_piece = _gbus.pf.create_object(jpiece);
+						new_piece->put_json(_gbus.af, jpiece);
 						pieces[new_piece->to_reference()] = new_piece;
                     }
 				}
