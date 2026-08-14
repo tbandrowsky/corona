@@ -128,17 +128,15 @@
       "class_name": "value_change",
       "base_class_name": "timepoint_change",
       "class_description": "a point in an animation",
-      "parents": [ "timepoint" ],
       "fields": {
         "frame_name": "string",
-        "new_values": "object"
+        "value": "vector"
       }
     },
     {
       "class_name": "audio_change",
       "base_class_name": "timepoint_change",
       "class_description": "a point in an animation",
-      "parents": [ "timepoint" ],
       "fields": {
         "sound": "audio"
       }
@@ -157,51 +155,6 @@
       }
     },
     {
-      "class_name": "animation_base",
-      "base_class_name": "game_base",
-      "class_description": "a gaming piece",
-      "parents": [ "piece", "piece_type" ],
-      "full_text": [ "name" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name"
-        },
-        "timeline": [ "timepoint" ]
-      }
-    },
-    {
-      "class_name": "stock_animation",
-      "base_class_name": "animation_base",
-      "class_description": "a gaming animation from stock",
-      "full_text": [ "name" ],
-      "fields": {
-      }
-    },
-    {
-      "class_name": "person_animation",
-      "base_class_name": "stock_animation",
-      "class_description": "a gaming animation from stock",
-      "full_text": [ "name" ],
-      "fields": {
-        "head_type": "string",
-        "body_type": "string",
-        "arm_type": "string",
-        "leg_type": "string"
-      }
-    },
-    {
-      "class_name": "vehicle_animation",
-      "base_class_name": "stock_animation",
-      "class_description": "a gaming animation from stock",
-      "full_text": [ "name" ],
-      "fields": {
-        "window_type": "string",
-        "body_type": "string",
-        "wheel_type": "string"
-      }
-    },
-    {
       "class_name": "animation",
       "base_class_name": "animation_base",
       "class_description": "a gaming piece",
@@ -215,7 +168,7 @@
         "direction": "vector",
         "sound": "audio",
         "frames": [ "frame" ],
-        "carry_point": "vector"
+        "timeline": [ "timepoint" ]
       }
     },
     {
@@ -225,7 +178,10 @@
       "parents": [ "animation" ],
       "full_text": [ "name" ],
       "fields": {
-        "name": "string"
+        "name": "string",
+        "position": "vector",
+        "rotation": "double",
+        "pivot": "vector"
       }
     },
     {
@@ -245,31 +201,6 @@
         "fill": "brush",
         "stroke": "brush",
         "stroke_width": "double"
-      }
-    },
-    {
-      "class_name": "stock_frame",
-      "base_class_name": "frame",
-      "class_description": "a gaming piece of an image",
-      "fields": {
-        "stock_name": {
-          "field_type": "string"
-        }
-      }
-    },
-    {
-      "class_name": "stock_frame",
-      "base_class_name": "frame",
-      "class_description": "a gaming piece of an image",
-      "fields": {
-        "stock_name": {
-          "field_type": "string"
-        },
-        "head": "string",
-        "torso": "string",
-        "arms": "string",
-        "hands": "string",
-        "feet": "string"
       }
     },
     {

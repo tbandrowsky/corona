@@ -226,16 +226,14 @@ namespace corona
 			{
 				corona_object::put_json(_src);
 			}
-
-
 		};
 
-		class value_change : public corona_object
+		class value_change : public timepoint_change
 		{
 		public:
 
 			std::string frame_name;
-            json		new_values;
+			json		    new_value;
 
 			value_change() {
 				class_name = "value_change";
@@ -245,25 +243,9 @@ namespace corona
 			value_change& operator =(const value_change& _src) = default;
 			value_change& operator =(value_change&& _src) = default;
 
-			virtual void get_json(json& _dest)
-			{
-				json_parser jp;
-
-				corona_object::get_json(_dest);
-				_dest.put_member("new_values", new_values);
-				_dest.put_member("frame_name", frame_name);
-			}
-
-			virtual void put_json(json& _src)
-			{
-				corona_object::put_json(_src);
-				new_values = _src["new_values"];
-				frame_name = _src["frame_name"].as_string();
-			}
-
 		};
 
-		class audio_change : public corona_object
+		class audio_change : public timepoint_change
 		{
 		public:
 
@@ -294,7 +276,7 @@ namespace corona
 
 		};
 
-		using timepoint_factory = corona_object_factory<timepoint_change>;
+		using timepoint_change_factory = corona_object_factory<timepoint_change>;
 
 		class timepoint : public corona_object
 		{
@@ -328,7 +310,7 @@ namespace corona
 				_dest.put_member("changes", jchanges);
 			}
 
-			virtual void put_json(timepoint_factory& _tpf, json& _src)
+			virtual void put_json(timepoint_change_factory& _tpf, json& _src)
 			{
 				corona_object::put_json(_src);
 				elapsed_seconds = _src["elapsed_seconds"].as_double();
@@ -337,20 +319,24 @@ namespace corona
 				if (jchanges.array()) {
 					for (int i = 0; i < jchanges.size(); i++) {
 						json jchange = jchanges.get_element(i);
-						auto item = _tpf.create_object(jchange);
-						item->put_json(jchanges);
-						changes.push_back(item);
+						auto change = _tpf.create_object(jchange);
+						change->put_json(jchange);
+						changes.push_back(change);
 					}
 				}
 			}
 
 		};
 
-
 		class frame : public corona_object
 		{
 		public:
 			std::string			name;
+            DirectX::XMVECTOR   position = {};
+			double				rotation = 0.0;
+			DirectX::XMVECTOR   pivot = {};
+
+			corona_object_history history;
 
 			frame() {
 				class_name = "frame";
@@ -366,17 +352,84 @@ namespace corona
 
 				corona_object::get_json(_dest);
 				_dest.put_member("name", name);
+				_dest.put_member("position", position);
+				_dest.put_member("rotation", rotation);
+				_dest.put_member("pivot", pivot);
 			}
 
 			virtual void put_json(json& _src)
 			{
 				corona_object::put_json(_src);
 				name = _src["name"].as_string();
+				position = _src["position"].as_vector();
+				rotation = _src["rotation"].as_double();
+				pivot = _src["pivot"].as_vector();
+
+				history.clear();
+				history.set_tween_fields({ "position", "rotation", "pivot" });
+				history.put_zero(_src);
+			}
+
+            virtual void put_change(double _elapsed_seconds, value_change& vc)
+			{
+				json_parser jp;
+				json jstate = jp.create_object();
+				get_json(jstate);
+
+				corona_object_timepoint cotp;
+				cotp.elapsed_seconds = _elapsed_seconds;
+
+                jstate.merge(vc.new_value);
+				cotp.values = jstate;
+			}
+
+            virtual void set_time(double _elapsed_seconds)
+			{
+				json jstate = history.get_time(_elapsed_seconds);
+				put_json(jstate);
+			}
+
+			virtual void draw_item(direct2dContext& _context)
+			{
+				;
 			}
 
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location) 
 			{
-				;
+				using namespace DirectX;
+
+				try {
+
+					XMVECTOR new_location = XMVectorAdd(_location, position);
+					XMVECTOR new_pivot = XMVectorAdd(new_location, pivot);
+
+					D2D1_MATRIX_3X2_F existing;
+
+					_context.getDeviceContext()->GetTransform(&existing);
+
+					D2D1_POINT_2F pivot_origin;
+
+					pivot_origin.x = XMVectorGetX(new_pivot);
+					pivot_origin.y = XMVectorGetY(new_pivot);
+
+					auto mat = D2D1::Matrix3x2F::Rotation(
+						rotation,
+						pivot_origin
+					);
+
+					_context.getDeviceContext()->GetTransform(&existing);
+					_context.getDeviceContext()->SetTransform(&mat);
+
+					draw_item(_context);
+
+					_context.getDeviceContext()->SetTransform(&existing);
+
+				}
+				catch (std::exception exc)
+				{
+					;
+				}
+
 			}
 
             virtual void create_assets(direct2dContext& _context)
@@ -414,10 +467,10 @@ namespace corona
 				bitmap.put_json(jbitmap);
             }
 
-			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
+			virtual void draw_item(direct2dContext& _context)
 			{
-				bitmap.x = DirectX::XMVectorGetX(_location);
-				bitmap.y = DirectX::XMVectorGetY(_location);
+				bitmap.x = 0;
+				bitmap.y = 0;
 
 				_context.drawBitmap(&bitmap);
 			}
@@ -496,19 +549,15 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
+			virtual void draw_item(direct2dContext& _context)
 			{
 				pathImmediateDto pid;
-                pid.path = path.clone();
-                pid.fillBrushName = fill.get_name();
+				pid.path = path.clone();
+				pid.fillBrushName = fill.get_name();
 				pid.borderBrushName = stroke.get_name();
 				pid.rotation = 0;
-                pid.strokeWidth = stroke_width;
-				double xloc = DirectX::XMVectorGetX(_location);
-				double yloc = DirectX::XMVectorGetY(_location);
-                pid.path.move(xloc, yloc);
-
-                _context.drawPath(&pid);
+				pid.strokeWidth = stroke_width;
+				_context.drawPath(&pid);
 			}
 
 			virtual void create_assets(direct2dContext& _context)
@@ -521,38 +570,33 @@ namespace corona
 		};
 
 		using frame_factory = corona_object_factory<frame>;
-        using timeline_factory = corona_object_factory<timepoint>;
+		using timepoint_factory = corona_object_factory<timepoint>;	
 
 		class animation_factory
 		{
 		public:
 			frame_factory		ff;
-			timepoint_factory	tpf;
-            timeline_factory    tlf;
+			timepoint_change_factory	tpcf;
+            timepoint_factory    tpf;
 
-			animation_factory(comm_desktop_bus_interface* _bus) noexcept : ff(_bus), tpf(_bus), tlf(_bus) {
+			animation_factory(comm_desktop_bus_interface* _bus) noexcept : ff(_bus), tpcf(_bus), tpf(_bus) {
 
 			}
 
-			void init(corona_instance instance)
-			{
-                ff.init(instance);
-                tpf.init(instance);
-                tlf.init(instance);
-			}
+			void init(corona_instance instance);
+
 		};
 
 		class animation : public corona_object
 		{
 		public:
-            std::string										name;	
+            std::string										name;
             rectangle										destination;
 			DirectX::XMVECTOR								direction;
-            std::vector<std::shared_ptr<frame>>				frames;
-            std::vector<std::shared_ptr<timepoint>>			timeline;
+            std::map<std::string, std::shared_ptr<frame>>	frames;
+            std::map<double, std::shared_ptr<timepoint>>	timeline;
             double											duration;
 			double                                          total_animation_time;
-			
 
 			animation() {
                 class_name = "animation";
@@ -564,61 +608,32 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
-			DirectX::XMVECTOR get_vector(std::string _frame_name, std::string member_name)
-			{
-				;
-			}
-
-			double get_double(std::string _frame_name, std::string member_name)
-			{
-				;
-			}
-
-			void put_vector(std::string _frame_name, double _time, std::string member_name, DirectX::XMVECTOR value)
-			{
-				;
-			}
-
-			void put_double(std::string _frame_name, double _time, std::string member_name, double value)
-			{
-				;
-			}
-
 			virtual void draw(direct2dContext& _context, double _elapsed, DirectX::XMVECTOR& _location)
 			{
 				if (frames.size() == 0)
 					return;			
+			}
 
-                total_animation_time += _elapsed;
-
+            virtual void set_time(double _elapsed)
+			{
+				total_animation_time += _elapsed;
 				if (duration > 0.0) {
 					total_animation_time = fmod(total_animation_time, duration);
 				}
-				else 
+				else
 				{
 					total_animation_time = 0.0;
 				}
-
-				auto current_time_point = std::lower_bound(timeline.begin(), timeline.end(), total_animation_time, [](const std::shared_ptr<timepoint>& a, double value) {
-					return a->elapsed_seconds < value;
-					});
-
-				if (current_time_point != timeline.end()) {
-                    double time_of_change = (*current_time_point)->elapsed_seconds;
-					current_time_point++;
-                    if (current_time_point != timeline.end()) {
-						double next_time_of_change = (*current_time_point)->elapsed_seconds;
-						if (total_animation_time >= time_of_change && total_animation_time < next_time_of_change) {
-							for (auto& change : (*current_time_point)->changes) {
-								// apply the change
-							}
-						}
-					}
+				for (auto f : frames)
+				{
+					f.second->set_time(total_animation_time);
 				}
 			}
 
 			virtual void put_json(animation_factory& _factory, json& _src)
 			{
+				json_parser jp;
+
 				corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
@@ -637,7 +652,7 @@ namespace corona
 						}
 						auto frame = _factory.ff.create_object(jframe);
 						frame->put_json(jframe);
-						frames.push_back(frame);
+						frames[frame->name] = frame;
 					}
 				}
 
@@ -647,25 +662,37 @@ namespace corona
 				double total_time = 0.0;
 				if (jtimeline.array()) {
 					for (int i = 0; i < jtimeline.size(); i++) {
-						auto jframe = jtimeline.get_element(i);
-						if (!jframe.object()) {
+						auto jchange = jtimeline.get_element(i);
+						if (!jchange.object()) {
 							continue;
 						}
-						auto frame = _factory.tlf.create_object(jframe);
-						frame->put_json(_factory.tpf, jframe);
-						timeline.push_back(frame);
+						auto change = _factory.tpf.create_object(jchange);
+						change->put_json(_factory.tpcf, jchange);
+						timeline[change->elapsed_seconds] = change;
 					}
 				}
-
-				std::sort(timeline.begin(), timeline.end(), [](const std::shared_ptr<timepoint>& a, const std::shared_ptr<timepoint>& b) {
-					return a->elapsed_seconds < b->elapsed_seconds;
-                    });
 
 				duration = 0.0;
 				auto last = timeline.rbegin();
                 if (last != timeline.rend()) {
-					duration = last->get()->elapsed_seconds;
+					duration = last->first;
 				}
+
+				for (auto tl : timeline) {
+					for (auto change : tl.second->changes) {
+                        auto vc = std::dynamic_pointer_cast<value_change>(change);
+                        if (vc) {
+                            auto frames_it = frames.find(vc->frame_name);
+                            if (frames_it != frames.end()) {
+								auto frame = frames_it->second;
+								frame->put_change(tl.first, *vc);
+							}
+							else {
+                                bus->log_warning("animation::put_json: frame not found for value_change: " + vc->frame_name);
+							}
+						}
+					}
+                }
 			}
 
 			virtual void get_json(json& _dest)
@@ -679,17 +706,25 @@ namespace corona
 				json jframes = jp.create_array();
 				for (auto& frame : frames) {
 					json jframe = jp.create_object();
-					frame->get_json(jframe);
+					frame.second->get_json(jframe);
 					jframes.push_back(jframe);
 				}
 				_dest.put_member("frames", jframes);
+
+                json jtimeline = jp.create_array();
+				for (auto& tl : timeline) {
+					json jtimepoint = jp.create_object();
+					tl.second->get_json(jtimepoint);
+					jtimeline.push_back(jtimepoint);
+				}
+                _dest.put_member("timeline", jtimeline);
 			}
 
 			virtual void create_assets(direct2dContext& _context)
 			{
 				for (auto f : frames)
 				{
-					f->create_assets(_context);
+					f.second->create_assets(_context);
 				}
 			}
 
@@ -888,12 +923,23 @@ namespace corona
 					}
 				}
 				return false;
-			}					
+			}
+
 			virtual void use(adventure_app_interface* _game, piece* _piece);
 
 			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
 			{
 				piece_base::run(_delta, _elapsed);
+				for (auto anim : animations) {
+                    anim->set_time(_delta);
+				}
+			}
+
+			virtual void set_time(double _delta)
+			{
+				for (auto anim : animations) {
+					anim->set_time(_delta);
+				}
 			}
 
 			virtual void get_json(json& _dest)
@@ -1096,7 +1142,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				json timer = _src["scheduler"];
 				scheduler.put_json(timer);
 			}
@@ -1130,7 +1176,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
                 target_piece = _src["target_piece"].as_object_reference();
 			}
 
@@ -1159,7 +1205,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 			}
 
 			// this gets called on every piece, to apply accelerations, make animation calculations, 
@@ -1369,7 +1415,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				passable = _src["passable"].as_bool();
 			}
 		};
@@ -1496,7 +1542,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				mechanic = _src["mechanic"].as_string();
 				acceleration_multiplier = _src["acceleration_multiplier"].as_double();
 				friction_multiplier = _src["friction_multiplier"].as_double();
@@ -1522,7 +1568,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 			}
 		};
 
@@ -1548,7 +1594,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
                 is_on = _src["is_on"].as_bool();
 			}
 
@@ -1726,7 +1772,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				shot_type = _src["shot_type"].as_string();
 				effect_type = _src["effect_type"].as_string();
 			}
@@ -1956,7 +2002,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				effect_type = _src["effect_type"].as_string();
 				hit_type = _src["hit_type"].as_string();
                 hit_lifetime = _src["hit_lifetime"].as_double();
@@ -2063,7 +2109,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				piece::put_json(_gbus.frame_factory, _src);
+				piece::put_json(_gbus.af, _src);
 				input_device = _src["input_device"].as_int();
 				ready = _src["ready"].as_bool();
 				dead = _src["dead"].as_bool();
@@ -2247,6 +2293,7 @@ namespace corona
 			auto shots() const { return get_pieces_of_type<shot>(); }
 			auto surfaces() const { return get_pieces_of_type<surface>(); }
 
+
 			virtual void get_json(json& _dest)
 			{
                 corona_object::get_json(_dest);
@@ -2373,6 +2420,15 @@ namespace corona
 					auto np = p->copy(corona_instance::local);
                     auto np_cast = std::dynamic_pointer_cast<piece>(np);
 					current->pieces.insert_or_assign(np_cast->to_reference(), np_cast);
+				}
+			}
+
+            void set_time(double _elapsed)
+			{
+				if (current) {
+					for (auto [k, p] : current->pieces) {
+						p->set_time(_elapsed);
+					}
 				}
 			}
 		};
@@ -3046,6 +3102,8 @@ namespace corona
 			virtual void put_json(json& _src);
 			virtual job* get_next_job();
 
+            virtual void set_time(double _elapsed);
+
 			virtual std::shared_ptr<corona_object_interface> get_piece(object_reference& _reference, bool include_children);
             
 			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name);
@@ -3072,10 +3130,6 @@ namespace corona
 				return piece;
             }
 
-			void update(double _elapsed)
-			{
-				;
-			}
 
 		private:
 
@@ -3332,7 +3386,7 @@ namespace corona
 					// get the piece that is in the source inventory, and copy it to a new piece
 					// that is, we are making a new piece, and putting it in the destination inventory
 
-					auto existing_piece = factories.piece_factory.get_object(existing_reference.reference, true);
+					auto existing_piece = factories.pf.get_object(existing_reference.reference, true);
 
 					if (existing_piece)
 					{
@@ -3382,10 +3436,10 @@ namespace corona
 				if (piece_data.object())
 				{
 					auto found_piece_type = std::make_shared<piece_type>();
-                    found_piece_type->put_json(factories.frame_factory, piece_data);
+                    found_piece_type->put_json(factories.af, piece_data);
 
 					std::string instance_class_name = found_piece_type->piece_class_name;
-					new_piece = factories.piece_factory.create_object(instance_class_name);
+					new_piece = factories.pf.create_object(instance_class_name);
 					if (new_piece) {
 						if (found_piece_type->defaults.object()) {
 							new_piece->apply_json(found_piece_type->defaults);
@@ -3402,7 +3456,7 @@ namespace corona
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
 
-			new_piece = factories.piece_factory.create_object(_class_name);
+			new_piece = factories.pf.create_object(_class_name);
 			return new_piece;
 		}
 
@@ -3557,114 +3611,6 @@ namespace corona
 		{
 			factories.init(instance);
 
-			factories.frame_factory.register_class("frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<frame> {
-				auto f = std::make_shared<frame>();
-                f->put_json(_src);
-				return f;
-				});
-			factories.frame_factory.register_class("bitmap_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<bitmap_frame> {
-				auto f = std::make_shared<bitmap_frame>();
-				f->put_json(_src);
-				return f;
-				});
-			factories.frame_factory.register_class("vector_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<vector_frame> {
-				auto f = std::make_shared<vector_frame>();
-				f->put_json(_src);
-				return f;
-				});
-			factories.piece_factory.register_class("actor", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<actor> {
-				return create_piece_impl<actor>(_src);
-				});
-			factories.piece_factory.register_class("player", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<player> {
-				return create_piece_impl<player>(_src);
-				});
-			factories.piece_factory.register_class("npc", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<npc> {
-				return create_piece_impl<npc>(_src);
-				});
-			factories.piece_factory.register_class("feature", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<feature> {
-				return create_piece_impl<feature>(_src);
-				});
-			factories.piece_factory.register_class("use_plate", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<use_plate> {
-				return create_piece_impl<use_plate>(_src);
-				});
-			factories.piece_factory.register_class("spawn", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<feature> {
-				return create_piece_impl<spawn>(_src);
-				});
-			factories.piece_factory.register_class("player_spawn", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<feature> {
-				return create_piece_impl<player_spawn>(_src);
-				});
-			factories.piece_factory.register_class("npc_spawn", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<feature> {
-				return create_piece_impl<npc_spawn>(_src);
-				});
-			factories.piece_factory.register_class("loot_box", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<lootbox> {
-				return create_piece_impl <lootbox>(_src);
-				});
-			factories.piece_factory.register_class("loot_spot", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<lootspot> {
-				return create_piece_impl<lootspot>(_src);
-				});
-			factories.piece_factory.register_class("wall", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<wall> {
-				return create_piece_impl<wall>(_src);
-				});
-			factories.piece_factory.register_class("switcher", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<switcher> {
-				return create_piece_impl<switcher>(_src);
-				});
-			factories.piece_factory.register_class("door", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<door> {
-				return create_piece_impl<door>(_src);
-				});
-			factories.piece_factory.register_class("surface", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<surface> {
-				return create_piece_impl<surface>(_src);
-				});
-			factories.piece_factory.register_class("decoration", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<decoration> {
-				return create_piece_impl<decoration>(_src);
-				});
-			factories.piece_factory.register_class("light", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<light> {
-				return create_piece_impl<light>(_src);
-				});
-			factories.piece_factory.register_class("spot_light", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<spot_light> {
-				return create_piece_impl<spot_light>(_src);
-				});
-			factories.piece_factory.register_class("globe_light", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<globe_light> {
-				return create_piece_impl<globe_light>(_src);
-				});
-			factories.piece_factory.register_class("camera", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<camera> {
-				return create_piece_impl<camera>(_src);
-				});
-			factories.piece_factory.register_class("effect", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<effect> {
-				return create_piece_impl<effect>(_src);
-				});
-			factories.piece_factory.register_class("carryable", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<carryable> {
-				return create_piece_impl<carryable>(_src);
-				});
-			factories.piece_factory.register_class("consumable", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<consumable> {
-				return create_piece_impl<consumable>(_src);
-				});
-			factories.piece_factory.register_class("tool", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<tool> {
-				return create_piece_impl<tool>(_src);
-				});
-			factories.piece_factory.register_class("firearm", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<firearm> {
-				return create_piece_impl<firearm>(_src);
-				});
-			factories.piece_factory.register_class("magazine", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<magazine> {
-				return create_piece_impl<magazine>(_src);
-				});
-			factories.piece_factory.register_class("ammunition", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<ammunition> {
-				return create_piece_impl<ammunition>(_src);
-				});
-			factories.piece_factory.register_class("shot", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<shot> {
-				return create_piece_impl<shot>(_src);
-				});
-			factories.piece_factory.register_class("wand", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<wand> {
-				return create_piece_impl<wand>(_src);
-				});
-			factories.piece_factory.register_class("spell", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<spell> {
-				return create_piece_impl<spell>(_src);
-				});
-			factories.piece_factory.register_class("stick", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<stick> {
-				return create_piece_impl<stick>(_src);
-				});
-			factories.piece_factory.register_class("artifact", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<artifact> {
-				return create_piece_impl<artifact>(_src);
-				});
 
 			selection_rules.put(fire_c);
 			selection_rules.put(cast_c);
@@ -4021,6 +3967,8 @@ namespace corona
 			last_elapsed_seconds = current_elapsed_seconds;
 			last_delta_seconds = delta;
 
+            set_time(delta);
+
 			if (delta <= 0.0) return notify;
 
 			switch (state) {
@@ -4230,5 +4178,49 @@ namespace corona
 			auto dc = std::dynamic_pointer_cast<piece>(_src);
 			stage->current->pieces.insert_or_assign(dc->to_reference(), dc);
 		}
+
+		void adventure::set_time(double _elapsed_seconds)
+		{
+			scope_lock locker(adventure_locker);
+            stage->set_time(_elapsed_seconds);
+		}
+
+		void animation_factory::init(corona_instance instance)
+		{
+			ff.init(instance);
+			tpcf.init(instance);
+			tpf.init(instance);
+
+			ff.register_class("frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<frame> {
+				auto f = std::make_shared<frame>();
+				f->put_json(_src);
+				return f;
+				});
+			ff.register_class("bitmap_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<bitmap_frame> {
+				auto f = std::make_shared<bitmap_frame>();
+				f->put_json(_src);
+				return f;
+				});
+			ff.register_class("vector_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<vector_frame> {
+				auto f = std::make_shared<vector_frame>();
+				f->put_json(_src);
+				return f;
+				});
+
+            tpcf.register_class("timepoint_change", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint_change> {
+				auto f = std::make_shared<timepoint_change>();
+				f->put_json(_src);
+				return f;
+				});
+
+			tpf.register_class("timepoint", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint> {
+				auto f = std::make_shared<timepoint>();
+				f->put_json(tpcf, _src);
+				return f;
+				});
+		}
+
 	}
+
+
 }

@@ -94,7 +94,7 @@ namespace corona
 		virtual void on_update(double _time)
 		{
 			if (current_session) {
-				current_session->update(_time);
+				current_session->set_time(_time);
             }
 		}
 
@@ -134,7 +134,7 @@ namespace corona
 	{
 		json data;
 		std::vector<std::shared_ptr<game::animation>> animations;
-		std::shared_ptr<game::frame_factory> factory;
+		std::shared_ptr<game::animation_factory> factory;
 		std::vector<corona_animation_rectangle>		animation_rectangles;
 		std::vector<corona_frame_rectangle>			frame_rectangles;
 		corona_animation_rectangle					current_animation;
@@ -146,13 +146,13 @@ namespace corona
 		animations_control(const animations_control& _src) = default;
 		animations_control() 
 		{
-            factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
+            factory = std::make_shared<game::animation_factory>(comm_desktop_bus_interface::get_service());
 			init();
 		}
 		animations_control(control_base* _parent, int _id) 
 			: draw_control(_parent, _id)
 		{ 
-            factory = std::make_shared<game::frame_factory>(comm_desktop_bus_interface::get_service());
+            factory = std::make_shared<game::animation_factory>(comm_desktop_bus_interface::get_service());
 			init();
         }
 
@@ -208,6 +208,9 @@ namespace corona
 		virtual void on_update(double _time)
 		{
 			elapsed_seconds = _time;
+            for (auto anim : animations) {
+				anim->set_time(_time);
+			}
 			for (auto child : children) {
 				child->on_update(_time);
 			}
@@ -217,18 +220,6 @@ namespace corona
 		{
 			set_origin(0.0_px, 0.0_px);
 			set_size(1.0_container, 1.2_fontgr);
-
-			factory->register_class("vector_frame", [](json& _src, comm_bus_interface* _bus) {
-				auto frame = std::make_shared<game::vector_frame>();
-				frame->put_json(_src);
-				return frame;
-				});
-
-			factory->register_class("bitmap_frame", [](json& _src, comm_bus_interface* _bus) {
-				auto frame = std::make_shared<game::bitmap_frame>();
-				frame->put_json(_src);
-				return frame;
-				});
 
 			on_create = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 				{

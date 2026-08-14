@@ -2,6 +2,114 @@
 
 namespace corona
 {
+    class corona_object;
+
+    class corona_object_timepoint
+    {
+    public:
+        double  elapsed_seconds = 0.0;
+        json    values;
+    };
+
+    class corona_object_history
+    {
+        std::map<double, corona_object_timepoint> history;
+        std::set<std::string> tween_fields;
+
+    public:
+
+        void clear()
+        {
+            history.clear();
+            tween_fields.clear();
+        }
+
+        void put_zero(json _obj)
+        {
+            corona_object_timepoint tp;
+            tp.elapsed_seconds = 0.0;
+            tp.values = _obj;
+            history[0.0] = tp;
+        }
+
+        void set_tween_fields(std::set<std::string> _fields)
+        {
+            tween_fields = _fields;
+        }
+
+        void put_change(corona_object_timepoint& _timepoint)
+        {
+            if (history.contains(_timepoint.elapsed_seconds)) {
+                history[_timepoint.elapsed_seconds].values.merge(_timepoint.values);
+            } else {
+                json temp;
+
+                if (history.contains(0)) {
+                    temp = history[0].values.clone(); 
+                }
+
+                temp.merge(_timepoint.values);
+                corona_object_timepoint ntp;
+                ntp.elapsed_seconds = _timepoint.elapsed_seconds;
+                ntp.values = temp;                
+                history[_timepoint.elapsed_seconds] = ntp;
+            }       
+        }
+
+        json get_time(double _time)
+        {
+            json result;
+
+            auto start_time = std::lower_bound(history.begin(), history.end(), _time, [](const auto& lhs, double rhs) {
+                return lhs.first < rhs;
+            });
+
+            if (start_time == history.end()) {
+                return result;
+            }
+
+            if (tween_fields.empty()) {
+                result = start_time->second.values;
+                return result;
+            }
+
+            auto next_time = start_time;
+
+            if (next_time != history.end()) {
+                next_time++;
+            }
+
+            result = start_time->second.values;
+
+            for (auto tf : tween_fields) {
+                if (start_time != history.end() && next_time != history.end()) {
+                    double t = (next_time->second.elapsed_seconds - start_time->second.elapsed_seconds);
+                    if (t > 0) {
+                        using namespace DirectX;
+
+                        double p = (_time - start_time->second.elapsed_seconds) / t;
+                        auto v1 = start_time->second.values[tf];
+                        auto v2 = next_time->second.values[tf];
+                        if (v1.is_double() && v2.is_double()) {
+                            double d1 = v1.as_double();
+                            double d2 = v2.as_double();
+                            double dt = d2 - d1;
+                            double dv = d1 + (dt * p);
+                            result.put_member(tf, dv);
+                        } else if (v1.is_vector() && v2.is_vector()) {
+                            XMVECTOR d1 = v1.as_vector();
+                            XMVECTOR d2 = v2.as_vector();
+                            XMVECTOR dt = XMVectorSubtract( d2, d1 );
+                            XMVECTOR dv = XMVectorAdd( d1, XMVectorScale( dt, static_cast<float>(p) ) );
+                            result.put_member(tf, dv);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+    };
 
     class corona_object : public corona_object_interface
     {

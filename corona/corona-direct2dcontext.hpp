@@ -1014,7 +1014,6 @@ namespace corona
 			getDeviceContext()->SetTransform(currentTransform);
 		}
 
-
 		virtual std::shared_ptr<direct2dBitmap> createBitmap(point& _size)
 		{
 			auto adapt = getAdapter();
