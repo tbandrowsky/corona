@@ -246,6 +246,11 @@
         "file_name":"pages\\tab_list_animation_frames.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_animation_timeline.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_animation.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_animation.json" },
@@ -273,6 +278,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\card_bitmap_frame.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_bitmap_frame_joints.json"
       },
 
       {
@@ -383,6 +393,11 @@
       { "class_name":"import", "file_name":"pages\\tab_firearm.json" },
 
       { "class_name":"import", "file_name":"pages\\card_frame.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_frame_joints.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_frame.json" },
 
@@ -655,6 +670,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\card_vector_frame.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_vector_frame_joints.json"
       },
 
       {

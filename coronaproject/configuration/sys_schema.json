@@ -156,7 +156,7 @@
     },
     {
       "class_name": "animation",
-      "base_class_name": "animation_base",
+      "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "full_text": [ "name" ],
       "fields": {
@@ -172,6 +172,17 @@
       }
     },
     {
+      "class_name": "frame_joint",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "frame" ],
+      "full_text": [ "name" ],
+      "fields": {
+        "attach_frame": "string",
+        "attach_point": "vector"
+      }
+    },
+    {
       "class_name": "frame",
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
@@ -181,7 +192,8 @@
         "name": "string",
         "position": "vector",
         "rotation": "double",
-        "pivot": "vector"
+        "pivot": "vector",
+        "joints": [ "frame_joint" ]
       }
     },
     {
@@ -770,8 +782,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "0,0,0"
+            ]
           }
         ],
         "mass": "500",
@@ -823,8 +834,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "0,0,0"
+            ]
           }
         ],
         "mass": "500",
@@ -876,8 +886,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "0,0,0"
+            ]
           }
         ],
         "mass": "500",
@@ -929,8 +938,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "0,0,0"
+            ]
           }
         ],
         "mass": "500",
@@ -985,8 +993,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "defaults": {
@@ -1047,8 +1054,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "defaults": {
@@ -1103,8 +1109,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "defaults": {
@@ -1165,8 +1170,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "defaults": {
@@ -1220,8 +1224,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",
@@ -1273,8 +1276,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",
@@ -1326,8 +1328,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",
@@ -1379,8 +1380,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",
@@ -1432,8 +1432,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",
@@ -1488,8 +1487,7 @@
             ],
             "defaults": {
               "spawn_types": [ "red-monster", "green-monster" ]
-            },
-            "carry_point": "vector"
+            }
           }
         ],
         "mass": "500",
@@ -1541,8 +1539,7 @@
                 },
                 "stroke_width": 4
               }
-            ],
-            "carry_point": "vector"
+            ]
           }
         ],
         "mass": "500",

@@ -651,8 +651,10 @@ namespace corona
 							continue;
 						}
 						auto frame = _factory.ff.create_object(jframe);
-						frame->put_json(jframe);
-						frames[frame->name] = frame;
+						if (frame) {
+							frame->put_json(jframe);
+							frames[frame->name] = frame;
+						}
 					}
 				}
 
@@ -667,8 +669,10 @@ namespace corona
 							continue;
 						}
 						auto change = _factory.tpf.create_object(jchange);
-						change->put_json(_factory.tpcf, jchange);
-						timeline[change->elapsed_seconds] = change;
+						if (change) {
+							change->put_json(_factory.tpcf, jchange);
+							timeline[change->elapsed_seconds] = change;
+						}
 					}
 				}
 

@@ -1008,12 +1008,14 @@ namespace corona
 
 		virtual int64_t									get_index_id() = 0;
 		virtual std::string								get_index_name() = 0;
+		virtual void									set_index_name(const std::string& _index_name) = 0;
 		virtual std::vector<std::string>				&get_index_keys() = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) = 0;
 		virtual std::string								get_index_key_string() = 0;
 		virtual std::string								get_index_filename(corona_database_interface *_db) = 0;
         virtual int64_t									get_count() = 0;
+		virtual std::shared_ptr<index_interface>		clone() = 0;
 	};
 
 	class activity;
@@ -1661,11 +1663,13 @@ namespace corona
 
 			for (auto member : members)
 			{
-				std::string src_key = member.second.as_string();
 				std::string dest_key = member.first;
+				std::string src_key = member.second.as_string();
                 json v = _src[src_key];
                 key.put_member(dest_key, v);
 			}
+
+            key.set_natural_order();
 
 			return key;
 		}
@@ -3988,10 +3992,9 @@ namespace corona
 			return index_name;
 		}
 
-		index_implementation& set_index_name(const std::string& _name)
+		virtual void set_index_name(const std::string& _name) override
 		{
 			index_name = _name;
-			return *this;
 		}
 
         virtual std::string get_index_filename(corona_database_interface *_db) override { 
@@ -4601,7 +4604,7 @@ namespace corona
 			{
 				ja.push_back(p);
 			}
-			_dest.share_member("parents", ja);
+			_dest.put_member("parents", ja);
 
 			ja = jp.create_array();
 			for (auto p : full_text_fields)
@@ -4615,10 +4618,10 @@ namespace corona
 				for (auto field : fields) {
 					json jfield_definition = jp.create_object();
 					field.second->get_json(jfield_definition);
-					jfield_object.share_member(field.first, jfield_definition);
+					jfield_object.put_member(field.first, jfield_definition);
 				
 				}
-				_dest.share_member("fields", jfield_object);
+				_dest.put_member("fields", jfield_object);
 			}
 
 			if (indexes.size() > 0) {
@@ -4626,9 +4629,9 @@ namespace corona
 				for (auto index : indexes) {
 					json jindex_definition = jp.create_object();
 					index.second->get_json(jindex_definition);
-					jindex_object.share_member(index.first, jindex_definition);
+					jindex_object.put_member(index.first, jindex_definition);
 				}
-				_dest.share_member("indexes", jindex_object);
+				_dest.put_member("indexes", jindex_object);
 			}
 
 			if (ancestors.size() > 0) {
@@ -4636,7 +4639,7 @@ namespace corona
 				for (auto class_ancestor : ancestors) {
 					jancestor_array.push_back(class_ancestor.first);
 				}
-				_dest.share_member("ancestors", jancestor_array);
+				_dest.put_member("ancestors", jancestor_array);
 			}
 
 			if (descendants.size() > 0) {
@@ -4644,13 +4647,13 @@ namespace corona
 				for (auto class_descendant : descendants) {
 					jdescendants_array.push_back(class_descendant.first);
 				}
-				_dest.share_member("descendants", jdescendants_array);
+				_dest.put_member("descendants", jdescendants_array);
 			}
 
 			if (sql) {
 				json jsql = jp.create_object();
 				sql->get_json(jsql);
-				_dest.share_member("sql", jsql);
+				_dest.put_member("sql", jsql);
 			}
 		}
 
@@ -4953,10 +4956,10 @@ namespace corona
 					json new_index = jp.create_object();
 					new_index.put_member("index_name", index_name);
 					json new_index_keys = jp.create_array();
-					new_index_keys.push_back(parent);
 					new_index_keys.push_back(parent + "_class");
-					new_index.share_member("index_keys", new_index_keys);
-					jindexes.share_member(index_name, new_index);
+					new_index_keys.push_back(parent);
+					new_index.put_member("index_keys", new_index_keys);
+					jindexes.put_member(index_name, new_index);
 				}
 			}
 
@@ -5207,6 +5210,16 @@ namespace corona
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
 					base_class->update_descendants().insert_or_assign(class_name, true);
+					auto base_indeces = base_class->get_indexes();
+					for (auto base_index : base_indeces) {
+						auto idx_name = base_index->get_index_name();
+						idx_name = replace(idx_name, base_class_name, class_name);
+						if (indexes.find(idx_name) == std::end(indexes)) {
+							base_index = base_index->clone();
+							base_index->set_index_name(idx_name);
+							indexes[idx_name] = base_index;
+						}
+					}
 					descendants.insert_or_assign(class_name, true);
 					std::vector<std::string> base_fields = base_class->get_full_text_fields();
 					full_text_fields.insert(full_text_fields.end(), base_fields.begin(), base_fields.end());
@@ -5398,6 +5411,16 @@ namespace corona
 					for (auto temp_field : base_class->get_fields())
 					{
 						fields.insert_or_assign(temp_field->get_field_name(), temp_field);
+					}
+					for (auto temp_index : base_class->get_indexes())
+					{
+						std::string idx_name = temp_index->get_index_name();
+						idx_name = replace(idx_name, base_class_name, class_name);
+						if (indexes.find(idx_name) == std::end(indexes)) {
+							temp_index = temp_index->clone();
+							temp_index->set_index_name(idx_name);
+							indexes[idx_name] = temp_index;
+						}
 					}
 					_context->db->save_class(base_class.get());
 				}
@@ -7481,7 +7504,7 @@ namespace corona
 
 			test = classes->get(R"({"class_name":"sys_user"})"_jobject);
 			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_schema after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_user after creation.", __FILE__, __LINE__);
 				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 
 				return result;
@@ -12004,6 +12027,11 @@ grant_type=authorization_code
 
 			activity pcactivity;
 			pcactivity.db = this;
+
+			if (class_name == "animation" || class_name == "frame" || class_name == "vector_frame")
+			{
+//				DebugBreak();
+			}
 
 			auto pclass = put_class_impl(&pcactivity, jclass_definition);
 
