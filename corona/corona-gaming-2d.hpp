@@ -702,6 +702,10 @@ namespace corona
 			{
 				if (frames.size() == 0)
 					return;			
+
+				// TODO:  draw the frames on the timeline....
+				// oh, the timeline is so super goddamned cool.
+
 			}
 
             virtual void set_time(double _elapsed)
