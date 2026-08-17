@@ -1307,5 +1307,12 @@ namespace corona
 		}
 	}
 
+	void log_warning(const std::string& _src, const char *_filename, int _line)
+	{
+		if (system_monitoring_interface::global_mon) {
+			system_monitoring_interface::global_mon->log_warning(_src, _filename, _line);
+		}
+	}
+
 
 }

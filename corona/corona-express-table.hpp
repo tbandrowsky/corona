@@ -504,16 +504,15 @@ namespace corona
 			result.is_all = true;
 			result.is_any = false;
 			result.count = 0;
-			int nrows = 0;
 
 			for (auto& item : records) 
 			{
 				if (item.first.matches(_key) or _key.empty()) {
 					if (_process(item.first, item.second) != null_row)
 					{
-						nrows++;
 						if (_max_rows) {
-							if (nrows == *_max_rows) {
+							(*_max_rows)--;
+							if (*_max_rows <= 0) {
 								return result;
 							}
 						}
@@ -540,7 +539,8 @@ namespace corona
 					if (not temp.empty())
 					{
 						if (_max_rows) {
-							if (nrows == *_max_rows) {
+							(*_max_rows)--;
+							if (*_max_rows <= 0) {
 								return result;
 							}
 						}
@@ -1587,36 +1587,22 @@ namespace corona
 		result.is_any = false;
 		result.count = 0;
 
-		int child_max_rows = 0;
-		int* pchild_max_rows = nullptr;
-
-		if (_max_rows) {
-            pchild_max_rows = &child_max_rows;
-		}
-
 		auto iter = find_xrecord(_key);
 		while (iter != records.end() and iter->first <= _key)
 		{
 			xfor_each_result temp;
 			auto& found_block = iter->second;
 
-			if (_max_rows) {
-				int child_max_rows = *_max_rows - result.count;
-				if (child_max_rows < 0) {
-					child_max_rows = 0;
-				}
-			}
-
 			if (found_block.block_type == xblock_types::xb_branch)
 			{
 				auto branch_block = cache->open_branch_block(found_block, false);
-				temp = branch_block->for_each(pchild_max_rows, cache, _key, _process);
+				temp = branch_block->for_each(_max_rows, cache, _key, _process);
 				cache->close_block(branch_block);
 			}
 			else if (found_block.block_type == xblock_types::xb_leaf)
 			{
 				auto leaf_block = cache->open_leaf_block(found_block);
-				temp = leaf_block->for_each(pchild_max_rows, _key, _process);
+				temp = leaf_block->for_each(_max_rows, _key, _process);
 				cache->close_block(leaf_block);
 			}
 			else
@@ -1641,12 +1627,6 @@ namespace corona
 		std::vector<xrecord> result = {};
 
 		int nrows = 0;
-		int child_max_rows;
-		int* pchild_max_rows = nullptr;
-
-		if (_max_rows) {
-			pchild_max_rows = &child_max_rows;
-		}
 
 		if (_key.empty())
 		{
@@ -1654,31 +1634,25 @@ namespace corona
 			{
 				std::vector<xrecord> temp;
 				auto& found_block = item.second;
-				if (_max_rows) {
-					int child_max_rows = *_max_rows - nrows;
-					if (child_max_rows < 0) {
-						child_max_rows = 0;
-					}
-				}
 
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(pchild_max_rows, cache, _key, _process);
+					temp = branch_block->select(_max_rows, cache, _key, _process);
 					cache->close_block(branch_block);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(pchild_max_rows, _key, _process);
+					temp = leaf_block->select(_max_rows, _key, _process);
 					cache->close_block(leaf_block);
 				}
 				else
 					temp = {};
 
 				result.insert(result.end(), temp.begin(), temp.end());
-				nrows += std::distance(temp.end(),temp.begin());
-                if (_max_rows && nrows >= *_max_rows) {
+				nrows += std::distance(temp.begin(),temp.end());
+                if (_max_rows && (*_max_rows) <=0) {
                     break;
                 }
 			}
@@ -1688,33 +1662,26 @@ namespace corona
 			while (iter != records.end() and (iter->first <= _key or iter->first.matches(_key)))
 			{
 
-				if (_max_rows) {
-					int child_max_rows = *_max_rows - nrows;
-					if (child_max_rows < 0) {
-						child_max_rows = 0;
-					}
-				}
-
 				std::vector<xrecord> temp;
 				auto& found_block = iter->second;
 				if (found_block.block_type == xblock_types::xb_branch)
 				{
 					auto branch_block = cache->open_branch_block(found_block, false);
-					temp = branch_block->select(pchild_max_rows, cache, _key, _process);
+					temp = branch_block->select(_max_rows, cache, _key, _process);
 					cache->close_block(branch_block);
 				}
 				else if (found_block.block_type == xblock_types::xb_leaf)
 				{
 					auto leaf_block = cache->open_leaf_block(found_block);
-					temp = leaf_block->select(pchild_max_rows, _key, _process);
+					temp = leaf_block->select(_max_rows, _key, _process);
 					cache->close_block(leaf_block);
 				}
 				else
 					temp = {};
 
 				result.insert(result.end(), temp.begin(), temp.end());
-				nrows += std::distance(temp.end(), temp.begin());
-				if (_max_rows && nrows >= *_max_rows) {
+				nrows += std::distance(temp.begin(), temp.end());
+				if (_max_rows && (*_max_rows) <= 0) {
 					break;
 				}
 				iter++;

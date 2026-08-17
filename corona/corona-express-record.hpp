@@ -857,8 +857,8 @@ namespace corona
 							return false;
 						}
 					}
-					return true;
 				}
+				return true;
 			}
 			else if (field_data.size() < _other.field_data.size()) {
 				for (int i = 0; i < _other.field_data.size(); i++) {

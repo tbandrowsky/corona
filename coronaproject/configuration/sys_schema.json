@@ -159,6 +159,7 @@
       "base_class_name": "game_base",
       "class_description": "a gaming piece",
       "full_text": [ "name" ],
+      "parents": [ "piece_type", "piece" ],
       "fields": {
         "name": {
           "field_type": "string",

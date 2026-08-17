@@ -1009,6 +1009,8 @@ namespace corona
 		virtual int64_t									get_index_id() = 0;
 		virtual std::string								get_index_name() = 0;
 		virtual void									set_index_name(const std::string& _index_name) = 0;
+		virtual std::string								get_index_class() = 0;
+		virtual void									set_index_class(const std::string& _index_class) = 0;
 		virtual std::vector<std::string>				&get_index_keys() = 0;
 		virtual std::shared_ptr<xtable>					get_xtable(corona_database_interface* _db) = 0;
 		virtual std::shared_ptr<xtable>					create_xtable(corona_database_interface *_db, std::map<std::string, std::shared_ptr<field_interface>>& _fields) = 0;
@@ -2939,7 +2941,7 @@ namespace corona
 		}
 	};
 
-	int max_query_result_rows = 10000;
+	const int max_query_result_rows = 10000;
 
 	class string_field_options : public field_options_base
 	{
@@ -3860,6 +3862,7 @@ namespace corona
 	class index_implementation : public index_interface
 	{
 		int64_t index_id;
+		std::string index_class;
 		std::string index_name;
 		std::vector<std::string> index_keys;
 		std::shared_ptr<xtable> table;
@@ -3876,7 +3879,6 @@ namespace corona
 			index_id = _ii_index->get_index_id();
 			index_name = _ii_index->get_index_name();
 			index_keys = _ii_index->get_index_keys();
-
 			auto temp = _ii_index->get_xtable(_db);
 		}
 
@@ -3946,6 +3948,7 @@ namespace corona
 		{
 			json_parser jp;
 			_dest.put_member("index_name", index_name);
+			_dest.put_member("index_class", index_class);
 
 			json jindex_keys = jp.create_array();
 			for (auto ikey : index_keys) 
@@ -3958,7 +3961,7 @@ namespace corona
 		virtual void put_json(validation_error_collection& _errors, json& _src) override
 		{			
 			index_name = _src["index_name"].as_string();
-
+			index_class = _src["index_class"].as_string();
 			json jindex_keys = _src["index_keys"];
 			if (jindex_keys.array())
 			{
@@ -3997,9 +4000,19 @@ namespace corona
 			index_name = _name;
 		}
 
+		virtual std::string	get_index_class() override
+		{
+			return index_class;
+		}
+
+		virtual void set_index_class(const std::string& _class) override
+		{
+			index_class = _class;
+		}
+
         virtual std::string get_index_filename(corona_database_interface *_db) override { 
 				std::filesystem::path p = _db->get_directory();
-				std::string bfn = get_index_name() + ".coronaindex";
+				std::string bfn = std::format("idx_{0}_{1}.{2}", get_index_class(), get_index_name(), "coronaindex");
 				p = p / bfn;
 				return p.string();
 			}
@@ -4039,6 +4052,20 @@ namespace corona
 				table = std::make_shared<xtable>(get_index_filename(_db), corona_db_read_only);
 			return table;
 		}
+
+		virtual std::shared_ptr<index_interface> clone() override
+		{
+			json_parser jp;
+			json obj = jp.create_object();
+            get_json(obj);	
+			auto new_index = std::make_shared<index_implementation>();
+            validation_error_collection errors;
+			new_index->put_json(errors, obj);
+			if (errors.size() > 0) {
+                log_warning(std::format("{0}.{1} index_implementation::clone()", index_class, index_name), __FILE__, __LINE__);
+			}
+			return new_index;
+        }
 
 	};
 
@@ -4935,7 +4962,6 @@ namespace corona
 				_errors.push_back(ve);
 			}
 
-			indexes.clear();
 			jindexes = _src["indexes"];
 
 			if (jindexes.empty())
@@ -4946,7 +4972,7 @@ namespace corona
 
 			for (auto parent : parents)
 			{
-				std::string index_name = std::format("idx_{0}_{1}", getFirstNChars(class_name, 16), getFirstNChars(parent, 16));
+				std::string index_name = parent;
 				if (jindexes.has_member(index_name)) {
 					continue;
 				}
@@ -4954,6 +4980,7 @@ namespace corona
 				{
 					json_parser jp;
 					json new_index = jp.create_object();
+                    new_index.put_member("index_class", class_name);
 					new_index.put_member("index_name", index_name);
 					json new_index_keys = jp.create_array();
 					new_index_keys.push_back(parent + "_class");
@@ -4964,11 +4991,15 @@ namespace corona
 			}
 
 			if (jindexes.object()) {
+
+				indexes.clear();
+
 				auto jindex_members = jindexes.get_members();
 				for (auto jindex : jindex_members) {
 					std::shared_ptr<index_implementation> index = std::make_shared<index_implementation>();
 					index->put_json(_errors, jindex.second);
 					index->set_index_name(jindex.first);
+					index->set_index_class(class_name);
 
 					if (index->get_index_name().empty())
 					{
@@ -5023,6 +5054,7 @@ namespace corona
 
 				std::string backing_index_name = sql->sql_table_name + "_idx";
 				std::shared_ptr<index_implementation> idx = std::make_shared<index_implementation>(backing_index_name, keys, nullptr);
+                idx->set_index_class(class_name);
 				indexes.insert_or_assign(backing_index_name, idx);
 			}
 
@@ -5213,10 +5245,10 @@ namespace corona
 					auto base_indeces = base_class->get_indexes();
 					for (auto base_index : base_indeces) {
 						auto idx_name = base_index->get_index_name();
-						idx_name = replace(idx_name, base_class_name, class_name);
 						if (indexes.find(idx_name) == std::end(indexes)) {
 							base_index = base_index->clone();
 							base_index->set_index_name(idx_name);
+							base_index->set_index_class(class_name);
 							indexes[idx_name] = base_index;
 						}
 					}
@@ -5415,10 +5447,10 @@ namespace corona
 					for (auto temp_index : base_class->get_indexes())
 					{
 						std::string idx_name = temp_index->get_index_name();
-						idx_name = replace(idx_name, base_class_name, class_name);
 						if (indexes.find(idx_name) == std::end(indexes)) {
 							temp_index = temp_index->clone();
 							temp_index->set_index_name(idx_name);
+							temp_index->set_index_class(class_name);
 							indexes[idx_name] = temp_index;
 						}
 					}
@@ -6388,10 +6420,9 @@ namespace corona
 				}
 				else {
 					auto class_data = get_table(_db);
-					int max_plain_rows = 500;
-					obj = class_data->select(&max_plain_rows, _key, [&full_text, &max_plain_rows, &_key, &_grant](json& _j)-> json
+					int max_rows = max_query_result_rows;
+					obj = class_data->select(&max_rows, _key, [&full_text, &_key, &_grant](json& _j)-> json
 						{
-							max_plain_rows--;
 							json result;
 							auto members = _j.get_members();
                             for (auto& mem : members) {
@@ -6427,8 +6458,9 @@ namespace corona
 				if (index_table)
 				{
 					json temp;
+					int max_rows = max_query_result_rows;
 
- 					temp = index_table->select(&max_query_result_rows, _key, [](json& _item) -> json {
+ 					temp = index_table->select(&max_rows, _key, [](json& _item) -> json {
 						return _item;
 					});
 
@@ -6452,7 +6484,8 @@ namespace corona
 				else
 				{
 					auto class_data = get_table(_db);
-                    obj = class_data->select(&max_query_result_rows, _key, [&_key, &_grant](json& _j)-> json
+                    int max_rows = max_query_result_rows;
+                    obj = class_data->select(&max_rows, _key, [&_key, &_grant](json& _j)-> json
 						{
 							json select_result;
 							if (_key.compare(_j) == 0) {
@@ -6487,7 +6520,7 @@ namespace corona
 								auto bridges = fld->get_bridges();
 								if (bridges) {
 									json results = bridges->get_children(_db, _src_obj, _grant);
-									_src_obj.share_member(fld->get_field_name(), results);
+									_src_obj.put_member(fld->get_field_name(), results);
 								}
 							}
 							else if (fld->get_field_type() == field_types::ft_object)
@@ -6496,7 +6529,7 @@ namespace corona
 								if (bridges) {
 									json results = bridges->get_children(_db, _src_obj, _grant);
 									json first = results.get_first_element();
-									_src_obj.share_member(fld->get_field_name(), first);
+									_src_obj.put_member(fld->get_field_name(), first);
 								}
 							}
 						}
@@ -6525,9 +6558,11 @@ namespace corona
 					json key = ob.extract(key_field_names);
 					json ob_found;
 
+					int max_rows = max_query_result_rows;
+
 					if (index_table)
 					{
-						ob_found = index_table->select(&max_query_result_rows, key, [this, &backing_table](json& _item) -> json {
+						ob_found = index_table->select(&max_rows, key, [this, &backing_table](json& _item) -> json {
 							int64_t object_id = _item[object_id_field].as_int64_t();
 							auto objfound = backing_table->get(object_id);
 							return objfound;
@@ -6535,7 +6570,7 @@ namespace corona
 					}
 					else
 					{
-						ob_found = backing_table->select(&max_query_result_rows, key, [&key](json& _j)
+						ob_found = backing_table->select(&max_rows, key, [&key](json& _j)
 							{
 								json result;
 								if (key.compare(_j) == 0)
