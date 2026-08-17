@@ -98,6 +98,18 @@ namespace corona
             }
 		}
 
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*) {
+			if (current_session) {
+				current_session->draw(*_context);
+			}
+		};
+
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*) {
+			if (current_session) {
+				current_session->create_assets(*_context);
+			}
+		};
+
 	private:
 
 		void init()
@@ -139,6 +151,7 @@ namespace corona
 		corona_animation_rectangle						current_animation;
 		corona_frame_rectangle							current_frame;
 		double elapsed_seconds = 0.0;
+		generalBrushRequest								section_border;
 
 	public:
 
@@ -191,48 +204,67 @@ namespace corona
 			}
 		}
 
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
+		{
+			auto draw_bounds = get_inner_bounds();
+
+			for (auto& anim_rect : animation_rectangles) {
+				if (anim_rect.object) {
+					auto rect = anim_rect.rect;
+					rect.x += draw_bounds.x;
+					rect.y += draw_bounds.y;
+					DirectX::XMVECTOR location = to_point(rect);
+					anim_rect.object->draw(*_context, location);
+				}
+			}
+
+			for (auto& frame_rect : frame_rectangles) {
+				if (frame_rect.object) {
+					auto rect = frame_rect.rect;
+					rect.x += draw_bounds.x;
+					rect.y += draw_bounds.y;
+					DirectX::XMVECTOR location = to_point(rect);
+					frame_rect.object->draw(*_context, location);
+				}
+			}
+
+			std::string border_name = section_border.get_name();
+
+			for (auto& anim_rect : animation_rectangles) {
+				if (anim_rect.object) {
+					auto rect = anim_rect.rect;
+					rect.x += draw_bounds.x;
+					rect.y += draw_bounds.y;
+					DirectX::XMVECTOR location = to_point(rect);
+					_context->drawRectangle(&rect, border_name, 4, "");
+				}
+			}
+
+			for (auto& frame_rect : frame_rectangles) {
+				if (frame_rect.object) {
+					auto rect = frame_rect.rect;
+					rect.x += draw_bounds.x;
+					rect.y += draw_bounds.y;
+					DirectX::XMVECTOR location = to_point(rect);
+					_context->drawRectangle(&rect, border_name, 4, "");
+				}
+			}
+		}
+
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*)
+		{
+			set_default_styles();
+			for (auto anim : animations) {
+				anim->create_assets(*_context);
+			}
+			_context->setBrush(&section_border);
+		}
+
 		void init()
 		{
 			set_origin(0.0_px, 0.0_px);
 			set_size(1.0_container, 1.2_fontgr);
-
-			on_create = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-				{
-					animations_control* t = dynamic_cast<animations_control*>(_src);
-					if (t) {
-						t->set_default_styles();
-                        for (auto anim : t->animations) {
-							anim->create_assets(*_context);
-						}
-					}
-				};
-
-			on_draw = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src) {
-				animations_control* t = dynamic_cast<animations_control*>(_src);
-
-				auto draw_bounds = _src->get_inner_bounds();
-
-                for (auto& anim_rect : t->animation_rectangles) {
-					if (anim_rect.object) {
-                        auto rect = anim_rect.rect;
-                        rect.x += draw_bounds.x;
-                        rect.y += draw_bounds.y;
-						DirectX::XMVECTOR location = to_point(rect);
-						anim_rect.object->draw(*_context, location);
-					}
-				}
-
-				for (auto& frame_rect : t->frame_rectangles) {
-                    if (frame_rect.object) {
-						auto rect = frame_rect.rect;
-                        rect.x += draw_bounds.x;
-                        rect.y += draw_bounds.y;
-						DirectX::XMVECTOR location = to_point(rect);
-						frame_rect.object->draw(*_context, location);
-					}
-				}
-
-			};
+			section_border = solidBrushRequest("animation_section_border", "C0C0F0");
 		}
 
 		virtual void set_default_styles()

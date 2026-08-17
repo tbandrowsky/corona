@@ -672,10 +672,16 @@ namespace corona {
 		solidBrushRequest& operator = (const solidBrushRequest& _request) = default;
 		solidBrushRequest& operator = (solidBrushRequest&& _request) = default;
 
+		solidBrushRequest(std::string _name, std::string _color)
+		{
+			name = name;
+			brushColor = brushColor;
+		}
+
 		solidBrushRequest(std::shared_ptr<solidBrushRequest> _request)
 		{
 			name = _request->name;
-			brushColor = _request->brushColor;
+			brushColor = corona::toColor(_request->brushColor);
 		}
 
 		void get_json(json& _dest)

@@ -38,8 +38,9 @@ namespace corona
 
         std::weak_ptr<applicationBase> host;
         std::weak_ptr<direct2dChildWindow> window;
-        std::function<void(std::shared_ptr<direct2dContext>& _context, draw_control*)> on_draw;
-        std::function<void(std::shared_ptr<direct2dContext>& _context, draw_control*)> on_create;
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*);
+        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*);
 
         lockable camera_access_lock;
 
@@ -56,8 +57,6 @@ namespace corona
             window = _src.window;
             host = _src.host;
             view_style = _src.view_style;
-            on_draw = _src.on_draw;
-            on_create = _src.on_create;
         }
 
         draw_control(control_base* _parent, int _id)
