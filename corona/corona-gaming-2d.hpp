@@ -444,10 +444,17 @@ namespace corona
 					pivot_origin.x = XMVectorGetX(new_pivot);
 					pivot_origin.y = XMVectorGetY(new_pivot);
 
-					auto mat = D2D1::Matrix3x2F::Rotation(
+					auto mrotation = D2D1::Matrix3x2F::Rotation(
 						rotation,
 						pivot_origin
 					);
+					
+					auto mtranslation = D2D1::Matrix3x2F::Translation(
+						pivot_origin.x,
+						pivot_origin.y
+					);
+
+					auto mat = mrotation * mtranslation;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 					_context.getDeviceContext()->SetTransform(&mat);
@@ -698,13 +705,15 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
-			virtual void draw(direct2dContext& _context, double _elapsed, DirectX::XMVECTOR& _location)
+			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
 			{
 				if (frames.size() == 0)
 					return;			
 
-				// TODO:  draw the frames on the timeline....
-				// oh, the timeline is so super goddamned cool.
+				for (auto f : frames)
+				{
+					f.second->draw(_context, _location);
+				}
 
 			}
 
@@ -1117,11 +1126,11 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context, double _delta, double _elapsed)
+			virtual void draw(direct2dContext& _context)
 			{
 				for (auto animation : animations) {
 					if (animation->name == state) {
-						animation->draw(_context, _delta, position);
+						animation->draw(_context, position);
 					}
 				}
 			}
@@ -3291,11 +3300,13 @@ namespace corona
 			comm_desktop_bus_interface*bus;
 			corona_instance instance = corona_instance::local;
 			std::vector<std::shared_ptr<adventure_app_interface>> adventures;
+			std::shared_ptr<game_factory> factory;
 
 		public:
 
 			engine(comm_desktop_bus_interface* _db) : bus(_db)
 			{
+				factory = std::make_shared<game_factory>(bus);
 			}
 
             engine(const engine& _src) = default;
@@ -3306,6 +3317,11 @@ namespace corona
 			virtual ~engine()
 			{
 
+			}
+
+			virtual std::shared_ptr<game_factory> get_factory() const
+			{
+				return factory;
 			}
 
 			std::shared_ptr<adventure_interface> new_adventure(json _world_key)
@@ -4241,7 +4257,7 @@ namespace corona
             scope_lock locker(adventure_locker);
 
 			for (auto& p : stage->current->pieces) {
-				p.second->draw(_src, last_delta_seconds, last_elapsed_seconds);
+				p.second->draw(_src);
 			}
 		}
 

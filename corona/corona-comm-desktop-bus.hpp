@@ -262,7 +262,6 @@ namespace corona
 				log_warning(mxessage, __FILE__, __LINE__);
 			}
 
-
 			MFStartup(MF_VERSION);
 
 			if (!poll_db_enabled) {
@@ -321,6 +320,10 @@ namespace corona
 					log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
 					auto tempo = local_db->apply_schema(temp);
 					get_local_token();
+					// local gaming must be created here, because it needs the database to be there 
+					// to feed the factories.
+					// this always hopefully happens before poll_pages
+					local_gaming = corona::game::engine_factory::create_engine(this);
 					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				}
 				is_db_polling = false;
@@ -2398,6 +2401,19 @@ namespace corona
 			local_audio_synth.stop_all();
 		}
 
+		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0)
+		{
+			local_audio_synth.play(_generator, _volume, _duration);
+		}
+
+		std::shared_ptr<game::game_factory> get_game_factory()
+		{
+			auto game_engine = std::dynamic_pointer_cast<game::engine>(local_gaming);
+			if (game_engine) {
+				return game_engine->get_factory();
+			}
+			return nullptr;
+		}
 	};
 
 	void items_view::create_controls()
@@ -2429,6 +2445,80 @@ namespace corona
 			comm_desktop_bus_interface::global_bus->as<desktop_app_bus>()->run_command(batch_id, empty_command);
         }
 	}
+
+	void animations_control::put_json(json& _src)
+	{
+		draw_control::put_json(_src);
+
+		animations.clear();
+		current_animation.object = nullptr;
+		current_frame.object = nullptr;
+
+		if (!json_field_name.empty()) {
+			json janimations = _src[json_field_name];
+
+			animation_rectangles.clear();
+			frame_rectangles.clear();
+
+			auto desktop = desktop_app_bus::get_service()->as<desktop_app_bus>();
+
+			if (desktop) {
+				auto factory = desktop->get_game_factory();
+				if (factory && janimations.array()) {
+					for (int i = 0; i < janimations.size(); i++) {
+						auto janimation = janimations.get_element(i);
+						auto new_animation = std::make_shared<game::animation>();
+						new_animation->put_json(factory->af, janimation);
+						animations.push_back(new_animation);
+						current_animation.object = new_animation;
+					}
+				}
+			}
+		}
+	}
+
+	bool animations_control::set_items(json _data)
+	{
+		data = _data;
+
+		animations.clear();
+
+		int i;
+		rectangle item_bounds;
+		item_bounds.x = 0;
+		item_bounds.y = 0;
+		item_bounds.w = 0;
+		item_bounds.h = 0;
+
+		int matching_index = -1;
+
+		animations.clear();
+		current_animation.object = nullptr;
+		current_frame.object = nullptr;
+		animation_rectangles.clear();
+		frame_rectangles.clear();
+
+		if (data.array()) {
+
+			auto desktop = desktop_app_bus::get_service()->as<desktop_app_bus>();
+			if (desktop) {
+				auto factory = desktop->get_game_factory();
+
+				for (int i = 0; i < data.size(); i++) {
+					auto janimation = data.get_element(i);
+					auto new_animation = std::make_shared<game::animation>();
+					new_animation->put_json(factory->af, janimation);
+					animations.push_back(new_animation);
+					current_animation.object = new_animation;
+				}
+			}
+		}
+
+		arrange(this, &bounds);
+
+		return true;
+	}
+
 
 }
 

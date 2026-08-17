@@ -133,26 +133,25 @@ namespace corona
 	class animations_control : public draw_control
 	{
 		json data;
-		std::vector<std::shared_ptr<game::animation>> animations;
-		std::shared_ptr<game::animation_factory> factory;
-		std::vector<corona_animation_rectangle>		animation_rectangles;
-		std::vector<corona_frame_rectangle>			frame_rectangles;
-		corona_animation_rectangle					current_animation;
-		corona_frame_rectangle						current_frame;
+		std::vector<std::shared_ptr<game::animation>>	animations;
+		std::vector<corona_animation_rectangle>			animation_rectangles;
+		std::vector<corona_frame_rectangle>				frame_rectangles;
+		corona_animation_rectangle						current_animation;
+		corona_frame_rectangle							current_frame;
 		double elapsed_seconds = 0.0;
 
 	public:
 
 		animations_control(const animations_control& _src) = default;
+
 		animations_control() 
 		{
-            factory = std::make_shared<game::animation_factory>(comm_desktop_bus_interface::get_service());
 			init();
 		}
+
 		animations_control(control_base* _parent, int _id) 
 			: draw_control(_parent, _id)
 		{ 
-            factory = std::make_shared<game::animation_factory>(comm_desktop_bus_interface::get_service());
 			init();
         }
 
@@ -173,31 +172,7 @@ namespace corona
 			}
 		}
 
-		virtual void put_json(json& _src)
-		{
-			draw_control::put_json(_src);
-
-			animations.clear();
-			current_animation.object = nullptr;
-			current_frame.object = nullptr;
-
-			if (!json_field_name.empty()) {
-				json janimations = _src[json_field_name];
-
-                animation_rectangles.clear();
-				frame_rectangles.clear();
-
-				if (janimations.array()) {
-					for (int i = 0; i < janimations.size(); i++) {
-						auto janimation = janimations.get_element(i);
-						auto new_animation = std::make_shared<game::animation>();
-						new_animation->put_json(*factory.get(), janimation);
-						animations.push_back(new_animation);
-						current_animation.object = new_animation;
-					}
-				}
-			}
-		}
+		virtual void put_json(json& _src);
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -243,7 +218,7 @@ namespace corona
                         rect.x += draw_bounds.x;
                         rect.y += draw_bounds.y;
 						DirectX::XMVECTOR location = to_point(rect);
-						anim_rect.object->draw(*_context, t->elapsed_seconds, location);
+						anim_rect.object->draw(*_context, location);
 					}
 				}
 
@@ -347,41 +322,7 @@ namespace corona
 			return data;
 		}
 
-		virtual bool set_items(json _data)
-		{
-			data = _data;
-
-			animations.clear();
-
-			int i;
-			rectangle item_bounds;
-			item_bounds.x = 0;
-			item_bounds.y = 0;
-			item_bounds.w = 0;
-			item_bounds.h = 0;
-
-			int matching_index = -1;
-
-			animations.clear();
-			current_animation.object = nullptr;
-			current_frame.object = nullptr;
-			animation_rectangles.clear();
-			frame_rectangles.clear();
-
-			if (data.array()) {
-				for (int i = 0; i < data.size(); i++) {
-					auto janimation = data.get_element(i);
-					auto new_animation = std::make_shared<game::animation>();
-					new_animation->put_json(*factory.get(), janimation);
-					animations.push_back(new_animation);
-					current_animation.object = new_animation;
-				}
-			}
-
-			arrange(this, &bounds);
-
-			return true;
-		}
+		virtual bool set_items(json _data);
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 	};

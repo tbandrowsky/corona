@@ -87,7 +87,6 @@ namespace corona
 			if (global_bus == nullptr) {
 				global_bus = this;
 			}
-            local_gaming = corona::game::engine_factory::create_engine(this);
 		}
 
 		virtual ~comm_desktop_bus_interface()

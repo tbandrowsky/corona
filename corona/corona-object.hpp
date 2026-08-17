@@ -535,6 +535,14 @@ namespace corona
         // of a particular item, so the corona api will have be tweaked to allow this.
         virtual void init(corona_instance _instance)
         {
+            if (instance != _instance) {
+                class_cache.clear();
+            }
+
+            if (class_cache.size() > 0) {
+                return;
+            }
+
             auto result = bus->get_classes(_instance);
             if (!result.success) {
                 bus->log_warning(result.message, __FILE__, __LINE__);
