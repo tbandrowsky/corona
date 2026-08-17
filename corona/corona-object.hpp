@@ -533,7 +533,7 @@ namespace corona
         // but, it is best to do it after, so that you can register the classes first, and then get the list of classes from the bus.
         // and someday we want to filter this so that it is just the classes and descendants 
         // of a particular item, so the corona api will have be tweaked to allow this.
-        void init(corona_instance _instance)
+        virtual void init(corona_instance _instance)
         {
             auto result = bus->get_classes(_instance);
             if (!result.success) {

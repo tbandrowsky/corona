@@ -276,7 +276,39 @@ namespace corona
 
 		};
 
-		using timepoint_change_factory = corona_object_factory<timepoint_change>;
+		class timepoint_change_factory : public  corona_object_factory<timepoint_change>
+		{
+
+		public:
+
+			timepoint_change_factory(comm_bus_interface* _bus) : corona_object_factory<timepoint_change>(_bus)
+			{
+				init(corona_instance::local);
+			}
+			
+			virtual void init(corona_instance _instance)
+			{
+				corona_object_factory<timepoint_change>::init(_instance);
+
+				register_class("timepoint_change", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint_change> {
+					auto f = std::make_shared<timepoint_change>();
+					f->put_json(_src);
+					return f;
+					});
+
+				register_class("audio_change", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint_change> {
+					auto f = std::make_shared<audio_change>();
+					f->put_json(_src);
+					return f;
+					});
+
+				register_class("value_change", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint_change> {
+					auto f = std::make_shared<value_change>();
+					f->put_json(_src);
+					return f;
+					});
+			}
+		};
 
 		class timepoint : public corona_object
 		{
@@ -569,21 +601,79 @@ namespace corona
 
 		};
 
-		using frame_factory = corona_object_factory<frame>;
-		using timepoint_factory = corona_object_factory<timepoint>;	
+
+		class timepoint_factory : public  corona_object_factory<timepoint>
+		{
+
+		public:
+
+			timepoint_factory(comm_bus_interface* _bus) : change_factory(_bus), corona_object_factory<timepoint>(_bus)
+			{
+				init(corona_instance::local);
+			}
+
+			timepoint_change_factory change_factory;
+
+			virtual void init(corona_instance _instance)
+			{
+                corona_object_factory<timepoint>::init(_instance);
+				register_class("timepoint", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint> {
+					auto f = std::make_shared<timepoint>();
+					f->put_json(change_factory, _src);
+					return f;
+					});
+			}
+		};
+
+		class frame_factory : public  corona_object_factory<frame>
+		{
+
+		public:
+
+			frame_factory(comm_bus_interface* _bus) : corona_object_factory<frame>(_bus)
+			{
+				init(corona_instance::local);
+			}
+
+			virtual void init(corona_instance _instance)
+			{
+				corona_object_factory<frame>::init(_instance);
+
+				register_class("frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<frame> {
+					auto f = std::make_shared<frame>();
+					f->put_json(_src);
+					return f;
+					});
+
+				register_class("bitmap_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<bitmap_frame> {
+					auto f = std::make_shared<bitmap_frame>();
+					f->put_json(_src);
+					return f;
+					});
+
+				register_class("vector_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<vector_frame> {
+					auto f = std::make_shared<vector_frame>();
+					f->put_json(_src);
+					return f;
+					});
+			}
+		};
 
 		class animation_factory
 		{
 		public:
 			frame_factory		ff;
-			timepoint_change_factory	tpcf;
             timepoint_factory    tpf;
 
-			animation_factory(comm_desktop_bus_interface* _bus) noexcept : ff(_bus), tpcf(_bus), tpf(_bus) {
+			animation_factory(comm_desktop_bus_interface* _bus) noexcept : ff(_bus), tpf(_bus) {
 
 			}
 
-			void init(corona_instance instance);
+			virtual void init(corona_instance _instance)
+			{
+				ff.init(_instance);
+				tpf.init(_instance);
+			}
 
 		};
 
@@ -670,7 +760,7 @@ namespace corona
 						}
 						auto change = _factory.tpf.create_object(jchange);
 						if (change) {
-							change->put_json(_factory.tpcf, jchange);
+							change->put_json(_factory.tpf.change_factory, jchange);
 							timeline[change->elapsed_seconds] = change;
 						}
 					}
@@ -4187,41 +4277,6 @@ namespace corona
 		{
 			scope_lock locker(adventure_locker);
             stage->set_time(_elapsed_seconds);
-		}
-
-		void animation_factory::init(corona_instance instance)
-		{
-			ff.init(instance);
-			tpcf.init(instance);
-			tpf.init(instance);
-
-			ff.register_class("frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<frame> {
-				auto f = std::make_shared<frame>();
-				f->put_json(_src);
-				return f;
-				});
-			ff.register_class("bitmap_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<bitmap_frame> {
-				auto f = std::make_shared<bitmap_frame>();
-				f->put_json(_src);
-				return f;
-				});
-			ff.register_class("vector_frame", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<vector_frame> {
-				auto f = std::make_shared<vector_frame>();
-				f->put_json(_src);
-				return f;
-				});
-
-            tpcf.register_class("timepoint_change", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint_change> {
-				auto f = std::make_shared<timepoint_change>();
-				f->put_json(_src);
-				return f;
-				});
-
-			tpf.register_class("timepoint", [this](json& _src, comm_bus_interface* _bus) -> std::shared_ptr<timepoint> {
-				auto f = std::make_shared<timepoint>();
-				f->put_json(tpcf, _src);
-				return f;
-				});
 		}
 
 	}
