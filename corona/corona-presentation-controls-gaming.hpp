@@ -217,6 +217,8 @@ namespace corona
 				}
 			}
 
+			_context->setBrush(&section_border);
+
 			std::string border_name = section_border.get_name();
 
 			for (auto& anim_rect : animation_rectangles) {
@@ -246,7 +248,6 @@ namespace corona
 			for (auto anim : animations) {
 				anim->create_assets(*_context);
 			}
-			_context->setBrush(&section_border);
 		}
 
 		void init()
@@ -283,27 +284,8 @@ namespace corona
             current_animation.rect.w = animation_area_size.x;
             current_animation.rect.h = animation_area_size.y;
 
-			if (current_animation.object) {
-                auto iter = current_animation.object->frames.begin();
-				for (int x = 0; x < num_frames_x; x++) {
-					for (int y = 0; y < num_frames_y; y++) {
-                        if (iter != std::end(current_animation.object->frames)) {
-							rectangle r;
-							r.x = x * frame_select_size.x;
-							r.y = y * frame_select_size.y;
-							r.w = frame_select_size.x;
-							r.h = frame_select_size.y;
-							frame_rectangles.push_back({ r, current_frame.object });
-							iter++;
-						}
-						else {
-							break;
-						}
-					}
-                }
-			}
-            auto iter = animations.begin();
-            for (int x = 0; x < num_animations_x; x++) {
+			auto iter = animations.begin();
+			for (int x = 0; x < num_animations_x; x++) {
 				for (int y = 0; y < num_animations_y; y++) {
 					if (iter != animations.end()) {
 						rectangle r;
@@ -312,12 +294,41 @@ namespace corona
 						r.w = animation_select_size.x;
 						r.h = animation_select_size.y;
 						animation_rectangles.push_back({ r, *iter });
+                        if (!current_animation.object) {
+							current_animation.object = *iter;
+						}
 						iter++;
 					}
 					else {
 						break;
 					}
 				}
+			}
+
+			if (current_animation.object) {
+                auto fi = current_animation.object->frames.begin();
+				for (int x = 0; x < num_frames_x; x++) {
+					for (int y = 0; y < num_frames_y; y++) {
+                        if (fi != std::end(current_animation.object->frames)) {
+							rectangle r;
+							r.x = x * frame_select_size.x;
+							r.y = y * frame_select_size.y;
+							r.w = frame_select_size.x;
+							r.h = frame_select_size.y;
+							corona_frame_rectangle fr;
+							fr.rect = r;
+							fr.object = fi->second;
+							frame_rectangles.push_back(fr);
+							if (!current_frame.object) {
+								current_frame.object = fi->second;
+							}
+							fi++;
+						}
+						else {
+							break;
+						}
+					}
+                }
 			}
 		}
 

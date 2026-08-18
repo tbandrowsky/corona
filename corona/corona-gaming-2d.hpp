@@ -426,6 +426,11 @@ namespace corona
 				;
 			}
 
+			virtual point extent()
+			{
+				return point{ 100, 100 };
+			}
+
 			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location) 
 			{
 				using namespace DirectX;
@@ -512,6 +517,11 @@ namespace corona
 				bitmap.y = 0;
 
 				_context.drawBitmap(&bitmap);
+			}
+
+			virtual point extent() override
+			{
+				return point{ bitmap.width, bitmap.height };
 			}
 
 			virtual void create_assets(direct2dContext& _context)
@@ -603,6 +613,11 @@ namespace corona
 			{
 				_context.setBrush(&fill);
 				_context.setBrush(&stroke);
+			}
+
+			virtual point extent()
+			{
+				return path.extent();
 			}
 
 

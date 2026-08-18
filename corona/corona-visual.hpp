@@ -674,8 +674,8 @@ namespace corona {
 
 		solidBrushRequest(std::string _name, std::string _color)
 		{
-			name = name;
-			brushColor = brushColor;
+			name = _name;
+			brushColor = toColor(_color);
 		}
 
 		solidBrushRequest(std::shared_ptr<solidBrushRequest> _request)
@@ -768,15 +768,16 @@ namespace corona {
 		virtual void put_json(json& _src) = 0;
         virtual void move(double x, double y) = 0;
         virtual std::shared_ptr<pathBaseDto> clone() = 0;
+        virtual point extent() = 0;
 	};
 
 	class pathLineDto : public pathBaseDto {
 	public:
-		point point;
+		point m_point;
 
 		pathLineDto() {
 			eType = ePathPointType::e_line;
-			point = {};
+			m_point = {};
 		}
 
 		virtual std::shared_ptr<pathBaseDto> clone() override
@@ -786,7 +787,7 @@ namespace corona {
 
 		void get_json(json& _dest)
 		{
-			_dest.put_member_vector("point", DirectX::XMVectorSet(point.x, point.y, point.z, 0));
+			_dest.put_member_vector("point", DirectX::XMVectorSet(m_point.x, m_point.y, m_point.z, 0));
             _dest.put_member_string(class_name_field, "line");
 		}
 
@@ -807,29 +808,34 @@ namespace corona {
 
             json jpoint = _src["point"];
             auto v = jpoint.as_vector();
-            point.x = DirectX::XMVectorGetX(v);
-            point.y = DirectX::XMVectorGetY(v);
-            point.z = DirectX::XMVectorGetZ(v);
+            m_point.x = DirectX::XMVectorGetX(v);
+            m_point.y = DirectX::XMVectorGetY(v);
+            m_point.z = DirectX::XMVectorGetZ(v);
 		}
 
 		void move(double x, double y)
 		{
-            this->point.x += x;
-            this->point.y += y;
+            this->m_point.x += x;
+            this->m_point.y += y;
+		}
+
+		virtual point extent() override
+		{
+			return m_point;
 		}
 
 	};
 
 	class pathArcDto : public pathBaseDto {
 	public:
-		point point;
+		point m_point;
 		double angleDegrees;
 		double radiusX;
 		double radiusY;
 
 		pathArcDto() {
 			eType = ePathPointType::e_arc;
-			point = {};
+			m_point = {};
 		}
 
 		virtual std::shared_ptr<pathBaseDto> clone() override
@@ -839,7 +845,7 @@ namespace corona {
 
 		void get_json(json& _dest) override
 		{
-			_dest.put_member_vector("point", DirectX::XMVectorSet(point.x, point.y, point.z, 0));
+			_dest.put_member_vector("point", DirectX::XMVectorSet(m_point.x, m_point.y, m_point.z, 0));
             _dest.put_member_double("angleDegrees", angleDegrees);
             _dest.put_member_double("radiusX", radiusX);
             _dest.put_member_double("radiusY", radiusY);
@@ -863,9 +869,9 @@ namespace corona {
 
 			json jpoint = _src["point"];
 			auto v = jpoint.as_vector();
-			point.x = DirectX::XMVectorGetX(v);
-			point.y = DirectX::XMVectorGetY(v);
-			point.z = DirectX::XMVectorGetZ(v);
+			m_point.x = DirectX::XMVectorGetX(v);
+			m_point.y = DirectX::XMVectorGetY(v);
+			m_point.z = DirectX::XMVectorGetZ(v);
 
 			angleDegrees = _src["angleDegrees"].as_double();
 			radiusX = _src["radiusX"].as_double();
@@ -874,8 +880,13 @@ namespace corona {
 
 		void move(double x, double y)
 		{
-			this->point.x += x;
-			this->point.y += y;
+			this->m_point.x += x;
+			this->m_point.y += y;
+		}
+
+		virtual point extent() override
+		{
+			return point{ m_point.x + radiusX * 2, m_point.y + radiusY * 2 };
 		}
 
 	};
@@ -938,6 +949,11 @@ namespace corona {
 			this->point1.y += y;
 			this->point2.x += x;
 			this->point2.y += y;
+		}
+
+		virtual point extent() override
+		{
+			return point_math::extent( point1, point2 );
 		}
 
 	};
@@ -1012,6 +1028,10 @@ namespace corona {
 			this->point3.y += y;
 		}
 
+		virtual point extent() override
+		{
+			return point_math::extent(point1, point_math::extent(point2, point3));
+		}
 
 	};
 
@@ -1049,12 +1069,22 @@ namespace corona {
 			}
 		}
 
+		point extent()
+		{
+			point ext = { 0, 0 };
+			for (auto item : points) {
+				point pext = item->extent();
+				ext = point_math::extent(ext, pext);
+			}
+			return ext;
+		}
+
 		pathDto& addLineTo(double x, double y)
 		{
 			std::shared_ptr<pathLineDto> ndto = std::make_shared<pathLineDto>();
-			ndto->point.x = x;
-			ndto->point.y = y;
-			ndto->point.z = 0;
+			ndto->m_point.x = x;
+			ndto->m_point.y = y;
+			ndto->m_point.z = 0;
 			points.push_back(ndto);
 			return *this;
 		}
@@ -1062,9 +1092,9 @@ namespace corona {
 		pathDto& addPathArc(double x, double y, double _angleDegrees, double _radiusX, double _radiusY)
 		{
 			std::shared_ptr<pathArcDto> ndto = std::make_shared<pathArcDto>();
-			ndto->point.x = x;
-			ndto->point.y = y;
-			ndto->point.z = 0;
+			ndto->m_point.x = x;
+			ndto->m_point.y = y;
+			ndto->m_point.z = 0;
 			ndto->angleDegrees = _angleDegrees;
 			ndto->radiusX = _radiusX;
 			ndto->radiusY = _radiusY;
@@ -1500,6 +1530,12 @@ namespace corona {
 			rotation = _src["rotation"].as_double();
 			closed = _src["closed"].as_bool();
         }
+
+		point extent()
+		{
+            point ext = {};
+			return ext;
+		}
 	};
 
 	struct pathInstance2dDto {

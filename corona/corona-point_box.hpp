@@ -172,6 +172,14 @@ namespace corona {
 		{
 			return i.x * j.x + i.y * j.y + i.z * j.z;
 		}
+        static point extent(const point& i, const point& j)	
+		{
+			point ret;
+			ret.x = std::max(abs(i.x), abs(j.x));
+            ret.y = std::max(abs(i.y), abs(j.y));
+            ret.z = std::max(abs(i.z), abs(j.z));
+			return ret;
+		}
 		static point cross(const point& a, const point& b)
 		{
 			// a2b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1

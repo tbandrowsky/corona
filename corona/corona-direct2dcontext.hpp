@@ -445,7 +445,7 @@ namespace corona
 				if (findingMoveTo) {
 					pathLineDto* l = t->asPathLineDto();
 					if (l) {
-						D2D1_POINT_2F point = t->asPathLineDto()->point;
+						D2D1_POINT_2F point = t->asPathLineDto()->m_point;
 						newPath->start_figure(point);
 						findingMoveTo = false;
 					}
@@ -455,12 +455,12 @@ namespace corona
 					switch (t->eType) {
 					case e_line:
 						pline = t->asPathLineDto();
-						point1 = pline->point;
+						point1 = pline->m_point;
 						newPath->add_line(point1);
 						break;
 					case e_arc:
 						parc = t->asPathArcDto();
-						point1 = parc->point;
+						point1 = parc->m_point;
 						size1.height = parc->radiusX;
 						size1.width = parc->radiusY;
 						newPath->add_arc(point1, size1, parc->angleDegrees);

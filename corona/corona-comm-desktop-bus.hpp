@@ -2510,6 +2510,16 @@ namespace corona
 					new_animation->put_json(factory->af, janimation);
 					animations.push_back(new_animation);
 					current_animation.object = new_animation;
+                    for (auto frame: new_animation->frames) {
+						corona_frame_rectangle fr;
+						fr.rect.x = DirectX::XMVectorGetX(frame.second->position);
+						fr.rect.y = DirectX::XMVectorGetY(frame.second->position);
+						point sz = frame.second->extent();
+                        fr.rect.w = sz.x;
+                        fr.rect.h = sz.y;
+						fr.object = frame.second;
+						frame_rectangles.push_back(fr);
+					}
 				}
 			}
 		}
