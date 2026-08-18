@@ -770,6 +770,18 @@ namespace corona
 			selection_border.name += "_selection";
 		}
 
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+		{
+			_context->setSolidColorBrush(&selection_border);
+			_context->setSolidColorBrush(&focused_border);
+			_context->setSolidColorBrush(&scroll_knob);
+			_context->setSolidColorBrush(&scroll_knob_border);
+			_context->setSolidColorBrush(&scroll_knob_selected);
+			_context->setSolidColorBrush(&scroll_knob_border_selected);
+			_context->setSolidColorBrush(&scroll_well);
+			_context->setSolidColorBrush(&scroll_well_border);
+		};
+
 		void init()
 		{
 
@@ -792,17 +804,6 @@ namespace corona
 			set_scroll_well("#202030");
 			set_scroll_well_border("#303050");
 
-			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control *_src)
-				{
-					_context->setSolidColorBrush(&selection_border);
-					_context->setSolidColorBrush(&focused_border);
-					_context->setSolidColorBrush(&scroll_knob);
-					_context->setSolidColorBrush(&scroll_knob_border);
-					_context->setSolidColorBrush(&scroll_knob_selected);
-					_context->setSolidColorBrush(&scroll_knob_border_selected);
-					_context->setSolidColorBrush(&scroll_well);
-					_context->setSolidColorBrush(&scroll_well_border);
-			};
 		}
 
 		void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -888,7 +889,7 @@ namespace corona
 			return -1;
 		}
 
-		virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
 		{
 			_context->setSolidColorBrush(&selection_border);
 			_context->setSolidColorBrush(&focused_border);

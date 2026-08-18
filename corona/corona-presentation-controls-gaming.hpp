@@ -114,17 +114,6 @@ namespace corona
 
 		void init()
 		{
-			on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control*) {
-				if (current_session) {
-					current_session->draw(*_context);
-                }
-			};
-
-			on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control*) {
-				if (current_session) {
-					current_session->create_assets(*_context);
-				}
-			};
 		}
 	};
 

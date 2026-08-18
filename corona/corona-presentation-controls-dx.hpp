@@ -39,8 +39,15 @@ namespace corona
         std::weak_ptr<applicationBase> host;
         std::weak_ptr<direct2dChildWindow> window;
 
-        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*);
-        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*);
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
+        {
+
+        }
+
+        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*)
+        {
+
+        }   
 
         lockable camera_access_lock;
 
@@ -86,16 +93,14 @@ namespace corona
             if (use_native_window) {
                 if (auto phost = _host.lock()) {
                     window = phost->createDirect2Window(id, bounds);
-                    if (on_create) {
-                        auto pwindow = window.lock();
-                        if (pwindow) {
-                            auto context = pwindow->getContext();
-                            on_create(context, this);
-                        }
+                    auto pwindow = window.lock();
+                    if (pwindow) {
+                        auto context = pwindow->getContext();
+                        on_create(context, this);
                     }
                 }
             }
-            else if (on_create)
+            else 
             {
                 on_create(_context, this);
             }
@@ -178,7 +183,7 @@ namespace corona
                 }
             }
 
-            call_on_draw(_context);
+            on_draw(_context, this);
 
             if (border_name.size()) {
                 rectangle r = inner_bounds;
@@ -191,14 +196,6 @@ namespace corona
                 {
                     child->render(_context);
                 }
-            }
-        }
-
-        virtual void call_on_draw(std::shared_ptr<direct2dContext>& _context)
-        {
-            if (on_draw)
-            {
-                on_draw(_context, this);
             }
         }
 
@@ -312,163 +309,6 @@ namespace corona
 
         void init()
         {
-            on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _dc) -> void {
-
-                counter++;
-
-                auto pwindow = window.lock();
-
-                if (auto phost = host.lock()) {
-                    auto draw_bounds = inner_bounds;
-
-                    ID2D1DeviceContext* dc = _context->getDeviceContext();
-
-                    double xmag = {}, ymag = {};
-                    double mag = {};
-                    D2D1_RECT_F dest_rect = {};
-                    bool size_inited = false;
-
-                    ID2D1Bitmap1* cbm = delta_boi.get_frame(dc);
-                    if (cbm) {
-
-                        auto surface_size = cbm->GetSize();
-
-                        xmag = (draw_bounds.w / surface_size.width);
-                        ymag = (draw_bounds.h / surface_size.height);
-
-                        if (xmag > ymag)
-                        {
-                            mag = xmag;
-                        }
-                        else
-                        {
-                            mag = ymag;
-                        }
-
-                        dest_rect.left = draw_bounds.x;
-                        dest_rect.top = draw_bounds.y;
-                        dest_rect.right = surface_size.width * mag;
-                        dest_rect.bottom = surface_size.height * mag;
-
-                        dc->DrawBitmap(cbm, &dest_rect, 1.0);
-
-                        cbm->Release();
-                        size_inited = true;
-                    }
-
-                    sprinkle_buffer new_sprinkles;
-                    ID2D1Bitmap1* dbm = delta_boi.get_activation(dc, new_sprinkles);
-                    add_sprinkles(new_sprinkles);
-
-                    if (size_inited and dbm)
-                    {
-                        dc->DrawBitmap(dbm, &dest_rect, 1.0);
-                        dbm->Release();
-                    }
-
-                    auto boxes = get_movement_boxes();
-                    if (boxes.size()) {
-                        ID2D1SolidColorBrush* brush = nullptr;
-
-                        D2D1_COLOR_F brushColor;
-                        brushColor = toColor("#0000AA");
-                        dc->CreateSolidColorBrush(brushColor, &brush);
-
-                        solidBrushRequest sbr;
-                        sbr.brushColor = brushColor;
-                        sbr.name = "polycolor";
-                        generalBrushRequest gbr(sbr);
-                        _context->setBrush(&gbr);
-
-                        if (brush)
-                        {
-                            int ct = 0;
-
-                            for (auto& br : boxes)
-                            {
-                                pathImmediateDto ptd;
-
-                                for (auto pt : br.left)
-                                {
-                                    pt.x = (br.area.x + pt.x) * mag + draw_bounds.x;
-                                    pt.y = (br.area.y + pt.y) * mag + draw_bounds.y;
-                                    ptd.path.addLineTo(pt.x, pt.y);
-                                }
-
-                                ptd.borderBrushName = "polycolor";
-                                ptd.strokeWidth = 4;
-                                ptd.rotation = 0;
-                                ptd.closed = false;
-                                ptd.position.x = 0;
-                                ptd.position.y = 0;
-                                _context->drawPath(&ptd);
-
-                                ptd.path.points.clear();
-                                for (auto pt : br.right)
-                                {
-                                    pt.x = (br.area.x + pt.x) * mag + draw_bounds.x;
-                                    pt.y = (br.area.y + pt.y) * mag + draw_bounds.y;
-                                    ptd.path.addLineTo(pt.x, pt.y);
-                                }
-
-                                ptd.borderBrushName = "polycolor";
-                                _context->drawPath(&ptd);
-
-
-                                /*									D2D1_RECT_F rect;
-                                                                rect.left = br.area.x * mag + draw_bounds.x;
-                                                                rect.top = br.area.y * mag + draw_bounds.y;
-                                                                rect.right = br.area.right() * mag + draw_bounds.x;
-                                                                rect.bottom = br.area.bottom() * mag + draw_bounds.y;
-                                                                dc->DrawRectangle(rect, brush, 2.0);*/
-                            }
-                            brush->Release();
-                        }
-                    }
-                }
-
-                if (auto phost = host.lock()) {
-                    auto draw_bounds = inner_bounds;
-
-                    draw_bounds.x = inner_bounds.x;
-                    draw_bounds.y = inner_bounds.y;
-
-                    auto& context = _context;
-
-                    auto st = presentation_style_factory::get_current()->get_style();
-
-                    if (camera_status.size()) {
-
-                        _context->setBrush(&st->CaptionStyle->shape_fill_brush);
-                        auto temp = st->TitleStyle->text_style;
-                        temp.name = "CameraStatus";
-                        temp.vertical_align = visual_alignment::align_center;
-                        temp.horizontal_align = visual_alignment::align_center;
-                        _context->setTextStyle(&temp);
-                        _context->drawText(camera_status, &draw_bounds, temp.name, st->CaptionStyle->shape_fill_brush.get_name(), "");
-                    }
-
-                    if (current_camera_name.size()) {
-
-                        _context->setBrush(&st->TitleStyle->shape_fill_brush);
-                        auto temp = st->CodeStyle->text_style;
-                        temp.name = "CameraName";
-                        temp.vertical_align = visual_alignment::align_far;
-                        temp.horizontal_align = visual_alignment::align_center;
-                        _context->setTextStyle(&temp);
-                        draw_bounds.h -= 10.0;
-                        _context->drawText(current_camera_name, &draw_bounds, temp.name, st->TitleStyle->shape_fill_brush.get_name(), "");
-                    }
-
-                }
-            };
-
-            on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _ctrl) ->void
-                {
-                   comm_desktop_bus_interface::get_service()->run_ui([this]() ->void {
-                        start();
-                        });
-                };
         }
 
     public:
@@ -512,6 +352,165 @@ namespace corona
         std::function<void(camera_control* _src)> camera_changed;
 
         virtual bool is_camera() { return true; }
+
+        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _ctrl) override
+        {
+            comm_desktop_bus_interface::get_service()->run_ui([this]() ->void {
+                start();
+                });
+        }
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _dc) override
+        {
+
+            counter++;
+
+            auto pwindow = window.lock();
+
+            if (auto phost = host.lock()) {
+                auto draw_bounds = inner_bounds;
+
+                ID2D1DeviceContext* dc = _context->getDeviceContext();
+
+                double xmag = {}, ymag = {};
+                double mag = {};
+                D2D1_RECT_F dest_rect = {};
+                bool size_inited = false;
+
+                ID2D1Bitmap1* cbm = delta_boi.get_frame(dc);
+                if (cbm) {
+
+                    auto surface_size = cbm->GetSize();
+
+                    xmag = (draw_bounds.w / surface_size.width);
+                    ymag = (draw_bounds.h / surface_size.height);
+
+                    if (xmag > ymag)
+                    {
+                        mag = xmag;
+                    }
+                    else
+                    {
+                        mag = ymag;
+                    }
+
+                    dest_rect.left = draw_bounds.x;
+                    dest_rect.top = draw_bounds.y;
+                    dest_rect.right = surface_size.width * mag;
+                    dest_rect.bottom = surface_size.height * mag;
+
+                    dc->DrawBitmap(cbm, &dest_rect, 1.0);
+
+                    cbm->Release();
+                    size_inited = true;
+                }
+
+                sprinkle_buffer new_sprinkles;
+                ID2D1Bitmap1* dbm = delta_boi.get_activation(dc, new_sprinkles);
+                add_sprinkles(new_sprinkles);
+
+                if (size_inited and dbm)
+                {
+                    dc->DrawBitmap(dbm, &dest_rect, 1.0);
+                    dbm->Release();
+                }
+
+                auto boxes = get_movement_boxes();
+                if (boxes.size()) {
+                    ID2D1SolidColorBrush* brush = nullptr;
+
+                    D2D1_COLOR_F brushColor;
+                    brushColor = toColor("#0000AA");
+                    dc->CreateSolidColorBrush(brushColor, &brush);
+
+                    solidBrushRequest sbr;
+                    sbr.brushColor = brushColor;
+                    sbr.name = "polycolor";
+                    generalBrushRequest gbr(sbr);
+                    _context->setBrush(&gbr);
+
+                    if (brush)
+                    {
+                        int ct = 0;
+
+                        for (auto& br : boxes)
+                        {
+                            pathImmediateDto ptd;
+
+                            for (auto pt : br.left)
+                            {
+                                pt.x = (br.area.x + pt.x) * mag + draw_bounds.x;
+                                pt.y = (br.area.y + pt.y) * mag + draw_bounds.y;
+                                ptd.path.addLineTo(pt.x, pt.y);
+                            }
+
+                            ptd.borderBrushName = "polycolor";
+                            ptd.strokeWidth = 4;
+                            ptd.rotation = 0;
+                            ptd.closed = false;
+                            ptd.position.x = 0;
+                            ptd.position.y = 0;
+                            _context->drawPath(&ptd);
+
+                            ptd.path.points.clear();
+                            for (auto pt : br.right)
+                            {
+                                pt.x = (br.area.x + pt.x) * mag + draw_bounds.x;
+                                pt.y = (br.area.y + pt.y) * mag + draw_bounds.y;
+                                ptd.path.addLineTo(pt.x, pt.y);
+                            }
+
+                            ptd.borderBrushName = "polycolor";
+                            _context->drawPath(&ptd);
+
+
+                            /*									D2D1_RECT_F rect;
+                                                            rect.left = br.area.x * mag + draw_bounds.x;
+                                                            rect.top = br.area.y * mag + draw_bounds.y;
+                                                            rect.right = br.area.right() * mag + draw_bounds.x;
+                                                            rect.bottom = br.area.bottom() * mag + draw_bounds.y;
+                                                            dc->DrawRectangle(rect, brush, 2.0);*/
+                        }
+                        brush->Release();
+                    }
+                }
+            }
+
+            if (auto phost = host.lock()) {
+                auto draw_bounds = inner_bounds;
+
+                draw_bounds.x = inner_bounds.x;
+                draw_bounds.y = inner_bounds.y;
+
+                auto& context = _context;
+
+                auto st = presentation_style_factory::get_current()->get_style();
+
+                if (camera_status.size()) {
+
+                    _context->setBrush(&st->CaptionStyle->shape_fill_brush);
+                    auto temp = st->TitleStyle->text_style;
+                    temp.name = "CameraStatus";
+                    temp.vertical_align = visual_alignment::align_center;
+                    temp.horizontal_align = visual_alignment::align_center;
+                    _context->setTextStyle(&temp);
+                    _context->drawText(camera_status, &draw_bounds, temp.name, st->CaptionStyle->shape_fill_brush.get_name(), "");
+                }
+
+                if (current_camera_name.size()) {
+
+                    _context->setBrush(&st->TitleStyle->shape_fill_brush);
+                    auto temp = st->CodeStyle->text_style;
+                    temp.name = "CameraName";
+                    temp.vertical_align = visual_alignment::align_far;
+                    temp.horizontal_align = visual_alignment::align_center;
+                    _context->setTextStyle(&temp);
+                    draw_bounds.h -= 10.0;
+                    _context->drawText(current_camera_name, &draw_bounds, temp.name, st->TitleStyle->shape_fill_brush.get_name(), "");
+                }
+
+            }
+        }
 
         ring_buffer<sprinkle, 300> current_sprinkles;
 
@@ -1098,6 +1097,8 @@ namespace corona
         camera_view_control(const camera_view_control& _src);
         camera_view_control(control_base* _parent, int _id);
         virtual ~camera_view_control();
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _src);
     };
 
     using cell_json_size = std::function<point(draw_control* _parent, int _index, json _data, rectangle _bounds)>;
@@ -1479,7 +1480,8 @@ namespace corona
             return HTCLIENT; // we lie here 
         }
 
-        virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
+        virtual void on_subscribe(presentation_base* _presentation, page_base* _page) override;
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item) override;
 
     };
 
@@ -1496,7 +1498,8 @@ namespace corona
             return HTCLIENT;// we lie here 
         }
 
-        virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
+        virtual void on_subscribe(presentation_base* _presentation, page_base* _page) override;
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item) override;
 
     };
 
@@ -1511,37 +1514,38 @@ namespace corona
         {
             auto ctrl = this;
 
-            on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-                {
-                    auto draw_bounds = inner_bounds;
-
-                    std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
-
-                    point shape_origin;
-                    point* porigin = &shape_origin;
-
-                    draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
-                        point start, stop;
-                        start.x = _bounds->x;
-                        start.y = _bounds->y;
-                        stop.x = _bounds->right();
-                        stop.y = _bounds->bottom();
-                        _context->drawLine(&start, &stop, _foreground->name, 4);
-                        start.x = _bounds->right();
-                        start.y = _bounds->y;
-                        stop.x = _bounds->x;
-                        stop.y = _bounds->bottom();
-                        _context->drawLine(&start, &stop, _foreground->name, 4);
-                        };
-
-                    draw_button(_context, draw_shape);
-                };
         }
 
         virtual LRESULT get_nchittest() {
             return HTCLIENT;// we lie here 
         }
 
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item) override
+        {
+            auto draw_bounds = inner_bounds;
+
+            std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+
+            point shape_origin;
+            point* porigin = &shape_origin;
+
+            draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+                point start, stop;
+                start.x = _bounds->x;
+                start.y = _bounds->y;
+                stop.x = _bounds->right();
+                stop.y = _bounds->bottom();
+                _context->drawLine(&start, &stop, _foreground->name, 4);
+                start.x = _bounds->right();
+                start.y = _bounds->y;
+                stop.x = _bounds->x;
+                stop.y = _bounds->bottom();
+                _context->drawLine(&start, &stop, _foreground->name, 4);
+                };
+
+            draw_button(_context, draw_shape);
+        }
 
         void on_subscribe(presentation_base* _presentation, page_base* _page)
         {
@@ -1599,6 +1603,9 @@ namespace corona
             load_from_file(_src["image_filename"].as_string());
             init();
         }
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _dc) override;
+        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _dc) override;
 
         void load_from_file(std::string _name);
         void load_from_resource(DWORD _resource_id);
@@ -1659,84 +1666,6 @@ namespace corona
     void image_control::init()
     {
 
-        on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-            {
-                auto draw_bounds = _src->get_inner_bounds();
-
-                instance.copyId = 0;
-                instance.selected = false;
-                instance.x = draw_bounds.x;
-                instance.y = draw_bounds.y;
-                instance.width = draw_bounds.w;
-                instance.height = draw_bounds.h;
-                instance.alpha = 1.0;
-
-                //                system_monitoring_interface::active_mon->log_information("image on_create", __FILE__, __LINE__);
-                solidBrushRequest sbr;
-                sbr.brushColor = toColor("FFFF00");
-                sbr.name = "image_control_test";
-                _context->setSolidColorBrush(&sbr);
-
-                switch (image_mode) {
-                case image_modes::use_control_id:
-                    break;
-                case image_modes::use_resource_id:
-                {
-                    bitmapRequest request = {};
-                    request.resource_id = image_resource_id;
-                    request.name = instance.bitmapName;
-                    request.cropEnabled = false;
-                    point pt = { inner_bounds.w, inner_bounds.h };
-                    request.sizes.push_back(pt);
-                    _context->setBitmap(&request);
-                    break;
-                }
-                break;
-                case image_modes::use_filename:
-                {
-
-                    if (image_filename.size() == 0)
-                        throw std::logic_error("Missing file name for image");
-                    bitmapRequest request = {};
-                    request.filename = image_filename;
-                    request.name = instance.bitmapName;
-                    request.cropEnabled = false;
-                    point pt = { inner_bounds.w, inner_bounds.h };
-                    request.sizes.push_back(pt);
-
-                    _context->setBitmap(&request);
-                    auto szfound = std::begin(request.sizes);
-                    if (szfound != std::end(request.sizes)) {
-                        instance.width = request.sizes.begin()->x;
-                        instance.height = request.sizes.begin()->y;
-                    }
-                    else
-                    {
-                        instance.width = 0;
-                        instance.height = 0;
-                    }
-                    break;
-                }
-                }
-            };
-
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-            {
-                auto draw_bounds = _src->get_inner_bounds();
-
-                if (image_mode == image_modes::use_filename)
-                {
-                    instance.copyId = 0;
-                    instance.selected = false;
-                    instance.x = draw_bounds.x;
-                    instance.y = draw_bounds.y;
-                    instance.width = draw_bounds.w;
-                    instance.height = draw_bounds.h;
-                    instance.alpha = 1.0;
-
-                    _context->drawBitmap(&instance);
-                }
-            };
 
     }
 
@@ -1744,6 +1673,85 @@ namespace corona
     {
         ;
     }
+
+    void image_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+    {
+        auto draw_bounds = _src->get_inner_bounds();
+
+        if (image_mode == image_modes::use_filename)
+        {
+            instance.copyId = 0;
+            instance.selected = false;
+            instance.x = draw_bounds.x;
+            instance.y = draw_bounds.y;
+            instance.width = draw_bounds.w;
+            instance.height = draw_bounds.h;
+            instance.alpha = 1.0;
+
+            _context->drawBitmap(&instance);
+        }
+    };
+
+    void image_control::on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+    {
+        auto draw_bounds = _src->get_inner_bounds();
+
+        instance.copyId = 0;
+        instance.selected = false;
+        instance.x = draw_bounds.x;
+        instance.y = draw_bounds.y;
+        instance.width = draw_bounds.w;
+        instance.height = draw_bounds.h;
+        instance.alpha = 1.0;
+
+        //                system_monitoring_interface::active_mon->log_information("image on_create", __FILE__, __LINE__);
+        solidBrushRequest sbr;
+        sbr.brushColor = toColor("FFFF00");
+        sbr.name = "image_control_test";
+        _context->setSolidColorBrush(&sbr);
+
+        switch (image_mode) {
+        case image_modes::use_control_id:
+            break;
+        case image_modes::use_resource_id:
+        {
+            bitmapRequest request = {};
+            request.resource_id = image_resource_id;
+            request.name = instance.bitmapName;
+            request.cropEnabled = false;
+            point pt = { inner_bounds.w, inner_bounds.h };
+            request.sizes.push_back(pt);
+            _context->setBitmap(&request);
+            break;
+        }
+        break;
+        case image_modes::use_filename:
+        {
+
+            if (image_filename.size() == 0)
+                throw std::logic_error("Missing file name for image");
+            bitmapRequest request = {};
+            request.filename = image_filename;
+            request.name = instance.bitmapName;
+            request.cropEnabled = false;
+            point pt = { inner_bounds.w, inner_bounds.h };
+            request.sizes.push_back(pt);
+
+            _context->setBitmap(&request);
+            auto szfound = std::begin(request.sizes);
+            if (szfound != std::end(request.sizes)) {
+                instance.width = request.sizes.begin()->x;
+                instance.height = request.sizes.begin()->y;
+            }
+            else
+            {
+                instance.width = 0;
+                instance.height = 0;
+            }
+            break;
+        }
+        }
+    };
 
     std::map<std::string, std::wstring> segoeMDL2Icons = {
         // Navigation
@@ -2016,97 +2024,6 @@ namespace corona
             auto ctrl = this;
             child_draw_order = draw_children_order::draw_after_middleground;
 
-            on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-                {
-
-                    if (bounds.w <= 0 or bounds.h <= 0) {
-                        return;
-                    }
-
-                    _item->arrange(nullptr, &bounds);
-                    auto draw_bounds = inner_bounds;
-
-                    _context->setTextStyle(&this->icon_style);
-                    _context->setTextStyle(&this->text_style);
-                    std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
-
-                    point shape_origin;
-                    point* porigin = &shape_origin;
-
-                    draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
-
-                        auto icon_it = segoeMDL2Icons.find(this->icon);
-
-                        if (add_circle_backlight)
-                        {
-                            auto dc = _context->getDeviceContext();
-                            ID2D1SolidColorBrush* backlight_brush;
-                            dc->CreateSolidColorBrush(toColor("#00000020"), &backlight_brush);
-
-                            if (backlight_brush) {
-                                D2D1_ELLIPSE ellipse;
-
-                                if (icon_it != segoeMDL2Icons.end()) {
-                                    ellipse.radiusX = _bounds->w / 3.3f;
-                                    ellipse.radiusY = _bounds->h / 3.3f;
-                                    if (image) {
-                                        auto ibounds = image->get_bounds();
-                                        ellipse.point = rectangle_math::center(ibounds);
-                                    }
-                                    else {
-                                        ellipse.point.x = rectangle_math::center(*_bounds).x + 12;
-                                        ellipse.point.y = rectangle_math::center(*_bounds).y;
-                                    }
-                                }
-                                else {
-                                    ellipse.point.x = rectangle_math::center(*_bounds).x;
-                                    ellipse.point.y = rectangle_math::center(*_bounds).y;
-                                    ellipse.radiusX = _bounds->w / 3.3f;
-                                    ellipse.radiusY = _bounds->h / 3.3f;
-                                }
-                                dc->FillEllipse(ellipse, backlight_brush);
-                                backlight_brush->Release();
-                            }
-                        }
-
-                        if (child_draw_order == draw_children_order::draw_after_middleground) {
-                            for (auto child : children) {
-                                auto child_bounds = child->get_bounds();
-                                if (this->button_down || (this->selected_state_enabled && this->selected_state)) {
-                                    child_bounds.y += 4;
-                                    child->arrange(nullptr, &child_bounds);
-                                    child->render(_context);
-                                    child_bounds.y -= 4;
-                                    child->arrange(nullptr, &child_bounds);
-                                }
-                                else {
-                                    child->render(_context);
-                                }
-                            }
-                        }
-
-                        rectangle draw_bounds = *_bounds;
-
-                        if (icon_it != segoeMDL2Icons.end()) {
-                            draw_bounds.x += 4;
-                            draw_bounds.w = 16;
-                            _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
-                            draw_bounds.x = inner_bounds.x;
-                            draw_bounds.y += 20;
-                            draw_bounds.w = inner_bounds.w;
-                            _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
-                        }
-                        else {
-                            draw_bounds.y += 20;
-                            _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
-                        }
-
-                        draw_bounds.y += 12;
-                        
-                       };
-
-                    draw_button(_context, draw_shape);
-                };
 
         }
 
@@ -2114,6 +2031,98 @@ namespace corona
         {
 
         }
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+        {
+
+            if (bounds.w <= 0 or bounds.h <= 0) {
+                return;
+            }
+
+            _item->arrange(nullptr, &bounds);
+            auto draw_bounds = inner_bounds;
+
+            _context->setTextStyle(&this->icon_style);
+            _context->setTextStyle(&this->text_style);
+            std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+
+            point shape_origin;
+            point* porigin = &shape_origin;
+
+            draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+
+                auto icon_it = segoeMDL2Icons.find(this->icon);
+
+                if (add_circle_backlight)
+                {
+                    auto dc = _context->getDeviceContext();
+                    ID2D1SolidColorBrush* backlight_brush;
+                    dc->CreateSolidColorBrush(toColor("#00000020"), &backlight_brush);
+
+                    if (backlight_brush) {
+                        D2D1_ELLIPSE ellipse;
+
+                        if (icon_it != segoeMDL2Icons.end()) {
+                            ellipse.radiusX = _bounds->w / 3.3f;
+                            ellipse.radiusY = _bounds->h / 3.3f;
+                            if (image) {
+                                auto ibounds = image->get_bounds();
+                                ellipse.point = rectangle_math::center(ibounds);
+                            }
+                            else {
+                                ellipse.point.x = rectangle_math::center(*_bounds).x + 12;
+                                ellipse.point.y = rectangle_math::center(*_bounds).y;
+                            }
+                        }
+                        else {
+                            ellipse.point.x = rectangle_math::center(*_bounds).x;
+                            ellipse.point.y = rectangle_math::center(*_bounds).y;
+                            ellipse.radiusX = _bounds->w / 3.3f;
+                            ellipse.radiusY = _bounds->h / 3.3f;
+                        }
+                        dc->FillEllipse(ellipse, backlight_brush);
+                        backlight_brush->Release();
+                    }
+                }
+
+                if (child_draw_order == draw_children_order::draw_after_middleground) {
+                    for (auto child : children) {
+                        auto child_bounds = child->get_bounds();
+                        if (this->button_down || (this->selected_state_enabled && this->selected_state)) {
+                            child_bounds.y += 4;
+                            child->arrange(nullptr, &child_bounds);
+                            child->render(_context);
+                            child_bounds.y -= 4;
+                            child->arrange(nullptr, &child_bounds);
+                        }
+                        else {
+                            child->render(_context);
+                        }
+                    }
+                }
+
+                rectangle draw_bounds = *_bounds;
+
+                if (icon_it != segoeMDL2Icons.end()) {
+                    draw_bounds.x += 4;
+                    draw_bounds.w = 16;
+                    _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
+                    draw_bounds.x = inner_bounds.x;
+                    draw_bounds.y += 20;
+                    draw_bounds.w = inner_bounds.w;
+                    _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                }
+                else {
+                    draw_bounds.y += 20;
+                    _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                }
+
+                draw_bounds.y += 12;
+
+                };
+
+            draw_button(_context, draw_shape);
+        };
 
         virtual point get_size(control_base* _parent) override
         {
@@ -2298,6 +2307,7 @@ namespace corona
         virtual ~menu_button_control() { ; }
 
         virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item);
     };
 
     class tab_button_control : public gradient_button_control
@@ -2337,6 +2347,9 @@ namespace corona
         tab_button_control& set_text_style(textStyleRequest request);
 
         virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
+
+        virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item) override;
+        virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _item) override;
 
         virtual void draw_button(std::shared_ptr<direct2dContext>& _context, std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape)
         {
@@ -2390,71 +2403,6 @@ namespace corona
         set_origin(0.0_px, 0.0_px);
         set_size(50.0_px, 50.0_px);
 
-        on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-            {
-            };
-
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src) {
-            frame_counter++;
-               if (auto phost = host.lock()) {
-                    auto draw_bounds = inner_bounds;
-
-                    draw_bounds.x = inner_bounds.x;
-                    draw_bounds.y = inner_bounds.y;
-
-                    control_base* camb = find(camera_control_id);
-                    if (camb) {
-                        camera_control* cam = dynamic_cast<camera_control*>(camb);
-                        if (cam) {
-                            auto* dc = _context->getDeviceContext();
-
-                            auto* bm = cam->get_camera_image(dc);
-                            if (bm)
-                            {
-                                auto movement_boxes = cam->get_movement_boxes();
-
-                                rectangle dest_box;
-                                dest_box.x = draw_bounds.x;
-                                dest_box.y = draw_bounds.y;
-                                dest_box.w = (draw_bounds.w - 32) / 2;
-                                if (dest_box.w < 0)
-                                    return;
-
-                                for (int i = 0; i < movement_boxes.size() and i < 4; i++)
-                                {
-                                    auto source_box = movement_boxes[i];
-                                    dest_box.h = dest_box.w / source_box.area.w * source_box.area.h;
-
-                                    D2D1_RECT_F source_rect;
-                                    D2D1_RECT_F dest_rect;
-
-                                    source_rect.left = source_box.area.x;
-                                    source_rect.top = source_box.area.y;
-                                    source_rect.right = source_box.area.right();
-                                    source_rect.bottom = source_box.area.bottom();
-
-                                    dest_rect.left = dest_box.x;
-                                    dest_rect.top = dest_box.y;
-                                    dest_rect.right = dest_box.right();
-                                    dest_rect.bottom = dest_box.bottom();
-
-                                    dc->DrawBitmap(bm, &dest_rect, 1.0, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &source_rect);
-
-                                    dest_box.x += dest_box.w + padding_amount.x;
-
-                                    if (dest_box.right() > draw_bounds.right())
-                                    {
-                                        dest_box.x = draw_bounds.x;
-                                        dest_box.y += (draw_bounds.h - 32) / 2 + 8;
-                                    }
-                                }
-
-                                bm->Release();
-                            }
-                        }
-                    }
-                }
-            };
     }
 
     camera_view_control::~camera_view_control()
@@ -2462,51 +2410,114 @@ namespace corona
         ;
     }
 
+    void camera_view_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _src) 
+    {
+        frame_counter++;
+        if (auto phost = host.lock()) {
+            auto draw_bounds = inner_bounds;
+
+            draw_bounds.x = inner_bounds.x;
+            draw_bounds.y = inner_bounds.y;
+
+            control_base* camb = find(camera_control_id);
+            if (camb) {
+                camera_control* cam = dynamic_cast<camera_control*>(camb);
+                if (cam) {
+                    auto* dc = _context->getDeviceContext();
+
+                    auto* bm = cam->get_camera_image(dc);
+                    if (bm)
+                    {
+                        auto movement_boxes = cam->get_movement_boxes();
+
+                        rectangle dest_box;
+                        dest_box.x = draw_bounds.x;
+                        dest_box.y = draw_bounds.y;
+                        dest_box.w = (draw_bounds.w - 32) / 2;
+                        if (dest_box.w < 0)
+                            return;
+
+                        for (int i = 0; i < movement_boxes.size() and i < 4; i++)
+                        {
+                            auto source_box = movement_boxes[i];
+                            dest_box.h = dest_box.w / source_box.area.w * source_box.area.h;
+
+                            D2D1_RECT_F source_rect;
+                            D2D1_RECT_F dest_rect;
+
+                            source_rect.left = source_box.area.x;
+                            source_rect.top = source_box.area.y;
+                            source_rect.right = source_box.area.right();
+                            source_rect.bottom = source_box.area.bottom();
+
+                            dest_rect.left = dest_box.x;
+                            dest_rect.top = dest_box.y;
+                            dest_rect.right = dest_box.right();
+                            dest_rect.bottom = dest_box.bottom();
+
+                            dc->DrawBitmap(bm, &dest_rect, 1.0, D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &source_rect);
+
+                            dest_box.x += dest_box.w + padding_amount.x;
+
+                            if (dest_box.right() > draw_bounds.right())
+                            {
+                                dest_box.x = draw_bounds.x;
+                                dest_box.y += (draw_bounds.h - 32) / 2 + 8;
+                            }
+                        }
+
+                        bm->Release();
+                    }
+                }
+            }
+        }
+    };
+
     menu_button_control::menu_button_control(control_base* _parent, int _id) : gradient_button_control(_parent, _id, "menu")
     {
         auto ctrl = this;
 
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-            {
-                auto draw_bounds = inner_bounds;
+    }
 
-                std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+    void menu_button_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+    {
+        auto draw_bounds = inner_bounds;
 
+        std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
 
-                point shape_origin;
-                point* porigin = &shape_origin;
+        point shape_origin;
+        point* porigin = &shape_origin;
 
-                draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+        draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
 
-                    point start;
-                    point stop;
+            point start;
+            point stop;
 
-                    start.x = _bounds->x;
-                    start.y = _bounds->y + _bounds->h / 2.0;
-                    stop.x = _bounds->right();
-                    stop.y = _bounds->y + _bounds->h / 2.0;
+            start.x = _bounds->x;
+            start.y = _bounds->y + _bounds->h / 2.0;
+            stop.x = _bounds->right();
+            stop.y = _bounds->y + _bounds->h / 2.0;
 
-                    _context->drawLine(&start, &stop, _foreground->name, 4);
+            _context->drawLine(&start, &stop, _foreground->name, 4);
 
-                    pathImmediateDto pid;
-                    porigin->x = _bounds->x;
-                    porigin->y = _bounds->y;
-                    porigin->z = 0;
-                    pid.path.addLineTo(_bounds->x, _bounds->y);
-                    pid.path.addLineTo(_bounds->right(), _bounds->y);
-                    pid.path.addLineTo(_bounds->right(), _bounds->bottom());
-                    pid.path.addLineTo(_bounds->x, _bounds->bottom());
-                    pid.path.addLineTo(_bounds->x, _bounds->y);
-                    pid.position = *porigin;
-                    pid.rotation = 0;
-                    pid.strokeWidth = 4;
-                    pid.borderBrushName = _foreground->name;
-                    pid.closed = true;
-                    _context->drawPath(&pid);
-                    };
-
-                draw_button(_context, draw_shape);
+            pathImmediateDto pid;
+            porigin->x = _bounds->x;
+            porigin->y = _bounds->y;
+            porigin->z = 0;
+            pid.path.addLineTo(_bounds->x, _bounds->y);
+            pid.path.addLineTo(_bounds->right(), _bounds->y);
+            pid.path.addLineTo(_bounds->right(), _bounds->bottom());
+            pid.path.addLineTo(_bounds->x, _bounds->bottom());
+            pid.path.addLineTo(_bounds->x, _bounds->y);
+            pid.position = *porigin;
+            pid.rotation = 0;
+            pid.strokeWidth = 4;
+            pid.borderBrushName = _foreground->name;
+            pid.closed = true;
+            _context->drawPath(&pid);
             };
+
+        draw_button(_context, draw_shape);
     }
 
     void menu_button_control::on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -2522,36 +2533,37 @@ namespace corona
     {
         auto ctrl = this;
 
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-            {
-                auto draw_bounds = inner_bounds;
-
-                std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
-
-
-                point shape_origin;
-                point* porigin = &shape_origin;
-
-                draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
-                    pathImmediateDto pid;
-                    porigin->x = _bounds->x;
-                    porigin->y = _bounds->y;
-                    porigin->z = 0;
-                    pid.path.addLineTo(_bounds->x, _bounds->y);
-                    pid.path.addLineTo(_bounds->x + _bounds->w / 2.0, _bounds->bottom());
-                    pid.path.addLineTo(_bounds->right(), _bounds->y);
-                    pid.position = *porigin;
-                    pid.rotation = 0;
-                    pid.strokeWidth = 4;
-                    pid.borderBrushName = _foreground->name;
-                    pid.closed = true;
-                    _context->drawPath(&pid);
-                    };
-
-                draw_button(_context, draw_shape);
-
-            };
     }
+
+    void minimize_button_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+    {
+        auto draw_bounds = inner_bounds;
+
+        std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+
+
+        point shape_origin;
+        point* porigin = &shape_origin;
+
+        draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+            pathImmediateDto pid;
+            porigin->x = _bounds->x;
+            porigin->y = _bounds->y;
+            porigin->z = 0;
+            pid.path.addLineTo(_bounds->x, _bounds->y);
+            pid.path.addLineTo(_bounds->x + _bounds->w / 2.0, _bounds->bottom());
+            pid.path.addLineTo(_bounds->right(), _bounds->y);
+            pid.position = *porigin;
+            pid.rotation = 0;
+            pid.strokeWidth = 4;
+            pid.borderBrushName = _foreground->name;
+            pid.closed = true;
+            _context->drawPath(&pid);
+            };
+
+        draw_button(_context, draw_shape);
+
+    };
 
     void minimize_button_control::on_subscribe(presentation_base* _presentation, page_base* _page)
     {
@@ -2570,35 +2582,36 @@ namespace corona
     {
         auto ctrl = this;
 
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-            {
-                auto draw_bounds = inner_bounds;
+    }
 
-                std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+    void maximize_button_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+    {
+        auto draw_bounds = inner_bounds;
+
+        std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
 
 
-                point shape_origin;
-                point* porigin = &shape_origin;
+        point shape_origin;
+        point* porigin = &shape_origin;
 
-                draw_shape = [this, porigin](std::shared_ptr<direct2dContext> _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
-                    pathImmediateDto pid;
-                    porigin->x = _bounds->x;
-                    porigin->y = _bounds->y;
-                    porigin->z = 0;
-                    pid.path.addLineTo(_bounds->x, _bounds->bottom());
-                    pid.path.addLineTo(_bounds->x + _bounds->w / 2.0, _bounds->y);
-                    pid.path.addLineTo(_bounds->right(), _bounds->bottom());
-                    pid.position = *porigin;
-                    pid.rotation = 0;
-                    pid.strokeWidth = 4;
-                    pid.borderBrushName = _foreground->name;
-                    pid.closed = true;
-                    _context->drawPath(&pid);
-                    };
-
-                draw_button(_context, draw_shape);
-
+        draw_shape = [this, porigin](std::shared_ptr<direct2dContext> _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+            pathImmediateDto pid;
+            porigin->x = _bounds->x;
+            porigin->y = _bounds->y;
+            porigin->z = 0;
+            pid.path.addLineTo(_bounds->x, _bounds->bottom());
+            pid.path.addLineTo(_bounds->x + _bounds->w / 2.0, _bounds->y);
+            pid.path.addLineTo(_bounds->right(), _bounds->bottom());
+            pid.position = *porigin;
+            pid.rotation = 0;
+            pid.strokeWidth = 4;
+            pid.borderBrushName = _foreground->name;
+            pid.closed = true;
+            _context->drawPath(&pid);
             };
+
+        draw_button(_context, draw_shape);
+
     }
 
     void maximize_button_control::on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -2634,6 +2647,62 @@ namespace corona
             });
     }
 
+    void tab_button_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+    {
+        auto draw_bounds = inner_bounds;
+
+        std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
+
+
+        point shape_origin;
+        point* porigin = &shape_origin;
+
+        auto& context = _context; // pwindow->getContext();
+
+        draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
+
+            rectangle icon_bounds = *_bounds;
+
+            if (active_id and *active_id == id) {
+                point start;
+                point stop;
+                start.x = icon_bounds.x + icon_width / 2;
+                start.y = icon_bounds.y;
+                stop.x = start.x;
+                stop.y = icon_bounds.y + icon_bounds.h;
+                //								pcontext->drawLine(&start, &stop, _foreground->name, 4);
+                _bounds->y -= 4;
+            }
+            else
+            {
+                point center;
+                point radius;
+                center.x = icon_bounds.x + icon_width / 2;
+                center.y = icon_bounds.y + icon_bounds.h / 2;
+                radius.x = icon_width / 2;
+                radius.y = icon_bounds.h / 2;
+                //							pcontext->drawEllipse(&center, &radius, _foreground->name, 4, nullptr);
+                _bounds->y -= 8;
+            }
+
+            _bounds->x += icon_width + 4;
+            _bounds->w -= icon_width + 4;
+
+            _context->drawText(text.c_str(), _bounds, this->text_style.name, _foreground->name, nullptr);
+
+            };
+
+        draw_button(_context, draw_shape);
+
+    }
+
+    void tab_button_control::on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
+    {
+        _context->setSolidColorBrush(&this->text_idle_brush);
+        _context->setTextStyle(&this->text_style);
+
+    }
+
     void tab_button_control::init()
     {
         set_origin(0.0_px, 0.0_px);
@@ -2657,59 +2726,6 @@ namespace corona
 
         auto ctrl = this;
 
-        on_create = [this](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-            {
-                _context->setSolidColorBrush(&this->text_idle_brush);
-                _context->setTextStyle(&this->text_style);
-            };
-
-        on_draw = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-            {
-                auto draw_bounds = inner_bounds;
-
-                std::function<void(std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground)> draw_shape;
-
-
-                point shape_origin;
-                point* porigin = &shape_origin;
-
-                auto& context = _context; // pwindow->getContext();
-
-                draw_shape = [this, porigin](std::shared_ptr<direct2dContext>& _context, gradient_button_control* _src, rectangle* _bounds, solidBrushRequest* _foreground) {
-
-                    rectangle icon_bounds = *_bounds;
-
-                    if (active_id and *active_id == id) {
-                        point start;
-                        point stop;
-                        start.x = icon_bounds.x + icon_width / 2;
-                        start.y = icon_bounds.y;
-                        stop.x = start.x;
-                        stop.y = icon_bounds.y + icon_bounds.h;
-                        //								pcontext->drawLine(&start, &stop, _foreground->name, 4);
-                        _bounds->y -= 4;
-                    }
-                    else
-                    {
-                        point center;
-                        point radius;
-                        center.x = icon_bounds.x + icon_width / 2;
-                        center.y = icon_bounds.y + icon_bounds.h / 2;
-                        radius.x = icon_width / 2;
-                        radius.y = icon_bounds.h / 2;
-                        //							pcontext->drawEllipse(&center, &radius, _foreground->name, 4, nullptr);
-                        _bounds->y -= 8;
-                    }
-
-                    _bounds->x += icon_width + 4;
-                    _bounds->w -= icon_width + 4;
-
-                    _context->drawText(text.c_str(), _bounds, this->text_style.name, _foreground->name, nullptr);
-
-                    };
-
-                draw_button(_context, draw_shape);
-            };
     }
 
     tab_button_control& tab_button_control::set_text(std::string _text)

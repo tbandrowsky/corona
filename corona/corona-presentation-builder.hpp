@@ -1739,10 +1739,6 @@ namespace corona
 				content_frame_name = "tab_content_frame_" + std::to_string(id);
             }
 
-			on_create = [this](std::shared_ptr<direct2dContext>& _context, control_base* _item)
-				{
-				};
-
             std::shared_ptr<column_layout> main = std::make_shared<column_layout>();
 			main->set_size(1.0_container, 1.0_container);
 

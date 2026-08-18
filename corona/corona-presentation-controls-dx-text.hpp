@@ -62,6 +62,9 @@ namespace corona
 			update_text();
         }
 
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
+
 		void update_text()
 		{
             enum { in_text, in_braces } state = in_text;
@@ -542,32 +545,27 @@ namespace corona
 	{
 		set_origin(0.0_px, 0.0_px);
 		set_size(1.0_container, 1.2_fontgr);
+	}
 
-		on_create = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-			{
-				text_display_control *t = dynamic_cast<text_display_control*>(_src);
-				if (t) {
-					t->set_default_styles();
-				}
-			};
+	void text_display_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) 
+	{
+		auto draw_bounds = inner_bounds;
 
-		on_draw = [](std::shared_ptr<direct2dContext>& _context, draw_control* _src) {
-			text_display_control* t = dynamic_cast<text_display_control*>(_src);
+		update_text();
 
-			auto draw_bounds = t->inner_bounds;
+		if (not text.size()) text = "";
 
-			t->update_text();
+		//			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
+		//			std::cout << test_text << std::endl;
 
-			if (not t->text.size()) t->text = "";
+		if (view_style) {
+			_context->drawText(text.c_str(), &draw_bounds, view_style->text_style.name, view_style->shape_fill_brush.get_name(), hit_word);
+		}
+	}
 
-
-//			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
-//			std::cout << test_text << std::endl;
-
-			if (t->view_style) {
-				_context->drawText(t->text.c_str(), &draw_bounds, t->view_style->text_style.name, t->view_style->shape_fill_brush.get_name(), t->hit_word);
-			}
-		};
+	void text_display_control::on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control) 
+	{
+		set_default_styles();
 	}
 
 	text_display_control& text_display_control::set_text(std::string _text)
