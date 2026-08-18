@@ -202,8 +202,7 @@ namespace corona
 					auto rect = anim_rect.rect;
 					rect.x += draw_bounds.x;
 					rect.y += draw_bounds.y;
-					DirectX::XMVECTOR location = to_point(rect);
-					anim_rect.object->draw(*_context, location);
+					anim_rect.object->draw(*_context, &rect);
 				}
 			}
 
@@ -212,8 +211,7 @@ namespace corona
 					auto rect = frame_rect.rect;
 					rect.x += draw_bounds.x;
 					rect.y += draw_bounds.y;
-					DirectX::XMVECTOR location = to_point(rect);
-					frame_rect.object->draw(*_context, location);
+					frame_rect.object->draw(*_context, &rect);
 				}
 			}
 

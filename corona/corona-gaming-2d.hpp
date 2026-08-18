@@ -431,13 +431,22 @@ namespace corona
 				return point{ 100, 100 };
 			}
 
-			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location) 
+			virtual void draw(direct2dContext& _context, rectangle* _location)
 			{
 				using namespace DirectX;
 
 				try {
 
-					XMVECTOR new_location = XMVectorAdd(_location, position);
+					point this_size = extent();
+
+					if (this_size.x == 0 || this_size.y == 0)
+						return;
+
+                    rectangle base_location = _location ? *_location : rectangle{ 0, 0, this_size.x, this_size.y };
+
+                    XMVECTOR dest_position = rectangle_math::position_vector(&base_location);
+
+					XMVECTOR new_location = XMVectorAdd(dest_position, position);
 					XMVECTOR new_pivot = XMVectorAdd(new_location, pivot);
 
 					D2D1_MATRIX_3X2_F existing;
@@ -453,13 +462,23 @@ namespace corona
 						rotation,
 						pivot_origin
 					);
+
+					D2D1_SIZE_F image_scale;
+
+                    image_scale.width = base_location.w / this_size.x;
+                    image_scale.height = base_location.h / this_size.y;
+
+					auto mscale = D2D1::Matrix3x2F::Scale(
+						image_scale,
+						pivot_origin
+                    );
 					
 					auto mtranslation = D2D1::Matrix3x2F::Translation(
 						pivot_origin.x,
 						pivot_origin.y
 					);
 
-					auto mat = mrotation * mtranslation;
+					auto mat = mrotation * mscale * mtranslation;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 					_context.getDeviceContext()->SetTransform(&mat);
@@ -720,7 +739,7 @@ namespace corona
 			animation& operator =(const animation& _src) = default;
 			animation& operator =(animation&& _src) = default;
 
-			virtual void draw(direct2dContext& _context, DirectX::XMVECTOR& _location)
+			virtual void draw(direct2dContext& _context, rectangle* _location)
 			{
 				if (frames.size() == 0)
 					return;			
@@ -729,7 +748,6 @@ namespace corona
 				{
 					f.second->draw(_context, _location);
 				}
-
 			}
 
             virtual void set_time(double _elapsed)
@@ -1141,11 +1159,11 @@ namespace corona
 				}
 			}
 
-			virtual void draw(direct2dContext& _context)
+			virtual void draw(direct2dContext& _context, rectangle* _location)
 			{
 				for (auto animation : animations) {
 					if (animation->name == state) {
-						animation->draw(_context, position);
+						animation->draw(_context, _location);
 					}
 				}
 			}
@@ -4272,7 +4290,7 @@ namespace corona
             scope_lock locker(adventure_locker);
 
 			for (auto& p : stage->current->pieces) {
-				p.second->draw(_src);
+				p.second->draw(_src, nullptr);
 			}
 		}
 

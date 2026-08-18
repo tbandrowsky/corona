@@ -141,6 +141,16 @@ namespace corona {
 			return ret;
 		}
 
+		static DirectX::XMVECTOR position_vector(rectangle* _r)
+		{
+			return DirectX::XMVectorSet((float)_r->x, (float)_r->y, 0, 0);
+		}
+
+		static DirectX::XMVECTOR size_vector(rectangle* _r)
+		{
+			return DirectX::XMVectorSet((float)_r->w, (float)_r->h, 0, 0);
+        }
+
 		static intersection_side intersect(const rectangle* a, const rectangle* b)
 		{
 			intersection_side sides = intersection_side_none;
