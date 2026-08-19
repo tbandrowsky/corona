@@ -417,6 +417,7 @@ namespace corona
 
             virtual void set_time(double _elapsed_seconds)
 			{
+				rotation = fmod(_elapsed_seconds, 6.28);
 				json jstate = history.get_time(_elapsed_seconds);
 				put_json(jstate);
 			}
@@ -442,25 +443,18 @@ namespace corona
 					if (this_size.x == 0 || this_size.y == 0)
 						return;
 
+
                     rectangle base_location = _location ? *_location : rectangle{ 0, 0, this_size.x, this_size.y };
-
-                    XMVECTOR dest_position = rectangle_math::position_vector(&base_location);
-
-					XMVECTOR new_location = XMVectorAdd(dest_position, position);
-					XMVECTOR new_pivot = XMVectorAdd(new_location, pivot);
 
 					D2D1_MATRIX_3X2_F existing;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 
-					D2D1_POINT_2F pivot_origin;
-
-					pivot_origin.x = XMVectorGetX(new_pivot);
-					pivot_origin.y = XMVectorGetY(new_pivot);
+					D2D1_POINT_2F rotation_point = { this_size.x / 2.0, this_size.y / 2.0 };
 
 					auto mrotation = D2D1::Matrix3x2F::Rotation(
 						rotation,
-						pivot_origin
+						rotation_point
 					);
 
 					D2D1_SIZE_F image_scale;
@@ -468,15 +462,14 @@ namespace corona
                     image_scale.width = base_location.w / this_size.x;
                     image_scale.height = base_location.h / this_size.y;
 
+					D2D1_POINT_2F scale_point = { 0, 0 };
+
 					auto mscale = D2D1::Matrix3x2F::Scale(
 						image_scale,
-						pivot_origin
+						scale_point
                     );
 					
-					auto mtranslation = D2D1::Matrix3x2F::Translation(
-						pivot_origin.x,
-						pivot_origin.y
-					);
+					auto mtranslation = D2D1::Matrix3x2F::Translation(base_location.x, base_location.y);
 
 					auto mat = mrotation * mscale * mtranslation;
 

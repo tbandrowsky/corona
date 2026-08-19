@@ -140,7 +140,8 @@ namespace corona
 		corona_animation_rectangle						current_animation;
 		corona_frame_rectangle							current_frame;
 		double elapsed_seconds = 0.0;
-		generalBrushRequest								section_border;
+		generalBrushRequest								animation_border;
+		generalBrushRequest								frame_border;
 
 	public:
 
@@ -195,13 +196,36 @@ namespace corona
 
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
 		{
-			auto draw_bounds = get_inner_bounds();
+
+			animation_border = solidBrushRequest("animation_border", "00C000");
+			frame_border = solidBrushRequest("frame_border", "850095");
+
+			_context->setBrush(&animation_border);
+			_context->setBrush(&frame_border);
+
+			std::string border_name = animation_border.get_name();
 
 			for (auto& anim_rect : animation_rectangles) {
 				if (anim_rect.object) {
 					auto rect = anim_rect.rect;
-					rect.x += draw_bounds.x;
-					rect.y += draw_bounds.y;
+					DirectX::XMVECTOR location = to_point(rect);
+					_context->drawRectangle(&rect, border_name, 2, "");
+				}
+			}
+
+			border_name = frame_border.get_name();
+
+			for (auto& frame_rect : frame_rectangles) {
+				if (frame_rect.object) {
+					auto rect = frame_rect.rect;
+					DirectX::XMVECTOR location = to_point(rect);
+					_context->drawRectangle(&rect, border_name, 8, "");
+				}
+			}
+
+			for (auto& anim_rect : animation_rectangles) {
+				if (anim_rect.object) {
+					auto rect = anim_rect.rect;
 					anim_rect.object->draw(*_context, &rect);
 				}
 			}
@@ -209,33 +233,7 @@ namespace corona
 			for (auto& frame_rect : frame_rectangles) {
 				if (frame_rect.object) {
 					auto rect = frame_rect.rect;
-					rect.x += draw_bounds.x;
-					rect.y += draw_bounds.y;
 					frame_rect.object->draw(*_context, &rect);
-				}
-			}
-
-			_context->setBrush(&section_border);
-
-			std::string border_name = section_border.get_name();
-
-			for (auto& anim_rect : animation_rectangles) {
-				if (anim_rect.object) {
-					auto rect = anim_rect.rect;
-					rect.x += draw_bounds.x;
-					rect.y += draw_bounds.y;
-					DirectX::XMVECTOR location = to_point(rect);
-					_context->drawRectangle(&rect, border_name, 4, "");
-				}
-			}
-
-			for (auto& frame_rect : frame_rectangles) {
-				if (frame_rect.object) {
-					auto rect = frame_rect.rect;
-					rect.x += draw_bounds.x;
-					rect.y += draw_bounds.y;
-					DirectX::XMVECTOR location = to_point(rect);
-					_context->drawRectangle(&rect, border_name, 4, "");
 				}
 			}
 		}
@@ -252,7 +250,8 @@ namespace corona
 		{
 			set_origin(0.0_px, 0.0_px);
 			set_size(1.0_container, 1.2_fontgr);
-			section_border = solidBrushRequest("animation_section_border", "C0C0F0");
+			animation_border = solidBrushRequest("animation_border", "400040");
+			frame_border = solidBrushRequest("frame_border", "400035");
 		}
 
 		virtual void set_default_styles()
@@ -270,63 +269,59 @@ namespace corona
 			double num_animations_y = 4;
 			
 			point total_size = rectangle_math::size(_ctx);
-            point animation_select_area_size = { total_size.x * 0.3, total_size.y };
-			point animation_select_size = { animation_select_area_size.x / num_animations_x, animation_select_area_size.y / num_animations_y };
-			point animation_area_size = { total_size.x * 0.7, total_size.y * 0.6 };
-            point frame_area_size = { animation_area_size.x, total_size.y * 0.4 };
-			point frame_select_size = { frame_area_size.x / num_frames_x, total_size.y / num_frames_y };
+
+			double animation_width = total_size.x * 0.3;
+			double animation_height = animation_width;
+			double frame_width = animation_width * .75;
+			double frame_height = animation_height * .75;
+	
+            rectangle animation_list_rect = { _ctx->x, _ctx->y, animation_width, total_size.y };
+			rectangle frame_list_rect = { _ctx->x + animation_width, _ctx->y + total_size.y - frame_height, total_size.x - animation_width, frame_height };
+            rectangle current_animation_rect = { _ctx->x + animation_width, _ctx->y, total_size.x - animation_width, total_size.y - frame_height };
 
 			point base;
-			current_animation.rect.x = inner_bounds.x + animation_select_area_size.x;
-			current_animation.rect.y = inner_bounds.y;
-            current_animation.rect.w = animation_area_size.x;
-            current_animation.rect.h = animation_area_size.y;
+			current_animation.rect = current_animation_rect;
 
-			auto iter = animations.begin();
-			for (int x = 0; x < num_animations_x; x++) {
-				for (int y = 0; y < num_animations_y; y++) {
-					if (iter != animations.end()) {
-						rectangle r;
-						r.x = x * animation_select_size.x;
-						r.y = y * animation_select_size.y;
-						r.w = animation_select_size.x;
-						r.h = animation_select_size.y;
-						animation_rectangles.push_back({ r, *iter });
-                        if (!current_animation.object) {
-							current_animation.object = *iter;
-						}
-						iter++;
-					}
-					else {
-						break;
-					}
+			auto ianim = animations.begin();
+
+			rectangle r;
+
+			r.x = animation_list_rect.x;
+			r.y = animation_list_rect.y;
+			r.w = animation_width;
+			r.h = animation_height;
+
+			while (ianim != std::end(animations))
+			{
+				animation_rectangles.push_back({ r, *ianim });
+
+				if (!current_animation.object) {
+					current_animation.object = *ianim;
 				}
+
+				r.y += animation_height;
+				ianim++;
 			}
 
+			r.x = frame_list_rect.x;
+			r.y = frame_list_rect.y;
+			r.w = frame_width;
+			r.h = frame_height;
+
 			if (current_animation.object) {
-                auto fi = current_animation.object->frames.begin();
-				for (int x = 0; x < num_frames_x; x++) {
-					for (int y = 0; y < num_frames_y; y++) {
-                        if (fi != std::end(current_animation.object->frames)) {
-							rectangle r;
-							r.x = x * frame_select_size.x;
-							r.y = y * frame_select_size.y;
-							r.w = frame_select_size.x;
-							r.h = frame_select_size.y;
-							corona_frame_rectangle fr;
-							fr.rect = r;
-							fr.object = fi->second;
-							frame_rectangles.push_back(fr);
-							if (!current_frame.object) {
-								current_frame.object = fi->second;
-							}
-							fi++;
-						}
-						else {
-							break;
-						}
+                auto iframe = current_animation.object->frames.begin();
+
+                while (iframe != std::end(current_animation.object->frames)) {
+					corona_frame_rectangle fr;
+					fr.rect = r;
+					fr.object = iframe->second;
+					frame_rectangles.push_back(fr);
+					if (!current_frame.object) {
+						current_frame.object = iframe->second;
 					}
-                }
+                    r.x += frame_width;
+					iframe++;
+				}
 			}
 		}
 
