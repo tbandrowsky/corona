@@ -60,11 +60,11 @@ namespace corona
         {
             json result;
 
-            auto start_time = std::lower_bound(history.begin(), history.end(), _time, [](const auto& lhs, double rhs) {
-                return lhs.first < rhs;
-            });
+            auto start_time = history.lower_bound(_time);
 
             if (start_time == history.end()) {
+                start_time = history.begin();
+                result = start_time->second.values;
                 return result;
             }
 

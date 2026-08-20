@@ -145,7 +145,7 @@
       "class_name": "timepoint",
       "base_class_name": "game_base",
       "class_description": "a point in an animation",
-      "parents": [ "animation_base" ],
+      "parents": [ "animation" ],
       "fields": {
         "elapsed_seconds": {
           "field_type": "double",
@@ -740,6 +740,114 @@
     "objects": [
       {
         "class_name": "piece_type",
+        "name": "shot-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "name": "bullet",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "75,45,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "75,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "25,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "25,45,0"
+                    },
+                    {
+                      "class_name": "bezier",
+                      "point1": "25,45,0",
+                      "point2": "50,0,0",
+                      "point3": "75,45,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "timeline": [
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 0,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 2,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 180
+                    }
+                  }
+                ]
+              },
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 4,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "shot_type": "shot-small",
+          "inventory": [
+            {
+              "item_type": "wound-gunshot-stomach",
+              "quantity": 1
+            }
+          ]
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
         "name": "player",
         "description": "string",
         "piece_class_name": "player",
@@ -1067,67 +1175,6 @@
       },
       {
         "class_name": "piece_type",
-        "name": "shot-small",
-        "description": "string",
-        "piece_class_name": "magazine",
-        "animations": [
-          {
-            "class_name": "animation",
-            "state": "default",
-            "duration": "5",
-            "frames": [
-              {
-                "class_name": "vector_frame",
-                "state": "default",
-                "duration": "5",
-                "shape": {
-                  "points": [
-                    {
-                      "class_name": "line",
-                      "point": "0,0,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "100,0,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "100,100,0"
-                    },
-                    {
-                      "class_name": "line",
-                      "point": "0,100,0"
-                    }
-                  ]
-                },
-                "fill": {
-                  "class_name": "solid_brush",
-                  "color": "#D0D0D0"
-                },
-                "stroke": {
-                  "class_name": "solid_brush",
-                  "color": "#B0B0B0"
-                },
-                "stroke_width": 4
-              }
-            ]
-          }
-        ],
-        "defaults": {
-          "shot_type": "shot-small",
-          "inventory": [
-            {
-              "item_type": "wound-gunshot-stomach",
-              "quantity": 1
-            }
-          ]
-        },
-        "mass": "500",
-        "health": "100",
-        "full_health": "100"
-      },
-      {
-        "class_name": "piece_type",
         "name": "wound-gunshot-stomach",
         "description": "string",
         "piece_class_name": "effect",
@@ -1145,7 +1192,7 @@
                   "points": [
                     {
                       "class_name": "line",
-                      "point": "0,0,0"
+                      "point": "50,0,0"
                     },
                     {
                       "class_name": "line",
@@ -1157,19 +1204,19 @@
                     },
                     {
                       "class_name": "line",
-                      "point": "0,100,0"
+                      "point": "50,100,0"
                     }
                   ]
                 },
                 "fill": {
                   "class_name": "solid_brush",
-                  "color": "#D0D0D0"
+                  "color": "#D0A0A0"
                 },
                 "stroke": {
                   "class_name": "solid_brush",
-                  "color": "#B0B0B0"
+                  "color": "#B0B050"
                 },
-                "stroke_width": 4
+                "stroke_width": 2
               }
             ]
           }
@@ -1303,19 +1350,19 @@
                   "points": [
                     {
                       "class_name": "line",
-                      "point": "0,0,0"
+                      "point": "40,0,0"
                     },
                     {
                       "class_name": "line",
-                      "point": "100,0,0"
+                      "point": "60,0,0"
                     },
                     {
                       "class_name": "line",
-                      "point": "100,100,0"
+                      "point": "60,100,0"
                     },
                     {
                       "class_name": "line",
-                      "point": "0,100,0"
+                      "point": "40,100,0"
                     }
                   ]
                 },
@@ -1325,9 +1372,9 @@
                 },
                 "stroke": {
                   "class_name": "solid_brush",
-                  "color": "#2020202"
+                  "color": "#101010"
                 },
-                "stroke_width": 4
+                "stroke_width": 1
               }
             ]
           }

@@ -232,7 +232,7 @@ namespace corona
 		{
 		public:
 
-			std::string frame_name;
+			std::string		frame_name;
 			json		    new_value;
 
 			value_change() {
@@ -242,6 +242,23 @@ namespace corona
 			value_change(value_change&& _src) = default;
 			value_change& operator =(const value_change& _src) = default;
 			value_change& operator =(value_change&& _src) = default;
+
+			virtual void get_json(json& _dest)
+			{
+				json_parser jp;
+
+				timepoint_change::get_json(_dest);
+				_dest.put_member("frame_name", frame_name);
+                _dest.put_member("new_value", new_value);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+
+				new_value = _src["new_value"];
+                frame_name = _src["frame_name"].as_string();
+			}
 
 		};
 
@@ -263,12 +280,12 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				timepoint_change::get_json(_dest);
 			}
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				timepoint_change::put_json(_src);
 				
                 json jsound = _src["sound"];
                 sound = audio_graph::from_json(jsound);
@@ -367,6 +384,7 @@ namespace corona
             DirectX::XMVECTOR   position = {};
 			double				rotation = 0.0;
 			DirectX::XMVECTOR   pivot = {};
+			double				total_seconds = 0.0;
 
 			corona_object_history history;
 
@@ -417,7 +435,7 @@ namespace corona
 
             virtual void set_time(double _elapsed_seconds)
 			{
-				rotation = fmod(_elapsed_seconds, 6.28);
+				total_seconds += _elapsed_seconds;
 				json jstate = history.get_time(_elapsed_seconds);
 				put_json(jstate);
 			}
@@ -618,6 +636,7 @@ namespace corona
 				pid.borderBrushName = stroke.get_name();
 				pid.rotation = 0;
 				pid.strokeWidth = stroke_width;
+				pid.closed = true;
 				_context.drawPath(&pid);
 			}
 
@@ -755,7 +774,7 @@ namespace corona
 				}
 				for (auto f : frames)
 				{
-					f.second->set_time(total_animation_time);
+					f.second->set_time(_elapsed);
 				}
 			}
 
@@ -805,7 +824,7 @@ namespace corona
 					}
 				}
 
-				duration = 0.0;
+				duration = 1.0;
 				auto last = timeline.rbegin();
                 if (last != timeline.rend()) {
 					duration = last->first;

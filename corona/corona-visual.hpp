@@ -761,9 +761,9 @@ namespace corona {
 		ePathPointType eType;
 
 		inline pathLineDto* asPathLineDto() { return eType == e_line ? (pathLineDto*)this : NULL; }
-		inline pathArcDto* asPathArcDto() { return eType == e_line ? (pathArcDto*)this : NULL; }
-		inline pathBezierDto* asPathBezierDto() { return eType == e_line ? (pathBezierDto*)this : NULL; }
-		inline pathQuadraticBezierDto* asPathQuadraticBezierDto() { return eType == e_line ? (pathQuadraticBezierDto*)this : NULL; }
+		inline pathArcDto* asPathArcDto() { return eType == e_arc ? (pathArcDto*)this : NULL; }
+		inline pathBezierDto* asPathBezierDto() { return eType == e_bezier ? (pathBezierDto*)this : NULL; }
+		inline pathQuadraticBezierDto* asPathQuadraticBezierDto() { return eType == e_quadractic_bezier ? (pathQuadraticBezierDto*)this : NULL; }
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(json& _src) = 0;
         virtual void move(double x, double y) = 0;
@@ -989,7 +989,7 @@ namespace corona {
 
 			std::vector<std::string> missing;
 			if (not _src.has_members(missing, { "point1", "point2", "point3" })) {
-				system_monitoring_interface::active_mon->log_warning("pathBezierDto needs point1, point2 and point3");
+				system_monitoring_interface::active_mon->log_warning("bezier needs point1, point2 and point3");
 				system_monitoring_interface::active_mon->log_warning("is missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -1179,7 +1179,7 @@ namespace corona {
 					else if (class_name == "quadbez") {
 						item = std::make_shared<pathQuadraticBezierDto>();
 					}
-					else if (class_name == "bez") {
+					else if (class_name == "bezier") {
 						item = std::make_shared<pathBezierDto>();
 					}
 					else {
