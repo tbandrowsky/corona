@@ -16,7 +16,7 @@
           "adventure":"card_adventure",
           "ammunition":"card_ammunition",
           "animation":"card_animation",
-          "animation_scheduler":"card_animation_scheduler",
+          "audio_change":"card_audio_change",
           "bitmap_frame":"card_bitmap_frame",
           "camera":"card_camera",
           "carryable":"card_carryable",
@@ -47,8 +47,10 @@
           "stick":"card_stick",
           "surface":"card_surface",
           "switcher":"card_switcher",
+          "timepoint":"card_timepoint",
           "tool":"card_tool",
           "use_plate":"card_use_plate",
+          "value_change":"card_value_change",
           "vector_frame":"card_vector_frame",
           "wall":"card_wall",
           "wand":"card_wand"
@@ -110,7 +112,7 @@
           "adventure":"object_adventure",
           "ammunition":"object_ammunition",
           "animation":"object_animation",
-          "animation_scheduler":"object_animation_scheduler",
+          "audio_change":"object_audio_change",
           "bitmap_frame":"object_bitmap_frame",
           "camera":"object_camera",
           "carryable":"object_carryable",
@@ -141,8 +143,10 @@
           "stick":"object_stick",
           "surface":"object_surface",
           "switcher":"object_switcher",
+          "timepoint":"object_timepoint",
           "tool":"object_tool",
           "use_plate":"object_use_plate",
+          "value_change":"object_value_change",
           "vector_frame":"object_vector_frame",
           "wall":"object_wall",
           "wand":"object_wand"
@@ -257,23 +261,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\card_animation_scheduler.json"
+        "file_name":"pages\\card_audio_change.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_animation_scheduler_schedule.json"
+        "file_name":"pages\\object_audio_change.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\object_animation_scheduler.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_animation_scheduler.json"
-      },
+      { "class_name":"import", "file_name":"pages\\tab_audio_change.json" },
 
       {
         "class_name":"import",
@@ -645,6 +641,17 @@
 
       { "class_name":"import", "file_name":"pages\\tab_switcher.json" },
 
+      { "class_name":"import", "file_name":"pages\\card_timepoint.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_list_timepoint_changes.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_timepoint.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_timepoint.json" },
+
       { "class_name":"import", "file_name":"pages\\card_tool.json" },
 
       {
@@ -666,6 +673,18 @@
       { "class_name":"import", "file_name":"pages\\object_use_plate.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_use_plate.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_value_change.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_value_change.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_value_change.json" },
 
       {
         "class_name":"import",

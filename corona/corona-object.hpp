@@ -42,41 +42,48 @@ namespace corona
             if (history.contains(_timepoint.elapsed_seconds)) {
                 history[_timepoint.elapsed_seconds].values.merge(_timepoint.values);
             } else {
-                json temp;
-
-                if (history.contains(0)) {
-                    temp = history[0].values.clone(); 
-                }
-
-                temp.merge(_timepoint.values);
                 corona_object_timepoint ntp;
                 ntp.elapsed_seconds = _timepoint.elapsed_seconds;
-                ntp.values = temp;                
+                ntp.values = _timepoint.values.clone();
                 history[_timepoint.elapsed_seconds] = ntp;
-            }       
+            }
         }
 
         json get_time(double _time)
         {
             json result;
 
-            auto start_time = history.lower_bound(_time);
+            if (history.begin() != history.end()) {
+                auto end_time = history.end();
+                end_time--;
+                if (end_time->first > 0.0) 
+                {
+                    _time = fmod(_time, end_time->first);
+                }
+            }
 
-            if (start_time == history.end()) {
-                start_time = history.begin();
+            if (history.size() == 1) {
+                auto default_history = history.begin();
+                json values = default_history->second.values;
+                return values;
+            }
+
+            auto start_time = history.lower_bound(_time);            
+            auto next_time = history.upper_bound(_time);
+
+            if (next_time == history.end()) {
                 result = start_time->second.values;
                 return result;
+            }
+
+            while (start_time != history.begin() && start_time->first > _time) 
+            {
+                start_time--;
             }
 
             if (tween_fields.empty()) {
                 result = start_time->second.values;
                 return result;
-            }
-
-            auto next_time = start_time;
-
-            if (next_time != history.end()) {
-                next_time++;
             }
 
             result = start_time->second.values;
@@ -421,80 +428,6 @@ namespace corona
             remaining_seconds = _src["remaining_seconds"].as_double();
             duration_seconds = _src["duration_seconds"].as_double();
             enabled = _src["enabled"].as_bool();
-        }
-    };
-
-    class animation_scheduler : public corona_object
-    {
-    public:
-
-
-        animation_scheduler()
-        {
-            enabled = false;
-        }
-
-        animation_scheduler(const animation_scheduler& _src) = default;
-        animation_scheduler(animation_scheduler&& _src) = default;
-        animation_scheduler& operator=(const animation_scheduler& _src) = default;
-        animation_scheduler& operator=(animation_scheduler&& _src) = default;
-
-        std::vector<double>			schedule;
-        double						current_seconds;
-        double                      total_seconds;
-        bool						enabled;
-        int                         current_index;
-
-        int execute(double elapsed)
-        {
-            if (!enabled)
-                return 0;
-
-            if (schedule.size() > 0) {
-
-                current_seconds = fmod(elapsed + current_seconds, total_seconds);
-                double t = 0;
-                while (t < current_seconds) {
-                    t += schedule[current_index];
-                    if (t >= current_seconds) {
-                        return current_index;
-                    }
-                    current_index = (current_index + 1) % schedule.size();
-                }
-
-            }
-            return 0;
-        }
-
-        virtual void get_json(json& _dest)
-        {
-            corona_object::get_json(_dest);
-            _dest.put_member("current_seconds", current_seconds);
-            _dest.put_member("total_seconds", total_seconds);
-            _dest.put_member("enabled", enabled);
-            _dest.put_member("current_index", current_index);
-            json_parser jp;
-            json jschedule = jp.create_array();
-            for (const auto& e : schedule) {
-                jschedule.push_back(e);
-            }
-            _dest.put_member("schedule", jschedule);
-        }
-
-        virtual void put_json(json& _src)
-        {
-            corona_object::put_json(_src);
-            current_seconds = _src["current_seconds"].as_double();
-            total_seconds = _src["total_seconds"].as_double();
-            enabled = _src["enabled"].as_bool();
-            current_index = _src["current_index"].as_int();
-
-            schedule.clear();
-            total_seconds = 0.0;
-
-            for (auto e : _src["schedule"].as_array()) {
-                schedule.push_back(e.as_double());
-            }
         }
     };
 

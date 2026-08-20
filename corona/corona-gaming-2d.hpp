@@ -422,21 +422,20 @@ namespace corona
 
             virtual void put_change(double _elapsed_seconds, value_change& vc)
 			{
-				json_parser jp;
-				json jstate = jp.create_object();
-				get_json(jstate);
-
 				corona_object_timepoint cotp;
 				cotp.elapsed_seconds = _elapsed_seconds;
-
-                jstate.merge(vc.new_value);
-				cotp.values = jstate;
+				json_parser jp;
+				cotp.values = jp.create_object();
+				get_json(cotp.values);
+				cotp.values.merge(vc.new_value);
+				
+				history.put_change(cotp);
 			}
 
             virtual void set_time(double _elapsed_seconds)
 			{
 				total_seconds += _elapsed_seconds;
-				json jstate = history.get_time(_elapsed_seconds);
+				json jstate = history.get_time(total_seconds);
 				put_json(jstate);
 			}
 
@@ -738,7 +737,6 @@ namespace corona
 			DirectX::XMVECTOR								direction;
             std::map<std::string, std::shared_ptr<frame>>	frames;
             std::map<double, std::shared_ptr<timepoint>>	timeline;
-            double											duration;
 			double                                          total_animation_time;
 
 			animation() {
@@ -765,13 +763,6 @@ namespace corona
             virtual void set_time(double _elapsed)
 			{
 				total_animation_time += _elapsed;
-				if (duration > 0.0) {
-					total_animation_time = fmod(total_animation_time, duration);
-				}
-				else
-				{
-					total_animation_time = 0.0;
-				}
 				for (auto f : frames)
 				{
 					f.second->set_time(_elapsed);
@@ -785,7 +776,6 @@ namespace corona
 				corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
-				duration = _src["duration"].as_double();
 				destination = _src["destination"].as_rectangle();
 				direction = _src["direction"].as_vector();
 				
@@ -824,18 +814,13 @@ namespace corona
 					}
 				}
 
-				duration = 1.0;
-				auto last = timeline.rbegin();
-                if (last != timeline.rend()) {
-					duration = last->first;
-				}
-
 				for (auto tl : timeline) {
 					for (auto change : tl.second->changes) {
                         auto vc = std::dynamic_pointer_cast<value_change>(change);
                         if (vc) {
                             auto frames_it = frames.find(vc->frame_name);
                             if (frames_it != frames.end()) {
+								json initial_values = jp.create_object();
 								auto frame = frames_it->second;
 								frame->put_change(tl.first, *vc);
 							}
@@ -851,7 +836,6 @@ namespace corona
 			{
 				corona_object::get_json(_dest);
 				_dest.put_member("name", name);
-				_dest.put_member("duration", duration);
 				_dest.put_member("destination", destination);
 				_dest.put_member("direction", direction);
 				json_parser jp;

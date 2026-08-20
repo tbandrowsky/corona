@@ -5880,6 +5880,7 @@ namespace corona
 							auto these_fields = class_def->get_fields();
 
 							for (auto& fld : these_fields) {
+
 								if (fld->get_field_type() == field_types::ft_array)
 								{
 									json array_field = write_object[fld->get_field_name()];
@@ -12045,11 +12046,6 @@ grant_type=authorization_code
 
 			activity pcactivity;
 			pcactivity.db = this;
-
-			if (class_name == "animation" || class_name == "frame" || class_name == "vector_frame")
-			{
-//				DebugBreak();
-			}
 
 			auto pclass = put_class_impl(&pcactivity, jclass_definition);
 

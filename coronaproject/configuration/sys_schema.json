@@ -54,69 +54,6 @@
       }
     },
     {
-      "class_name": "animation_scheduler",
-      "base_class_name": "game_base",
-      "class_description": "A timer that selects a frame",
-      "fields": {
-        "current_seconds": "double",
-        "total_seconds": "double",
-        "enabled": "bool",
-        "current_index": "int64",
-        "schedule": [ "double" ]
-      }
-    },
-    {
-      "class_name": "piece_type",
-      "base_class_name": "game_base",
-      "class_description": "a type of gaming piece",
-      "full_text": [ "name", "description", "piece_class_name", "inventory" ],
-      "fields": {
-        "name": "string",
-        "description": "string",
-        "piece_class_name": "string",
-        "animations": [ "animation" ],
-        "mass": "double",
-        "health": "double",
-        "full_health": "double",
-        "state": "string",
-        "pieces": [ "piece" ],
-        "defaults": "object",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "piece_type"
-        }
-      },
-      "indexes": {
-        "piece_type_index": {
-          "index_keys": [ "name" ]
-        }
-      }
-    },
-    {
-      "class_name": "piece",
-      "base_class_name": "game_base",
-      "class_description": "a gaming piece",
-      "parents": [ "piece_type" ],
-      "full_text": [ "name" ],
-      "fields": {
-        "name": "string",
-        "mass": "double",
-        "health": "double",
-        "full_health": "double",
-        "state": "string",
-        "position": "vector",
-        "size": "vector",
-        "velocity": "vector",
-        "facing": "vector",
-        "owner": "->piece",
-        "inventory": {
-          "field_type": "chest",
-          "item_class": "piece"
-        },
-        "animations": [ "animation" ]
-      }
-    },
-    {
       "class_name": "timepoint_change",
       "base_class_name": "game_base",
       "class_description": "a point in an animation",
@@ -214,6 +151,57 @@
         "fill": "brush",
         "stroke": "brush",
         "stroke_width": "double"
+      }
+    },
+    {
+      "class_name": "piece_type",
+      "base_class_name": "game_base",
+      "class_description": "a type of gaming piece",
+      "full_text": [ "name", "description", "piece_class_name", "inventory" ],
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "piece_class_name": "string",
+        "animations": [ "animation" ],
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
+        "state": "string",
+        "pieces": [ "piece" ],
+        "defaults": "object",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "piece_type"
+        }
+      },
+      "indexes": {
+        "piece_type_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "piece",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "piece_type" ],
+      "full_text": [ "name" ],
+      "fields": {
+        "name": "string",
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
+        "state": "string",
+        "position": "vector",
+        "size": "vector",
+        "velocity": "vector",
+        "facing": "vector",
+        "owner": "->piece",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "piece"
+        },
+        "animations": [ "animation" ]
       }
     },
     {
@@ -699,7 +687,9 @@
       "piece": "default",
       "piece_type": "default",
       "function_scheduler": "default",
-      "animation_scheduler": "default",
+      "timepoint": "default",
+      "value_change": "default",
+      "audio_change": "default",
       "frame": "default",
       "bitmap_frame": "default",
       "vector_frame": "default",
