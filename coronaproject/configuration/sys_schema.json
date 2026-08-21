@@ -67,7 +67,7 @@
       "class_description": "a point in an animation",
       "fields": {
         "frame_name": "string",
-        "value": "vector"
+        "new_value": "object"
       }
     },
     {

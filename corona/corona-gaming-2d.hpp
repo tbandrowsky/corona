@@ -416,18 +416,15 @@ namespace corona
 				pivot = _src["pivot"].as_vector();
 
 				history.clear();
-				history.set_tween_fields({ "position", "rotation", "pivot" });
-				history.put_zero(_src);
+				history.set_tween_fields({ "position", "rotation" });
+				history.set_original(_src);
 			}
 
             virtual void put_change(double _elapsed_seconds, value_change& vc)
 			{
 				corona_object_timepoint cotp;
 				cotp.elapsed_seconds = _elapsed_seconds;
-				json_parser jp;
-				cotp.values = jp.create_object();
-				get_json(cotp.values);
-				cotp.values.merge(vc.new_value);
+				cotp.values = vc.new_value;
 				
 				history.put_change(cotp);
 			}
@@ -467,13 +464,6 @@ namespace corona
 
 					_context.getDeviceContext()->GetTransform(&existing);
 
-					D2D1_POINT_2F rotation_point = { this_size.x / 2.0, this_size.y / 2.0 };
-
-					auto mrotation = D2D1::Matrix3x2F::Rotation(
-						rotation,
-						rotation_point
-					);
-
 					D2D1_SIZE_F image_scale;
 
                     image_scale.width = base_location.w / this_size.x;
@@ -488,7 +478,14 @@ namespace corona
 					
 					auto mtranslation = D2D1::Matrix3x2F::Translation(base_location.x, base_location.y);
 
-					auto mat = mrotation * mscale * mtranslation;
+					D2D1_POINT_2F rotation_point = { this_size.x / 2.0, this_size.y / 2.0 };
+
+					auto mrotation = D2D1::Matrix3x2F::Rotation(
+						rotation,
+						rotation_point
+					);
+
+					auto mat = mscale * mrotation * mtranslation;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 					_context.getDeviceContext()->SetTransform(&mat);

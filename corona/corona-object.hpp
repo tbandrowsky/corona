@@ -13,6 +13,7 @@ namespace corona
 
     class corona_object_history
     {
+        json original;
         std::map<double, corona_object_timepoint> history;
         std::set<std::string> tween_fields;
 
@@ -24,12 +25,9 @@ namespace corona
             tween_fields.clear();
         }
 
-        void put_zero(json _obj)
+        void set_original(json _original)
         {
-            corona_object_timepoint tp;
-            tp.elapsed_seconds = 0.0;
-            tp.values = _obj;
-            history[0.0] = tp;
+            original = _original;
         }
 
         void set_tween_fields(std::set<std::string> _fields)
@@ -51,7 +49,12 @@ namespace corona
 
         json get_time(double _time)
         {
-            json result;
+            json_parser jp;
+
+            if (history.size() == 0)
+                return original;
+
+            json result = original.clone();
 
             if (history.begin() != history.end()) {
                 auto end_time = history.end();
@@ -65,14 +68,15 @@ namespace corona
             if (history.size() == 1) {
                 auto default_history = history.begin();
                 json values = default_history->second.values;
-                return values;
+                result.merge(values);
+                return result;
             }
 
             auto start_time = history.lower_bound(_time);            
             auto next_time = history.upper_bound(_time);
 
             if (next_time == history.end()) {
-                result = start_time->second.values;
+                result.merge(start_time->second.values);
                 return result;
             }
 
@@ -82,11 +86,9 @@ namespace corona
             }
 
             if (tween_fields.empty()) {
-                result = start_time->second.values;
+                result.merge(start_time->second.values);
                 return result;
             }
-
-            result = start_time->second.values;
 
             for (auto tf : tween_fields) {
                 if (start_time != history.end() && next_time != history.end()) {
@@ -95,20 +97,25 @@ namespace corona
                         using namespace DirectX;
 
                         double p = (_time - start_time->second.elapsed_seconds) / t;
-                        auto v1 = start_time->second.values[tf];
-                        auto v2 = next_time->second.values[tf];
-                        if (v1.is_double() && v2.is_double()) {
-                            double d1 = v1.as_double();
-                            double d2 = v2.as_double();
-                            double dt = d2 - d1;
-                            double dv = d1 + (dt * p);
-                            result.put_member(tf, dv);
-                        } else if (v1.is_vector() && v2.is_vector()) {
-                            XMVECTOR d1 = v1.as_vector();
-                            XMVECTOR d2 = v2.as_vector();
-                            XMVECTOR dt = XMVectorSubtract( d2, d1 );
-                            XMVECTOR dv = XMVectorAdd( d1, XMVectorScale( dt, static_cast<float>(p) ) );
-                            result.put_member(tf, dv);
+                        if (start_time->second.values.has_member(tf) &&
+                            next_time->second.values.has_member(tf))
+                        {
+                            auto v1 = start_time->second.values[tf];
+                            auto v2 = next_time->second.values[tf];
+                            if (v1.is_vector() && v2.is_vector()) {
+                                XMVECTOR d1 = v1.as_vector();
+                                XMVECTOR d2 = v2.as_vector();
+                                XMVECTOR dt = XMVectorSubtract(d2, d1);
+                                XMVECTOR dv = XMVectorAdd(d1, XMVectorScale(dt, static_cast<float>(p)));
+                                result.put_member(tf, dv);
+                            }
+                            else {
+                                double d1 = v1.as_double();
+                                double d2 = v2.as_double();
+                                double dt = d2 - d1;
+                                double dv = d1 + (dt * p);
+                                result.put_member(tf, dv);
+                            }
                         }
                     }
                 }
