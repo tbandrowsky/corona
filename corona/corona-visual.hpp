@@ -768,7 +768,7 @@ namespace corona {
 		virtual void put_json(json& _src) = 0;
         virtual void move(double x, double y) = 0;
         virtual std::shared_ptr<pathBaseDto> clone() = 0;
-        virtual point extent() = 0;
+        virtual rectangle_points &extent(rectangle_points& _src) = 0;
 	};
 
 	class pathLineDto : public pathBaseDto {
@@ -819,9 +819,10 @@ namespace corona {
             this->m_point.y += y;
 		}
 
-		virtual point extent() override
+		virtual rectangle_points& extent(rectangle_points& _src) 
 		{
-			return m_point;
+			_src.extend(m_point);
+			return _src;
 		}
 
 	};
@@ -884,9 +885,16 @@ namespace corona {
 			this->m_point.y += y;
 		}
 
-		virtual point extent() override
-		{
-			return point{ m_point.x + radiusX * 2, m_point.y + radiusY * 2 };
+		virtual rectangle_points& extent(rectangle_points& _src) override
+		{			
+			for (double d = 0; d < angleDegrees; d += .1) {
+				point pt;
+				pt.x = d * cos(std::numbers::pi / 180);
+				pt.y = d * sin(std::numbers::pi / 180);
+				_src.extend(pt);
+			}
+
+			return _src;
 		}
 
 	};
@@ -951,9 +959,11 @@ namespace corona {
 			this->point2.y += y;
 		}
 
-		virtual point extent() override
+		virtual rectangle_points& extent(rectangle_points& _src) override
 		{
-			return point_math::extent( point1, point2 );
+			_src.extend(point1);
+			_src.extend(point2);
+			return _src;
 		}
 
 	};
@@ -1028,9 +1038,12 @@ namespace corona {
 			this->point3.y += y;
 		}
 
-		virtual point extent() override
-		{
-			return point_math::extent(point1, point_math::extent(point2, point3));
+		virtual rectangle_points& extent(rectangle_points& _src) override
+		{	
+			_src.extend(point1);
+			_src.extend(point2);
+			_src.extend(point3);
+			return _src;
 		}
 
 	};
@@ -1069,14 +1082,12 @@ namespace corona {
 			}
 		}
 
-		point extent()
+		virtual rectangle_points& extent(rectangle_points& _src)
 		{
-			point ext = { 0, 0 };
 			for (auto item : points) {
-				point pext = item->extent();
-				ext = point_math::extent(ext, pext);
+				item->extent(_src);
 			}
-			return ext;
+			return _src;
 		}
 
 		pathDto& addLineTo(double x, double y)

@@ -31,6 +31,42 @@ namespace corona {
 
 	};
 
+	struct rectangle_points
+	{
+		point upper_left;
+		point lower_right;
+
+		rectangle_points()
+		{
+			upper_left.x = std::numeric_limits<double>::max();
+			upper_left.y = std::numeric_limits<double>::max();
+			lower_right.x = std::numeric_limits<double>::min();
+			lower_right.y = std::numeric_limits<double>::min();
+		}
+
+		rectangle get_rectangle()
+		{
+			return rectangle{ upper_left.x, upper_left.y, lower_right.x - upper_left.x, lower_right.y - upper_left.y };
+		}
+
+		void extend(point pt)
+		{
+			if (pt.x < upper_left.x)
+				upper_left.x = pt.x;
+			if (pt.y < upper_left.y)
+				upper_left.y = pt.y;
+			if (pt.x > lower_right.x)
+				lower_right.x = pt.x;
+			if (pt.y > lower_right.y)
+				lower_right.y = pt.y;
+		}
+
+		double scale_zero()
+		{
+            return std::max({lower_right.x, upper_left.x, lower_right.y, upper_left.y});
+		}
+	};
+
 	DirectX::XMVECTOR to_point(const rectangle& _src) 
 	{
 		return DirectX::XMVectorSet((float)_src.x, (float)_src.y, 0.0f, 0.0f);

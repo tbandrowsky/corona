@@ -192,7 +192,7 @@ namespace corona
 		std::strong_ordering compare_field(int32_t this_field_idx, int32_t that_field_idx, const xrecord& _other) const
 		{
 
-			std::strong_ordering comparison;
+			std::strong_ordering comparison = 0 <=> 0;
 
 			auto& this_field = field_data[this_field_idx];
 			auto& that_field = _other.field_data[that_field_idx];

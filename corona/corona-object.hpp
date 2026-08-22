@@ -107,14 +107,14 @@ namespace corona
                                 XMVECTOR d2 = v2.as_vector();
                                 XMVECTOR dt = XMVectorSubtract(d2, d1);
                                 XMVECTOR dv = XMVectorAdd(d1, XMVectorScale(dt, static_cast<float>(p)));
-                                result.put_member(tf, dv);
+                                result.put_member_vector(tf, dv);
                             }
                             else {
                                 double d1 = v1.as_double();
                                 double d2 = v2.as_double();
                                 double dt = d2 - d1;
                                 double dv = d1 + (dt * p);
-                                result.put_member(tf, dv);
+                                result.put_member_double(tf, dv);
                             }
                         }
                     }

@@ -131,6 +131,7 @@
         "position": "vector",
         "rotation": "double",
         "pivot": "vector",
+        "view_box": "rectangle",
         "joints": [ "frame_joint" ]
       }
     },
@@ -777,7 +778,9 @@
                   "class_name": "solid_brush",
                   "color": "#B0B0B0"
                 },
-                "stroke_width": 4
+                "stroke_width": 4,
+                "pivot": "50,50,0",
+                "viewbox": "0,0,100,100"
               }
             ],
             "timeline": [

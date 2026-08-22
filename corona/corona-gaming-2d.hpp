@@ -385,6 +385,7 @@ namespace corona
 			double				rotation = 0.0;
 			DirectX::XMVECTOR   pivot = {};
 			double				total_seconds = 0.0;
+			rectangle			view_box = {};
 
 			corona_object_history history;
 
@@ -405,6 +406,7 @@ namespace corona
 				_dest.put_member("position", position);
 				_dest.put_member("rotation", rotation);
 				_dest.put_member("pivot", pivot);
+                _dest.put_member("view_box", view_box);
 			}
 
 			virtual void put_json(json& _src)
@@ -414,18 +416,37 @@ namespace corona
 				position = _src["position"].as_vector();
 				rotation = _src["rotation"].as_double();
 				pivot = _src["pivot"].as_vector();
+				view_box = _src["view_box"].as_rectangle();
+				history.set_original(_src);
+				if (view_box.h > 0) {
+					DebugBreak();
+				}
+				if (view_box.h == 0 || view_box.w == 0) {
+					rectangle_points this_size;
+					extent(this_size);
+					double scale = this_size.scale_zero();
+					view_box.w = scale;
+					view_box.h = scale;
+				}
+			}
 
+			virtual std::shared_ptr<corona_object_interface> clone() const
+			{
+				std::shared_ptr<frame> new_frame = std::make_shared<frame>(*this);
+				return new_frame;
+			}
+
+			virtual void set_history()
+			{
 				history.clear();
 				history.set_tween_fields({ "position", "rotation" });
-				history.set_original(_src);
 			}
 
             virtual void put_change(double _elapsed_seconds, value_change& vc)
 			{
 				corona_object_timepoint cotp;
 				cotp.elapsed_seconds = _elapsed_seconds;
-				cotp.values = vc.new_value;
-				
+				cotp.values = vc.new_value;				
 				history.put_change(cotp);
 			}
 
@@ -441,9 +462,9 @@ namespace corona
 				;
 			}
 
-			virtual point extent()
+			virtual rectangle_points& extent(rectangle_points& _src)
 			{
-				return point{ 100, 100 };
+				return _src;
 			}
 
 			virtual void draw(direct2dContext& _context, rectangle* _location)
@@ -452,40 +473,43 @@ namespace corona
 
 				try {
 
-					point this_size = extent();
-
-					if (this_size.x == 0 || this_size.y == 0)
+					if (!_location)
 						return;
-
-
-                    rectangle base_location = _location ? *_location : rectangle{ 0, 0, this_size.x, this_size.y };
-
+				
 					D2D1_MATRIX_3X2_F existing;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 
 					D2D1_SIZE_F image_scale;
 
-                    image_scale.width = base_location.w / this_size.x;
-                    image_scale.height = base_location.h / this_size.y;
+					image_scale.width = _location->w / view_box.w;
+					image_scale.height = _location->h / view_box.h;
 
 					D2D1_POINT_2F scale_point = { 0, 0 };
 
 					auto mscale = D2D1::Matrix3x2F::Scale(
 						image_scale,
 						scale_point
-                    );
-					
-					auto mtranslation = D2D1::Matrix3x2F::Translation(base_location.x, base_location.y);
+					);
 
-					D2D1_POINT_2F rotation_point = { this_size.x / 2.0, this_size.y / 2.0 };
+					D2D1_POINT_2F rotation_point;
+
+                    rotation_point.x = DirectX::XMVectorGetX(pivot);
+					rotation_point.y = DirectX::XMVectorGetY(pivot);;
 
 					auto mrotation = D2D1::Matrix3x2F::Rotation(
 						rotation,
 						rotation_point
 					);
 
-					auto mat = mscale * mrotation * mtranslation;
+//					bus->log_information(std::format("{0} secs, {1} {2} degrees", total_seconds, name, rotation), __FILE__, __LINE__);				
+
+					auto mtranslation = D2D1::Matrix3x2F::Translation(
+						_location->x,
+						_location->y
+                    );
+
+					auto mat = mrotation * mscale *  mtranslation;
 
 					_context.getDeviceContext()->GetTransform(&existing);
 					_context.getDeviceContext()->SetTransform(&mat);
@@ -545,9 +569,18 @@ namespace corona
 				_context.drawBitmap(&bitmap);
 			}
 
-			virtual point extent() override
+			virtual std::shared_ptr<corona_object_interface> clone() const
 			{
-				return point{ bitmap.width, bitmap.height };
+				std::shared_ptr<bitmap_frame> new_frame = std::make_shared<bitmap_frame>(*this);
+				return new_frame;
+			}
+
+			virtual rectangle_points& extent(rectangle_points& _src)
+			{
+				_src.extend(point{ 0, 0 });
+                _src.extend(point{ bitmap.x, bitmap.y });
+				return _src;
+
 			}
 
 			virtual void create_assets(direct2dContext& _context)
@@ -642,11 +675,17 @@ namespace corona
 				_context.setBrush(&stroke);
 			}
 
-			virtual point extent()
+			virtual rectangle_points& extent(rectangle_points& _src)
 			{
-				return path.extent();
+                path.extent(_src);
+				return _src;
 			}
 
+			virtual std::shared_ptr<corona_object_interface> clone() const
+			{
+				std::shared_ptr<vector_frame> new_frame = std::make_shared<vector_frame>(*this);
+				return new_frame;
+			}
 
 		};
 
@@ -788,6 +827,7 @@ namespace corona
 						auto frame = _factory.ff.create_object(jframe);
 						if (frame) {
 							frame->put_json(jframe);
+							frame->set_history();
 							frames[frame->name] = frame;
 						}
 					}
@@ -821,7 +861,7 @@ namespace corona
 								auto frame = frames_it->second;
 								frame->put_change(tl.first, *vc);
 							}
-							else {
+							else if (bus) {
                                 bus->log_warning("animation::put_json: frame not found for value_change: " + vc->frame_name);
 							}
 						}

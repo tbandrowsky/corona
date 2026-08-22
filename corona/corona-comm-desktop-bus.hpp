@@ -2514,9 +2514,10 @@ namespace corona
 						corona_frame_rectangle fr;
 						fr.rect.x = DirectX::XMVectorGetX(frame.second->position);
 						fr.rect.y = DirectX::XMVectorGetY(frame.second->position);
-						point sz = frame.second->extent();
-                        fr.rect.w = sz.x;
-                        fr.rect.h = sz.y;
+						rectangle_points rp;
+						frame.second->extent(rp);
+                        fr.rect.w = rp.lower_right.x - rp.upper_left.x;
+                        fr.rect.h = rp.lower_right.y - rp.upper_left.y;
 						fr.object = frame.second;
 						frame_rectangles.push_back(fr);
 					}

@@ -927,7 +927,7 @@ namespace corona
 			int ret = ::MultiByteToWideChar(CP_ACP, NULL, _textInstanceDto->text.c_str(), -1, buff, l - 1);
 			getDeviceContext()->DrawText(buff, ret, style->getFormat(), &rect, brush);
 			delete[] buff;
-	}
+		}
 
 		virtual void drawBitmap(bitmapInstanceDto* _bitmapInstanceDto)
 		{
