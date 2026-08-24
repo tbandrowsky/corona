@@ -9404,6 +9404,8 @@ private:
 		json tab_edit = jp.create_object();
 		json page = jp.create_object();
         json tabs = jp.create_array();
+		json default_tab = jp.create_object();
+		json object_tab = jp.create_object();
 
 		ux_map.put_member("card", card);
         ux_map.put_member("tab_edit", tab_edit);
@@ -9419,11 +9421,12 @@ private:
 
 		for (auto& field : fields) 
 		{
-			std::string field_class = "sys_object";
+			std::string field_class = field->get_field_class();
+            std::string field_contents_class = "sys_object";
 
 			auto field_classes = field->get_allowed_classes();
 			if (field_classes.size() > 0) {
-				field_class = field_classes[0];
+				field_contents_class = field_classes[0];
 			}
 			
 			std::shared_ptr<child_bridges_interface> bridges;
@@ -9434,10 +9437,9 @@ private:
 				bridge = bridges->get_bridge(field_class);
 			}
 
-
 			if (field->get_field_type() == field_types::ft_object) {
-				json tab = jp.create_object();				
-                std::string tab_name = "tab_" + field_class;
+				json tab = jp.create_object();
+                std::string tab_name = "tab_" + field_contents_class;
                 tab.put_member_string("page_name", tab_name);
                 tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
@@ -9446,7 +9448,7 @@ private:
 			}
 			else if (field->get_field_type() == field_types::ft_chest) {
 				json tab = jp.create_object();
-				std::string tab_name = "tab_" + field_class;
+				std::string tab_name = "tab_chest";
 				tab.put_member_string("page_name", tab_name);
 				tab.put_member("name", field->get_label());
 				tab.put_member("member_name", field->get_field_name());
@@ -9472,7 +9474,7 @@ private:
 				}
                 tabs.push_back(tab);
 			}
-			else if (field->get_field_class() != "sys_object")
+			else if (field_class != "sys_object")
 			{
                 json tab_field = jp.create_object();
                 tab_field.put_member("field_name", field->get_field_name());
@@ -9489,13 +9491,18 @@ private:
 			}
 		}
 
-		json tab = jp.create_object();
 		std::string tab_name = "tab_" + classd->get_class_name();
-		tab.put_member_string("page_name", tab_name);
-		tab.put_member_string("name", "details");
-		tab.put_member_string("member_name", ".");
-		tab.put_member_bool("list", false);
-		tabs.push_back(tab);
+		default_tab.put_member_string("page_name", tab_name);
+		default_tab.put_member_string("name", classd->get_class_name());
+		default_tab.put_member_string("member_name", ".");
+		default_tab.put_member_bool("list", false);
+
+		tab_name = "tab_" + classd->get_class_name() + "_sys";
+		object_tab.put_member_string("page_name", "object_details");
+		object_tab.put_member_string("name", "object");
+		object_tab.put_member_string("member_name", ".");
+		object_tab.put_member_bool("list", false);
+		tabs.push_back(object_tab);
 
 		page.put_member("tabs", tabs);
         card.put_member("fields", card_fields);
@@ -9657,6 +9664,68 @@ private:
 			return pages;
 		}
 
+		json generate_tab_inventory_pages(json& tab_custom_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
+		{
+			json_parser jp;
+			json tab_list_page = tab_custom_template.clone();
+			json pages = jp.create_array();
+
+			tab_list_page.put_member("page_name", "tab_list_" + class_name + "_" + member_name);
+
+			// Set icon
+			auto parameters = tab_list_page.find_member("using.parameters");
+			if (parameters.object()) {
+				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+
+				json tab_create_commands = jp.create_array();
+
+				std::string tab_list_table_name = "tl_" + class_name + "_" + member_name + "_table";
+
+				auto field = classd->get_field(member_name);
+				for (auto allowed_class : field->get_allowed_classes()) {
+					json new_item = create_command_class_template.clone();
+
+					json update_filter = jp.create_object();
+					new_item.apply_abbreviations({
+							{ "$create_button_class", jp.from_string(allowed_class) },
+							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
+							{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", allowed_class)) },
+							{ "$create_button_text", jp.from_string(allowed_class) },
+							{ "$create_button_message", jp.from_string("new " + allowed_class) },
+							{ "$class_edit_page", form_sources[allowed_class] }
+						});
+
+					json click_command = new_item["on_click"];
+					click_command.put_member_string("create_class_name", allowed_class);
+					click_command.put_member_string("constructor_frame", "frame_selected");
+
+					json jcopy = jp.create_object();
+					jcopy.put_member_string(classd->get_class_name(), "object_id");
+					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
+
+					click_command.put_member("constructor_copy", jcopy);
+					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
+					click_command.put_member_string("source_frame", form);
+					click_command.put_member_string("target_frame", "frame_selected");
+					new_item.put_member_string("message", "Create " + allowed_class);
+
+					tab_create_commands.push_back(new_item);
+				}
+
+				json abbrevations = jp.create_object();
+				abbrevations.put_member("$tab_custom_commands", tab_create_commands);
+				abbrevations.put_member("$tab_custom_class", _control_class);
+				abbrevations.put_member_string("$tab_custom_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
+				abbrevations.put_member_string("$tab_list_table_name", tab_list_table_name);
+				abbrevations.put_member_string("$json_field_name", member_name);
+				parameters.apply_abbreviations(abbrevations);
+			}
+
+			pages.push_back(tab_list_page);
+
+			return pages;
+		}
+
 		json generate_tab_custom_pages(json& tab_custom_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
@@ -9814,8 +9883,26 @@ private:
 
 				std::string member_name = src_tab["member_name"].as_string();
 
+				bool chest = src_tab["chest"].as_bool();
 				bool list = src_tab["list"].as_bool();
-				if (list) {
+				if (chest)
+				{
+					json tab_page;
+					if (src_tab.has_member("ux_class")) {
+						std::string ux_class = src_tab["ux_class"].as_string();
+						if (ux_class == "frame") {
+							tab_page = generate_tab_custom_pages(tab_custom_template, "inventory", classd, class_name, member_name, create_command_class_template, form_sources);
+						}
+					}
+					else {
+						tab_page = generate_tab_list_pages(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
+					}
+					result.push_back_array(tab_page);
+					new_tab.erase_member("list");
+					new_tab.copy_member("page_name", src_tab);
+				} 
+				else if (list) 
+				{
 					json tab_page;
 					if (src_tab.has_member("ux_class")) {
 						std::string ux_class = src_tab["ux_class"].as_string();
