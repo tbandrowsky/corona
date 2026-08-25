@@ -1,0 +1,27 @@
+{
+  "class_name": "page",
+  "page_name": "card_chest_item",
+  "using": {
+    "page_name": "card_container",
+    "parameters": {
+      "$card_contents": [
+
+        {
+          "box": "card_text_box",
+          "class_name": "paragraph",
+          "json_field_name": "item_type",
+          "text": "{item_type}"
+        },
+
+        {
+          "box": "card_text_box",
+          "class_name": "paragraph",
+          "json_field_name": "quantity",
+          "text": "{quantity}"
+        }
+      ],
+      "$card_height": "75 pixels",
+      "$icon_image_file": "assets\\stick.png"
+    }
+  }
+}

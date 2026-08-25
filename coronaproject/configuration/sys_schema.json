@@ -835,6 +835,12 @@
             }
           ]
         },
+        "inventory": [
+          {
+            "item_type": "wound-gunshot-stomach",
+            "quantity": 1
+          }
+        ],
         "mass": "500",
         "health": "100",
         "full_health": "100"
@@ -937,6 +943,12 @@
                 "stroke_width": 4
               }
             ]
+          }
+        ],
+        "inventory": [
+          {
+            "item_type": "gun-small",
+            "quantity": 1
           }
         ],
         "mass": "500",
@@ -1047,7 +1059,16 @@
         "health": "100",
         "full_health": "100",
         "defaults": {
-          "magazine_type": "mag-small"
+          "magazine_type": "mag-small",
+          "defaults": {
+            "ammunition_type": "ammo-small",
+            "inventory": [
+              {
+                "item_type": "ammo-small",
+                "quantity": 10
+              }
+            ]
+          }
         }
       },
       {

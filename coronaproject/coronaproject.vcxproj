@@ -587,6 +587,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\card.json" />
+    <None Include="configuration\source_templates\card_adventure.json" />
+    <None Include="configuration\source_templates\card_chest_item.json" />
     <None Include="configuration\source_templates\card_container.json" />
     <None Include="configuration\source_templates\card_container_small.json" />
     <None Include="configuration\source_templates\create_command_class.json" />

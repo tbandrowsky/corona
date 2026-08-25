@@ -551,7 +551,7 @@ namespace corona
 
 		}
 
-		virtual bool set_items(json _data)
+		virtual bool set_items(json _data) override
 		{
 			choices.items = _data;
 			data_changed();
@@ -681,7 +681,7 @@ namespace corona
 			data_changed();
 		}
 
-		virtual bool set_items(json _data)
+		virtual bool set_items(json _data) override
 		{
 			choices.items = _data;
 			data_changed();
@@ -912,7 +912,7 @@ namespace corona
 			data_changed();
 		}
 
-		virtual bool set_items(json _data)
+		virtual bool set_items(json _data) override
 		{
 			choices.items = _data;
 			data_changed();

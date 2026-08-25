@@ -196,6 +196,8 @@
   "pages":
     [
 
+      { "class_name":"import", "file_name":"pages\\card_chest_item.json" },
+
       { "class_name":"import", "file_name":"pages\\card_container.json" },
 
       { "class_name":"import", "file_name":"pages\\object_container.json" },
@@ -219,6 +221,11 @@
         "file_name":"pages\\tab_list_actor_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_actor_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_actor.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_actor.json" },
@@ -234,6 +241,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_ammunition_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_ammunition_inventory.json"
       },
 
       {
@@ -295,6 +307,11 @@
         "file_name":"pages\\tab_list_camera_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_camera_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_camera.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_camera.json" },
@@ -306,6 +323,11 @@
         "file_name":"pages\\tab_list_carryable_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_carryable_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_carryable.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_carryable.json" },
@@ -315,6 +337,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_consumable_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_consumable_inventory.json"
       },
 
       {
@@ -333,6 +360,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_inv_decoration_inventory.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\object_decoration.json"
       },
 
@@ -345,6 +377,11 @@
         "file_name":"pages\\tab_list_door_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_door_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_door.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_door.json" },
@@ -354,6 +391,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_effect_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_effect_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_effect.json" },
@@ -373,6 +415,11 @@
         "file_name":"pages\\tab_list_feature_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_feature_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_feature.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_feature.json" },
@@ -382,6 +429,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_firearm_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_firearm_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_firearm.json" },
@@ -434,6 +486,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_inv_globe_light_inventory.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\object_globe_light.json"
       },
 
@@ -444,6 +501,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_hit_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_hit_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_hit.json" },
@@ -457,6 +519,11 @@
         "file_name":"pages\\tab_list_light_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_light_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_light.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_light.json" },
@@ -466,6 +533,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_loot_box_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_loot_box_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_loot_box.json" },
@@ -479,6 +551,11 @@
         "file_name":"pages\\tab_list_loot_spot_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_loot_spot_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_loot_spot.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_loot_spot.json" },
@@ -488,6 +565,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_magazine_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_magazine_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_magazine.json" },
@@ -501,6 +583,11 @@
         "file_name":"pages\\tab_list_npc_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_npc_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_npc.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_npc.json" },
@@ -512,6 +599,11 @@
         "file_name":"pages\\tab_list_piece_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_piece_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_piece.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_piece.json" },
@@ -521,6 +613,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_piece_type_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_piece_type_inventory.json"
       },
 
       {
@@ -540,6 +637,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_player_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_player_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_player.json" },
@@ -574,6 +676,11 @@
         "file_name":"pages\\tab_list_shot_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_shot_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_shot.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_shot.json" },
@@ -585,6 +692,11 @@
         "file_name":"pages\\tab_list_spawn_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_spawn_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_spawn.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_spawn.json" },
@@ -594,6 +706,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_spot_light_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_spot_light_inventory.json"
       },
 
       {
@@ -610,6 +727,11 @@
         "file_name":"pages\\tab_list_stick_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_stick_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_stick.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_stick.json" },
@@ -621,6 +743,11 @@
         "file_name":"pages\\tab_list_surface_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_surface_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_surface.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_surface.json" },
@@ -630,6 +757,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_switcher_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_switcher_inventory.json"
       },
 
       {
@@ -659,6 +791,11 @@
         "file_name":"pages\\tab_list_tool_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_tool_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_tool.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_tool.json" },
@@ -668,6 +805,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_use_plate_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_use_plate_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_use_plate.json" },
@@ -710,6 +852,11 @@
         "file_name":"pages\\tab_list_wall_animations.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_wall_inventory.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_wall.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_wall.json" },
@@ -719,6 +866,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_list_wand_animations.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_inv_wand_inventory.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_wand.json" },

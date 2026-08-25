@@ -347,7 +347,7 @@ namespace corona
 			return data;
 		}
 
-		virtual bool set_items(json _data);
+		virtual bool set_items(json _data) override;
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 	};

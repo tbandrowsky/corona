@@ -655,14 +655,14 @@ namespace corona
 				case field_types::ft_selection:
 				{
 					std::string t = s;
-					json result = jp.parse_object(t);
+					json result = jp.parse_array(t);
 					_dest.put_member(acol.field_name.c_str(), result);
 				}
 				break;
 				case field_types::ft_chest:
 				{
 					std::string t = s;
-					json result = jp.parse_object(t);
+					json result = jp.parse_array(t);
 					_dest.put_member(acol.field_name.c_str(), result);
 				}
 				break;

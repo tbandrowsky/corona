@@ -1149,7 +1149,7 @@ namespace corona
 			set_items(data);
 		}
 
-		virtual bool set_items(json _data)
+		virtual bool set_items(json _data) override
 		{
             json current_selected_object = get_selected_object();
 
@@ -1329,6 +1329,7 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
+
 			draw_control::get_json(_dest);
 
 			if (sources) {
@@ -1361,7 +1362,7 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			draw_control::put_json(_src);
+ 			draw_control::put_json(_src);
 
             empty_text = _src["empty_text"].as_string();
 
@@ -1437,30 +1438,55 @@ namespace corona
 			json_parser jp;
 			json copy = _src.clone();
 			json sorcery = copy["sources"];
+
+			if (!sorcery.object()) {
+                sorcery = jp.create_object();
+                copy.put_member("sources", sorcery);
+			}
+
             if (!sorcery.has_member("chest_item")) {
 				sorcery.put_member_string("chest_item", "card_chest_item");
 			}
+
 			items_view::put_json(copy);
 		}
 
-		virtual json set_data(json _data) override
+		json get_items(json _data)
 		{
-			json result;
-            json chest_param = _data.clone();
+			json chest_param = _data.clone();
 			if (chest_param.array()) {
 				for (int i = 0; i < chest_param.size(); i++) {
 					json item = chest_param.get_element(i);
 					if (!item.has_member("class_name")) {
 						item.put_member_string("class_name", "chest_item");
 					}
-                }
-				result = items_view::set_data(chest_param);
-			} 
-			else
-			{
-				result = items_view::set_data(_data);
+				}
 			}
-			return result;
+			return chest_param;
+		}
+
+		virtual bool set_items(json _data) override
+		{
+			json items = get_items(_data);
+            if (!items.empty()) {
+				items_view::set_items(items);
+            }
+			return true;
+		}
+
+		virtual json set_data(json _data) override
+		{
+			json items = get_items(_data);
+			if (!items.empty()) {
+				items_view::set_data(items);
+			}
+			return items;
+		}
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<chest_view>(*this);
+			return tv;
 		}
 	};
 
