@@ -421,6 +421,152 @@ namespace corona
 	};
 
 
+	class scintilla_control : public windows_control
+	{
+		std::string text;
+		std::string format;
+
+	public:
+
+		using control_base::id;
+		using windows_control::window_host;
+
+		std::shared_ptr<corona_bus_command> change_command;
+
+		scintilla_control()
+		{
+			;
+		}
+
+		scintilla_control(control_base* _parent, int _id) : windows_control(_parent, _id)
+		{
+			;
+		}
+
+		scintilla_control(const scintilla_control& _src) : windows_control(_src)
+		{
+			text = _src.text;
+			change_command = _src.change_command;
+		}
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<scintilla_control>(*this);
+			return tv;
+		}
+
+		virtual ~scintilla_control() { ; }
+
+		void set_text(const std::string& _text)
+		{
+			text = _text;
+			if (auto phost = window_host.lock()) {
+				phost->setEditText(id, _text);
+			}
+		}
+
+		std::string get_text()
+		{
+			if (auto phost = window_host.lock()) {
+				text = phost->getEditText(id);
+			}
+			return text;
+		}
+
+		void set_format(const std::string& _text)
+		{
+			format = _text;
+		}
+
+		std::string get_format()
+		{
+			return format;
+		}
+
+		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
+		{
+			windows_control::create(_context, _host);
+			if (auto phost = window_host.lock()) {
+				phost->setEditText(id, text);
+			}
+		}
+
+		virtual json get_data() override
+		{
+			json result;
+			if (not json_field_name.empty()) {
+				json_parser jp;
+				result = jp.create_object();
+				std::string text = get_text();
+				json data = jp.parse_object(text);
+				if (!jp.has_errors()) {
+					result.put_member(json_field_name, data);
+				}
+			}
+			return result;
+		}
+
+		virtual json set_data(json _data) override
+		{
+			if (_data.has_member(json_field_name)) {
+				std::string text = _data[json_field_name].to_json();
+				set_text(text);
+			}
+			else {
+				std::string text = "";
+				set_text(text);
+			}
+			return _data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+
+			windows_control::get_json(_dest);
+			if (change_command) {
+				json jcommand = jp.create_object();
+				corona::get_json(jcommand, change_command);
+				_dest.put_member("change_command", jcommand);
+			}
+
+			_dest.put_member("text", text);
+			_dest.put_member("format", format);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			windows_control::put_json(_src);
+
+			json jcommand = _src["change_command"];
+			corona::put_json(change_command, jcommand);
+
+			std::string temp = _src["text"].as_string();
+			set_text(temp);
+
+			format = _src["format"].as_string();
+			set_format(format);
+		}
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+
+			if (change_command) {
+				_page->on_item_changed(id, [this](item_changed_event lce) {
+					lce.bus->run_command(lce.batch_id, change_command);
+					});
+			}
+		}
+
+		virtual const char* get_window_class() { return "Scintilla"; }
+		virtual DWORD get_window_style() { return DisplayOnlyWindowStyles; }
+		virtual DWORD get_window_ex_style() { return 0; }
+
+
+	};
+
+
 	class table_control_base : public windows_control
 	{
 		char blank[256] = { 0 };
@@ -1989,6 +2135,8 @@ namespace corona
 
 	class toolbar_control : public windows_control
 	{
+		HIMAGELIST image_list;
+
 	public:
 
 		toolbar_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
@@ -2007,7 +2155,28 @@ namespace corona
 		virtual DWORD get_window_style() { return DefaultWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 
+		LRESULT add_buttons(std::vector<TBBUTTON> buttons)
+		{
+			image_list = ImageList_Create(16, 16,   // Dimensions of individual bitmaps.
+				ILC_COLOR16 | ILC_MASK,   // Ensures transparent background.
+				buttons.size(), 0);
 
+			// Set the image list.
+			SendMessage(window, TB_SETIMAGELIST,
+				(WPARAM)0,
+				(LPARAM)image_list);
+
+			SendMessage(window, TB_LOADIMAGES, (WPARAM)IDB_STD_SMALL_COLOR, (LPARAM)HINST_COMMCTRL);
+
+			LRESULT result = SendMessage(window, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
+			result = SendMessage(window, TB_ADDBUTTONS, (WPARAM)buttons.size(), (LPARAM)buttons.data());
+			return result;
+		}
+
+        LRESULT Resize()
+        {
+            return SendMessage(window, TB_AUTOSIZE, 0, 0);
+        }
 	};
 
 	class statusbar_control : public windows_control
@@ -2048,7 +2217,7 @@ namespace corona
 
 		virtual ~hotkey_control() { ; }
 
-		virtual const char* get_window_class() { return TOOLBARCLASSNAMEA; }
+		virtual const char* get_window_class() { return HOTKEY_CLASSA; }
 		virtual DWORD get_window_style() { return DefaultWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 
@@ -2071,7 +2240,7 @@ namespace corona
 
 		virtual ~draglistbox_control() { ; }
 
-		virtual const char* get_window_class() { return HOTKEY_CLASSA; }
+		virtual const char* get_window_class() { return DRAGLISTBOX_CLASSA; }
 		virtual DWORD get_window_style() { return DefaultWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 

@@ -264,16 +264,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include;D:\shared\scintilla\scintilla\include</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</ExternalIncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib;D:\shared\scintilla\scintilla\bin</LibraryPath>
     <TargetName>coronaproject</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include;D:\shared\scintilla\scintilla\include</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</ExternalIncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib;D:\shared\scintilla\scintilla\bin</LibraryPath>
     <TargetName>coronaproject</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -526,7 +526,7 @@
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <OptimizeReferences>false</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);;Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;xinput.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);;Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;xinput.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib;scintilla.lib</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <StackReserveSize>10000000</StackReserveSize>
       <StackCommitSize>1000000</StackCommitSize>
@@ -569,7 +569,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);;Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;xinput.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);;Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;xinput.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib; scintilla.lib</AdditionalDependencies>
       <StackReserveSize>10000000</StackReserveSize>
       <StackCommitSize>1000000</StackCommitSize>
     </Link>

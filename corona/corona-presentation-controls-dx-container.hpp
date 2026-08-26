@@ -1526,6 +1526,45 @@ namespace corona
 		virtual ~absolute_view_layout() { ; }
 	};
 
+	class writepad_control : public column_layout
+	{
+
+		// this will just be a standard toolbar control
+		std::shared_ptr<toolbar_control> toolbar;
+		std::shared_ptr<richedit_control> rich_edit_area;
+
+		int toggle_bold;
+		int toggle_underline;
+		int toggle_italic;
+
+
+	protected:
+	public:
+
+		writepad_control() { ; }
+		writepad_control(const writepad_control& _src) = default;
+		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
+			toolbar = std::make_shared<toolbar_control>(this, id_counter::next());
+            toolbar->set_box({ 1.0_container, 32.0_px });
+			rich_edit_area = std::make_shared<richedit_control>(this, id_counter::next());
+			rich_edit_area->set_box({ 1.0_container, 1.0_remaining });
+		}
+
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+		{
+			column_layout::on_create(_context, _src);
+
+			if (toolbar) {
+				std::vector<TBBUTTON> buttons;
+				
+				TBBUTTON tbButton = { MAKELONG(STD_BOLD, 0), IDM_NEW, TBSTATE_ENABLED, BTNS_AUTOSIZE, { 0 }, 0, (INT_PTR)L"New" };
+				buttons.push_back(tbButton);
+				toolbar->add_buttons(buttons);
+			}
+		};
+
+	};
+
 	point row_layout::get_remaining(control_base* _parent)
 	{
 		return remaining;

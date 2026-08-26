@@ -151,7 +151,7 @@ namespace corona
 		}
 	};
 
-		class corona_class_page_map 
+	class corona_class_page_map 
 	{
 	public:
 

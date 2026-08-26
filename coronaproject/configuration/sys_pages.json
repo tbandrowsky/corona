@@ -210,6 +210,8 @@
 
       { "class_name":"import", "file_name":"pages\\card_activity.json" },
 
+      { "class_name":"import", "file_name":"pages\\.json" },
+
       { "class_name":"import", "file_name":"pages\\object_activity.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_activity.json" },
@@ -218,19 +220,33 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_actor_animations.json"
+        "file_name":"pages\\tab_actor_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_actor_inventory.json"
+        "file_name":"pages\\tab_actor_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_actor_selection.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_actor.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_actor.json" },
 
       { "class_name":"import", "file_name":"pages\\card_adventure.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_adventure_stage.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_adventure.json" },
 
@@ -240,13 +256,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_ammunition_animations.json"
+        "file_name":"pages\\tab_ammunition_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_ammunition_inventory.json"
+        "file_name":"pages\\tab_ammunition_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -259,13 +277,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_animation_frames.json"
+        "file_name":"pages\\tab_animation_frames.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_animation_timeline.json"
+        "file_name":"pages\\tab_animation_timeline.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_animation.json" },
 
@@ -275,6 +295,8 @@
         "class_name":"import",
         "file_name":"pages\\card_audio_change.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -290,8 +312,10 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_bitmap_frame_joints.json"
+        "file_name":"pages\\tab_bitmap_frame_joints.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -304,13 +328,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_camera_animations.json"
+        "file_name":"pages\\tab_camera_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_camera_inventory.json"
+        "file_name":"pages\\tab_camera_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_camera_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_camera.json" },
 
@@ -320,13 +351,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_carryable_animations.json"
+        "file_name":"pages\\tab_carryable_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_carryable_inventory.json"
+        "file_name":"pages\\tab_carryable_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_carryable.json" },
 
@@ -336,13 +369,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_consumable_animations.json"
+        "file_name":"pages\\tab_consumable_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_consumable_inventory.json"
+        "file_name":"pages\\tab_consumable_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -355,13 +390,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_decoration_animations.json"
+        "file_name":"pages\\tab_decoration_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_decoration_inventory.json"
+        "file_name":"pages\\tab_decoration_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_decoration_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -374,13 +416,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_door_animations.json"
+        "file_name":"pages\\tab_door_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_door_inventory.json"
+        "file_name":"pages\\tab_door_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_door_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_door.json" },
 
@@ -390,19 +439,23 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_effect_animations.json"
+        "file_name":"pages\\tab_effect_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_effect_inventory.json"
+        "file_name":"pages\\tab_effect_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_effect.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_effect.json" },
 
       { "class_name":"import", "file_name":"pages\\card_essay.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_essay.json" },
 
@@ -412,13 +465,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_feature_animations.json"
+        "file_name":"pages\\tab_feature_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_feature_inventory.json"
+        "file_name":"pages\\tab_feature_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_feature_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_feature.json" },
 
@@ -428,13 +488,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_firearm_animations.json"
+        "file_name":"pages\\tab_firearm_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_firearm_inventory.json"
+        "file_name":"pages\\tab_firearm_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_firearm.json" },
 
@@ -442,10 +504,9 @@
 
       { "class_name":"import", "file_name":"pages\\card_frame.json" },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_list_frame_joints.json"
-      },
+      { "class_name":"import", "file_name":"pages\\tab_frame_joints.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_frame.json" },
 
@@ -455,6 +516,8 @@
         "class_name":"import",
         "file_name":"pages\\card_function_scheduler.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -470,8 +533,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_game_adventures.json"
+        "file_name":"pages\\tab_game_adventures.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\tab_game_stage.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_game.json" },
 
@@ -481,13 +548,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_globe_light_animations.json"
+        "file_name":"pages\\tab_globe_light_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_globe_light_inventory.json"
+        "file_name":"pages\\tab_globe_light_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_globe_light_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -500,13 +574,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_hit_animations.json"
+        "file_name":"pages\\tab_hit_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_hit_inventory.json"
+        "file_name":"pages\\tab_hit_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_hit.json" },
 
@@ -516,13 +592,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_light_animations.json"
+        "file_name":"pages\\tab_light_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_light_inventory.json"
+        "file_name":"pages\\tab_light_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_light_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_light.json" },
 
@@ -532,13 +615,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_loot_box_animations.json"
+        "file_name":"pages\\tab_loot_box_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_loot_box_inventory.json"
+        "file_name":"pages\\tab_loot_box_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_loot_box_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_loot_box.json" },
 
@@ -548,13 +638,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_loot_spot_animations.json"
+        "file_name":"pages\\tab_loot_spot_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_loot_spot_inventory.json"
+        "file_name":"pages\\tab_loot_spot_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_loot_spot_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_loot_spot.json" },
 
@@ -564,13 +661,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_magazine_animations.json"
+        "file_name":"pages\\tab_magazine_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_magazine_inventory.json"
+        "file_name":"pages\\tab_magazine_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_magazine.json" },
 
@@ -580,13 +679,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_npc_animations.json"
+        "file_name":"pages\\tab_npc_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_npc_inventory.json"
+        "file_name":"pages\\tab_npc_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_npc_selection.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_npc.json" },
 
@@ -596,13 +702,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_piece_animations.json"
+        "file_name":"pages\\tab_piece_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_piece_inventory.json"
+        "file_name":"pages\\tab_piece_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_piece.json" },
 
@@ -612,18 +720,25 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_piece_type_animations.json"
+        "file_name":"pages\\tab_piece_type_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_piece_type_inventory.json"
+        "file_name":"pages\\tab_piece_type_defaults.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_piece_type_pieces.json"
+        "file_name":"pages\\tab_piece_type_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_piece_type_pieces.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -636,13 +751,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_player_animations.json"
+        "file_name":"pages\\tab_player_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_player_inventory.json"
+        "file_name":"pages\\tab_player_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_player_selection.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_player.json" },
 
@@ -650,20 +772,16 @@
 
       { "class_name":"import", "file_name":"pages\\card_set.json" },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_list_set_contents.json"
-      },
+      { "class_name":"import", "file_name":"pages\\tab_set_contents.json" },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_set_tile_codes.json"
+        "file_name":"pages\\tab_set_tile_codes.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_list_set_tile_strings.json"
-      },
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_set.json" },
 
@@ -673,13 +791,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_shot_animations.json"
+        "file_name":"pages\\tab_shot_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_shot_inventory.json"
+        "file_name":"pages\\tab_shot_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_shot.json" },
 
@@ -689,13 +809,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_spawn_animations.json"
+        "file_name":"pages\\tab_spawn_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_spawn_inventory.json"
+        "file_name":"pages\\tab_spawn_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_spawn_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_spawn.json" },
 
@@ -705,13 +832,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_spot_light_animations.json"
+        "file_name":"pages\\tab_spot_light_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_spot_light_inventory.json"
+        "file_name":"pages\\tab_spot_light_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_spot_light_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -724,13 +858,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_stick_animations.json"
+        "file_name":"pages\\tab_stick_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_stick_inventory.json"
+        "file_name":"pages\\tab_stick_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_stick.json" },
 
@@ -740,13 +876,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_surface_animations.json"
+        "file_name":"pages\\tab_surface_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_surface_inventory.json"
+        "file_name":"pages\\tab_surface_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_surface_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_surface.json" },
 
@@ -756,18 +899,25 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_switcher_animations.json"
+        "file_name":"pages\\tab_switcher_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_switcher_inventory.json"
+        "file_name":"pages\\tab_switcher_inventory.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_switcher_sets.json"
+        "file_name":"pages\\tab_switcher_scheduler.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_switcher_sets.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_switcher.json" },
 
@@ -777,8 +927,10 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_timepoint_changes.json"
+        "file_name":"pages\\tab_timepoint_changes.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_timepoint.json" },
 
@@ -788,13 +940,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_tool_animations.json"
+        "file_name":"pages\\tab_tool_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_tool_inventory.json"
+        "file_name":"pages\\tab_tool_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_tool.json" },
 
@@ -804,13 +958,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_use_plate_animations.json"
+        "file_name":"pages\\tab_use_plate_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_use_plate_inventory.json"
+        "file_name":"pages\\tab_use_plate_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_use_plate_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_use_plate.json" },
 
@@ -820,6 +981,13 @@
         "class_name":"import",
         "file_name":"pages\\card_value_change.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_value_change_new_value.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -835,8 +1003,10 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_vector_frame_joints.json"
+        "file_name":"pages\\tab_vector_frame_joints.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
@@ -849,13 +1019,25 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_wall_animations.json"
+        "file_name":"pages\\tab_wall_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_wall_inventory.json"
+        "file_name":"pages\\tab_wall_inventory.json"
       },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_wall_passable.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_wall_scheduler.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_wall.json" },
 
@@ -865,13 +1047,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_list_wand_animations.json"
+        "file_name":"pages\\tab_wand_animations.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_inv_wand_inventory.json"
+        "file_name":"pages\\tab_wand_inventory.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\object_wand.json" },
 

@@ -245,6 +245,7 @@ namespace corona
 	using monthcalendar_field_control = field_layout<default_layout, monthcalendar_control, default_field_layout>;
 	using radiobutton_list_field_control = field_layout<default_layout, radiobutton_list_control, default_field_layout>;
 	using checkbox_list_field_control = field_layout<default_layout, checkbox_list_control, default_field_layout>;
+    using scintilla_field_control = field_layout<default_layout, scintilla_control, default_field_layout>;
  
 	class corona_button_control : public pushbutton_control
 	{
@@ -819,6 +820,16 @@ namespace corona
 			return *this;
 		}
 
+		control_builder& scintilla_field(int _id, std::function<void(scintilla_field_control&)> _settings)
+		{
+			auto tc = create<scintilla_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
 		control_builder& image(int id, int _control_id, std::function<void(image_control&)> _settings)
 		{
 			auto tc = create<image_control>(id);
@@ -1352,6 +1363,15 @@ namespace corona
 			return *this;
 		}
 
+		control_builder& scintilla(int _id, std::function<void(scintilla_control&)> _settings = nullptr)
+		{
+			auto tc = create<scintilla_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
 
 		control_builder& minimize_button(int _id, std::function<void(minimize_button_control&)> _settings = nullptr)
 		{
@@ -2474,6 +2494,13 @@ namespace corona
 		else if (class_name == "monthcalendar")
 		{
 			monthcalendar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
+		else if (class_name == "scintilla")
+		{
+			scintilla(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});
