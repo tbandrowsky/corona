@@ -1530,13 +1530,10 @@ namespace corona
 	{
 
 		// this will just be a standard toolbar control
-		std::shared_ptr<toolbar_control> toolbar;
+		std::shared_ptr<row_layout> toolbar;
 		std::shared_ptr<richedit_control> rich_edit_area;
 
-		int toggle_bold;
-		int toggle_underline;
-		int toggle_italic;
-
+		PARAFORMAT paragraph_format;
 
 	protected:
 	public:
@@ -1544,8 +1541,34 @@ namespace corona
 		writepad_control() { ; }
 		writepad_control(const writepad_control& _src) = default;
 		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
-			toolbar = std::make_shared<toolbar_control>(this, id_counter::next());
+			paragraph_format = {};
+			paragraph_format.cbSize = sizeof(paragraph_format);
+			paragraph_format.cTabCount = 0;
+			paragraph_format.dxRightIndent = 0;
+			paragraph_format.dxStartIndent = 0;
+			paragraph_format.wAlignment = PFA_LEFT;
+
+			toolbar = std::make_shared<row_layout>(this, id_counter::next());
             toolbar->set_box({ 1.0_container, 32.0_px });
+
+			/*
+			        { "Italic", L"\uE8DB" },
+        { "Underline", L"\uE8DC" },
+        { "Bold", L"\uE8DD" },
+        { "AlignRight", L"\uE8E2" },
+        { "AlignLeft", L"\uE8E4" },
+        { "AlignCenter", L"\uE8E3" },
+        { "Font", L"\uE8D2"},
+        { "FontIncrease", L"\uE8E8" },
+        { "FontDecrease", L"\uE8E7" },
+        { "Bullet", L"\uE8FD"}
+
+			*/
+
+			std::shared_ptr<command_button_control> cbc = std::make_shared<command_button_control>(toolbar, id_counter::next());
+			cbc->icon = "Bold";
+			
+
 			rich_edit_area = std::make_shared<richedit_control>(this, id_counter::next());
 			rich_edit_area->set_box({ 1.0_container, 1.0_remaining });
 		}

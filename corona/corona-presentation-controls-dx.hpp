@@ -1920,7 +1920,20 @@ namespace corona
         // Video & Photo
         {"Video", L"\uE714"},
         {"Photo", L"\uEB9F"},
-        {"Pictures", L"\uE91B"}
+        {"Pictures", L"\uE91B"},
+
+        // Editing
+        { "Italic", L"\uE8DB" },
+        { "Underline", L"\uE8DC" },
+        { "Bold", L"\uE8DD" },
+        { "AlignRight", L"\uE8E2" },
+        { "AlignLeft", L"\uE8E4" },
+        { "AlignCenter", L"\uE8E3" },
+        { "Font", L"\uE8D2"},
+        { "FontIncrease", L"\uE8E8" },
+        { "FontDecrease", L"\uE8E7" },
+        { "Bullet", L"\uE8FD"}
+
     };
 
 
@@ -1936,7 +1949,7 @@ namespace corona
 
         std::string         enable_source_frame;
         std::string         enable_class_name;
-
+        std::function<void(command_button_control*)> on_click;
 
         command_button_control() : gradient_button_control() {
             init_text_styles();
@@ -2165,6 +2178,9 @@ namespace corona
 
                        int batch_id = evt.bus->start_batch();
                        evt.bus->run_command(batch_id, click_button->click_command);
+                    }
+                    if (click_button && click_button->on_click) {
+                        click_button->on_click(this);
                     }
                 });
         }
