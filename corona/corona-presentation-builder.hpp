@@ -246,6 +246,7 @@ namespace corona
 	using radiobutton_list_field_control = field_layout<default_layout, radiobutton_list_control, default_field_layout>;
 	using checkbox_list_field_control = field_layout<default_layout, checkbox_list_control, default_field_layout>;
     using scintilla_field_control = field_layout<default_layout, scintilla_control, default_field_layout>;
+	using writepad_field_control = field_layout<default_layout, writepad_control, default_field_layout>;
  
 	class corona_button_control : public pushbutton_control
 	{
@@ -640,6 +641,15 @@ namespace corona
 		control_builder& memo_field(int _id, std::function<void(memo_field_control&)> _settings)
 		{
 			auto tc = create<memo_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& writepad_field(int _id, std::function<void(writepad_field_control&)> _settings)
+		{
+			auto tc = create<writepad_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -1208,6 +1218,15 @@ namespace corona
 		control_builder& edit(int _id, std::function<void(edit_control&)> _settings = nullptr)
 		{
 			auto tc = create<edit_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& writepad(int _id, std::function<void(writepad_control&)> _settings = nullptr)
+		{
+			auto tc = create<writepad_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2406,7 +2425,14 @@ namespace corona
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});
-				}
+		}
+		else if (class_name == "writepad")
+		{
+			writepad(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
 		else if (class_name == "listview")
 		{
 			listview(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2529,6 +2555,13 @@ namespace corona
 		else if (class_name == "memo_field")
 		{
 			memo_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				});
+		}
+		else if (class_name == "writepad_field")
+		{
+			writepad_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				});

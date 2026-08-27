@@ -18,7 +18,7 @@
         },
         {
           "class_name": "$tab_custom_class",
-          "name": "$tab_list_table_name",
+          "name": "$tab_custom_table_name",
           "json_field_name": "$json_field_name",
           "box": {
             "width": "1.0 container",

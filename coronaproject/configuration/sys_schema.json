@@ -643,41 +643,173 @@
     "application_creator": "Todd Bandrowsky",
     "application_name": "Corona Video Game",
     "fields": {
+      ".animations": {
+        "class_name": "animations",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 35,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".inventory": {
+        "class_name": "chest_view",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 35,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
+      ".defaults": {
+        "class_name": "scintilla",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 35,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
       ".description": {
-        "class_name": "memo_field",
-        "box": "memo_field_box_large"
+        "class_name": "writepad_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "custom"
       },
       "string.memo": {
         "class_name": "memo_field",
-        "box": "memo_field_box_large"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
       },
       "string": {
         "class_name": "edit_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "datetime": {
         "class_name": "datetimepicker_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "double": {
         "class_name": "number_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "number": {
         "class_name": "number_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "int64_t": {
         "class_name": "number_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "boolean": {
         "class_name": "checkbox_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       },
       "string.enumeration": {
         "class_name": "combobox_field",
-        "box": "edit_field_box"
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       }
     },
     "card_fields": [ "name", "description", "class_name" ],

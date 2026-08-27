@@ -285,6 +285,8 @@ namespace corona
 
 	class text_control_base : public windows_control
 	{
+	protected:
+
 		std::string text;
 		std::string format;
 
@@ -319,7 +321,7 @@ namespace corona
 
 		virtual ~text_control_base() { ; }
 
-		void set_text(const std::string& _text)
+		virtual void set_text(const std::string& _text)
 		{
 			text = _text;
 			if (auto phost = window_host.lock()) {
@@ -327,7 +329,7 @@ namespace corona
 			}
 		}
 
-		std::string get_text()
+		virtual std::string get_text()
 		{
 			if (auto phost = window_host.lock()) {
 				text = phost->getEditText(id);
@@ -420,151 +422,6 @@ namespace corona
 
 	};
 
-
-	class scintilla_control : public windows_control
-	{
-		std::string text;
-		std::string format;
-
-	public:
-
-		using control_base::id;
-		using windows_control::window_host;
-
-		std::shared_ptr<corona_bus_command> change_command;
-
-		scintilla_control()
-		{
-			;
-		}
-
-		scintilla_control(control_base* _parent, int _id) : windows_control(_parent, _id)
-		{
-			;
-		}
-
-		scintilla_control(const scintilla_control& _src) : windows_control(_src)
-		{
-			text = _src.text;
-			change_command = _src.change_command;
-		}
-
-		virtual std::shared_ptr<control_base> clone()
-		{
-			auto tv = std::make_shared<scintilla_control>(*this);
-			return tv;
-		}
-
-		virtual ~scintilla_control() { ; }
-
-		void set_text(const std::string& _text)
-		{
-			text = _text;
-			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, _text);
-			}
-		}
-
-		std::string get_text()
-		{
-			if (auto phost = window_host.lock()) {
-				text = phost->getEditText(id);
-			}
-			return text;
-		}
-
-		void set_format(const std::string& _text)
-		{
-			format = _text;
-		}
-
-		std::string get_format()
-		{
-			return format;
-		}
-
-		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
-		{
-			windows_control::create(_context, _host);
-			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, text);
-			}
-		}
-
-		virtual json get_data() override
-		{
-			json result;
-			if (not json_field_name.empty()) {
-				json_parser jp;
-				result = jp.create_object();
-				std::string text = get_text();
-				json data = jp.parse_object(text);
-				if (!jp.has_errors()) {
-					result.put_member(json_field_name, data);
-				}
-			}
-			return result;
-		}
-
-		virtual json set_data(json _data) override
-		{
-			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name].to_json();
-				set_text(text);
-			}
-			else {
-				std::string text = "";
-				set_text(text);
-			}
-			return _data;
-		}
-
-		virtual void get_json(json& _dest)
-		{
-			json_parser jp;
-
-			windows_control::get_json(_dest);
-			if (change_command) {
-				json jcommand = jp.create_object();
-				corona::get_json(jcommand, change_command);
-				_dest.put_member("change_command", jcommand);
-			}
-
-			_dest.put_member("text", text);
-			_dest.put_member("format", format);
-		}
-
-		virtual void put_json(json& _src)
-		{
-			windows_control::put_json(_src);
-
-			json jcommand = _src["change_command"];
-			corona::put_json(change_command, jcommand);
-
-			std::string temp = _src["text"].as_string();
-			set_text(temp);
-
-			format = _src["format"].as_string();
-			set_format(format);
-		}
-
-		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
-		{
-			windows_control::on_subscribe(_presentation, _page);
-
-			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
-					lce.bus->run_command(lce.batch_id, change_command);
-					});
-			}
-		}
-
-		virtual const char* get_window_class() { return "Scintilla"; }
-		virtual DWORD get_window_style() { return DisplayOnlyWindowStyles; }
-		virtual DWORD get_window_ex_style() { return 0; }
-
-
-	};
 
 
 	class table_control_base : public windows_control
@@ -1097,6 +954,152 @@ namespace corona
 	const int LinkButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_COMMANDLINK | BS_FLAT | BS_NOTIFY;
 	const int ListViewWindowsStyles = DefaultWindowStyles | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_VSCROLL;
 	const int ListBoxWindowsStyles = DefaultWindowStyles | WS_BORDER | WS_VSCROLL | LBS_NOTIFY;
+
+
+	class scintilla_control : public windows_control
+	{
+		std::string text;
+		std::string format;
+
+	public:
+
+		using control_base::id;
+		using windows_control::window_host;
+
+		std::shared_ptr<corona_bus_command> change_command;
+
+		scintilla_control()
+		{
+			;
+		}
+
+		scintilla_control(control_base* _parent, int _id) : windows_control(_parent, _id)
+		{
+			;
+		}
+
+		scintilla_control(const scintilla_control& _src) : windows_control(_src)
+		{
+			text = _src.text;
+			change_command = _src.change_command;
+		}
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<scintilla_control>(*this);
+			return tv;
+		}
+
+		virtual ~scintilla_control() { ; }
+
+		void set_text(const std::string& _text)
+		{
+			text = _text;
+			if (auto phost = window_host.lock()) {
+				phost->setEditText(id, _text);
+			}
+		}
+
+		std::string get_text()
+		{
+			if (auto phost = window_host.lock()) {
+				text = phost->getEditText(id);
+			}
+			return text;
+		}
+
+		void set_format(const std::string& _text)
+		{
+			format = _text;
+		}
+
+		std::string get_format()
+		{
+			return format;
+		}
+
+		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
+		{
+			windows_control::create(_context, _host);
+			if (auto phost = window_host.lock()) {
+				phost->setEditText(id, text);
+			}
+		}
+
+		virtual json get_data() override
+		{
+			json result;
+			if (not json_field_name.empty()) {
+				json_parser jp;
+				result = jp.create_object();
+				std::string text = get_text();
+				json data = jp.parse_object(text);
+				if (!jp.has_errors()) {
+					result.put_member(json_field_name, data);
+				}
+			}
+			return result;
+		}
+
+		virtual json set_data(json _data) override
+		{
+			if (_data.has_member(json_field_name)) {
+				std::string text = _data[json_field_name].to_json();
+				set_text(text);
+			}
+			else {
+				std::string text = "";
+				set_text(text);
+			}
+			return _data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+
+			windows_control::get_json(_dest);
+			if (change_command) {
+				json jcommand = jp.create_object();
+				corona::get_json(jcommand, change_command);
+				_dest.put_member("change_command", jcommand);
+			}
+
+			_dest.put_member("text", text);
+			_dest.put_member("format", format);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			windows_control::put_json(_src);
+
+			json jcommand = _src["change_command"];
+			corona::put_json(change_command, jcommand);
+
+			std::string temp = _src["text"].as_string();
+			set_text(temp);
+
+			format = _src["format"].as_string();
+			set_format(format);
+		}
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+
+			if (change_command) {
+				_page->on_item_changed(id, [this](item_changed_event lce) {
+					lce.bus->run_command(lce.batch_id, change_command);
+					});
+			}
+		}
+
+		virtual const char* get_window_class() { return "Scintilla"; }
+		virtual DWORD get_window_style() { return DisplayOnlyWindowStyles; }
+		virtual DWORD get_window_ex_style() { return 0; }
+
+
+	};
 
 	class static_control : public text_control_base
 	{
@@ -1748,11 +1751,12 @@ namespace corona
 
 	class richedit_control : public text_control_base
 	{
+		std::string transfer_string;
+		int			transfer_point;
+
 	public:
 		std::shared_ptr<corona_bus_command> changed_command;
-
-		void set_html(const std::string& _text);
-		std::string get_html();
+		std::function<void(richedit_control*)> on_changed;
 
 		richedit_control() { id = id_counter::next(); }
 
@@ -1769,11 +1773,80 @@ namespace corona
 
 		virtual ~richedit_control() { ; }
 
-
 		virtual const char* get_window_class() { return nullptr; }
 		virtual const wchar_t* get_window_class_w() { return MSFTEDIT_CLASS; }
 		virtual DWORD get_window_style() { return RichEditWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
+
+		void get_paragraph_format(PARAFORMAT* _format)
+		{
+			::SendMessage(window, EM_GETPARAFORMAT, SCF_SELECTION, (LPARAM)_format);
+		}
+
+		void get_paragraph_format(PARAFORMAT2* _format)
+		{
+			::SendMessage(window, EM_GETPARAFORMAT, SCF_SELECTION, (LPARAM)_format);
+		}
+
+		void get_character_format(CHARFORMAT* _format)
+		{
+			::SendMessage(window, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)_format);
+		}
+
+		void get_character_format(CHARFORMAT2* _format)
+		{
+			::SendMessage(window, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)_format);
+		}
+
+		void set_paragraph_format(PARAFORMAT* _format)
+		{
+			::SendMessage(window, EM_SETPARAFORMAT, SCF_SELECTION | SCF_DEFAULT, (LPARAM)_format);
+		}
+
+		void set_paragraph_format(PARAFORMAT2* _format)
+		{
+			::SendMessage(window, EM_SETPARAFORMAT, SCF_SELECTION | SCF_DEFAULT, (LPARAM)_format);
+		}
+		
+		void set_character_format(CHARFORMAT *_format)
+		{
+			::SendMessage(window, EM_SETCHARFORMAT, SCF_SELECTION | SCF_DEFAULT, (LPARAM)_format);
+		}
+
+		void set_character_format(CHARFORMAT2 * _format)
+		{
+			::SendMessage(window, EM_SETCHARFORMAT, SCF_SELECTION | SCF_DEFAULT, (LPARAM)_format);
+		}
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+
+			_page->on_item_changed(id, [this](item_changed_event lce) {
+				if (change_command) {
+					lce.bus->run_command(lce.batch_id, change_command);
+				}
+				if (on_changed) {
+					on_changed(this);
+				}
+			});
+		}
+
+		static DWORD edit_stream_read(
+			DWORD_PTR dwCookie,
+			LPBYTE pbBuff,
+			LONG cb,
+			LONG* pcb
+		);
+		static DWORD edit_stream_write(
+			DWORD_PTR dwCookie,
+			LPBYTE pbBuff,
+			LONG cb,
+			LONG* pcb
+		);
+
+		virtual void set_text(const std::string& _text) override;
+		virtual std::string get_text() override;
 
 	};
 
@@ -2240,9 +2313,264 @@ namespace corona
 
 		virtual ~draglistbox_control() { ; }
 
-		virtual const char* get_window_class() { return DRAGLISTBOX_CLASSA; }
+		virtual const char* get_window_class() { return HOTKEY_CLASSA; }
 		virtual DWORD get_window_style() { return DefaultWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
+
+	};
+
+	class writepad_control : public column_layout
+	{
+
+		// this will just be a standard toolbar control
+		std::shared_ptr<row_layout>				toolbar;
+		std::shared_ptr<command_button_control> italic_button;
+		std::shared_ptr<command_button_control> bold_button;
+		std::shared_ptr<command_button_control> underline_button;
+		std::shared_ptr<command_button_control> align_right_button;
+		std::shared_ptr<command_button_control> align_left_button;
+		std::shared_ptr<command_button_control> align_center_button;
+		std::shared_ptr<command_button_control> bullet_button;
+		std::shared_ptr<command_button_control> font_button;
+		std::shared_ptr<combobox_control>		styles_dropdown;
+
+		std::shared_ptr<richedit_control>		richedit_area;
+
+		PARAFORMAT		paragraph_format;
+		CHARFORMAT2A    character_format;
+		layout_rect		button_layout;
+
+	protected:
+	public:
+
+		writepad_control() { class_name = "writepad"; }
+		writepad_control(const writepad_control& _src) = default;
+		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
+
+			character_format = {};
+			character_format.cbSize = sizeof(character_format);
+			character_format.dwMask = CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE | CFM_COLOR | CFM_BACKCOLOR;
+			character_format.dwEffects = CFE_AUTOCOLOR | CFE_AUTOBACKCOLOR;
+
+			paragraph_format = {};
+			paragraph_format.cbSize = sizeof(paragraph_format);
+			paragraph_format.dwMask = PFM_ALIGNMENT;
+			paragraph_format.cTabCount = 0;
+			paragraph_format.dxRightIndent = 0;
+			paragraph_format.dxStartIndent = 0;
+			paragraph_format.wAlignment = PFA_LEFT;
+
+			toolbar = std::make_shared<row_layout>(this, id_counter::next());
+			toolbar->set_box({ 1.0_container, 75.0_px });
+			toolbar->wrap = true;
+
+			button_layout = {};
+			button_layout.width = 100.0_px;
+			button_layout.height = 5.0_px;
+
+			/*
+					{ "Italic", L"\uE8DB" },
+		{ "Underline", L"\uE8DC" },
+		{ "Bold", L"\uE8DD" },
+		{ "AlignRight", L"\uE8E2" },
+		{ "AlignLeft", L"\uE8E4" },
+		{ "AlignCenter", L"\uE8E3" },
+		{ "Font", L"\uE8D2"},
+		{ "FontIncrease", L"\uE8E8" },
+		{ "FontDecrease", L"\uE8E7" },
+		{ "Bullet", L"\uE8FD"}
+
+			*/
+
+			italic_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			italic_button->icon = "Italic";
+			italic_button->set_box(button_layout);
+			italic_button->on_click = [this](command_button_control* _src) {
+				int selected = character_format.dwEffects & CFE_ITALIC;
+				_src->enabled = !selected;
+				if (selected) {
+					character_format.dwEffects &= ~CFE_ITALIC;
+				}
+				else
+				{
+					character_format.dwEffects |= CFE_ITALIC;
+				}
+				richedit_area->set_character_format(&character_format);
+				};
+
+			bold_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			bold_button->icon = "Bold";
+			bold_button->set_box(button_layout);
+			bold_button->on_click = [this](command_button_control* _src) {
+				int selected = character_format.dwEffects & CFE_BOLD;
+				_src->enabled = !selected;
+				if (selected) {
+					character_format.dwEffects &= ~CFE_BOLD;
+				}
+				else
+				{
+					character_format.dwEffects |= CFE_BOLD;
+				}
+				richedit_area->set_character_format(&character_format);
+				};
+
+			underline_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			underline_button->icon = "Underline";
+			underline_button->set_box(button_layout);
+			underline_button->on_click = [this](command_button_control* _src) {
+				int selected = character_format.dwEffects & CFE_UNDERLINE;
+				_src->enabled = !selected;
+				if (selected) {
+					character_format.dwEffects &= ~CFE_UNDERLINE;
+				}
+				else
+				{
+					character_format.dwEffects |= CFE_UNDERLINE;
+				}
+				richedit_area->set_character_format(&character_format);
+				};
+
+			align_right_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			align_right_button->icon = "AlignRight";
+			align_right_button->set_box(button_layout);
+			align_right_button->on_click = [this](command_button_control* _src) {
+				paragraph_format.wAlignment = PFA_RIGHT;
+				_src->enabled = true;
+				align_left_button->enabled = false;
+				align_center_button->enabled = false;
+				richedit_area->set_paragraph_format(&paragraph_format);
+				};
+
+			align_left_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			align_left_button->icon = "AlignLeft";
+			align_left_button->set_box(button_layout);
+			align_left_button->on_click = [this](command_button_control* _src) {
+				paragraph_format.wAlignment = PFA_LEFT;
+				_src->enabled = true;
+				align_right_button->enabled = false;
+				align_center_button->enabled = false;
+				richedit_area->set_paragraph_format(&paragraph_format);
+				};
+
+			align_center_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			align_center_button->icon = "AlignCenter";
+			align_center_button->set_box(button_layout);
+			align_center_button->on_click = [this](command_button_control* _src) {
+				paragraph_format.wAlignment = PFA_CENTER;
+				_src->enabled = true;
+				align_left_button->enabled = false;
+				align_right_button->enabled = false;
+				richedit_area->set_paragraph_format(&paragraph_format);
+				};
+
+			font_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			font_button->set_box(button_layout);
+			font_button->icon = "Font";
+			font_button->on_click = [this](command_button_control* _src) {
+				;
+				};
+
+			bullet_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+			bullet_button->set_box(button_layout);
+			bullet_button->icon = "Bullet";
+			bullet_button->on_click = [this](command_button_control* _src) {
+				;
+				};
+
+			richedit_area = std::make_shared<richedit_control>(this, id_counter::next());
+			richedit_area->set_box({ 1.0_container, 1.0_remaining });
+			richedit_area->on_changed = [this](richedit_control* _src) {
+				richedit_area->get_paragraph_format(&paragraph_format);
+				switch (paragraph_format.wAlignment) {
+				case PFA_CENTER:
+					align_center_button->enabled = true;
+					align_left_button->enabled = false;
+					align_right_button->enabled = false;
+					break;
+				case PFA_LEFT:
+					align_center_button->enabled = false;
+					align_left_button->enabled = true;
+					align_right_button->enabled = false;
+					break;
+				case PFA_RIGHT:
+					align_center_button->enabled = false;
+					align_left_button->enabled = false;
+					align_right_button->enabled = true;
+					break;
+				}
+				richedit_area->get_character_format(&character_format);
+				bold_button->enabled = character_format.dwEffects & CFE_BOLD;
+				underline_button->enabled = character_format.dwEffects & CFE_UNDERLINE;
+				italic_button->enabled = character_format.dwEffects & CFE_ITALIC;
+				};
+
+			toolbar->children.push_back(italic_button);
+			toolbar->children.push_back(bold_button);
+			toolbar->children.push_back(underline_button);
+			toolbar->children.push_back(align_right_button);
+			toolbar->children.push_back(align_left_button);
+			toolbar->children.push_back(align_center_button);
+			toolbar->children.push_back(font_button);
+			toolbar->children.push_back(bullet_button);
+		}
+
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+		{
+			column_layout::on_create(_context, _src);
+		};
+
+		void set_text(const std::string& _text)
+		{
+			if (richedit_area)
+				richedit_area->set_text(_text);
+		}
+
+		std::string get_text()
+		{
+			if (richedit_area)
+				return richedit_area->get_text();
+			return "";
+		}
+
+		virtual json get_data() override
+		{
+			if (richedit_area)
+				return richedit_area->get_data();
+			return json();
+		}
+
+		virtual json set_data(json _data) override
+		{
+			if (richedit_area)
+				return richedit_area->set_data(_data);
+			return json();
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+
+			column_layout::get_json(_dest);
+
+			std::string temp = get_text();
+
+            _dest.put_member_string("text", temp);		
+		}
+
+		virtual void put_json(json& _src)
+		{
+			column_layout::put_json(_src);
+
+			std::string temp = _src["text"].as_string();
+			set_text(temp);
+
+		}
+	
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<writepad_control>(nullptr, id);
+			return tv;
+		}
 
 	};
 
@@ -2307,14 +2635,73 @@ namespace corona
 		data_changed();
 	}
 
-	void richedit_control::set_html(const std::string& _text)
-	{
+	DWORD richedit_control::edit_stream_read(
+		DWORD_PTR dwCookie,
+		LPBYTE pbBuff,
+		LONG cb,
+		LONG* pcb
+	) {
+		richedit_control* ctrl = (richedit_control*)dwCookie;
 
+		int i;
+		for (i = 0; i < cb; i++) {
+			ctrl->transfer_string += (char)pbBuff[i];
+			ctrl->transfer_point++;
+		}
+		if (pcb)
+			*pcb = i;
+		return 0;
 	}
 
-	std::string richedit_control::get_html()
+	DWORD richedit_control::edit_stream_write(
+		DWORD_PTR dwCookie,
+		LPBYTE pbBuff,
+		LONG cb,
+		LONG* pcb
+	) {
+		richedit_control* ctrl = (richedit_control*)dwCookie;
+
+		bool finished = ctrl->transfer_point == ctrl->transfer_string.size();
+
+		int i;
+		for (i = 0; i < cb && !finished; i++) {
+			pbBuff[i] = ctrl->transfer_string[ctrl->transfer_point];
+			ctrl->transfer_point++;
+			finished = ctrl->transfer_point == ctrl->transfer_string.size();
+		}
+		if (pcb)
+			*pcb = i;
+
+		return finished ? -1 : 0;
+	}
+
+	void richedit_control::set_text(const std::string& _text)
 	{
-		return "";
+		text_control_base::text = _text;
+
+		transfer_string = _text;
+		transfer_point = 0;
+
+		EDITSTREAM es = {};
+		es.dwCookie = (DWORD_PTR)this;
+		es.pfnCallback = edit_stream_read;
+
+		SendMessage(window, EM_STREAMIN, SF_RTF, (LPARAM) & es);
+	}
+
+	std::string richedit_control::get_text()
+	{
+		transfer_string = "";
+		transfer_point = 0;
+
+		EDITSTREAM es = {};
+		es.dwCookie = (DWORD_PTR)this;
+		es.pfnCallback = edit_stream_read;
+
+		SendMessage(window, EM_STREAMOUT, SF_RTF, (LPARAM)&es);
+
+		text_control_base::text = transfer_string;
+		return text;
 	}
 
 	void datetimepicker_control::set_text(const std::string& _text)

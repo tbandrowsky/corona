@@ -1526,68 +1526,6 @@ namespace corona
 		virtual ~absolute_view_layout() { ; }
 	};
 
-	class writepad_control : public column_layout
-	{
-
-		// this will just be a standard toolbar control
-		std::shared_ptr<row_layout> toolbar;
-		std::shared_ptr<richedit_control> rich_edit_area;
-
-		PARAFORMAT paragraph_format;
-
-	protected:
-	public:
-
-		writepad_control() { ; }
-		writepad_control(const writepad_control& _src) = default;
-		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
-			paragraph_format = {};
-			paragraph_format.cbSize = sizeof(paragraph_format);
-			paragraph_format.cTabCount = 0;
-			paragraph_format.dxRightIndent = 0;
-			paragraph_format.dxStartIndent = 0;
-			paragraph_format.wAlignment = PFA_LEFT;
-
-			toolbar = std::make_shared<row_layout>(this, id_counter::next());
-            toolbar->set_box({ 1.0_container, 32.0_px });
-
-			/*
-			        { "Italic", L"\uE8DB" },
-        { "Underline", L"\uE8DC" },
-        { "Bold", L"\uE8DD" },
-        { "AlignRight", L"\uE8E2" },
-        { "AlignLeft", L"\uE8E4" },
-        { "AlignCenter", L"\uE8E3" },
-        { "Font", L"\uE8D2"},
-        { "FontIncrease", L"\uE8E8" },
-        { "FontDecrease", L"\uE8E7" },
-        { "Bullet", L"\uE8FD"}
-
-			*/
-
-			std::shared_ptr<command_button_control> cbc = std::make_shared<command_button_control>(toolbar, id_counter::next());
-			cbc->icon = "Bold";
-			
-
-			rich_edit_area = std::make_shared<richedit_control>(this, id_counter::next());
-			rich_edit_area->set_box({ 1.0_container, 1.0_remaining });
-		}
-
-		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
-		{
-			column_layout::on_create(_context, _src);
-
-			if (toolbar) {
-				std::vector<TBBUTTON> buttons;
-				
-				TBBUTTON tbButton = { MAKELONG(STD_BOLD, 0), IDM_NEW, TBSTATE_ENABLED, BTNS_AUTOSIZE, { 0 }, 0, (INT_PTR)L"New" };
-				buttons.push_back(tbButton);
-				toolbar->add_buttons(buttons);
-			}
-		};
-
-	};
-
 	point row_layout::get_remaining(control_base* _parent)
 	{
 		return remaining;

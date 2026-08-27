@@ -191,6 +191,11 @@
         {
           "height":{ "amount":10.000000, "units":"pixels" },
           "width":{ "amount":1.000000, "units":"container" }
+        },
+      "writepad_field_box":
+        {
+          "height":{ "amount":1.000000, "units":"remaining" },
+          "width":{ "amount":1.000000, "units":"container" }
         }
     },
   "pages":
@@ -210,11 +215,17 @@
 
       { "class_name":"import", "file_name":"pages\\card_activity.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_activity_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_activity_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_activity.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_activity.json" },
 
       { "class_name":"import", "file_name":"pages\\card_actor.json" },
 
@@ -233,24 +244,28 @@
         "file_name":"pages\\tab_actor_selection.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_actor_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_actor.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_actor.json" },
-
       { "class_name":"import", "file_name":"pages\\card_adventure.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_adventure_description.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_adventure_stage.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_adventure_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_adventure.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_adventure.json" },
 
       { "class_name":"import", "file_name":"pages\\card_ammunition.json" },
 
@@ -264,14 +279,15 @@
         "file_name":"pages\\tab_ammunition_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_ammunition_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_ammunition.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_ammunition.json" },
 
       { "class_name":"import", "file_name":"pages\\card_animation.json" },
 
@@ -285,25 +301,27 @@
         "file_name":"pages\\tab_animation_timeline.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_animation_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_animation.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_animation.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_audio_change.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_audio_change_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_audio_change.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_audio_change.json" },
 
       {
         "class_name":"import",
@@ -315,14 +333,15 @@
         "file_name":"pages\\tab_bitmap_frame_joints.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bitmap_frame_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_bitmap_frame.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_bitmap_frame.json" },
 
       { "class_name":"import", "file_name":"pages\\card_camera.json" },
 
@@ -341,11 +360,12 @@
         "file_name":"pages\\tab_camera_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_camera_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_camera.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_camera.json" },
 
       { "class_name":"import", "file_name":"pages\\card_carryable.json" },
 
@@ -359,11 +379,12 @@
         "file_name":"pages\\tab_carryable_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_carryable_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_carryable.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_carryable.json" },
 
       { "class_name":"import", "file_name":"pages\\card_consumable.json" },
 
@@ -377,14 +398,15 @@
         "file_name":"pages\\tab_consumable_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_consumable_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_consumable.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_consumable.json" },
 
       { "class_name":"import", "file_name":"pages\\card_decoration.json" },
 
@@ -403,14 +425,15 @@
         "file_name":"pages\\tab_decoration_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_decoration_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_decoration.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_decoration.json" },
 
       { "class_name":"import", "file_name":"pages\\card_door.json" },
 
@@ -429,11 +452,9 @@
         "file_name":"pages\\tab_door_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_door_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_door.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_door.json" },
 
       { "class_name":"import", "file_name":"pages\\card_effect.json" },
 
@@ -447,19 +468,23 @@
         "file_name":"pages\\tab_effect_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_effect_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_effect.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_effect.json" },
-
       { "class_name":"import", "file_name":"pages\\card_essay.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_essay_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_essay_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_essay.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_essay.json" },
 
       { "class_name":"import", "file_name":"pages\\card_feature.json" },
 
@@ -478,11 +503,12 @@
         "file_name":"pages\\tab_feature_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_feature_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_feature.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_feature.json" },
 
       { "class_name":"import", "file_name":"pages\\card_firearm.json" },
 
@@ -496,37 +522,34 @@
         "file_name":"pages\\tab_firearm_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_firearm_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_firearm.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_firearm.json" },
 
       { "class_name":"import", "file_name":"pages\\card_frame.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_frame_joints.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_frame_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_frame.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_frame.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_function_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
-
       {
         "class_name":"import",
-        "file_name":"pages\\object_function_scheduler.json"
+        "file_name":"pages\\tab_function_scheduler_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_function_scheduler.json"
+        "file_name":"pages\\object_function_scheduler.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_game.json" },
@@ -536,13 +559,16 @@
         "file_name":"pages\\tab_game_adventures.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_game_description.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\tab_game_stage.json" },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_game_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_game.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_game.json" },
 
       { "class_name":"import", "file_name":"pages\\card_globe_light.json" },
 
@@ -561,14 +587,15 @@
         "file_name":"pages\\tab_globe_light_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_globe_light_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_globe_light.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_globe_light.json" },
 
       { "class_name":"import", "file_name":"pages\\card_hit.json" },
 
@@ -582,11 +609,9 @@
         "file_name":"pages\\tab_hit_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_hit_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_hit.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_hit.json" },
 
       { "class_name":"import", "file_name":"pages\\card_light.json" },
 
@@ -605,11 +630,9 @@
         "file_name":"pages\\tab_light_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_light_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_light.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_light.json" },
 
       { "class_name":"import", "file_name":"pages\\card_loot_box.json" },
 
@@ -628,11 +651,12 @@
         "file_name":"pages\\tab_loot_box_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_loot_box_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_loot_box.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_loot_box.json" },
 
       { "class_name":"import", "file_name":"pages\\card_loot_spot.json" },
 
@@ -651,11 +675,12 @@
         "file_name":"pages\\tab_loot_spot_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_loot_spot_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_loot_spot.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_loot_spot.json" },
 
       { "class_name":"import", "file_name":"pages\\card_magazine.json" },
 
@@ -669,11 +694,12 @@
         "file_name":"pages\\tab_magazine_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_magazine_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_magazine.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_magazine.json" },
 
       { "class_name":"import", "file_name":"pages\\card_npc.json" },
 
@@ -692,11 +718,9 @@
         "file_name":"pages\\tab_npc_selection.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_npc_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_npc.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_npc.json" },
 
       { "class_name":"import", "file_name":"pages\\card_piece.json" },
 
@@ -710,11 +734,9 @@
         "file_name":"pages\\tab_piece_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_piece_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_piece.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_piece.json" },
 
       { "class_name":"import", "file_name":"pages\\card_piece_type.json" },
 
@@ -730,6 +752,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_piece_type_description.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_piece_type_inventory.json"
       },
 
@@ -738,14 +765,15 @@
         "file_name":"pages\\tab_piece_type_pieces.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_piece_type_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_piece_type.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_piece_type.json" },
 
       { "class_name":"import", "file_name":"pages\\card_player.json" },
 
@@ -764,11 +792,12 @@
         "file_name":"pages\\tab_player_selection.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_player_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_player.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_player.json" },
 
       { "class_name":"import", "file_name":"pages\\card_set.json" },
 
@@ -776,16 +805,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_set_description.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_set_tile_codes.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_set_tile_strings.json"
+      },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_set_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_set.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_set.json" },
 
       { "class_name":"import", "file_name":"pages\\card_shot.json" },
 
@@ -799,11 +834,9 @@
         "file_name":"pages\\tab_shot_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_shot_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_shot.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_shot.json" },
 
       { "class_name":"import", "file_name":"pages\\card_spawn.json" },
 
@@ -822,11 +855,9 @@
         "file_name":"pages\\tab_spawn_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_spawn_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_spawn.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_spawn.json" },
 
       { "class_name":"import", "file_name":"pages\\card_spot_light.json" },
 
@@ -845,14 +876,15 @@
         "file_name":"pages\\tab_spot_light_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_spot_light_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_spot_light.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_spot_light.json" },
 
       { "class_name":"import", "file_name":"pages\\card_stick.json" },
 
@@ -866,11 +898,9 @@
         "file_name":"pages\\tab_stick_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_stick_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_stick.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_stick.json" },
 
       { "class_name":"import", "file_name":"pages\\card_surface.json" },
 
@@ -889,11 +919,12 @@
         "file_name":"pages\\tab_surface_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_surface_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_surface.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_surface.json" },
 
       { "class_name":"import", "file_name":"pages\\card_switcher.json" },
 
@@ -917,11 +948,12 @@
         "file_name":"pages\\tab_switcher_sets.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_switcher_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_switcher.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_switcher.json" },
 
       { "class_name":"import", "file_name":"pages\\card_timepoint.json" },
 
@@ -930,11 +962,12 @@
         "file_name":"pages\\tab_timepoint_changes.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_timepoint_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_timepoint.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_timepoint.json" },
 
       { "class_name":"import", "file_name":"pages\\card_tool.json" },
 
@@ -948,11 +981,9 @@
         "file_name":"pages\\tab_tool_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_tool_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_tool.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_tool.json" },
 
       { "class_name":"import", "file_name":"pages\\card_use_plate.json" },
 
@@ -971,11 +1002,12 @@
         "file_name":"pages\\tab_use_plate_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_use_plate_fields.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\object_use_plate.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_use_plate.json" },
 
       {
         "class_name":"import",
@@ -984,17 +1016,13 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_value_change_new_value.json"
+        "file_name":"pages\\tab_value_change_fields.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_value_change.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_value_change.json" },
 
       {
         "class_name":"import",
@@ -1006,14 +1034,15 @@
         "file_name":"pages\\tab_vector_frame_joints.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vector_frame_fields.json"
+      },
 
       {
         "class_name":"import",
         "file_name":"pages\\object_vector_frame.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_vector_frame.json" },
 
       { "class_name":"import", "file_name":"pages\\card_wall.json" },
 
@@ -1037,11 +1066,9 @@
         "file_name":"pages\\tab_wall_scheduler.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_wall_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_wall.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_wall.json" },
 
       { "class_name":"import", "file_name":"pages\\card_wand.json" },
 
@@ -1055,11 +1082,9 @@
         "file_name":"pages\\tab_wand_inventory.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\.json" },
+      { "class_name":"import", "file_name":"pages\\tab_wand_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_wand.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_wand.json" },
 
       { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],

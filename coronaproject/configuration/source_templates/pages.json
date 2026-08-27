@@ -20,14 +20,14 @@
       }
     },
     "card_text_box": {
-        "width": {
-          "amount": 1.0,
-          "units": "container"
-        },
-        "height": {
-          "amount": 14.0,
-          "units": "pixels" 
-        }
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 14.0,
+        "units": "pixels"
+      }
     },
     "button_box": {
       "width": "100 pixels",
@@ -115,6 +115,16 @@
       "height": {
         "amount": 60.0,
         "units": "pixels"
+      }
+    },
+    "writepad_field_box": {
+      "width": {
+        "amount": 1.0,
+        "units": "container"
+      },
+      "height": {
+        "amount": 1.0,
+        "units": "remaining"
       }
     },
     "chaptertitle_box": {
