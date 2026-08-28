@@ -26,7 +26,6 @@ For Future Consideration
 #pragma once
 
 #include "corona-windows-all.h"
-
 #include <charconv>
 #include <string>
 #include <bit>
@@ -83,6 +82,14 @@ For Future Consideration
 #include <mmdeviceapi.h>
 #include <audioclient.h>
 
+#include "ScintillaTypes.h"
+#include "ScintillaMessages.h"
+#include "ScintillaStructures.h"
+#include "ILoader.h"
+#include "ILexer.h"
+#include "Lexilla.h"
+#include "Scintilla.h"
+#include "SciLexer.h"
 
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p) = nullptr; } }

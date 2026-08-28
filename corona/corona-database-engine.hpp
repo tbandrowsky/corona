@@ -9690,11 +9690,11 @@ private:
 				}
 
                 std::string field_class_name = field_mapping["class_name"].as_string();
-				std::string field_box = field_mapping["box"].as_string();
+				json field_box = field_mapping["box"];
 
 				json content = jp.create_object();
 				content.put_member_string("class_name", field_class_name);
-				content.put_member_string("box", field_box);
+				content.put_member("box", field_box);
 				content.put_member_string("text", field_label);
 				content.put_member("json_field_name", field_name);
 				tab_contents.push_back(content);

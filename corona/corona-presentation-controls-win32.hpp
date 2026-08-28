@@ -959,7 +959,6 @@ namespace corona
 	class scintilla_control : public windows_control
 	{
 		std::string text;
-		std::string format;
 
 	public:
 
@@ -996,33 +995,40 @@ namespace corona
 		{
 			text = _text;
 			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, _text);
+                SendMessageA(window, SCI_SETTEXT, 0, (LPARAM)text.c_str());
 			}
 		}
 
 		std::string get_text()
 		{
 			if (auto phost = window_host.lock()) {
-				text = phost->getEditText(id);
+				int len = SendMessageA(window, SCI_GETLENGTH, 0, 0);
+				char* buff = new char[len + 1];
+				if (buff) {
+					SendMessageA(window, SCI_GETTEXT, len, (LPARAM)buff);
+					text = buff;
+					delete[] buff;
+				}
 			}
 			return text;
-		}
-
-		void set_format(const std::string& _text)
-		{
-			format = _text;
-		}
-
-		std::string get_format()
-		{
-			return format;
 		}
 
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
 		{
 			windows_control::create(_context, _host);
 			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, text);
+
+				auto lexer = CreateLexer("json");
+                SendMessageA(window, SCI_SETILEXER, 0, (LPARAM)lexer);
+
+				// Optional: Set styles (colors, fonts)
+				SendMessageA(window, SCI_STYLESETFORE, SCE_JSON_DEFAULT, RGB(0, 0, 0));
+				SendMessageA(window, SCI_STYLESETFORE, SCE_JSON_STRING, RGB(163, 21, 21));
+				SendMessageA(window, SCI_STYLESETFORE, SCE_JSON_NUMBER, RGB(43, 145, 175));
+				SendMessageA(window, SCI_STYLESETFORE, SCE_JSON_PROPERTYNAME, RGB(0, 0, 255));
+				SendMessageA(window, SCI_STYLESETFORE, SCE_C_OPERATOR, RGB(128, 0, 128));
+
+				set_text(text);
 			}
 		}
 
@@ -1066,7 +1072,6 @@ namespace corona
 			}
 
 			_dest.put_member("text", text);
-			_dest.put_member("format", format);
 		}
 
 		virtual void put_json(json& _src)
@@ -1078,9 +1083,6 @@ namespace corona
 
 			std::string temp = _src["text"].as_string();
 			set_text(temp);
-
-			format = _src["format"].as_string();
-			set_format(format);
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -1094,9 +1096,11 @@ namespace corona
 			}
 		}
 
-		virtual const char* get_window_class() { return "Scintilla"; }
-		virtual DWORD get_window_style() { return DisplayOnlyWindowStyles; }
-		virtual DWORD get_window_ex_style() { return 0; }
+		virtual const char* get_window_class() override { 
+			return "Scintilla"; 
+		}
+		virtual DWORD get_window_style() override { return WS_CHILD | WS_CLIPCHILDREN | WS_VISIBLE | WS_TABSTOP; }
+		virtual DWORD get_window_ex_style() override { return 0; }
 
 
 	};

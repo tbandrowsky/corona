@@ -101,6 +101,10 @@ namespace corona
 
 		bool poll_ux_enabled = false;
 		bool poll_db_enabled = false;
+		
+		HMODULE hlexilla = nullptr;
+		HMODULE hscintilla = nullptr;
+
 
 		desktop_app_bus(std::string _config_path,
 			std::string _database_path,
@@ -129,6 +133,11 @@ namespace corona
 			{
 				_database_path += "\\";
 			}
+
+            std::string dll_path = _config_path + "dll\\";
+
+			hlexilla = ::LoadLibrary((dll_path + "lexilla.dll").c_str());
+			hscintilla = ::LoadLibrary((dll_path + "scintilla.dll").c_str());
 
 			database_path = _database_path;
 			config_path = _config_path;

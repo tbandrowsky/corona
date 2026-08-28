@@ -2121,11 +2121,6 @@ namespace corona
 
                 rectangle draw_bounds = *_bounds;
 
-                textStyleRequest current_style = icon_style;
-                current_style.strike_through = !is_enabled();
-                current_style.name += "_enable" + std::to_string(current_style.strike_through);
-                _context->setTextStyle(&current_style);
-
                 if (icon_it != segoeMDL2Icons.end()) {
                     draw_bounds.x += 4;
                     draw_bounds.w = 16;
@@ -2133,7 +2128,7 @@ namespace corona
                     draw_bounds.x = inner_bounds.x;
                     draw_bounds.y += 20;
                     draw_bounds.w = inner_bounds.w;
-                    _context->drawText(button_text, &draw_bounds, current_style.name, _foreground->name, std::string(""));
+                    _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                 }
                 else {
                     draw_bounds.y += 20;
