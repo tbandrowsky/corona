@@ -535,6 +535,18 @@ namespace corona
 			return r;
 		}
 
+		int64_t& get_int64()   const;
+		date_time& get_datetime()   const;
+		double& get_double() const;
+		std::string &get_string()  const;
+		int as_int() const;
+		double as_double() const;
+		int64_t	as_int64_t() const;
+		DirectX::XMVECTOR as_vector() const;
+		rectangle as_rectangle() const;
+		date_time as_date_time() const;
+		std::string as_string() const;
+
 	};
 
 	enum base_scales {
@@ -1417,6 +1429,11 @@ namespace corona
 			value = std::make_shared<std::string>(_src);
 		}
 
+		virtual std::string& get_value_ref()
+		{
+			return *value;
+		}
+
 		virtual std::string to_key() const
 		{
 			return *value;
@@ -1616,114 +1633,20 @@ namespace corona
 
 	};
 
-	class json_array : public json_value
-	{
-	public:
-		std::vector<std::shared_ptr<json_value>> elements;
-
-		virtual std::string to_key() const
-		{
-			std::string ret = "";
-			std::string comma = "";
-			for (auto el : elements) {
-				ret += comma;
-				comma = "\t";
-				ret += el->to_key();
-			}
-			return ret;
-		}
-
-		virtual std::string to_json() const
-		{
-			std::string ret = "[ ";
-			std::string comma = "";
-			for (auto el : elements) {
-				ret += comma;
-				comma = ", ";
-				ret += el->to_json();
-			}
-			ret += " ]";
-			return ret;
-		}
-
-		virtual bool is_empty() const
-		{
-			return elements.empty();
-		}
-
-		virtual std::stringstream& serialize(std::stringstream& _src) const
-		{
-			_src << "[ ";
-			std::string comma = "";
-			for (auto el : elements) {
-				_src << comma;
-				comma = ", ";
-				el->serialize(_src);
-			}
-			_src <<  " ]";
-			return _src;
-		}
-
-		virtual std::string to_json_typed() const
-		{
-			return to_json();
-		}
-
-		virtual field_types get_field_type() const
-		{
-			return field_types::ft_array;
-		}
-
-
-		virtual std::string format(std::string _format) const
-		{
-			return to_json();
-		}
-
-		virtual std::string to_string() const
-		{
-			return to_json();
-		}
-		virtual void from_string(const std::string_view& _src)
-		{
-			elements.clear();
-		}
-		virtual std::shared_ptr<json_value> clone() const
-		{
-			auto t = std::make_shared<json_array>();
-			for (auto element : elements) {
-				auto c = element->clone();
-				t->elements.push_back(c);
-			}
-			t->comparison_index = comparison_index;
-			return t;
-		}
-
-		virtual int64_t to_int64() const
-		{
-			return 0;
-		}
-		virtual date_time to_datetime() const
-		{
-			date_time dt;
-			return dt;
-		}
-		virtual bool to_bool() const
-		{
-			return true;
-		}
-		virtual double to_double() const
-		{
-			return 0.0;
-		}
-
-	};
-
 	class json_object : public json_value
 	{
 	public:
 		std::map<std::string, std::shared_ptr<json_value>> members;
 
+		json_object() = default;
+		json_object(const json_object& _src) = default;
+		json_object(json_object&& _src) = default;
+		json_object& operator =(const json_object& _src) = default;
+		json_object& operator =(json_object&& _src) = default;
+
+		json_object& operator = (std::shared_ptr<json_value>& _src);
+
+		json_object(std::shared_ptr<json_value> _src);
 		virtual std::string to_key() const
 		{
 			std::string ret = "";
@@ -1751,7 +1674,7 @@ namespace corona
 					ret += el.second->to_json();
 				}
 				else {
-                    ret += "null";
+					ret += "null";
 				}
 			}
 			ret += " }";
@@ -1850,8 +1773,264 @@ namespace corona
 			return 0.0;
 		}
 
+		bool has_member(std::string _name) const
+		{
+			return members.find(_name) != members.end();
+		}
+
+		std::shared_ptr<json_value>& operator [](std::string _name)
+		{
+			auto it = members.find(_name);
+			if (it != members.end()) {
+				return it->second;
+			}
+			throw std::range_error("Member not found");
+		}
+
+		json_object put_member(std::string _member, std::shared_ptr<json_value> _json)
+		{
+			members.insert_or_assign(_member, _json);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, json_object _json)
+		{
+			std::shared_ptr<json_object> obj = std::make_shared<json_object>(_json);
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, std::string _text)
+		{
+			std::shared_ptr<json_string> obj = std::make_shared<json_string>();
+			obj->set_value(_text);
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, double _number)
+		{
+			std::shared_ptr<json_double> obj = std::make_shared<json_double>();
+			obj->value = _number;
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, int64_t _number)
+		{
+			std::shared_ptr<json_int64> obj = std::make_shared<json_int64>();
+			obj->value = _number;
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, bool _value)
+		{
+			std::shared_ptr<json_bool> obj = std::make_shared<json_bool>();
+			obj->value = _value;
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, date_time _dt)
+		{
+			std::shared_ptr<json_datetime> obj = std::make_shared<json_datetime>();
+			obj->value = _dt;
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		json_object put_member(std::string _member, json_object _obj);
+		json_object put_member(std::string _member, json_array _arr);
+
+		json_object put_member(std::string _member, DirectX::XMVECTOR _v)
+		{
+			std::shared_ptr<json_vector> obj = std::make_shared<json_vector>();
+			obj->value = _v;
+			members.insert_or_assign(_member, obj);
+			return *this;
+		}
+
+		auto begin() { return members.begin(); }
+		auto end() { return members.end(); }
+		auto rbegin() { return members.rbegin(); }
+		auto rend() { return members.rend(); }
 
 	};
+
+	class json_array : public json_value
+	{
+	public:
+		std::vector<std::shared_ptr<json_value>> elements;
+
+		json_array() = default;
+		json_array(const json_array& _src) = default;
+		json_array(json_array&& _src) = default;
+        json_array(std::shared_ptr<json_value>& _src);
+		json_array(const json& _src);
+
+        json_array& operator = (const json_array& _src) = default;
+		json_array& operator = (json_array&& _src) = default;
+
+		json_array& operator = (std::shared_ptr<json_value>& _src);
+		json_array& operator = (const json& _src);
+
+		virtual std::string to_key() const
+		{
+			std::string ret = "";
+			std::string comma = "";
+			for (auto el : elements) {
+				ret += comma;
+				comma = "\t";
+				ret += el->to_key();
+			}
+			return ret;
+		}
+
+		virtual std::string to_json() const
+		{
+			std::string ret = "[ ";
+			std::string comma = "";
+			for (auto el : elements) {
+				ret += comma;
+				comma = ", ";
+				ret += el->to_json();
+			}
+			ret += " ]";
+			return ret;
+		}
+
+		auto erase(size_t _index)
+		{
+            return elements.erase(elements.begin() + _index);
+		}
+
+        std::shared_ptr<json_value> get_element(size_t _index) const
+        {
+            if (_index < elements.size()) {
+                return elements[_index];
+            }
+			throw std::range_error("Index out of range");
+        }
+
+        std::shared_ptr<json_value> &operator [](int _index)
+        {
+            if (_index < elements.size()) {
+                return elements[_index];
+            }
+            throw std::range_error("Index out of range");
+        }
+
+        auto begin() const
+        {
+            return elements.begin();
+        }
+
+        auto end() const
+        {
+            return elements.end();
+        }
+
+		auto rbegin() const
+		{
+            return elements.rbegin();
+		}
+
+		auto rend() const
+		{
+            return elements.rend();
+		}
+		
+		auto size() const
+		{
+			return elements.size();
+		}
+
+		virtual void push_back(std::shared_ptr<json_object> _value)
+		{
+			elements.push_back(_value);
+		}
+
+        virtual void push_back(std::shared_ptr<json_value> _value)
+        {
+            elements.push_back(_value);
+        }
+
+		virtual void push_back(json_object _value);
+
+		virtual bool is_empty() const
+		{
+			return elements.empty();
+		}
+
+		virtual std::stringstream& serialize(std::stringstream& _src) const
+		{
+			_src << "[ ";
+			std::string comma = "";
+			for (auto el : elements) {
+				_src << comma;
+				comma = ", ";
+				el->serialize(_src);
+			}
+			_src <<  " ]";
+			return _src;
+		}
+
+		virtual std::string to_json_typed() const
+		{
+			return to_json();
+		}
+
+		virtual field_types get_field_type() const
+		{
+			return field_types::ft_array;
+		}
+
+
+		virtual std::string format(std::string _format) const
+		{
+			return to_json();
+		}
+
+		virtual std::string to_string() const
+		{
+			return to_json();
+		}
+		virtual void from_string(const std::string_view& _src)
+		{
+			elements.clear();
+		}
+		virtual std::shared_ptr<json_value> clone() const
+		{
+			auto t = std::make_shared<json_array>();
+			for (auto element : elements) {
+				auto c = element->clone();
+				t->elements.push_back(c);
+			}
+			t->comparison_index = comparison_index;
+			return t;
+		}
+
+		virtual int64_t to_int64() const
+		{
+			return 0;
+		}
+		virtual date_time to_datetime() const
+		{
+			date_time dt;
+			return dt;
+		}
+		virtual bool to_bool() const
+		{
+			return true;
+		}
+		virtual double to_double() const
+		{
+			return 0.0;
+		}
+
+	};
+
 
 	class json;
 
@@ -1884,10 +2063,28 @@ namespace corona
 	public:
 		using compared_item = std::tuple<int, std::string>;
 
+
+		json(json_object _src) {
+			value_base = std::make_shared<json_object>(_src);
+		}
+
+		json(std::shared_ptr<json_value> _src) {
+			value_base = _src;
+		}
+
+		json(const json& _src) {
+			value_base = _src.value_base;
+		}
+
+		json() {
+			value_base = nullptr;
+		}
+
 	private:
 		std::vector<compared_item> comparison_fields;
 
 		std::shared_ptr<json_value> value_base = nullptr;
+
 
         void write(std::ostream& _ss, int _indent, bool _indent_constant) 
 		{
@@ -2459,9 +2656,9 @@ namespace corona
 			return double_impl()->value;
 		}
 
-		std::string get_string()  const
+		std::string& get_string()  const
 		{
-			return string_impl()->get_value();
+			return string_impl()->get_value_ref();
 		}
 
 		int as_int() const
@@ -3104,6 +3301,24 @@ namespace corona
 				throw std::logic_error("Not an object");
 			}
 			object_impl()->members[_key] = _value;
+			return *this;
+		}
+
+		json put_member(std::string _key, const json_array& _value)
+		{
+			if (not object_impl()) {
+				throw std::logic_error("Not an object");
+			}
+			object_impl()->members[_key] = std::make_shared<json_array>(_value);
+			return *this;
+		}
+
+		json put_member(std::string _key, const json_object& _value)
+		{
+			if (not object_impl()) {
+				throw std::logic_error("Not an object");
+			}
+			object_impl()->members[_key] = std::make_shared<json_object>(_value);
 			return *this;
 		}
 
@@ -6000,6 +6215,149 @@ namespace corona
 			last_result = new_result;
 		}
 		return last_result;
+	}
+
+	int64_t& json_value::get_int64()   const
+	{
+        auto t = dynamic_cast<json_int64*>(this);
+		return t->value;
+	}
+
+	date_time& json_value::get_datetime()   const
+	{
+        auto t = dynamic_cast<json_datetime*>(this);
+		return t->value;
+	}
+
+	double& json_value::get_double() const
+	{
+        auto t = dynamic_cast<json_double*>(this);
+		return t->value;
+	}
+
+	std::string& json_value::get_string()  const
+	{
+        auto t = dynamic_cast<json_string*>(this);
+		return t->get_value_ref();
+	}
+
+	int json_value::as_int() const
+	{
+		auto t = dynamic_cast<json_int64*>(this);
+		return t->value;
+	}
+
+	double json_value::as_double() const
+	{
+        auto t = dynamic_cast<json_double*>(this);
+		return t ? t->value : 0.0;
+	}
+
+	int64_t	json_value::as_int64_t() const
+	{
+		auto t = dynamic_cast<json_int64*>(this);
+		return t ? t->value : 0;
+	}
+
+	DirectX::XMVECTOR json_value::as_vector() const
+	{
+        auto t = dynamic_cast<json_vector*>(this);
+		return t ? t->value : DirectX::XMVectorZero();
+	}
+
+	rectangle json_value::as_rectangle() const
+	{
+        auto t = dynamic_cast<json_rectangle*>(this);
+		return t ? t->value : rectangle();
+	}
+
+	date_time json_value::as_date_time() const
+	{
+        auto t = dynamic_cast<json_datetime*>(this);
+		return t ? t->value : date_time::epoch();
+	}
+
+	std::string json_value::as_string() const
+	{
+        auto t = dynamic_cast<json_string*>(this);
+		return t ? t->get_value() :	 "";
+	}
+
+	json_array& json_array::operator = (std::shared_ptr<json_value>& _src)
+	{
+        json temp = _src;
+        if (auto t = temp.array_impl())
+        {
+            elements = t->elements;
+        }
+		return *this;
+	}
+
+	json_array& json_array::operator = (const json& _src)
+	{
+		json temp = _src;
+		if (auto t = temp.array_impl())
+		{
+			elements = t->elements;
+		}
+		return *this;
+	}
+
+	json_object& json_object::operator = (std::shared_ptr<json_value>& _src)
+	{
+		json temp = _src;
+		if (auto t = temp.object_impl())
+		{
+			members = t->members;
+		}
+		return *this;
+	}
+
+	json_object& json_object::operator = (const json& _src)
+	{
+		json temp = _src;
+		if (auto t = temp.object_impl())
+		{
+			members = t->members;
+		}
+		return *this;
+	}
+
+	void json_array::push_back(json_object _value)
+	{
+		std::shared_ptr<json_value> jv = std::make_shared<json_object>(_value);
+		elements.push_back(jv);
+	}
+
+	json_object json_object::put_member(std::string _member, json_object _obj)
+	{
+		std::shared_ptr<json_object> obj = std::make_shared<json_object>();
+		*obj = _obj;
+		members.insert_or_assign(_member, obj);
+		return *this;
+	}
+
+	json_object json_object::put_member(std::string _member, json_array _arr)
+	{
+		std::shared_ptr<json_array> obj = std::make_shared<json_array>();
+		*obj = _arr;
+		members.insert_or_assign(_member, obj);
+		return *this;
+	}
+
+	json_object json_object::put_member(std::string _member, DirectX::XMVECTOR _v)
+	{
+		std::shared_ptr<json_vector> obj = std::make_shared<json_vector>();
+		obj->value = _v;
+		members.insert_or_assign(_member, obj);
+		return *this;
+	}
+
+	json_object::json_object(std::shared_ptr<json_value> _src) {
+		json temp(_src);
+		if (auto obj = temp.object_impl()) {
+			members = obj->members;
+		}
 	}
 
 }

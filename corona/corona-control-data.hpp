@@ -28,7 +28,7 @@ namespace corona
 		std::string text_field;
 		std::string selected_field;
 
-		json items;
+		json_array items;
 
 		virtual void get_json(json& _dest)
 		{
@@ -104,7 +104,7 @@ namespace corona
 	public:
 		std::vector<table_column> columns;
 		std::string id_field;
-		json items;
+		json_array items;
 
 		virtual void get_json(json& _dest)
 		{

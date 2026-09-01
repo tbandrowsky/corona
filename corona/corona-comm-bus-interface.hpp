@@ -439,7 +439,7 @@ namespace corona
 	{
 
 	public:
-		json data;
+		json_object data;
 
 		corona_bus_command()
 		{

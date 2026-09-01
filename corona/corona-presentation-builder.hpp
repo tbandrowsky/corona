@@ -1743,7 +1743,7 @@ namespace corona
 		std::shared_ptr<command_button_control> tab_button;
 		json current_key;
 
-		void set_key(json& _src)
+		void set_key(json_object& _src)
 		{
 			json_parser jp;
 			current_key = jp.create_object();
@@ -1754,7 +1754,7 @@ namespace corona
                     std::string fkey = f.first;
                     std::string fsrc = f.second.as_string();
 					if (_src.has_member(fsrc)) {
-						current_key.put_member(fkey, _src[fsrc].value());
+						current_key.put_member(fkey, _src[fsrc]);
 					}
                 }
 			}
@@ -1848,7 +1848,7 @@ namespace corona
 			arrange_children();
 		}
 
-		json data;
+		json_object data;
 
 	public:
 
@@ -1914,16 +1914,13 @@ namespace corona
 			return tv;
 		}	
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			json_parser jp;
-			json tab_data;
+			json_object tab_data;
+
 
 			data = _data;
-
-            if (data.empty()) {
-				return data;
-			}
 
             for (auto& tp : tab_panes) {
 				tp.set_key(data);
@@ -1935,17 +1932,18 @@ namespace corona
 
 			if (current_tab != tab_panes.end()) {
 				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
-					auto members = data.get_members();
-					json child_data = jp.create_object();
-					for (auto member : members) {
-						if (member.second.object() || member.second.array())
+					auto members = data.members;
+					json_object child_data;
+					for (auto member : members) {						
+						if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
 							continue;
 						child_data.put_member(member.first, member.second);
 					}
 					tab_data = child_data;
 				}
 				else {
-					tab_data = data[current_tab->pane.member_name];
+					json temp = data[current_tab->pane.member_name];
+                    tab_data.put_member(current_tab->pane.member_name, temp.value());
 				}
 
 				content_frame->set_data(tab_data);
@@ -1963,11 +1961,8 @@ namespace corona
 			return data;
         }
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json_parser jp;
-			json tab_data;
-
 			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
 				return tp.pane.name == this->current_tab_name;
 				});
@@ -1979,12 +1974,12 @@ namespace corona
 					for (auto member : members) {
 						if (member.second.object() || member.second.array())
 							continue;
-						data.put_member(member.first, member.second);
+						data.put_member(member.first, member.second.value());
 					}
 				}
 				else 
 				{
-					data.put_member(current_tab->pane.member_name, tab_data);
+					data.put_member(current_tab->pane.member_name, tab_data[current_tab->pane.member_name].value());
 				}
 			}
 
@@ -1994,10 +1989,7 @@ namespace corona
 		void select_tab(std::string _name)
 		{
 			json_parser jp;
-
-			if (data.empty()) {
-				data = jp.create_object();
-            }
+			json_object new_tab_data;
 
             bool is_same_tab = current_tab_name == _name;
 
@@ -2013,11 +2005,11 @@ namespace corona
 						for (auto member : members) {
 							if (member.second.object() || member.second.array())
 								continue;
-							data.put_member(member.first, member.second);
+							data.put_member(member.first, member.second.value());
 						}
 					}
 					else {
-						data.put_member(current_tab->pane.member_name, tab_data);
+						data.put_member(current_tab->pane.member_name, tab_data[current_tab->pane.member_name].value());
 					}
 				}
 			}
@@ -2030,21 +2022,17 @@ namespace corona
 				if (is_selected) {
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
-					json tab_data = jp.create_object();
 					if (tp.pane.member_name.empty() || tp.pane.member_name == ".") {
-						auto members = data.get_members();
-						json child_data = jp.create_object();
-						for (auto member : members) {
-							if (member.second.object() || member.second.array())
+						for (auto member : data) {
+							if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
 								continue;
-							child_data.put_member(member.first, member.second);
+							new_tab_data.put_member(member.first, member.second);
 						}
-						tab_data = child_data;
 					}
 					else {
-						tab_data = data[tp.pane.member_name];
+						new_tab_data.put_member(tp.pane.member_name, data[tp.pane.member_name]);
 					}
-					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, tab_data);
+					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, new_tab_data);
 				}
 			}
 		}
@@ -2144,11 +2132,12 @@ namespace corona
 			return *this;
 		}
 
-		virtual void object_updated(json _data) override
+		virtual void object_updated(json_object _data) override
 		{
+            json updated = _data;
 			for (auto ptab : tab_panes)
 			{
-				if (ptab.current_key.compare(_data) == 0) 
+				if (ptab.current_key.compare(updated) == 0) 
 				{
 					if (ptab.pane.name == this->current_tab_name)
 					{
@@ -2158,8 +2147,9 @@ namespace corona
 			}
 		}
 
-		virtual void object_deleted(json _data) override
+		virtual void object_deleted(json_object _data) override
 		{
+
 		}
 
 	};
@@ -2235,7 +2225,12 @@ namespace corona
 
 		std::string class_name = control_properties["class_name"].as_string();
 		std::string field_name = control_properties["name"].as_string();
-		json control_data = control_properties["data"];
+		auto obj = control_properties["data"].object_impl();
+
+		json_object control_data;
+		if (obj) {
+            control_data = *obj;
+		}
 
 		int id = _control_properties.get_member("id").as_int();
 
@@ -2905,7 +2900,7 @@ namespace corona
 	{
 	protected:
 		list_data choices;
-		json data;
+		json_object data;
 
 	public:
 		radiobutton_list_control() { ; }
@@ -2930,62 +2925,25 @@ namespace corona
 
 			for (int i = 0; i < count; i++)
 			{
-				json item = choices.items.get_element(i);
-				int id = item.get_member(choices.id_field).as_int();
-				std::string text = item.get_member(choices.text_field).as_string();
-				bool selected = item.get_member(choices.selected_field).as_bool();
-				cb.radio_button(id, text, [item, this, i](radiobutton_control& _rbc) {
+				auto choice = choices.items[i];
+				json item = choice;
+				int id = item[choices.id_field].as_int();
+				std::string text = item[choices.text_field].as_string();
+				bool selected = item[choices.selected_field].as_bool();
+				cb.radio_button(id, text, [choice, item, this, i](radiobutton_control& _rbc) {
 					_rbc.json_field_name = choices.selected_field;
 					_rbc.is_group = i == 0;
-					_rbc.set_data(item);
+					_rbc.set_data(choice);
 					});
 			}
 		}
 
-		virtual json get_data()
+		virtual json_object get_data()
 		{
-			json result;
-			if (not json_field_name.empty()) {
-				json_parser jp;
-				result = jp.create_object();
-				json result_array = jp.create_array();
-
-				for (auto child : children)
-				{
-					json data = child->get_data();
-					result_array.put_element(-1, data);
-				}
-
-				result.put_member(json_field_name, result_array);
-
-			}
-			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json_object set_data(json_object _data)
 		{
-			data = _data;
-			if (_data.has_member(json_field_name)) {
-				json field_items = _data[json_field_name];
-				if (field_items.array()) {
-					json as_object = field_items.array_to_object(
-
-						[this](json& _item)->std::string {
-							return _item.get_member(choices.id_field).as_string();
-						},
-						[](json& _item)->json {
-							return _item;
-						}
-					);
-					for (auto child : children) {
-						json existing = child->get_data();
-						std::string key = choices.id_field;
-						json item = as_object.get_member(key);
-						child->set_data(item);
-					}
-				}
-			}
-			return _data;
 		}
 
 		void set_list(list_data& _choices)
@@ -3006,7 +2964,7 @@ namespace corona
 	{
 	protected:
 		list_data choices;
-		json data;
+		json_object data;
 
 	public:
 		checkbox_list_control() { ; }
@@ -3032,60 +2990,30 @@ namespace corona
 			for (int i = 0; i < count; i++)
 			{
 				json item = choices.items.get_element(i);
-				int id = item.get_member(choices.id_field).as_int();
-				std::string text = item.get_member(choices.text_field).as_string();
-				bool selected = item.get_member(choices.selected_field).as_bool();
-				cb.checkbox(id, text, [item, this](checkbox_control& _rbc) {
-					_rbc.json_field_name = choices.selected_field;
-					_rbc.set_data(item);
-					});
+				if (item.object()) {
+					int id = item.get_member(choices.id_field).as_int();
+					std::string text = item.get_member(choices.text_field).as_string();
+					bool selected = item.get_member(choices.selected_field).as_bool();
+					cb.checkbox(id, text, [item, this](checkbox_control& _rbc) {
+						_rbc.json_field_name = choices.selected_field;
+                        json_object item_obj;
+                        item_obj.put_member(_rbc.json_field_name, false);
+						_rbc.set_data(item_obj);
+						});
+				}
 			}
 		}
 
-		virtual json get_data()
+		virtual json_object get_data()
 		{
-			json result;
-			if (not json_field_name.empty()) {
-				json_parser jp;
-				result = jp.create_object();
-				json result_array = jp.create_array();
-
-				for (auto child : children)
-				{
-					json data = child->get_data();
-					result_array.put_element(-1, data);
-				}
-
-				result.put_member(json_field_name, result_array);
-
-			}
+			json_object result;
 			return result;
 		}
 
-		virtual json set_data(json _data)
+		virtual json_object set_data(json_object _data)
 		{
 			data = _data;
-			if (_data.has_member(json_field_name)) {
-				json field_items = _data[json_field_name];
-				if (field_items.array()) {
-					json as_object = field_items.array_to_object(
-
-						[this](json& _item)->std::string {
-							return _item.get_member(choices.id_field).as_string();
-						},
-						[](json& _item)->json {
-							return _item;
-						}
-					);
-					for (auto child : children) {
-						json existing = child->get_data();
-						std::string key = choices.id_field;
-						json item = as_object.get_member(key);
-						child->set_data(item);
-					}
-				}
-			}
-			return _data;
+			return data;
 		}
 
 		void set_list(list_data& _choices)
@@ -3122,8 +3050,8 @@ namespace corona
 
 		auto service = comm_desktop_bus_interface::get_service();
 
-		if (data.object() && save_on_unload) {
-			service->put_object(corona_instance::local, data);
+		if (save_on_unload) {
+			service->put_object(corona_instance::local, json(data));
 		}
 
 		children.clear();

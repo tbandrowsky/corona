@@ -6,17 +6,6 @@
     "parameters": {
       "$tab_contents": [
         {
-          "class_name": "row",
-          "name": "$tab_inventory_commands_name",
-          "box": {
-            "width": "1.0 container",
-            "height": "75 pixels"
-          },
-          "children": [
-            "$tab_inventory_commands"
-          ]
-        },
-        {
           "class_name": "$tab_inventory_class",
           "name": "$tab_inventory_table_name",
           "json_field_name": "$json_field_name",

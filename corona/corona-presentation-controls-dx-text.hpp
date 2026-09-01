@@ -25,7 +25,7 @@ namespace corona
 	public:
 		std::string			text;
 		std::string         hit_word;
-		json				data;
+		json_object			data;
 		std::string         template_text;
 
 		text_display_control(const text_display_control& _src) = default;
@@ -89,12 +89,12 @@ namespace corona
 							state = in_text;
 							json replacement_value;
 
-							if (replacement_path.size()>0 && data.object() && !data.empty()) {
-								Lexer lexer(replacement_path, data);
+							if (replacement_path.size()>0) {
+								json ldata(data);
+								Lexer lexer(replacement_path, ldata);
 
 								lexer.EvaluateValue = [](std::string _path, json _context) -> json
 									{
-
 										json result_data;
 
 										json_parser jp;
@@ -128,7 +128,7 @@ namespace corona
 										return result_data;
 									};
 
-								Parser parser(lexer, data);
+								Parser parser(lexer, ldata);
 								json result_data = parser.expr();
 
 								if (result_data.is_datetime()) {
@@ -167,18 +167,12 @@ namespace corona
 			;
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			if (json_field_name.empty()) {
-				return data;
-			}
-			else if (data.object() && data.has_member(json_field_name)) {	
-				return data[json_field_name];
-			}
 			return data;
 		}
 
-        virtual json set_data(json _data) override
+        virtual json_object set_data(json_object _data) override
 		{
 			data = _data;
 			return data;

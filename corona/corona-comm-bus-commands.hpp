@@ -1190,7 +1190,7 @@ namespace corona
 			}
 
 			json_parser jp;
-			json results = jp.create_array();
+			json_array results;
 			if (response.data.array()) {
 				for (auto cls : response.data) {
 					json item = jp.create_object();
@@ -2140,7 +2140,8 @@ namespace corona
 			if (response.success) {
 				if (cb_table) {
                     cb_table->set_hit_word(hit_words);
-					cb_table->set_items(response.data);
+					json_array array = response.data;
+					cb_table->set_items(array);
 				}
 				if (not detail_frame.empty()) {
 					control_base* cb_form = _bus->find_control(detail_frame);
@@ -2148,8 +2149,8 @@ namespace corona
 						cb_form->set_hit_word(hit_words);
 					}
 				}
-                json search_results = jp.create_object();
-                search_results.put_member("count", response.data.size());
+                json_object search_results;
+                search_results.put_member(std::string("count"), response.data.size());
                 if (result_text_control.size() > 0) {
 					control_base* cb_results = _bus->find_control(result_text_control);
 					if (cb_results) {
@@ -2184,7 +2185,7 @@ namespace corona
 			else {
 
 				json_parser jp;
-				json empty = jp.create_array();
+				json_array empty;
 				if (cb_table) {
 					cb_table->set_hit_word(hit_words);
 					cb_table->set_items(empty);
@@ -2393,7 +2394,8 @@ namespace corona
 		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
 			auto ctrl = _bus->find_control(form_name);
 			if (ctrl) {
-				ctrl->set_items(response.data);
+                json_array items = response.data;
+				ctrl->set_items(items);
             }
 			return response.data;
 		}
@@ -2894,7 +2896,7 @@ namespace corona
 
 			if (cb_table) {
 				json_parser jp;
-				json results = jp.create_array();
+				json_array results;
 				for (auto err : _src.errors) {
 					json jerr = jp.create_object();
 					err.get_json(jerr);

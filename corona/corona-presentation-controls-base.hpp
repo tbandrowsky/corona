@@ -429,7 +429,7 @@ namespace corona
 			return this;
 		}
 
-		virtual void find_data(json& _parent)
+		virtual void find_data(json_object& _parent)
 		{
 			if (json_field_name.empty()) {
 				for (auto child : children) {
@@ -438,19 +438,18 @@ namespace corona
 			}
 			else 			
 			{
-                json data = get_data();
-				if (data.object() && data.has_member(json_field_name)) {
-					_parent.copy_member(json_field_name, data);
+                json_object data = get_data();
+				if (data.has_member(json_field_name)) {
+					_parent.put_member(json_field_name, data[json_field_name]);
 				}
 			}
 		}
 
-		virtual json get_data()
+		virtual json_object get_data()
 		{
 			json_parser jp;
-			json data;
+			json_object data;
 			if (json_field_name.empty()) {
-				data = jp.create_object();
 				for (auto child : children) {
 					child->find_data(data);
 				}
@@ -458,7 +457,7 @@ namespace corona
 			return data;
 		}
 
-		virtual bool set_items(json _data)
+		virtual bool set_items(json_array _data)
 		{
 			return false;
 		}
@@ -470,21 +469,21 @@ namespace corona
 			return data;
 		}
 
-		virtual void object_updated(json _data)
+		virtual void object_updated(json_object _data)
 		{
 			for (auto child : children) {
 				child->object_updated(_data);
 			}
 		}
 
-		virtual void object_deleted(json _data)
+		virtual void object_deleted(json_object _data)
 		{
 			for (auto child : children) {
 				child->object_deleted(_data);
 			}
 		}
 
-		virtual json set_data(json _data)
+		virtual json_object set_data(json_object _data)
 		{
 			for (auto child : children) {
 				child->set_data(_data);

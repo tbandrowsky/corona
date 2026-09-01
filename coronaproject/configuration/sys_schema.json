@@ -651,7 +651,7 @@
             "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 1.0,
             "units": "container"
           }
         },
@@ -665,7 +665,7 @@
             "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 1.0,
             "units": "container"
           }
         },
@@ -679,14 +679,14 @@
             "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 1.0,
             "units": "container"
           }
         },
         "tab_type": "inventory"
       },
       ".description": {
-        "class_name": "writepad_field",
+        "class_name": "writepad",
         "box": {
           "width": {
             "amount": 1.0,
@@ -694,7 +694,7 @@
           },
           "height": {
             "amount": 1.0,
-            "units": "remaining"
+            "units": "container"
           }
         },
         "tab_type": "custom"

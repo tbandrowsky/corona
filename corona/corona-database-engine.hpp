@@ -9748,43 +9748,12 @@ private:
 				std::string tab_custom_table_name = "tc_" + class_name + "_" + member_name + "_table";
 
 				auto field = classd->get_field(member_name);
-				for (auto allowed_class : field->get_allowed_classes()) {
-					json new_item = create_command_class_template.clone();
 
-					json update_filter = jp.create_object();
-					new_item.apply_abbreviations({
-							{ "$create_button_class", jp.from_string(allowed_class) },
-							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
-							{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", allowed_class)) },
-							{ "$create_button_text", jp.from_string(allowed_class) },
-							{ "$create_button_message", jp.from_string("new " + allowed_class) },
-							{ "$class_edit_page", form_sources[allowed_class] }
-						});
-
-					json click_command = new_item["on_click"];
-					click_command.put_member_string("create_class_name", allowed_class);
-					click_command.put_member_string("constructor_frame", "frame_selected");
-
-					json jcopy = jp.create_object();
-					jcopy.put_member_string(classd->get_class_name(), "object_id");
-					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
-
-					click_command.put_member("constructor_copy", jcopy);
-					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
-					click_command.put_member_string("source_frame", form);
-					click_command.put_member_string("target_frame", "frame_selected");
-					new_item.put_member_string("message", "Create " + allowed_class);
-
-					tab_create_commands.push_back(new_item);
-				}
-
-				json abbrevations = jp.create_object();
-				abbrevations.put_member("$tab_custom_commands", tab_create_commands);
-				abbrevations.put_member("$tab_custom_class", _control_class);
-				abbrevations.put_member_string("$tab_custom_commands_name", "tc_" + class_name + "_" + member_name + "_commands");
-				abbrevations.put_member_string("$tab_custom_table_name", tab_custom_table_name);
-				abbrevations.put_member_string("$json_field_name", member_name);
-				parameters.apply_abbreviations(abbrevations);
+				json abbreviations = jp.create_object();
+				abbreviations.put_member("$tab_custom_class", _control_class);
+				abbreviations.put_member_string("$tab_custom_table_name", tab_custom_table_name);
+				abbreviations.put_member_string("$json_field_name", member_name);
+				parameters.apply_abbreviations(abbreviations);
 			}
 
 			return tab_custom_page;

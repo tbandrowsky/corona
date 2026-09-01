@@ -122,14 +122,14 @@ namespace corona {
 		}
 		virtual void load_page();
 
-		virtual void object_updated(json _data)
+		virtual void object_updated(json_object _data)
 		{
 			if (auto cp = current_page.lock()) {
 				cp->root->object_updated(_data);
 			}
 		}
 
-		virtual void object_deleted(json _data)
+		virtual void object_deleted(json_object _data)
 		{
 			if (auto cp = current_page.lock()) {
 				cp->root->object_deleted(_data);

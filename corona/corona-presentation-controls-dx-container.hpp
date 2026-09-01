@@ -378,7 +378,7 @@ namespace corona
 	public:
 		std::string name;
 		std::vector<std::shared_ptr<control_base>> contents;
-		json data;
+		json_object data;
 
 		presentation_base* presentation = nullptr;
 		page_base* parent_page = nullptr;
@@ -391,7 +391,7 @@ namespace corona
 	protected:
 		void arrange_children();
 		std::string hit_words;
-		json data;
+		json_object data;
 		std::shared_ptr<corona_bus_command> onload_command;
 
 		std::map<int, std::shared_ptr<frame_navigation>> navigation_stack;
@@ -406,13 +406,11 @@ namespace corona
 		frame_layout() 
 		{ 
 			json_parser jp; 
-			data = jp.create_object();
 		}
 		frame_layout(const frame_layout& _src) = default;
 		frame_layout(control_base* _parent, int _id) : container_control(_parent, _id) 		
 		{
 			json_parser jp;
-			data = jp.create_object();
 		}
 
 		virtual ~frame_layout() { ; }
@@ -479,9 +477,9 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 		virtual point get_remaining(control_base* _parent) override;
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
-            if (navigation_stack.contains(navigation_location)) {
+			if (navigation_stack.contains(navigation_location)) {
 				auto nav = navigation_stack[navigation_location];
 				nav->data = _data;
 			}
@@ -489,24 +487,16 @@ namespace corona
 			for (auto child : children) {
 				child->set_data(_data);
 			}
-			return _data;
+			return data;
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json temp = data.clone();
-			if (temp.empty()) {
-				temp = json_parser().create_object();
-			}
-			else if (temp.object()) {
-				for (auto child : children) {
-					json child_data = child->get_data();
-					if (child_data.object()) {
-						auto members = child_data.get_members();
-						for (auto& member : members) {
-							temp.put_member(member.first, member.second);
-						}
-					}
+			json_object temp = data;
+			for (auto child : children) {
+				json_object child_data = child->get_data();
+				for (auto& member : child_data) {
+					temp.put_member(member.first, member.second);
 				}
 			}
 			return temp;
@@ -576,7 +566,7 @@ namespace corona
 	public:
 		int item_id;
 		int page_index;
-		json object_data;
+		json_object object_data;
 		rectangle bounds;
 		std::shared_ptr<control_base> control;
 	};
@@ -593,7 +583,8 @@ namespace corona
 
 	class items_view : public draw_control
 	{
-		json data;
+		json_object data;
+		json_array	items_view_items;
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
 		std::vector<items_view_row>								rows;
@@ -623,6 +614,8 @@ namespace corona
 
 		std::shared_ptr<corona_bus_command> select_command;
 		std::shared_ptr<corona_bus_command> empty_command;
+
+		std::string hit_words;
 
 		void update_selection();
 
@@ -988,8 +981,6 @@ namespace corona
 
 		}
 
-		std::string hit_words;
-
 	public:
 
 		items_view()
@@ -1090,70 +1081,58 @@ namespace corona
 			pages[page_index].stop_y = y;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (!keep_position_on_set_data) {
 				selected_item_index = 0;
 				selected_page_index = 0;
 			}
-			if (_data.array()) {
-				set_items(_data);
-			}
-			else if (_data.has_member(json_field_name)) {
-                set_items(_data[json_field_name]);
-			}
-			else {
-				data = _data;
-				arrange(this, &bounds);
-				check_scroll();
+			if (_data.has_member(json_field_name)) {
+                json_array array = _data[json_field_name];
+                set_items(array);
 			}
 			return data;
 		}
 
-		virtual void object_deleted(json _item) override
+		virtual void object_deleted(json_object _item) override
 		{
-			if (!data.array()) {
-				return;
-			}
 			int i;
-			for (i = 0; i < data.size(); i++)
+			for (i = 0; i < items_view_items.size(); i++)
 			{
-				json item = data.get_element(i);
-				if (item[object_id_field].as_int64_t() == _item[object_id_field].as_int64_t() &&
-					item[class_name_field].as_string() == _item[class_name_field].as_string()) {
-					data.remove_element(i);
-					set_items(data);
+				json item = items_view_items[i];
+				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
+					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
+					items_view_items.erase(i);
+					return;
 				}
 			}
+			set_items(items_view_items);
 		}
 
-		virtual void object_updated(json _item) override
+		virtual void object_updated(json_object _item) override
 		{
-			if (!data.array()) {
-				return;
-			}
 			int i;
-			for (i = 0; i < data.size(); i++)
+			for (i = 0; i < items_view_items.size(); i++)
 			{
-				json item = data.get_element(i);
-				if (item[object_id_field].as_int64_t() == _item[object_id_field].as_int64_t() &&
-					item[class_name_field].as_string() == _item[class_name_field].as_string()) {
-					data.put_element(i, _item);
-					set_items(data);
+				json item = items_view_items[i];
+				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
+					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
+					items_view_items[i] = std::make_shared<json_object>(_item);	
+					set_items(items_view_items);
 					return;
 				}
 			}
 
             // if we got here, it means we didn't find the item, so we add it.
-            data.push_back(_item);
-			set_items(data);
+            items_view_items.push_back(std::make_shared<json_object>(_item));
+			set_items(items_view_items);
 		}
 
-		virtual bool set_items(json _data) override
+		virtual bool set_items(json_array _items) override
 		{
             json current_selected_object = get_selected_object();
 
-			data = _data;
+            items_view_items = _items;
 
 			rows.clear();
 
@@ -1169,21 +1148,21 @@ namespace corona
 
 			int matching_index = -1;
 
-			for (i = 0; i < data.size(); i++)
+			for (i = 0; i < items_view_items.size(); i++)
 			{
 				items_view_row gvr;
 				gvr.page_index = 0;
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
-                gvr.object_data = data.get_element(i);
+                gvr.object_data = json_object(items_view_items[i]);
 				if (!current_selected_object.empty()) {
-                    if (gvr.object_data[class_name_field].as_string() == current_selected_object[class_name_field].as_string() &&
-						gvr.object_data[object_id_field].as_int64_t() == current_selected_object[object_id_field].as_int64_t()) {
+                    if (gvr.object_data[class_name_field]->as_string() == current_selected_object[class_name_field]->as_string() &&
+						gvr.object_data[object_id_field]->as_int64_t() == current_selected_object[object_id_field]->as_int64_t()) {
 						matching_index = i;
 					}
 				}
                 gvr.control = nullptr;
-				std::string class_name = gvr.object_data[class_name_field].as_string();
+				std::string class_name = gvr.object_data[class_name_field]->as_string();
 				if (page_controls.contains(class_name))
 				{
 					gvr.control = page_controls[class_name]->clone();
@@ -1288,7 +1267,7 @@ namespace corona
 
 		void end()
 		{
-			selected_item_index = data.size() - 1;
+			selected_item_index = items_view_items.size() - 1;
 			check_scroll();
 		}
 
@@ -1320,8 +1299,8 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (selected_item_index >= 0 && data.array() && data.size() > selected_item_index) {
-				j = data.get_element(selected_item_index);
+			if (selected_item_index >= 0 && items_view_items.size() > selected_item_index) {
+				j = items_view_items[selected_item_index];
 			}
 			return j;
 		}
@@ -1451,37 +1430,25 @@ namespace corona
 			items_view::put_json(copy);
 		}
 
-		json get_items(json _data)
+		json_array	get_items(json_array _data)
 		{
-			json chest_param = _data.clone();
-			if (chest_param.array()) {
-				for (int i = 0; i < chest_param.size(); i++) {
-					json item = chest_param.get_element(i);
-					if (!item.has_member("class_name")) {
-						item.put_member_string("class_name", "chest_item");
-					}
+			json_array chest_param = _data;
+			for (int i = 0; i < chest_param.size(); i++) {
+				json_object item = chest_param[i];
+				if (!item.has_member("class_name")) {
+					item.put_member("class_name", "chest_item");
 				}
 			}
 			return chest_param;
 		}
 
-		virtual bool set_items(json _data) override
+		virtual bool set_items(json_array _data) override
 		{
-			json items = get_items(_data);
-            if (!items.empty()) {
-				items_view::set_items(items);
-            }
-			return true;
+			auto items = get_items(_data);
+			items_view::set_items(items);
+            return true;
 		}
 
-		virtual json set_data(json _data) override
-		{
-			json items = get_items(_data);
-			if (!items.empty()) {
-				items_view::set_data(items);
-			}
-			return items;
-		}
 
 		virtual std::shared_ptr<control_base> clone()
 		{

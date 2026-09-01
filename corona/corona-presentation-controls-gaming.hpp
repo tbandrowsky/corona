@@ -133,7 +133,7 @@ namespace corona
 
 	class animations_control : public draw_control
 	{
-		json data;
+		json_object data;
 		std::vector<std::shared_ptr<game::animation>>	animations;
 		std::vector<corona_animation_rectangle>			animation_rectangles;
 		std::vector<corona_frame_rectangle>				frame_rectangles;
@@ -325,29 +325,22 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			if (json_field_name.empty()) {
-				return data;
-			}
-			else if (data.object() && data.has_member(json_field_name)) {
-				return data[json_field_name];
-			}
 			return data;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			data = _data;
-			if (data.array()) {
-				set_items(data);
-			} else if (data.object() && data.has_member(json_field_name)) {
-				set_items(data[json_field_name]);
+			if (data.has_member(json_field_name)) {
+				json_array items_array = data[json_field_name];
+				set_items(items_array);
             }
 			return data;
 		}
 
-		virtual bool set_items(json _data) override;
+		virtual bool set_items(json_array _data) override;
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 	};

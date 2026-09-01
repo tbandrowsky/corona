@@ -1952,6 +1952,7 @@ namespace corona
         std::function<void(command_button_control*)> on_click;
 
         bool                enabled;
+        bool                toolbar_button = false;
 
         command_button_control() : gradient_button_control() {
             init_text_styles();
@@ -1960,6 +1961,7 @@ namespace corona
             enable_source_frame = "";
             enable_class_name = "";
             enabled = true;
+            toolbar_button = false;
             init();
         }
 
@@ -1973,6 +1975,7 @@ namespace corona
             enable_source_frame = _src.enable_source_frame;
             enable_class_name = _src.enable_class_name;
             enabled = true;
+            toolbar_button = _src.toolbar_button;
             init();
         }
 
@@ -1984,6 +1987,7 @@ namespace corona
             enable_source_frame = "";
             enable_class_name = "";
             enabled = true;
+            toolbar_button = false;
             init();
         }
 
@@ -1996,10 +2000,8 @@ namespace corona
             auto frame = bus->find_control(enable_source_frame);
             if (frame) {
                 auto target = frame->get_data();
-                if (target.object()) {
-                    bool is_class = target[class_name_field].as_string() == enable_class_name;
-                    return is_class;
-                }
+                bool is_class = target.has_member(class_name_field) && target[class_name_field]->as_string() == enable_class_name;
+                return is_class;
             }   
             return false;
         }
@@ -2080,7 +2082,14 @@ namespace corona
                     if (backlight_brush) {
                         D2D1_ELLIPSE ellipse;
 
-                        if (icon_it != segoeMDL2Icons.end()) {
+                        if (toolbar_button)
+                        {
+                            ellipse.radiusX = _bounds->w / 3.3f;
+                            ellipse.radiusY = _bounds->h / 3.3f;
+                            ellipse.point.x = _bounds->x + _bounds->w * 1.0f / 3.3f;
+                            ellipse.point.y = _bounds->y + _bounds->h + 4; // I recognize the evil of exploiting this.
+                        }
+                        else if (icon_it != segoeMDL2Icons.end()) {
                             ellipse.radiusX = _bounds->w / 3.3f;
                             ellipse.radiusY = _bounds->h / 3.3f;
                             if (image) {
@@ -2121,7 +2130,15 @@ namespace corona
 
                 rectangle draw_bounds = *_bounds;
 
-                if (icon_it != segoeMDL2Icons.end()) {
+                if (toolbar_button)
+                {
+                    if (icon_it != segoeMDL2Icons.end()) {
+                        draw_bounds.x = inner_bounds.x + (inner_bounds.right() - inner_bounds.x) * 1.0 / 3.0;
+                        draw_bounds.y = inner_bounds.y + (inner_bounds.bottom() - inner_bounds.y) * 1.0 / 2.0;
+                        _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
+                    }
+                }
+                else if (icon_it != segoeMDL2Icons.end()) {
                     draw_bounds.x += 4;
                     draw_bounds.w = 16;
                     _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
@@ -2207,6 +2224,7 @@ namespace corona
 
             _dest.put_member("enable_source_frame", enable_source_frame);
             _dest.put_member("enable_class_name", enable_class_name);
+            _dest.put_member("toolbar_button", toolbar_button);
 
             switch (draw_style) 
             {
@@ -2229,6 +2247,7 @@ namespace corona
             image = nullptr;
             selected_state_enabled = _src["selected_state_enabled"].as_bool();
             selected_state = false;
+            toolbar_button = _src["toolbar_button"].as_bool();
 
             json jcommand = _src["on_click"];
             if (jcommand.empty()) {

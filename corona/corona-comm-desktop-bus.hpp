@@ -499,10 +499,10 @@ namespace corona
 
 				if (timer_control) {
 					json_parser jp;
-					json status = jp.create_object();
+					json_object status;
 					command_current = time(nullptr);
 					elapsed_seconds = command_current - command_start;
-					status.put_member("call_timer_seconds", elapsed_seconds);
+					status.put_member(std::string("call_timer_seconds"), elapsed_seconds);
 					timer_control->set_data(status);
 				}
 			}
@@ -2164,7 +2164,7 @@ namespace corona
 			});
 		}
 
-		virtual void select_page(std::string _path, json _obj) override
+		virtual void select_page(std::string _path, json_object _obj) override
 		{
             std::vector<std::string> parts = split(_path, '.');
 
@@ -2193,9 +2193,7 @@ namespace corona
 				if (not _target_control.empty()) {
 					control_base* cb = find_control(_target_control);
 					if (cb) {
-						if (not cb->set_items(_obj)) {
-							cb->set_data(_obj);
-						}
+						cb->set_data(_obj);
 					}
 				}
 				presentation_layer->update_focus_list();
@@ -2208,7 +2206,7 @@ namespace corona
             return presentation_layer->get_page(_page_name);
 		}
 
-		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json _obj, bool _reset_nav) override
+		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav) override
 		{
 		
 			if (!this->is_on_ui_thread()) {
@@ -2291,9 +2289,7 @@ namespace corona
 								fl->create(context, app_ui);
 							}
 						}
-						if (not fl->set_items(_obj)) {
-							fl->set_data(_obj);
-						}
+						fl->set_data(_obj);
 					}
 					if (not _form_to_load.empty()) {
 						control_base* formx = find_control(_form_to_load);
@@ -2486,10 +2482,8 @@ namespace corona
 		}
 	}
 
-	bool animations_control::set_items(json _data)
+	bool animations_control::set_items(json_array _data)
 	{
-		data = _data;
-
 		animations.clear();
 
 		int i;
@@ -2507,29 +2501,26 @@ namespace corona
 		animation_rectangles.clear();
 		frame_rectangles.clear();
 
-		if (data.array()) {
+		auto desktop = desktop_app_bus::get_service()->as<desktop_app_bus>();
+		if (desktop) {
+			auto factory = desktop->get_game_factory();
 
-			auto desktop = desktop_app_bus::get_service()->as<desktop_app_bus>();
-			if (desktop) {
-				auto factory = desktop->get_game_factory();
-
-				for (int i = 0; i < data.size(); i++) {
-					auto janimation = data.get_element(i);
-					auto new_animation = std::make_shared<game::animation>();
-					new_animation->put_json(factory->af, janimation);
-					animations.push_back(new_animation);
-					current_animation.object = new_animation;
-                    for (auto frame: new_animation->frames) {
-						corona_frame_rectangle fr;
-						fr.rect.x = DirectX::XMVectorGetX(frame.second->position);
-						fr.rect.y = DirectX::XMVectorGetY(frame.second->position);
-						rectangle_points rp;
-						frame.second->extent(rp);
-                        fr.rect.w = rp.lower_right.x - rp.upper_left.x;
-                        fr.rect.h = rp.lower_right.y - rp.upper_left.y;
-						fr.object = frame.second;
-						frame_rectangles.push_back(fr);
-					}
+			for (int i = 0; i < _data.size(); i++) {
+				json janimation = _data[i];
+				auto new_animation = std::make_shared<game::animation>();
+				new_animation->put_json(factory->af, janimation);
+				animations.push_back(new_animation);
+				current_animation.object = new_animation;
+                for (auto frame: new_animation->frames) {
+					corona_frame_rectangle fr;
+					fr.rect.x = DirectX::XMVectorGetX(frame.second->position);
+					fr.rect.y = DirectX::XMVectorGetY(frame.second->position);
+					rectangle_points rp;
+					frame.second->extent(rp);
+                    fr.rect.w = rp.lower_right.x - rp.upper_left.x;
+                    fr.rect.h = rp.lower_right.y - rp.upper_left.y;
+					fr.object = frame.second;
+					frame_rectangles.push_back(fr);
 				}
 			}
 		}

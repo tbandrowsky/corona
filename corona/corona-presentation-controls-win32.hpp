@@ -355,26 +355,21 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
 				std::string text = get_text();
 				result.put_member(json_field_name, text);
 			}
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name].as_string();
-				set_text(text);
-			}
-			else {
-				std::string text = "";
+				std::string text = _data[json_field_name]->as_string();
 				set_text(text);
 			}
 			return _data;
@@ -451,29 +446,26 @@ namespace corona
 				data_row.resize(choices.columns.size());
 				row_index++;
 
-				if (choices.items.array())
+				for (int i = 0; i < choices.items.size(); i++)
 				{
-					for (int i = 0; i < choices.items.size(); i++)
+					json item = choices.items[i];
+					col_index = 0;
+					for (auto col : choices.columns)
 					{
-						auto item = choices.items.get_element(i);
-						col_index = 0;
-						for (auto col : choices.columns)
-						{
-							data_row[col_index] = blank;
-							bool has_field = item.has_member(col.json_field_name);
-							if (has_field) {
-								std::string item_value = item[col.json_field_name].format_string(col.format);
-								char* value = (char*)item_value.c_str();
-								if (value) {
-									data_row[col_index] = value;
-								}
+						data_row[col_index] = blank;
+						bool has_field = item.has_member(col.json_field_name);
+						if (has_field) {
+							std::string item_value = item[col.json_field_name].format_string(col.format);
+							char* value = (char*)item_value.c_str();
+							if (value) {
+								data_row[col_index] = value;
 							}
-							col_index++;
 						}
-						//virtual void addListViewRow(int ddlControlId, LPARAM data, const std::vector<std::string>&_items) = 0;
-						phost->addListViewRow(id, row_index, data_row);
-						row_index++;
+						col_index++;
 					}
+					//virtual void addListViewRow(int ddlControlId, LPARAM data, const std::vector<std::string>&_items) = 0;
+					phost->addListViewRow(id, row_index, data_row);
+					row_index++;
 				}
 			}
 		}
@@ -554,7 +546,7 @@ namespace corona
 
 		}
 
-		virtual bool set_items(json _data) override
+		virtual bool set_items(json_array _data) override
 		{
 			choices.items = _data;
 			data_changed();
@@ -610,28 +602,25 @@ namespace corona
 			if (auto phost = window_host.lock()) {
 				std::string selection = phost->getListSelectedText(id);
 				phost->clearListItems(id);
-				if (choices.items.array()) {
-					for (int i = 0; i < choices.items.size(); i++)
-					{
-						auto c = choices.items.get_element(i);
-						int lid	= c[choices.id_field].as_int();
-						std::string description = c[choices.text_field].as_string();
-						phost->addListItem(id, description, lid);
-					}
-					if (selection.size())
-					{
-						phost->setListSelectedText(id, selection.c_str());
-					}
+				for (int i = 0; i < choices.items.size(); i++)
+				{
+					json c = choices.items[i];
+					int lid	= c[choices.id_field].as_int();
+					std::string description = c[choices.text_field].as_string();
+					phost->addListItem(id, description, lid);
+				}
+				if (selection.size())
+				{
+					phost->setListSelectedText(id, selection.c_str());
 				}
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
 
 				if (auto ptr = window_host.lock()) {
 					std::string new_text = ptr->getListSelectedText(id);
@@ -643,19 +632,10 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name].as_string();
-				if (auto ptr = window_host.lock()) {
-					std::string existing = ptr->getListSelectedText(id);
-					if (existing != text) {
-						ptr->setListSelectedText(id, text.c_str());
-					}
-				}
-			}
-			else {
-				std::string text = "";
+				std::string text = _data[json_field_name]->as_string();
 				if (auto ptr = window_host.lock()) {
 					std::string existing = ptr->getListSelectedText(id);
 					if (existing != text) {
@@ -684,7 +664,7 @@ namespace corona
 			data_changed();
 		}
 
-		virtual bool set_items(json _data) override
+		virtual bool set_items(json_array _data) override
 		{
 			choices.items = _data;
 			data_changed();
@@ -787,15 +767,12 @@ namespace corona
 			if (auto phost = window_host.lock()) {
 				std::string selectedText = phost->getComboSelectedText(id);
 				phost->clearComboItems(id);
-				if (choices.items.array()) 
+				for (int i = 0; i < choices.items.size(); i++)
 				{
-					for (int i = 0; i < choices.items.size(); i++)
-					{
-						auto element = choices.items.get_element(i);
-						int lid = element[choices.id_field].as_int();
-						std::string description = element[choices.text_field].as_string();
-						phost->addComboItem(id, description, lid);
-					}
+					json element = choices.items[i];
+					int lid = element[choices.id_field].as_int();
+					std::string description = element[choices.text_field].as_string();
+					phost->addComboItem(id, description, lid);
 				}
 				phost->setComboSelectedText(id, selectedText);
 			}
@@ -805,7 +782,7 @@ namespace corona
 		{
 			int sz = 150;
 			if (window == nullptr) return sz;
-			if (choices.items.array() && choices.items.size()) {
+			if (choices.items.size()) {
 				int x = choices.items.size();
 				if (x > 10) x = 10;
 				int ii = 10;
@@ -853,12 +830,11 @@ namespace corona
 			data_changed();
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
 
 				if (auto ptr = window_host.lock()) {
 					std::string new_text = ptr->getComboSelectedText(id);
@@ -870,10 +846,10 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name].as_string();
+				std::string text = _data[json_field_name]->as_string();
 				if (auto ptr = window_host.lock()) {
 					std::string existing = ptr->getComboSelectedText(id);
 					if (existing != text) {
@@ -881,14 +857,6 @@ namespace corona
 					}
 				}
 			}
-			else if (auto ptr = window_host.lock()) {
-				std::string existing = ptr->getListSelectedText(id);
-				std::string text = "";
-				if (existing != text) {
-					ptr->setComboSelectedText(id, text.c_str());
-				}
-			}
-
 			return _data;
 		}
 
@@ -915,7 +883,7 @@ namespace corona
 			data_changed();
 		}
 
-		virtual bool set_items(json _data) override
+		virtual bool set_items(json_array _data) override
 		{
 			choices.items = _data;
 			data_changed();
@@ -944,7 +912,7 @@ namespace corona
 	const int DefaultWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-	const int RichEditWindowStyles = WS_VISIBLE | WS_BORDER | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
+	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
 	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_SORT;
 	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_SORT;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
@@ -1032,29 +1000,24 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
 				std::string text = get_text();
 				json data = jp.parse_object(text);
 				if (!jp.has_errors()) {
-					result.put_member(json_field_name, data);
+					result.put_member(json_field_name, data.value());
 				}
 			}
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name].to_json();
-				set_text(text);
-			}
-			else {
-				std::string text = "";
+				std::string text = _data[json_field_name]->to_json();
 				set_text(text);
 			}
 			return _data;
@@ -1271,13 +1234,11 @@ namespace corona
 			return tv;
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
-
 				if (auto ptr = window_host.lock()) {
 					bool test = ptr->getButtonChecked(id);
 					result.put_member(json_field_name, test);
@@ -1286,14 +1247,16 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
-					int checked = _data.get_member(json_field_name).as_int();
-					ptr->setButtonChecked(id, checked);
+                    if (_data.has_member(json_field_name)) {
+                        int checked = _data[json_field_name]->as_int();
+                        ptr->setButtonChecked(id, checked);
+                    }
 				}
 			}
 			else if (auto ptr = window_host.lock()) {
@@ -1321,12 +1284,11 @@ namespace corona
 			return tv;
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
-				result = jp.create_object();
 
 				if (auto ptr = window_host.lock()) {
 					bool test = ptr->getButtonChecked(id);
@@ -1336,18 +1298,15 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
-					int checked = _data.get_member(json_field_name).as_int();
+					int checked = _data[json_field_name]->as_int();
 					ptr->setButtonChecked(id, checked);
 				}
-			}
-			else if (auto ptr = window_host.lock()) {
-				ptr->setButtonChecked(id, false);
 			}
 			return _data;
 		}
@@ -1726,25 +1685,24 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 				if (window) {
 					::GetScrollInfo(window, SB_CTL, &sbi);
 				}
-				result = jp.create_object();
 				double v = (sbi.nPos - sbi.nMin) * scale + scaleMin;
 				result.put_member(json_field_name, v);
 			}
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				double pos = _data[json_field_name].as_double();
+				double pos = _data[json_field_name]->as_double();
 				sbi.nPos = (pos - scaleMin) / scale + sbi.nMin;
 			}
 			sbi.nPos = sbi.nMin;
@@ -1753,7 +1711,7 @@ namespace corona
 
 	};
 
-	class richedit_control : public text_control_base
+	class richedit_control : public windows_control
 	{
 		std::string transfer_string;
 		int			transfer_point;
@@ -1764,7 +1722,7 @@ namespace corona
 
 		richedit_control() { id = id_counter::next(); }
 
-		richedit_control(control_base* _parent, int _id) : text_control_base(_parent, _id) {
+		richedit_control(control_base* _parent, int _id) : windows_control(_parent, _id) {
 			LoadLibrary(TEXT("Msftedit.dll"));
 		}
 
@@ -1827,14 +1785,16 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			_page->on_item_changed(id, [this](item_changed_event lce) {
-				if (change_command) {
-					lce.bus->run_command(lce.batch_id, change_command);
-				}
 				if (on_changed) {
 					on_changed(this);
 				}
 			});
 		}
+
+		virtual void on_create() { 
+			; 
+		}
+
 
 		static DWORD edit_stream_read(
 			DWORD_PTR dwCookie,
@@ -1849,9 +1809,8 @@ namespace corona
 			LONG* pcb
 		);
 
-		virtual void set_text(const std::string& _text) override;
-		virtual std::string get_text() override;
-
+		virtual json_object get_data() override;
+		virtual json_object set_data(json_object _data) override;
 	};
 
 	class datetimepicker_control : public windows_control
@@ -1941,26 +1900,25 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
 			json_parser jp;
-			json result;
+			json_object result;
 			if (not json_field_name.empty()) {
 				if (window) {
 					SYSTEMTIME st;
 					DateTime_GetSystemtime(window, &st);
 					current_date = st;
 				}
-				result = jp.create_object();
 				result.put_member(json_field_name, current_date);
 			}
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				current_date = _data[json_field_name].as_date_time();
+				current_date = _data[json_field_name]->as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					DateTime_SetSystemtime(window, GDT_VALID, &st);
@@ -2073,10 +2031,10 @@ namespace corona
 			}
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
 			json_parser jp;
-			json result = jp.create_object();
+			json_object result;
 			if (not json_field_name.empty()) {
 				if (window) {
 					SYSTEMTIME st;
@@ -2088,10 +2046,10 @@ namespace corona
 			return result;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
 			if (_data.has_member(json_field_name)) {
-				current_date = _data[json_field_name].as_date_time();
+				current_date = _data[json_field_name]->as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					MonthCal_SetCurSel(window, GDT_VALID, &st);
@@ -2337,19 +2295,35 @@ namespace corona
 		std::shared_ptr<command_button_control> bullet_button;
 		std::shared_ptr<command_button_control> font_button;
 		std::shared_ptr<combobox_control>		styles_dropdown;
-
 		std::shared_ptr<richedit_control>		richedit_area;
 
 		PARAFORMAT		paragraph_format;
 		CHARFORMAT2A    character_format;
 		layout_rect		button_layout;
+        layout_rect 	richedit_layout;
+        layout_rect     toolbar_layout;
 
 	protected:
 	public:
 
 		writepad_control() { class_name = "writepad"; }
-		writepad_control(const writepad_control& _src) = default;
+
+		writepad_control(const writepad_control& _src) : column_layout(_src) 
+		{ 		
+			init();
+		}
+
 		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
+			init();
+		}
+
+		virtual void init()
+		{
+
+			children.clear();
+
+			content_cross_alignment = visual_alignment::align_near;
+			content_alignment = visual_alignment::align_near;
 
 			character_format = {};
 			character_format.cbSize = sizeof(character_format);
@@ -2364,13 +2338,23 @@ namespace corona
 			paragraph_format.dxStartIndent = 0;
 			paragraph_format.wAlignment = PFA_LEFT;
 
+			button_layout = {};
+			button_layout.width = 35.0_px;
+			button_layout.height = 35.0_px;
+
+			toolbar_layout = {};
+			toolbar_layout.width = 1.0_container;
+			toolbar_layout.height = 35.0_px;
+
+			richedit_layout = {};
+			richedit_layout.width = 1.0_container;
+			richedit_layout.height = 1.0_remaining;
+
 			toolbar = std::make_shared<row_layout>(this, id_counter::next());
-			toolbar->set_box({ 1.0_container, 75.0_px });
+			toolbar->set_box(toolbar_layout);
 			toolbar->wrap = true;
 
-			button_layout = {};
-			button_layout.width = 100.0_px;
-			button_layout.height = 5.0_px;
+
 
 			/*
 					{ "Italic", L"\uE8DB" },
@@ -2388,6 +2372,7 @@ namespace corona
 
 			italic_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			italic_button->icon = "Italic";
+			italic_button->toolbar_button = true;
 			italic_button->set_box(button_layout);
 			italic_button->on_click = [this](command_button_control* _src) {
 				int selected = character_format.dwEffects & CFE_ITALIC;
@@ -2404,6 +2389,7 @@ namespace corona
 
 			bold_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			bold_button->icon = "Bold";
+			bold_button->toolbar_button = true;
 			bold_button->set_box(button_layout);
 			bold_button->on_click = [this](command_button_control* _src) {
 				int selected = character_format.dwEffects & CFE_BOLD;
@@ -2420,6 +2406,7 @@ namespace corona
 
 			underline_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			underline_button->icon = "Underline";
+			underline_button->toolbar_button = true;
 			underline_button->set_box(button_layout);
 			underline_button->on_click = [this](command_button_control* _src) {
 				int selected = character_format.dwEffects & CFE_UNDERLINE;
@@ -2436,6 +2423,7 @@ namespace corona
 
 			align_right_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			align_right_button->icon = "AlignRight";
+			align_right_button->toolbar_button = true;
 			align_right_button->set_box(button_layout);
 			align_right_button->on_click = [this](command_button_control* _src) {
 				paragraph_format.wAlignment = PFA_RIGHT;
@@ -2447,6 +2435,7 @@ namespace corona
 
 			align_left_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			align_left_button->icon = "AlignLeft";
+			align_left_button->toolbar_button = true;
 			align_left_button->set_box(button_layout);
 			align_left_button->on_click = [this](command_button_control* _src) {
 				paragraph_format.wAlignment = PFA_LEFT;
@@ -2458,6 +2447,7 @@ namespace corona
 
 			align_center_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			align_center_button->icon = "AlignCenter";
+			align_center_button->toolbar_button = true;
 			align_center_button->set_box(button_layout);
 			align_center_button->on_click = [this](command_button_control* _src) {
 				paragraph_format.wAlignment = PFA_CENTER;
@@ -2468,8 +2458,9 @@ namespace corona
 				};
 
 			font_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			font_button->set_box(button_layout);
 			font_button->icon = "Font";
+            font_button->toolbar_button = true;	
+			font_button->set_box(button_layout);
 			font_button->on_click = [this](command_button_control* _src) {
 				;
 				};
@@ -2477,12 +2468,13 @@ namespace corona
 			bullet_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			bullet_button->set_box(button_layout);
 			bullet_button->icon = "Bullet";
+            bullet_button->toolbar_button = true;	
 			bullet_button->on_click = [this](command_button_control* _src) {
 				;
 				};
 
 			richedit_area = std::make_shared<richedit_control>(this, id_counter::next());
-			richedit_area->set_box({ 1.0_container, 1.0_remaining });
+			richedit_area->set_box(richedit_layout);
 			richedit_area->on_changed = [this](richedit_control* _src) {
 				richedit_area->get_paragraph_format(&paragraph_format);
 				switch (paragraph_format.wAlignment) {
@@ -2508,14 +2500,22 @@ namespace corona
 				italic_button->enabled = character_format.dwEffects & CFE_ITALIC;
 				};
 
-			toolbar->children.push_back(italic_button);
 			toolbar->children.push_back(bold_button);
+			toolbar->children.push_back(italic_button);
 			toolbar->children.push_back(underline_button);
-			toolbar->children.push_back(align_right_button);
+
 			toolbar->children.push_back(align_left_button);
 			toolbar->children.push_back(align_center_button);
+			toolbar->children.push_back(align_right_button);
+
 			toolbar->children.push_back(font_button);
 			toolbar->children.push_back(bullet_button);
+
+			children.push_back(toolbar);
+			children.push_back(richedit_area);
+
+			richedit_area->json_field_name = json_field_name;
+
 		}
 
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
@@ -2523,31 +2523,36 @@ namespace corona
 			column_layout::on_create(_context, _src);
 		};
 
-		void set_text(const std::string& _text)
+
+		virtual void arrange(control_base* _parent, rectangle* _ctx) override
 		{
-			if (richedit_area)
-				richedit_area->set_text(_text);
+			set_bounds(_parent, *_ctx);
+            column_layout::arrange(_parent, _ctx);
 		}
 
-		std::string get_text()
+		virtual point get_size(control_base* _parent)
 		{
-			if (richedit_area)
-				return richedit_area->get_text();
-			return "";
+			return column_layout::get_size(_parent);
 		}
 
-		virtual json get_data() override
+		virtual json_object get_data() override
 		{
-			if (richedit_area)
-				return richedit_area->get_data();
-			return json();
+			json_parser jp;
+			json_object data;
+
+			if (richedit_area) {
+				data = richedit_area->get_data();
+			}
+			return data;
 		}
 
-		virtual json set_data(json _data) override
+		virtual json_object set_data(json_object _data) override
 		{
-			if (richedit_area)
-				return richedit_area->set_data(_data);
-			return json();
+			if (richedit_area) {
+                richedit_area->json_field_name = json_field_name;
+				richedit_area->set_data(_data);
+			}
+			return _data;
 		}
 
 		virtual void get_json(json& _dest)
@@ -2556,23 +2561,20 @@ namespace corona
 
 			column_layout::get_json(_dest);
 
-			std::string temp = get_text();
-
-            _dest.put_member_string("text", temp);		
 		}
 
 		virtual void put_json(json& _src)
 		{
 			column_layout::put_json(_src);
 
-			std::string temp = _src["text"].as_string();
-			set_text(temp);
-
+			if (richedit_area) {
+				richedit_area->json_field_name = json_field_name;
+			}
 		}
 	
 		virtual std::shared_ptr<control_base> clone()
 		{
-			auto tv = std::make_shared<writepad_control>(nullptr, id);
+			auto tv = std::make_shared<writepad_control>(*this);
 			return tv;
 		}
 
@@ -2602,12 +2604,9 @@ namespace corona
 		if (IsWindow(window)) {
 			if (auto phost = window_host.lock()) {
 				phost->clearComboItems(id);
-                if (!choices.items.array()) {
-					return;
-				}
 				for (int i = 0; i < choices.items.size(); i++)
 				{
-					auto c = choices.items.get_element(i);
+					json c = choices.items.get_element(i);
 					if (c.has_member(choices.id_field) and c.has_member(choices.text_field)) {
 						int lid = c[choices.id_field].as_int();
 						std::string description = c[choices.text_field].as_string();
@@ -2679,33 +2678,41 @@ namespace corona
 		return finished ? -1 : 0;
 	}
 
-	void richedit_control::set_text(const std::string& _text)
+	json_object richedit_control::get_data()
 	{
-		text_control_base::text = _text;
+		json_parser jp;
+		json_object result;
+		if (not json_field_name.empty()) {
+			if (window) {
+				transfer_string = "";
+				transfer_point = 0;
 
-		transfer_string = _text;
-		transfer_point = 0;
+				EDITSTREAM es = {};
+				es.dwCookie = (DWORD_PTR)this;
+				es.pfnCallback = edit_stream_read;
 
-		EDITSTREAM es = {};
-		es.dwCookie = (DWORD_PTR)this;
-		es.pfnCallback = edit_stream_read;
-
-		SendMessage(window, EM_STREAMIN, SF_RTF, (LPARAM) & es);
+				SendMessage(window, EM_STREAMOUT, (CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF, (LPARAM)&es);
+				result.put_member(json_field_name, transfer_string);
+			}
+		}
+		return result;
 	}
 
-	std::string richedit_control::get_text()
+	json_object richedit_control::set_data(json_object _data) 
 	{
-		transfer_string = "";
-		transfer_point = 0;
+		if (_data.has_member(json_field_name)) {
+			std::string rtf_text = _data[json_field_name]->as_string();
+			if (window) {
+				transfer_string = rtf_text;
+				transfer_point = 0;
 
-		EDITSTREAM es = {};
-		es.dwCookie = (DWORD_PTR)this;
-		es.pfnCallback = edit_stream_read;
-
-		SendMessage(window, EM_STREAMOUT, SF_RTF, (LPARAM)&es);
-
-		text_control_base::text = transfer_string;
-		return text;
+				EDITSTREAM es = {};
+				es.dwCookie = (DWORD_PTR)this;
+				es.pfnCallback = edit_stream_write;
+				SendMessage(window, EM_STREAMIN, (CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF, (LPARAM)&es);
+			}
+		}
+		return _data;
 	}
 
 	void datetimepicker_control::set_text(const std::string& _text)
