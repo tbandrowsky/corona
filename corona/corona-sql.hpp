@@ -739,10 +739,10 @@ namespace corona
 									auto sjd = std::make_shared<json_string>();
 									std::string temp = trim(sjv->get_value(), null_ind);
 									sjd->set_value(temp.c_str());
-									obj.object_impl()->members[key] = sjd;
+									obj.object_impl()->put_member(key,sjd);
 								}
 								else {
-									obj.object_impl()->members[key] = jv;
+									obj.object_impl()->put_member(key,jv);
 								}
 							}
 						}

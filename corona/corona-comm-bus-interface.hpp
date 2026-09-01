@@ -162,8 +162,8 @@ namespace corona
 
 		virtual void error(json _error) = 0;
 
-		virtual void select_page(std::string _path, json _obj) = 0;
-		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json _obj, bool _reset_nav = false) = 0;
+		virtual void select_page(std::string _path, json_object _obj) = 0;
+		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json_object _obj, bool _reset_nav = false) = 0;
 
 		DWORD gui_thread_id = 0;
 
@@ -320,8 +320,8 @@ namespace corona
 		virtual control_base* find_control(int _id) = 0;
 		virtual control_base* find_control(std::string _name) = 0;
 
-		virtual void object_updated(json _data) = 0;
-		virtual void object_deleted(json _data) = 0;
+		virtual void object_updated(json_object _data) = 0;
+		virtual void object_deleted(json_object _data) = 0;
 
 		virtual json get_form_data(std::string _form_name) = 0;
 		virtual json export_form_data(std::string _form_name) = 0;
@@ -348,7 +348,7 @@ namespace corona
 		{
 			auto it = batch_data.find(_batch_id);
 			if (it != std::end(batch_data)) {
-                it->second->members[_name] = _value.value();
+                it->second->put_member(_name, _value.value());
 			}
 		}
 
@@ -358,7 +358,7 @@ namespace corona
 			if (it != std::end(batch_data)) {
 				auto temp = std::make_shared<json_string>();
 				temp->set_value(_value.c_str());
-				it->second->members[_name] = temp;
+				it->second->put_member(_name, temp);
 			}
 		}
 
@@ -368,7 +368,7 @@ namespace corona
 			if (it != std::end(batch_data)) {
 				auto temp = std::make_shared<json_double>();
 				temp->value = _value;
-				it->second->members[_name] = temp;
+				it->second->put_member(_name, temp);
 			}
 		}
 
@@ -376,9 +376,9 @@ namespace corona
 		{
 			auto it = batch_data.find(_batch_id);
 			if (it != std::end(batch_data)) {
-				auto member_it = it->second->members.find(_name);
-				if (member_it != std::end(it->second->members)) {
-					return member_it->second;
+				auto member_it = it->second->find(_name);
+				if (member_it) {
+					return member_it;
 				}
 			}
 			return json();
@@ -439,7 +439,7 @@ namespace corona
 	{
 
 	public:
-		json_object data;
+		json data;
 
 		corona_bus_command()
 		{

@@ -2078,20 +2078,14 @@ namespace corona
 			}
 		}
 
-		virtual void object_updated(json _data)
+		virtual void object_updated(json_object _data)
 		{
-			json items = _data.as_array();
-			items.for_each_element([this](json item) {
-				presentation_layer->object_updated(item);
-				});
+			presentation_layer->object_updated(_data);
 		}
 
-		virtual void object_deleted(json _data)
+		virtual void object_deleted(json_object _data)
 		{
-			json items = _data.as_array();
-			items.for_each_element([this](json item) {
-				presentation_layer->object_deleted(item);
-				});
+			presentation_layer->object_deleted(_data);
 		}
 
 		virtual control_base* create_control(control_base* _src) override

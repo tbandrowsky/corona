@@ -1633,20 +1633,25 @@ namespace corona
 
 	};
 
+
 	class json_object : public json_value
 	{
-	public:
+		// this is going to be priv
 		std::map<std::string, std::shared_ptr<json_value>> members;
+
+		friend class json;
+
+	public:
 
 		json_object() = default;
 		json_object(const json_object& _src) = default;
 		json_object(json_object&& _src) = default;
+		json_object(std::shared_ptr<json_value>& _src);
+
 		json_object& operator =(const json_object& _src) = default;
 		json_object& operator =(json_object&& _src) = default;
-
 		json_object& operator = (std::shared_ptr<json_value>& _src);
 
-		json_object(std::shared_ptr<json_value> _src);
 		virtual std::string to_key() const
 		{
 			std::string ret = "";
@@ -1778,25 +1783,28 @@ namespace corona
 			return members.find(_name) != members.end();
 		}
 
+		std::shared_ptr<json_value> find(std::string _name) const
+		{
+			auto it = members.find(_name);
+			if (it != members.end()) {
+				return it->second;
+			}
+			return nullptr;
+		}
+
 		std::shared_ptr<json_value>& operator [](std::string _name)
 		{
 			auto it = members.find(_name);
 			if (it != members.end()) {
 				return it->second;
 			}
-			throw std::range_error("Member not found");
+            members.insert({ _name, std::make_shared<json_double>() });
+			return members[_name];
 		}
 
 		json_object put_member(std::string _member, std::shared_ptr<json_value> _json)
 		{
 			members.insert_or_assign(_member, _json);
-			return *this;
-		}
-
-		json_object put_member(std::string _member, json_object _json)
-		{
-			std::shared_ptr<json_object> obj = std::make_shared<json_object>(_json);
-			members.insert_or_assign(_member, obj);
 			return *this;
 		}
 
@@ -1840,9 +1848,6 @@ namespace corona
 			return *this;
 		}
 
-		json_object put_member(std::string _member, json_object _obj);
-		json_object put_member(std::string _member, json_array _arr);
-
 		json_object put_member(std::string _member, DirectX::XMVECTOR _v)
 		{
 			std::shared_ptr<json_vector> obj = std::make_shared<json_vector>();
@@ -1850,6 +1855,16 @@ namespace corona
 			members.insert_or_assign(_member, obj);
 			return *this;
 		}
+
+		bool empty()
+		{
+            return members.empty();
+		}
+
+        void erase(std::string _member)
+        {
+            members.erase(_member);
+        }
 
 		auto begin() { return members.begin(); }
 		auto end() { return members.end(); }
@@ -1860,20 +1875,21 @@ namespace corona
 
 	class json_array : public json_value
 	{
-	public:
 		std::vector<std::shared_ptr<json_value>> elements;
+
+
+	public:
+
+		friend class json;
 
 		json_array() = default;
 		json_array(const json_array& _src) = default;
 		json_array(json_array&& _src) = default;
         json_array(std::shared_ptr<json_value>& _src);
-		json_array(const json& _src);
-
-        json_array& operator = (const json_array& _src) = default;
-		json_array& operator = (json_array&& _src) = default;
 
 		json_array& operator = (std::shared_ptr<json_value>& _src);
-		json_array& operator = (const json& _src);
+        json_array& operator = (const json_array& _src) = default;
+		json_array& operator = (json_array&& _src) = default;
 
 		virtual std::string to_key() const
 		{
@@ -1905,6 +1921,11 @@ namespace corona
             return elements.erase(elements.begin() + _index);
 		}
 
+		bool empty()
+		{
+			return elements.empty();
+		}
+
         std::shared_ptr<json_value> get_element(size_t _index) const
         {
             if (_index < elements.size()) {
@@ -1912,6 +1933,14 @@ namespace corona
             }
 			throw std::range_error("Index out of range");
         }
+
+		const std::shared_ptr<json_value>& operator [](int _index) const
+		{
+			if (_index < elements.size()) {
+				return elements[_index];
+			}
+			throw std::range_error("Index out of range");
+		}
 
         std::shared_ptr<json_value> &operator [](int _index)
         {
@@ -1946,9 +1975,9 @@ namespace corona
 			return elements.size();
 		}
 
-		virtual void push_back(std::shared_ptr<json_object> _value)
+		virtual void push_front(std::shared_ptr<json_value> _value)
 		{
-			elements.push_back(_value);
+			elements.insert(elements.begin(), _value);
 		}
 
         virtual void push_back(std::shared_ptr<json_value> _value)
@@ -1956,7 +1985,7 @@ namespace corona
             elements.push_back(_value);
         }
 
-		virtual void push_back(json_object _value);
+		virtual void push_back(json_object &_value);
 
 		virtual bool is_empty() const
 		{
@@ -2080,6 +2109,7 @@ namespace corona
 			value_base = nullptr;
 		}
 
+
 	private:
 		std::vector<compared_item> comparison_fields;
 
@@ -2103,7 +2133,7 @@ namespace corona
 				_ss << std::endl << std::string(_indent, ' ') << "{";
 				_indent += 2;
 				std::string comma = "";
-				for (auto member : obj->members) {
+				for (auto member : *obj) {
                     _ss << comma;
 					_ss << "\n" << std::string(_indent, ' ') << "\"" << member.first << "\":";
  					if (member.second) {
@@ -2124,7 +2154,7 @@ namespace corona
 
 				_ss << std::endl << std::string(_indent, ' ') << "[";
 				std::string comma = "\n";
-				for (auto element : arr->elements) {
+				for (auto element : *arr) {
 					_ss << comma;
 					json temp(element);
 					temp.write(_ss, _indent + 2, true);
@@ -2139,14 +2169,6 @@ namespace corona
 
 	public:
 
-		json()
-		{
-		}
-
-		json(std::shared_ptr<json_value> _value)
-		{
-			set(_value);
-		}
 
 		void set(std::shared_ptr<json_value> _value)
 		{
@@ -2282,14 +2304,17 @@ namespace corona
 
 		bool has_members(const std::vector<std::string>& _src)
 		{
-			if (not object())
+            auto obj = object_impl();
+
+			if (not obj)
 				return false;
 
 			for (auto s : _src) {
 				if (not has_member(s))
 					return false;
-				auto member = object_impl()->members[s];
-				if (member->is_empty()) {
+
+				bool hasit = obj->has_member(s);
+				if (!hasit) {
 					return false;
 				}
 			}
@@ -2298,7 +2323,9 @@ namespace corona
 
 		bool has_members(std::vector<std::string>& _missing, const std::vector<std::string>& _src)
 		{
-			if (not object())
+			auto obj = object_impl();
+
+			if (not obj)
 				return false;
 
 			bool good = true;
@@ -2310,8 +2337,8 @@ namespace corona
 				}
 				else
 				{
-					auto member = object_impl()->members[s];
-					if (not member or member->is_empty()) {
+					bool hasit = obj->has_member(s);
+					if (not hasit) {
 						good = false;
 						_missing.push_back(s);
 					}
@@ -2772,8 +2799,11 @@ namespace corona
 		bool import_member(std::string _member, const std::string_view& _value_to_import)
 		{
 			bool stuffed = false;
-			if (object_impl() and object_impl()->members.contains(_member)) {
-				object_impl()->members[_member]->from_string(_value_to_import);
+            auto pobj_impl = object_impl();
+
+			if (pobj_impl and pobj_impl->has_member(_member)) {
+				auto b = *pobj_impl;
+				b[_member]->from_string(_value_to_import);
 				stuffed = true;
 			}
 			return stuffed;
@@ -2784,12 +2814,12 @@ namespace corona
 			json empty;
 
 			if (auto oipl = object_impl()) {
-				if (oipl->members.contains(_member)) {
+				if (oipl->has_member(_member)) {
 					json jn = value();
 					return jn;
 				}
 				else {
-					for (auto& member : oipl->members) {
+					for (auto& member : *oipl) {
 						json jn(member.second);
 						json result = jn.find_object_with_member(_member);
 						if (not result.empty()) {
@@ -2799,7 +2829,7 @@ namespace corona
 				}
 			}
 			else if (auto aipl = array_impl()) {
-				for (auto& element : aipl->elements) {
+				for (auto& element : *aipl) {
 					json jn(element);
 					json result = jn.find_object_with_member(_member);
 					if (not result.empty()) {
@@ -2838,10 +2868,10 @@ namespace corona
 
 		std::shared_ptr<json_value> get_member_value(const std::string& _key)
 		{
-			if (object_impl()) {
-				auto vlist = object_impl()->members.find(_key);
-				if (vlist != std::end(object_impl()->members)) {
-					return vlist->second;
+			if (auto *pobj = object_impl()) {
+				auto vlist = pobj->find(_key);
+				if (vlist) {
+					return vlist;
 				}
 			}
 			return nullptr;
@@ -2849,10 +2879,10 @@ namespace corona
 
 		std::shared_ptr<json_array> get_member_array(const std::string& _key)
 		{
-			if (object_impl()) {
-				auto vlist = object_impl()->members.find(_key);
-				if (vlist != std::end(object_impl()->members)) {
-					return std::dynamic_pointer_cast<json_array>(vlist->second);
+			if (auto *pobj = object_impl()) {
+				auto vlist = pobj->find(_key);
+				if (vlist) {
+					return std::dynamic_pointer_cast<json_array>(vlist);
 				}
 			}
 			return nullptr;
@@ -2875,23 +2905,23 @@ namespace corona
 			std::string member_name = _path.front();
 			_path.pop();
 
-			auto member = obj_impl->members.find(member_name);
+			auto member = obj_impl->find(member_name);
 
-			if (member != std::end(obj_impl->members))
+			if (member)
 			{
 				if (_path.empty())
 				{
-					result = member->second;
+					result = member;
 					return result;
 				}
-				else if (member->second->get_field_type() == field_types::ft_object) {
-					json child_object = member->second;
+				else if (member->get_field_type() == field_types::ft_object) {
+					json child_object = member;
 					result = child_object.find_member_impl(_path);
 					return result;
 				}
-				else if (member->second->get_field_type() == field_types::ft_array)
+				else if (member->get_field_type() == field_types::ft_array)
 				{
-					json child_array(member->second);
+					json child_array(member);
 
 					for (int i = 0; i < child_array.size(); i++) {
 						json child_object = child_array.get_element(i);
@@ -2931,8 +2961,10 @@ namespace corona
 		json operator[](const std::string_view& _key) const
 		{
 			std::string temp(_key);
-			if (object_impl() and object_impl()->members.contains(temp)) {
-				json jn(object_impl()->members[temp]);
+			auto pobject_impl = object_impl();
+			if (pobject_impl && pobject_impl->has_member(temp)) {
+                auto& oi = *pobject_impl;
+				json jn(oi[temp]);
 				return jn;
 			}
 			json empty;
@@ -2941,8 +2973,9 @@ namespace corona
 
 		json operator[](const std::string& _key) const
 		{
-			if (object_impl() and object_impl()->members.contains(_key)) {
-				json jn(object_impl()->members[_key]);
+			if (auto pobject_impl = object_impl(); pobject_impl && pobject_impl->has_member(_key)) {
+				auto& oi = *pobject_impl;
+				json jn(oi[_key]);
 				return jn;
 			}
 			json empty;
@@ -2951,8 +2984,10 @@ namespace corona
 
 		json operator[](const char* _key)  const
 		{
-			if (object_impl() and object_impl()->members.contains(_key)) {
-				json jn(object_impl()->members[_key]);
+			auto pobject_impl = object_impl();
+			if (pobject_impl && pobject_impl->has_member(_key)) {
+				auto& oi = *pobject_impl;
+				json jn(oi[_key]);
 				return jn;
 			}
 			json empty;
@@ -2993,12 +3028,12 @@ namespace corona
 			if (array_impl()) {
 				if (_src.array()) {
 					for (json item : _src) {
-						array_impl()->elements.push_back(item.value_base);
+						array_impl()->push_back(item.value_base);
 					}
 				}
 				else
 				{
-					array_impl()->elements.push_back(_src.value_base);
+					array_impl()->push_back(_src.value_base);
 				}
 			}
 		}
@@ -3010,15 +3045,16 @@ namespace corona
 
 		bool has_member(std::string _key)
 		{
-			bool has_value = !_key.empty() and object_impl() and object_impl()->members.contains(_key);
+			bool has_value = !_key.empty() and object_impl() and object_impl()->has_member(_key);
 			return has_value;
 		}
 
 		bool is_member(std::string _key, const char* _value)
 		{
-			bool has_value = object_impl() and object_impl()->members.contains(_key);
+			bool has_value = object_impl() and object_impl()->has_member(_key);
 			if (has_value) {
-				std::string svalue = object_impl()->members[_key]->to_string();
+				auto& obj = *object_impl();
+				std::string svalue = obj[_key]->to_string();
 				std::string xvalue = _value;
 				has_value = svalue == xvalue;
 			}
@@ -3027,9 +3063,10 @@ namespace corona
 
 		bool is_member(std::string _key, std::string _value)
 		{
-			bool has_value = object_impl() and object_impl()->members.contains(_key);
+			bool has_value = object_impl() and object_impl()->has_member(_key);
 			if (has_value) {
-				std::string svalue = object_impl()->members[_key]->to_string();
+				auto& obj = *object_impl();
+				std::string svalue = obj[_key]->to_string();
 				has_value = svalue == _value;
 			}
 			return has_value;
@@ -3037,7 +3074,7 @@ namespace corona
 
 		bool is_member(std::string _key, int64_t _value)
 		{
-			bool has_value = object_impl() and object_impl()->members.contains(_key);
+			bool has_value = object_impl() and object_impl()->has_member(_key);
 			if (has_value) {
 				int64_t svalue = get_member(_key).as_int64_t();
 				has_value = svalue == _value;
@@ -3047,7 +3084,7 @@ namespace corona
 
 		bool is_member(std::string _key, bool _value)
 		{
-			bool has_value = object_impl() and object_impl()->members.contains(_key);
+			bool has_value = object_impl() and object_impl()->has_member(_key);
 			if (has_value) {
 				bool svalue = get_member(_key).as_bool();
 				has_value = svalue == _value;
@@ -3058,7 +3095,8 @@ namespace corona
 		json get_first_element()
 		{
 			json result;
-			if (array_impl() and array_impl()->elements.size() > 0) {
+
+			if (array_impl() and array_impl()->size() > 0) {
 				result = get_element(0);
 			}
 			return result;
@@ -3066,13 +3104,17 @@ namespace corona
 
 		json get_last_element()
 		{
-			return get_element(array_impl()->elements.size() - 1);
+			return get_element(array_impl()->size() - 1);
 		}
 
 		json get_element(int _index)
 		{
-			json jn(array_impl()->elements[_index]);
-			return jn;
+			json t;
+			if (array_impl()) {
+				auto arr = *array_impl();
+				return json(arr[_index]);
+			}
+			return t;
 		}
 
 		json get_member(std::string _key)
@@ -4882,7 +4924,8 @@ namespace corona
 			for (std::string& s : _src) {
 				std::shared_ptr<json_string> dd = std::make_shared<json_string>();
 				dd->set_value(s);
-				result.array_impl()->elements.push_back(dd);
+                json od(dd);
+				result.push_back(od);
 			}
 			return result;
 		}
@@ -5085,10 +5128,10 @@ namespace corona
 		std::shared_ptr<json_value> parse_value(std::shared_ptr<json_object> _object, std::string _name, std::string _value)
 		{
 			const char* start = _value.c_str();
-			auto existing = _object->members.contains(_name);
+			auto existing = _object->has_member(_name);
 			std::shared_ptr<json_value> modified_value;
 			if (parse_value(modified_value, start, &start)) {
-				_object->members[_name] = modified_value;
+				_object->put_member(_name, modified_value);
 			}
 			return modified_value;
 		}
@@ -5326,7 +5369,7 @@ namespace corona
 					check_line(_src);
 					std::shared_ptr<json_value> value;
 					if (parse_value(value, _src, &_src)) {
-						_array->elements.push_back(value);
+						_array->push_back(value);
 					}
 					_src = eat_white(_src);
 					if (*_src == ',') {
@@ -5407,7 +5450,7 @@ namespace corona
 						if (result && member_value) {
 							parse_object_state = parse_object_states::parsing_comma;
 							member_value->comparison_index = ++comparison_index;
-							_object->members[member_name] = member_value;
+							_object->put_member(member_name, member_value);
 						}
 						else
 						{
@@ -6219,68 +6262,77 @@ namespace corona
 
 	int64_t& json_value::get_int64()   const
 	{
-        auto t = dynamic_cast<json_int64*>(this);
+        json_int64 *t = dynamic_cast<json_int64*>(const_cast<json_value*>(this));
 		return t->value;
 	}
 
 	date_time& json_value::get_datetime()   const
 	{
-        auto t = dynamic_cast<json_datetime*>(this);
+        json_datetime *t = dynamic_cast<json_datetime*>(const_cast<json_value*>(this));
 		return t->value;
 	}
 
 	double& json_value::get_double() const
 	{
-        auto t = dynamic_cast<json_double*>(this);
+        json_double *t = dynamic_cast<json_double*>(const_cast<json_value*>(this));
 		return t->value;
 	}
 
 	std::string& json_value::get_string()  const
 	{
-        auto t = dynamic_cast<json_string*>(this);
+        json_string *t = dynamic_cast<json_string*>(const_cast<json_value*>(this));
 		return t->get_value_ref();
 	}
 
 	int json_value::as_int() const
 	{
-		auto t = dynamic_cast<json_int64*>(this);
+		json_int64 *t = dynamic_cast<json_int64*>(const_cast<json_value*>(this));
 		return t->value;
 	}
 
 	double json_value::as_double() const
 	{
-        auto t = dynamic_cast<json_double*>(this);
+        json_double *t = dynamic_cast<json_double*>(const_cast<json_value*>(this));
 		return t ? t->value : 0.0;
 	}
 
 	int64_t	json_value::as_int64_t() const
 	{
-		auto t = dynamic_cast<json_int64*>(this);
+		auto t = dynamic_cast<const json_int64*>(this);
 		return t ? t->value : 0;
 	}
 
 	DirectX::XMVECTOR json_value::as_vector() const
 	{
-        auto t = dynamic_cast<json_vector*>(this);
+        auto t = dynamic_cast<const json_vector*>(this);
 		return t ? t->value : DirectX::XMVectorZero();
 	}
 
 	rectangle json_value::as_rectangle() const
 	{
-        auto t = dynamic_cast<json_rectangle*>(this);
+        auto t = dynamic_cast<const json_rectangle*>(this);
 		return t ? t->value : rectangle();
 	}
 
 	date_time json_value::as_date_time() const
 	{
-        auto t = dynamic_cast<json_datetime*>(this);
+        auto t = dynamic_cast<const json_datetime*>(this);
 		return t ? t->value : date_time::epoch();
 	}
 
 	std::string json_value::as_string() const
 	{
-        auto t = dynamic_cast<json_string*>(this);
+        auto t = dynamic_cast<const json_string*>(this);
 		return t ? t->get_value() :	 "";
+	}
+
+	json_array::json_array(std::shared_ptr<json_value>& _src)
+	{
+		json temp = _src;
+		if (auto t = temp.array_impl())
+		{
+			elements = t->elements;
+		}
 	}
 
 	json_array& json_array::operator = (std::shared_ptr<json_value>& _src)
@@ -6289,18 +6341,20 @@ namespace corona
         if (auto t = temp.array_impl())
         {
             elements = t->elements;
-        }
+		}
+		else {
+			elements.clear();
+		}
 		return *this;
 	}
 
-	json_array& json_array::operator = (const json& _src)
+	json_object::json_object(std::shared_ptr<json_value>& _src)
 	{
 		json temp = _src;
-		if (auto t = temp.array_impl())
+		if (auto t = temp.object_impl())
 		{
-			elements = t->elements;
+			members = t->members;
 		}
-		return *this;
 	}
 
 	json_object& json_object::operator = (std::shared_ptr<json_value>& _src)
@@ -6310,54 +6364,40 @@ namespace corona
 		{
 			members = t->members;
 		}
-		return *this;
-	}
-
-	json_object& json_object::operator = (const json& _src)
-	{
-		json temp = _src;
-		if (auto t = temp.object_impl())
-		{
-			members = t->members;
+		else {
+			members.clear();
 		}
 		return *this;
 	}
 
-	void json_array::push_back(json_object _value)
+	void json_array::push_back(json_object& _value)
 	{
 		std::shared_ptr<json_value> jv = std::make_shared<json_object>(_value);
 		elements.push_back(jv);
 	}
 
-	json_object json_object::put_member(std::string _member, json_object _obj)
+	json_object to_object(json _src)
 	{
-		std::shared_ptr<json_object> obj = std::make_shared<json_object>();
-		*obj = _obj;
-		members.insert_or_assign(_member, obj);
-		return *this;
+		json_object result;
+
+        if (auto t = _src.object_impl())
+        {
+            result = *t;
+        }
+
+		return result;
 	}
 
-	json_object json_object::put_member(std::string _member, json_array _arr)
+	json_array to_array(json _src)
 	{
-		std::shared_ptr<json_array> obj = std::make_shared<json_array>();
-		*obj = _arr;
-		members.insert_or_assign(_member, obj);
-		return *this;
-	}
+		json_array result;
 
-	json_object json_object::put_member(std::string _member, DirectX::XMVECTOR _v)
-	{
-		std::shared_ptr<json_vector> obj = std::make_shared<json_vector>();
-		obj->value = _v;
-		members.insert_or_assign(_member, obj);
-		return *this;
-	}
-
-	json_object::json_object(std::shared_ptr<json_value> _src) {
-		json temp(_src);
-		if (auto obj = temp.object_impl()) {
-			members = obj->members;
+		if (auto t = _src.array_impl())	
+		{
+			result = *t;
 		}
+
+		return result;
 	}
 
 }

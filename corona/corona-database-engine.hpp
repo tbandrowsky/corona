@@ -1268,7 +1268,7 @@ namespace corona
 				auto impl = _previous_item.array_impl();
                 if (impl) 
 				{
-					for (auto &item : impl->elements)
+					for (auto &item : *impl)
 					{
 						std::shared_ptr<json_object> jo;
 						jo = std::dynamic_pointer_cast<json_object>(item);
@@ -1284,7 +1284,7 @@ namespace corona
 						{
 							std::string src_field = member.first;
 							std::string dst_field = member.second.as_string();
-							json src = jo->members[src_field];
+							json src = (*jo)[src_field];
 							filter.put_member(dst_field, src);
 						}
 						filter_request.put_member("class_name", replacement->join_to);
@@ -1409,7 +1409,7 @@ namespace corona
 
 			if (!_source->filter.empty()) {
 				auto filter_impl = _source->filter.object_impl();
-				auto& filter_members = filter_impl->members;
+				auto& filter_members = *filter_impl;
                 for (auto& member : filter_members)
 				{
 					std::string value = member.second->to_string();
@@ -3584,7 +3584,7 @@ namespace corona
 				new_from.put_member(class_name_field, _classname);
 				new_from.put_member("name", "this"sv);
 				auto arr = froms.array_impl();
-				arr->elements.insert(arr->elements.begin(), new_from.value());
+				arr->push_front(new_from.value());
 			}
 			this_query_body.put_member(token_field, _token);
 			json query_results, query_data_results;
@@ -6504,7 +6504,7 @@ namespace corona
 
 			if (_include_children) {
                 auto obj_items = obj.array_impl();
-				for (auto item : obj_items->elements)
+				for (auto item : *obj_items)
 				{
 					json _src_obj(item);
 					for (auto& fpair : fields) {
@@ -9175,10 +9175,10 @@ private:
 			// Finally, the pages template and styles template will be saved to the config path.
 
 			if (class_list.array()) {
-				for (auto& item : class_list.array_impl()->elements) {
+				for (auto& item : *class_list.array_impl()) {
 					std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);
-					if (jo && jo->members.contains(class_name_field)) {
-						std::string class_name = jo->members[class_name_field]->to_string();
+					if (jo && jo->has_member(class_name_field)) {
+						std::string class_name = (*jo)[class_name_field]->to_string();
 
 						auto classd = read_lock_class(class_name);
 						if (!classd) continue;
@@ -10668,13 +10668,13 @@ private:
 						scrub_object(child);
 					}
                     else if (member.first == object_id_field) {
-						obj_impl->members.erase(member.first);
+						obj_impl->erase(member.first);
 					}
 				}
 			}
 			else if (auto array_impl = object_to_scrub.array_impl()) {
-				for (int i = 0; i < array_impl->elements.size(); i++) {
-					json item(array_impl->elements[i]);
+				for (int i = 0; i < array_impl->size(); i++) {
+					json item((*array_impl)[i]);
 					if (item.object()) {
 						scrub_object(item);
 					}
@@ -10698,7 +10698,7 @@ private:
 				for (auto member : member_set)
 				{
 					if (rsp and not rsp->is_server_only(member.first)) {
-						obj_impl->members.erase(member.first);
+						obj_impl->erase(member.first);
 					}
                     json child(member.second);
 					if (child.object() or child.array()) {
@@ -10707,8 +10707,8 @@ private:
 				}
 			}
 			else if (auto array_impl = object_to_scrub.array_impl()) {
-				for (int i = 0; i < array_impl->elements.size(); i++) {
-					json item(array_impl->elements[i]);
+				for (int i = 0; i < array_impl->size(); i++) {
+					json item((*array_impl)[i]);
 					if (item.object()) {
 						scrub_object(item);
 					}
@@ -11599,7 +11599,7 @@ grant_type=authorization_code
 				if (jteam.object()) {
 					json jallowed_teams = jteam["allowed_teams"];
 					if (auto ata = jallowed_teams.array_impl()) {
-						if (std::any_of(ata->elements.begin(), ata->elements.end(), [&](json _item) {
+						if (std::any_of(ata->begin(), ata->end(), [&](json _item) {
 							return _item.as_string() == _user_set_team_request["team_name"].as_string();
 							})) {
 							user_details.put_member("team_name", _user_set_team_request["team_name"].as_string());
@@ -11921,10 +11921,10 @@ grant_type=authorization_code
 
 			// put on the afterburners.  my ai said this was faster...
 			if (object_list.array()) {
-				for (auto& item : object_list.array_impl()->elements) {
+				for (auto& item : *object_list.array_impl()) {
                     std::shared_ptr<json_object> jo = std::dynamic_pointer_cast<json_object>(item);	
-					if (jo && jo->members.contains(class_name_field)) {
-						std::string class_name = jo->members[class_name_field]->to_string();
+					if (jo && jo->has_member(class_name_field)) {
+						std::string class_name = (*jo)[class_name_field]->to_string();
 						auto permission = get_class_permission(user_name, class_name);
 
 						if (permission.get_grant != class_grants::grant_none)
@@ -12988,10 +12988,10 @@ grant_type=authorization_code
 
 		for (auto& fld : fields) 
 		{
-			auto it = oimpl->members.find(fld.field_definition->get_field_name());
-			if (it != std::end(oimpl->members)) {
+			auto it = oimpl->find(fld.field_definition->get_field_name());
+			if (it) {
 				
-				fld.field_value = it->second;
+				fld.field_value = it;
 				if (fld.field_value) {
 					auto obj_type = fld.field_value->get_field_type();
 					auto member_type = fld.field_definition->get_field_type();
@@ -13000,10 +13000,10 @@ grant_type=authorization_code
 						continue;
 					}
 
-					fld.field_value = it->second;
+					fld.field_value = it;
 					if (member_type != obj_type) {
 						_object.change_member_type(fld.field_definition->get_field_name(), member_type);
-						fld.field_value = oimpl->members[fld.field_definition->get_field_name()];
+						fld.field_value = oimpl->find(fld.field_definition->get_field_name());
 					}
 					json test_value(fld.field_value);
 					bool accept_result = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);

@@ -41,6 +41,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
+
 			if (not _src.has_members(missing, { "id_field", "text_field" })) {
 				system_monitoring_interface::active_mon->log_warning("list_data is missing");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
@@ -51,10 +52,10 @@ namespace corona
 				return;
 			}
 
-			id_field = _src.get_member("id_field").as_string();
-			text_field = _src.get_member("text_field").as_string();
-			selected_field = _src.get_member("selected_field").as_string();
-			items = _src.get_member("items");
+			id_field = _src["id_field"].as_string();
+			text_field = _src["text_field"].as_string();
+			selected_field = _src["selected_field"].as_string();
+			items = *_src["items"].array_impl();
 		}
 
 	};
@@ -150,7 +151,7 @@ namespace corona
 			}
 
 			id_field = _src["id_field"].as_string();
-			items = _src["items"];
+			items = *_src["items"].array_impl();
 		}
 
 	};

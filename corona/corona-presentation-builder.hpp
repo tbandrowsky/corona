@@ -1932,9 +1932,8 @@ namespace corona
 
 			if (current_tab != tab_panes.end()) {
 				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
-					auto members = data.members;
 					json_object child_data;
-					for (auto member : members) {						
+					for (auto member : data) {						
 						if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
 							continue;
 						child_data.put_member(member.first, member.second);
@@ -2926,24 +2925,30 @@ namespace corona
 			for (int i = 0; i < count; i++)
 			{
 				auto choice = choices.items[i];
-				json item = choice;
-				int id = item[choices.id_field].as_int();
-				std::string text = item[choices.text_field].as_string();
-				bool selected = item[choices.selected_field].as_bool();
-				cb.radio_button(id, text, [choice, item, this, i](radiobutton_control& _rbc) {
-					_rbc.json_field_name = choices.selected_field;
-					_rbc.is_group = i == 0;
-					_rbc.set_data(choice);
-					});
+				if (auto cobj = std::dynamic_pointer_cast<json_object>(choice))
+				{
+					json item = choice;
+					int id = item[choices.id_field].as_int();
+					std::string text = item[choices.text_field].as_string();
+					bool selected = item[choices.selected_field].as_bool();
+					cb.radio_button(id, text, [cobj, choice, item, this, i](radiobutton_control& _rbc) {
+						_rbc.json_field_name = choices.selected_field;
+						_rbc.is_group = i == 0;
+						_rbc.set_data(*cobj);
+						});
+				}
 			}
 		}
 
 		virtual json_object get_data()
 		{
+			return data;
 		}
 
 		virtual json_object set_data(json_object _data)
 		{
+			data = _data;
+			return data;
 		}
 
 		void set_list(list_data& _choices)
