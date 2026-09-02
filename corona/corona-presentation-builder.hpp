@@ -3106,8 +3106,7 @@ namespace corona
 
 		log_warning("Navigate to -> " + new_frame->name);
 
-		navigation_location++;
-		navigation_stack[navigation_location] = new_frame;
+        navigation_stack.navigate(new_frame);
 
         navigate(_batch_id, new_frame);
 	}

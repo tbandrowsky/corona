@@ -385,6 +385,51 @@ namespace corona
 		page_base* contents_page = nullptr;
 	};
 
+	class frame_navigation_stack
+	{
+		std::list<std::shared_ptr<frame_navigation>> navigation_stack;
+		std::list<std::shared_ptr<frame_navigation>>::iterator current_navigation = navigation_stack.end();
+
+	public:
+
+		void navigate(std::shared_ptr<frame_navigation> _nav)
+		{
+			navigation_stack.push_back(_nav);
+			current_navigation = navigation_stack.end();
+			current_navigation--;
+		}
+
+		std::shared_ptr<frame_navigation> back()
+		{
+			if (navigation_stack.empty()) return nullptr;
+
+            if (current_navigation != navigation_stack.begin()) {
+                --current_navigation;
+            }
+			return get_current();
+        }
+
+		std::shared_ptr<frame_navigation> forward()
+        {
+			if (navigation_stack.empty()) return nullptr;
+
+            if (current_navigation != navigation_stack.end()) {
+                ++current_navigation;
+            }
+			return get_current();
+        }	
+
+        std::shared_ptr<frame_navigation> get_current()
+        {
+			if (navigation_stack.empty()) return nullptr;
+
+            if (current_navigation != navigation_stack.end()) {
+                return *current_navigation;
+            }
+            return nullptr;
+        }
+	};
+
 	class frame_layout :
 		public container_control
 	{
@@ -393,9 +438,7 @@ namespace corona
 		std::string hit_words;
 		json_object data;
 		std::shared_ptr<corona_bus_command> onload_command;
-
-		std::map<int, std::shared_ptr<frame_navigation>> navigation_stack;
-		int navigation_location = 0;
+        frame_navigation_stack navigation_stack;
         presentation_base* current_presentation = nullptr;
         page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
@@ -434,33 +477,16 @@ namespace corona
 
 		virtual void navigate_back(int _batch_id) 
 		{
-			navigation_location--;
-            if (navigation_location < 0) {
-				navigation_location = 0;
-			}
-			if (navigation_stack.contains(navigation_location)) {
-				auto nav = navigation_stack[navigation_location];
-				navigate(_batch_id, nav);
-				log_warning("Navigate back -> " + nav->name);
-			}
+			auto nav = navigation_stack.back();
+			navigate(_batch_id, nav);
+			log_warning("Navigate back -> " + nav->name);
 		}
 
 		virtual void navigate_forward(int _batch_id)
 		{
-			navigation_location++;
-			if (navigation_stack.contains(navigation_location)) {
-				auto nav = navigation_stack[navigation_location];
-				navigate(_batch_id, nav);
-				log_warning("Navigate foward -> " + nav->name);
-
-                std::map<int, std::shared_ptr<frame_navigation>> new_stack;
-                for (auto& item : navigation_stack) {
-					if (item.first <= navigation_location) {
-						new_stack[item.first] = item.second;
-					}
-				}
-                navigation_stack = new_stack;
-			}
+			auto nav = navigation_stack.forward();
+			navigate(_batch_id, nav);
+			log_warning("Navigate forward -> " + nav->name);
 		}
 
 		virtual void loaded(int _batch_id) override
@@ -479,8 +505,7 @@ namespace corona
 
 		virtual json_object set_data(json_object _data) override
 		{
-			if (navigation_stack.contains(navigation_location)) {
-				auto nav = navigation_stack[navigation_location];
+			if (auto nav = navigation_stack.get_current()) {
 				nav->data = _data;
 			}
 			data = _data;
