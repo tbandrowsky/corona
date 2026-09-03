@@ -507,7 +507,11 @@ namespace corona
                     local_object = *field_data.object_impl();
                 } else if (field_data.array()) {
                     local_array = *field_data.array_impl();
-                }
+				}
+				else {
+                    local_object.put_member(json_field_name, field_data.value());
+				}
+
 			}
 			else 
 			{
