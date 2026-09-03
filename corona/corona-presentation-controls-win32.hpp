@@ -368,8 +368,9 @@ namespace corona
 
 		virtual json_object set_data(json_object _data) override
 		{
-			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name]->as_string();
+			control_base::set_data(_data);
+			if (local_object.has_member(json_field_name)) {
+				std::string text = local_object[json_field_name]->as_string();
 				set_text(text);
 			}
 			return _data;
@@ -564,7 +565,7 @@ namespace corona
 		{
 			control_base::set_data(_data);
 
-			std::string text = local_data[json_field_name]->as_string();
+			std::string text = local_object[json_field_name]->as_string();
 			if (auto ptr = window_host.lock()) {
 				std::string existing = ptr->getListSelectedText(id);
 				if (existing != text) {
@@ -657,7 +658,7 @@ namespace corona
 		{
 			control_base::set_data(_data);
 
-			std::string text = local_data[json_field_name]->as_string();
+			std::string text = local_object[json_field_name]->as_string();
 			if (auto ptr = window_host.lock()) {
 				std::string existing = ptr->getListSelectedText(id);
 				if (existing != text) {
@@ -864,8 +865,8 @@ namespace corona
 		virtual json_object set_data(json_object _data) override
 		{
 			control_base::set_data(_data);
-			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name]->as_string();
+			if (local_object.has_member(json_field_name)) {
+				std::string text = local_object[json_field_name]->as_string();
 				if (auto ptr = window_host.lock()) {
 					std::string existing = ptr->getComboSelectedText(id);
 					if (existing != text) {
@@ -1026,8 +1027,8 @@ namespace corona
 		{
 			windows_control::set_data(_data);
 
-			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name]->to_json();
+			if (local_object.has_member(json_field_name)) {
+				std::string text = local_object[json_field_name]->to_json();
 				set_text(text);
 			}
 			return _data;
@@ -1264,8 +1265,8 @@ namespace corona
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
-                    if (_data.has_member(json_field_name)) {
-                        int checked = _data[json_field_name]->as_int();
+                    if (local_object.has_member(json_field_name)) {
+                        int checked = local_object[json_field_name]->as_int();
                         ptr->setButtonChecked(id, checked);
                     }
 				}
@@ -1313,11 +1314,9 @@ namespace corona
 
             button_control<CheckboxWindowStyles>::set_data(_data);
 
-			if (not json_field_name.empty()) {
-				json_parser jp;
-
+			if (not json_field_name.empty() ) {
 				if (auto ptr = window_host.lock()) {
-					int checked = _data[json_field_name]->as_int();
+					int checked = local_object[json_field_name]->as_int();
 					ptr->setButtonChecked(id, checked);
 				}
 			}
@@ -1715,8 +1714,8 @@ namespace corona
 		{
 			windows_control::set_data(_data);
 
-			if (_data.has_member(json_field_name)) {
-				double pos = _data[json_field_name]->as_double();
+			if (local_object.has_member(json_field_name)) {
+				double pos = local_object[json_field_name]->as_double();
 				sbi.nPos = (pos - scaleMin) / scale + sbi.nMin;
 			}
 			sbi.nPos = sbi.nMin;
@@ -1932,8 +1931,8 @@ namespace corona
 		virtual json_object set_data(json_object _data) override
 		{
 			windows_control::set_data(_data);
-			if (_data.has_member(json_field_name)) {
-				current_date = _data[json_field_name]->as_date_time();
+			if (local_object.has_member(json_field_name)) {
+				current_date = local_object[json_field_name]->as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					DateTime_SetSystemtime(window, GDT_VALID, &st);
@@ -2062,8 +2061,8 @@ namespace corona
 		virtual json_object set_data(json_object _data) override
 		{
 			windows_control::set_data(_data);
-			if (_data.has_member(json_field_name)) {
-				current_date = _data[json_field_name]->as_date_time();
+			if (local_object.has_member(json_field_name)) {
+				current_date = local_object[json_field_name]->as_date_time();
 				if (window) {
 					SYSTEMTIME st = current_date;
 					MonthCal_SetCurSel(window, GDT_VALID, &st);

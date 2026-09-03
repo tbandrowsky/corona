@@ -1585,9 +1585,12 @@ namespace corona
 				control_base* cb = _bus->find_control(form_name);
 				if (cb) {
 					json_object obj;
+                    if (cb->json_field_name.empty()) {
+                        cb->json_field_name = "data";
+                    }
 					obj[cb->json_field_name] = response.cooked_data.value();
 					cb->set_data(obj);
-					_bus->object_updated(corona::to_object(response.cooked_data));
+					_bus->object_updated(obj[cb->json_field_name]);
 				}
 			}
 			return response.data;
