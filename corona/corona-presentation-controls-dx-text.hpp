@@ -25,7 +25,6 @@ namespace corona
 	public:
 		std::string			text;
 		std::string         hit_word;
-		json_object			data;
 		std::string         template_text;
 
 		text_display_control(const text_display_control& _src) = default;
@@ -107,7 +106,10 @@ namespace corona
 												std::string value_name = controls[2];
 												auto ctrl = comm_desktop_bus_interface::get_service()->find_control(control_name);
 												if (ctrl) {
-													result_data = ctrl->get_data();
+                                                    json_object new_state = ctrl->get_data();
+												
+	
+													result_data = new_state;
 												}
 											}
 										}
@@ -167,14 +169,10 @@ namespace corona
 			;
 		}
 
-		virtual json_object get_data() override
-		{
-			return data;
-		}
-
         virtual json_object set_data(json_object _data) override
 		{
-			data = _data;
+			draw_control::set_data(_data);		
+			update_text();
 			return data;
 		}
 

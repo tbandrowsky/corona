@@ -2065,7 +2065,8 @@ namespace corona
 			json result;
 			auto ctrl = presentation_layer->find_ptr<control_base>(_form_name);
 			if (ctrl) {
-				result = ctrl->get_data();
+				json_object dresult = ctrl->get_data();
+				result = dresult;
 			}
 			return result;
 		}

@@ -429,13 +429,17 @@ namespace corona
 
 	};
 
+	std::atomic<int64_t> current_value_version = 0;
+
 	class json_value
 	{
 	public:
 		int comparison_index = 0;
+		int version;
 
 		json_value()
 		{
+			version = current_value_version++;
 		}
 		virtual ~json_value()
 		{
@@ -1760,6 +1764,11 @@ namespace corona
 			return t;
 		}
 
+        virtual void clear()
+        {
+            members.clear();
+        }
+
 		virtual int64_t to_int64() const
 		{
 			return 0;
@@ -1871,6 +1880,25 @@ namespace corona
 		auto rbegin() { return members.rbegin(); }
 		auto rend() { return members.rend(); }
 
+		json_object operator += (const json_object& _other)
+		{
+			for (auto& member : _other.members) {
+				auto m1 = members[member.first];
+				auto m2 = member.second;
+				if (!m1 || m1->version < m2->version)
+					members[member.first] = member.second;
+			}
+			return *this;
+		}
+
+		json_object operator -= (const json_object& _other)
+		{
+			for (auto& member : _other.members) {
+				members.erase(member.first);
+			}
+			return *this;
+		}
+
 	};
 
 	class json_array : public json_value
@@ -1890,6 +1918,11 @@ namespace corona
 		json_array& operator = (std::shared_ptr<json_value>& _src);
         json_array& operator = (const json_array& _src) = default;
 		json_array& operator = (json_array&& _src) = default;
+
+        virtual void clear()
+        {
+            elements.clear();
+        }
 
 		virtual std::string to_key() const
 		{
@@ -2056,6 +2089,13 @@ namespace corona
 		virtual double to_double() const
 		{
 			return 0.0;
+		}
+
+		json_object as_object(std::string _member_name)
+		{
+			json_object jo;
+            jo[_member_name] = std::make_shared<json_array>(*this);
+			return jo;
 		}
 
 	};

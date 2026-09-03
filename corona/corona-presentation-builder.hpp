@@ -1501,7 +1501,6 @@ namespace corona
 		std::string page_name;
 		std::string member_name;
 		std::string image_name;
-        json		jfilter;
 
         virtual void get_json(json& _j)	 const
 		{
@@ -1511,7 +1510,6 @@ namespace corona
 			_j.put_member("page_name", page_name);
 			_j.put_member("member_name", member_name);
 			_j.put_member("image", image_name);
-            _j.put_member("filter", jfilter.value());
 		}
 
 		virtual void put_json(json _j)
@@ -1522,7 +1520,6 @@ namespace corona
             page_name = _j["page_name"].as_string();
             member_name = _j["member_name"].as_string();
 			image_name = _j["image"].as_string();
-            jfilter = _j["filter"];
 		}
 
 	};
@@ -1741,26 +1738,6 @@ namespace corona
 	public:
 		tab_pane					  pane;
 		std::shared_ptr<command_button_control> tab_button;
-		json current_key;
-
-		void set_key(json_object& _src)
-		{
-			json_parser jp;
-			current_key = jp.create_object();
-
-			if (pane.jfilter.object()) {
-				auto filter = pane.jfilter.get_members();
-				for (auto& f : filter) {
-                    std::string fkey = f.first;
-                    std::string fsrc = f.second.as_string();
-					if (_src.has_member(fsrc)) {
-						current_key.put_member(fkey, _src[fsrc]);
-					}
-                }
-			}
-
-			current_key.set_natural_order();
-        }
 	};
 
 	class tab_view_control : public container_control
@@ -1848,8 +1825,6 @@ namespace corona
 			arrange_children();
 		}
 
-		json_object data;
-
 	public:
 
 
@@ -1919,33 +1894,14 @@ namespace corona
 			json_parser jp;
 			json_object tab_data;
 
+			container_control::set_data(_data);
 
-			data = _data;
-
-            for (auto& tp : tab_panes) {
-				tp.set_key(data);
-			}
-
-			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+ 			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
 				return tp.pane.name == this->current_tab_name;
 				});
 
 			if (current_tab != tab_panes.end()) {
-				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
-					json_object child_data;
-					for (auto member : data) {						
-						if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
-							continue;
-						child_data.put_member(member.first, member.second);
-					}
-					tab_data = child_data;
-				}
-				else {
-					json temp = data[current_tab->pane.member_name];
-                    tab_data.put_member(current_tab->pane.member_name, temp.value());
-				}
-
-				content_frame->set_data(tab_data);
+				content_frame->set_data(local_object);
 			}
 
 			if (!current_tab_name.empty()) 
@@ -1960,31 +1916,6 @@ namespace corona
 			return data;
         }
 
-		virtual json_object get_data() override
-		{
-			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
-				return tp.pane.name == this->current_tab_name;
-				});
-
-			if (current_tab != tab_panes.end()) {
-				json tab_data = content_frame->get_data();
-				if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
-					auto members = tab_data.get_members();
-					for (auto member : members) {
-						if (member.second.object() || member.second.array())
-							continue;
-						data.put_member(member.first, member.second.value());
-					}
-				}
-				else 
-				{
-					data.put_member(current_tab->pane.member_name, tab_data[current_tab->pane.member_name].value());
-				}
-			}
-
-			return data;
-		}
-
 		void select_tab(std::string _name)
 		{
 			json_parser jp;
@@ -1998,18 +1929,8 @@ namespace corona
 
 			if (!is_same_tab) {
 				if (current_tab != tab_panes.end()) {
-					json tab_data = content_frame->get_data();
-					if (current_tab->pane.member_name.empty() || current_tab->pane.member_name == ".") {
-						auto members = tab_data.get_members();
-						for (auto member : members) {
-							if (member.second.object() || member.second.array())
-								continue;
-							data.put_member(member.first, member.second.value());
-						}
-					}
-					else {
-						data.put_member(current_tab->pane.member_name, tab_data[current_tab->pane.member_name].value());
-					}
+					json_object tab_object = content_frame->get_data();
+					data += tab_object;
 				}
 			}
 
@@ -2021,6 +1942,7 @@ namespace corona
 				if (is_selected) {
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
+
 					if (tp.pane.member_name.empty() || tp.pane.member_name == ".") {
 						for (auto member : data) {
 							if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
@@ -2133,16 +2055,8 @@ namespace corona
 
 		virtual void object_updated(json_object _data) override
 		{
-            json updated = _data;
-			for (auto ptab : tab_panes)
-			{
-				if (ptab.current_key.compare(updated) == 0) 
-				{
-					if (ptab.pane.name == this->current_tab_name)
-					{
-                        content_frame->object_updated(_data);
-					}					
-				}
+			if (content_frame) {
+				content_frame->object_updated(_data);
 			}
 		}
 
@@ -2940,17 +2854,6 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data()
-		{
-			return data;
-		}
-
-		virtual json_object set_data(json_object _data)
-		{
-			data = _data;
-			return data;
-		}
-
 		void set_list(list_data& _choices)
 		{
 			choices = _choices;
@@ -3007,18 +2910,6 @@ namespace corona
 						});
 				}
 			}
-		}
-
-		virtual json_object get_data()
-		{
-			json_object result;
-			return result;
-		}
-
-		virtual json_object set_data(json_object _data)
-		{
-			data = _data;
-			return data;
 		}
 
 		void set_list(list_data& _choices)

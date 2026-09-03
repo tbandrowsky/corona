@@ -220,8 +220,12 @@ namespace corona
 	class control_base : public container_control_base
 	{
 
-
 	protected:
+
+		json_object data;
+		json		local_data;
+		json_object local_object;
+		json_array  local_array;
 
 		rectangle				arrange_extent = {};
 		rectangle				bounds = {};
@@ -429,48 +433,11 @@ namespace corona
 			return this;
 		}
 
-		virtual void find_data(json_object& _parent)
-		{
-			if (json_field_name.empty()) {
-				for (auto child : children) {
-					child->find_data(_parent);
-				}
-			}
-			else 			
-			{
-                json_object data = get_data();
-				if (data.has_member(json_field_name)) {
-					_parent.put_member(json_field_name, data[json_field_name]);
-				}
-			}
-		}
-
-		virtual json_object get_data()
-		{
-			json_parser jp;
-			json_object data;
-			if (json_field_name.empty()) {
-				for (auto child : children) {
-					child->find_data(data);
-				}
-			}
-			return data;
-		}
-
-		virtual bool set_items(json_array _data)
-		{
-			return false;
-		}
-
-		virtual json get_items()
-		{
-			json_parser jp;
-			json data;
-			return data;
-		}
-
 		virtual void object_updated(json_object _data)
 		{
+			if (_data[class_name_field]->as_string() == data[class_name_field]->as_string() && _data[object_id_field]->as_int64_t() == data[object_id_field]->as_int64_t()) {
+				data += _data;
+			}
 			for (auto child : children) {
 				child->object_updated(_data);
 			}
@@ -483,8 +450,70 @@ namespace corona
 			}
 		}
 
+		virtual json_array get_local_array()
+		{
+			return local_array;
+		}
+
+		virtual json_object get_local_object()
+		{
+			return local_object;
+		}
+
+        virtual json_object get_local_data()
+        {
+            json_object temp;
+			auto ot = get_local_object();
+			auto oa = get_local_array();
+            if (!ot.empty())
+                temp += ot;
+            if (!oa.empty())
+                temp += oa.as_object(json_field_name);
+
+			for (auto child : children) {
+				json_object child_data = child->get_local_data();
+				temp += child_data;
+			}
+
+            return temp;
+        }
+
+		virtual json_object get_data()
+		{
+			json_object tempo = data;
+			tempo += get_local_data();
+            set_data(tempo);
+			return tempo;
+		}
+
 		virtual json_object set_data(json_object _data)
 		{
+			data = _data;
+			local_object.clear();
+			local_array.clear();	
+
+			if (json_field_name.empty())
+			{
+                local_object = _data;
+			}
+			else if (json_field_name == ".")
+			{
+                local_object = _data;
+			}
+			else if (_data.has_member(json_field_name))
+			{
+                json field_data = _data[json_field_name];
+                if (field_data.object()) {
+                    local_object = *field_data.object_impl();
+                } else if (field_data.array()) {
+                    local_array = *field_data.array_impl();
+                }
+			}
+			else 
+			{
+				local_object = data;
+			}
+
 			for (auto child : children) {
 				child->set_data(_data);
 			}
@@ -523,10 +552,8 @@ namespace corona
 
 		virtual json export_data()
 		{
-			json gi = get_items();
-			if (!gi.array()) {
-				gi = get_data();
-			}
+			auto gi = get_data();
+			gi += get_local_data();
 			return gi;
 		}
 

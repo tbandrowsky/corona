@@ -436,7 +436,6 @@ namespace corona
 	protected:
 		void arrange_children();
 		std::string hit_words;
-		json_object data;
 		std::shared_ptr<corona_bus_command> onload_command;
         frame_navigation_stack navigation_stack;
         presentation_base* current_presentation = nullptr;
@@ -495,7 +494,7 @@ namespace corona
 				// the idea here is that the onload_command is invoked.
 				// the drag is, the command is invoked synchronously, so you don't want to do data loads on on_load, just yet.
 				// although for small objects it might well be ok.
-				onload_command->data = get_data();
+				onload_command->data = data;
 				corona::comm_desktop_bus_interface::get_service()->exec_command(_batch_id, onload_command);
 			}
 		}
@@ -505,27 +504,14 @@ namespace corona
 
 		virtual json_object set_data(json_object _data) override
 		{
+			container_control::set_data(_data);
+
 			if (auto nav = navigation_stack.get_current()) {
 				nav->data = _data;
 			}
-			data = _data;
-			for (auto child : children) {
-				child->set_data(_data);
-			}
+
 			return data;
 		}
-
-		virtual json_object get_data() override
-		{
-			json_object temp = data;
-			for (auto child : children) {
-				json_object child_data = child->get_data();
-				for (auto& member : child_data) {
-					temp.put_member(member.first, member.second);
-				}
-			}
-			return temp;
-        }
 
 		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
 
@@ -608,8 +594,6 @@ namespace corona
 
 	class items_view : public draw_control
 	{
-		json_object data;
-		json_array	items_view_items;
 		std::shared_ptr<corona_class_page_map>					sources;
         std::map<std::string, std::shared_ptr<control_base>>	page_controls;
 		std::vector<items_view_row>								rows;
@@ -1108,56 +1092,52 @@ namespace corona
 
 		virtual json_object set_data(json_object _data) override
 		{
+			draw_control::set_data(_data);
 			if (!keep_position_on_set_data) {
 				selected_item_index = 0;
 				selected_page_index = 0;
 			}
-			if (_data.has_member(json_field_name)) {
-                json_array array = _data[json_field_name];
-                set_items(array);
-			}
+			set_items(local_array);
 			return data;
 		}
 
 		virtual void object_deleted(json_object _item) override
 		{
 			int i;
-			for (i = 0; i < items_view_items.size(); i++)
+			for (i = 0; i < local_array.size(); i++)
 			{
-				json item = items_view_items[i];
+				json item = local_array[i];
 				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
 					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
-					items_view_items.erase(i);
+					local_array.erase(i);
 					return;
 				}
 			}
-			set_items(items_view_items);
+			set_items(local_array);
 		}
 
 		virtual void object_updated(json_object _item) override
 		{
 			int i;
-			for (i = 0; i < items_view_items.size(); i++)
+			for (i = 0; i < local_array.size(); i++)
 			{
-				json item = items_view_items[i];
+				json item = local_array[i];
 				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
 					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
-					items_view_items[i] = std::make_shared<json_object>(_item);	
-					set_items(items_view_items);
+					local_array[i] = std::make_shared<json_object>(_item);	
+					set_items(local_array);
 					return;
 				}
 			}
 
             // if we got here, it means we didn't find the item, so we add it.
-            items_view_items.push_back(std::make_shared<json_object>(_item));
-			set_items(items_view_items);
+            local_array.push_back(std::make_shared<json_object>(_item));
+			set_items(local_array);
 		}
 
-		virtual bool set_items(json_array _items) override
+		virtual bool set_items(json_array _items) 
 		{
             json current_selected_object = get_selected_object();
-
-            items_view_items = _items;
 
 			rows.clear();
 
@@ -1173,13 +1153,13 @@ namespace corona
 
 			int matching_index = -1;
 
-			for (i = 0; i < items_view_items.size(); i++)
+			for (i = 0; i < local_array.size(); i++)
 			{
 				items_view_row gvr;
 				gvr.page_index = 0;
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
-                gvr.object_data = json_object(items_view_items[i]);
+                gvr.object_data = json_object(local_array[i]);
 				if (!current_selected_object.empty()) {
                     if (gvr.object_data[class_name_field]->as_string() == current_selected_object[class_name_field]->as_string() &&
 						gvr.object_data[object_id_field]->as_int64_t() == current_selected_object[object_id_field]->as_int64_t()) {
@@ -1292,7 +1272,7 @@ namespace corona
 
 		void end()
 		{
-			selected_item_index = items_view_items.size() - 1;
+			selected_item_index = local_array.size() - 1;
 			check_scroll();
 		}
 
@@ -1324,8 +1304,8 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (selected_item_index >= 0 && items_view_items.size() > selected_item_index) {
-				j = items_view_items[selected_item_index];
+			if (selected_item_index >= 0 && local_array.size() > selected_item_index) {
+				j = local_array[selected_item_index];
 			}
 			return j;
 		}
@@ -1455,25 +1435,19 @@ namespace corona
 			items_view::put_json(copy);
 		}
 
-		json_array	get_items(json_array _data)
-		{
-			json_array chest_param = _data;
-			for (int i = 0; i < chest_param.size(); i++) {
-				json_object item = chest_param[i];
+        virtual json_object set_data(json_object _data) override
+        {
+            json_object data = items_view::set_data(_data);
+
+			for (int i = 0; i < local_array.size(); i++) {
+				json_object item = local_array[i];
 				if (!item.has_member("class_name")) {
 					item.put_member("class_name", "chest_item");
 				}
 			}
-			return chest_param;
-		}
 
-		virtual bool set_items(json_array _data) override
-		{
-			auto items = get_items(_data);
-			items_view::set_items(items);
-            return true;
-		}
-
+            return data;
+        }
 
 		virtual std::shared_ptr<control_base> clone()
 		{

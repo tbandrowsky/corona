@@ -296,9 +296,10 @@ namespace corona
 				result = data;
 			}
 			else {
-				control_base* cb = _bus->find_control(form_name);
-				if (cb != nullptr) {
-					result = cb->get_data();
+				control_base* ctrl = _bus->find_control(form_name);
+				if (ctrl != nullptr) {
+					json_object dresult = ctrl->get_data();
+					result = dresult;
 				}
 			}
 
@@ -373,9 +374,10 @@ namespace corona
 				result = data;
 			}
 			else if (!form_name.empty()) {
-				control_base* cb = _bus->find_control(form_name);
-				if (cb != nullptr) {
-					result = cb->get_data();
+				control_base* ctrl = _bus->find_control(form_name);
+				if (ctrl != nullptr) {
+					json_object dresult = ctrl->get_data();
+                    result = dresult;
 				}
 			}
 
@@ -1212,7 +1214,8 @@ namespace corona
 				}
 			}
 			if (cb_table) {
-				cb_table->set_items(results);
+				json_object obj = results.as_object(cb_table->json_field_name);
+				cb_table->set_data(obj);
 			}
 
 			return response.data;
@@ -1342,7 +1345,8 @@ namespace corona
 				auto ctrl = _bus->find_control(constructor_frame);
 
 				if (ctrl) {
-					json data = ctrl->get_data();
+					json_object dresult = ctrl->get_data();
+					json data = dresult;
 					auto members = constructor_copy.get_members();
 					for (auto member : members) {
 						std::string src_name = member.second.as_string();
@@ -1554,10 +1558,10 @@ namespace corona
 		{
 			json_parser jp;
 
-			control_base* cb = _bus->find_control(form_name);
-			if (cb) {
-				json key_data = cb->get_data();
-				return key_data;
+			control_base* ctrl = _bus->find_control(form_name);
+			if (ctrl) {
+				json_object dresult = ctrl->get_data();
+				return dresult;
 			}
 			return jp.create_object();
 		}
@@ -2097,7 +2101,8 @@ namespace corona
 
 			if (cb_form)
 			{
-				object_data = cb_form->get_data();
+				json_object dresult = cb_form->get_data();
+				object_data = dresult;
 				if (object_data.has_member("full_text"))
 				{
                     hit_words = object_data["full_text"].as_string();
@@ -2199,7 +2204,8 @@ namespace corona
 				json_array empty;
 				if (cb_table) {
 					cb_table->set_hit_word(hit_words);
-					cb_table->set_items(empty);
+					json_object obj = empty.as_object(cb_table->json_field_name);
+					cb_table->set_data(obj);
 				}
 			}
 			return response.data;
@@ -2914,7 +2920,8 @@ namespace corona
 					err.get_json(jerr);
 					results.push_back(jerr.value());
 				}
-				cb_table->set_items(results);
+				json_object obj = results.as_object(cb_table->json_field_name);
+				cb_table->set_data(obj);
 			}
 		}
 

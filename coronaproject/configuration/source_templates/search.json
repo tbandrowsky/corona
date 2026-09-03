@@ -125,6 +125,7 @@
                 {
                   "class_name": "items_view",
                   "name": "result_table",
+                  "json_field_name": "search_results",
                   "box": {
                     "width": "1.0 container",
                     "height": "1.0 container"

@@ -355,16 +355,16 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 				std::string text = get_text();
-				result.put_member(json_field_name, text);
+				local_object.put_member(json_field_name, text);
 			}
-			return result;
+			return local_object;
 		}
+
 
 		virtual json_object set_data(json_object _data) override
 		{
@@ -546,11 +546,34 @@ namespace corona
 
 		}
 
-		virtual bool set_items(json_array _data) override
+		virtual json_object get_local_object() override
 		{
-			choices.items = _data;
-			data_changed();
-			return true;
+			json_object result;
+			if (not json_field_name.empty()) {
+				if (auto ptr = window_host.lock()) {
+					std::string new_text = ptr->getListSelectedText(id);
+					int index_lists = ptr->getListSelectedIndex(id);
+					int value = ptr->getListSelectedValue(id);
+					result.put_member(json_field_name, new_text);
+				}
+			}
+			return result;
+		}
+
+		virtual json_object set_data(json_object _data) override
+		{
+			control_base::set_data(_data);
+
+			std::string text = local_data[json_field_name]->as_string();
+			if (auto ptr = window_host.lock()) {
+				std::string existing = ptr->getListSelectedText(id);
+				if (existing != text) {
+					ptr->setListSelectedText(id, text.c_str());
+				}
+				choices.items = local_array;
+				data_changed();
+			}
+			return _data;
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -616,12 +639,10 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
 			json_object result;
 			if (not json_field_name.empty()) {
-				json_parser jp;
-
 				if (auto ptr = window_host.lock()) {
 					std::string new_text = ptr->getListSelectedText(id);
 					int index_lists = ptr->getListSelectedIndex(id);
@@ -634,14 +655,16 @@ namespace corona
 
 		virtual json_object set_data(json_object _data) override
 		{
-			if (_data.has_member(json_field_name)) {
-				std::string text = _data[json_field_name]->as_string();
-				if (auto ptr = window_host.lock()) {
-					std::string existing = ptr->getListSelectedText(id);
-					if (existing != text) {
-						ptr->setListSelectedText(id, text.c_str());
-					}
+			control_base::set_data(_data);
+
+			std::string text = local_data[json_field_name]->as_string();
+			if (auto ptr = window_host.lock()) {
+				std::string existing = ptr->getListSelectedText(id);
+				if (existing != text) {
+					ptr->setListSelectedText(id, text.c_str());
 				}
+				choices.items = local_array;
+				data_changed();
 			}
 			return _data;
 		}
@@ -662,13 +685,6 @@ namespace corona
 		{
 			choices = _choices;
 			data_changed();
-		}
-
-		virtual bool set_items(json_array _data) override
-		{
-			choices.items = _data;
-			data_changed();
-			return true;
 		}
 
 		virtual void on_create()
@@ -830,9 +846,8 @@ namespace corona
 			data_changed();
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
@@ -840,14 +855,15 @@ namespace corona
 					std::string new_text = ptr->getComboSelectedText(id);
 					int index_lists = ptr->getComboSelectedIndex(id);
 					int value = ptr->getComboSelectedValue(id);
-					result.put_member(json_field_name, new_text);
+					local_object.put_member(json_field_name, new_text);
 				}
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+			control_base::set_data(_data);
 			if (_data.has_member(json_field_name)) {
 				std::string text = _data[json_field_name]->as_string();
 				if (auto ptr = window_host.lock()) {
@@ -881,13 +897,6 @@ namespace corona
 			corona::put_json(select_command, command);
 
 			data_changed();
-		}
-
-		virtual bool set_items(json_array _data) override
-		{
-			choices.items = _data;
-			data_changed();
-			return true;
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
@@ -1000,22 +1009,23 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 				std::string text = get_text();
 				json data = jp.parse_object(text);
 				if (!jp.has_errors()) {
-					result.put_member(json_field_name, data.value());
+					local_object.put_member(json_field_name, data.value());
 				}
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+			windows_control::set_data(_data);
+
 			if (_data.has_member(json_field_name)) {
 				std::string text = _data[json_field_name]->to_json();
 				set_text(text);
@@ -1234,21 +1244,22 @@ namespace corona
 			return tv;
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 				if (auto ptr = window_host.lock()) {
 					bool test = ptr->getButtonChecked(id);
-					result.put_member(json_field_name, test);
+					local_object.put_member(json_field_name, test);
 				}
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+            button_control<RadioButtonWindowStyles>::set_data(_data);
+
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
@@ -1284,22 +1295,24 @@ namespace corona
 			return tv;
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
 				if (auto ptr = window_host.lock()) {
 					bool test = ptr->getButtonChecked(id);
-					result.put_member(json_field_name, test);
+					local_object.put_member(json_field_name, test);
 				}
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+
+            button_control<CheckboxWindowStyles>::set_data(_data);
+
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
@@ -1685,22 +1698,23 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_object result;
 			if (not json_field_name.empty()) {
 				json_parser jp;
 				if (window) {
 					::GetScrollInfo(window, SB_CTL, &sbi);
 				}
 				double v = (sbi.nPos - sbi.nMin) * scale + scaleMin;
-				result.put_member(json_field_name, v);
+				local_object.put_member(json_field_name, v);
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+			windows_control::set_data(_data);
+
 			if (_data.has_member(json_field_name)) {
 				double pos = _data[json_field_name]->as_double();
 				sbi.nPos = (pos - scaleMin) / scale + sbi.nMin;
@@ -1809,7 +1823,7 @@ namespace corona
 			LONG* pcb
 		);
 
-		virtual json_object get_data() override;
+		virtual json_object get_local_object() override;
 		virtual json_object set_data(json_object _data) override;
 	};
 
@@ -1900,23 +1914,24 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
 			json_parser jp;
-			json_object result;
+			json_object local_object;
 			if (not json_field_name.empty()) {
 				if (window) {
 					SYSTEMTIME st;
 					DateTime_GetSystemtime(window, &st);
 					current_date = st;
 				}
-				result.put_member(json_field_name, current_date);
+				local_object.put_member(json_field_name, current_date);
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+			windows_control::set_data(_data);
 			if (_data.has_member(json_field_name)) {
 				current_date = _data[json_field_name]->as_date_time();
 				if (window) {
@@ -2031,23 +2046,22 @@ namespace corona
 			}
 		}
 
-		virtual json_object get_data() override
+		virtual json_object get_local_object() override
 		{
-			json_parser jp;
-			json_object result;
 			if (not json_field_name.empty()) {
 				if (window) {
 					SYSTEMTIME st;
 					MonthCal_GetCurSel(window, &st);
 					current_date = st;
 				}
-				result.put_member(json_field_name, current_date);
+				local_object.put_member(json_field_name, current_date);
 			}
-			return result;
+			return local_object;
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
+			windows_control::set_data(_data);
 			if (_data.has_member(json_field_name)) {
 				current_date = _data[json_field_name]->as_date_time();
 				if (window) {
@@ -2678,10 +2692,8 @@ namespace corona
 		return finished ? -1 : 0;
 	}
 
-	json_object richedit_control::get_data()
+	json_object richedit_control::get_local_object()
 	{
-		json_parser jp;
-		json_object result;
 		if (not json_field_name.empty()) {
 			if (window) {
 				transfer_string = "";
@@ -2692,16 +2704,18 @@ namespace corona
 				es.pfnCallback = edit_stream_read;
 
 				SendMessage(window, EM_STREAMOUT, (CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF, (LPARAM)&es);
-				result.put_member(json_field_name, transfer_string);
+				local_object.put_member(json_field_name, transfer_string);
 			}
 		}
-		return result;
+		return local_object;
 	}
 
 	json_object richedit_control::set_data(json_object _data) 
 	{
-		if (_data.has_member(json_field_name)) {
-			std::string rtf_text = _data[json_field_name]->as_string();
+		windows_control::set_data(_data);
+
+		if (local_object.has_member(json_field_name)) {
+			std::string rtf_text = local_object[json_field_name]->as_string();
 			if (window) {
 				transfer_string = rtf_text;
 				transfer_point = 0;
@@ -2712,7 +2726,7 @@ namespace corona
 				SendMessage(window, EM_STREAMIN, (CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF, (LPARAM)&es);
 			}
 		}
-		return _data;
+		return data;
 	}
 
 	void datetimepicker_control::set_text(const std::string& _text)
