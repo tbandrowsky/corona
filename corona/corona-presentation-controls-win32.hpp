@@ -370,7 +370,7 @@ namespace corona
 		{
 			control_base::set_data(_data);
 			if (control_slice.has_member(json_field_name)) {
-				std::string text = control_slice[json_field_name]->as_string();
+				text = control_slice[json_field_name]->to_string();
 				set_text(text);
 			}
 			return _data;
@@ -415,6 +415,7 @@ namespace corona
 					});
 			}
 		}
+
 
 	};
 
@@ -2691,6 +2692,11 @@ namespace corona
 		richedit_control* ctrl = (richedit_control*)dwCookie;
 
 		int i = 0;
+
+		if (ctrl->transfer_point == ctrl->transfer_string.size()) {
+			*pcb = 0;
+			return 0;
+		}
 
 		for (i = 0; i < cb; i++) {
 			pbBuff[i] = ctrl->transfer_string[ctrl->transfer_point];

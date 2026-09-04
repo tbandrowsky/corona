@@ -1571,11 +1571,9 @@ namespace corona
 			auto response = _bus->put_object(instance, request);
 			std::string class_name = request["class_name"].as_string();
 			if (response.data.has_member(class_name)) {
-                json obj = response.data[class_name];
-				if (obj.array() && obj.size()>0) {
-					obj = obj.get_element(0);
-					response.cooked_data = obj["data"];
-				}
+                response = _bus->edit_object(instance, request);
+				json obj = response.data["object"];
+				response.cooked_data = obj;
 			}
 			return response;
 		}
@@ -1585,12 +1583,10 @@ namespace corona
 				control_base* cb = _bus->find_control(form_name);
 				if (cb) {
 					json_object obj;
-                    if (cb->json_field_name.empty()) {
-                        cb->json_field_name = "data";
-                    }
-					obj[cb->json_field_name] = response.cooked_data.value();
+					auto v = response.cooked_data.value();
+                    obj = v;
 					cb->set_data(obj);
-					_bus->object_updated(obj[cb->json_field_name]);
+					_bus->object_updated(obj);
 				}
 			}
 			return response.data;

@@ -437,6 +437,7 @@ namespace corona
 		{
 			if (_data[class_name_field]->as_string() == data[class_name_field]->as_string() && _data[object_id_field]->as_int64_t() == data[object_id_field]->as_int64_t()) {
 				data += _data;
+				set_data(data);
 			}
 			for (auto child : children) {
 				child->object_updated(_data);
