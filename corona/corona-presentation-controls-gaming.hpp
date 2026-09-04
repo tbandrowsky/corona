@@ -330,7 +330,7 @@ namespace corona
 		virtual json_object set_data(json_object _data) override
 		{
 			draw_control::set_data(_data);
-			set_items(local_array);
+			set_items(slice_array);
 			return _data;
 		}
 

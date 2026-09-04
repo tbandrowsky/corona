@@ -223,9 +223,9 @@ namespace corona
 	protected:
 
 		json_object data;
-		json		local_data;
-		json_object local_object;
-		json_array  local_array;
+		json_object control_slice;
+		json_object slice_object;
+		json_array  slice_array;
 
 		rectangle				arrange_extent = {};
 		rectangle				bounds = {};
@@ -450,28 +450,28 @@ namespace corona
 			}
 		}
 
-		virtual json_array get_local_array()
+		virtual json_array get_edited_array()
 		{
-			return local_array;
+			return slice_array;
 		}
 
-		virtual json_object get_local_object()
+		virtual json_object get_edited_object()
 		{
-			return local_object;
+			return control_slice;
 		}
 
-        virtual json_object get_local_data()
+        virtual json_object get_slice()
         {
             json_object temp;
-			auto ot = get_local_object();
-			auto oa = get_local_array();
+			auto ot = get_edited_object();
+			auto oa = get_edited_array();
             if (!ot.empty())
                 temp += ot;
             if (!oa.empty())
                 temp += oa.as_object(json_field_name);
 
 			for (auto child : children) {
-				json_object child_data = child->get_local_data();
+				json_object child_data = child->get_slice();
 				temp += child_data;
 			}
 
@@ -481,46 +481,40 @@ namespace corona
 		virtual json_object get_data()
 		{
 			json_object tempo = data;
-			tempo += get_local_data();
-            set_data(tempo);
+			tempo += get_slice();
 			return tempo;
 		}
 
 		virtual json_object set_data(json_object _data)
 		{
 			data = _data;
-			local_object.clear();
-			local_array.clear();	
+			control_slice = slice(_data, json_field_name);
+			slice_object.clear();
+			slice_array.clear();	
 
-			if (json_field_name.empty())
-			{
-                local_object = _data;
-			}
-			else if (json_field_name == ".")
-			{
-                local_object = _data;
-			}
-			else if (_data.has_member(json_field_name))
-			{
-                json field_data = _data[json_field_name];
-                if (field_data.object()) {
-                    local_object = *field_data.object_impl();
-                } else if (field_data.array()) {
-                    local_array = *field_data.array_impl();
-				}
-				else {
-                    local_object.put_member(json_field_name, field_data.value());
-				}
+			json field_data;
 
+			if (control_slice.has_member(json_field_name)) {
+
+				field_data = control_slice[json_field_name];
+
+				if (field_data.object()) {
+					slice_object = *field_data.object_impl();
+				}
+				else if (field_data.array()) {
+					slice_array = *field_data.array_impl();
+				}
 			}
 			else 
 			{
-				local_object = data;
+                slice_object = control_slice;
+                slice_array.clear();
 			}
 
 			for (auto child : children) {
 				child->set_data(_data);
 			}
+
 			return _data;
 		}
 
@@ -557,7 +551,7 @@ namespace corona
 		virtual json export_data()
 		{
 			auto gi = get_data();
-			gi += get_local_data();
+			gi += get_slice();
 			return gi;
 		}
 

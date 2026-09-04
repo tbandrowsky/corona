@@ -1097,42 +1097,42 @@ namespace corona
 				selected_item_index = 0;
 				selected_page_index = 0;
 			}
-			set_items(local_array);
+			set_items(slice_array);
 			return data;
 		}
 
 		virtual void object_deleted(json_object _item) override
 		{
 			int i;
-			for (i = 0; i < local_array.size(); i++)
+			for (i = 0; i < slice_array.size(); i++)
 			{
-				json item = local_array[i];
+				json item = slice_array[i];
 				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
 					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
-					local_array.erase(i);
+					slice_array.erase(i);
 					return;
 				}
 			}
-			set_items(local_array);
+			set_items(slice_array);
 		}
 
 		virtual void object_updated(json_object _item) override
 		{
 			int i;
-			for (i = 0; i < local_array.size(); i++)
+			for (i = 0; i < slice_array.size(); i++)
 			{
-				json item = local_array[i];
+				json item = slice_array[i];
 				if (item[object_id_field].as_int64_t() == _item[object_id_field]->as_int64_t() &&
 					item[class_name_field].as_string() == _item[class_name_field]->as_string()) {
-					local_array[i] = std::make_shared<json_object>(_item);	
-					set_items(local_array);
+					slice_array[i] = std::make_shared<json_object>(_item);	
+					set_items(slice_array);
 					return;
 				}
 			}
 
             // if we got here, it means we didn't find the item, so we add it.
-            local_array.push_back(std::make_shared<json_object>(_item));
-			set_items(local_array);
+            slice_array.push_back(std::make_shared<json_object>(_item));
+			set_items(slice_array);
 		}
 
 		virtual bool set_items(json_array _items) 
@@ -1153,13 +1153,13 @@ namespace corona
 
 			int matching_index = -1;
 
-			for (i = 0; i < local_array.size(); i++)
+			for (i = 0; i < slice_array.size(); i++)
 			{
 				items_view_row gvr;
 				gvr.page_index = 0;
 				gvr.bounds = item_bounds;
 				gvr.item_id = i;
-                gvr.object_data = json_object(local_array[i]);
+                gvr.object_data = json_object(slice_array[i]);
 				if (!current_selected_object.empty()) {
                     if (gvr.object_data[class_name_field]->as_string() == current_selected_object[class_name_field]->as_string() &&
 						gvr.object_data[object_id_field]->as_int64_t() == current_selected_object[object_id_field]->as_int64_t()) {
@@ -1272,7 +1272,7 @@ namespace corona
 
 		void end()
 		{
-			selected_item_index = local_array.size() - 1;
+			selected_item_index = slice_array.size() - 1;
 			check_scroll();
 		}
 
@@ -1304,8 +1304,8 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (selected_item_index >= 0 && local_array.size() > selected_item_index) {
-				j = local_array[selected_item_index];
+			if (selected_item_index >= 0 && slice_array.size() > selected_item_index) {
+				j = slice_array[selected_item_index];
 			}
 			return j;
 		}
@@ -1439,10 +1439,10 @@ namespace corona
         {
             json_object data = items_view::set_data(_data);
 
-			for (int i = 0; i < local_array.size(); i++) {
-				json_object item = local_array[i];
-				if (!item.has_member("class_name")) {
-					item.put_member("class_name", "chest_item");
+			for (int i = 0; i < slice_array.size(); i++) {
+				json item = slice_array[i];
+				if (item.object() && !item.has_member("class_name")) {
+					item.put_member_string("class_name", "chest_item");
 				}
 			}
 

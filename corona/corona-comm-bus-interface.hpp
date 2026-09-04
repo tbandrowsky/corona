@@ -376,7 +376,7 @@ namespace corona
 		{
 			auto it = batch_data.find(_batch_id);
 			if (it != std::end(batch_data)) {
-				auto member_it = it->second->find(_name);
+				auto member_it = it->second->at(_name);
 				if (member_it) {
 					return member_it;
 				}

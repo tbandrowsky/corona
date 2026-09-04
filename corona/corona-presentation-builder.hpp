@@ -1901,7 +1901,7 @@ namespace corona
 				});
 
 			if (current_tab != tab_panes.end()) {
-				content_frame->set_data(local_object);
+				content_frame->set_data(slice_object);
 			}
 
 			if (!current_tab_name.empty()) 
@@ -1929,8 +1929,8 @@ namespace corona
 
 			if (!is_same_tab) {
 				if (current_tab != tab_panes.end()) {
-					json_object tab_object = content_frame->get_data();
-					data += tab_object;
+					json_object tab_object = content_frame->get_slice();
+					control_slice += tab_object;
 				}
 			}
 
@@ -1942,18 +1942,7 @@ namespace corona
 				if (is_selected) {
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
-
-					if (tp.pane.member_name.empty() || tp.pane.member_name == ".") {
-						for (auto member : data) {
-							if (member.second->get_field_type() == field_types::ft_object || member.second->get_field_type() == field_types::ft_array)
-								continue;
-							new_tab_data.put_member(member.first, member.second);
-						}
-					}
-					else {
-						new_tab_data.put_member(tp.pane.member_name, data[tp.pane.member_name]);
-					}
-					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, new_tab_data);
+					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
 				}
 			}
 		}

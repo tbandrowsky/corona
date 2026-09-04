@@ -1792,7 +1792,7 @@ namespace corona
 			return members.find(_name) != members.end();
 		}
 
-		std::shared_ptr<json_value> find(std::string _name) const
+		std::shared_ptr<json_value> at(std::string _name) const
 		{
 			auto it = members.find(_name);
 			if (it != members.end()) {
@@ -1898,6 +1898,7 @@ namespace corona
 			}
 			return *this;
 		}
+
 
 	};
 
@@ -2909,7 +2910,7 @@ namespace corona
 		std::shared_ptr<json_value> get_member_value(const std::string& _key)
 		{
 			if (auto *pobj = object_impl()) {
-				auto vlist = pobj->find(_key);
+				auto vlist = pobj->at(_key);
 				if (vlist) {
 					return vlist;
 				}
@@ -2920,7 +2921,7 @@ namespace corona
 		std::shared_ptr<json_array> get_member_array(const std::string& _key)
 		{
 			if (auto *pobj = object_impl()) {
-				auto vlist = pobj->find(_key);
+				auto vlist = pobj->at(_key);
 				if (vlist) {
 					return std::dynamic_pointer_cast<json_array>(vlist);
 				}
@@ -2945,7 +2946,7 @@ namespace corona
 			std::string member_name = _path.front();
 			_path.pop();
 
-			auto member = obj_impl->find(member_name);
+			auto member = obj_impl->at(member_name);
 
 			if (member)
 			{
@@ -6438,6 +6439,34 @@ namespace corona
 		}
 
 		return result;
+	}
+
+	json_object slice(json_object _object, std::string _member_name)
+	{
+		json_object sliced;
+
+		if (_member_name.empty())
+		{
+			sliced = _object;
+		}
+		else if (_member_name == ".")
+		{
+			for (auto member : _object) {
+				if (std::dynamic_pointer_cast<json_object>(member.second) == nullptr &&
+					std::dynamic_pointer_cast<json_array>(member.second) == nullptr) {
+					sliced[member.first] = member.second;
+				}
+			}
+		}
+		else
+		{
+			auto it = _object.at(_member_name);
+			if (it) {
+				sliced.put_member(_member_name, it);
+			}
+		}
+
+		return sliced;
 	}
 
 }

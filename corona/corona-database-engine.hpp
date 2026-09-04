@@ -12988,7 +12988,7 @@ grant_type=authorization_code
 
 		for (auto& fld : fields) 
 		{
-			auto it = oimpl->find(fld.field_definition->get_field_name());
+			auto it = oimpl->at(fld.field_definition->get_field_name());
 			if (it) {
 				
 				fld.field_value = it;
@@ -13003,7 +13003,7 @@ grant_type=authorization_code
 					fld.field_value = it;
 					if (member_type != obj_type) {
 						_object.change_member_type(fld.field_definition->get_field_name(), member_type);
-						fld.field_value = oimpl->find(fld.field_definition->get_field_name());
+						fld.field_value = oimpl->at(fld.field_definition->get_field_name());
 					}
 					json test_value(fld.field_value);
 					bool accept_result = fld.field_definition->accepts(database, errors, class_definition->get_class_name(), fld.field_definition->get_field_name(), test_value);

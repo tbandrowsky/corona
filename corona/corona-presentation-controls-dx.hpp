@@ -2000,7 +2000,7 @@ namespace corona
             auto frame = bus->find_control(enable_source_frame);
             if (frame) {
                 auto target = frame->get_data();
-                target += frame->get_local_data();  
+                target += frame->get_slice();  
                 bool is_class = target.has_member(class_name_field) && target[class_name_field]->as_string() == enable_class_name;
                 return is_class;
             }   
