@@ -2924,6 +2924,10 @@ namespace corona
 	{
 		control_builder cb;
 
+        if (!_nav) {
+            return;
+        }
+
 		if (current_presentation && current_page) {
 			for (auto child : children) {
 				child->on_unsubscribe(current_presentation, current_page);
