@@ -26,19 +26,19 @@ namespace corona
 
 	class page : public page_base
 	{
-		std::map<int, std::shared_ptr<mouse_move_event_binding> > mouse_move_bindings;
-		std::map<int, std::shared_ptr<mouse_wheel_event_binding> > mouse_wheel_bindings;
-		std::map<int, std::shared_ptr<mouse_click_event_binding> > mouse_click_bindings;
-		std::map<int, std::shared_ptr<mouse_left_click_event_binding> > mouse_left_click_bindings;
-		std::map<int, std::shared_ptr<mouse_right_click_event_binding> > mouse_right_click_bindings;
-		std::map<int, std::shared_ptr<item_changed_event_binding> > item_changed_bindings;
-		std::map<int, std::shared_ptr<list_changed_event_binding> > list_changed_events;
-		std::map<int, std::shared_ptr<command_event_binding> > command_bindings;
-		std::map<int, std::shared_ptr<gamepad_button_down_event_binding> > gamepad_button_down_bindings;
-        std::map<int, std::shared_ptr<gamepad_button_up_event_binding> > gamepad_button_up_bindings;
-		std::map<int, std::shared_ptr<gamepad_trigger_down_event_binding> > gamepad_trigger_down_bindings;
-		std::map<int, std::shared_ptr<gamepad_trigger_up_event_binding> > gamepad_trigger_up_bindings;
-		std::map<int, std::shared_ptr<gamepad_thumbstick_move_event_binding> > gamepad_thumbstick_move_bindings;
+		std::map<control_base *, std::shared_ptr<mouse_move_event_binding> > mouse_move_bindings;
+		std::map<control_base *, std::shared_ptr<mouse_wheel_event_binding> > mouse_wheel_bindings;
+		std::map<control_base *, std::shared_ptr<mouse_click_event_binding> > mouse_click_bindings;
+		std::map<control_base *, std::shared_ptr<mouse_left_click_event_binding> > mouse_left_click_bindings;
+		std::map<control_base *, std::shared_ptr<mouse_right_click_event_binding> > mouse_right_click_bindings;
+		std::map<control_base *, std::shared_ptr<item_changed_event_binding> > item_changed_bindings;
+		std::map<control_base *, std::shared_ptr<list_changed_event_binding> > list_changed_events;
+		std::map<control_base *, std::shared_ptr<command_event_binding> > command_bindings;
+		std::map<control_base *, std::shared_ptr<gamepad_button_down_event_binding> > gamepad_button_down_bindings;
+        std::map<control_base *, std::shared_ptr<gamepad_button_up_event_binding> > gamepad_button_up_bindings;
+		std::map<control_base *, std::shared_ptr<gamepad_trigger_down_event_binding> > gamepad_trigger_down_bindings;
+		std::map<control_base *, std::shared_ptr<gamepad_trigger_up_event_binding> > gamepad_trigger_up_bindings;
+		std::map<control_base *, std::shared_ptr<gamepad_thumbstick_move_event_binding> > gamepad_thumbstick_move_bindings;
 
 		std::vector<std::shared_ptr<page_select_event_binding>> select_bindings;
 		update_function update_event;
@@ -105,16 +105,16 @@ namespace corona
 			root = std::make_shared<column_layout>();
 		}
 
-		virtual void clear_events(int _control_id)
+		virtual void clear_events(control_base* _control)
 		{
 			scope_lock locker(binding_lock);
-			mouse_move_bindings.erase(_control_id);
-			mouse_click_bindings.erase(_control_id);
-			mouse_left_click_bindings.erase(_control_id);
-			mouse_right_click_bindings.erase(_control_id);
-			item_changed_bindings.erase(_control_id);
-			list_changed_events.erase(_control_id);
-			command_bindings.erase(_control_id);
+			mouse_move_bindings.erase(_control);
+			mouse_click_bindings.erase(_control);
+			mouse_left_click_bindings.erase(_control);
+			mouse_right_click_bindings.erase(_control);
+			item_changed_bindings.erase(_control);
+			list_changed_events.erase(_control);
+			command_bindings.erase(_control);
 		}
 
 		auto get_root_container() 
@@ -130,6 +130,7 @@ namespace corona
 			return root->children.size() ? root->children.front().get() : nullptr;
 		}
 
+		/*
 		template <typename T> inline T* find(int _id) {
 			return dynamic_cast<T *>(get_root()->find(_id));
 		}
@@ -145,6 +146,8 @@ namespace corona
 		template <typename T> inline T* find_container(int _id) {
 			return dynamic_cast<T*>(get_root()->find(_id));
 		}
+
+		*/
 
 		void put_json(json& _src)
 		{
@@ -222,11 +225,6 @@ namespace corona
 			root->on_subscribe(_presentation, this);
 		}
 
-		control_builder edit(int id)
-		{
-			std::shared_ptr<container_control> ct = root->find_by_id<container_control>(id);
-			return control_builder(ct);
-		}
 
 		control_builder row_begin(int id = id_counter::next())
 		{
@@ -285,13 +283,9 @@ namespace corona
 			auto evt = std::make_shared<mouse_left_click_event_binding>();
 			if (auto pbase = _base)
 			{
-				if (_base->id == 0) {
-					throw std::logic_error("You need to have an id on a control to subscribe to events");
-				}
 				evt->control = pbase;
-				evt->subscribed_item_id = pbase->id;
 				evt->on_mouse_left_click = handler;
-				mouse_left_click_bindings[pbase->id] = evt;
+				mouse_left_click_bindings[pbase] = evt;
 			}
 		}
 
@@ -301,13 +295,9 @@ namespace corona
 			auto evt = std::make_shared<mouse_right_click_event_binding>();
 			if (auto pbase = _base)
 			{
-				if (_base->id == 0) {
-					throw std::logic_error("You need to have an id on a control to subscribe to events");
-				}
 				evt->control = pbase;
-				evt->subscribed_item_id = pbase->id;
 				evt->on_mouse_right_click = handler;
-				mouse_right_click_bindings[pbase->id] = evt;
+				mouse_right_click_bindings[pbase] = evt;
 			}
 		}
 
@@ -317,13 +307,9 @@ namespace corona
 			auto evt = std::make_shared<mouse_move_event_binding>();
 			if (auto pbase = _base)
 			{
-				if (_base->id == 0) {
-					throw std::logic_error("You need to have an id on a control to subscribe to events");
-				}
 				evt->control = pbase;
-				evt->subscribed_item_id = pbase->id;
 				evt->on_mouse_move = handler;
-				mouse_move_bindings[pbase->id] = evt;
+				mouse_move_bindings[pbase] = evt;
 			}
 		}
 
@@ -333,13 +319,9 @@ namespace corona
 			auto evt = std::make_shared<mouse_wheel_event_binding>();
 			if (auto pbase = _base)
 			{
-				if (_base->id == 0) {
-					throw std::logic_error("You need to have an id on a control to subscribe to events");
-				}
 				evt->control = pbase;
-				evt->subscribed_item_id = pbase->id;
 				evt->on_mouse_wheel = handler;
-				mouse_wheel_bindings[pbase->id] = evt;
+				mouse_wheel_bindings[pbase] = evt;
 			}
 		}
 
@@ -349,86 +331,106 @@ namespace corona
 			auto evt = std::make_shared<mouse_click_event_binding>();
 			if (auto pbase = _base)
 			{
-				if (_base->id == 0) {
-					throw std::logic_error("You need to have an id on a control to subscribe to events");
-				}
 				evt->control = pbase;
-				evt->subscribed_item_id = pbase->id;
 				evt->on_mouse_click = handler;
-				mouse_click_bindings[pbase->id] = evt;
+				mouse_click_bindings[pbase] = evt;
 			}
 		}
 
-		virtual void on_item_changed(int _control_id, std::function< void(item_changed_event) > handler)
+		virtual void on_item_changed(control_base *_base, std::function< void(item_changed_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<item_changed_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_change = handler;
-			item_changed_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_change = handler;
+				item_changed_bindings[pbase] = evt;
+			}
 		}
 
-		virtual void on_list_changed(int _control_id, std::function< void(list_changed_event) > handler)
+		virtual void on_list_changed(control_base *_base, std::function< void(list_changed_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<list_changed_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_change = handler;
-			list_changed_events[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_change = handler;
+				list_changed_events[pbase] = evt;
+			}
 		}
 
-		virtual void on_command(int _control_id, std::function< void(command_event) > handler)
+		virtual void on_command(control_base *_base, std::function< void(command_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<command_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_command = handler;
-			command_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_command = handler;
+				command_bindings[pbase] = evt;
+			}
 		}
 
-		virtual void on_gamepad_button_down(int _control_id, std::function< void(gamepad_button_down_event) > handler)
+		virtual void on_gamepad_button_down(control_base *_base, std::function< void(gamepad_button_down_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<gamepad_button_down_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_button_down = handler;
-			gamepad_button_down_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_button_down = handler;
+				gamepad_button_down_bindings[pbase] = evt;
+			}
 		}
 
-		virtual void on_gamepad_button_up(int _control_id, std::function< void(gamepad_button_up_event) > handler)
+		virtual void on_gamepad_button_up(control_base *_base, std::function< void(gamepad_button_up_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<gamepad_button_up_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_button_up = handler;
-			gamepad_button_up_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_button_up = handler;
+				gamepad_button_up_bindings[pbase] = evt;
+			}
 		}
 
-		virtual void on_gamepad_trigger_down(int _control_id, std::function< void(gamepad_trigger_down_event) > handler)
+		virtual void on_gamepad_trigger_down(control_base *_base, std::function< void(gamepad_trigger_down_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<gamepad_trigger_down_event_binding>();
-            evt->subscribed_item_id = _control_id;
-            evt->on_trigger_down = handler;
-            gamepad_trigger_down_bindings[_control_id] = evt;
-        }
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_trigger_down = handler;
+				gamepad_trigger_down_bindings[pbase] = evt;
+			}
+		}
 
-		virtual void on_gamepad_trigger_up(int _control_id, std::function< void(gamepad_trigger_up_event) > handler)
+		virtual void on_gamepad_trigger_up(control_base *_base, std::function< void(gamepad_trigger_up_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<gamepad_trigger_up_event_binding>();
-            evt->subscribed_item_id = _control_id;
-            evt->on_trigger_up = handler;
-            gamepad_trigger_up_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_trigger_up = handler;
+				gamepad_trigger_up_bindings[pbase] = evt;
+			}
 		}
 
-		virtual void on_gamepad_thumbstick_move(int _control_id, std::function< void(gamepad_thumbstick_move_event) > handler)
+		virtual void on_gamepad_thumbstick_move(control_base *_base, std::function< void(gamepad_thumbstick_move_event) > handler)
 		{
 			scope_lock locker(binding_lock);
 			auto evt = std::make_shared<gamepad_thumbstick_move_event_binding>();
-			evt->subscribed_item_id = _control_id;
-			evt->on_thumbstick_move = handler;
-			gamepad_thumbstick_move_bindings[_control_id] = evt;
+			if (auto pbase = _base)
+			{
+				evt->control = pbase;
+				evt->on_thumbstick_move = handler;
+				gamepad_thumbstick_move_bindings[pbase] = evt;
+			}	
 		}
 
 		virtual void on_update(update_function fnc)
@@ -445,12 +447,11 @@ namespace corona
 			select_bindings.push_back(plet);
 		}
 
-
-		bool handle_key_up(int _control_id, key_up_event evt)
+		bool handle_key_up(control_base* _base, key_up_event evt)
 		{
 			scope_lock locker(binding_lock);
 			bool handled = false;
-            control_base *cb = this->find(_control_id);
+            control_base *cb = _base;
 			if (cb) {
 				cb->key_up(evt);
 				handled = true;
@@ -458,71 +459,68 @@ namespace corona
 			return handled;
 		}
 
-		void handle_key_down(int _control_id, key_down_event evt)
+		void handle_key_down(control_base* _base, key_down_event evt)
 		{
 			scope_lock locker(binding_lock);
-			control_base* cb = this->find(_control_id);
+			control_base* cb = _base;
 			if (cb) {
 				cb->key_down(evt);
 			}
 		}
 
-		void handle_key_press(int _control_id, key_press_event evt)
+		void handle_key_press(control_base* _base, key_press_event evt)
 		{
 			scope_lock locker(binding_lock);
-			control_base* cb = this->find(_control_id);
+			control_base* cb = _base;
 			if (cb) {
 				cb->key_press(evt);
 			}
 		}
 
-		void handle_mouse_wheel(int _control_id, mouse_wheel_event evt)
+		void handle_mouse_wheel(control_base* _base, mouse_wheel_event evt)
 		{
 			scope_lock locker(binding_lock);
             for (auto& binding : mouse_wheel_bindings) {
-				if (auto temp = this->find(binding.second->subscribed_item_id)) {
+				if (auto temp = binding.second->control) {
 					evt.relative_point = {};
 					evt.absolute_point = {};
 					evt.control = temp;
-					evt.control_id = binding.second->subscribed_item_id;
 					binding.second->on_mouse_wheel(evt);
 				}
 			}
 		}
 
-		void handle_mouse_move(int _control_id, mouse_move_event evt)
+		void handle_mouse_move(control_base* _base, mouse_move_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (mouse_move_bindings.contains(_control_id)) {
-				auto& ptrx = mouse_move_bindings[_control_id];
-				if (auto temp = ptrx.get()->control) {
+			if (mouse_move_bindings.contains(_base)) {
+				auto& ptrx = mouse_move_bindings[_base];
+				if (auto temp = ptrx->control) {
 					evt.relative_point.x = evt.absolute_point.x - temp->get_bounds().x;
 					evt.relative_point.y = evt.absolute_point.y - temp->get_bounds().y;
 					evt.control = temp;
-					evt.control_id = temp->id;
 					ptrx->on_mouse_move(evt);
 				}
 			}
 		}
 
-		void handle_mouse_click(int _control_id, mouse_click_event evt)
+		void handle_mouse_click(control_base* _base, mouse_click_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (mouse_click_bindings.contains(_control_id)) {
-				auto& ptrx = mouse_click_bindings[_control_id];
-				evt.relative_point.x = evt.absolute_point.x - evt.control->get_bounds().x;
-				evt.relative_point.y = evt.absolute_point.y - evt.control->get_bounds().y;
-				evt.control_id = evt.control->id;
+			if (mouse_click_bindings.contains(_base)) {
+				auto& ptrx = mouse_click_bindings[_base];
+				evt.relative_point.x = evt.absolute_point.x - ptrx->control->get_bounds().x;
+				evt.relative_point.y = evt.absolute_point.y - ptrx->control->get_bounds().y;
 				evt.control = ptrx->control;
 				ptrx->on_mouse_click(evt);
 			}
 		}
 
-		void handle_mouse_left_click(int _control_id, mouse_left_click_event evt)
+		void handle_mouse_left_click(control_base* _base, mouse_left_click_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (mouse_left_click_bindings.contains(_control_id)) {
-				auto& ptrx = mouse_left_click_bindings[_control_id];
+			if (mouse_left_click_bindings.contains(_base)) {
+				auto& ptrx = mouse_left_click_bindings[_base];
 				evt.relative_point.x = evt.absolute_point.x - evt.control->get_bounds().x;
 				evt.relative_point.y = evt.absolute_point.y - evt.control->get_bounds().y;
 				evt.control = ptrx->control;
@@ -530,46 +528,43 @@ namespace corona
 			}
 		}
 
-		void handle_mouse_right_click(int _control_id, mouse_right_click_event evt)
+		void handle_mouse_right_click(control_base* _base, mouse_right_click_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (mouse_right_click_bindings.contains(_control_id)) {
-				auto& ptrx = mouse_right_click_bindings[_control_id];
+			if (mouse_right_click_bindings.contains(_base)) {
+				auto& ptrx = mouse_right_click_bindings[_base];
 				evt.relative_point.x = evt.absolute_point.x - evt.control->get_bounds().x;
 				evt.relative_point.y = evt.absolute_point.y - evt.control->get_bounds().y;
-				evt.control_id = evt.control->id;
 				evt.control = ptrx->control;
 				ptrx->on_mouse_right_click(evt);
 			}
 		}
 
-		void handle_item_changed(int _control_id, item_changed_event evt)
+		void handle_item_changed(control_base* _base, item_changed_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (item_changed_bindings.contains(_control_id)) {
-				auto& ptrx = item_changed_bindings[_control_id];
-				evt.control_id = _control_id;
-				evt.control = find(_control_id);
+			if (item_changed_bindings.contains(_base)) {
+				auto& ptrx = item_changed_bindings[_base];
+				evt.control = _base;
 				ptrx->on_change(evt);
 			}
 		}
 
-		void handle_list_changed(int _control_id, list_changed_event evt)
+		void handle_list_changed(control_base *_base, list_changed_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (list_changed_events.contains(_control_id)) {
-				auto& ptrx = list_changed_events[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (list_changed_events.contains(_base)) {
+				auto& ptrx = list_changed_events[_base];
+				evt.control = _base;
 				ptrx->on_change(evt);
 			}
 		}
 
-		void handle_command(int _control_id, command_event evt)
+		void handle_command(control_base* _base, command_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (command_bindings.contains(_control_id)) {
-				auto& ptrx = command_bindings[_control_id];
+			if (command_bindings.contains(_base)) {
+				auto& ptrx = command_bindings[_base];
 				ptrx->on_command(evt);
 			}
 		}
@@ -593,57 +588,52 @@ namespace corona
 			_pg->root->loaded(batch_id);
 		}
 
-		void handle_gamepad_button_down(int _control_id, gamepad_button_down_event evt)
+		void handle_gamepad_button_down(control_base* _base, gamepad_button_down_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (gamepad_button_down_bindings.contains(_control_id)) {
-				auto& ptrx = gamepad_button_down_bindings[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (gamepad_button_down_bindings.contains(_base)) {
+				auto& ptrx = gamepad_button_down_bindings[_base];
+				evt.control = _base;
 				ptrx->on_button_down(evt);
 			}
         }
 
-		void handle_gamepad_button_up(int _control_id, gamepad_button_up_event evt)
+		void handle_gamepad_button_up(control_base* _base, gamepad_button_up_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (gamepad_button_up_bindings.contains(_control_id)) {
-				auto& ptrx = gamepad_button_up_bindings[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (gamepad_button_up_bindings.contains(_base)) {
+				auto& ptrx = gamepad_button_up_bindings[_base];
+				evt.control = _base;
 				ptrx->on_button_up(evt);
 			}
 		}
 
-		void handle_gamepad_trigger_down(int _control_id, gamepad_trigger_down_event evt)
+		void handle_gamepad_trigger_down(control_base* _base, gamepad_trigger_down_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (gamepad_trigger_down_bindings.contains(_control_id)) {
-				auto& ptrx = gamepad_trigger_down_bindings[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (gamepad_trigger_down_bindings.contains(_base)) {
+				auto& ptrx = gamepad_trigger_down_bindings[_base];
+				evt.control = _base;
 				ptrx->on_trigger_down(evt);
 			}
 		}
 
-		void handle_gamepad_trigger_up(int _control_id, gamepad_trigger_up_event evt)
+		void handle_gamepad_trigger_up(control_base* _base, gamepad_trigger_up_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (gamepad_trigger_up_bindings.contains(_control_id)) {
-				auto& ptrx = gamepad_trigger_up_bindings[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (gamepad_trigger_up_bindings.contains(_base)) {
+				auto& ptrx = gamepad_trigger_up_bindings[_base];
+				evt.control = _base;
 				ptrx->on_trigger_up(evt);
 			}
 		}
 
-		void handle_gamepad_thumbstick_move(int _control_id, gamepad_thumbstick_move_event evt)
+		void handle_gamepad_thumbstick_move(control_base* _base, gamepad_thumbstick_move_event evt)
 		{
 			scope_lock locker(binding_lock);
-			if (gamepad_thumbstick_move_bindings.contains(_control_id)) {
-				auto& ptrx = gamepad_thumbstick_move_bindings[_control_id];
-				evt.control = find(_control_id);
-				evt.control_id = _control_id;
+			if (gamepad_thumbstick_move_bindings.contains(_base)) {
+				auto& ptrx = gamepad_thumbstick_move_bindings[_base];
+				evt.control = _base	;
 				ptrx->on_thumbstick_move(evt);
 			}
 		}

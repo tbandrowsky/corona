@@ -56,7 +56,7 @@ namespace corona
 
         draw_control()
         {
-            id = id_counter::next();
+            
         }
 
         draw_control(const draw_control& _src) : control_base(_src)
@@ -68,7 +68,7 @@ namespace corona
 
         draw_control(control_base* _parent, int _id)
         {
-            id = _id;
+            
         }
 
         virtual ~draw_control()
@@ -92,7 +92,7 @@ namespace corona
             // easily enough.
             if (use_native_window) {
                 if (auto phost = _host.lock()) {
-                    window = phost->createDirect2Window(id, bounds);
+                    window = phost->createDirect2Window(bounds);
                     auto pwindow = window.lock();
                     if (pwindow) {
                         auto context = pwindow->getContext();
@@ -1646,7 +1646,7 @@ namespace corona
     {
         image_mode = image_modes::use_filename;
         image_filename = _name;
-        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, id);
+        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, (int *)this);
     }
 
     void image_control::load_from_resource(DWORD _resource_id)
@@ -1660,7 +1660,7 @@ namespace corona
     {
         image_mode = image_modes::use_control_id;
         image_control_id = _control_id;
-        instance.bitmapName = std::format("bitmap_control_{0}_{1}", id, _control_id);
+        instance.bitmapName = std::format("bitmap_control_{0}_{1}", (int *)this, _control_id);
     }
 
     void image_control::init()

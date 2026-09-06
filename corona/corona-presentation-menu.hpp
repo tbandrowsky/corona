@@ -210,7 +210,7 @@ namespace corona
 
 	void menu_item::subscribe(presentation_base* _presentation, page_base *ppage)
 	{
-		ppage->on_command(id, [this, _presentation, ppage](command_event evt) {
+		ppage->on_command(nullptr, [this, _presentation, ppage](command_event evt) {
 			if (navigate_handler) {
 				navigate_handler(_presentation);
 			}

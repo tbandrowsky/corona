@@ -45,9 +45,8 @@ namespace corona
 		HWND window;
 
 	public:
-
-
-		using control_base::id;
+		short id;
+		bool is_group;
 
 		std::weak_ptr<applicationBase> window_host;
 		textStyleRequest	text_style;
@@ -63,6 +62,7 @@ namespace corona
 			set_default_styles();
 			is_default_focus = false;
 			is_default_button = false;
+            id = id_counter::next();
 		}
 
 		windows_control(const windows_control& _src) : control_base(_src),
@@ -70,17 +70,18 @@ namespace corona
 			text_font(nullptr),
 			is_group(false)
 		{
+			id = _src.id;
 			text_style = _src.text_style;
 			is_default_focus = _src.is_default_focus;
 			is_default_button = _src.is_default_button;
 		}
 
-		windows_control(control_base*_parent, int _id)
-			: control_base(_id),
+		windows_control(control_base*_parent, int _id) :
 			window(nullptr),
 			text_font(nullptr),
 			is_group(false)
 		{
+			id = _id;
 			set_default_styles();
 			is_default_focus = false;
 			is_default_button = false;
@@ -178,8 +179,6 @@ namespace corona
 			::ShowWindow(window, SW_SHOW);
 		}
 
-		bool is_group;
-
 		virtual void on_resize()
 		{
 			set_window_size();
@@ -212,6 +211,8 @@ namespace corona
 						window = CreateWindowExA(get_window_ex_style(), get_window_class(), "", get_window_style() | group_style, boundsPixels.x, boundsPixels.y, boundsPixels.w, boundsPixels.h, parent, (HMENU)id, NULL, NULL);
 
 					HFONT old_font = text_font;
+
+					SetWindowLongPtrA(window, GWLP_USERDATA, (LONG_PTR)this);
 
 					text_font = phost->createFontDips(window, text_style.fontName, text_style.fontSize, text_style.bold, text_style.italics);
 					SendMessage(window, WM_SETFONT, (WPARAM)text_font, 0);
@@ -292,7 +293,6 @@ namespace corona
 
 	public:
 
-		using control_base::id;
 		using windows_control::window_host;
 
 		std::shared_ptr<corona_bus_command> change_command;
@@ -410,7 +410,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -474,7 +474,6 @@ namespace corona
 
 	public:
 
-		using control_base::id;
 		using windows_control::window_host;
 		table_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
@@ -582,7 +581,7 @@ namespace corona
 		{
 			windows_control::on_subscribe(_presentation, _page);
 
-			_page->on_list_changed(id, [this](list_changed_event lce) {
+			_page->on_list_changed(this, [this](list_changed_event lce) {
 				table_control_base* tcb = dynamic_cast<table_control_base*>(lce.control);
 				if (tcb and tcb->select_command) {
 					lce.bus->run_command(lce.batch_id, tcb->select_command);
@@ -595,7 +594,6 @@ namespace corona
 	class list_control_base : public windows_control
 	{
 	public:
-		using control_base::id;
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
@@ -734,7 +732,7 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			if (select_command) {
-				_page->on_list_changed(id, [this](list_changed_event lce) {
+				_page->on_list_changed(this, [this](list_changed_event lce) {
 						lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
@@ -745,7 +743,6 @@ namespace corona
 	{
 	public:
 
-		using control_base::id;
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
@@ -906,7 +903,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (select_command) {
-				_page->on_list_changed(id, [this](list_changed_event lce) {
+				_page->on_list_changed(this, [this](list_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, select_command);
 					});
 			}
@@ -940,8 +937,6 @@ namespace corona
 		std::string text;
 
 	public:
-
-		using control_base::id;
 		using windows_control::window_host;
 
 		std::shared_ptr<corona_bus_command> change_command;
@@ -1065,7 +1060,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -1107,7 +1102,6 @@ namespace corona
 	template <long ButtonWindowStyles> class button_control : public text_control_base
 	{
 	protected:
-		using control_base::id;
 		using windows_control::window_host;
 		std::string caption_text;
 		std::string icon_path;
@@ -1166,7 +1160,7 @@ namespace corona
 			text_control_base::on_subscribe(_presentation, _page);
 
 			if (click_command) {
-				_page->on_command(id, [this](command_event lce) {
+				_page->on_command(this, [this](command_event lce) {
 					lce.bus->run_command(lce.batch_id, click_command);
 					});
 			}
@@ -1528,6 +1522,8 @@ namespace corona
 	{
 	public:
 
+        std::function<void(combobox_control* _src)> on_selection_changed;
+
 		combobox_control() { id = id_counter::next(); }
 		combobox_control(control_base* _parent, int _id) : dropdown_control_base(_parent, _id) { ; }
 		virtual ~combobox_control() { ; }
@@ -1544,13 +1540,30 @@ namespace corona
 		virtual DWORD get_window_ex_style() { return 0; }
 
 
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+			if (on_selection_changed) {
+				_page->on_list_changed(this, [this](list_changed_event evt) {
+					if (on_selection_changed) {
+						on_selection_changed(this);
+					}
+					});
+			}
+		}
+
+
+
 	};
 
 	class comboboxex_control : public dropdown_control_base
 	{
 
 	public:
-		using control_base::id;
+
+		std::function<void(comboboxex_control* _src)> on_selection_changed;
+
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
@@ -1575,6 +1588,17 @@ namespace corona
 		virtual DWORD get_window_style() { return ComboWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+			if (on_selection_changed) {
+				_page->on_list_changed(this, [this](list_changed_event evt) {
+					if (on_selection_changed) {
+						on_selection_changed(this);
+					}
+					});
+			}
+		}
 
 	};
 
@@ -1647,7 +1671,7 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 						lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -1798,7 +1822,7 @@ namespace corona
 		{
 			windows_control::on_subscribe(_presentation, _page);
 
-			_page->on_item_changed(id, [this](item_changed_event lce) {
+			_page->on_item_changed(this, [this](item_changed_event lce) {
 				if (on_changed) {
 					on_changed(this);
 				}
@@ -1872,7 +1896,7 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -1983,7 +2007,7 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -2118,7 +2142,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (change_command) {
-				_page->on_item_changed(id, [this](item_changed_event lce) {
+				_page->on_item_changed(this, [this](item_changed_event lce) {
 						lce.bus->run_command(lce.batch_id, change_command);
 					});
 			}
@@ -2152,7 +2176,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (select_command) {
-				_page->on_list_changed(id, [this](list_changed_event lce) {
+				_page->on_list_changed(this, [this](list_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
@@ -2186,7 +2210,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 
 			if (select_command) {
-				_page->on_list_changed(id, [this](list_changed_event lce) {
+				_page->on_list_changed(this, [this](list_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, select_command);
 				});
 			}
@@ -2319,13 +2343,13 @@ namespace corona
 		std::shared_ptr<command_button_control> align_left_button;
 		std::shared_ptr<command_button_control> align_center_button;
 		std::shared_ptr<command_button_control> bullet_button;
-		std::shared_ptr<command_button_control> font_button;
 		std::shared_ptr<combobox_control>		styles_dropdown;
 		std::shared_ptr<richedit_control>		richedit_area;
 
 		PARAFORMAT		paragraph_format;
 		CHARFORMAT2A    character_format;
 		layout_rect		button_layout;
+		layout_rect		dropdown_layout;
         layout_rect 	richedit_layout;
         layout_rect     toolbar_layout;
 
@@ -2368,6 +2392,14 @@ namespace corona
 			button_layout.width = 35.0_px;
 			button_layout.height = 35.0_px;
 
+			auto button_start_layout = button_layout;
+			button_start_layout.x = 10.0_px;
+
+			dropdown_layout = {};
+			dropdown_layout.x = 10.0_px;
+			dropdown_layout.width = 150.0_px;
+			dropdown_layout.height = 30.0_px;
+
 			toolbar_layout = {};
 			toolbar_layout.width = 1.0_container;
 			toolbar_layout.height = 35.0_px;
@@ -2380,8 +2412,26 @@ namespace corona
 			toolbar->set_box(toolbar_layout);
 			toolbar->wrap = true;
 
+			styles_dropdown = std::make_shared<combobox_control>(toolbar.get(), id_counter::next());
+			styles_dropdown->set_box(dropdown_layout);
 
+			list_data styles_list;
+			json_parser jp;
+			
+			auto styles = jp.parse_array(R"([
+				{ "id":"title_style", "description": "Title" },
+				{ "id":"subtitle_style", "description": "Subtitle" },
+				{ "id":"chapter_title_style", "description": "Chapter Title" },
+				{ "id":"chapter_subtitle_style", "description": "Chapter Subtitle" },
+				{ "id":"paragraph_style", "description": "Paragraph" },
+				{ "id":"code_style", "description": "Code" }
+			])");
 
+            styles_list.id_field = "id";
+			styles_list.text_field = "description";
+			styles_list.items = *styles.array_impl();
+
+			styles_dropdown->set_list(styles_list);
 			/*
 					{ "Italic", L"\uE8DB" },
 		{ "Underline", L"\uE8DC" },
@@ -2450,7 +2500,7 @@ namespace corona
 			align_right_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
 			align_right_button->icon = "AlignRight";
 			align_right_button->toolbar_button = true;
-			align_right_button->set_box(button_layout);
+			align_right_button->set_box(button_start_layout);
 			align_right_button->on_click = [this](command_button_control* _src) {
 				paragraph_format.wAlignment = PFA_RIGHT;
 				_src->enabled = true;
@@ -2483,16 +2533,8 @@ namespace corona
 				richedit_area->set_paragraph_format(&paragraph_format);
 				};
 
-			font_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			font_button->icon = "Font";
-            font_button->toolbar_button = true;	
-			font_button->set_box(button_layout);
-			font_button->on_click = [this](command_button_control* _src) {
-				;
-				};
-
 			bullet_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			bullet_button->set_box(button_layout);
+			bullet_button->set_box(button_start_layout);
 			bullet_button->icon = "Bullet";
             bullet_button->toolbar_button = true;	
 			bullet_button->on_click = [this](command_button_control* _src) {
@@ -2534,13 +2576,22 @@ namespace corona
 			toolbar->children.push_back(align_center_button);
 			toolbar->children.push_back(align_right_button);
 
-			toolbar->children.push_back(font_button);
 			toolbar->children.push_back(bullet_button);
+
+            toolbar->children.push_back(styles_dropdown);
 
 			children.push_back(toolbar);
 			children.push_back(richedit_area);
 
 			richedit_area->json_field_name = json_field_name;
+
+			styles_dropdown->on_selection_changed = [this](combobox_control* _src) {
+				json selected_object = this->richedit_area->get_selected_object();
+				if (selected_object.object()) {
+                    std::string style_id = selected_object["id"].as_string();
+					std::string style_description = selected_object["description"].as_string();
+				}
+            };
 
 		}
 

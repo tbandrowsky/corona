@@ -401,12 +401,6 @@ namespace corona
 			root = std::dynamic_pointer_cast<container_control>(_root);
 		}
 
-		control_builder(std::shared_ptr<container_control> _root, int _id )
-		{
-			parent = nullptr;
-			root = _root->find_by_id<container_control>(_id);
-		}
-
 		control_builder(control_builder* _parent, std::shared_ptr<container_control>& _root)
 		{
 			parent = _parent;

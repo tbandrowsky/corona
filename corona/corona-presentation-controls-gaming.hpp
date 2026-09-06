@@ -25,31 +25,31 @@ namespace corona
 		{
 			draw_control::on_subscribe(_presentation, _page);
 
-			_page->on_gamepad_button_down(id, [this](gamepad_button_down_event gpbd) {
+			_page->on_gamepad_button_down(this, [this](gamepad_button_down_event gpbd) {
 				if (current_session) {
                     current_session->handle_gamepad_button_down(gpbd);
 				}
 			});
 
-			_page->on_gamepad_button_up(id, [this](gamepad_button_up_event gpbu) {
+			_page->on_gamepad_button_up(this, [this](gamepad_button_up_event gpbu) {
 				if (current_session) {
 					current_session->handle_gamepad_button_up(gpbu);
 				}
 			});
 
-			_page->on_gamepad_trigger_up(id, [this](gamepad_trigger_up_event gptu) {
+			_page->on_gamepad_trigger_up(this, [this](gamepad_trigger_up_event gptu) {
 				if (current_session) {
 					current_session->handle_gamepad_trigger_up(gptu);
 				}
 			});
 
-			_page->on_gamepad_trigger_down(id, [this](gamepad_trigger_down_event gptd) {
+			_page->on_gamepad_trigger_down(this, [this](gamepad_trigger_down_event gptd) {
 				if (current_session) {
 					current_session->handle_gamepad_trigger_down(gptd);
 				}
 			});
 
-			_page->on_gamepad_thumbstick_move(id, [this](gamepad_thumbstick_move_event gptm) {
+			_page->on_gamepad_thumbstick_move(this, [this](gamepad_thumbstick_move_event gptm) {
 				if (current_session) {
 					current_session->handle_gamepad_thumbstick_move(gptm);
 				}

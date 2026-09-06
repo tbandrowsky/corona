@@ -241,7 +241,6 @@ namespace corona
 
 		void copy(const control_base& _src)
 		{
-			id = _src.id;
 			bounds = _src.bounds;
 			inner_bounds = _src.inner_bounds;
 			margin_amount = _src.margin_amount;
@@ -282,8 +281,6 @@ namespace corona
 		friend class tab_view_control;
 		friend class items_view;
 
-		int						id = -1;
-
 		layout_rect				box = {};
 		measure					margin = {};
 		measure					padding = {};
@@ -304,19 +301,6 @@ namespace corona
 
 		control_base()
 		{
-			id = id_counter::next();
-			is_focused = false;
-			wrap_break = false;
-		}
-
-		control_base(int _id)
-		{
-			if (_id < 0) {
-				id = id_counter::next();
-			}
-			else {
-				id = _id;
-			}
 			is_focused = false;
 			wrap_break = false;
 		}
@@ -365,8 +349,6 @@ namespace corona
 		{
 			return mouse_relative_position;
 		}
-
-		int get_id() { return id; }
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -586,7 +568,6 @@ namespace corona
 
 			_dest.put_member("name", name);
 			_dest.put_member("class_name", class_name);
-			_dest.put_member("id", id );
 			_dest.put_member("box", jbox );
 			_dest.put_member("padding", jpadding);
 			_dest.put_member("margin", jmargin);
@@ -764,14 +745,14 @@ namespace corona
 
 		template <typename control_class> control_class& set_spacing(measure _spacing)
 		{
-			control_class* r = dynamic_cast<control_class>(this);
+			control_class* r = dynamic_cast<control_class*>(this);
 			r->margin = _spacing;
 			return *this;
 		}
 
 		virtual void apply_item_sizes(control_base& _ref);
 
-		virtual bool set_mouse(point _position,
+		virtual control_base *set_mouse(point _position,
 			bool* _left_down,
 			bool* _right_down,
 			std::function<void(control_base* _item)> _left_click,
@@ -780,7 +761,7 @@ namespace corona
 
 		virtual void on_unsubscribe(presentation_base* _presentation, page_base* _page)
 		{
-			_page->clear_events(id);
+			_page->clear_events(this);
 			for (auto child : children) {
 				child->on_unsubscribe(_presentation, _page);
 			}
@@ -999,7 +980,7 @@ namespace corona
 
 	}
 
-	bool control_base::set_mouse(point _position,
+	control_base* control_base::set_mouse(point _position,
 		bool* _left_down,
 		bool* _right_down,
 		std::function<void(control_base* _item)> _left_click,
@@ -1041,7 +1022,7 @@ namespace corona
 		{
 			child->set_mouse(_position, _left_down, _right_down, _left_click, _right_click);
 		}
-		return mouse_over;
+		return mouse_over ? this : nullptr;
 	}
 
 	double control_base::to_pixels_x(control_base* _parent, measure length)

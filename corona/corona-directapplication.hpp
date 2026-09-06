@@ -479,7 +479,7 @@ namespace corona
 		//navigationKey = ::IsDialogMessage(hwnd, msg);		
 
 		if (msg->message == WM_KEYDOWN && msg->wParam == VK_TAB) {
-			currentController->keyDown(GetDlgCtrlID(hwnd), VK_TAB);
+			currentController->keyDown(hwnd, VK_TAB);
 			navigationKey = true;
 		}
 		return navigationKey;
@@ -525,13 +525,13 @@ namespace corona
 		case WM_SETFOCUS:
 			if (currentController)
 			{
-				currentController->setFocus(ctrlId);
+				currentController->setFocus(hwndchild);
 			}
 			break;
 		case WM_KILLFOCUS:
 			if (currentController)
 			{
-				currentController->killFocus(ctrlId);
+				currentController->killFocus(hwndchild);
 			}
 			break;
 
@@ -579,7 +579,7 @@ namespace corona
 			{
 				int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 				if (pcurrent_window) {
-					currentController->mouseWheel(0, zDelta);
+					currentController->mouseWheel(zDelta);
 				}
 			}
             break;
@@ -587,7 +587,7 @@ namespace corona
 			if (currentController)
 			{
 				if (pcurrent_window) {
-					currentController->keyPress(ctrlId, wParam);
+					currentController->keyPress(hwndchild, wParam);
 					return 0;
 				}
 			}
@@ -596,7 +596,7 @@ namespace corona
 			if (currentController)
 			{
 				if (pcurrent_window) {
-					currentController->keyDown(ctrlId, wParam);
+					currentController->keyDown(hwndchild, wParam);
 					return 0;
 				}
 			}
@@ -605,7 +605,7 @@ namespace corona
 			if (currentController)
 			{
 				if (pcurrent_window) {
-					currentController->keyUp(ctrlId, wParam);
+					currentController->keyUp(hwndchild, wParam);
 					return 0;
 				}
 			}
@@ -786,7 +786,7 @@ namespace corona
 					case UDN_DELTAPOS:
 					{
 						auto lpnmud = (LPNMUPDOWN)lParam;
-						currentController->onSpin(lpnm->idFrom, lpnmud->iPos + lpnmud->iDelta);
+						currentController->onSpin(lpnm->hwndFrom, lpnmud->iPos + lpnmud->iDelta);
 						return 0;
 					}
 					break;
@@ -794,11 +794,11 @@ namespace corona
 					{
 						auto lpmnlv = (LPNMLISTVIEW)lParam;
 						if (lpmnlv->uNewState & LVIS_SELECTED)
-							currentController->onListViewChanged(lpnm->idFrom);
+							currentController->onListViewChanged(lpnm->hwndFrom);
 					}
 					break;
 					case EN_CHANGE:
-						currentController->onTextChanged(lpnm->idFrom);
+						currentController->onTextChanged(lpnm->hwndFrom);
 						break;
 					case NM_CLICK:
 					{
@@ -809,7 +809,7 @@ namespace corona
 							::ShellExecuteW(NULL, L"open", plink->item.szUrl, NULL, NULL, SW_SHOWNORMAL);
 						}
 						else {
-							currentController->onListViewChanged(lpnm->idFrom);
+							currentController->onListViewChanged(lpnm->hwndFrom);
 						}
 					}
 					break;
@@ -921,7 +921,7 @@ namespace corona
 				{
 					int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 					if (pcurrent_window) {
-						currentController->mouseWheel(0, zDelta);
+						currentController->mouseWheel(zDelta);
 					}
 				}
 				break;
@@ -930,8 +930,7 @@ namespace corona
 				if (currentController)
 				{
 					if (pcurrent_window) {
-						int ctrlId = ::GetDlgCtrlID(hwnd);
-						currentController->keyDown(ctrlId, wParam);
+						currentController->keyDown(hwnd, wParam);
 					}
 				}
 				break;
@@ -939,8 +938,7 @@ namespace corona
 				if (currentController)
 				{
 					if (pcurrent_window) {
-						int ctrlId = ::GetDlgCtrlID(hwnd);
-						currentController->keyUp(ctrlId, wParam);
+						currentController->keyUp(hwnd, wParam);
 					}
 				}
 				break;

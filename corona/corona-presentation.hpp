@@ -34,8 +34,9 @@ namespace corona {
 		std::string home_page;
 		point last_mouse_position;
 		point last_mouse_click;
+        control_base* last_mouse_control = nullptr;
 		json json_pages;
-		std::vector<int> focus_list;
+		std::vector<control_base *> focus_list;
 
 		comm_desktop_bus_interface *bus;
 
@@ -43,25 +44,21 @@ namespace corona {
 		std::map<std::string, json> pages_json;
 
 	public:
-		int default_focus_id;
-		int default_push_button_id;
-		int current_focused_id = 0;
+		std::string default_focus_name;
+		std::string default_push_button_name;
+		std::string current_focused_name = ""	;
 
 		std::map<std::string, std::shared_ptr<page>> pages;
 		std::weak_ptr<applicationBase> window_host;
 
 		presentation(comm_desktop_bus_interface* _com_bus) : bus(_com_bus)
 		{
-			default_push_button_id = 0;
-			default_focus_id = 0;
 			last_mouse_position = {};
 			last_mouse_click = {};
 		}
 
 		presentation(comm_desktop_bus_interface *_com_bus, std::weak_ptr<applicationBase> _window_host) : window_host(_window_host), bus(_com_bus)
 		{
-			default_push_button_id = 0;
-			default_focus_id = 0;
 			last_mouse_position = {};
 			last_mouse_click = {};
 		}
@@ -72,7 +69,7 @@ namespace corona {
 			if (auto cpg = current_page.lock()) {
 				cpg->root->find_if([this](control_base* c)->bool {
 					if (c->captures_keyboard_focus()) {
-						focus_list.push_back(c->id);
+						focus_list.push_back(c);
 					}
 					return false;
 				});
@@ -106,7 +103,14 @@ namespace corona {
 
 		virtual int getDefaultButtonId(void)
 		{
-			return default_push_button_id;
+            if (default_push_button_name.size()) {
+				if (auto cpage = current_page.lock()) {
+					auto pb = cpage->root->find(default_push_button_name);
+                    auto pbw = dynamic_cast<windows_control*>(pb);
+					return pbw->id;
+				}
+            }
+			return 0;
 		}
 
 		virtual page& create_page(std::string _name, std::function<void(page& pg)> _settings = nullptr);
@@ -208,15 +212,15 @@ namespace corona {
 		virtual bool drawFrame(std::shared_ptr<direct2dContext>& _context);
 		virtual bool update(double _elapsedSeconds, double _totalSeconds);
 
-		virtual void keyPress(int _ctrl_id, int _key);
-		virtual void keyDown(int _ctrl_id, int _key);
-		virtual void keyUp(int _ctrl_id, int _key);
+		virtual void keyPress(HWND _ctrl, int _key);
+		virtual void keyDown(HWND _ctrl, int _key);
+		virtual void keyUp(HWND _ctrl, int _key);
 		virtual void mouseMove(point* _point);
 		virtual void mouseLeftDown(point* _point);
 		virtual void mouseLeftUp(point* _point);
 		virtual void mouseRightDown(point* _point);
 		virtual void mouseRightUp(point* _point);
-		virtual void mouseWheel(int _ctrl_id, int _delta);
+		virtual void mouseWheel(int _delta);
 		virtual void pointSelected(point* _point, ccolor* _color);
 		virtual LRESULT ncHitTest(point* _point);
 		virtual void setFocus(int ddlControlId);
@@ -228,15 +232,15 @@ namespace corona {
 
 		virtual void onHostCreated();
 		virtual void onCreated();
-		virtual void onCommand(int buttonId);
-		virtual void onTextChanged(int textControlId);
-		virtual void onDropDownChanged(int dropDownId);
-		virtual void onListBoxChanged(int listBoxId);
-		virtual void onListViewChanged(int listViewId);
-		virtual int onHScroll(int controlId, scrollTypes scrollType);
-		virtual int onVScroll(int controlId, scrollTypes scrollType);
+		virtual void onCommand(HWND _ctrl);
+		virtual void onTextChanged(HWND _ctrl);
+		virtual void onDropDownChanged(HWND _ctrl);
+		virtual void onListBoxChanged(HWND _ctrl);
+		virtual void onListViewChanged(HWND _ctrl);
+		virtual int onHScroll(HWND _ctrl, scrollTypes scrollType);
+		virtual int onVScroll(HWND _ctrl, scrollTypes scrollType);
 		virtual int onResize(const rectangle& newSize, double d2dScale);
-		virtual int onSpin(int controlId, int newPosition);
+		virtual int onSpin(HWND _ctrl, int newPosition);
 		virtual void onJobComplete(bool _success, int _id);
 		virtual void onTaskComplete(bool _success, ui_task_result_base* _result);
 		virtual void hardwareChanged();
@@ -360,15 +364,6 @@ namespace corona {
 
 	void presentation::select_page(const std::string& _page_name, std::function<void(page& pg)> _settings)
 	{
-		auto phost = window_host.lock();
-		if (not phost) {
-			throw std::logic_error("Cannot select a page without the window host being created.");
-		}
-
-		HWND hwndMainMenu = phost->getMainWindow();
-		if (not hwndMainMenu) {
-			throw std::logic_error("Cannot select a page without the window being created first.");
-		}
 
 		if (pages.contains(_page_name)) {
 			if (auto ppage = current_page.lock()) {
@@ -379,45 +374,17 @@ namespace corona {
 			current_page = pages[_page_name];
 		}
 
-		default_focus_id = 0;
-		default_push_button_id = 0;
-		focus_list.clear();
-		current_focused_id = 0;
-
-		if (auto ppage = current_page.lock()) {
-			ppage->handle_onselect(ppage);
-			auto root = ppage->get_root();
-			root->foreach([this](control_base* _item) {
-				if (_item->captures_keyboard_focus()) {
-					focus_list.push_back(_item->get_id());
-                }
-				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
-				if (pct and pct->is_default_button) {
-					this->default_push_button_id = pct->get_id();
-				}
-				windows_control* wct = dynamic_cast<windows_control*>(_item);
-				if (wct and wct->is_default_focus) {
-					this->default_focus_id = wct->get_id();
-				}
-			});
+		auto phost = window_host.lock();
+		if (not phost) {
+			throw std::logic_error("Cannot select a page without the window host being created.");
 		}
 
-		onCreated();
-		onResize(current_size, 1.0);
-		if (auto ppage = current_page.lock()) {
-			if (ppage->menu)
-			{
-				HMENU hmenu = ppage->menu->to_menu();
-				::SetMenu(hwndMainMenu, hmenu);
-				::DrawMenuBar(hwndMainMenu);
-			}
-			HWND hwnd_control = ::GetDlgItem(phost->getMainWindow(), default_focus_id);
-			if (hwnd_control) {
-				::SetFocus(hwnd_control);
-			}
-
-			ppage->handle_onload(ppage);
+		HWND hwndMainMenu = phost->getMainWindow();
+		if (not hwndMainMenu) {
+			throw std::logic_error("Cannot select a page without the window being created first.");
 		}
+
+		load_page();
 	}
 
 	bool presentation::is_current_page(const std::string& _page_name)
@@ -431,15 +398,6 @@ namespace corona {
 
 	void presentation::select_page(const std::string& _page_name)
 	{
-		auto phost = window_host.lock();
-		if (not phost) {
-			throw std::logic_error("Cannot select a page without the window host being created.");
-		}
-
-		HWND hwndMainMenu = phost->getMainWindow();
-		if (not hwndMainMenu) {
-			throw std::logic_error("Cannot select a page without the window being created first.");
-		}
 
 		if (auto ppage = current_page.lock()) {
 			if (ppage->name == _page_name) {
@@ -454,50 +412,7 @@ namespace corona {
 			current_page = pages[_page_name];
 		}
 
-		default_focus_id = 0;
-		default_push_button_id = 0;
-		focus_list.clear();
-		current_focused_id = 0;
-
-		if (auto ppage = current_page.lock()) {
-
-			ppage->handle_onselect(ppage);
-			auto root = ppage->get_root();
-			root->foreach([this](control_base* _item) {
-				if (_item->captures_keyboard_focus()) {
-					focus_list.push_back(_item->get_id());
-				}
-
-				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
-				if (pct and pct->is_default_button) {
-					this->default_push_button_id = pct->get_id();
-				}
-				windows_control* wct = dynamic_cast<windows_control*>(_item);
-				if (wct and wct->is_default_focus) {
-					this->default_focus_id = wct->get_id();
-				}
-			});
-		}
-
-		onCreated();
-		onResize(current_size, 1.0);
-
-		if (auto ppage = current_page.lock()) {
-			if (ppage->menu)
-			{
-				HMENU hmenu = ppage->menu->to_menu();
-				::SetMenu(hwndMainMenu, hmenu);
-				::DrawMenuBar(hwndMainMenu);
-			}
-
-			HWND hwnd_control = ::GetDlgItem(phost->getMainWindow(), default_focus_id);
-			if (hwnd_control) {
-				::SetFocus(hwnd_control);
-			}
-			ppage->handle_onload(ppage);
-			auto root = ppage->get_root();
-		}
-
+		load_page();
 	}
 
 	void presentation::load_page()
@@ -512,9 +427,8 @@ namespace corona {
 			throw std::logic_error("Cannot select a page without the window being created first.");
 		}
 
-		default_focus_id = 0;
-		default_push_button_id = 0;
-		current_focused_id = 0;
+		default_focus_name.clear();
+		default_push_button_name.clear();
         focus_list.clear();
 
 		if (auto ppage = current_page.lock()) {
@@ -523,16 +437,16 @@ namespace corona {
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
 				if (_item->captures_keyboard_focus()) {
-					focus_list.push_back(_item->get_id());
+					focus_list.push_back(_item);
 				}
 
 				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
 				if (pct and pct->is_default_button) {
-					this->default_push_button_id = pct->get_id();
+					this->default_push_button_name = pct->get_name();
 				}
 				windows_control* wct = dynamic_cast<windows_control*>(_item);
 				if (wct and wct->is_default_focus) {
-					this->default_focus_id = wct->get_id();
+					this->default_focus_name = wct->get_name();
 				}
 				});
 			ppage->handle_onselect(ppage);
@@ -549,9 +463,11 @@ namespace corona {
 				::DrawMenuBar(hwndMainMenu);
 			}
 
-			HWND hwnd_control = ::GetDlgItem(phost->getMainWindow(), default_focus_id);
-			if (hwnd_control) {
-				::SetFocus(hwnd_control);
+			if (!default_focus_name.empty()) {
+				auto focused = ppage->root->find(default_focus_name);
+				if (focused) {
+					focused->set_focus();
+				}
 			}
 			ppage->handle_onload(ppage);
 			auto root = ppage->get_root();
@@ -886,37 +802,31 @@ namespace corona {
 
 	}
 
-	void presentation::keyPress(int _ctrl_id, int _key)
+	void presentation::keyPress(HWND hwnd, int _key)
 	{
-		if (_ctrl_id == 0) {
-			_ctrl_id = current_focused_id;
-		}
+		control_base* ctrl = (control_base*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		auto cp = current_page.lock();
 		key_press_event kde;
-		kde.control_id = _ctrl_id;
 		kde.key = _key;
 		kde.bus = bus;
 		if (cp) {
-			cp->handle_key_press(_ctrl_id, kde);
+			cp->handle_key_press(ctrl, kde);
 		}
 	}
 
-	void presentation::keyDown(int _ctrl_id, int _key)
+	void presentation::keyDown(HWND hwnd, int _key)
 	{
-		if (_ctrl_id == 0) {
-            _ctrl_id = current_focused_id;
-		}
+        control_base* ctrl = (control_base*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		auto cp = current_page.lock();
 		key_down_event kde;
-		kde.control_id = _ctrl_id;
 		kde.key = _key;
 		kde.bus = bus;
 		if (cp) {
-			cp->handle_key_down(_ctrl_id, kde);
+			cp->handle_key_down(ctrl, kde);
 		}
 		if (_key == VK_TAB) {
 			if (focus_list.size() > 1) {
-				auto it = std::find(focus_list.begin(), focus_list.end(), _ctrl_id);
+				auto it = std::find(focus_list.begin(), focus_list.end(), hwnd);
 				int index = 0;
 				if (it != focus_list.end()) {
 					index = std::distance(focus_list.begin(), it);
@@ -933,30 +843,25 @@ namespace corona {
 						index = 0;
 					}
 				}
-                int next_id = focus_list[index];	
-				auto next_ctrl = get_control<control_base>(next_id);
+				auto next_ctrl = focus_list[index];
 				if (next_ctrl) {
 					next_ctrl->set_focus();
-					current_focused_id = next_id;
+					current_focused_name = next_ctrl->get_name();
 				}
 			}
         }
 	}
 
-	void presentation::keyUp(int _ctrl_id, int _key)
+	void presentation::keyUp(HWND hwnd, int _key)
 	{
-		if (_ctrl_id == 0) {
-			_ctrl_id = current_focused_id;
-		}
-
+        control_base* ctrl = (control_base*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
 		auto cp = current_page.lock();
 		key_up_event kde;
-		kde.control_id = _ctrl_id;
 		kde.key = _key;
 		kde.bus = bus;
 		kde.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (cp) {
-			cp->handle_key_up(_ctrl_id, kde);
+			cp->handle_key_up(ctrl, kde);
 		}
 	}
 
@@ -965,21 +870,20 @@ namespace corona {
 		last_mouse_position = *_point;
 		auto cp = current_page.lock();
 		mouse_move_event kde;
-		kde.control_id = 0;
 		kde.absolute_point = *_point;
 		kde.bus = bus;
 		kde.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 		if (cp) {
 			cp->handle_mouse_move(0, kde);
-			cp->root->set_mouse(*_point, nullptr, nullptr, nullptr, nullptr);
+			this->last_mouse_control = cp->root->set_mouse(*_point, nullptr, nullptr, nullptr, nullptr);
 		}
 	}
 
-	void presentation::mouseWheel(int _ctrl_id, int _delta)
+	void presentation::mouseWheel(int _delta)
 	{
+
 		auto cp = current_page.lock();
 		mouse_wheel_event kde;
-		kde.control_id = _ctrl_id;
 		kde.absolute_point = {};
 		kde.relative_point = {};
         kde.delta = _delta;	
@@ -1008,17 +912,16 @@ namespace corona {
 					cb->dump();
 				}
 				cb->set_focus();
-				control_base* last_focused = cp->root->find(current_focused_id);
+				control_base* last_focused = cp->root->find(current_focused_name);
 				if (last_focused) {
 					last_focused->kill_focus();
 				}
-				this->current_focused_id = cb->get_id();
+				this->current_focused_name = cb->get_name();
 			}
 
 			cp->root->set_mouse(*_point, &leftMouse, nullptr, [cp, p, _point](control_base* _item) {
 				mouse_left_click_event mcel = {};
 				mcel.control = _item;
-				mcel.control_id = _item->id;
 				mcel.absolute_point.x = _point->x;
 				mcel.absolute_point.y = _point->y;
 				mcel.absolute_point.z = 0;
@@ -1030,12 +933,11 @@ namespace corona {
 				mcel.bus = p->bus;
 				mcel.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
-				cp->handle_mouse_left_click(_item->id, mcel);
+				cp->handle_mouse_left_click(_item, mcel);
 
 				mouse_click_event mce = {};
 				mcel.bus = p->bus;
 				mce.control = _item;
-				mce.control_id = _item->id;
 				mce.absolute_point.x = _point->x;
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
@@ -1045,7 +947,7 @@ namespace corona {
 					mcel.relative_point.z = 0;
 				}
 				mce.batch_id = mcel.batch_id;
-				cp->handle_mouse_click(_item->id, mce);
+				cp->handle_mouse_click(_item, mce);
 				}, nullptr);
 		}
 	}
@@ -1060,25 +962,23 @@ namespace corona {
 			cp->root->set_mouse(*_point, &leftMouse, nullptr, [cp, p, _point](control_base* _item) {
 				mouse_click_event mce;
 				mce.control = _item;
-				mce.control_id = _item->id;
 				mce.absolute_point.x = _point->x;
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
 				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
-				cp->handle_mouse_click(_item->id, mce);
+				cp->handle_mouse_click(_item, mce);
 
 				mouse_left_click_event mcel;
 				mcel.control = _item;
-				mcel.control_id = _item->id;
 				mcel.absolute_point.x = _point->x;
 				mcel.absolute_point.y = _point->y;
 				mcel.absolute_point.z = 0;
 				mcel.bus = p->bus;
 				mcel.batch_id = mce.batch_id;
 
-				cp->handle_mouse_left_click(_item->id, mcel);
+				cp->handle_mouse_left_click(_item, mcel);
 				}, nullptr);
 		}
 	}
@@ -1092,14 +992,13 @@ namespace corona {
 			cp->root->set_mouse(*_point, &rightMouse, nullptr, nullptr, [cp, p, _point](control_base* _item) {
 				mouse_click_event mce;
 				mce.control = _item;
-				mce.control_id = _item->id;
 				mce.absolute_point.x = _point->x;
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
 				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
-				cp->handle_mouse_click(_item->id, mce);
+				cp->handle_mouse_click(_item, mce);
 				});
 		}
 	}
@@ -1113,24 +1012,22 @@ namespace corona {
 			cp->root->set_mouse(*_point, &rightMouse, nullptr, nullptr, [cp, p, _point](control_base* _item) {
 				mouse_click_event mce;
 				mce.control = _item;
-				mce.control_id = _item->id;
 				mce.absolute_point.x = _point->x;
 				mce.absolute_point.y = _point->y;
 				mce.absolute_point.z = 0;
 				mce.bus = p->bus;
 				mce.batch_id = comm_desktop_bus_interface::global_bus->start_batch();
 
-				cp->handle_mouse_click(_item->id, mce);
+				cp->handle_mouse_click(_item, mce);
 				mouse_right_click_event mcel;
 				mcel.control = _item;
-				mcel.control_id = _item->id;
 				mcel.absolute_point.x = _point->x;
 				mcel.absolute_point.y = _point->y;
 				mcel.absolute_point.z = 0;
 				mcel.bus = p->bus;
 				mcel.batch_id = mce.batch_id;
 
-				cp->handle_mouse_right_click(_item->id, mcel);
+				cp->handle_mouse_right_click(_item, mcel);
 				});
 		}
 	}
@@ -1157,41 +1054,97 @@ namespace corona {
 		return result;
 	}
 
-	void presentation::onCommand(int buttonId)
+	void presentation::onCommand(HWND buttonHwnd)
 	{
 		auto cp = current_page.lock();
 		command_event ce;
-		ce.control_id = buttonId;
 		ce.bus = bus;
 		if (cp) {
-			cp->handle_command(buttonId, ce);
+            control_base* ctrl = (control_base*)::GetWindowLongPtr(buttonHwnd, GWLP_USERDATA);
+			cp->handle_command(ctrl, ce);
 		}
 	}
 
-	void presentation::onTextChanged(int textControlId)
+	void presentation::onTextChanged(HWND textControlId)
 	{
 		if (auto ptr = window_host.lock()) {
-			std::string new_text = ptr->getEditText(textControlId);
+			control_base* ctrl = (control_base*)::GetWindowLongPtr(textControlId, GWLP_USERDATA);
+            windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
 			item_changed_event lce;
-			lce.control_id = textControlId;
-			lce.text_value = new_text;
+			if (wctrl) {
+				std::string new_text = ptr->getEditText(wctrl->id);
+				lce.text_value = new_text;
+			}
 			lce.bus = bus;
 
 			auto cp = current_page.lock();
 			if (cp) {
-				cp->handle_item_changed(textControlId, lce);
+				cp->handle_item_changed(ctrl, lce);
 			}
 		}
 	}
 
-	void presentation::onDropDownChanged(int dropDownId)
+	void presentation::onDropDownChanged(HWND dropDownId)
 	{
 		if (auto ptr = window_host.lock()) {
-			std::string new_text = ptr->getComboSelectedText(dropDownId);
-			int index_lists = ptr->getComboSelectedIndex(dropDownId);
-			int value = ptr->getComboSelectedValue(dropDownId);
+			control_base* ctrl = (control_base*)::GetWindowLongPtr(dropDownId, GWLP_USERDATA);
+			windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
 			list_changed_event lce;
-			lce.control_id = dropDownId;
+			if (wctrl) {
+				std::string new_text = ptr->getComboSelectedText(wctrl->id);
+				int index_lists = ptr->getComboSelectedIndex(wctrl->id);
+				int value = ptr->getComboSelectedValue(wctrl->id);
+				lce.selected_text = new_text;
+				lce.selected_value = value;
+				lce.selected_index = index_lists;
+			}
+			lce.state = 0;
+			lce.control = nullptr; // the page will assign this.
+			lce.bus = bus;
+			auto cp = current_page.lock();
+			if (cp) {
+				cp->handle_list_changed(ctrl, lce);
+			}
+		}
+	}
+
+	void presentation::onListBoxChanged(HWND dropDownId)
+	{
+		if (auto ptr = window_host.lock()) {
+			control_base* ctrl = (control_base*)::GetWindowLongPtr(dropDownId, GWLP_USERDATA);
+			windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
+			list_changed_event lce;
+			if (wctrl) {
+				ptr->setRedraw(wctrl->id, true);
+				std::string new_text = ptr->getComboSelectedText(wctrl->id);
+				int index_lists = ptr->getComboSelectedIndex(wctrl->id);
+				int value = ptr->getComboSelectedValue(wctrl->id);
+				lce.selected_text = new_text;
+				lce.selected_value = value;
+				lce.selected_index = index_lists;
+			}
+			lce.state = 0;
+			lce.control = nullptr; // the page will assign this.
+			lce.bus = bus;
+			auto cp = current_page.lock();
+			if (cp) {
+				cp->handle_list_changed(ctrl, lce);
+			}
+			if (wctrl) {
+				ptr->redraw(wctrl->id, 0);
+			}
+		}
+	}
+
+	void presentation::onListViewChanged(HWND listViewId)
+	{
+		if (auto ptr = window_host.lock()) {
+			control_base* ctrl = (control_base*)::GetWindowLongPtr(listViewId, GWLP_USERDATA);
+			windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
+			std::string new_text = ptr->getListViewSelectedText(wctrl->id);
+			int index_lists = ptr->getListViewSelectedIndex(wctrl->id);
+			int value = ptr->getListViewSelectedValue(wctrl->id);
+			list_changed_event lce;
 			lce.selected_text = new_text;
 			lce.selected_value = value;
 			lce.selected_index = index_lists;
@@ -1200,63 +1153,17 @@ namespace corona {
 			lce.bus = bus;
 			auto cp = current_page.lock();
 			if (cp) {
-				cp->handle_list_changed(dropDownId, lce);
+				cp->handle_list_changed(ctrl, lce);
 			}
 		}
 	}
 
-	void presentation::onListBoxChanged(int dropDownId)
-	{
-		if (auto ptr = window_host.lock()) {
-			std::string new_text = ptr->getListSelectedText(dropDownId);
-			int index_lists = ptr->getListSelectedIndex(dropDownId);
-			int value = ptr->getListSelectedValue(dropDownId);
-
-			ptr->setRedraw(dropDownId, false);
-			list_changed_event lce;
-			lce.control_id = dropDownId;
-			lce.selected_text = new_text;
-			lce.selected_value = value;
-			lce.selected_index = index_lists;
-			lce.state = 0;
-			lce.control = nullptr; // the page will assign this.
-			lce.bus = bus;
-			auto cp = current_page.lock();
-			if (cp) {
-				cp->handle_list_changed(dropDownId, lce);
-			}
-			ptr->setRedraw(dropDownId, true);
-			ptr->redraw(dropDownId, 0);
-		}
-	}
-
-	void presentation::onListViewChanged(int listViewId)
-	{
-		if (auto ptr = window_host.lock()) {
-			std::string new_text = ptr->getListViewSelectedText(listViewId);
-			int index_lists = ptr->getListViewSelectedIndex(listViewId);
-			int value = ptr->getListViewSelectedValue(listViewId);
-			list_changed_event lce;
-			lce.control_id = listViewId;
-			lce.selected_text = new_text;
-			lce.selected_value = value;
-			lce.selected_index = index_lists;
-			lce.state = 0;
-			lce.control = nullptr; // the page will assign this.
-			lce.bus = bus;
-			auto cp = current_page.lock();
-			if (cp) {
-				cp->handle_list_changed(listViewId, lce);
-			}
-		}
-	}
-
-	int presentation::onHScroll(int controlId, scrollTypes scrollType)
+	int presentation::onHScroll(HWND controlId, scrollTypes scrollType)
 	{
 		return 0;
 	}
 
-	int presentation::onVScroll(int controlId, scrollTypes scrollType)
+	int presentation::onVScroll(HWND controlId, scrollTypes scrollType)
 	{
 		return 0;
 	}
@@ -1281,8 +1188,10 @@ namespace corona {
 		return 0;
 	}
 
-	int presentation::onSpin(int controlId, int newPosition)
+	int presentation::onSpin(HWND controlId, int newPosition)
 	{
+		control_base* ctrl = (control_base*)::GetWindowLongPtr(controlId, GWLP_USERDATA);
+		windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
 		int value = newPosition;
 		return 0;
 	}

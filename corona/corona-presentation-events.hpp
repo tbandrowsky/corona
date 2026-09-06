@@ -51,7 +51,6 @@ namespace corona {
 	class control_event
 	{
 	public:
-		int control_id;
 		int batch_id;
 		control_base* control;
 		comm_desktop_bus_interface* bus;
@@ -211,28 +210,24 @@ namespace corona {
 	class key_up_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		std::function< void(key_up_event) > on_key_up;
 	};
 
 	class key_down_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		std::function< void(key_down_event) > on_key_down;
 	};
 	 
 	class key_press_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		std::function< void(key_press_event) > on_key_press;
 	};
 
 	class mouse_move_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base *control;
 		std::function< void(mouse_move_event) > on_mouse_move;
 	};
@@ -240,7 +235,6 @@ namespace corona {
 	class mouse_wheel_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(mouse_wheel_event) > on_mouse_wheel;
 	};
@@ -248,7 +242,6 @@ namespace corona {
 	class mouse_click_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(mouse_click_event) > on_mouse_click;
 	};
@@ -256,7 +249,6 @@ namespace corona {
 	class mouse_left_click_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(mouse_left_click_event) > on_mouse_left_click;
 	};
@@ -264,7 +256,6 @@ namespace corona {
 	class mouse_right_click_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(mouse_right_click_event) > on_mouse_right_click;
 	};
@@ -272,42 +263,41 @@ namespace corona {
 	class gamepad_button_down_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(gamepad_button_down_event) > on_button_down;
 	};
 
 	class gamepad_button_up_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(gamepad_button_up_event) > on_button_up;
 	};
 
 	class gamepad_trigger_down_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(gamepad_trigger_down_event) > on_trigger_down;
 	};
 
 	class gamepad_trigger_up_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(gamepad_trigger_up_event) > on_trigger_up;
 	};
 
 	class gamepad_thumbstick_move_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(gamepad_thumbstick_move_event) > on_thumbstick_move;
 	};
 
 	class draw_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(draw_event) > on_draw;
 	};
@@ -315,7 +305,6 @@ namespace corona {
 	class item_changed_event_binding
 	{
 	public:
-		int subscribed_item_id;
 		control_base* control;
 		std::function< void(item_changed_event) > on_change;
 	};
@@ -323,22 +312,21 @@ namespace corona {
 	class command_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(command_event) > on_command;
 	};
 
 	class list_changed_event_binding
 	{
 	public:
-		int subscribed_item_id;
-		std::weak_ptr<control_base> control;
+		control_base* control;
 		std::function< void(list_changed_event) > on_change;
 	};
 
 	class page_select_event_binding
 	{
 	public:
-		int subscribed_item_id;
+		control_base* control;
 		std::function< void(page_select_event) > on_select;
 	};
 
@@ -353,16 +341,16 @@ namespace corona {
 		virtual void on_mouse_wheel(control_base* _base, std::function< void(mouse_wheel_event) >) = 0;
 		virtual void on_mouse_left_click(control_base* _base, std::function< void(mouse_left_click_event) >) = 0;
 		virtual void on_mouse_right_click(control_base* _base, std::function< void(mouse_right_click_event) >) = 0;
-		virtual void on_item_changed(int _control_id, std::function< void(item_changed_event) >) = 0;
-		virtual void on_list_changed(int _control_id, std::function< void(list_changed_event) >) = 0;
-		virtual void on_command(int _item_id, std::function< void(command_event) >) = 0;
+		virtual void on_item_changed(control_base* _base, std::function< void(item_changed_event) >) = 0;
+		virtual void on_list_changed(control_base* _base, std::function< void(list_changed_event) >) = 0;
+		virtual void on_command(control_base* _base, std::function< void(command_event) >) = 0;
 		virtual void on_select(std::function< void(page_select_event) >) = 0;
-        virtual void on_gamepad_button_down(int _control_id, std::function< void(gamepad_button_down_event) >) = 0;
-        virtual void on_gamepad_button_up(int _control_id, std::function< void(gamepad_button_up_event) >) = 0;
-        virtual void on_gamepad_trigger_down(int _control_id, std::function< void(gamepad_trigger_down_event) >) = 0;
-        virtual void on_gamepad_trigger_up(int _control_id, std::function< void(gamepad_trigger_up_event) >) = 0;
-        virtual void on_gamepad_thumbstick_move(int _control_id, std::function< void(gamepad_thumbstick_move_event) >) = 0;
-		virtual void clear_events(int _item_id) = 0;
+        virtual void on_gamepad_button_down(control_base* _base, std::function< void(gamepad_button_down_event) >) = 0;
+        virtual void on_gamepad_button_up(control_base* _base, std::function< void(gamepad_button_up_event) >) = 0;
+        virtual void on_gamepad_trigger_down(control_base* _base, std::function< void(gamepad_trigger_down_event) >) = 0;
+        virtual void on_gamepad_trigger_up(control_base* _base, std::function< void(gamepad_trigger_up_event) >) = 0;
+        virtual void on_gamepad_thumbstick_move(control_base* _base, std::function< void(gamepad_thumbstick_move_event) >) = 0;
+		virtual void clear_events(control_base* _base) = 0;
 		virtual void refresh() = 0;
 
 	};
