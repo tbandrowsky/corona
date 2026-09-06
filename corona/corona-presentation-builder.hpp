@@ -289,62 +289,22 @@ namespace corona
 		std::shared_ptr<container_control> root;
 		control_builder *parent;
 
+		std::shared_ptr<control_base> last_created;
+
 	public:
 
 		comm_desktop_bus_interface* bus;
 
-		template <typename control_type> std::shared_ptr<control_type> get(int _id)
-		{
-			std::shared_ptr<control_type> temp;
-			auto found = std::find_if(root->children.begin(), root->children.end(), [_id](auto& ch) {
-				return ch->id == _id;
-				});
-			if (found != std::end(root->children)) {
-				temp = std::dynamic_pointer_cast<control_type>(*found);
-			}
-			return temp;
-		}
-
 		template <typename control_type> std::shared_ptr<control_type> create(int _id)
 		{
 
-			if (_id == 0)
-				throw std::logic_error("cannot create a control with id 0");
-
 			auto cp = root.get();
 			std::shared_ptr<control_type> temp;
-			auto found = std::find_if(root->children.begin(), root->children.end(), [_id](auto& ch) {
-				return ch->id == _id;
-				});
-
-			// check to see if an element of this id exists
-			if (found != std::end(root->children)) {
-				// ok, so now we see if it is of the same type
-				temp = std::dynamic_pointer_cast<control_type>(*found);
-
-				// and, it is not, so we replace it
-				if (!temp) {
-					temp = std::make_shared<control_type>(cp, _id);
-					if (temp) {
-						// here's our new temp, and we copy the children
-						// this may not be the best plan but it allows us
-						// to easily switch container types.
-						temp->children = (*found)->children;
-						int found_index = std::distance(found, root->children.begin());
-						root->children[found_index] = temp;
-					}
-				}
-
-				// otherwise, we found an existing control of the same type and we use that.
+			temp = std::make_shared<control_type>(cp, _id);
+			if (temp) {
+				root->children.push_back(temp);
 			}
-			else 
-			{
-				// and, since we found nothing, we go ahead and just shove our new element at the back
-				temp = std::make_shared<control_type>(cp, _id);
-				if (temp) {
-					root->children.push_back(temp);
-				}
-			}
+			last_created = temp;
 			return temp;
 		}
 
@@ -2108,6 +2068,9 @@ namespace corona
 
 	std::shared_ptr<control_base> control_builder::from_json(json _control_properties, layout_rect _default)
 	{
+
+		this->last_created = nullptr;
+
 		json_parser jp;
 
 		json control_properties = _control_properties;
@@ -2764,9 +2727,7 @@ namespace corona
 			std::cout << "" << class_name << std::endl;
 		}
 
-		std::shared_ptr<control_base> ret = get<control_base>(field_id);
-
-		if (ret) {
+		if (last_created) {
 			json children = _control_properties.get_member("children");
 			if (children.array()) {
 
@@ -2775,13 +2736,13 @@ namespace corona
 				{
 					auto new_child = cb.from_json(child);
 					if (new_child) {
-						ret->children.push_back(new_child);
+						last_created->children.push_back(new_child);
 					}
 				}
 			}
 		}
 
-		return ret;
+		return last_created;
 	}
 
 	class radiobutton_list_control :

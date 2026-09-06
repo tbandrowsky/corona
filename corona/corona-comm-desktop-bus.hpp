@@ -2108,10 +2108,6 @@ namespace corona
 			return presentation_layer->find_ptr<control_base>(_name);
 		}
 
-		virtual control_base* find_control(int _id) override
-		{
-			return presentation_layer->find_ptr<control_base>(_id);
-		}
 
 		void load_pages(json _pages, bool _select_default)
 		{

@@ -140,41 +140,6 @@ namespace corona {
 			}
 		}
 
-		template <typename control_type> control_type& find(int _id)
-		{
-			if (auto cp = current_page.lock()) {
-				control_base* temp = cp->root->find(_id);
-				if (temp == nullptr)
-				{
-					auto str = std::format("Control {0} not found ", _id);
-					throw std::invalid_argument(str);
-				}
-				control_type* citem = dynamic_cast<control_type*>(temp);
-				if (citem == nullptr)
-				{
-					auto str = std::format("Object is not {0} ", typeid(control_type).name());
-					throw std::invalid_argument(str);
-				}
-				return *citem;
-			}
-			throw std::exception("could not lock current page");
-		}
-
-		template <typename control_type> control_type *find_ptr(int _id)
-		{
-			if (auto cp = current_page.lock()) {
-				control_base* temp = cp->root->find(_id);
-				if (temp == nullptr)
-				{
-					auto str = std::format("Control {0} not found ", _id);
-					return nullptr;
-				}
-				control_type* citem = dynamic_cast<control_type*>(temp);
-				return citem;
-			}
-			throw std::exception("could not lock current page");
-		}
-
 		template <typename control_type> control_type* find_ptr(std::string _name)
 		{
 			if (auto cp = current_page.lock()) {
@@ -223,8 +188,8 @@ namespace corona {
 		virtual void mouseWheel(int _delta);
 		virtual void pointSelected(point* _point, ccolor* _color);
 		virtual LRESULT ncHitTest(point* _point);
-		virtual void setFocus(int ddlControlId);
-		virtual void killFocus(int ddlControlId);
+		virtual void setFocus(HWND _ctrl);
+		virtual void killFocus(HWND _ctrl);
 		virtual bool navigationKey(int _key);
 		virtual void gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state);
 
@@ -247,18 +212,6 @@ namespace corona {
 		virtual std::string setPresentation(json pages);
 
 		virtual int layout();
-
-		template <typename control_type> control_type* get_control(int _id)
-		{
-			control_type* r = nullptr;
-			if (auto ppage = current_page.lock())
-			{
-				auto& rpage = *ppage;
-				control_base* cb = rpage[_id];
-				r = dynamic_cast<control_type*>(cb);
-			}
-			return r;
-		}
 
 		virtual void restore_window()
 		{
@@ -598,16 +551,16 @@ namespace corona {
 		return true;
 	}
 
-	void presentation::setFocus(int _ctrl_id)
+	void presentation::setFocus(HWND _ctrl)
 	{
-		auto ctrl = get_control<control_base>(_ctrl_id);
+        control_base* ctrl = (control_base*)GetWindowLongPtr(_ctrl, GWLP_USERDATA);
 		if (ctrl)
 			ctrl->set_focus();
 	}
 
-	void presentation::killFocus(int _ctrl_id)
+	void presentation::killFocus(HWND _ctrl)
 	{
-		auto ctrl = get_control<control_base>(_ctrl_id);
+		control_base* ctrl = (control_base*)GetWindowLongPtr(_ctrl, GWLP_USERDATA);
 		if (ctrl)
 			ctrl->kill_focus();
 	}
@@ -618,9 +571,9 @@ namespace corona {
 		auto cp = current_page.lock();
 
 		HWND focusedWindow = ::GetFocus();
-		while (focusedWindow or focusedWindow == ::GetDesktopWindow()) {
-			int focusedWindowId = ::GetDlgCtrlID(focusedWindow);
-			auto ctrl = get_control<control_base>(focusedWindowId);
+
+		while (focusedWindow || focusedWindow != ::GetDesktopWindow()) {
+			auto ctrl = (control_base*)GetWindowLongPtr(focusedWindow, GWLP_USERDATA);
 			if (ctrl) {
 				bool is_cm = ctrl->is_control_message(_key);
 				if (is_cm)
@@ -813,7 +766,7 @@ namespace corona {
 		}
 		if (_key == VK_TAB) {
 			if (focus_list.size() > 1) {
-				auto it = std::find(focus_list.begin(), focus_list.end(), hwnd);
+				auto it = std::find(focus_list.begin(), focus_list.end(), ctrl);
 				int index = 0;
 				if (it != focus_list.end()) {
 					index = std::distance(focus_list.begin(), it);
