@@ -260,19 +260,6 @@ namespace corona {
 			return r;
 		}
 
-		template <typename control_type> control_type* get_parent_for_control_by_id(int _id)
-		{
-			control_type* r = nullptr;
-			if (auto ppage = current_page.lock())
-			{
-				auto& rpage = *ppage;
-
-				auto result = rpage.root->get_pair(_id);
-				r = static_cast<control_type*>(result.first);
-			}
-			return r;
-		}
-
 		virtual void restore_window()
 		{
 			if (auto pw = window_host.lock()) {

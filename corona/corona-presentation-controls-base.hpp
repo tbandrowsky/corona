@@ -635,12 +635,9 @@ namespace corona
 		virtual void arrange(control_base *_parent, rectangle* _ctx);
 		bool contains(point pt);
 
-		control_base* find(int _id);
 		control_base* find(std::string _name);
 		control_base* find_by_json_name(std::string _name);
 		control_base* find(point p);
-		control_base* get(control_base* _root, int _id);
-		std::pair<control_base*, control_base*> get_pair(int _id);
 		control_base* get(control_base* _root, std::string _name);
 		control_base* get_by_json_name(control_base* _root, std::string _name);
 
@@ -841,13 +838,6 @@ namespace corona
 		return result;
 	}
 
-	control_base* control_base::find(int _id)
-	{
-		control_base* root = (control_base *)this;
-		control_base* result = control_base::get(root, _id);
-		return result;
-	}
-
 	control_base* control_base::find(std::string _name)
 	{
 		control_base* root = (control_base*)this;
@@ -859,13 +849,6 @@ namespace corona
 	{
 		control_base* root = (control_base*)this;
 		control_base* result = control_base::get_by_json_name(root, _name);
-		return result;
-	}
-
-	std::pair<control_base *, control_base *> control_base::get_pair(int _id)
-	{
-		std::pair<control_base*, control_base*> result;
-		result = find_if([_id](control_base* c) { return c->id == _id; });
 		return result;
 	}
 
@@ -883,12 +866,6 @@ namespace corona
 	control_base* control_base::get_by_json_name(control_base* _root, std::string _name)
 	{
 		control_base* result = _root->find_if([_name](control_base* c) { return c->json_field_name == _name; }).second;
-		return result;
-	}
-
-	control_base* control_base::get(control_base* _root, int _id)
-	{
-		control_base* result = _root->find_if([_id](control_base* c) { return c->id == _id; }).second;
 		return result;
 	}
 

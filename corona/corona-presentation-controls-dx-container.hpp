@@ -47,14 +47,14 @@ namespace corona
 
 		container_control()
 		{
-			id = id_counter::next();
+			
 		}
 
 		container_control(const container_control& _src) = default;
 
 		container_control(control_base *_parent, int _id)
 		{
-			id = _id;
+
 			if (_parent and get_nchittest() == HTCLIENT) {
 				set_nchittest(_parent->get_nchittest());
 			}

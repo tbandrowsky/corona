@@ -92,7 +92,7 @@ namespace corona
             // easily enough.
             if (use_native_window) {
                 if (auto phost = _host.lock()) {
-                    window = phost->createDirect2Window(bounds);
+                    window = phost->createDirect2Window(id_counter::next(), bounds);
                     auto pwindow = window.lock();
                     if (pwindow) {
                         auto context = pwindow->getContext();
@@ -1091,7 +1091,7 @@ namespace corona
 
         int64_t frame_counter;
 
-        int	camera_control_id;
+        std::string	camera_control_name;
 
         camera_view_control();
         camera_view_control(const camera_view_control& _src);
@@ -1646,7 +1646,7 @@ namespace corona
     {
         image_mode = image_modes::use_filename;
         image_filename = _name;
-        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, (int *)this);
+        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, (int)this);
     }
 
     void image_control::load_from_resource(DWORD _resource_id)
@@ -1660,7 +1660,7 @@ namespace corona
     {
         image_mode = image_modes::use_control_id;
         image_control_id = _control_id;
-        instance.bitmapName = std::format("bitmap_control_{0}_{1}", (int *)this, _control_id);
+        instance.bitmapName = std::format("bitmap_control_{0}_{1}", (int)this, _control_id);
     }
 
     void image_control::init()
@@ -2360,10 +2360,10 @@ namespace corona
         textStyleRequest	text_style;
         textStyleRequest	selected_text_style;
         double				icon_width;
-        int* active_id;
+        bool               selected_state_enabled;
         std::function<void(tab_button_control& _tb)> tab_selected;
 
-        tab_button_control() : active_id(nullptr)
+        tab_button_control() : selected_state_enabled(false)
         {
             init();
         }
@@ -2374,7 +2374,7 @@ namespace corona
             text_idle_brush = _src.text_idle_brush;
             text_style = _src.text_style;
             icon_width = _src.icon_width;
-            active_id = _src.active_id;
+            selected_state_enabled = _src.selected_state_enabled;
         }
         tab_button_control(control_base* _parent, int _id);
         virtual ~tab_button_control() { ; }
@@ -2398,7 +2398,7 @@ namespace corona
 
             auto& context = _context; // pwindow->getContext();
 
-            if (mouse_left_down.value() or *active_id == id)
+            if (mouse_left_down.value() or selected_state_enabled)
             {
                 _context->drawRectangle(&draw_bounds, "", 0.0, buttonFaceDown.name);
                 auto face_bounds = rectangle_math::deflate(draw_bounds, { 8, 8, 8, 8 });
@@ -2422,13 +2422,13 @@ namespace corona
 
     camera_view_control::camera_view_control()
     {
-        camera_control_id = -1;
+        camera_control_name = "";
         init();
     }
 
     camera_view_control::camera_view_control(const camera_view_control& _src) :
         draw_control(_src),
-        camera_control_id(_src.camera_control_id)
+        camera_control_name(_src.camera_control_name)
     {
         init();
     }
@@ -2460,7 +2460,7 @@ namespace corona
             draw_bounds.x = inner_bounds.x;
             draw_bounds.y = inner_bounds.y;
 
-            control_base* camb = find(camera_control_id);
+            control_base* camb = find(camera_control_name);
             if (camb) {
                 camera_control* cam = dynamic_cast<camera_control*>(camb);
                 if (cam) {
@@ -2678,9 +2678,6 @@ namespace corona
     {
         _page->on_mouse_left_click(this, [this, _presentation, _page](mouse_left_click_event evt)
             {
-                if (active_id) {
-                    *active_id = id;
-                }
                 if (tab_selected)
                 {
                     tab_selected(*this);
@@ -2704,7 +2701,7 @@ namespace corona
 
             rectangle icon_bounds = *_bounds;
 
-            if (active_id and *active_id == id) {
+            if (selected_state_enabled) {
                 point start;
                 point stop;
                 start.x = icon_bounds.x + icon_width / 2;

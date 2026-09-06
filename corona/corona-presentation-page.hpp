@@ -154,11 +154,6 @@ namespace corona
 			get_root()->put_json(_src);
 		}
 
-		control_base* operator[](int _id)
-		{
-			return get_root()->find(_id);
-		}
-
 		void create(std::shared_ptr<direct2dContext> _context, std::weak_ptr<applicationBase> _host)
 		{
 			context = _context;

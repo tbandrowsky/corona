@@ -251,7 +251,6 @@ namespace corona
 	class corona_button_control : public pushbutton_control
 	{
 	public:
-		using control_base::id;
 
 		std::shared_ptr<call_status>	status;
 
@@ -1746,7 +1745,7 @@ namespace corona
 			children.clear();
 
 			if (content_frame_name.empty()) {
-				content_frame_name = "tab_content_frame_" + std::to_string(id);
+				content_frame_name = "tab_content_frame_" + std::to_string((int)this);
             }
 
             std::shared_ptr<column_layout> main = std::make_shared<column_layout>();
@@ -1824,7 +1823,6 @@ namespace corona
 
 		tab_view_control()
 		{
-			id = id_counter::next();
 			init();
 		}
 
@@ -1837,7 +1835,6 @@ namespace corona
 
 		tab_view_control(control_base* _parent, int _id)
 		{
-			id = _id;
 			init();
 		}
 
@@ -1978,12 +1975,8 @@ namespace corona
 			draw_control::put_json(_src);
 			json_parser jp;
 
-			if (id == 0) {
-				id = id_counter::next();
-			}
-
 			if (name.empty()) {
-				name = "tab_view_control_" + std::to_string(id);
+				name = "tab_view_control_" + std::to_string((int)this);
 			}
 
 			content_frame_name = _src["content_frame_name"].as_string();

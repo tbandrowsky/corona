@@ -738,10 +738,10 @@ namespace corona
 					HWND controlWindow = (HWND)lParam;
 					switch (notificationCode) {
 						case BN_CLICKED: // button or menu
-							currentController->onCommand(controlId);
+							currentController->onCommand(controlWindow);
 							break;
 						case EN_UPDATE:
-							currentController->onTextChanged(controlId);
+							currentController->onTextChanged(controlWindow);
 							break;
 						case LBN_SELCHANGE:
 						{
@@ -751,11 +751,11 @@ namespace corona
 									(strcmp(WC_COMBOBOXA, window_class) == 0) ||
 									(strcmp(WC_COMBOBOXEXA, window_class) == 0)
 									) {
-									currentController->onDropDownChanged(controlId);
+									currentController->onDropDownChanged(controlWindow);
 								}
 								else
 								{
-									currentController->onListBoxChanged(controlId);
+									currentController->onListBoxChanged(controlWindow);
 								}
 							}
 							break;
@@ -875,20 +875,6 @@ namespace corona
 				HDC hdcStatic = (HDC)wParam;
 				SetBkColor(hdcStatic, RGB(255, 255, 255));
 				HBRUSH hbrBkgnd = (HBRUSH)::GetStockObject(WHITE_BRUSH);
-
-				if (currentController)
-				{
-					DWORD id = ::GetDlgCtrlID((HWND)lParam);
-					if (auto pcontroller = dynamic_cast<presentation*>(currentController.get()))
-					{
-						if (draw_control* pdraw = pcontroller->get_parent_for_control_by_id<draw_control>(id)) {
-							if (pdraw->view_style) {
-								auto cv = pdraw->view_style->box_fill_brush.getColor();
-								SetBkColor(hdcStatic, RGB(int(cv.r * 255), int(255 * cv.g), int(255 * cv.b)));
-							}
-						}
-					}
-				}
 
 				return (INT_PTR)hbrBkgnd;
 			}
