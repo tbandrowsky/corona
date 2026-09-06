@@ -2040,11 +2040,11 @@ namespace corona
 
 	control_builder& control_builder::caption_bar(int _id, std::function<void(caption_bar_control&)> _settings)
 	{
-
 		auto cp = root.get();
 		std::shared_ptr<caption_bar_control> tc;
 		tc = std::make_shared<caption_bar_control>(cp, _id);
 		if (tc) {
+			last_created = tc;
 			root->children.push_back(tc);
 //			std::cout << " " << typeid(*this).name() << " ->create:" << typeid(control_type).name() << std::endl;
 			apply_item_sizes(tc);
