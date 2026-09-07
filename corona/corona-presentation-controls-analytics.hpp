@@ -209,6 +209,47 @@ namespace corona
 		std::vector<std::string> y_value_fields;
 	};
 
+	class unit_frame {
+	public:
+        double min = std::numeric_limits<double>::lowest();
+        double max = std::numeric_limits<double>::max();
+
+        unit_frame() { ; }
+        unit_frame	(double _min, double _max) : min(_min), max(_max) { ; }
+
+		std::shared_ptr<game::vector_frame> shape;		
+	};
+
+	class chart_frame {
+	public:
+		std::map<std::string, std::shared_ptr<unit_frame>> units;
+	};
+
+	class program_chart_frame : public chart_frame, public program_chart_specification {
+	public:
+		
+	};
+
+	class time_chart_frame : public chart_frame, public time_chart_specification {
+	public:
+
+	};
+
+	class xy_chart_frame : public chart_frame, public xy_chart_specification {
+	public:
+
+	};
+
+	class pie_chart_frame : public chart_frame, public pie_chart_specification {
+	public:
+
+	};
+
+	class bar_chart_frame : public chart_frame, public bar_chart_specification {
+	public:
+
+	};
+
 	class chart_control : public draw_control
 	{
         std::vector<std::shared_ptr<game::frame>>			frames;
@@ -217,6 +258,7 @@ namespace corona
 		double elapsed_seconds = 0.0;
 
         std::vector<std::shared_ptr<chart_specification>>	chart_options;
+		std::shared_ptr<chart_frame>						current_chart;
 
 	public:
 
@@ -280,28 +322,50 @@ namespace corona
 			;
 		}
 
-		virtual void create_time_chart(std::shared_ptr<direct2dContext>& _context, time_chart_specification& _spec, rectangle* _ctx)
+		virtual std::shared_ptr<time_chart_frame> create_time_chart(std::shared_ptr<direct2dContext>&_context, time_chart_specification & _spec, rectangle * _ctx)
+		{
+			std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
+
+            for (auto fld : _spec.values_fields) {
+                std::string field_name = fld.field_name;
+                std::string units = fld.units;
+                std::shared_ptr<game::vector_frame> line_frame = std::make_shared<game::vector_frame>();
+                lines[field_name] = line_frame;
+            }
+
+            for (auto item : slice_array) {
+                json jitem = item;
+                double time_value = jitem[_spec.time_series.field_name].as_double();
+                for (auto fld : _spec.values_fields) {
+                    std::string field_name = fld.field_name;
+                    double y_value = jitem[field_name].as_double();
+                    auto line_frame = lines[field_name];
+                    line_frame->path.addLineTo(time_value, y_value);
+                }
+            }
+		}
+
+		virtual std::shared_ptr<xy_chart_frame> create_xy_chart(std::shared_ptr<direct2dContext>& _context, xy_chart_specification& _spec, rectangle* _ctx)
 		{
 			std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
 
 		}
 
-		virtual void create_xy_chart(std::shared_ptr<direct2dContext>& _context, xy_chart_specification& _spec, rectangle* _ctx)
-		{
-			std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
-
-		}
-
-		virtual void create_pie_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
+		virtual std::shared_ptr<pie_chart_frame> create_pie_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
 		{
 			std::map<std::string, std::shared_ptr<game::vector_frame>> pies;
 			;
 		}
 
-		virtual void create_bar_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
+		virtual std::shared_ptr<bar_chart_frame> create_bar_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
 		{
 			std::map<std::string, std::shared_ptr<game::vector_frame>> bars;
 			;
+		}
+
+		virtual std::shared_ptr<program_chart_frame> create_program_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
+		{
+			std::map<std::string, std::shared_ptr<game::vector_frame>> bars;
 		}
 
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
