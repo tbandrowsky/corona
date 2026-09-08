@@ -211,43 +211,47 @@ namespace corona
 
 	class unit_frame {
 	public:
-        double min = std::numeric_limits<double>::lowest();
-        double max = std::numeric_limits<double>::max();
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::lowest();
 
         unit_frame() { ; }
         unit_frame	(double _min, double _max) : min(_min), max(_max) { ; }
-
-		std::shared_ptr<game::vector_frame> shape;		
 	};
 
 	class chart_frame {
 	public:
-		std::map<std::string, std::shared_ptr<unit_frame>> units;
+		std::map<std::string, unit_frame> units;
 	};
 
-	class program_chart_frame : public chart_frame, public program_chart_specification {
+	class program_chart_frame : public chart_frame {
 	public:
-		
+		program_chart_specification specs;
 	};
 
-	class time_chart_frame : public chart_frame, public time_chart_specification {
+	class time_chart_frame : public chart_frame {
 	public:
-
+		time_chart_specification specs;
+		std::map<std::string, unit_frame> x_units;
+		std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
 	};
 
-	class xy_chart_frame : public chart_frame, public xy_chart_specification {
+	class xy_chart_frame : public chart_frame {
 	public:
-
+		xy_chart_specification specs;
+		std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
+		std::map<std::string, unit_frame> x_units;
 	};
 
-	class pie_chart_frame : public chart_frame, public pie_chart_specification {
+	class pie_chart_frame : public chart_frame {
 	public:
-
+		pie_chart_specification specs;
+		std::map<std::string, std::shared_ptr<game::vector_frame>> slices;
 	};
 
-	class bar_chart_frame : public chart_frame, public bar_chart_specification {
+	class bar_chart_frame : public chart_frame {
 	public:
-
+		bar_chart_specification specs;
+		std::map<std::string, std::shared_ptr<game::vector_frame>> bars;
 	};
 
 	class chart_control : public draw_control
@@ -304,9 +308,7 @@ namespace corona
 		virtual void on_update(double _time)
 		{
 			elapsed_seconds = _time;
-			for (auto anim : animations) {
-				anim->set_time(_time);
-			}
+
 			for (auto child : children) {
 				child->on_update(_time);
 			}
@@ -324,13 +326,17 @@ namespace corona
 
 		virtual std::shared_ptr<time_chart_frame> create_time_chart(std::shared_ptr<direct2dContext>&_context, time_chart_specification & _spec, rectangle * _ctx)
 		{
-			std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
+            std::shared_ptr<time_chart_frame> result = std::make_shared<time_chart_frame>();
+			
+			result->specs = _spec;
+			result->x_units[_spec.time_series.units] = unit_frame();
 
             for (auto fld : _spec.values_fields) {
                 std::string field_name = fld.field_name;
                 std::string units = fld.units;
                 std::shared_ptr<game::vector_frame> line_frame = std::make_shared<game::vector_frame>();
-                lines[field_name] = line_frame;
+                result->units[units] = unit_frame();
+                result->lines[field_name] = line_frame;
             }
 
             for (auto item : slice_array) {
@@ -339,15 +345,70 @@ namespace corona
                 for (auto fld : _spec.values_fields) {
                     std::string field_name = fld.field_name;
                     double y_value = jitem[field_name].as_double();
-                    auto line_frame = lines[field_name];
+					auto& f = result->units[fld.units];
+                    if (f.max > y_value) {
+                        f.max = y_value;
+                    }
+                    if (f.min < y_value) {
+                        f.min = y_value;
+                    }
+					auto& f2 = result->x_units[_spec.time_series.units];
+					if (f2.max < time_value) {
+						f2.max = time_value;
+					}
+					if (f2.min > time_value) {
+						f2.min = time_value;
+					}
+					auto& line_frame = result->lines[field_name];
                     line_frame->path.addLineTo(time_value, y_value);
                 }
             }
+            return result;
 		}
 
 		virtual std::shared_ptr<xy_chart_frame> create_xy_chart(std::shared_ptr<direct2dContext>& _context, xy_chart_specification& _spec, rectangle* _ctx)
 		{
-			std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
+			std::shared_ptr<xy_chart_frame> result = std::make_shared<xy_chart_frame>();
+
+			result->specs = _spec;
+
+			for (auto fld : _spec.values_fields) {
+				std::string xname = fld.x_source.field_name;
+                std::string yname = fld.y_source.field_name;
+				std::string xunits = fld.x_source.units;
+				std::string yunits = fld.y_source.units;
+				std::shared_ptr<game::vector_frame> line_frame = std::make_shared<game::vector_frame>();
+				result->x_units[xunits] = unit_frame();
+				result->units[yunits] = unit_frame();
+				std::string line_name = fld.x_source.field_name + "_" + fld.y_source.field_name;
+				result->lines[line_name] = line_frame;
+			}
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				for (auto fld : _spec.values_fields) {
+					std::string line_name = fld.x_source.field_name + "_" + fld.y_source.field_name;
+					double x = jitem[fld.x_source.field_name].as_double();
+					double y = jitem[fld.y_source.field_name].as_double();
+					auto& f = result->x_units[fld.x_source.units];
+					if (f.max < x) {
+						f.max = x;
+					}
+					if (f.min > x) {
+						f.min = x;
+					}
+					auto& f2 = result->units[fld.y_source.units];
+					if (f2.max > y) {
+						f2.max = y;
+					}
+					if (f2.min < y) {
+						f2.min = y;
+					}
+					auto& line_frame = result->lines[line_name];
+					line_frame->path.addLineTo(x, y);
+				}
+			}
+			return result;
 
 		}
 
