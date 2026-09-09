@@ -287,25 +287,155 @@ namespace corona
         }
 	};
 
+	class axis_frame {
+	public:
+		unit_frame units;
+		rectangle  bounds;
+		std::vector<double> ticks;
+	};
+
 	class chart_frame {
 	public:
 		rectangle					ux_bounds;
 		rectangle					chart_bounds;
+		
+        textStyleRequest			axis_text;
+		generalBrushRequest			axis_major;
+		generalBrushRequest		    axis_minor;
 
 		const double y_axis_width = 100;
 		const double x_axis_height = 75;
-	};
 
-	class axis_frame {
-	public:
-        unit_frame units;
-        rectangle  bounds;
+		chart_frame()
+		{
+			axis_major.setColor("#000000");
+            axis_major.set_name("axis_major");
+			axis_minor.setColor("#404040");
+			axis_minor.set_name("axis_minor");
+			axis_text.name = "Axis Text";
+            axis_text.fontName = "Arial";
+			axis_text.fontSize = 12;
+		}
+
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			;
+		}
+
+
+	protected:
+
+		virtual void create_assets(std::shared_ptr<direct2dContext>& _context)
+		{
+			_context->setBrush(&axis_major);
+			_context->setBrush(&axis_minor);
+			_context->setTextStyle(&axis_text);
+		}
+
+		virtual void draw_x_axis(std::shared_ptr<direct2dContext>& _context, axis_frame& _axis)
+		{
+			point start, stop;
+            start.x = _axis.bounds.x;
+            start.y = _axis.bounds.y;
+            stop.x = _axis.bounds.right();
+            stop.y = _axis.bounds.y;
+			_context->drawLine(&start, &stop, axis_major.get_name(), 2);
+			std::set<int> tick_positions;
+
+            for (auto i = 0; i < _axis.ticks.size(); i++) {
+                double tick_value = _axis.ticks[i];
+                double tick_position = _axis.units.scale(tick_value, _axis.bounds.x, _axis.bounds.right());
+				start.x = tick_position;
+				start.y = chart_bounds.y;
+				stop.x = tick_position;
+				stop.y = _axis.bounds.bottom();
+				_context->drawLine(&start, &stop, axis_minor.get_name(), 1);
+				int tick_pos = static_cast<int>(tick_position / 150);
+				if (tick_positions.find(tick_pos) == tick_positions.end()) 
+				{
+					tick_positions.insert(tick_pos);
+                    rectangle text_bounds;
+                    text_bounds.x = tick_position - 8;
+                    text_bounds.y = _axis.bounds.y + 5;
+					text_bounds.w = 125;
+					text_bounds.h = _axis.bounds.h - 5;
+                    _context->drawText(std::to_string(tick_value), &text_bounds, axis_text.name, axis_minor.get_name(), "");
+				}
+            }
+		}
+
+        virtual void draw_x_axis_time(std::shared_ptr<direct2dContext>& _context, axis_frame& _axis)
+        {
+			point start, stop;
+			start.x = _axis.bounds.x;
+			start.y = _axis.bounds.y;
+			stop.x = _axis.bounds.right();
+			stop.y = _axis.bounds.y;
+			_context->drawLine(&start, &stop, axis_major.get_name(), 2);
+			std::set<int> tick_positions;
+
+			for (auto i = 0; i < _axis.ticks.size(); i++) {
+				double tick_value = _axis.ticks[i];
+				double tick_position = _axis.units.scale(tick_value, _axis.bounds.x, _axis.bounds.right());
+				start.x = tick_position;
+				start.y = chart_bounds.y;
+				stop.x = tick_position;
+				stop.y = _axis.bounds.bottom();
+				_context->drawLine(&start, &stop, axis_minor.get_name(), 1);
+				int tick_pos = static_cast<int>(tick_position / 150);
+				if (tick_positions.find(tick_pos) == tick_positions.end())
+				{
+					tick_positions.insert(tick_pos);
+					rectangle text_bounds;
+					text_bounds.x = tick_position - 8;
+					text_bounds.y = _axis.bounds.y + 5;
+					text_bounds.w = 125;
+					text_bounds.h = _axis.bounds.h - 5;
+					date_time dt = date_time(tick_value);
+                    std::string tick_label = dt.format("%Y-%m-%d");
+					_context->drawText(tick_label, &text_bounds, axis_text.name, axis_minor.get_name(), "");
+				}
+			}
+        }
+
+        virtual void draw_y_axis(std::shared_ptr<direct2dContext>& _context, axis_frame& _axis)
+        {
+			point start, stop;
+			start.x = _axis.bounds.right();
+			start.y = _axis.bounds.y;
+			stop.x = _axis.bounds.right();
+			stop.y = _axis.bounds.bottom();
+			_context->drawLine(&start, &stop, axis_major.get_name(), 2);
+
+			std::set<int> tick_positions;
+
+			for (auto i = 0; i < _axis.ticks.size(); i++) {
+				double tick_value = _axis.ticks[i];
+				double tick_position = _axis.units.scale(tick_value, _axis.bounds.y, _axis.bounds.bottom());
+				start.x = _axis.bounds.x;
+				start.y = tick_position;
+				stop.x = _axis.bounds.right();
+				stop.y = tick_position;
+				_context->drawLine(&start, &stop, axis_minor.get_name(), 1);
+				int tick_pos = static_cast<int>(tick_position / 30);
+				if (tick_positions.find(tick_pos) == tick_positions.end())
+				{
+					tick_positions.insert(tick_pos);
+					rectangle text_bounds;
+					text_bounds.x = _axis.bounds.x;
+					text_bounds.y = tick_position - 8;
+					text_bounds.w = _axis.bounds.w;
+					text_bounds.h = 20;
+					_context->drawText(std::to_string(tick_value), &text_bounds, axis_text.name, axis_minor.get_name(), "");
+				}
+			}
+		}
+
 	};
 
 	class program_chart_frame : public chart_frame {
 	public:
 		program_chart_specification specs;
-        std::vector<axis_frame>		y_axes;
 	};
 
 	class time_chart_frame : public chart_frame {
@@ -314,7 +444,7 @@ namespace corona
 		std::map<std::string, unit_frame> x_units;
 		std::map<std::string, unit_frame> y_units;
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	lines;
-		std::vector<axis_frame>		y_axes;
+		std::map<std::string, axis_frame>		y_axes;
 		axis_frame					x_axes;
 		rectangle					chart_bounds;
 
@@ -365,24 +495,38 @@ namespace corona
 				axis.bounds.w = y_axis_width;
 				axis.bounds.y = _ctx->y;
 				axis.bounds.h = _ctx->h - x_axis_height;
-				y_axes.push_back(axis);
+				y_axes[unit.first] = axis;
 				index++;
 			}
 
 			for (auto item : slice_array) {
 				json jitem = item;
 				double time_value = jitem[_spec.time_series.field_name].as_double();
-
+                x_axes.ticks.push_back(time_value);
 				for (auto fld : _spec.values_fields) {
 					std::string field_name = fld.field_name;
 					double y_value = jitem[field_name].as_double();
 					auto& y_unit = y_units[fld.units];
+                    auto& y_axis = y_axes[fld.units];
+					y_axis.ticks.push_back(y_value);
 					auto& x_unit = x_units[_spec.time_series.units];
 					auto& line_frame = lines[field_name];
 					double y_scaled = chart_bounds.bottom() - y_unit.scale(y_value, chart_bounds.y, chart_bounds.bottom());
 					double x_scaled = x_unit.scale(time_value, chart_bounds.x, chart_bounds.right());
 					line_frame->path.addLineTo(x_scaled, y_scaled);
 				}
+			}
+		}
+
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			draw_x_axis_time(_context, x_axes);
+			for (auto& y_axis_pair : y_axes) {
+				draw_y_axis(_context, y_axis_pair.second);
+			}
+			for (auto& line : this->lines) 
+			{				
+				line.second->draw_item(*_context.get());
 			}
 		}
 
@@ -394,8 +538,8 @@ namespace corona
 		std::map<std::string, unit_frame> x_units;
 		std::map<std::string, unit_frame> y_units;
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	lines;
-		std::vector<axis_frame>		y_axes;
-		std::vector<axis_frame>		x_axes;
+		std::map<std::string, axis_frame>		y_axes;
+		std::map<std::string, axis_frame>		x_axes;
 
 		xy_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, xy_chart_specification& _spec, rectangle* _ctx)
 		{
@@ -441,7 +585,7 @@ namespace corona
 				axis.bounds.w = y_axis_width;
 				axis.bounds.y = _ctx->y;
 				axis.bounds.h = _ctx->h - x_axis_height;
-				y_axes.push_back(axis);
+				y_axes.insert({unit.first, axis});
 				index++;
 			}
 
@@ -453,7 +597,7 @@ namespace corona
 				axis.bounds.w = chart_bounds.w;
 				axis.bounds.y = chart_bounds.bottom() + y_axis_width * index;
 				axis.bounds.h = x_axis_height;
-				x_axes.push_back(axis);
+				x_axes.insert({unit.first, axis});
 				index++;
 			}
 
@@ -462,74 +606,104 @@ namespace corona
 				for (auto fld : _spec.values_fields) {
 					double x = jitem[fld.xfield_name].as_double();
 					double y = jitem[fld.yfield_name].as_double();
-					auto& f = x_units[fld.x_units];
-					auto& f2 = y_units[fld.y_units];
+                    auto& xa = x_axes[fld.x_units];
+                    auto& ya = y_axes[fld.y_units];
+					xa.ticks.push_back(x);
+					ya.ticks.push_back(y);
 					std::string line_name = fld.xfield_name + "_" + fld.yfield_name;
 					auto& line_frame = lines[line_name];
-					double x_scaled = f.scale(x, chart_bounds.x, chart_bounds.right());
-					double y_scaled = chart_bounds.bottom() - f2.scale(y, chart_bounds.y, chart_bounds.bottom());
+					double x_scaled = xa.units.scale(x, chart_bounds.x, chart_bounds.right());
+					double y_scaled = chart_bounds.bottom() - ya.units.scale(y, chart_bounds.y, chart_bounds.bottom());
 					line_frame->path.addLineTo(x_scaled, y_scaled);
 				}
 			}
 		}
 
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			for (auto& x_axis_pair : x_axes) {
+				draw_x_axis(_context, x_axis_pair.second);
+			}
+			for (auto& y_axis_pair : y_axes) {
+				draw_y_axis(_context, y_axis_pair.second);
+			}
+			for (auto& line : this->lines)
+			{
+				line.second->draw_item(*_context.get());
+			}
+		}
+
 	};
 
-	virtual std::shared_ptr<pie_chart_frame> create_pie_chart(std::shared_ptr<direct2dContext>& _context, pie_chart_specification& _spec, rectangle* _ctx)
-	{
-		std::shared_ptr<pie_chart_frame> result = std::make_shared<pie_chart_frame>();
-
-		result->specs = _spec;
-		result->ux_bounds = *_ctx;
-
-		for (auto fld : _spec.value_fields) {
-			std::string name = fld.field_name;
-			std::shared_ptr<game::vector_frame> pie_frame = std::make_shared<game::vector_frame>();
-			std::string slice_name = fld.field_name;
-			result->slices[slice_name] = pie_frame;
-			pie_frame->fill = fld.fill;
-			pie_frame->stroke = fld.stroke;
-			pie_frame->stroke_width = fld.stroke_width;
-		}
-
-		for (auto item : slice_array) {
-			json jitem = item;
-			for (auto fld : _spec.value_fields) {
-				double x = jitem[fld.field_name].as_double();
-				auto& f = result->pie_units;
-				f.accumulate(x);
-			}
-		}
-
-		double xradius = _ctx->w / 2.0;
-		double yradius = _ctx->h / 2.0;
-		double radius = std::min(xradius, yradius);
-
-		point center = rectangle_math::center(result->chart_bounds);
-
-		for (auto item : slice_array) {
-			json jitem = item;
-			double start_angle = 0.0;
-			for (auto fld : _spec.value_fields) {
-				double x = jitem[fld.field_name].as_double();
-				auto& f = result->pie_units;
-				double angle = (x / f.sum) * 360.0;
-				auto& slice_frame = result->slices[fld.field_name];
-				slice_frame->path.addLineTo(center.x, center.y);
-				slice_frame->path.addPathArc(center.x + cos(start_angle) * radius, center.y + sin(start_angle) * radius, radius, radius, start_angle);
-				slice_frame->path.addLineTo(center.x, center.y);
-				start_angle += angle;
-			}
-		}
-
-		return result;
-	}
 
 	class pie_chart_frame : public chart_frame {
 	public:
 		pie_chart_specification specs;
         unit_frame				pie_units;
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	slices;
+
+		pie_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, pie_chart_specification& _spec, rectangle* _ctx)
+		{
+			std::shared_ptr<pie_chart_frame> result = std::make_shared<pie_chart_frame>();
+
+			specs = _spec;
+			ux_bounds = *_ctx;
+
+			for (auto fld : _spec.value_fields) {
+				std::string name = fld.field_name;
+				std::shared_ptr<game::vector_frame> pie_frame = std::make_shared<game::vector_frame>();
+				std::string slice_name = fld.field_name;
+				slices[slice_name] = pie_frame;
+				pie_frame->fill = fld.fill;
+				pie_frame->stroke = fld.stroke;
+				pie_frame->stroke_width = fld.stroke_width;
+			}
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				for (auto fld : _spec.value_fields) {
+					double x = jitem[fld.field_name].as_double();
+					auto& f = pie_units;
+					f.accumulate(x);
+				}
+			}
+
+			double xradius = _ctx->w / 2.0;
+			double yradius = _ctx->h / 2.0;
+			double radius = std::min(xradius, yradius);
+
+			point center = rectangle_math::center(chart_bounds);
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				double start_angle = 0.0;
+				for (auto fld : _spec.value_fields) {
+					double x = jitem[fld.field_name].as_double();
+					auto& f = pie_units;
+					double angle = (x / f.sum) * 360.0;
+					auto& slice_frame = slices[fld.field_name];
+					slice_frame->path.addLineTo(center.x, center.y);
+					slice_frame->path.addPathArc(center.x + cos(start_angle) * radius, center.y + sin(start_angle) * radius, radius, radius, start_angle);
+					slice_frame->path.addLineTo(center.x, center.y);
+					start_angle += angle;
+				}
+			}
+
+		}
+
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			for (auto& x_axis_pair : x_axes) {
+				draw_x_axis(_context, x_axis_pair.second);
+			}
+			for (auto& y_axis_pair : y_axes) {
+				draw_y_axis(_context, y_axis_pair.second);
+			}
+			for (auto& line : this->lines)
+			{
+				line.second->draw_item(*_context.get());
+			}
+		}
 	};
 
 	class bar_chart_frame : public chart_frame {
@@ -537,13 +711,78 @@ namespace corona
 		bar_chart_specification specs;
 		unit_frame				bar_units;
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	bars;
-		std::vector<axis_frame>		y_axes;
+		std::map<std::string, axis_frame>		y_axes;
+
+		bar_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, bar_chart_specification& _spec, rectangle* _ctx)
+		{
+			std::shared_ptr<bar_chart_frame> result = std::make_shared<bar_chart_frame>();
+
+			result->specs = _spec;
+			result->ux_bounds = *_ctx;
+
+			double bar_width = (_ctx->w - y_axis_width) / slice_array.size();
+
+			for (auto fld : _spec.value_fields) {
+				std::string name = fld.field_name;
+				std::shared_ptr<game::vector_frame> bar_frame = std::make_shared<game::vector_frame>();
+				std::string bar_name = fld.field_name;
+				result->bars[bar_name] = bar_frame;
+				bar_frame->fill = fld.fill;
+				bar_frame->stroke = fld.stroke;
+				bar_frame->stroke_width = fld.stroke_width;
+			}
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				for (auto fld : _spec.value_fields) {
+					double x = jitem[fld.field_name].as_double();
+					auto& f = result->bar_units;
+					f.accumulate(x);
+				}
+			}
+
+			axis_frame axis;
+			axis.units = result->bar_units;
+			axis.bounds.x = _ctx->x;
+			axis.bounds.w = y_axis_width;
+			axis.bounds.y = _ctx->y;
+			axis.bounds.h = _ctx->h - x_axis_height;
+			result->y_axes.insert({ "", axis });
+
+			result->chart_bounds.x = _ctx->x + y_axis_width;
+			result->chart_bounds.y = _ctx->y;
+			result->chart_bounds.h = _ctx->h - x_axis_height;
+			result->chart_bounds.w = _ctx->w - y_axis_width;
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				double x = result->chart_bounds.x;
+
+				for (auto fld : _spec.value_fields) {
+
+					double y = jitem[fld.field_name].as_double();
+					auto& f = result->bar_units;
+					double height = (y / f.max);
+					double width = bar_width - 8;
+					if (width < 0) width = 0;
+
+					auto& bar_frame = result->bars[fld.field_name];
+					double y_scaled = result->chart_bounds.bottom() - result->bar_units.scale(y, result->chart_bounds.y, result->chart_bounds.bottom());
+
+					result->bars[fld.field_name]->path.addLineTo(x, result->chart_bounds.bottom());
+					result->bars[fld.field_name]->path.addLineTo(x + width, result->chart_bounds.bottom());
+					result->bars[fld.field_name]->path.addLineTo(x + width, y_scaled);
+					result->bars[fld.field_name]->path.addLineTo(x, y_scaled);
+					result->bars[fld.field_name]->path.addLineTo(x, result->chart_bounds.bottom());
+					x += bar_width;
+				}
+			}
+		}
+
 	};
 
 	class chart_control : public draw_control
 	{
-		bool set_items(json_array _data);
-
 		double elapsed_seconds = 0.0;
 
         std::shared_ptr<chart_specification>						current_options;
@@ -573,9 +812,12 @@ namespace corona
 		{
 			json_parser jp;
 			draw_control::get_json(_dest);
-			json chart = jp.create_object();
 
-			_dest.put_member("charts", charts);
+			if (current_options) {
+				json chart = jp.create_object();
+				current_options->get_json(chart);
+				_dest.put_member("chart", chart);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -613,6 +855,22 @@ namespace corona
 			}
 		}
 
+		void create_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			if (auto tc_options = std::dynamic_pointer_cast<time_chart_specification>(current_options)) {
+				current_chart = std::make_shared<time_chart_frame>(_context, slice_array, tc_options, &inner_bounds);
+			}
+			else if (auto xyc_options = std::dynamic_pointer_cast<xy_chart_specification>(current_options)) {
+				current_chart = std::make_shared<xy_chart_frame>(_context, slice_array, xyc_options, &inner_bounds);
+			}
+			else if (auto bc_options = std::dynamic_pointer_cast<bar_chart_specification>(current_options)) {
+				current_chart = std::make_shared<bar_chart_frame>(_context, slice_array, bc_options, &inner_bounds);
+			}
+			else if (auto pc_options = std::dynamic_pointer_cast<pie_chart_specification>(current_options)) {
+				current_chart = std::make_shared<bar_chart_frame>(_context, slice_array, pc_options, &inner_bounds);
+			}
+		}
+
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<animations_control>(*this);
@@ -628,112 +886,18 @@ namespace corona
 			}
 		}
 
-
-
-
-		virtual std::shared_ptr<bar_chart_frame> create_bar_chart(std::shared_ptr<direct2dContext>& _context, bar_chart_specification& _spec, rectangle* _ctx)
-		{
-			std::shared_ptr<bar_chart_frame> result = std::make_shared<bar_chart_frame>();
-
-			result->specs = _spec;
-			result->ux_bounds = *_ctx;
-
-            double bar_width = (_ctx->w - xaxis_width) / slice_array.size();
-
-			for (auto fld : _spec.value_fields) {
-				std::string name = fld.field_name;
-				std::shared_ptr<game::vector_frame> bar_frame = std::make_shared<game::vector_frame>();
-				std::string bar_name = fld.field_name;
-				result->bars[bar_name] = bar_frame;
-				bar_frame->fill = fld.fill;
-				bar_frame->stroke = fld.stroke;
-				bar_frame->stroke_width = fld.stroke_width;
-			}
-
-			for (auto item : slice_array) {
-				json jitem = item;
-				for (auto fld : _spec.value_fields) {
-					double x = jitem[fld.field_name].as_double();
-					auto& f = result->bar_units;
-					f.accumulate(x);
-				}
-			}
-
-			axis_frame axis;
-			axis.units = result->bar_units;
-			axis.bounds.x = _ctx->x;
-			axis.bounds.w = xaxis_width;
-			axis.bounds.y = _ctx->y;
-			axis.bounds.h = _ctx->h - yaxis_height;
-			result->y_axes.push_back(axis);
-
-			result->chart_bounds.x = _ctx->x + xaxis_width;
-			result->chart_bounds.y = _ctx->y;
-			result->chart_bounds.h = _ctx->h - yaxis_height;
-			result->chart_bounds.w = _ctx->w - xaxis_width;
-
-			for (auto item : slice_array) {
-				json jitem = item;
-				double x = result->chart_bounds.x;
-
-				for (auto fld : _spec.value_fields) {
-				
-					double y = jitem[fld.field_name].as_double();
-					auto& f = result->bar_units;
-					double height = (y / f.max);
-                    double width = bar_width - 8;
-                    if (width < 0) width = 0;
-
-					auto& bar_frame = result->bars[fld.field_name];
-					double y_scaled = result->chart_bounds.bottom() - result->bar_units.scale(y, result->chart_bounds.y, result->chart_bounds.bottom());
-
-                    result->bars[fld.field_name]->path.addLineTo(x, result->chart_bounds.bottom());
-					result->bars[fld.field_name]->path.addLineTo(x + width, result->chart_bounds.bottom());
-					result->bars[fld.field_name]->path.addLineTo(x + width, y_scaled);
-					result->bars[fld.field_name]->path.addLineTo(x, y_scaled);
-					result->bars[fld.field_name]->path.addLineTo(x, result->chart_bounds.bottom());
-					x += bar_width;
-				}
-			}
-
-			return result;
-		}
-
-		virtual std::shared_ptr<program_chart_frame> create_program_chart(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
-		{
-			std::shared_ptr<program_chart_frame> result = std::make_shared<program_chart_frame>();
-			result->ux_bounds = *_ctx;
-			return result;
-		}
-
-		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, time_chart_specification& _spec, rectangle* _ctx)
-		{
-			return create_time_chart(_context, _spec, _ctx);
-		}
-
-		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, xy_chart_specification& _spec, rectangle* _ctx)
-		{
-			return create_xy_chart(_context, _spec, _ctx);
-		}
-
-		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, bar_chart_specification& _spec, rectangle* _ctx)
-		{
-			return create_bar_chart(_context, _spec, _ctx);
-		}
-
-		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, pie_chart_specification& _spec, rectangle* _ctx)
-		{
-			return create_pie_chart(_context, _spec, _ctx);
-		}
-
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
 		{
-			
+			if (!current_chart) {
+				create_chart(_context);
+			}
 		}
 
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*)
 		{
 			set_default_styles();
+			current_chart = nullptr;
+			create_chart(_context);
 		}
 
 		void init()
@@ -749,14 +913,13 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override
 		{
 			draw_control::arrange(_parent, _ctx);
-
+			current_chart = nullptr;
 		}
 
 
 		virtual json_object set_data(json_object _data) override
 		{
 			draw_control::set_data(_data);
-			set_items(slice_array);
 			return _data;
 		}
 

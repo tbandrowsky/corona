@@ -1134,63 +1134,6 @@ namespace corona
 
     };
 
-    const int IDC_CHART_BASE = 1000000;
-    const int IDC_CHART_PROGRAM = 1 + IDC_CHART_BASE;
-    const int IDC_CHART_BAR = 2 + IDC_CHART_BASE;
-    const int IDC_CHART_LINE = 3 + IDC_CHART_BASE;
-    const int IDC_CHART_PIE = 4 + IDC_CHART_BASE;
-    const int IDC_CHART_SCATTER = 5 + IDC_CHART_BASE;
-    const int IDC_CHART_BUBBLE = 6 + IDC_CHART_BASE;
-    const int IDC_CHART_TREE_BOX = 7 + IDC_CHART_BASE;
-    const int IDC_CHART_TREE_MAP = 8 + IDC_CHART_BASE;
-
-    class chart_control : public draw_control
-    {
-        void init();
-        solidBrushRequest	border_brush;
-
-        /*
-
-        The big thing for the design here is to just be the mainframe sleazes when it comes to handling loads of options.
-        For the type of chart, you can make in the menu into it.
-
-        */
-
-    public:
-
-        int chart_type;
-        table_data  data;
-        std::string color_series;
-        std::string sseries1;
-        std::string sseries2;
-        std::string sseries3;
-        std::string sseries4;
-
-        chart_control(const chart_control& _src) : draw_control(_src)
-        {
-            border_brush = _src.border_brush;
-            chart_type = _src.chart_type;
-            data = _src.data;
-            color_series = _src.color_series;
-            sseries1 = _src.sseries1;
-            sseries2 = _src.sseries2;
-            sseries3 = _src.sseries3;
-            sseries4 = _src.sseries4;
-        }
-
-        chart_control(control_base* _parent, int _id) : draw_control(_parent, _id)
-        {
-            ;
-        }
-
-        virtual ~chart_control()
-        {
-            ;
-        }
-
-    };
-
-
     class slide_control : public draw_control
     {
         void init();
