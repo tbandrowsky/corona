@@ -343,12 +343,11 @@ namespace corona
 
 	class chart_control : public draw_control
 	{
-        std::vector<std::shared_ptr<game::frame>>					frames;
-
 		bool set_items(json_array _data);
+
 		double elapsed_seconds = 0.0;
 
-        std::vector<std::shared_ptr<chart_specification>>			chart_options;
+        std::shared_ptr<chart_specification>						current_options;
 		std::shared_ptr<chart_frame>								current_chart;
 
 		double														xaxis_width = 100;
@@ -375,18 +374,44 @@ namespace corona
 		{
 			json_parser jp;
 			draw_control::get_json(_dest);
-			json charts = jp.create_array();
-            for (auto chart : chart_options) {
-                json jchart;
-                chart->get_json(jchart);				
-                charts.push_back(jchart);
-            }
+			json chart = jp.create_object();
+
 			_dest.put_member("charts", charts);
 		}
 
 		virtual void put_json(json& _src)
 		{
-			;
+			json_parser jp;
+			draw_control::put_json(_src);
+            json chart = _src["chart"];
+			if (chart.object()) {
+				set_chart(chart);
+			}
+		}
+
+		virtual void set_chart(json& jchart)
+		{
+			std::string class_name = jchart["class_name"].as_string();
+			if (class_name == "time_chart") {
+				current_options = std::make_shared<time_chart_specification>();
+				current_options->put_json(jchart);
+			}
+			else if (class_name == "xy_chart") {
+				current_options = std::make_shared<xy_chart_specification>();
+				current_options->put_json(jchart);
+			}
+			else if (class_name == "bar_chart") {
+				current_options = std::make_shared<bar_chart_specification>();
+				current_options->put_json(jchart);
+			}
+			else if (class_name == "pie_chart") {
+				current_options = std::make_shared<pie_chart_specification>();
+				current_options->put_json(jchart);
+			}
+			else if (class_name == "program_chart") {
+				current_options = std::make_shared<program_chart_specification>();
+				current_options->put_json(jchart);
+			}
 		}
 
 		virtual std::shared_ptr<control_base> clone()
@@ -402,16 +427,6 @@ namespace corona
 			for (auto child : children) {
 				child->on_update(_time);
 			}
-		}
-
-        virtual void create_xaxis(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
-        {
-            ;
-        }
-
-		virtual void create_yaxis(std::shared_ptr<direct2dContext>& _context, rectangle* _ctx)
-		{
-			;
 		}
 
 		virtual std::shared_ptr<time_chart_frame> create_time_chart(std::shared_ptr<direct2dContext>&_context, time_chart_specification & _spec, rectangle * _ctx)
@@ -690,64 +705,39 @@ namespace corona
 			return result;
 		}
 
+		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, time_chart_specification& _spec, rectangle* _ctx)
+		{
+			;
+		}
+
+		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, xy_chart_specification& _spec, rectangle* _ctx)
+		{
+			;
+		}
+
+		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, bar_chart_specification& _spec, rectangle* _ctx)
+		{
+			;
+		}
+
+		virtual std::shared_ptr<chart_frame> create_chart(std::shared_ptr<direct2dContext>& _context, pie_chart_specification& _spec, rectangle* _ctx)
+		{
+			;
+		}
+
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control*)
 		{
 
-			animation_border = solidBrushRequest("animation_border", "00C000");
-			frame_border = solidBrushRequest("frame_border", "850095");
-
-			_context->setBrush(&animation_border);
-			_context->setBrush(&frame_border);
-
-			std::string border_name = animation_border.get_name();
-
-			for (auto& anim_rect : animation_rectangles) {
-				if (anim_rect.object) {
-					auto rect = anim_rect.rect;
-					DirectX::XMVECTOR location = to_point(rect);
-					_context->drawRectangle(&rect, border_name, 2, "");
-				}
-			}
-
-			border_name = frame_border.get_name();
-
-			for (auto& frame_rect : frame_rectangles) {
-				if (frame_rect.object) {
-					auto rect = frame_rect.rect;
-					DirectX::XMVECTOR location = to_point(rect);
-					_context->drawRectangle(&rect, border_name, 8, "");
-				}
-			}
-
-			for (auto& anim_rect : animation_rectangles) {
-				if (anim_rect.object) {
-					auto rect = anim_rect.rect;
-					anim_rect.object->draw(*_context, &rect);
-				}
-			}
-
-			for (auto& frame_rect : frame_rectangles) {
-				if (frame_rect.object) {
-					auto rect = frame_rect.rect;
-					frame_rect.object->draw(*_context, &rect);
-				}
-			}
 		}
 
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control*)
 		{
 			set_default_styles();
-			for (auto anim : animations) {
-				anim->create_assets(*_context);
-			}
 		}
 
 		void init()
 		{
 			set_origin(0.0_px, 0.0_px);
-			set_size(1.0_container, 1.2_fontgr);
-			animation_border = solidBrushRequest("animation_border", "400040");
-			frame_border = solidBrushRequest("frame_border", "400035");
 		}
 
 		virtual void set_default_styles()
@@ -759,66 +749,6 @@ namespace corona
 		{
 			draw_control::arrange(_parent, _ctx);
 
-			double num_frames_x = 4;
-			double num_frames_y = 2;
-			double num_animations_x = 2;
-			double num_animations_y = 4;
-
-			point total_size = rectangle_math::size(_ctx);
-
-			double animation_width = total_size.x * 0.3;
-			double animation_height = animation_width;
-			double frame_width = animation_width * .75;
-			double frame_height = animation_height * .75;
-
-			rectangle animation_list_rect = { _ctx->x, _ctx->y, animation_width, total_size.y };
-			rectangle frame_list_rect = { _ctx->x + animation_width, _ctx->y + total_size.y - frame_height, total_size.x - animation_width, frame_height };
-			rectangle current_animation_rect = { _ctx->x + animation_width, _ctx->y, total_size.x - animation_width, total_size.y - frame_height };
-
-			point base;
-			current_animation.rect = current_animation_rect;
-
-			auto ianim = animations.begin();
-
-			rectangle r;
-
-			r.x = animation_list_rect.x;
-			r.y = animation_list_rect.y;
-			r.w = animation_width;
-			r.h = animation_height;
-
-			while (ianim != std::end(animations))
-			{
-				animation_rectangles.push_back({ r, *ianim });
-
-				if (!current_animation.object) {
-					current_animation.object = *ianim;
-				}
-
-				r.y += animation_height;
-				ianim++;
-			}
-
-			r.x = frame_list_rect.x;
-			r.y = frame_list_rect.y;
-			r.w = frame_width;
-			r.h = frame_height;
-
-			if (current_animation.object) {
-				auto iframe = current_animation.object->frames.begin();
-
-				while (iframe != std::end(current_animation.object->frames)) {
-					corona_frame_rectangle fr;
-					fr.rect = r;
-					fr.object = iframe->second;
-					frame_rectangles.push_back(fr);
-					if (!current_frame.object) {
-						current_frame.object = iframe->second;
-					}
-					r.x += frame_width;
-					iframe++;
-				}
-			}
 		}
 
 
