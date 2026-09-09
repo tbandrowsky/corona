@@ -832,27 +832,14 @@ namespace corona
 
 		virtual void set_chart(json& jchart)
 		{
-			std::string class_name = jchart["class_name"].as_string();
-			if (class_name == "time_chart") {
-				current_options = std::make_shared<time_chart_specification>();
-				current_options->put_json(jchart);
-			}
-			else if (class_name == "xy_chart") {
-				current_options = std::make_shared<xy_chart_specification>();
-				current_options->put_json(jchart);
-			}
-			else if (class_name == "bar_chart") {
-				current_options = std::make_shared<bar_chart_specification>();
-				current_options->put_json(jchart);
-			}
-			else if (class_name == "pie_chart") {
-				current_options = std::make_shared<pie_chart_specification>();
-				current_options->put_json(jchart);
-			}
-			else if (class_name == "program_chart") {
-				current_options = std::make_shared<program_chart_specification>();
-				current_options->put_json(jchart);
-			}
+			current_chart = nullptr;
+			current_options = create_chart_specification(jchart);
+		}
+
+		virtual void set_chart(std::shared_ptr<chart_specification> chart)
+		{
+			current_chart = nullptr;
+			current_options = chart;
 		}
 
 		void create_chart(std::shared_ptr<direct2dContext>& _context)
@@ -925,5 +912,33 @@ namespace corona
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 	};
+
+    std::shared_ptr<chart_specification> create_chart_specification(json& jchart)
+    {
+		std::shared_ptr<chart_specification> current_options;
+
+		std::string class_name = jchart["class_name"].as_string();
+		if (class_name == "time_chart") {
+			current_options = std::make_shared<time_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "xy_chart") {
+			current_options = std::make_shared<xy_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "bar_chart") {
+			current_options = std::make_shared<bar_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "pie_chart") {
+			current_options = std::make_shared<pie_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "program_chart") {
+			current_options = std::make_shared<program_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		return current_options;
+    }
 
 }

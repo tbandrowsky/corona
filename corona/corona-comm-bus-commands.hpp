@@ -1625,6 +1625,7 @@ namespace corona
 
 	};
 
+
 	class corona_load_object_command : public corona_form_command
 	{
 	public:
@@ -1793,6 +1794,96 @@ namespace corona
 
 			corona::put_json(instance, _src);
 
+		}
+
+	};
+
+	class corona_set_chart_command : public corona_form_command
+	{
+	public:
+
+		corona_instance instance = corona_instance::local;
+		std::shared_ptr<chart_specification> chart;
+
+		corona_set_chart_command()
+		{
+			topic = "set_chart";
+		}
+
+		virtual std::string get_name()
+		{
+			return "set_chart";
+		}
+
+		virtual json create_request(comm_desktop_bus_interface* _bus)
+		{
+			json_parser jp;
+
+			control_base* ctrl = _bus->find_control(form_name);
+			if (ctrl) {
+				json_object dresult = ctrl->get_data();
+				return dresult;
+			}
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
+		{
+			corona_client_response response;
+
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			control_base* cb = _bus->find_control(form_name);
+			if (cb) {
+				chart_control* cc = dynamic_cast<chart_control*>(cb);
+				if (cc) {
+					cc->set_chart(chart);
+				}
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+			json_parser jp;
+
+			corona_form_command::get_json(_dest);
+
+			_dest.put_member("class_name", "set_chart"sv);
+			_dest.put_member("form_name", form_name);
+
+			json jchart = jp.create_object();
+			if (chart) {
+				chart->get_json(jchart);
+				_dest.put_member("chart", jchart);
+			}
+
+		}
+
+		virtual void put_json(json& _src)
+		{
+			corona_form_command::put_json(_src);
+
+			form_name = _src["form_name"].as_string();
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "form_name" })) {
+				system_monitoring_interface::active_mon->log_warning("set_chart_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			json jchart = _src["chart"];
+			if (jchart.object())
+			{
+				chart = create_chart_specification(jchart);
+			}
 		}
 
 	};
@@ -2792,6 +2883,11 @@ namespace corona
 			else if (class_name == "delete_object")
 			{
 				_dest = std::make_shared<corona_delete_object_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "set_chart")
+			{
+				_dest = std::make_shared<corona_set_chart_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "get_games")
