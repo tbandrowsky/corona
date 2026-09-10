@@ -299,11 +299,13 @@ namespace corona {
 #include "corona-presentation-controls-dx-container.hpp"
 #include "corona-presentation-controls-dx-text.hpp"
 
+#include "corona-presentation-controls-win32.hpp"
+
+#include "corona-presentation-controls-analytics.hpp"
+
 #include "corona-comm-bus-commands.hpp"
 
 #include "corona-presentation-controls-gaming.hpp"
-#include "corona-presentation-controls-win32.hpp"
-#include "corona-presentation-controls-analytics.hpp"
 
 // builder has some complex controls, but its main reason for existing
 // is to separate control construction from the control tree itself.  

@@ -612,7 +612,8 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			get_json(j);
+			json_parser jp;
+			j = jp.create_object();
 			return j;
 		}
 

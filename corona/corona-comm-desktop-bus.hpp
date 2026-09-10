@@ -517,7 +517,7 @@ namespace corona
 							});
 						}, nullptr);
 				}
-				else {
+				else if (poll_ux_enabled) {
 					poll_pages(_select_default_page);
 				}
 			}

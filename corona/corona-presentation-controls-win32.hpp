@@ -921,8 +921,8 @@ namespace corona
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
-	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_SORT;
-	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_SORT;
+	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
+	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
 	const int PressButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_NOTIFY;
 	const int CheckboxWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_AUTOCHECKBOX | BS_FLAT | BS_NOTIFY;
@@ -2568,28 +2568,73 @@ namespace corona
 				italic_button->enabled = character_format.dwEffects & CFE_ITALIC;
 				};
 
+			toolbar->children.push_back(styles_dropdown);
+
+			auto blank_control = std::make_shared<paragraph_control>();
+			blank_control->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
+
+			toolbar->children.push_back(blank_control);
 			toolbar->children.push_back(bold_button);
 			toolbar->children.push_back(italic_button);
 			toolbar->children.push_back(underline_button);
 
+			auto blank_control2 = std::make_shared<paragraph_control>();
+            blank_control2->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
+			
+			toolbar->children.push_back(blank_control2);	
 			toolbar->children.push_back(align_left_button);
 			toolbar->children.push_back(align_center_button);
 			toolbar->children.push_back(align_right_button);
 
 			toolbar->children.push_back(bullet_button);
 
-            toolbar->children.push_back(styles_dropdown);
-
 			children.push_back(toolbar);
 			children.push_back(richedit_area);
 
 			richedit_area->json_field_name = json_field_name;
 
+
 			styles_dropdown->on_selection_changed = [this](combobox_control* _src) {
-				json selected_object = this->richedit_area->get_selected_object();
+				int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
+				json selected_object = _src->get_selected_object();
 				if (selected_object.object()) {
                     std::string style_id = selected_object["id"].as_string();
 					std::string style_description = selected_object["description"].as_string();
+					auto st = presentation_style_factory::get_current()->get_style();
+					if (st) {
+						richedit_area->get_character_format(&character_format);
+						if (style_id == "title_style") {
+                            std::string face = first(st->TitleStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+                            character_format.yHeight = st->TitleStyle->text_style.fontSize * pixels_to_twips;
+						}
+						else if (style_id == "subtitle_style") {
+							std::string face = first(st->SubtitleStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+							character_format.yHeight = st->SubtitleStyle->text_style.fontSize * pixels_to_twips;
+						}
+						else if (style_id == "chapter_title_style") {
+							std::string face = first(st->ChapterTitleStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+							character_format.yHeight = st->ChapterTitleStyle->text_style.fontSize * pixels_to_twips	;
+						}
+						else if (style_id == "chapter_subtitle_style") {
+							std::string face = first(st->ChapterSubTitleStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+							character_format.yHeight = st->ChapterSubTitleStyle->text_style.fontSize * pixels_to_twips;
+						}
+						else if (style_id == "paragraph_style") {
+							std::string face = first(st->ParagraphStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+							character_format.yHeight = st->ParagraphStyle->text_style.fontSize * pixels_to_twips;
+						}
+						else if (style_id == "code_style") {
+							std::string face = first(st->CodeStyle->text_style.fontName, ',');
+							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+							character_format.yHeight = st->CodeStyle->text_style.fontSize * pixels_to_twips;
+						}
+                        richedit_area->set_character_format(&character_format);
+					}
 				}
             };
 

@@ -29,10 +29,10 @@
               "class_name": "chaptersubtitle",
               "name": "search_common_text",
               "box": {
-                "width": "350 pixels",
+                "width": "250 pixels",
                 "height": "40 pixels"
               },
-              "text": "TOPIC"
+              "text": "FIND"
             },
             {
               "class_name": "chaptersubtitle",
@@ -67,7 +67,7 @@
               "class_name": "column",
               "name": "search_commands",
               "box": {
-                "width": "350 pixels",
+                "width": "250 pixels",
                 "height": "1.0 container"
               },
               "view_style": {

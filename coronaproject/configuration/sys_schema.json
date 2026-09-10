@@ -640,8 +640,8 @@
     }
   ],
   "application": {
-    "application_creator": "Todd Bandrowsky",
-    "application_name": "Corona Video Game",
+    "application_creator": "Country Video Games",
+    "application_name": "Revolution : Ideas",
     "fields": {
       ".animations": {
         "class_name": "animations",

@@ -448,6 +448,9 @@ namespace corona
 		axis_frame					x_axes;
 		rectangle					chart_bounds;
 
+		time_chart_frame() = default;
+		time_chart_frame(const time_chart_frame& _src) = default;
+		time_chart_frame(time_chart_frame&& _src) = default;
 		time_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, time_chart_specification& _spec, rectangle* _ctx)
 		{
 			ux_bounds = *_ctx;
@@ -541,6 +544,9 @@ namespace corona
 		std::map<std::string, axis_frame>		y_axes;
 		std::map<std::string, axis_frame>		x_axes;
 
+		xy_chart_frame() = default;
+		xy_chart_frame(const xy_chart_frame& _src) = default;
+		xy_chart_frame(xy_chart_frame&& _src) = default;
 		xy_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, xy_chart_specification& _spec, rectangle* _ctx)
 		{
 			specs = _spec;
@@ -642,6 +648,9 @@ namespace corona
         unit_frame				pie_units;
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	slices;
 
+		pie_chart_frame() = default;
+		pie_chart_frame(const pie_chart_frame& _src) = default;
+		pie_chart_frame(pie_chart_frame&& _src) = default;
 		pie_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, pie_chart_specification& _spec, rectangle* _ctx)
 		{
 			std::shared_ptr<pie_chart_frame> result = std::make_shared<pie_chart_frame>();
@@ -693,15 +702,9 @@ namespace corona
 
 		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
 		{
-			for (auto& x_axis_pair : x_axes) {
-				draw_x_axis(_context, x_axis_pair.second);
-			}
-			for (auto& y_axis_pair : y_axes) {
-				draw_y_axis(_context, y_axis_pair.second);
-			}
-			for (auto& line : this->lines)
+			for (auto& slice : this->slices)
 			{
-				line.second->draw_item(*_context.get());
+				slice.second->draw_item(*_context.get());
 			}
 		}
 	};
@@ -713,6 +716,9 @@ namespace corona
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	bars;
 		std::map<std::string, axis_frame>		y_axes;
 
+		bar_chart_frame() = default;
+        bar_chart_frame(const bar_chart_frame& _src) = default;
+        bar_chart_frame(bar_chart_frame&& _src) = default;
 		bar_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, bar_chart_specification& _spec, rectangle* _ctx)
 		{
 			std::shared_ptr<bar_chart_frame> result = std::make_shared<bar_chart_frame>();
@@ -779,7 +785,43 @@ namespace corona
 			}
 		}
 
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			for (auto& bar : this->bars)
+			{
+				bar.second->draw_item(*_context.get());
+			}
+		}
+
 	};
+
+	std::shared_ptr<chart_specification> create_chart_specification(json& jchart)
+	{
+		std::shared_ptr<chart_specification> current_options;
+
+		std::string class_name = jchart["class_name"].as_string();
+		if (class_name == "time_chart") {
+			current_options = std::make_shared<time_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "xy_chart") {
+			current_options = std::make_shared<xy_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "bar_chart") {
+			current_options = std::make_shared<bar_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "pie_chart") {
+			current_options = std::make_shared<pie_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "program_chart") {
+			current_options = std::make_shared<program_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		return current_options;
+	}
 
 	class chart_control : public draw_control
 	{
@@ -845,22 +887,22 @@ namespace corona
 		void create_chart(std::shared_ptr<direct2dContext>& _context)
 		{
 			if (auto tc_options = std::dynamic_pointer_cast<time_chart_specification>(current_options)) {
-				current_chart = std::make_shared<time_chart_frame>(_context, slice_array, tc_options, &inner_bounds);
+				current_chart = std::make_shared<time_chart_frame>(_context, slice_array, *tc_options.get(), &inner_bounds);
 			}
 			else if (auto xyc_options = std::dynamic_pointer_cast<xy_chart_specification>(current_options)) {
-				current_chart = std::make_shared<xy_chart_frame>(_context, slice_array, xyc_options, &inner_bounds);
+				current_chart = std::make_shared<xy_chart_frame>(_context, slice_array, *xyc_options.get(), &inner_bounds);
 			}
 			else if (auto bc_options = std::dynamic_pointer_cast<bar_chart_specification>(current_options)) {
-				current_chart = std::make_shared<bar_chart_frame>(_context, slice_array, bc_options, &inner_bounds);
+				current_chart = std::make_shared<bar_chart_frame>(_context, slice_array, *bc_options.get(), &inner_bounds);
 			}
 			else if (auto pc_options = std::dynamic_pointer_cast<pie_chart_specification>(current_options)) {
-				current_chart = std::make_shared<bar_chart_frame>(_context, slice_array, pc_options, &inner_bounds);
+				current_chart = std::make_shared<pie_chart_frame>(_context, slice_array, *pc_options.get(), &inner_bounds);
 			}
 		}
 
 		virtual std::shared_ptr<control_base> clone()
 		{
-			auto tv = std::make_shared<animations_control>(*this);
+			auto tv = std::make_shared<chart_control>(*this);
 			return tv;
 		}
 
@@ -913,32 +955,5 @@ namespace corona
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 	};
 
-    std::shared_ptr<chart_specification> create_chart_specification(json& jchart)
-    {
-		std::shared_ptr<chart_specification> current_options;
-
-		std::string class_name = jchart["class_name"].as_string();
-		if (class_name == "time_chart") {
-			current_options = std::make_shared<time_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "xy_chart") {
-			current_options = std::make_shared<xy_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "bar_chart") {
-			current_options = std::make_shared<bar_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "pie_chart") {
-			current_options = std::make_shared<pie_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "program_chart") {
-			current_options = std::make_shared<program_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		return current_options;
-    }
 
 }

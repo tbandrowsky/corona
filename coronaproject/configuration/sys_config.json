@@ -11,7 +11,7 @@
   "Servers": [
     {
       "listen_point": "http://localhost:5678/CoronaDemoApplication/",
-      "application_name": "Corona Desktop Project",
+      "application_name": "Revolution",
       "application_company": "Country Video Games",
       "schema_filename": "sys_schema.json",
       "database_threads": 20,

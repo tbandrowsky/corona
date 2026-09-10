@@ -1,0 +1,36 @@
+{
+  "class_name": "page",
+  "page_name": "$chart_page",
+  "children": [
+    {
+      "class_name": "row",
+      "name": "chart_command_row",
+      "box": {
+        "width": "1.0 container",
+        "height": "75 pixels"
+      },
+      "wrap": true,
+      "children": [
+        "$chart_commands"
+      ]
+    },
+    {
+      "class_name": "row",
+      "name": "chart_container_row",
+      "box": {
+        "width": "1.0 container",
+        "height": "1.0 remaining"
+      },
+      "children": [
+        {
+          "class_name": "chart",
+          "name": "$chart_control",
+          "box": {
+            "width": "1.0 container",
+            "height": "1.0 container"
+          }
+        }
+      ]
+    }
+  ]
+}
