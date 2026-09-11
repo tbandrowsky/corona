@@ -2128,6 +2128,7 @@ namespace corona
 
 	};
 
+
 	class json
 	{
 	public:
@@ -6467,6 +6468,287 @@ namespace corona
 		}
 
 		return sliced;
+	}
+
+	enum class aggregate_type {
+		aggregate_none,
+		aggregate_sum,
+		aggregate_average,
+		aggregate_min,
+		aggregate_max,
+		aggregate_count
+	};
+
+	static std::map<aggregate_type, std::string> aggregate_type_names = {
+		{aggregate_type::aggregate_none, "none"},
+		{aggregate_type::aggregate_sum, "sum"},
+		{aggregate_type::aggregate_average, "average"},
+		{aggregate_type::aggregate_min, "min"},
+		{aggregate_type::aggregate_max, "max"},
+		{aggregate_type::aggregate_count, "count"}
+	};
+
+	static std::map<std::string, aggregate_type> aggregate_name_types = {
+		{"none", aggregate_type::aggregate_none},
+		{"sum", aggregate_type::aggregate_sum},
+		{"average", aggregate_type::aggregate_average},
+		{"min", aggregate_type::aggregate_min},
+		{"max", aggregate_type::aggregate_max},
+		{"count", aggregate_type::aggregate_count}
+	};
+
+	class json_aggregate
+	{
+	public:
+
+		std::string				field_name;
+		std::string				dest_field_name;
+		aggregate_type			aggregate = aggregate_type::aggregate_none;
+
+		json_aggregate() = default;
+		json_aggregate(const json_aggregate& _src) = default;
+		json_aggregate(json_aggregate&& _src) = default;
+		json_aggregate& operator = (const json_aggregate& _src) = default;
+		json_aggregate& operator = (json_aggregate&& _src) = default;
+
+        void get_json(json& _dest)
+        {
+            json_parser jp;
+            _dest.put_member_string("field_name", field_name);
+			_dest.put_member_string("dest_field_name", dest_field_name);
+			_dest.put_member_string("aggregate", aggregate_type_names[aggregate]);
+        }
+
+		void put_json(json& _src)
+		{
+			json_parser jp;
+            field_name = _src["field_name"].as_string();
+            std::string aggregate_type_name = _src["aggregate"].as_string();
+            if (aggregate_name_types.find(aggregate_type_name) != aggregate_name_types.end()) {
+                aggregate = aggregate_name_types[aggregate_type_name];
+            }
+            else {
+                aggregate = aggregate_type::aggregate_none;
+            }
+            dest_field_name = _src["dest_field_name"].as_string();
+		}
+	};
+
+	class json_cross_tab {
+	public:
+		std::vector<std::string> src_fields;
+		std::vector<std::string> value_fields;
+
+        void get_json(json& _dest)
+        {
+            json_parser jp;
+            json src_fields_array = jp.create_array();
+            for (auto& field_name : src_fields) {
+                src_fields_array.append_element(jp.from_string(field_name));
+            }
+            _dest.put_member("src_fields", src_fields_array);
+            json value_fields_array = jp.create_array();
+            for (auto& field_name : value_fields) {
+                value_fields_array.append_element(jp.from_string(field_name));
+            }
+            _dest.put_member("value_fields", value_fields_array);
+        }
+			
+		void put_json(json& _src)
+		{
+            json_parser jp;
+            src_fields.clear();
+            value_fields.clear();
+            json src_fields_array = _src["src_fields"];
+            if (src_fields_array.array()) {
+                for (int i = 0; i < src_fields_array.size(); i++) {
+                    std::string fni = src_fields_array.get_element(i).as_string();
+                    src_fields.push_back(fni);
+                }
+            }
+            json value_fields_array = _src["value_fields"];
+            if (value_fields_array.array()) {
+                for (int i = 0; i < value_fields_array.size(); i++) {
+                    std::string fni = value_fields_array.get_element(i).as_string();
+                    value_fields.push_back(fni);
+                }
+            }
+		}
+	};
+
+	std::shared_ptr<json_object> cross_tab(const json_array& _src, json_cross_tab& _options)
+	{
+		std::shared_ptr<json_object> result = std::make_shared<json_object>();
+		for (auto item : _src) {
+			if (auto ptr = std::dynamic_pointer_cast<json_object>(item)) {
+				json_object& obj = *ptr;
+				std::string field_prefix = "";
+				for (auto field : _options.src_fields) {
+					field_prefix += obj[field]->to_string();
+				}
+
+				for (auto field : _options.value_fields) {
+					auto field_name = field_prefix + "_" + field;
+					double d = obj[field]->to_double();
+					result->put_member(field_name, d);
+				}
+			}
+		}
+		return result;
+	}
+
+	class json_group_by
+	{
+	public:
+		std::vector<std::string>					 field_names;
+		std::vector<std::shared_ptr<json_aggregate>> aggregates;
+
+        json_group_by() = default;
+        json_group_by(const json_group_by& _src) = default;
+        json_group_by(json_group_by&& _src) = default;
+        json_group_by& operator = (const json_group_by& _src) = default;
+        json_group_by& operator = (json_group_by&& _src) = default;
+
+        void get_json(json& _dest)
+        {
+            json_parser jp;
+            json field_names_array = jp.create_array();
+            for (auto& field_name : field_names) {
+                field_names_array.append_element(jp.from_string(field_name));
+            }
+            _dest.put_member("field_names", field_names_array);
+            json aggregates_array = jp.create_array();
+            for (auto& aggregate : aggregates) {
+                json aggregate_json = jp.create_object();
+                aggregate->get_json(aggregate_json);
+                aggregates_array.append_element(aggregate_json);
+            }
+            _dest.put_member("aggregates", aggregates_array);
+        }
+
+        void put_json(json& _src)
+		{
+			json_parser jp;
+			field_names.clear();
+			aggregates.clear();
+			json field_names_array = _src["field_names"];
+			if (field_names_array.array()) {
+				for (int i = 0; i < field_names_array.size(); i++) {
+                    std::string fni = field_names_array.get_element(i).as_string();
+					field_names.push_back(fni);
+				}
+			}
+			json aggregates_array = _src["aggregates"];
+			if (aggregates_array.array()) {
+				for (int i = 0; i < aggregates_array.size(); i++) {
+					json ani = aggregates_array.get_element(i);
+					auto aggregate = std::make_shared<json_aggregate>();
+					aggregate->put_json(ani);
+					aggregates.push_back(aggregate);
+				}
+			}
+		}
+	};
+
+
+	std::shared_ptr<json_array> group_by(const json_array& _src, const json_group_by& _group_by)
+	{
+		auto result = std::make_shared<json_array>();
+
+		std::map<std::string, std::shared_ptr<json_array>> grouped_elements;
+
+		// group the elements
+
+		for (auto& item : _src) {
+			if (auto ptr = std::dynamic_pointer_cast<json_object>(item)) {
+				std::string key;
+				json_object& obj = *ptr;
+				for (auto field : _group_by.field_names) {
+					auto txt = obj[field]->to_string();
+					key += "\x01" + txt;
+				}
+				if (grouped_elements.find(key) == grouped_elements.end()) {
+					grouped_elements[key] = std::make_shared<json_array>();
+				}
+				grouped_elements[key]->push_back(item);
+			}
+		}
+
+		// apply the aggregates
+
+		for (auto result_group : grouped_elements) {
+			std::shared_ptr<json_object> object = std::make_shared<json_object>();
+
+			// compose the start object of the keys
+			for (auto f : _group_by.field_names) {
+				auto first_item = result_group.second->get_element(0);
+				if (auto ptr = std::dynamic_pointer_cast<json_object>(first_item)) {
+					auto field_value = ptr->at(f);
+					object->put_member(f, field_value);
+				}
+			}
+
+			// now we can do the aggregates
+			double count = 0;
+			for (auto f : _group_by.aggregates) {
+				double initial_value = 0.0;
+				switch (f->aggregate) {
+				case aggregate_type::aggregate_sum:
+					break;
+				case aggregate_type::aggregate_min:
+					initial_value = std::numeric_limits<double>::max();
+					break;
+				case aggregate_type::aggregate_max:
+					initial_value = std::numeric_limits<double>::min();
+					break;
+				case aggregate_type::aggregate_average:
+					break;
+				case aggregate_type::aggregate_count:
+					break;
+				}
+                std::string dest_field_name = f->dest_field_name.empty() ? f->field_name : f->dest_field_name;
+				object->put_member(dest_field_name, initial_value);
+			}
+
+			for (auto item : *result_group.second) {
+				if (auto ptr = std::dynamic_pointer_cast<json_object>(item)) {
+					count++;
+					for (auto f : _group_by.aggregates) {
+                        std::string dest_field_name = f->dest_field_name.empty() ? f->field_name : f->dest_field_name;
+						auto field_value = ptr->at(f->field_name);
+						double current_value = object->at(dest_field_name)->to_double();
+						double new_value = field_value->to_double();
+						switch (f->aggregate) {
+						case aggregate_type::aggregate_sum:
+							current_value += new_value;
+							object->put_member(dest_field_name, current_value);
+							break;
+						case aggregate_type::aggregate_min:
+							if (new_value < current_value) {
+								object->put_member(dest_field_name, new_value);
+							}
+							break;
+						case aggregate_type::aggregate_max:
+							if (new_value > current_value) {
+								object->put_member(dest_field_name, new_value);
+							}
+							break;
+						case aggregate_type::aggregate_average:
+							current_value += new_value;
+							object->put_member(dest_field_name, current_value);
+							break;
+						case aggregate_type::aggregate_count:
+							object->put_member(f->field_name, count);
+							break;
+						}
+					}
+				}
+			}
+
+			result->push_back(object);
+		}
+
+		return result;
 	}
 
 }

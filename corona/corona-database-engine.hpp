@@ -9114,6 +9114,8 @@ private:
 
 			// read the templates from the files.  everything is json object and we're just manipulating them
 			// in a C++ equivalent of what node.js might do.
+
+            json chart_template = read_json(errors, this->config_path + "source_templates\\chart.json");
 			
 			json card_template = read_json(errors, this->config_path + "source_templates\\card.json");
 
@@ -9143,6 +9145,7 @@ private:
             json search_group_template = read_json(errors, this->config_path + "source_templates\\search_group.json");
 			json search_command_class_template = read_json(errors, this->config_path + "source_templates\\search_command_class.json");
 			json create_command_class_template = read_json(errors, this->config_path + "source_templates\\create_command_class.json");
+			json chart_command_class_template = read_json(errors, this->config_path + "source_templates\\chart_command_class.json");
 
 			json pages_array = pages_template["pages"];
             json abbreviations = pages_template["abbreviations"];
@@ -9306,11 +9309,45 @@ private:
 								{ "$search_group_commands", search_group_commands }
 								});
 
+
+							json charts = sg["charts"];
+							std::string chart_name = sg["chart_name"].as_string();
+
+							if (charts.array()) {
+
+								json chart_pages = chart_template.clone();
+
+                                for (int i = 0; i < charts.size(); i++) {
+									json chart_command = chart_command_class_template.clone();
+                                    json chart_spec = charts.get_element(i);
+
+                                    std::string chart_button_name = chart_spec["chart_button_name"].as_string();
+                                    std::string chart_button_text = chart_spec["chart_button_text"].as_string();
+                                    std::string chart_button_image = chart_spec["chart_button_image"].as_string();
+
+                                    json chart_group_by = chart_spec["group_by"];
+                                    json chart_cross_tab = chart_spec["cross_tab"];
+									json chart_command = chart_command_class_template.clone();
+
+                                    chart_command.apply_abbreviations({
+                                        { "$chart_button_name", jp.from_string(chart_button_name) },
+                                        { "$chart_button_text", jp.from_string(chart_button_text) },
+                                        { "$chart_button_image", jp.from_string(chart_button_image) },
+                                        { "$chart_name", jp.from_string(chart_name) }
+                                        });
+
+									search_group_commands.push_back(chart_command);
+                                }
+
+								pages.push_back(chart_template);
+							}
+
 							ux_search_groups.push_back(search_group);
 						}
 						team_page.apply_abbreviations({
 							{ "$search_groups", ux_search_groups }
 						});
+
 					}
 
 					pages.push_back(team_page);

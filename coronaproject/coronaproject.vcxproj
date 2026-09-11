@@ -594,6 +594,7 @@
     <None Include="configuration\source_templates\card_container.json" />
     <None Include="configuration\source_templates\card_container_small.json" />
     <None Include="configuration\source_templates\chart.json" />
+    <None Include="configuration\source_templates\chart_command_class.json" />
     <None Include="configuration\source_templates\create_command_class.json" />
     <None Include="configuration\source_templates\home.json" />
     <None Include="configuration\source_templates\object_container.json" />

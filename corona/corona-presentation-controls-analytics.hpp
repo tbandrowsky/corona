@@ -137,14 +137,14 @@ namespace corona
                 fld.put_json(jfld);
                 jvalues.push_back(jfld);
             }
-            _dest.put_member("values_fields", jvalues);
+            _dest.put_member("series", jvalues);
         }
 
         void put_json(json& _src)
         {
             json jtime = _src["time_series"];
             time_series.put_json(jtime);
-            json jvalues = _src["values_fields"];
+            json jvalues = _src["series"];
             for (auto jfld : jvalues) {
                 chart_series fld;
                 fld.put_json(jfld);
@@ -169,12 +169,12 @@ namespace corona
                 fld.get_json(jfld);
                 jvalues.push_back(jfld);
             }
-            _dest.put_member("values_fields", jvalues);
+            _dest.put_member("series", jvalues);
         }
 
         void put_json(json& _src)
         {
-            json jvalues = _src["values_fields"];
+            json jvalues = _src["series"];
             for (auto jfld : jvalues) {
                 chart_xy_series fld;
                 fld.put_json(jfld);
@@ -199,12 +199,12 @@ namespace corona
                 fld.put_json(jfld);
                 jvalues.push_back(jfld);
             }
-            _dest.put_member("value_fields", jvalues);
+            _dest.put_member("series", jvalues);
         }
 
         void put_json(json& _src)
         {
-            json jvalues = _src["value_fields"];
+            json jvalues = _src["series"];
             for (auto jfld : jvalues) {
                 chart_series fld;
                 fld.put_json(jfld);
@@ -228,12 +228,12 @@ namespace corona
 				fld.put_json(jfld);
 				jvalues.push_back(jfld);
 			}
-			_dest.put_member("value_fields", jvalues);
+			_dest.put_member("series", jvalues);
 		}
 
 		void put_json(json& _src)
 		{
-			json jvalues = _src["value_fields"];
+			json jvalues = _src["series"];
 			for (auto jfld : jvalues) {
 				chart_series fld;
 				fld.put_json(jfld);
@@ -876,6 +876,14 @@ namespace corona
 		{
 			current_chart = nullptr;
 			current_options = create_chart_specification(jchart);
+		}
+
+		virtual void set_chart(std::shared_ptr<chart_specification> _chart, json_object& _src, std::string _json_field_name)
+		{
+			current_chart = nullptr;
+			current_options = _chart;
+			json_field_name = _json_field_name;
+            set_data(_src);
 		}
 
 		virtual void set_chart(std::shared_ptr<chart_specification> chart)

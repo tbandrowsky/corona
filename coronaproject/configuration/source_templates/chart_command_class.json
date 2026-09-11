@@ -1,0 +1,20 @@
+{
+  "class_name": "command_button",
+  "name": "$chart_button_name",
+  "image": "$chart_button_image",
+  "text": "$chart_button_text",
+  "box": {
+    "width": "100 pixels",
+    "height": "75 pixels"
+  },
+  "on_click": {
+    "class_name": "run_chart",
+    "form_name": "search_ceremony",
+    "table_name": "result_table",
+    "detail_frame": "frame_selected",
+    "chart_name": "$chart_name",
+    "chart": "$chart",
+    "group_by": "$group_by",
+    "cross_tab": "$cross_tab"
+  }
+}

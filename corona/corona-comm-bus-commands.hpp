@@ -2468,6 +2468,172 @@ namespace corona
 		}
 	};
 
+	class corona_run_chart_command : public corona_form_command
+	{
+	public:
+		corona_instance instance = corona_instance::local;
+
+		std::string			table_name = "";
+		std::string			chart_name = "";
+		std::string         detail_frame = "";
+
+		std::shared_ptr<json_group_by>			group_by_spec;
+		std::shared_ptr<json_cross_tab>			cross_tab_spec;
+		std::shared_ptr<chart_specification>	chart_spec;
+
+		corona_run_chart_command()
+		{
+			topic = "run_chart";
+		}
+
+		virtual std::string get_name()
+		{
+			return "run_chart";
+		}
+
+		virtual json create_request(comm_desktop_bus_interface* _bus)
+		{
+			json object_data;
+			return object_data;
+		}
+
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
+		{
+			corona_client_response response;
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			json_parser jp;
+
+			control_base* cb_table = {};
+
+			if (not table_name.empty())
+				cb_table = _bus->find_control(table_name);
+
+			if (not cb_table) {
+				comm_desktop_bus_interface::global_bus->log_warning(std::format("{0} table for chart command not found", table_name), __FILE__, __LINE__);
+			}
+
+			items_view* iv_table = dynamic_cast<items_view*>(cb_table);
+
+			if (iv_table) {
+				json_array iv_items = iv_table->get_edited_array();
+
+				if (not chart_name.empty()) {
+					control_base* cb_form = _bus->find_control(detail_frame);
+					if (cb_form) {
+                        chart_control* cc = dynamic_cast<chart_control*>(cb_form);
+						if (cc) {
+
+							json_object temp;
+							if (group_by_spec) {
+								std::shared_ptr<json_array> grouped = group_by(iv_items, *group_by_spec);
+                                if (cross_tab_spec) {
+                                    std::shared_ptr<json_object> flattened = cross_tab(*grouped, *cross_tab_spec);
+                                    temp.put_member("items", flattened);
+								}
+								else 
+								{
+									temp.put_member("items", grouped);
+									cc->set_chart(chart_spec, temp, "items");
+								}
+							}
+							else if (cross_tab_spec) {
+								std::shared_ptr<json_object> flattened = cross_tab(iv_items, *cross_tab_spec);
+								temp.put_member("items", flattened);
+								cc->set_chart(chart_spec, temp, "items");
+							}
+
+						}
+					}
+				}
+			}
+			else {
+				comm_desktop_bus_interface::global_bus->log_warning(std::format("{0} items_view for chart command not found", table_name), __FILE__, __LINE__);
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "run_chart"sv);
+			_dest.put_member("form_name", form_name);
+			_dest.put_member("table_name", table_name);
+			_dest.put_member("detail_frame", form_name);
+
+			json_parser jp;
+			if (group_by_spec) {
+				json jgroup = jp.create_object();
+				group_by_spec->put_json(jgroup);
+				_dest.put_member("group", jgroup);
+			}
+
+            if (chart_spec) {
+                json jchart = jp.create_object();
+                chart_spec->get_json(jchart);
+                _dest.put_member("chart", jchart);
+            }
+
+            if (cross_tab_spec) {
+                json jcross = jp.create_object();
+                cross_tab_spec->get_json(jcross);
+                _dest.put_member("cross_tab", jcross);
+            }
+
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			json_parser jp;
+
+			corona::put_json(instance, _src);
+
+			if (not _src.has_members(missing, { "form_name", "table_name", "query" })) {
+				system_monitoring_interface::active_mon->log_warning("search_objects_command missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				system_monitoring_interface::active_mon->log_information("the source json is:");
+				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
+				return;
+			}
+
+			form_name = _src["form_name"].as_string();
+			table_name = _src["table_name"].as_string();
+            chart_name = _src["chart_name"].as_string();
+			detail_frame = _src["detail_frame"].as_string();
+
+			group_by_spec = nullptr;
+			chart_spec = nullptr;
+			cross_tab_spec = nullptr;
+
+            json jgroup = _src["group"];
+			if (jgroup.object()) {
+				group_by_spec = std::make_shared<json_group_by>();
+				group_by_spec->put_json(jgroup);
+			}
+
+            json jchart = _src["chart"];
+			if (jchart.object()) {
+                chart_spec = create_chart_specification(jchart);
+            }
+
+            json jcross = _src["cross_tab"];
+			if (jcross.object()) {
+                cross_tab_spec = std::make_shared<json_cross_tab>();
+                cross_tab_spec->put_json(jcross);
+            }
+		}
+
+	};
+
+
+
 	class corona_get_games_command : public corona_form_command
 	{
 	public:
@@ -2883,6 +3049,11 @@ namespace corona
 			else if (class_name == "delete_object")
 			{
 				_dest = std::make_shared<corona_delete_object_command>();
+				_dest->put_json(_src);
+			}
+			else if (class_name == "run_chart")
+			{
+				_dest = std::make_shared<corona_run_chart_command>();
 				_dest->put_json(_src);
 			}
 			else if (class_name == "set_chart")
