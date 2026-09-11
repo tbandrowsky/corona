@@ -1918,12 +1918,13 @@
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "game_chart",
+            "chart_name": "chart_game",
             "charts": [
               {
-                "chart_button_name": "Game Counts",
+                "chart_button_name": "game_counts_button",
                 "chart_button_text": "Game Counts",
-                "chart_button_image": "",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "game",
                 "chart": {
                   "class_name": "bar_chart",
                   "series": [

@@ -2493,7 +2493,8 @@ namespace corona
 
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
-			json object_data;
+			json_parser jp;
+			json object_data = jp.create_object();
 			return object_data;
 		}
 
@@ -2521,7 +2522,15 @@ namespace corona
 				json_array iv_items = iv_table->get_edited_array();
 
 				if (not chart_name.empty()) {
-					control_base* cb_form = _bus->find_control(detail_frame);
+					control_base* cb_form = _bus->find_control(chart_name);
+
+					if (!cb_form)
+					{
+                        json_object chart_empty;
+						_bus->select_frame(batch_id, detail_frame, chart_name, chart_empty);
+						control_base* cb_form = _bus->find_control(chart_name);
+					}
+
 					if (cb_form) {
                         chart_control* cc = dynamic_cast<chart_control*>(cb_form);
 						if (cc) {
@@ -2563,12 +2572,13 @@ namespace corona
 			_dest.put_member("form_name", form_name);
 			_dest.put_member("table_name", table_name);
 			_dest.put_member("detail_frame", form_name);
+			_dest.put_member("chart_name", chart_name);
 
 			json_parser jp;
 			if (group_by_spec) {
 				json jgroup = jp.create_object();
 				group_by_spec->put_json(jgroup);
-				_dest.put_member("group", jgroup);
+				_dest.put_member("group_by", jgroup);
 			}
 
             if (chart_spec) {
@@ -2593,7 +2603,7 @@ namespace corona
 
 			corona::put_json(instance, _src);
 
-			if (not _src.has_members(missing, { "form_name", "table_name", "query" })) {
+			if (not _src.has_members(missing, { "chart_name", "table_name", "detail_frame" })) {
 				system_monitoring_interface::active_mon->log_warning("search_objects_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
@@ -2612,7 +2622,7 @@ namespace corona
 			chart_spec = nullptr;
 			cross_tab_spec = nullptr;
 
-            json jgroup = _src["group"];
+            json jgroup = _src["group_by"];
 			if (jgroup.object()) {
 				group_by_spec = std::make_shared<json_group_by>();
 				group_by_spec->put_json(jgroup);

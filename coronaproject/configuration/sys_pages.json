@@ -1086,6 +1086,16 @@
 
       { "class_name":"import", "file_name":"pages\\object_wand.json" },
 
+      { "class_name":"import", "file_name":"pages\\chart_game.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
       { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],
   "startup":

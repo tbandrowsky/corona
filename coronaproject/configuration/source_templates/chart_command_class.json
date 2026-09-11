@@ -14,7 +14,7 @@
     "detail_frame": "frame_selected",
     "chart_name": "$chart_name",
     "chart": "$chart",
-    "group_by": "$group_by",
-    "cross_tab": "$cross_tab"
+    "group_by": "$chart_group_by",
+    "cross_tab": "$chart_cross_tab"
   }
 }
