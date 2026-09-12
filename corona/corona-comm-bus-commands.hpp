@@ -2545,8 +2545,8 @@ namespace corona
 								else 
 								{
 									temp.put_member("items", grouped);
-									cc->set_chart(chart_spec, temp, "items");
 								}
+								cc->set_chart(chart_spec, temp, "items");
 							}
 							else if (cross_tab_spec) {
 								std::shared_ptr<json_object> flattened = cross_tab(iv_items, *cross_tab_spec);

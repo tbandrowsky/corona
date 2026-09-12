@@ -6583,8 +6583,11 @@ namespace corona
 			if (auto ptr = std::dynamic_pointer_cast<json_object>(item)) {
 				json_object& obj = *ptr;
 				std::string field_prefix = "";
+				std::string sep = "";
 				for (auto field : _options.src_fields) {
+                    field_prefix += sep;
 					field_prefix += obj[field]->to_string();
+					sep = "_";
 				}
 
 				for (auto field : _options.value_fields) {
@@ -6684,7 +6687,9 @@ namespace corona
 				auto first_item = result_group.second->get_element(0);
 				if (auto ptr = std::dynamic_pointer_cast<json_object>(first_item)) {
 					auto field_value = ptr->at(f);
-					object->put_member(f, field_value);
+					if (field_value) {
+						object->put_member(f, field_value);
+					}
 				}
 			}
 
@@ -6738,10 +6743,20 @@ namespace corona
 							object->put_member(dest_field_name, current_value);
 							break;
 						case aggregate_type::aggregate_count:
-							object->put_member(f->field_name, count);
+							object->put_member(dest_field_name, count);
 							break;
 						}
 					}
+				}
+			}
+
+			for (auto f : _group_by.aggregates) {
+				std::string dest_field_name = f->dest_field_name.empty() ? f->field_name : f->dest_field_name;
+				double current_value = object->at(dest_field_name)->to_double();
+				switch (f->aggregate) {
+				case aggregate_type::aggregate_average:
+					object->put_member(dest_field_name, current_value / count);
+					break;
 				}
 			}
 

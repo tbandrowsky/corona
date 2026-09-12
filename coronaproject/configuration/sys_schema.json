@@ -1743,10 +1743,63 @@
       },
       {
         "class_name": "game",
+        "type_name": "quest",
+        "name": "dungeon of woe",
         "stage": {
           "class_name": "set",
-          "name": "dungeon of woe",
-          "type_name": "quest",
+          "tile_size": "100,100,0",
+          "tile_strings": [
+            "W  W  W  W  W  W  W  W  W  W",
+            "W  F  F  F  F  F  F  F  L  W",
+            "W  *  F  W  W  W  W  W  F  W",
+            "W  F  F  F  F  F  F  W  F  W",
+            "W  F  F  F  F  L  1  W  F  W",
+            "W  F  W  W  W  W  W  W  F  W",
+            "W  F  W  L  F  D  P  F  F  W",
+            "W  F  W  W  W  W  W  F  W  W",
+            "W  F  F  W  F  F  W  F  F  W",
+            "W  1  F  W  F  F  1  F  F  W",
+            "W  L  F  W  F  F  W  L  F  W",
+            "W  W  W  W  W  W  W  W  W  W"
+          ],
+          "tile_codes": [
+            {
+              "piece_code": "W",
+              "piece_type": "wall-stone"
+            },
+            {
+              "piece_code": "F",
+              "piece_type": "floor-stone"
+            },
+            {
+              "piece_code": "D",
+              "piece_type": "door-wood"
+            },
+            {
+              "piece_code": "P",
+              "piece_type": "plate-door"
+            },
+            {
+              "piece_code": "*",
+              "piece_type": "spawn-player"
+            },
+            {
+              "piece_code": "1",
+              "piece_type": "spawn-monster"
+            },
+            {
+              "piece_code": "L",
+              "piece_type": "treasure-arms"
+            }
+          ]
+        }
+      },
+      {
+        "class_name": "game",
+        "name": "dungeon of woe II, the other woe",
+        "type_name": "trek",
+        "stage": {
+          "class_name": "set",
           "description": "",
           "tile_size": "100,100,0",
           "tile_strings": [
@@ -1797,65 +1850,10 @@
       },
       {
         "class_name": "game",
+        "type_name": "quest",
+        "name": "dungeon of woe III, the final woe",
         "stage": {
           "class_name": "set",
-          "name": "dungeon of woe II, the other woe",
-          "description": "",
-          "type_name": "trek",
-          "tile_size": "100,100,0",
-          "tile_strings": [
-            "W  W  W  W  W  W  W  W  W  W",
-            "W  F  F  F  F  F  F  F  L  W",
-            "W  *  F  W  W  W  W  W  F  W",
-            "W  F  F  F  F  F  F  W  F  W",
-            "W  F  F  F  F  L  1  W  F  W",
-            "W  F  W  W  W  W  W  W  F  W",
-            "W  F  W  L  F  D  P  F  F  W",
-            "W  F  W  W  W  W  W  F  W  W",
-            "W  F  F  W  F  F  W  F  F  W",
-            "W  1  F  W  F  F  1  F  F  W",
-            "W  L  F  W  F  F  W  L  F  W",
-            "W  W  W  W  W  W  W  W  W  W"
-          ],
-          "tile_codes": [
-            {
-              "piece_code": "W",
-              "piece_type": "wall-stone"
-            },
-            {
-              "piece_code": "F",
-              "piece_type": "floor-stone"
-            },
-            {
-              "piece_code": "D",
-              "piece_type": "door-wood"
-            },
-            {
-              "piece_code": "P",
-              "piece_type": "plate-door"
-            },
-            {
-              "piece_code": "*",
-              "piece_type": "spawn-player"
-            },
-            {
-              "piece_code": "1",
-              "piece_type": "spawn-monster"
-            },
-            {
-              "piece_code": "L",
-              "piece_type": "treasure-arms"
-            }
-          ]
-        }
-      },
-      {
-        "class_name": "game",
-        "stage": {
-          "class_name": "set",
-          "name": "dungeon of woe III, the final woe",
-          "description": "",
-          "type_name": "quest",
           "tile_size": "100,100,0",
           "tile_strings": [
             "W  W  W  W  W  W  W  W  W  W",
@@ -1927,24 +1925,10 @@
                 "chart_class": "game",
                 "chart": {
                   "class_name": "bar_chart",
-                  "series": [
-                    {
-                      "field_name": "game_quest_count",
-                      "fill": {
-                        "class_name": "solid_brush",
-                        "color": "#B090D0"
-                      },
-                      "units": "Ea"
-                    },
-                    {
-                      "field_name": "game_trek_count",
-                      "fill": {
-                        "class_name": "solid_brush",
-                        "color": "#90B0D0"
-                      },
-                      "units": "Ea"
-                    }
-                  ]
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [ "count" ]
+                  }
                 },
                 "group_by": {
                   "field_names": [ "class_name", "type_name" ],
