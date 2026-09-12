@@ -1927,7 +1927,8 @@
                   "class_name": "bar_chart",
                   "auto_series": {
                     "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [ "count" ]
+                    "value_fields": [ "count" ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
                   }
                 },
                 "group_by": {

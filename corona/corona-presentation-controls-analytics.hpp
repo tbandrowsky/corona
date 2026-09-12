@@ -28,6 +28,60 @@ namespace corona
 		}
 	};
 
+	/*		"auto_series" : {
+			"label_fields": ["class_name", "type_name"] ,
+				"value_fields" : ["count"] ,
+				"colors" : ["#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898"]
+		}
+
+*/
+
+	class auto_series
+	{
+	public:
+		std::vector<std::string> label_fields;
+        std::vector<std::string> value_fields;
+		std::vector<std::string> colors;
+
+        void get_json(json& _dest)
+        {
+            json_parser jp;
+            json j = jp.create_object();
+            json jlabels = jp.create_array();
+            for (auto fld : label_fields) {
+                jlabels.push_back(fld);
+            }
+            _dest.put_member("label_fields", jlabels);
+            json jvalues = jp.create_array();
+            for (auto fld : value_fields) {
+                jvalues.push_back(fld);
+            }
+            _dest.put_member("value_fields", jvalues);
+            json jcolors = jp.create_array();
+            for (auto fld : colors) {
+                jcolors.push_back(fld);
+            }
+            _dest.put_member("colors", jcolors);
+        }
+        void put_json(json& _src)
+        {
+			label_fields.clear();
+
+            json jlabels = _src["label_fields"];
+			if (jlabels.array()) {
+				label_fields = jlabels.to_string_array();
+			}
+            json jvalues = _src["value_fields"];
+			if (jvalues.array()) {
+                value_fields = jvalues.to_string_array();
+			}
+            json jcolors = _src["colors"];
+			if (jcolors.array()) {
+				colors = jcolors.to_string_array();
+			}
+        }
+	};
+
 	class chart_series
 	{
 	public:
@@ -187,29 +241,27 @@ namespace corona
 	class bar_chart_specification : public chart_specification
 	{
 	public:
-		std::vector<chart_series> value_fields;
+        std::shared_ptr<auto_series> auto_series_spec;
 
         void get_json(json& _dest)
         {
             json_parser jp;
             chart_specification::get_json(_dest);
-            json jvalues = jp.create_array();
-            for (auto fld : value_fields) {
-                json jfld = jp.create_object();
-                fld.put_json(jfld);
-                jvalues.push_back(jfld);
-            }
-            _dest.put_member("series", jvalues);
+
+			if (auto_series_spec) {
+				json jobj = jp.create_array();
+                auto_series_spec->get_json(jobj);
+                _dest.put_member("auto_series", jobj);
+			}
         }
 
         void put_json(json& _src)
         {
-            json jvalues = _src["series"];
-            for (auto jfld : jvalues) {
-                chart_series fld;
-                fld.put_json(jfld);
-                value_fields.push_back(fld);
-            }
+            json jauto_series = _src["auto_series"];
+			if (jauto_series.object()) {
+				auto_series_spec = std::make_shared<auto_series>();
+				auto_series_spec->put_json(jauto_series);
+			}
         }
 	};
 
@@ -728,23 +780,26 @@ namespace corona
 
 			double bar_width = (_ctx->w - y_axis_width) / slice_array.size();
 
-			for (auto fld : _spec.value_fields) {
-				std::string name = fld.field_name;
-				std::shared_ptr<game::vector_frame> bar_frame = std::make_shared<game::vector_frame>();
-				std::string bar_name = fld.field_name;
-				result->bars[bar_name] = bar_frame;
-				bar_frame->fill = fld.fill;
-				bar_frame->stroke = fld.stroke;
-				bar_frame->stroke_width = fld.stroke_width;
-			}
-
 			for (auto item : slice_array) {
 				json jitem = item;
-				for (auto fld : _spec.value_fields) {
-					double x = jitem[fld.field_name].as_double();
-					auto& f = result->bar_units;
-					f.accumulate(x);
+				std::string bar_name;
+				std::string sep = "";
+				for (auto fld : _spec.auto_series_spec->label_fields) {
+					bar_name += sep;
+					bar_name += jitem[fld].as_string();
+					sep = ", ";
+                    if (result->bars.find(bar_name) == result->bars.end()) {
+                        std::shared_ptr<game::vector_frame> bar_frame = std::make_shared<game::vector_frame>();
+						std::string color = _spec.auto_series_spec->colors[result->bars.size() % _spec.auto_series_spec->colors.size()];
+                        bar_frame->fill.setColor(color);
+                        bar_frame->name = bar_name;
+                        result->bars[bar_name] = bar_frame;
+                    }
 				}
+                for (auto fld : _spec.auto_series_spec->value_fields) {
+                    double y = jitem[fld].as_double();
+                    result->bar_units.accumulate(y);
+                }
 			}
 
 			axis_frame axis;
