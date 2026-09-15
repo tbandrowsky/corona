@@ -1927,8 +1927,17 @@
                   "class_name": "bar_chart",
                   "auto_series": {
                     "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [ "count" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
                     "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
                   }
                 },
                 "group_by": {
@@ -1940,10 +1949,6 @@
                       "aggregate": "count"
                     }
                   ]
-                },
-                "cross_tab": {
-                  "src_fields": [ "class_name", "type_name" ],
-                  "value_fields": [ "count" ]
                 }
               }
             ]

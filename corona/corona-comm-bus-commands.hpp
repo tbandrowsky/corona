@@ -2553,6 +2553,11 @@ namespace corona
 								temp.put_member("items", flattened);
 								cc->set_chart(chart_spec, temp, "items");
 							}
+							else {
+                                std::shared_ptr<json_array> wrapped_items = std::make_shared<json_array>(iv_items);
+                                temp.put_member("items", wrapped_items);
+                                cc->set_chart(chart_spec, temp, "items");
+							}
 
 						}
 					}
