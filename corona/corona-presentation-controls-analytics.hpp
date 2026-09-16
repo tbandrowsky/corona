@@ -7,10 +7,32 @@ namespace corona
 
 	public:
 
-		std::string class_name;
-		std::string title;
-		std::string description;
-		generalBrushRequest background;
+		std::string					class_name;
+		std::string					title;
+		std::string					description;
+		textStyleRequest			axis_text;
+		generalBrushRequest			axis_major;
+		generalBrushRequest		    axis_minor;
+		generalBrushRequest         background;
+
+		chart_specification()
+		{
+			axis_major.setColor("#505050");
+			axis_major.set_name("axis_major");
+
+			axis_minor.setColor("#404040");
+			axis_minor.set_name("axis_minor");
+
+			axis_text = {};
+			axis_text.name = "axis_text";
+			axis_text.fontName = "Arial";
+			axis_text.fontSize = 12;
+			axis_text.wrap_text = true;
+			axis_text.horizontal_align = visual_alignment::align_far;
+
+			background.setColor("#F0F0F0");
+			background.set_name("chart_background");
+		}
 
         virtual void get_json(json& _dest)
         {
@@ -22,6 +44,12 @@ namespace corona
 			json jbackground = jp.create_object();
 			background.get_json(jbackground);
 			_dest.put_member("background", jbackground);
+            json jaxis_text = jp.create_object();
+			corona::get_json(jaxis_text, axis_text);
+			json jaxis_major = jp.create_object();
+			axis_major.get_json(jaxis_major);
+			json jaxis_minor = jp.create_object();
+			axis_minor.get_json(jaxis_minor);
         }
 
 		virtual void put_json(json& _src)
@@ -31,6 +59,12 @@ namespace corona
             description = _src["description"].as_string();
             json jbackground = _src["background"];
 			background.put_json(jbackground);
+            json jaxis_text = _src["axis_text"];
+			corona::put_json(axis_text, jaxis_text);
+            json jaxis_major = _src["axis_major"];
+			axis_major.put_json(jaxis_major);
+            json jaxis_minor = _src["axis_minor"];
+			axis_minor.put_json(jaxis_minor);
 		}
 	};
 
@@ -154,7 +188,6 @@ namespace corona
 			if (!*stroke.get_name()) {
 				stroke.set_name("chart_series_" + field_name + "_" + units);
 			}
-
         }
 	};
 
@@ -212,109 +245,17 @@ namespace corona
 		chart_series				time_series;
 		std::vector<chart_series>	values_fields;
 
-        void get_json(json& _dest)
-        {
-            json_parser jp;
-            chart_specification::get_json(_dest);
-            json jtime = jp.create_object();
-            time_series.put_json(jtime);
-            _dest.put_member("time_series", jtime);
-            json jvalues = jp.create_array();
-            for (auto fld : values_fields) {
-                json jfld = jp.create_object();
-                fld.put_json(jfld);
-                jvalues.push_back(jfld);
-            }
-            _dest.put_member("series", jvalues);
-        }
-
-        void put_json(json& _src)
-        {
-            json jtime = _src["time_series"];
-            time_series.put_json(jtime);
-            json jvalues = _src["series"];
-            for (auto jfld : jvalues) {
-                chart_series fld;
-                fld.put_json(jfld);
-                values_fields.push_back(fld);
-            }
-        }
-	};
-
-	class xy_chart_specification : public chart_specification
-	{
-	public:		
-		
-		std::vector<chart_xy_series> values_fields;
-
-        void get_json(json& _dest)
-        {
-            json_parser jp;
-            chart_specification::get_json(_dest);
-            json jvalues = jp.create_array();
-            for (auto fld : values_fields) {
-                json jfld = jp.create_object();
-                fld.get_json(jfld);
-                jvalues.push_back(jfld);
-            }
-            _dest.put_member("series", jvalues);
-        }
-
-        void put_json(json& _src)
-        {
-            json jvalues = _src["series"];
-            for (auto jfld : jvalues) {
-                chart_xy_series fld;
-                fld.put_json(jfld);
-                values_fields.push_back(fld);
-            }
-        }
-
-	};
-
-	class bar_chart_specification : public chart_specification
-	{
-	public:
-        std::shared_ptr<auto_series> auto_series_spec;
-		double minimum_value = 0.0;
-
-        void get_json(json& _dest)
-        {
-            json_parser jp;
-            chart_specification::get_json(_dest);
-
-			if (auto_series_spec) {
-				json jobj = jp.create_array();
-                auto_series_spec->get_json(jobj);
-                _dest.put_member("auto_series", jobj);
-			}
-            _dest.put_member("minimum_value", minimum_value);
-        }
-
-        void put_json(json& _src)
-        {
-            json jauto_series = _src["auto_series"];
-			if (jauto_series.object()) {
-				auto_series_spec = std::make_shared<auto_series>();
-				auto_series_spec->put_json(jauto_series);
-			}
-            minimum_value = _src["minimum_value"].as_double();
-        }
-	};
-
-	class pie_chart_specification : public chart_specification
-	{
-	public:
-		std::vector<chart_series> value_fields;
-
 		void get_json(json& _dest)
 		{
 			json_parser jp;
 			chart_specification::get_json(_dest);
+			json jtime = jp.create_object();
+			time_series.put_json(jtime);
+			_dest.put_member("time_series", jtime);
 			json jvalues = jp.create_array();
-			for (auto fld : value_fields) {
+			for (auto fld : values_fields) {
 				json jfld = jp.create_object();
-				fld.put_json(jfld);
+				fld.get_json(jfld);
 				jvalues.push_back(jfld);
 			}
 			_dest.put_member("series", jvalues);
@@ -322,16 +263,280 @@ namespace corona
 
 		void put_json(json& _src)
 		{
+			chart_specification::put_json(_src);
+			values_fields.clear();
+
+			json jtime = _src["time_series"];
+			time_series.put_json(jtime);
+
 			json jvalues = _src["series"];
-			for (auto jfld : jvalues) {
-				chart_series fld;
-				fld.put_json(jfld);
-				value_fields.push_back(fld);
+			if (jvalues.array()) {
+				for (auto jfld : jvalues) {
+					chart_series fld;
+					fld.put_json(jfld);
+					values_fields.push_back(fld);
+				}
 			}
 		}
 	};
 
-    class program_chart_specification : public chart_specification
+	class xy_chart_specification : public chart_specification
+	{
+	public:
+		std::vector<chart_xy_series> values_fields;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+			json jvalues = jp.create_array();
+			for (auto fld : values_fields) {
+				json jfld = jp.create_object();
+				fld.get_json(jfld);
+				jvalues.push_back(jfld);
+			}
+			_dest.put_member("series", jvalues);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			values_fields.clear();
+
+			json jvalues = _src["series"];
+			if (jvalues.array()) {
+				for (auto jfld : jvalues) {
+					chart_xy_series fld;
+					fld.put_json(jfld);
+					values_fields.push_back(fld);
+				}
+			}
+		}
+	};
+
+	// Insert after xy_chart_specification and before bar_chart_specification.
+
+	class line_chart_specification : public chart_specification
+	{
+	public:
+		chart_series				x_series;
+		std::vector<chart_series>	values_fields;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+
+			json jx = jp.create_object();
+			x_series.get_json(jx);
+			_dest.put_member("x_series", jx);
+
+			json jvalues = jp.create_array();
+			for (auto fld : values_fields) {
+				json jfld = jp.create_object();
+				fld.get_json(jfld);
+				jvalues.push_back(jfld);
+			}
+			_dest.put_member("series", jvalues);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			values_fields.clear();
+
+			json jx = _src["x_series"];
+			x_series.put_json(jx);
+
+			json jvalues = _src["series"];
+			if (jvalues.array()) {
+				for (auto jfld : jvalues) {
+					chart_series fld;
+					fld.put_json(jfld);
+					values_fields.push_back(fld);
+				}
+			}
+		}
+	};
+
+	// Fix bar chart JSON symmetry.
+	class bar_chart_specification : public chart_specification
+	{
+	public:
+		std::shared_ptr<auto_series> auto_series_spec;
+		double minimum_value = 0.0;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+
+			if (auto_series_spec) {
+				json jobj = jp.create_object();
+				auto_series_spec->get_json(jobj);
+				_dest.put_member("auto_series", jobj);
+			}
+			_dest.put_member("minimum_value", minimum_value);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			auto_series_spec.reset();
+
+			json jauto_series = _src["auto_series"];
+			if (jauto_series.object()) {
+				auto_series_spec = std::make_shared<auto_series>();
+				auto_series_spec->put_json(jauto_series);
+			}
+			minimum_value = _src["minimum_value"].as_double();
+		}
+	};
+
+	class pie_chart_specification : public chart_specification
+	{
+	public:
+		std::vector<chart_series> value_fields;
+		double minimum_value = 0.0;
+		std::shared_ptr<auto_series> auto_series_spec;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+
+			json jvalues = jp.create_array();
+			for (auto fld : value_fields) {
+				json jfld = jp.create_object();
+				fld.get_json(jfld);
+				jvalues.push_back(jfld);
+			}
+			_dest.put_member("series", jvalues);
+
+			if (auto_series_spec) {
+				json jobj = jp.create_object();
+				auto_series_spec->get_json(jobj);
+				_dest.put_member("auto_series", jobj);
+			}
+
+			_dest.put_member("minimum_value", minimum_value);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			value_fields.clear();
+			auto_series_spec.reset();
+
+			json jvalues = _src["series"];
+			if (jvalues.array()) {
+				for (auto jfld : jvalues) {
+					chart_series fld;
+					fld.put_json(jfld);
+					value_fields.push_back(fld);
+				}
+			}
+
+			json jauto_series = _src["auto_series"];
+			if (jauto_series.object()) {
+				auto_series_spec = std::make_shared<auto_series>();
+				auto_series_spec->put_json(jauto_series);
+			}
+
+			minimum_value = _src["minimum_value"].as_double();
+		}
+	};
+
+	// New line chart, patterned after time_chart.
+
+	class bar_chart_specification : public chart_specification
+	{
+	public:
+		std::shared_ptr<auto_series> auto_series_spec;
+		double minimum_value = 0.0;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+
+			if (auto_series_spec) {
+				json jobj = jp.create_object();
+				auto_series_spec->get_json(jobj);
+				_dest.put_member("auto_series", jobj);
+			}
+			_dest.put_member("minimum_value", minimum_value);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			auto_series_spec.reset();
+
+			json jauto_series = _src["auto_series"];
+			if (jauto_series.object()) {
+				auto_series_spec = std::make_shared<auto_series>();
+				auto_series_spec->put_json(jauto_series);
+			}
+			minimum_value = _src["minimum_value"].as_double();
+		}
+	};
+
+	class pie_chart_specification : public chart_specification
+	{
+	public:
+		std::vector<chart_series> value_fields;
+		double minimum_value = 0.0;
+		std::shared_ptr<auto_series> auto_series_spec;
+
+		void get_json(json& _dest)
+		{
+			json_parser jp;
+			chart_specification::get_json(_dest);
+
+			json jvalues = jp.create_array();
+			for (auto fld : value_fields) {
+				json jfld = jp.create_object();
+				fld.get_json(jfld);
+				jvalues.push_back(jfld);
+			}
+			_dest.put_member("series", jvalues);
+
+			if (auto_series_spec) {
+				json jobj = jp.create_object();
+				auto_series_spec->get_json(jobj);
+				_dest.put_member("auto_series", jobj);
+			}
+
+			_dest.put_member("minimum_value", minimum_value);
+		}
+
+		void put_json(json& _src)
+		{
+			chart_specification::put_json(_src);
+			value_fields.clear();
+			auto_series_spec.reset();
+
+			json jvalues = _src["series"];
+			if (jvalues.array()) {
+				for (auto jfld : jvalues) {
+					chart_series fld;
+					fld.put_json(jfld);
+					value_fields.push_back(fld);
+				}
+			}
+
+			json jauto_series = _src["auto_series"];
+			if (jauto_series.object()) {
+				auto_series_spec = std::make_shared<auto_series>();
+				auto_series_spec->put_json(jauto_series);
+			}
+
+			minimum_value = _src["minimum_value"].as_double();
+		}
+	};
+
+	class program_chart_specification : public chart_specification
 	{
 	public:
 		std::string				 attachment_point_field;
@@ -391,6 +596,7 @@ namespace corona
         textStyleRequest			axis_text;
 		generalBrushRequest			axis_major;
 		generalBrushRequest		    axis_minor;
+		generalBrushRequest         background;
 
 		const double y_axis_width = 100;
 		const double x_axis_height = 75;
@@ -404,17 +610,28 @@ namespace corona
 			axis_minor.set_name("axis_minor");
 
 			axis_text = {};
-			axis_text.name = "Axis Text";
+			axis_text.name = "axis_text";
             axis_text.fontName = "Arial";
 			axis_text.fontSize = 12;
 			axis_text.wrap_text = true;
+            axis_text.horizontal_align = visual_alignment::align_far;
+
+			background.setColor("#F0F0F0");
+			background.set_name("chart_background");
+		}
+
+		chart_frame(std::shared_ptr<direct2dContext>& _context, chart_specification& _spec)
+		{
+            axis_major = _spec.axis_major;
+			axis_minor = _spec.axis_minor;
+            axis_text = _spec.axis_text;
+            background = _spec.background;
 		}
 
 		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
 		{
 			;
 		}
-
 
 	protected:
 
@@ -423,6 +640,7 @@ namespace corona
 			_context->setBrush(&axis_major);
 			_context->setBrush(&axis_minor);
 			_context->setTextStyle(&axis_text);
+			_context->setBrush(&background);
 		}
 
 		virtual void draw_x_axis(std::shared_ptr<direct2dContext>& _context, axis_frame& _axis)
@@ -516,8 +734,8 @@ namespace corona
 					tick_positions.insert(tick_pos);
 					rectangle text_bounds;
 					text_bounds.x = _axis.bounds.x;
-					text_bounds.y = tick_position + 8;
-					text_bounds.w = _axis.bounds.w;
+					text_bounds.y = tick_position + 4;
+					text_bounds.w = _axis.bounds.w - 4;
 					text_bounds.h = 20;
 					_context->drawText(std::to_string(tick_value), &text_bounds, axis_text.name, axis_minor.get_name(), "");
 				}
@@ -539,7 +757,6 @@ namespace corona
 		std::map<std::string, std::shared_ptr<game::vector_frame>>	lines;
 		std::map<std::string, axis_frame>		y_axes;
 		axis_frame					x_axes;
-		rectangle					chart_bounds;
 
 		time_chart_frame() = default;
 		time_chart_frame(const time_chart_frame& _src) = default;
@@ -604,7 +821,7 @@ namespace corona
 					double y_value = jitem[field_name].as_double();
 					auto& y_unit = y_units[fld.units];
                     auto& y_axis = y_axes[fld.units];
-					y_axis.ticks.push_back(y_value);
+				 y_axis.ticks.push_back(y_value);
 					auto& x_unit = x_units[_spec.time_series.units];
 					auto& line_frame = lines[field_name];
 					double y_scaled = chart_bounds.bottom() - y_unit.scale(y_value, chart_bounds.y, chart_bounds.bottom());
@@ -627,6 +844,105 @@ namespace corona
 		}
 
 	};
+
+	class line_chart_frame : public chart_frame
+	{
+	public:
+		line_chart_specification specs;
+		std::map<std::string, unit_frame> x_units;
+		std::map<std::string, unit_frame> y_units;
+		std::map<std::string, std::shared_ptr<game::vector_frame>> lines;
+		std::map<std::string, axis_frame> y_axes;
+		axis_frame x_axes;
+
+		line_chart_frame() = default;
+		line_chart_frame(const line_chart_frame& _src) = default;
+		line_chart_frame(line_chart_frame&& _src) = default;
+
+		line_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, line_chart_specification& _spec, rectangle* _ctx)
+			: chart_frame(_context, _spec)
+		{
+			specs = _spec;
+			ux_bounds = *_ctx;
+			create_assets(_context);
+
+			x_units[_spec.x_series.units] = unit_frame();
+
+			for (auto fld : _spec.values_fields) {
+				y_units[fld.units] = unit_frame();
+
+				std::shared_ptr<game::vector_frame> line_frame = std::make_shared<game::vector_frame>();
+				line_frame->fill = fld.fill;
+				line_frame->stroke = fld.stroke;
+				line_frame->stroke_width = fld.stroke_width;
+				lines[fld.field_name] = line_frame;
+			}
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				double x = jitem[_spec.x_series.field_name].as_double();
+				x_units[_spec.x_series.units].accumulate(x);
+
+				for (auto fld : _spec.values_fields) {
+					double y = jitem[fld.field_name].as_double();
+					y_units[fld.units].accumulate(y);
+				}
+			}
+
+			chart_bounds.x = _ctx->x + y_axis_width * y_units.size();
+			chart_bounds.y = _ctx->y;
+			chart_bounds.h = _ctx->h - x_axis_height;
+			chart_bounds.w = _ctx->right() - chart_bounds.x;
+
+			int index = 0;
+			for (auto& unit : y_units) {
+				axis_frame axis;
+				axis.units = unit.second;
+				axis.bounds.x = _ctx->x + y_axis_width * index;
+				axis.bounds.w = y_axis_width;
+				axis.bounds.y = _ctx->y;
+				axis.bounds.h = _ctx->h - x_axis_height;
+				y_axes[unit.first] = axis;
+				index++;
+			}
+
+			x_axes.units = x_units[_spec.x_series.units];
+			x_axes.bounds.x = chart_bounds.x;
+			x_axes.bounds.w = chart_bounds.w;
+			x_axes.bounds.y = chart_bounds.bottom();
+			x_axes.bounds.h = x_axis_height;
+
+			for (auto item : slice_array) {
+				json jitem = item;
+				double x = jitem[_spec.x_series.field_name].as_double();
+				x_axes.ticks.push_back(x);
+
+				for (auto fld : _spec.values_fields) {
+					double y = jitem[fld.field_name].as_double();
+					auto& ya = y_axes[fld.units];
+					ya.ticks.push_back(y);
+
+					double x_scaled = x_axes.units.scale(x, chart_bounds.x, chart_bounds.right());
+					double y_scaled = chart_bounds.bottom() - ya.units.scale(y, chart_bounds.y, chart_bounds.bottom());
+					lines[fld.field_name]->path.addLineTo(x_scaled, y_scaled);
+				}
+			}
+		}
+
+		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
+		{
+			draw_x_axis(_context, x_axes);
+
+			for (auto& y_axis_pair : y_axes) {
+				draw_y_axis(_context, y_axis_pair.second);
+			}
+
+			for (auto& line : lines) {
+				line.second->draw_item(*_context.get());
+			}
+		}
+	};
+
 
 	class xy_chart_frame : public chart_frame {
 	public:
@@ -738,68 +1054,140 @@ namespace corona
 	class pie_chart_frame : public chart_frame {
 	public:
 		pie_chart_specification specs;
-        unit_frame				pie_units;
-		std::map<std::string, std::shared_ptr<game::vector_frame>>	slices;
+
+		class graphic_slice {
+		public:
+			std::shared_ptr<game::vector_frame> bar_frame = std::make_shared<game::vector_frame>();
+			double								value;
+			std::string	                        label;
+			std::string				            units;
+			rectangle	                        label_area;
+		};
+
+		std::map<std::string, std::shared_ptr<graphic_slice>>	bars;
+		std::map<std::string, axis_frame>		y_axes;
 
 		pie_chart_frame() = default;
 		pie_chart_frame(const pie_chart_frame& _src) = default;
 		pie_chart_frame(pie_chart_frame&& _src) = default;
-		pie_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, pie_chart_specification& _spec, rectangle* _ctx)
+		pie_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, pie_chart_specification& _spec, rectangle* _ctx) :
+			chart_frame(_context, _spec)
 		{
-			std::shared_ptr<pie_chart_frame> result = std::make_shared<pie_chart_frame>();
-
 			specs = _spec;
 			ux_bounds = *_ctx;
 
-			for (auto fld : _spec.value_fields) {
-				std::string name = fld.field_name;
-				std::shared_ptr<game::vector_frame> pie_frame = std::make_shared<game::vector_frame>();
-				std::string slice_name = fld.field_name;
-				slices[slice_name] = pie_frame;
-				pie_frame->fill = fld.fill;
-				pie_frame->stroke = fld.stroke;
-				pie_frame->stroke_width = fld.stroke_width;
-			}
+			create_assets(_context);
 
-			for (auto item : slice_array) {
+			for (auto& item : slice_array)
+			{
 				json jitem = item;
-				for (auto fld : _spec.value_fields) {
-					double x = jitem[fld.field_name].as_double();
-					auto& f = pie_units;
-					f.accumulate(x);
+				std::string key_name;
+				std::string sep = "";
+				std::string units = "";
+
+				for (auto fld : _spec.auto_series_spec->label_fields) {
+					key_name += sep;
+					key_name += jitem[fld].as_string();
+					sep = ", ";
 				}
+
+				for (auto fld : _spec.auto_series_spec->value_fields)
+				{
+					std::string bar_name = key_name + " - " + fld.field_name;
+
+					double y = jitem[fld.field_name].as_double();
+
+					if (bars.find(bar_name) == bars.end()) {
+						std::shared_ptr<graphic_slice> bar_frame = std::make_shared<graphic_slice>();
+						std::string color = _spec.auto_series_spec->colors[bars.size() % _spec.auto_series_spec->colors.size()];
+						bar_frame->bar_frame->fill.setColor(color);
+						bar_frame->bar_frame->stroke.setColor("#707070");
+						bar_frame->bar_frame->fill.set_name(bar_name + "_fill");
+						bar_frame->bar_frame->stroke.set_name(bar_name + "_stroke");
+						bar_frame->bar_frame->stroke_width = 1.0;
+						bar_frame->label = bar_name;
+						bar_frame->units = fld.units;
+						bar_frame->value = y;
+						bars[bar_name] = bar_frame;
+					}
+
+					if (y_axes.find(fld.units) == y_axes.end()) {
+						axis_frame axis;
+						y_axes[fld.units] = axis;
+						y_axes[fld.units].units.accumulate(_spec.minimum_value);
+						y_axes[fld.units].ticks.push_back(_spec.minimum_value);
+					}
+				 y_axes[fld.units].units.accumulate(y);
+				 y_axes[fld.units].ticks.push_back(y);
+				}
+
 			}
 
-			double xradius = _ctx->w / 2.0;
-			double yradius = _ctx->h / 2.0;
-			double radius = std::min(xradius, yradius);
+			int visual_bar_count = bars.size();
+			if (visual_bar_count < 4)
+				visual_bar_count = 4;
 
-			point center = rectangle_math::center(chart_bounds);
+			double bar_width = (_ctx->w - y_axis_width) / visual_bar_count;
 
-			for (auto item : slice_array) {
-				json jitem = item;
-				double start_angle = 0.0;
-				for (auto fld : _spec.value_fields) {
-					double x = jitem[fld.field_name].as_double();
-					auto& f = pie_units;
-					double angle = (x / f.sum) * 360.0;
-					auto& slice_frame = slices[fld.field_name];
-					slice_frame->path.addLineTo(center.x, center.y);
-					slice_frame->path.addPathArc(center.x + cos(start_angle) * radius, center.y + sin(start_angle) * radius, radius, radius, start_angle);
-					slice_frame->path.addLineTo(center.x, center.y);
-					start_angle += angle;
-				}
+			chart_bounds.x = _ctx->x + y_axis_width;
+			chart_bounds.y = _ctx->y;
+			chart_bounds.h = _ctx->h - x_axis_height;
+			chart_bounds.w = _ctx->w - y_axis_width;
+
+			double x = _ctx->x;
+
+			for (auto& axis : y_axes) {
+				axis.second.bounds.x = x;
+				axis.second.bounds.w = y_axis_width;
+				axis.second.bounds.y = _ctx->y;
+				axis.second.bounds.h = _ctx->h - x_axis_height;
+				x += y_axis_width;
 			}
 
+			x = chart_bounds.x;
+
+			for (auto& bar : bars) {
+
+				double y = bar.second->value;
+				double y_scaled = y_axes[bar.second->units].units.scale(y, chart_bounds.bottom(), chart_bounds.y);
+
+				double width = bar_width - 8;
+				if (width < 0) width = 0;
+
+				bar.second->bar_frame->path.addLineTo(x, chart_bounds.bottom());
+				bar.second->bar_frame->path.addLineTo(x + width, chart_bounds.bottom());
+				bar.second->bar_frame->path.addLineTo(x + width, y_scaled);
+				bar.second->bar_frame->path.addLineTo(x, y_scaled);
+				bar.second->bar_frame->path.addLineTo(x, chart_bounds.bottom());
+
+				bar.second->label_area.h = 20;
+				bar.second->label_area.x = x;
+				bar.second->label_area.y = chart_bounds.bottom() + 5;
+				bar.second->label_area.w = width;
+
+				bar.second->bar_frame->create_assets(*_context);
+
+				x += bar_width;
+			}
 		}
 
 		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
 		{
-			for (auto& slice : this->slices)
+			_context->drawRectangle(&ux_bounds, axis_major.get_name(), 2, specs.background.get_name());
+
+			for (auto& axis : y_axes)
 			{
-				slice.second->draw_item(*_context.get());
+				draw_y_axis(_context, axis.second);
 			}
+
+			for (auto& bar : this->bars)
+			{
+				bar.second->bar_frame->draw_item(*_context.get());
+				_context->drawText(bar.second->label, &bar.second->label_area, axis_text.name, axis_minor.get_name(), "");
+			}
+
 		}
+
 	};
 
 	class bar_chart_frame : public chart_frame {
@@ -812,6 +1200,7 @@ namespace corona
 			double								value;
             std::string	                        label;
             std::string				            units;	
+			rectangle	                        label_area;
 		};
 
 		std::map<std::string, std::shared_ptr<graphic_bar>>	bars;
@@ -820,7 +1209,8 @@ namespace corona
 		bar_chart_frame() = default;
         bar_chart_frame(const bar_chart_frame& _src) = default;
         bar_chart_frame(bar_chart_frame&& _src) = default;
-		bar_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, bar_chart_specification& _spec, rectangle* _ctx)
+		bar_chart_frame(std::shared_ptr<direct2dContext>& _context, json_array& slice_array, bar_chart_specification& _spec, rectangle* _ctx) :
+            chart_frame(_context, _spec)
 		{
 			specs = _spec;
 			ux_bounds = *_ctx;
@@ -866,8 +1256,8 @@ namespace corona
 						y_axes[fld.units].units.accumulate(_spec.minimum_value);
 						y_axes[fld.units].ticks.push_back(_spec.minimum_value);
 					}
-					y_axes[fld.units].units.accumulate(y);
-					y_axes[fld.units].ticks.push_back(y);
+				 y_axes[fld.units].units.accumulate(y);
+				 y_axes[fld.units].ticks.push_back(y);
                 }
 
 			}
@@ -909,6 +1299,11 @@ namespace corona
 				bar.second->bar_frame->path.addLineTo(x, y_scaled);
 				bar.second->bar_frame->path.addLineTo(x, chart_bounds.bottom());
 
+				bar.second->label_area.h = 20;
+                bar.second->label_area.x = x;
+                bar.second->label_area.y = chart_bounds.bottom() + 5;
+				bar.second->label_area.w = width;
+
                 bar.second->bar_frame->create_assets(*_context);
 
 				x += bar_width;
@@ -918,6 +1313,7 @@ namespace corona
 
 		virtual void draw_chart(std::shared_ptr<direct2dContext>& _context)
 		{
+            _context->drawRectangle(&ux_bounds, axis_major.get_name(), 2, specs.background.get_name());
 
 			for (auto& axis : y_axes)
 			{
@@ -927,39 +1323,13 @@ namespace corona
 			for (auto& bar : this->bars)
 			{
 				bar.second->bar_frame->draw_item(*_context.get());
+                _context->drawText(bar.second->label, &bar.second->label_area, axis_text.name, axis_minor.get_name(), "");
 			}
 
 		}
 
 	};
 
-	std::shared_ptr<chart_specification> create_chart_specification(json& jchart)
-	{
-		std::shared_ptr<chart_specification> current_options;
-
-		std::string class_name = jchart["class_name"].as_string();
-		if (class_name == "time_chart") {
-			current_options = std::make_shared<time_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "xy_chart") {
-			current_options = std::make_shared<xy_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "bar_chart") {
-			current_options = std::make_shared<bar_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "pie_chart") {
-			current_options = std::make_shared<pie_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		else if (class_name == "program_chart") {
-			current_options = std::make_shared<program_chart_specification>();
-			current_options->put_json(jchart);
-		}
-		return current_options;
-	}
 
 	class chart_control : public draw_control
 	{
@@ -1034,6 +1404,9 @@ namespace corona
 		{
 			if (auto tc_options = std::dynamic_pointer_cast<time_chart_specification>(current_options)) {
 				current_chart = std::make_shared<time_chart_frame>(_context, slice_array, *tc_options.get(), &inner_bounds);
+			}
+			else if (auto lc_options = std::dynamic_pointer_cast<line_chart_specification>(current_options)) {
+				current_chart = std::make_shared<line_chart_frame>(_context, slice_array, *lc_options.get(), &inner_bounds);
 			}
 			else if (auto xyc_options = std::dynamic_pointer_cast<xy_chart_specification>(current_options)) {
 				current_chart = std::make_shared<xy_chart_frame>(_context, slice_array, *xyc_options.get(), &inner_bounds);
