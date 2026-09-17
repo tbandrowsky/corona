@@ -51,7 +51,7 @@
       "class_name": "record",
       "base_class_name": "sys_object",
       "class_description": "A record of something, financial",
-      "parents": [ "person", "activity", "client", "vendor", "employee" ],
+      "parents": [ "person", "company", "client", "vendor", "employee" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -99,7 +99,39 @@
     {
       "class_name": "deed",
       "base_class_name": "record",
-      "class_description": "A contract",
+      "class_description": "A deed",
+      "parents": [],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      }
+    },
+    {
+      "class_name": "rulings",
+      "base_class_name": "record",
+      "class_description": "A court ruling",
+      "parents": [],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      }
+    },
+    {
+      "class_name": "title",
+      "base_class_name": "record",
+      "class_description": "A title",
       "parents": [],
       "fields": {
         "general_terms": {
@@ -187,72 +219,68 @@
           "label": "Title",
           "max_length": 100
         },
-        "national_id": "string",
-        "pay_rate": "double"
+        "national_id": {
+          "field_type": "string",
+          "label": "National ID",
+          "max_length": 50
+        },
+        "emergency_contact_name": {
+          "field_type": "string",
+          "label": "Emergency Contact"
+        },
+        "emergency_contact_phone": {
+          "field_type": "string",
+          "label": "Emergency Contact Phone"
+        },
+        "direct_reports": [ "employee" ]
       }
     },
     {
-      "class_name": "client",
-      "base_class_name": "sys_object",
-      "class_description": "A client",
-      "full_text": [ "company_name", "street", "city", "state", "zip" ],
-      "parents": [ "corporation", "library", "shop", "museum", "school" ],
+      "class_name": "contractor",
+      "base_class_name": "employee",
+      "class_description": "A contractor",
+      "full_text": [ "title" ],
+      "parents": [ "vendor" ],
       "fields": {
-        "company_name": {
+        "title": {
           "field_type": "string",
-          "label": "Company Name",
-          "max_length": 50
-        },
-        "street": {
-          "field_type": "string",
-          "label": "Street Address"
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code"
-        },
-        "contacts": [ "person" ],
-        "contracts": [ "contract" ]
+          "label": "Title",
+          "max_length": 100
+        }
+
       }
     },
     {
-      "class_name": "vendor",
-      "base_class_name": "sys_object",
-      "class_description": "A vendor",
-      "full_text": [ "company_name", "street", "city", "state", "zip" ],
-      "parents": [ "corporation", "library", "shop", "museum", "school" ],
+      "class_name": "salary",
+      "base_class_name": "employee",
+      "class_description": "A salary worker",
+      "full_text": [ "title" ],
+      "parents": [ "vendor" ],
       "fields": {
-        "company_name": {
+        "title": {
           "field_type": "string",
-          "label": "Company Name",
-          "max_length": 50
+          "label": "Title",
+          "max_length": 100
         },
-        "street": {
+        "annual_salary": {
+          "field_type": "number",
+          "label": "Annual Salary",
+          "min_value": 0
+        }
+      }
+    },
+    {
+      "class_name": "hourly",
+      "base_class_name": "employee",
+      "class_description": "An hourly worker",
+      "full_text": [ "title" ],
+      "parents": [ "vendor" ],
+      "fields": {
+        "title": {
           "field_type": "string",
-          "label": "Street Address"
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code"
-        },
-        "contacts": [ "person" ],
-        "contracts": [ "contract" ]
+          "label": "Title",
+          "max_length": 100
+        }
       }
     },
     {
@@ -260,7 +288,7 @@
       "base_class_name": "sys_object",
       "class_description": "An asset",
       "full_text": [ "name", "description" ],
-      "parents": [ "library", "market", "client" ],
+      "parents": [ "company" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -274,20 +302,220 @@
       }
     },
     {
-      "class_name": "activity",
+      "class_name": "rms_construction_type",
       "base_class_name": "sys_object",
-      "class_description": "An activity",
-      "full_text": [ "name", "description", "image" ],
+      "class_description": "RMS construction type used for insurance and catastrophe risk modeling",
+      "full_text": [
+        "code",
+        "description"
+      ],
+      "fields": {
+        "class_name": {
+          "field_type": "string",
+          "label": "Class Name",
+          "max_length": 100
+        },
+        "code": {
+          "field_type": "string",
+          "label": "RMS Code",
+          "max_length": 10
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description",
+          "max_length": 250
+        }
+      }
+    },
+    {
+      "class_name": "rms_occupancy_type",
+      "base_class_name": "sys_object",
+      "class_description": "RMS occupancy type used for insurance and catastrophe risk modeling",
+      "full_text": [
+        "code",
+        "description"
+      ],
+      "fields": {
+        "class_name": {
+          "field_type": "string",
+          "label": "Class Name",
+          "max_length": 100
+        },
+        "code": {
+          "field_type": "string",
+          "label": "RMS Occupancy Code",
+          "max_length": 10
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description",
+          "max_length": 250
+        }
+      }
+    },
+    {
+      "class_name": "building",
+      "base_class_name": "asset",
+      "class_description": "An asset",
+      "full_text": [],
+      "fields": {
+        "latitude": {
+          "field_type": "string",
+          "label": "Latitude",
+          "max_length": 100
+        },
+        "longitude": {
+          "field_type": "string",
+          "label": "Longitude",
+          "max_length": 100
+        },
+        "construction_type": "rms_construction_type",
+        "occupancy_type": "rms_occupancy_type",
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        }
+      }
+    },
+    {
+      "class_name": "property",
+      "base_class_name": "asset",
+      "class_description": "An asset",
+      "full_text": [],
+      "fields": {
+        "street": {
+          "field_type": "string",
+          "label": "Street Address",
+          "max_length": 100
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City",
+          "max_length": 100
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 100
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "max_length": 20
+        },
+        "latitude": {
+          "field_type": "string",
+          "label": "Latitude",
+          "max_length": 100
+        },
+        "longitude": {
+          "field_type": "string",
+          "label": "Longitude",
+          "max_length": 100
+        },
+        "boundaries": {
+          "field_type": "path",
+          "label": "Boundaries"
+        },
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        },
+        "deeds": {
+          "field_type": "string",
+          "label": "Deeds"
+        }
+      }
+    },
+    {
+      "class_name": "relationship",
+      "base_class_name": "sys_object",
+      "class_description": "A relationship with another company",
+      "full_text": [],
+      "parents":  ["company"],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "company",
+      "base_class_name": "sys_object",
+      "class_description": "An association",
+      "full_text": [ "name", "street", "city", "state", "zip" ],
+      "parents": [],
       "fields": {
         "name": {
           "field_type": "string",
           "label": "Name",
-          "max_length": 100
+          "max_length": 50
         },
         "description": {
           "field_type": "string",
           "label": "Description"
-        }
+        },
+        "street": {
+          "field_type": "string",
+          "label": "Street Address"
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City"
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State"
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code"
+        },
+        "contacts": [ "person" ],
+        "employees": [ "employee" ],
+        "contractors": [ "contractor" ],
+        "assets": [ "asset" ],
+        "property": [ "property" ],
+        "relationships": [ "relationship" ]
+      }
+    },
+
+    {
+      "class_name": "vendor",
+      "base_class_name": "relationship",
+      "class_description": "A vendor is a reference to a company",
+      "parents": [ "company" ],
+      "fields": {
+      }
+    },
+
+    {
+      "class_name": "client",
+      "base_class_name": "company",
+      "class_description": "A client is a reference to a company",
+      "parents": [ "company" ],
+      "fields": {
+        "company": "company"
+      }
+    },
+
+    {
+      "class_name": "company",
+      "base_class_name": "sys_object",
+      "class_description": "A company",
+      "full_text": [ "name", "description" ],
+      "parents": [ "company" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "vendors": [ "vendor" ],
+        "clients": [ "client" ],
+        "employees": [ "employee" ],
+        "contractors": [ "contractor" ]
       }
     },
     {
@@ -396,6 +624,17 @@
       }
     },
     {
+      "class_name": "library",
+      "base_class_name": "company",
+      "class_description": "A library in the system",
+      "fields": {
+        "books": [ "book" ],
+        "movies": [ "movie" ],
+        "board_games": [ "board_game" ],
+        "video_games": [ "video_game" ]
+      }
+    },
+    {
       "class_name": "tool",
       "base_class_name": "asset",
       "class_description": "An asset",
@@ -427,138 +666,42 @@
       }
     },
     {
-      "class_name": "building",
-      "base_class_name": "asset",
-      "class_description": "An asset",
-      "full_text": [],
+      "class_name": "trade",
+      "base_class_name": "record",
+      "class_description": "A stock trade in the system",
+      "parents": [ "investment" ],
       "fields": {
-        "latitude": {
-          "field_type": "string",
-          "label": "Latitude",
-          "max_length": 100
-        },
-        "longitude": {
-          "field_type": "string",
-          "label": "Longitude",
-          "max_length": 100
-        },
-        "construction_type": {
-
-        },
-        "occupancy_type": {
-
-        },
-        "notes": {
-          "field_type": "string",
-          "label": "Notes"
-        }
+        "quantity": "number",
+        "price": "number",
+        "name": "string"
       }
     },
     {
-      "class_name": "property",
-      "base_class_name": "asset",
-      "class_description": "An asset",
-      "full_text": [],
+      "class_name": "security",
+      "base_class_name": "record",
+      "class_description": "An investment in the system",
       "fields": {
-        "street": {
-          "field_type": "string",
-          "label": "Street Address",
-          "max_length": 100
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City",
-          "max_length": 100
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State",
-          "max_length": 100
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code",
-          "max_length": 20
-        },
-        "latitude": {
-          "field_type": "string",
-          "label": "Latitude",
-          "max_length": 100
-        },
-        "longitude": {
-          "field_type": "string",
-          "label": "Longitude",
-          "max_length": 100
-        },
-        "boundaries": {
-          "field_type": "path",
-          "label": "Boundaries"
-        },
-        "notes": {
-          "field_type": "string",
-          "label": "Notes"
-        },
-        "deeds": {
-          "field_type": "string",
-          "label": "Deeds"
-        }
-      },
-      {
-        "class_name": "library",
-        "base_class_name": "activity",
-        "class_description": "A library in the system",
-        "fields": {
-          "books": [ "books" ],
-          "movies": [ "movies" ],
-          "board_games": [ "board_games" ],
-          "video_games": [ "video_games" ]
-        }
-      },
-      {
-        "class_name": "shop",
-        "base_class_name": "activity",
-        "class_description": "A shop in the system",
-        "fields": {
-          "tools": [ "tools" ]
-        }
-      },
-      {
-        "class_name": "trade",
-        "base_class_name": "activity",
-        "class_description": "A stock trade in the system",
-        "parents": [ "investment" ],
-        "fields": {
-          "quantity": "number",
-          "price": "number",
-          "name": "string"
-        }
-      },
-      {
-        "class_name": "security",
-        "base_class_name": "activity",
-        "class_description": "An investment in the system",
-        "fields": {
-          "ticker_symbol": "string",
-          "company_name": "string",
-          "people": [ "people" ],
-          "trades": [ "trade" ],
-          "description": "notes",
-          "news": [ "news" ]
-        }
-      },
-      {
-        "class_name": "insurance",
-        "base_class_name": "activity",
-        "class_description": "An insurance provider",
-        "fields": {
-          "ticker_symbol": "string",
-          "company_name": "string",
-          "people": [ "people" ],
-          "trades": [ "stock_trade" ],
-          "description": "notes",
-          "news": [ "news" ]
-        }
+        "ticker_symbol": "string",
+        "company_name": "string",
+        "people": [ "people" ],
+        "trades": [ "trade" ],
+        "description": "notes",
+        "news": [ "news" ]
       }
+    },
+    {
+      "class_name": "insurance",
+      "base_class_name": "activity",
+      "class_description": "An insurance provider",
+      "fields": {
+        "ticker_symbol": "string",
+        "company_name": "string",
+        "people": [ "people" ],
+        "trades": [ "stock_trade" ],
+        "description": "notes",
+        "news": [ "news" ]
+      }
+    }
   ],
   "application": {
     "application_creator": "Country Video Games",
@@ -782,6 +925,41 @@
       "adventure": "default"
     },
     "objects": [
+      {
+        "class_name": "rms_construction_type",
+        "code": "1A1",
+        "description": "Light Wood Stud Walls"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "1A2",
+        "description": "Light Wood Post and Beam"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "2A2",
+        "description": "Adobe"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "2C1",
+        "description": "Reinforced Masonry"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "3A1",
+        "description": "Reinforced Concrete Moment Resisting Frame"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "4A1",
+        "description": "Steel Moment Resisting Frame"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "5B",
+        "description": "Manufactured/Mobile Home with Tie-Downs"
+      }
     ],
     "teams": {
       "app_team": {
