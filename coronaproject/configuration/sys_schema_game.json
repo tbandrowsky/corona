@@ -1,0 +1,2008 @@
+﻿{
+  "schema_name": "Revolution Arcade",
+  "schema_description": "Revolution Arcade Application Schema",
+  "schema_version": "1.1",
+  "schema_authors": [
+    "TJ Bandrowsky"
+  ],
+  "datasets": [
+    {
+      "dataset_name": "Revolution Arcade Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical, and the use of sys_team means it can go first",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "app_team",
+          "team_description": "local player team",
+          "team_domain": "localhost.com",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "class_name": "game_base",
+      "base_class_name": "sys_object",
+      "class_description": "Base class of game for permissions",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "function_scheduler",
+      "base_class_name": "game_base",
+      "class_description": "A timer that invoked periodically",
+      "fields": {
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "duration_seconds": "string",
+        "enabled": "bool"
+      }
+    },
+    {
+      "class_name": "timepoint_change",
+      "base_class_name": "game_base",
+      "class_description": "a point in an animation",
+      "parents": [ "timepoint" ],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "value_change",
+      "base_class_name": "timepoint_change",
+      "class_description": "a point in an animation",
+      "fields": {
+        "frame_name": "string",
+        "new_value": "object"
+      }
+    },
+    {
+      "class_name": "audio_change",
+      "base_class_name": "timepoint_change",
+      "class_description": "a point in an animation",
+      "fields": {
+        "sound": "audio"
+      }
+    },
+    {
+      "class_name": "timepoint",
+      "base_class_name": "game_base",
+      "class_description": "a point in an animation",
+      "parents": [ "animation" ],
+      "fields": {
+        "elapsed_seconds": {
+          "field_type": "double",
+          "label": "Elapsed Seconds"
+        },
+        "changes": [ "timepoint_change" ]
+      }
+    },
+    {
+      "class_name": "animation",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "full_text": [ "name" ],
+      "parents": [ "piece_type", "piece" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "destination": "rectangle",
+        "direction": "vector",
+        "sound": "audio",
+        "frames": [ "frame" ],
+        "timeline": [ "timepoint" ]
+      }
+    },
+    {
+      "class_name": "frame_joint",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "frame" ],
+      "full_text": [ "name" ],
+      "fields": {
+        "attach_frame": "string",
+        "attach_point": "vector"
+      }
+    },
+    {
+      "class_name": "frame",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "animation" ],
+      "full_text": [ "name" ],
+      "fields": {
+        "name": "string",
+        "position": "vector",
+        "rotation": "double",
+        "pivot": "vector",
+        "view_box": "rectangle",
+        "joints": [ "frame_joint" ]
+      }
+    },
+    {
+      "class_name": "bitmap_frame",
+      "base_class_name": "frame",
+      "class_description": "a bitmap used in an animation",
+      "fields": {
+        "image": "bitmap"
+      }
+    },
+    {
+      "class_name": "vector_frame",
+      "base_class_name": "frame",
+      "class_description": "a path used in an animation",
+      "fields": {
+        "shape": "path",
+        "fill": "brush",
+        "stroke": "brush",
+        "stroke_width": "double"
+      }
+    },
+    {
+      "class_name": "piece_type",
+      "base_class_name": "game_base",
+      "class_description": "a type of gaming piece",
+      "full_text": [ "name", "description", "piece_class_name", "inventory" ],
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "piece_class_name": "string",
+        "animations": [ "animation" ],
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
+        "state": "string",
+        "pieces": [ "piece" ],
+        "defaults": "object",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "piece_type"
+        }
+      },
+      "indexes": {
+        "piece_type_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "piece",
+      "base_class_name": "game_base",
+      "class_description": "a gaming piece",
+      "parents": [ "piece_type" ],
+      "full_text": [ "name" ],
+      "fields": {
+        "name": "string",
+        "mass": "double",
+        "health": "double",
+        "full_health": "double",
+        "state": "string",
+        "position": "vector",
+        "size": "vector",
+        "velocity": "vector",
+        "facing": "vector",
+        "owner": "->piece",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "piece"
+        },
+        "animations": [ "animation" ]
+      }
+    },
+    {
+      "class_name": "piece_list",
+      "base_class_name": "game_base",
+      "class_description": "a list of gaming pieces",
+      "parents": [ "map", "switcher" ],
+      "fields": {
+        "state": "string",
+        "pieces ": [ "piece" ]
+      }
+    },
+    {
+      "class_name": "actor",
+      "base_class_name": "piece",
+      "class_description": "a gaming player",
+      "fields": {
+        "selection": "selection",
+        "stopped_velocity": "double",
+        "crawling_velocity": "double",
+        "walking_velocity": "double",
+        "running_velocity": "double",
+        "throwing_velocity": "double"
+      }
+    },
+    {
+      "class_name": "player",
+      "base_class_name": "actor",
+      "class_description": "a gaming player",
+      "fields": {
+        "input_device": "string"
+      }
+    },
+    {
+      "class_name": "npc",
+      "base_class_name": "actor",
+      "class_description": "a gaming NPC",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "feature",
+      "base_class_name": "piece",
+      "class_description": "a static feature on a map",
+      "fields": {
+        "scheduler": "scheduler"
+      }
+    },
+    {
+      "class_name": "use_plate",
+      "base_class_name": "feature",
+      "class_description": "a use plate",
+      "fields": {
+        "target_piece": "->piece"
+      }
+    },
+    {
+      "class_name": "spawn",
+      "base_class_name": "feature",
+      "class_description": "a gaming spawn point",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "player_spawn",
+      "base_class_name": "feature",
+      "class_description": "player_spawn",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "npc_spawn",
+      "base_class_name": "feature",
+      "class_description": "npc spawn",
+      "fields": {
+        "spawn_types": [ "string" ],
+        "scheduler": "function_scheduler"
+      }
+    },
+    {
+      "class_name": "loot_box",
+      "base_class_name": "feature",
+      "class_description": "a gaming loot box",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "loot_spot",
+      "base_class_name": "feature",
+      "class_description": "a gaming loot spot",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "wall",
+      "base_class_name": "feature",
+      "class_description": "a gaming wall",
+      "fields": {
+        "passable": "boolean"
+      }
+    },
+    {
+      "class_name": "switcher",
+      "base_class_name": "feature",
+      "class_description": "a gaming switch",
+      "fields": {
+        "state": "string",
+        "sets": [ "piece_list" ]
+      }
+    },
+    {
+      "class_name": "door",
+      "base_class_name": "feature",
+      "class_description": "a gaming door",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "surface",
+      "base_class_name": "feature",
+      "class_description": "a gaming surface",
+      "fields": {
+        "mechanic": "string",
+        "acceleration_multiplier": "double",
+        "friction_multiplier": "double"
+      }
+    },
+    {
+      "class_name": "decoration",
+      "base_class_name": "feature",
+      "class_description": "a gaming decoration, like clouds",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "lumens": "double",
+        "color": "vector"
+      }
+    },
+    {
+      "class_name": "spot_light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "direction": "vector",
+        "fov": "double"
+      }
+    },
+    {
+      "class_name": "globe_light",
+      "base_class_name": "feature",
+      "class_description": "A light",
+      "fields": {
+        "radius": "double"
+      }
+    },
+    {
+      "class_name": "camera",
+      "base_class_name": "feature",
+      "class_description": "A camera in the system",
+      "fields": {
+        "fov": "double",
+        "near_clip": "double",
+        "far_clip": "double"
+      }
+    },
+    {
+      "class_name": "effect",
+      "base_class_name": "piece",
+      "class_description": "a gaming item",
+      "fields": {
+        "effect_type": "string",
+        "frequency_seconds": "double",
+        "remaining_seconds": "double",
+        "remaining_count": "double"
+      }
+    },
+    {
+      "class_name": "carryable",
+      "base_class_name": "piece",
+      "class_description": "general carryable thing",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "consumable",
+      "base_class_name": "carryable",
+      "class_description": "general consumable thing",
+      "fields": {
+
+      }
+    },
+    {
+      "class_name": "tool",
+      "base_class_name": "carryable",
+      "class_description": "general activatable thing",
+      "fields": {
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "consumable"
+        }
+      }
+    },
+    {
+      "class_name": "firearm",
+      "base_class_name": "tool",
+      "class_description": "weapon for the shot",
+      "fields": {
+        "fire_point": "vector",
+        "magazine_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "magazine"
+        }
+      }
+    },
+    {
+      "class_name": "magazine",
+      "base_class_name": "carryable",
+      "class_description": "a magazine for the firearm",
+      "parents": [ "firearm" ],
+      "fields": {
+        "magazine_type": "string",
+        "capacity": "double",
+        "ammunition_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "ammunition"
+        }
+      },
+      "indexes": {
+        "magazine_type_index": {
+          "index_keys": [ "magazine_type" ]
+        }
+      }
+    },
+    {
+      "class_name": "ammunition",
+      "base_class_name": "carryable",
+      "class_description": "ammo for the firearm",
+      "fields": {
+        "ammunition_type": "string",
+        "shot_type": "string",
+        "shot_muzzle_velocity": "double",
+        "shot_mass": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "shot"
+        }
+      }
+    },
+    {
+      "class_name": "shot",
+      "base_class_name": "piece",
+      "class_description": "an effect of a weapon",
+      "fields": {
+        "shot_type": "string",
+        "effect_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
+      }
+    },
+    {
+      "class_name": "wand",
+      "base_class_name": "tool",
+      "class_description": "a magic thing that launches spells",
+      "fields": {
+        "spell_type": "string",
+        "fire_point": "vector",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "spell"
+        }
+      }
+    },
+    {
+      "class_name": "spell",
+      "base_class_name": "carryable",
+      "class_description": "a travelling spell with effects",
+      "fields": {
+        "spell_type": "string",
+        "effect_type": "string",
+        "spell_velocity": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
+      }
+    },
+    {
+      "class_name": "stick",
+      "base_class_name": "tool",
+      "class_description": "general stick",
+      "fields": {
+        "stick_type": "string",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "hit"
+        }
+      }
+    },
+    {
+      "class_name": "hit",
+      "base_class_name": "piece",
+      "class_description": "a hit piece formed",
+      "fields": {
+        "hit_type": "string",
+        "effect_type": "string",
+        "hit_lifetime": "double",
+        "inventory": {
+          "field_type": "chest",
+          "item_class": "effect"
+        }
+      }
+    },
+    {
+      "class_name": "piece_code",
+      "base_class_name": "sys_object",
+      "class_description": "a short string that means a piece",
+      "parents": [ "map" ],
+      "fields": {
+        "piece_code": "string",
+        "piece_type": "string"
+      },
+      "indexes": {
+        "idx_piece_code_type": {
+          "index_keys": "piece_type"
+        }
+      }
+    },
+    {
+      "class_name": "set",
+      "base_class_name": "game_base",
+      "class_description": "a gaming map",
+      "parents": [ "theater" ],
+      "fields": {
+        "name": "string",
+        "description": "string",
+        "contents": "[ piece_list ]",
+        "tile_strings": [ "string" ],
+        "tile_size": "vector",
+        "tile_codes": [ "piece_code" ]
+      }
+    },
+    {
+      "class_name": "adventure",
+      "base_class_name": "game_base",
+      "class_description": "playing a game is having an adventure",
+      "parents": [ "game" ],
+      "full_text": [ "name", "description" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "team_name": {
+          "field_type": "string",
+          "label": "Team Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "stage": "set",
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 20,
+          "enumeration": [ "lobby", "active", "paused", "complete", "exit" ]
+        }
+      }
+    },
+    {
+      "class_name": "activity",
+      "base_class_name": "game_base",
+      "class_description": "An activity",
+      "full_text": [ "name", "description", "image" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "image": "bitmap"
+      }
+    },
+    {
+      "class_name": "game",
+      "base_class_name": "activity",
+      "class_description": "A world with rules one may adventure in",
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 100
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "type_name": "string",
+        "stage": "set",
+        "adventures": [ "adventure" ]
+      },
+      "indexes": {
+        "game_name_index": {
+          "index_keys": [ "name" ]
+        }
+      }
+    },
+    {
+      "class_name": "essay",
+      "base_class_name": "activity",
+      "class_description": "An essay in the system",
+      "fields": {
+        "text": "string"
+      }
+    }
+  ],
+  "application": {
+    "application_creator": "Country Video Games",
+    "application_name": "Revolution : Ideas",
+    "fields": {
+      ".animations": {
+        "class_name": "animations",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".inventory": {
+        "class_name": "chest_view",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
+      ".defaults": {
+        "class_name": "scintilla",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
+      ".description": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      "string.memo": {
+        "class_name": "memo_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      "string": {
+        "class_name": "edit_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "datetime": {
+        "class_name": "datetimepicker_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "double": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "number": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "int64_t": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "boolean": {
+        "class_name": "checkbox_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "string.enumeration": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      }
+    },
+    "card_fields": [ "name", "description", "class_name" ],
+    "classes": {
+      "game": "default",
+      "essay": "default",
+      "activity": "default",
+      "piece": "default",
+      "piece_type": "default",
+      "function_scheduler": "default",
+      "timepoint": "default",
+      "value_change": "default",
+      "audio_change": "default",
+      "frame": "default",
+      "bitmap_frame": "default",
+      "vector_frame": "default",
+      "animation": "default",
+      "actor": "default",
+      "player": "default",
+      "npc": "default",
+      "feature": "default",
+      "use_plate": "default",
+      "spawn": "default",
+      "player-spawn": "default",
+      "npc-spawn": "default",
+      "loot_box": "default",
+      "loot_spot": "default",
+      "wall": "default",
+      "switcher": "default",
+      "door": "default",
+      "surface": "default",
+      "decoration": "default",
+      "light": "default",
+      "spot_light": "default",
+      "globe_light": "default",
+      "camera": "default",
+      "effect": "default",
+      "carryable": "default",
+      "consumable": "default",
+      "tool": "default",
+      "firearm": "default",
+      "magazine": "default",
+      "ammunition": "default",
+      "shot": "default",
+      "wand": "default",
+      "stick": "default",
+      "hit": "default",
+      "set": "default",
+      "adventure": "default"
+    },
+    "objects": [
+      {
+        "class_name": "piece_type",
+        "name": "shot-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "name": "bullet",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "75,45,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "75,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "25,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "25,45,0"
+                    },
+                    {
+                      "class_name": "bezier",
+                      "point1": "25,45,0",
+                      "point2": "50,0,0",
+                      "point3": "75,45,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4,
+                "pivot": "50,50,0",
+                "viewbox": "0,0,100,100"
+              }
+            ],
+            "timeline": [
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 0,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 2,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 180
+                    }
+                  }
+                ]
+              },
+              {
+                "class_name": "timepoint",
+                "elapsed_seconds": 4,
+                "changes": [
+                  {
+                    "class_name": "value_change",
+                    "frame_name": "bullet",
+                    "new_value": {
+                      "rotation": 0
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "shot_type": "shot-small",
+          "inventory": [
+            {
+              "item_type": "wound-gunshot-stomach",
+              "quantity": 1
+            }
+          ]
+        },
+        "inventory": [
+          {
+            "item_type": "wound-gunshot-stomach",
+            "quantity": 1
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "player",
+        "description": "string",
+        "piece_class_name": "player",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "green-monster",
+        "description": "string",
+        "piece_class_name": "npc",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#20D020"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#10C010"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "inventory": [
+          {
+            "item_type": "gun-small",
+            "quantity": 1
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "red-monster",
+        "description": "string",
+        "piece_class_name": "npc",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D02020"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#A02020"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "gun-small",
+        "description": "string",
+        "piece_class_name": "firearm",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100",
+        "defaults": {
+          "magazine_type": "mag-small",
+          "defaults": {
+            "ammunition_type": "ammo-small",
+            "inventory": [
+              {
+                "item_type": "ammo-small",
+                "quantity": 10
+              }
+            ]
+          }
+        }
+      },
+      {
+        "class_name": "piece_type",
+        "name": "mag-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "ammunition_type": "ammo-small",
+          "inventory": [
+            {
+              "item_type": "ammo-small",
+              "quantity": 10
+            }
+          ]
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "ammo-small",
+        "description": "string",
+        "piece_class_name": "magazine",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0D0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B0B0"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "ammunition_type": "ammo-small"
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "wound-gunshot-stomach",
+        "description": "string",
+        "piece_class_name": "effect",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "50,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "50,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0A0A0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#B0B050"
+                },
+                "stroke_width": 2
+              }
+            ]
+          }
+        ],
+        "defaults": {
+        },
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "wall-stone",
+        "description": "string",
+        "piece_class_name": "wall",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "floor-stone",
+        "description": "string",
+        "piece_class_name": "surface",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "door-wood",
+        "description": "string",
+        "piece_class_name": "door",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "40,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "60,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "60,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "40,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#101010"
+                },
+                "stroke_width": 1
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "plate-door",
+        "description": "string",
+        "piece_class_name": "door",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "spawn-player",
+        "description": "string",
+        "piece_class_name": "player_spawn",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "spawn-monster",
+        "description": "string",
+        "piece_class_name": "npc_spawn",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ],
+            "defaults": {
+              "spawn_types": [ "red-monster", "green-monster" ]
+            }
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "piece_type",
+        "name": "treasure-arms",
+        "description": "string",
+        "piece_class_name": "player_spawn",
+        "animations": [
+          {
+            "class_name": "animation",
+            "state": "default",
+            "duration": "5",
+            "frames": [
+              {
+                "class_name": "vector_frame",
+                "state": "default",
+                "duration": "5",
+                "shape": {
+                  "points": [
+                    {
+                      "class_name": "line",
+                      "point": "0,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,0,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "100,100,0"
+                    },
+                    {
+                      "class_name": "line",
+                      "point": "0,100,0"
+                    }
+                  ]
+                },
+                "fill": {
+                  "class_name": "solid_brush",
+                  "color": "#D0D0B0"
+                },
+                "stroke": {
+                  "class_name": "solid_brush",
+                  "color": "#2020202"
+                },
+                "stroke_width": 4
+              }
+            ]
+          }
+        ],
+        "mass": "500",
+        "health": "100",
+        "full_health": "100"
+      },
+      {
+        "class_name": "game",
+        "type_name": "quest",
+        "name": "dungeon of woe",
+        "stage": {
+          "class_name": "set",
+          "tile_size": "100,100,0",
+          "tile_strings": [
+            "W  W  W  W  W  W  W  W  W  W",
+            "W  F  F  F  F  F  F  F  L  W",
+            "W  *  F  W  W  W  W  W  F  W",
+            "W  F  F  F  F  F  F  W  F  W",
+            "W  F  F  F  F  L  1  W  F  W",
+            "W  F  W  W  W  W  W  W  F  W",
+            "W  F  W  L  F  D  P  F  F  W",
+            "W  F  W  W  W  W  W  F  W  W",
+            "W  F  F  W  F  F  W  F  F  W",
+            "W  1  F  W  F  F  1  F  F  W",
+            "W  L  F  W  F  F  W  L  F  W",
+            "W  W  W  W  W  W  W  W  W  W"
+          ],
+          "tile_codes": [
+            {
+              "piece_code": "W",
+              "piece_type": "wall-stone"
+            },
+            {
+              "piece_code": "F",
+              "piece_type": "floor-stone"
+            },
+            {
+              "piece_code": "D",
+              "piece_type": "door-wood"
+            },
+            {
+              "piece_code": "P",
+              "piece_type": "plate-door"
+            },
+            {
+              "piece_code": "*",
+              "piece_type": "spawn-player"
+            },
+            {
+              "piece_code": "1",
+              "piece_type": "spawn-monster"
+            },
+            {
+              "piece_code": "L",
+              "piece_type": "treasure-arms"
+            }
+          ]
+        }
+      },
+      {
+        "class_name": "game",
+        "name": "dungeon of woe II, the other woe",
+        "type_name": "trek",
+        "stage": {
+          "class_name": "set",
+          "description": "",
+          "tile_size": "100,100,0",
+          "tile_strings": [
+            "W  W  W  W  W  W  W  W  W  W",
+            "W  F  F  F  F  F  F  F  L  W",
+            "W  *  F  W  W  W  W  W  F  W",
+            "W  F  F  F  F  F  F  W  F  W",
+            "W  F  F  F  F  L  1  W  F  W",
+            "W  F  W  W  W  W  W  W  F  W",
+            "W  F  W  L  F  D  P  F  F  W",
+            "W  F  W  W  W  W  W  F  W  W",
+            "W  F  F  W  F  F  W  F  F  W",
+            "W  1  F  W  F  F  1  F  F  W",
+            "W  L  F  W  F  F  W  L  F  W",
+            "W  W  W  W  W  W  W  W  W  W"
+          ],
+          "tile_codes": [
+            {
+              "piece_code": "W",
+              "piece_type": "wall-stone"
+            },
+            {
+              "piece_code": "F",
+              "piece_type": "floor-stone"
+            },
+            {
+              "piece_code": "D",
+              "piece_type": "door-wood"
+            },
+            {
+              "piece_code": "P",
+              "piece_type": "plate-door"
+            },
+            {
+              "piece_code": "*",
+              "piece_type": "spawn-player"
+            },
+            {
+              "piece_code": "1",
+              "piece_type": "spawn-monster"
+            },
+            {
+              "piece_code": "L",
+              "piece_type": "treasure-arms"
+            }
+          ]
+        }
+      },
+      {
+        "class_name": "game",
+        "type_name": "quest",
+        "name": "dungeon of woe III, the final woe",
+        "stage": {
+          "class_name": "set",
+          "tile_size": "100,100,0",
+          "tile_strings": [
+            "W  W  W  W  W  W  W  W  W  W",
+            "W  F  F  F  F  F  F  F  L  W",
+            "W  *  F  W  W  W  W  W  F  W",
+            "W  F  F  F  F  F  F  W  F  W",
+            "W  F  F  F  F  L  1  W  F  W",
+            "W  F  W  W  W  W  W  W  F  W",
+            "W  F  W  L  F  D  P  F  F  W",
+            "W  F  W  W  W  W  W  F  W  W",
+            "W  F  F  W  F  F  W  F  F  W",
+            "W  1  F  W  F  F  1  F  F  W",
+            "W  L  F  W  F  F  W  L  F  W",
+            "W  W  W  W  W  W  W  W  W  W"
+          ],
+          "tile_codes": [
+            {
+              "piece_code": "W",
+              "piece_type": "wall-stone"
+            },
+            {
+              "piece_code": "F",
+              "piece_type": "floor-stone"
+            },
+            {
+              "piece_code": "D",
+              "piece_type": "door-wood"
+            },
+            {
+              "piece_code": "P",
+              "piece_type": "plate-door"
+            },
+            {
+              "piece_code": "*",
+              "piece_type": "spawn-player"
+            },
+            {
+              "piece_code": "1",
+              "piece_type": "spawn-monster"
+            },
+            {
+              "piece_code": "L",
+              "piece_type": "treasure-arms"
+            }
+          ]
+        }
+      }
+    ],
+    "teams": {
+      "app_team": {
+        "search_groups": [
+          {
+            "title": "Games",
+            "classes": [
+              "game"
+            ],
+            "new_objects": [ "game" ],
+            "result_text": "Found {count} games",
+            "edit_text": "Editing game",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_game",
+            "charts": [
+              {
+                "chart_button_name": "game_counts_button",
+                "chart_button_text": "Game Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "game",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Piece Types",
+            "classes": [
+              "piece_type"
+            ],
+            "new_objects": [ "piece_type" ],
+            "result_text": "Found {count} piece types",
+            "edit_text": "Editing piece type",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
+          },
+          {
+            "title": "Pieces",
+            "classes": [
+              "piece"
+            ],
+            "new_objects": [ "piece" ],
+            "result_text": "Found {count} pieces",
+            "edit_text": "Editing piece",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
+          },
+          {
+            "title": "Animations",
+            "classes": [
+              "animation"
+            ],
+            "new_objects": [ "animation" ],
+            "result_text": "Found {count} animations",
+            "edit_text": "Editing animation",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
+          },
+          {
+            "title": "Essays",
+            "classes": [
+              "essay"
+            ],
+            "new_objects": [ "essay" ],
+            "result_text": "Found {count} essays",
+            "edit_text": "Editing essay",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands"
+          }
+        ]
+      }
+    }
+  }
+}

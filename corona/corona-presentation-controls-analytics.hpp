@@ -447,94 +447,6 @@ namespace corona
 		}
 	};
 
-	// New line chart, patterned after time_chart.
-
-	class bar_chart_specification : public chart_specification
-	{
-	public:
-		std::shared_ptr<auto_series> auto_series_spec;
-		double minimum_value = 0.0;
-
-		void get_json(json& _dest)
-		{
-			json_parser jp;
-			chart_specification::get_json(_dest);
-
-			if (auto_series_spec) {
-				json jobj = jp.create_object();
-				auto_series_spec->get_json(jobj);
-				_dest.put_member("auto_series", jobj);
-			}
-			_dest.put_member("minimum_value", minimum_value);
-		}
-
-		void put_json(json& _src)
-		{
-			chart_specification::put_json(_src);
-			auto_series_spec.reset();
-
-			json jauto_series = _src["auto_series"];
-			if (jauto_series.object()) {
-				auto_series_spec = std::make_shared<auto_series>();
-				auto_series_spec->put_json(jauto_series);
-			}
-			minimum_value = _src["minimum_value"].as_double();
-		}
-	};
-
-	class pie_chart_specification : public chart_specification
-	{
-	public:
-		std::vector<chart_series> value_fields;
-		double minimum_value = 0.0;
-		std::shared_ptr<auto_series> auto_series_spec;
-
-		void get_json(json& _dest)
-		{
-			json_parser jp;
-			chart_specification::get_json(_dest);
-
-			json jvalues = jp.create_array();
-			for (auto fld : value_fields) {
-				json jfld = jp.create_object();
-				fld.get_json(jfld);
-				jvalues.push_back(jfld);
-			}
-			_dest.put_member("series", jvalues);
-
-			if (auto_series_spec) {
-				json jobj = jp.create_object();
-				auto_series_spec->get_json(jobj);
-				_dest.put_member("auto_series", jobj);
-			}
-
-			_dest.put_member("minimum_value", minimum_value);
-		}
-
-		void put_json(json& _src)
-		{
-			chart_specification::put_json(_src);
-			value_fields.clear();
-			auto_series_spec.reset();
-
-			json jvalues = _src["series"];
-			if (jvalues.array()) {
-				for (auto jfld : jvalues) {
-					chart_series fld;
-					fld.put_json(jfld);
-					value_fields.push_back(fld);
-				}
-			}
-
-			json jauto_series = _src["auto_series"];
-			if (jauto_series.object()) {
-				auto_series_spec = std::make_shared<auto_series>();
-				auto_series_spec->put_json(jauto_series);
-			}
-
-			minimum_value = _src["minimum_value"].as_double();
-		}
-	};
 
 	class program_chart_specification : public chart_specification
 	{
@@ -580,6 +492,38 @@ namespace corona
             return _scale_min + scale * (_scale_max - _scale_min);
         }
 	};
+
+	std::shared_ptr<chart_specification> create_chart_specification(json& jchart)
+	{
+		std::shared_ptr<chart_specification> current_options;
+
+		std::string class_name = jchart["class_name"].as_string();
+		if (class_name == "time_chart") {
+			current_options = std::make_shared<time_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "xy_chart") {
+			current_options = std::make_shared<xy_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "bar_chart") {
+			current_options = std::make_shared<bar_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "line_chart") {
+			current_options = std::make_shared<line_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "pie_chart") {
+			current_options = std::make_shared<pie_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		else if (class_name == "program_chart") {
+			current_options = std::make_shared<program_chart_specification>();
+			current_options->put_json(jchart);
+		}
+		return current_options;
+	}
 
 	class axis_frame {
 	public:
