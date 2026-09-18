@@ -1307,7 +1307,7 @@
               {
                 "chart_button_name": "bank_counts_button",
                 "chart_button_text": "Bank Counts",
-                "chart_button_image": "assets\\chart_line.png",
+                "chart_button_image": "assets\\bank.png",
                 "chart_class": "bank",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1355,7 +1355,7 @@
               {
                 "chart_button_name": "court_counts_button",
                 "chart_button_text": "Court Counts",
-                "chart_button_image": "assets\\chart_line.png",
+                "chart_button_image": "assets\\court.png",
                 "chart_class": "court",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1403,8 +1403,56 @@
               {
                 "chart_button_name": "law_firm_counts_button",
                 "chart_button_text": "Law Firm Counts",
-                "chart_button_image": "assets\\chart_line.png",
-                "chart_class": "market",
+                "chart_button_image": "assets\\law_firm.png",
+                "chart_class": "law_firm",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Libraries",
+            "classes": [
+              "library"
+            ],
+            "new_objects": [ "library" ],
+            "result_text": "Found {count} libraries",
+            "edit_text": "Editing library",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_library",
+            "charts": [
+              {
+                "chart_button_name": "law_firm_counts_button",
+                "chart_button_text": "Law Firm Counts",
+                "chart_button_image": "assets\\law_firm.png",
+                "chart_class": "law_firm",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1451,7 +1499,7 @@
               {
                 "chart_button_name": "market_counts_button",
                 "chart_button_text": "Market Counts",
-                "chart_button_image": "assets\\chart_line.png",
+                "chart_button_image": "assets\\market.png",
                 "chart_class": "market",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1499,7 +1547,7 @@
               {
                 "chart_button_name": "outreacher_counts_button",
                 "chart_button_text": "Outreacher Counts",
-                "chart_button_image": "assets\\chart_line.png",
+                "chart_button_image": "assets\\outreacher.png",
                 "chart_class": "outreacher",
                 "chart": {
                   "class_name": "bar_chart",

@@ -1297,6 +1297,8 @@
 
       { "class_name":"import", "file_name":"pages\\chart_law_firm.json" },
 
+      { "class_name":"import", "file_name":"pages\\chart_library.json" },
+
       { "class_name":"import", "file_name":"pages\\chart_market.json" },
 
       { "class_name":"import", "file_name":"pages\\chart_market.json" },
