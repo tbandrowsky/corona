@@ -539,15 +539,15 @@
         "employees": [ "employee" ],
         "contractors": [ "contractor" ],
         "property": [ "property" ],
-        "relationships": [ "relationship" ]
       }
     },
 
+
     {
       "class_name": "vendor",
-      "base_class_name": "relationship",
-      "class_description": "A vendor is a reference to a company",
-      "parents": [],
+      "base_class_name": "association",
+      "class_description": "A vendor is an association",
+      "parents": [ "company" ],
       "fields": {
 
       }
@@ -555,10 +555,11 @@
 
     {
       "class_name": "client",
-      "base_class_name": "relationship",
-      "class_description": "A client is a reference to a company",
+      "base_class_name": "association",
+      "class_description": "A client is an association ",
+      "parents": ["company"],
       "fields": {
-        "company": "company"
+        
       }
     },
 
@@ -694,7 +695,7 @@
       "full_text": [],
       "fields": {
         "due_date": {
-          "field_type": "date",
+          "field_type": "datetime",
           "label": "Due Date"
         },
         "items": {
@@ -752,7 +753,7 @@
       "full_text": [ "name", "engagement" ],
       "fields": {
         "due_date": {
-          "field_type": "date",
+          "field_type": "datetime",
           "label": "Due Date"
         }
       }
