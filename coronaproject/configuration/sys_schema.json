@@ -165,6 +165,47 @@
       }
     },
     {
+      "class_name": "product",
+      "base_class_name": "sys_object",
+      "class_description": "A product",
+      "parents": [ "company", "cart" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "price": {
+          "field_type": "number",
+          "label": "Price",
+          "min_value": 0
+        }
+      }
+    },
+    {
+      "class_name": "cart",
+      "base_class_name": "sys_object",
+      "class_description": "A cart",
+      "parents": [],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "products": {
+          "field_type": "chest",
+          "allowed_class_names": [ "product" ]
+        }
+      }
+    },
+    {
       "class_name": "person",
       "base_class_name": "sys_object",
       "class_description": "A person",
@@ -432,12 +473,13 @@
       "base_class_name": "sys_object",
       "class_description": "A relationship with another company",
       "full_text": [],
-      "parents":  ["company"],
+      "parents": [ "company" ],
       "fields": {
+        "company": "->company"
       }
     },
     {
-      "class_name": "company",
+      "class_name": "association",
       "base_class_name": "sys_object",
       "class_description": "An association",
       "full_text": [ "name", "street", "city", "state", "zip" ],
@@ -481,7 +523,6 @@
       "class_name": "vendor",
       "base_class_name": "relationship",
       "class_description": "A vendor is a reference to a company",
-      "parents": [ "company" ],
       "fields": {
       }
     },
@@ -490,7 +531,6 @@
       "class_name": "client",
       "base_class_name": "company",
       "class_description": "A client is a reference to a company",
-      "parents": [ "company" ],
       "fields": {
         "company": "company"
       }
@@ -501,7 +541,6 @@
       "base_class_name": "sys_object",
       "class_description": "A company",
       "full_text": [ "name", "description" ],
-      "parents": [ "company" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -513,11 +552,10 @@
           "label": "Description"
         },
         "vendors": [ "vendor" ],
-        "clients": [ "client" ],
-        "employees": [ "employee" ],
-        "contractors": [ "contractor" ]
+        "clients": [ "client" ]
       }
     },
+
     {
       "class_name": "book",
       "base_class_name": "asset",
@@ -666,40 +704,52 @@
       }
     },
     {
-      "class_name": "trade",
-      "base_class_name": "record",
-      "class_description": "A stock trade in the system",
-      "parents": [ "investment" ],
+      "class_name": "shop",
+      "base_class_name": "company",
+      "class_description": "A shop in the system",
       "fields": {
-        "quantity": "number",
-        "price": "number",
-        "name": "string"
+        "tool": [ "tools" ],
+        "movies": [ "movie" ]
       }
     },
     {
       "class_name": "security",
-      "base_class_name": "record",
+      "base_class_name": "asset",
       "class_description": "An investment in the system",
       "fields": {
         "ticker_symbol": "string",
         "company_name": "string",
-        "people": [ "people" ],
-        "trades": [ "trade" ],
         "description": "notes",
         "news": [ "news" ]
       }
     },
     {
-      "class_name": "insurance",
-      "base_class_name": "activity",
+      "class_name": "market",
+      "base_class_name": "company",
+      "class_description": "An investment in the system",
+      "fields": {
+        "securities": [ "security" ]
+      }
+    },
+    {
+      "class_name": "insurer",
+      "base_class_name": "company",
       "class_description": "An insurance provider",
       "fields": {
-        "ticker_symbol": "string",
-        "company_name": "string",
-        "people": [ "people" ],
-        "trades": [ "stock_trade" ],
-        "description": "notes",
-        "news": [ "news" ]
+      }
+    },
+    {
+      "class_name": "insurer",
+      "base_class_name": "company",
+      "class_description": "An insurance provider",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "insurer",
+      "base_class_name": "company",
+      "class_description": "An insurance provider",
+      "fields": {
       }
     }
   ],
@@ -959,6 +1009,81 @@
         "class_name": "rms_construction_type",
         "code": "5B",
         "description": "Manufactured/Mobile Home with Tie-Downs"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "300",
+        "description": "Unknown Occupancy"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "301-307",
+        "description": "Residential Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "311-319",
+        "description": "Commercial Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "321-330",
+        "description": "Industrial Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "331",
+        "description": "Restaurant Occupancy"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "335-336",
+        "description": "Mercantile Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "341-344",
+        "description": "Public Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "345-346",
+        "description": "Education Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "351-356",
+        "description": "Transportation Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "361-365",
+        "description": "Utility Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "371-381",
+        "description": "Miscellaneous Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "400-488",
+        "description": "Industrial Facility Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "900-909",
+        "description": "Offshore Asset Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "1001-1012",
+        "description": "Marine Cargo Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "3001-3023",
+        "description": "Solar Occupancies"
       }
     ],
     "teams": {
