@@ -39,7 +39,7 @@
       "class_name": "news",
       "base_class_name": "sys_object",
       "class_description": "A stock trade in the system",
-      "parents": [ "person", "client", "vendor" ],
+      "parents": [ "association", "person" ],
       "fields": {
         "name": "string",
         "description": "string",
@@ -51,7 +51,7 @@
       "class_name": "record",
       "base_class_name": "sys_object",
       "class_description": "A record of something, financial",
-      "parents": [ "person", "company", "client", "vendor", "employee" ],
+      "parents": [ "association", "person" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -68,7 +68,6 @@
       "class_name": "minutes",
       "base_class_name": "record",
       "class_description": "meeting minutes",
-      "parents": [],
       "fields": {
         "location": {
           "field_type": "string",
@@ -84,7 +83,6 @@
       "class_name": "contract",
       "base_class_name": "record",
       "class_description": "A contract",
-      "parents": [],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -100,7 +98,6 @@
       "class_name": "deed",
       "base_class_name": "record",
       "class_description": "A deed",
-      "parents": [],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -113,10 +110,9 @@
       }
     },
     {
-      "class_name": "rulings",
+      "class_name": "ruling",
       "base_class_name": "record",
       "class_description": "A court ruling",
-      "parents": [],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -145,7 +141,7 @@
       }
     },
     {
-      "class_name": "service",
+      "class_name": "service_call",
       "base_class_name": "record",
       "class_description": "A service call",
       "parents": [],
@@ -210,7 +206,7 @@
       "base_class_name": "sys_object",
       "class_description": "A person",
       "full_text": [ "first_name", "last_name", "street", "city", "state", "zip" ],
-      "parents": [ "corporation", "library", "shop", "museum", "school" ],
+      "parents": [ "association" ],
       "fields": {
         "first_name": {
           "field_type": "string",
@@ -281,7 +277,7 @@
       "base_class_name": "employee",
       "class_description": "A contractor",
       "full_text": [ "title" ],
-      "parents": [ "vendor" ],
+      "parents": [],
       "fields": {
         "title": {
           "field_type": "string",
@@ -296,7 +292,7 @@
       "base_class_name": "employee",
       "class_description": "A salary worker",
       "full_text": [ "title" ],
-      "parents": [ "vendor" ],
+      "parents": [],
       "fields": {
         "title": {
           "field_type": "string",
@@ -315,13 +311,51 @@
       "base_class_name": "employee",
       "class_description": "An hourly worker",
       "full_text": [ "title" ],
-      "parents": [ "vendor" ],
+      "parents": [],
       "fields": {
         "title": {
           "field_type": "string",
           "label": "Title",
           "max_length": 100
         }
+      }
+    },
+    {
+      "class_name": "encounter",
+      "base_class_name": "sys_object",
+      "class_description": "An encounter",
+      "full_text": [ "name", "description" ],
+      "parents": [ "engagement" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
+      "class_name": "engagement",
+      "base_class_name": "sys_object",
+      "class_description": "An engagement",
+      "full_text": [ "name", "description" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "encounter": [ "encounter" ],
+        "association": "->association",
+        "person": "->person"
       }
     },
     {
@@ -469,16 +503,6 @@
       }
     },
     {
-      "class_name": "relationship",
-      "base_class_name": "sys_object",
-      "class_description": "A relationship with another company",
-      "full_text": [],
-      "parents": [ "company" ],
-      "fields": {
-        "company": "->company"
-      }
-    },
-    {
       "class_name": "association",
       "base_class_name": "sys_object",
       "class_description": "An association",
@@ -510,10 +534,10 @@
           "field_type": "string",
           "label": "Zip Code"
         },
+        "assets": [ "asset" ],
         "contacts": [ "person" ],
         "employees": [ "employee" ],
         "contractors": [ "contractor" ],
-        "assets": [ "asset" ],
         "property": [ "property" ],
         "relationships": [ "relationship" ]
       }
@@ -523,13 +547,15 @@
       "class_name": "vendor",
       "base_class_name": "relationship",
       "class_description": "A vendor is a reference to a company",
+      "parents": [],
       "fields": {
+
       }
     },
 
     {
       "class_name": "client",
-      "base_class_name": "company",
+      "base_class_name": "relationship",
       "class_description": "A client is a reference to a company",
       "fields": {
         "company": "company"
@@ -662,6 +688,22 @@
       }
     },
     {
+      "class_name": "library_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A library engagement",
+      "full_text": [],
+      "fields": {
+        "due_date": {
+          "field_type": "date",
+          "label": "Due Date"
+        },
+        "items": {
+          "field_type": "chest",
+          "allowed_classes": "asset"
+        }
+      }
+    },
+    {
       "class_name": "library",
       "base_class_name": "company",
       "class_description": "A library in the system",
@@ -704,6 +746,18 @@
       }
     },
     {
+      "class_name": "shop_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A shop engagement",
+      "full_text": [ "name", "engagement" ],
+      "fields": {
+        "due_date": {
+          "field_type": "date",
+          "label": "Due Date"
+        }
+      }
+    },
+    {
       "class_name": "shop",
       "base_class_name": "company",
       "class_description": "A shop in the system",
@@ -724,6 +778,14 @@
       }
     },
     {
+      "class_name": "market_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A market engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
       "class_name": "market",
       "base_class_name": "company",
       "class_description": "An investment in the system",
@@ -732,9 +794,10 @@
       }
     },
     {
-      "class_name": "insurer",
-      "base_class_name": "company",
-      "class_description": "An insurance provider",
+      "class_name": "insurance_engagement",
+      "base_class_name": "engagement",
+      "class_description": "An insurance engagement",
+      "full_text": [],
       "fields": {
       }
     },
@@ -746,9 +809,92 @@
       }
     },
     {
-      "class_name": "insurer",
+      "class_name": "outreach_engagement",
+      "base_class_name": "engagement",
+      "class_description": "An insurance engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "outreacher",
       "base_class_name": "company",
-      "class_description": "An insurance provider",
+      "class_description": "A community outreach and engagement",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "advocate_engagement",
+      "base_class_name": "engagement",
+      "class_description": "An insurance engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "advocate",
+      "base_class_name": "company",
+      "class_description": "A community outreach and engagement",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "legal_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A legal engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "law_firm",
+      "base_class_name": "company",
+      "class_description": "A law firm in the system",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bank_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A bank engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bank",
+      "base_class_name": "company",
+      "class_description": "A bank in the system",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A court engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "court",
+      "base_class_name": "company",
+      "class_description": "A court in the system",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "permit_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A permit engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "permitter",
+      "base_class_name": "company",
+      "class_description": "A permitter in the system",
       "fields": {
       }
     }
@@ -928,51 +1074,58 @@
     },
     "card_fields": [ "name", "description", "class_name" ],
     "classes": {
-      "game": "default",
-      "essay": "default",
-      "activity": "default",
-      "piece": "default",
-      "piece_type": "default",
-      "function_scheduler": "default",
-      "timepoint": "default",
-      "value_change": "default",
-      "audio_change": "default",
-      "frame": "default",
-      "bitmap_frame": "default",
-      "vector_frame": "default",
-      "animation": "default",
-      "actor": "default",
-      "player": "default",
-      "npc": "default",
-      "feature": "default",
-      "use_plate": "default",
-      "spawn": "default",
-      "player-spawn": "default",
-      "npc-spawn": "default",
-      "loot_box": "default",
-      "loot_spot": "default",
-      "wall": "default",
-      "switcher": "default",
-      "door": "default",
-      "surface": "default",
-      "decoration": "default",
-      "light": "default",
-      "spot_light": "default",
-      "globe_light": "default",
-      "camera": "default",
-      "effect": "default",
-      "carryable": "default",
-      "consumable": "default",
+      "news": "default",
+      "record": "default",
+      "minutes": "default",
+      "contract": "default",
+      "deed": "default",
+      "ruling": "default",
+      "title": "default",
+      "service_call": "default",
+      "product": "default",
+      "cart": "default",
+      "person": "default",
+      "employee": "default",
+      "contractor": "default",
+      "salary": "default",
+      "hourly": "default",
+      "encounter": "default",
+      "engagement": "default",
+      "asset": "default",
+      "rms_construction_type": "default",
+      "rms_occupancy_type": "default",
+      "building": "default",
+      "property": "default",
+      "association": "default",
+      "vendor": "default",
+      "client": "default",
+      "company": "default",
+      "book": "default",
+      "movie": "default",
+      "board_game": "default",
+      "video_game": "default",
+      "library_engagement": "default",
+      "library": "default",
       "tool": "default",
-      "firearm": "default",
-      "magazine": "default",
-      "ammunition": "default",
-      "shot": "default",
-      "wand": "default",
-      "stick": "default",
-      "hit": "default",
-      "set": "default",
-      "adventure": "default"
+      "shop_engagement": "default",
+      "shop": "default",
+      "security": "default",
+      "market_engagement": "default",
+      "market": "default",
+      "insurance_engagement": "default",
+      "insurer": "default",
+      "outreach_engagement": "default",
+      "outreacher": "default",
+      "advocate_engagement": "default",
+      "advocate": "default",
+      "legal_engagement": "default",
+      "law_firm": "default",
+      "court_engagement": "default",
+      "court": "default",
+      "bank_engagement": "default",
+      "bank": "default",
+      "permit_engagement": "default",
+      "permitter": "default"
     },
     "objects": [
       {
@@ -1090,23 +1243,23 @@
       "app_team": {
         "search_groups": [
           {
-            "title": "Games",
+            "title": "Advocates",
             "classes": [
-              "game"
+              "advocate"
             ],
-            "new_objects": [ "game" ],
-            "result_text": "Found {count} games",
-            "edit_text": "Editing game",
+            "new_objects": [ "advocate" ],
+            "result_text": "Found {count} advocates",
+            "edit_text": "Editing advocate",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_game",
+            "chart_name": "chart_advocate",
             "charts": [
               {
-                "chart_button_name": "game_counts_button",
-                "chart_button_text": "Game Counts",
+                "chart_button_name": "advocate_counts_button",
+                "chart_button_text": "Advocate Counts",
                 "chart_button_image": "assets\\chart_line.png",
-                "chart_class": "game",
+                "chart_class": "advocate",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1138,53 +1291,246 @@
             ]
           },
           {
-            "title": "Piece Types",
+            "title": "Banks",
             "classes": [
-              "piece_type"
+              "bank"
             ],
-            "new_objects": [ "piece_type" ],
-            "result_text": "Found {count} piece types",
-            "edit_text": "Editing piece type",
+            "new_objects": [ "bank" ],
+            "result_text": "Found {count} banks",
+            "edit_text": "Editing bank",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands"
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_bank",
+            "charts": [
+              {
+                "chart_button_name": "bank_counts_button",
+                "chart_button_text": "Bank Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "bank",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           },
           {
-            "title": "Pieces",
+            "title": "Courts",
             "classes": [
-              "piece"
+              "court"
             ],
-            "new_objects": [ "piece" ],
-            "result_text": "Found {count} pieces",
-            "edit_text": "Editing piece",
+            "new_objects": [ "court" ],
+            "result_text": "Found {count} courts",
+            "edit_text": "Editing court",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands"
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_court",
+            "charts": [
+              {
+                "chart_button_name": "court_counts_button",
+                "chart_button_text": "Court Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "court",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           },
           {
-            "title": "Animations",
+            "title": "Law Firms",
             "classes": [
-              "animation"
+              "law_firm"
             ],
-            "new_objects": [ "animation" ],
-            "result_text": "Found {count} animations",
-            "edit_text": "Editing animation",
+            "new_objects": [ "law_firm" ],
+            "result_text": "Found {count} law firms",
+            "edit_text": "Editing law firm",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands"
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_law_firm",
+            "charts": [
+              {
+                "chart_button_name": "law_firm_counts_button",
+                "chart_button_text": "Law Firm Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "market",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           },
           {
-            "title": "Essays",
+            "title": "Markets",
             "classes": [
-              "essay"
+              "market"
             ],
-            "new_objects": [ "essay" ],
-            "result_text": "Found {count} essays",
-            "edit_text": "Editing essay",
+            "new_objects": [ "market" ],
+            "result_text": "Found {count} markets",
+            "edit_text": "Editing market",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands"
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_market",
+            "charts": [
+              {
+                "chart_button_name": "market_counts_button",
+                "chart_button_text": "Market Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "market",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Outreacher",
+            "classes": [
+              "outreacher"
+            ],
+            "new_objects": [ "outreacher" ],
+            "result_text": "Found {count} outreachers",
+            "edit_text": "Editing market",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_market",
+            "charts": [
+              {
+                "chart_button_name": "outreacher_counts_button",
+                "chart_button_text": "Outreacher Counts",
+                "chart_button_image": "assets\\chart_line.png",
+                "chart_class": "outreacher",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name", "type_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           }
+
         ]
       }
     }
