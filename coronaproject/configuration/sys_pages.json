@@ -40,6 +40,8 @@
           "library_engagement":"card_library_engagement",
           "market":"card_market",
           "market_engagement":"card_market_engagement",
+          "medical":"card_medical",
+          "medical_engagement":"card_medical_engagement",
           "minutes":"card_minutes",
           "movie":"card_movie",
           "news":"card_news",
@@ -55,6 +57,8 @@
           "rms_occupancy_type":"card_rms_occupancy_type",
           "ruling":"card_ruling",
           "salary":"card_salary",
+          "school":"card_school",
+          "school_engagement":"card_school_engagement",
           "security":"card_security",
           "service_call":"card_service_call",
           "shop":"card_shop",
@@ -145,6 +149,8 @@
           "library_engagement":"object_library_engagement",
           "market":"object_market",
           "market_engagement":"object_market_engagement",
+          "medical":"object_medical",
+          "medical_engagement":"object_medical_engagement",
           "minutes":"object_minutes",
           "movie":"object_movie",
           "news":"object_news",
@@ -160,6 +166,8 @@
           "rms_occupancy_type":"object_rms_occupancy_type",
           "ruling":"object_ruling",
           "salary":"object_salary",
+          "school":"object_school",
+          "school_engagement":"object_school_engagement",
           "security":"object_security",
           "service_call":"object_service_call",
           "shop":"object_shop",
@@ -872,6 +880,55 @@
         "file_name":"pages\\object_market_engagement.json"
       },
 
+      { "class_name":"import", "file_name":"pages\\card_medical.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_medical.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_medical_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_medical_engagement.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\card_minutes.json" },
 
       {
@@ -1128,6 +1185,55 @@
 
       { "class_name":"import", "file_name":"pages\\object_salary.json" },
 
+      { "class_name":"import", "file_name":"pages\\card_school.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_school.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_school_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_school_engagement.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\card_security.json" },
 
       {
@@ -1289,15 +1395,12 @@
         "file_name":"pages\\object_video_game.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\chart_advocate.json" },
+      {
+        "class_name":"import",
+        "file_name":"pages\\chart_association.json"
+      },
 
-      { "class_name":"import", "file_name":"pages\\chart_bank.json" },
-
-      { "class_name":"import", "file_name":"pages\\chart_court.json" },
-
-      { "class_name":"import", "file_name":"pages\\chart_law_firm.json" },
-
-      { "class_name":"import", "file_name":"pages\\chart_library.json" },
+      { "class_name":"import", "file_name":"pages\\chart_market.json" },
 
       { "class_name":"import", "file_name":"pages\\chart_market.json" },
 

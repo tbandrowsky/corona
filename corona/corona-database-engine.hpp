@@ -9986,205 +9986,20 @@ private:
 			return result;
 		}
 
-		virtual json apply_schema(json _schema)
+		virtual json process_data_set(json jschema, std::string _dataset_name)
 		{
-			progress_fence progress(&calls_in_progress);
-
-			if (shutdown_in_progress) {
-				json_parser jp;
-				json error = jp.create_object();
-				error.put_member(success_field, false);
-				error.put_member(message_field, std::string("Shutdown in progress"));
-				return error;
-            }
-
-			date_time start_schema = date_time::now();
-			timer tx;
-			system_monitoring_interface::active_mon->log_job_start("apply_schema", "Applying schema file", start_schema, __FILE__, __LINE__);
-			using namespace std::literals;
-
-			if (_schema.error()) {
-				json errs = _schema["errors"];
-				if (errs.array()) {
-					for (int i = 0; i < errs.size(); i++)
-					{
-						json erri = errs.get_element(i);
-						std::string message = std::format("{} @{}", erri["error"].as_string(), erri["line"].as_string());
-						log_warning(message);
-					}
-				}
-				return _schema;
-			}
-
-			if (not _schema.has_member("schema_name"))
-			{
-				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema name");
-			}
-
-			if (not _schema.has_member("schema_version"))
-			{
-				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema version");
-			}
-
-			if (not _schema.has_member("schema_authors"))
-			{
-				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema author");
-			}
-
-			auto sys_perm = get_system_permission();
-
 			json_parser jp;
 
-			json schema_key = jp.create_object();
-			schema_key.copy_member("schema_name", _schema);
-			schema_key.copy_member("schema_version", _schema);
-			schema_key.put_member(class_name_field, "sys_schema"sv);
-			schema_key.set_compare_order({ "schema_name", "schema_version" });
+			auto sys_perm = get_system_permission();
+			timer tx;
 
-			json jschema_array =  select_object(schema_key, false, sys_perm);
-            json jschema = jschema_array.get_first_element();
-			int64_t schema_id;
-
-			if (jschema.object()) 
-			{
-                jschema.merge(_schema);
-				schema_id = _schema["object_id"].as_int64_t();
-
-				std::string schema_msg = std::format("Schema '{0}' already applied", schema_key["schema_name"].as_string());
-				system_monitoring_interface::active_mon->log_information(schema_msg, __FILE__, __LINE__);
-
-				json error = jp.create_object();
-				error.put_member(success_field, false);
-				error.put_member(message_field, std::string("Schema already applied"));
-				return error;
-			}
-			else 
-			{
-                json create_object_body = jp.create_object();
-				create_object_body.put_member(class_name_field, "sys_schema"sv);
-                json create_object_request = create_system_request(create_object_body);
-                json result = create_object(create_object_request);
-				if (result.has_member(data_field)) 
-				{
-					json new_schema = result[data_field];
-                    new_schema.merge(_schema);
-					jschema = new_schema;
-					schema_id = jschema["object_id"].as_int64_t();
-				}
-			}
-
-			if (jschema.has_member("classes"))
-			{
-				date_time start_section = date_time::now();
-				timer txsect;
-				system_monitoring_interface::active_mon->log_job_section_start("", "Classes", start_section, __FILE__, __LINE__);
-
-				json class_array = jschema["classes"];
-				int64_t class_count = 1;
-				if (class_array.array())
-				{
-					class_count = class_array.size();
-					std::map<std::string, bool> visited_classes;
-
-					for (int i = 0; i < class_array.size(); i++)
-					{
-						date_time start_class = date_time::now();
-						timer txc;
-
-						json class_definition = class_array.get_element(i).clone();
-
-						try {
-
-							if constexpr (debug_teams)
-							{
-								if (class_definition[base_class_name_field].as_string() == "sys_team")
-								{
-									DebugBreak();
-								}
-							}
-
-							std::string new_class_name = class_definition["class_name"].as_string();
-							std::string new_class_author = class_definition["class_author"].as_string();
-							std::string new_class_version = class_definition["class_version"].as_string();
-
-							if (visited_classes.contains(new_class_name)) {
-								system_monitoring_interface::active_mon->log_warning(new_class_name + " already visited", __FILE__, __LINE__);
-								system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " already visited", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-								continue;
-							}
-
-                            visited_classes[new_class_name] = true;
-
-                            auto existing_class = read_lock_class(new_class_name);
-
-							if (existing_class) {
-                                if (existing_class->get_class_version() == new_class_version and
-                                    existing_class->get_class_author() == new_class_author)
-                                {
-                                    system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " up to date", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-                                    continue;
-                                }
-							}
-
-							json put_class_request = create_system_request(class_definition);
-							json class_result =  put_class(put_class_request);
-
-							if (class_result.error()) 
-							{
-								system_monitoring_interface::active_mon->log_warning(class_result["message"].as_string(), __FILE__, __LINE__);
-								continue;
-							}
-
-							system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " complete", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-						}
-						catch (std::exception exc)
-						{
-							system_monitoring_interface::active_mon->log_exception(exc);
-							continue;
-						}
-					}
-				}
-				system_monitoring_interface::active_mon->log_job_section_stop("", "Classes", txsect.get_elapsed_seconds(), class_count, __FILE__, __LINE__);
-			}
-			else
-			{
-				system_monitoring_interface::active_mon->log_warning("classes not found in schema");
-			}
-
-			class_cache.clear();
-
-			if (jschema.has_member("users"))
-			{
-				date_time start_section = date_time::now();
-				timer txsect;
-				system_monitoring_interface::active_mon->log_job_section_start("", "Users", start_section, __FILE__, __LINE__);
-				json user_array = jschema["users"];
-				int64_t user_count = 1;
-				if (user_array.array())
-				{
-					user_count = user_array.size();
-					for (int i = 0; i < user_array.size(); i++)
-					{
-						date_time start_user = date_time::now();
-						timer txu;
-
-						json user_definition = user_array.get_element(i);
-						system_monitoring_interface::active_mon->log_function_start("put user", user_definition[user_name_field].as_string(), start_user, __FILE__, __LINE__);
-						json put_user_request = create_system_request(user_definition);
-						create_user(put_user_request);
-					    system_monitoring_interface::active_mon->log_function_stop("put user", user_definition[user_name_field].as_string(), txu.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-					}
-				}
-				system_monitoring_interface::active_mon->log_job_section_stop("", "Users", txsect.get_elapsed_seconds(), user_count, __FILE__, __LINE__);
-			}
-
-			if (jschema.has_member("datasets"))
+			if (jschema.has_member(_dataset_name))
 			{
 				date_time start_section = date_time::now();
 				timer txsect;
 				system_monitoring_interface::active_mon->log_job_section_start("", "Datasets", start_section, __FILE__, __LINE__);
 				using namespace std::literals;
-				json dataset_array = jschema["datasets"];
+				json dataset_array = jschema[_dataset_name];
 				int64_t dataset_count = 1;
 				if (dataset_array.array())
 				{
@@ -10195,7 +10010,7 @@ private:
 						timer txs;
 
 						if (shutdown_in_progress) {
-                            break;
+							break;
 						}
 
 						json new_dataset = dataset_array.get_element(i);
@@ -10265,7 +10080,7 @@ private:
 										continue;
 									}
 
-                                    std::filesystem::path import_path(filename);
+									std::filesystem::path import_path(filename);
 									if (not import_path.is_absolute()) {
 										import_path = config_path / import_path;
 									}
@@ -10282,26 +10097,26 @@ private:
 									std::string pivot_value_field_name;
 									bool pivot_lower_case = true;
 
-									if (pivot.object()) 
+									if (pivot.object())
 									{
 										pivot_attribute_field_name = pivot["attribute_field"].as_string();
 										pivot_value_field_name = pivot["value_field"].as_string();
-                                        pivot_lower_case = pivot["lower_case_attribute"].as_bool();
+										pivot_lower_case = pivot["lower_case_attribute"].as_bool();
 
 										if (pivot_attribute_field_name.empty() or pivot_value_field_name.empty())
 										{
-                                            system_monitoring_interface::active_mon->log_warning("pivot import attribute_field and value_field must be strings.");
+											system_monitoring_interface::active_mon->log_warning("pivot import attribute_field and value_field must be strings.");
 											pivot.clear();
-                                            continue;
+											continue;
 										}
 
 										pivot_object_field_names = pivot["object_fields"].to_string_array();
-                                        if (pivot_object_field_names.size() == 0)
-                                        {
-                                            system_monitoring_interface::active_mon->log_warning("pivot import object_fields must be [ string, .. ].");
-                                            pivot.clear();
-                                            continue;
-                                        }
+										if (pivot_object_field_names.size() == 0)
+										{
+											system_monitoring_interface::active_mon->log_warning("pivot import object_fields must be [ string, .. ].");
+											pivot.clear();
+											continue;
+										}
 
 										pivot_object = jp.create_object();
 									}
@@ -10312,7 +10127,7 @@ private:
 										auto file_modified = std::filesystem::last_write_time(filename);
 										const auto system_file_modified = std::chrono::clock_cast<std::chrono::system_clock>(file_modified);
 										const auto file_modified_time = std::chrono::system_clock::to_time_t(system_file_modified);
-                                        bool pivot_object_ready = false;
+										bool pivot_object_ready = false;
 										date_time file_modified_dt = date_time(file_modified_time);
 
 										if (file_modified_dt > import_datatime || !existing_dataset.has_member("completed")) {
@@ -10321,15 +10136,15 @@ private:
 											int64_t bytes_processed = 0;
 											int64_t last_bytes_processed = 0;
 
-                                            if (existing_dataset.object() && existing_dataset.has_member("bytes_read")) {
+											if (existing_dataset.object() && existing_dataset.has_member("bytes_read")) {
 												last_bytes_processed = existing_dataset["bytes_read"].as_int64_t();
 											}
 
-											try 
+											try
 											{
 												file_size = std::filesystem::file_size(filename);
 											}
-											catch (std::exception exc) 
+											catch (std::exception exc)
 											{
 
 											}
@@ -10351,38 +10166,38 @@ private:
 												json new_object_response = create_object(cor);
 
 												if (new_object_response[success_field].as_bool()) {
-													json new_object_template = new_object_response[data_field];												
+													json new_object_template = new_object_response[data_field];
 
 													// Read each line from the file and store it in the 'line' buffer.
 													int64_t total_row_count = 0;
-													while (fgets(line, sizeof(line)-1, fp)) {
+													while (fgets(line, sizeof(line) - 1, fp)) {
 
 														if (shutdown_in_progress) {
 															system_monitoring_interface::active_mon->log_warning("Shutdown in progress, import aborted.", __FILE__, __LINE__);
 															break;
-                                                        }
+														}
 
 														char* line_start = line;
-                                                        if (line_start[0] == '\ufeff') {
+														if (line_start[0] == '\ufeff') {
 															line_start = &line_start[3];
 														}
 
 														// Print each line to the standard output.
 														json new_object = new_object_template.clone();
 														new_object.erase_member(object_id_field);
-                                                        int64_t bytes_in_line = (int64_t)strlen(line_start);
+														int64_t bytes_in_line = (int64_t)strlen(line_start);
 														bytes_processed += bytes_in_line;
 
-                                                        if (bytes_processed < last_bytes_processed) {
+														if (bytes_processed < last_bytes_processed) {
 															continue;
 														}
 
-														if (pivot.empty()) 
+														if (pivot.empty())
 														{
 															json extra = jp.create_object();
 															jp.parse_delimited_string(new_object, column_map, line_start, delimiter, extra);
 															datomatic.push_back(new_object);
-														}                                                        
+														}
 														else
 														{
 															json extra = jp.create_object();
@@ -10511,7 +10326,7 @@ private:
 											}
 										}
 									}
-									else 
+									else
 									{
 										std::string msg = std::format("file {0} doesn't exist", filename);
 										system_monitoring_interface::active_mon->log_warning(msg, __FILE__, __LINE__);
@@ -10530,16 +10345,16 @@ private:
 											system_monitoring_interface::active_mon->log_warning(create_result[message_field].as_string());
 										}
 										else {
-                                            json result = create_result[data_field];
+											json result = create_result[data_field];
 											for (auto class_result : result.get_members()) {
-                                                json items = class_result.second;
+												json items = class_result.second;
 												if (items.array()) {
 													for (auto item : items) {
 														if (not item[success_field].as_bool()) {
 															system_monitoring_interface::active_mon->log_warning(item[message_field].as_string(), __FILE__, __LINE__);
 														}
 														else {
-                                                            json item_data = item[data_field];
+															json item_data = item[data_field];
 															std::string new_class_name = item_data[class_name_field].as_string();
 															int64_t object_id = item_data[object_id_field].as_int64_t();
 															std::string object_created = std::format("object {0} {1} saved", new_class_name, object_id);
@@ -10556,7 +10371,7 @@ private:
 								date_time completed_date = date_time::now();
 								new_dataset.put_member("completed", completed_date);
 							}
-                            new_dataset.erase_member("objects");
+							new_dataset.erase_member("objects");
 							json put_script_request = create_system_request(new_dataset);
 							json save_script_result = put_object(put_script_request);
 							if (not save_script_result[success_field].as_bool()) {
@@ -10570,6 +10385,213 @@ private:
 					}
 					system_monitoring_interface::active_mon->log_job_section_stop("DataSets", "", txsect.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 				}
+			}
+
+			return jp.create_object();
+		}
+
+		virtual json apply_schema(json _schema)
+		{
+			progress_fence progress(&calls_in_progress);
+
+			if (shutdown_in_progress) {
+				json_parser jp;
+				json error = jp.create_object();
+				error.put_member(success_field, false);
+				error.put_member(message_field, std::string("Shutdown in progress"));
+				return error;
+            }
+
+			date_time start_schema = date_time::now();
+			timer tx;
+			system_monitoring_interface::active_mon->log_job_start("apply_schema", "Applying schema file", start_schema, __FILE__, __LINE__);
+			using namespace std::literals;
+
+			if (_schema.error()) {
+				json errs = _schema["errors"];
+				if (errs.array()) {
+					for (int i = 0; i < errs.size(); i++)
+					{
+						json erri = errs.get_element(i);
+						std::string message = std::format("{} @{}", erri["error"].as_string(), erri["line"].as_string());
+						log_warning(message);
+					}
+				}
+				return _schema;
+			}
+
+			if (not _schema.has_member("schema_name"))
+			{
+				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema name");
+			}
+
+			if (not _schema.has_member("schema_version"))
+			{
+				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema version");
+			}
+
+			if (not _schema.has_member("schema_authors"))
+			{
+				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema author");
+			}
+
+			auto sys_perm = get_system_permission();
+
+			json_parser jp;
+
+			json schema_key = jp.create_object();
+			schema_key.copy_member("schema_name", _schema);
+			schema_key.copy_member("schema_version", _schema);
+			schema_key.put_member(class_name_field, "sys_schema"sv);
+			schema_key.set_compare_order({ "schema_name", "schema_version" });
+
+			json jschema_array =  select_object(schema_key, false, sys_perm);
+            json jschema = jschema_array.get_first_element();
+			int64_t schema_id;
+
+			if (jschema.object()) 
+			{
+                jschema.merge(_schema);
+				schema_id = _schema["object_id"].as_int64_t();
+
+				std::string schema_msg = std::format("Schema '{0}' already applied", schema_key["schema_name"].as_string());
+				system_monitoring_interface::active_mon->log_information(schema_msg, __FILE__, __LINE__);
+
+				json error = jp.create_object();
+				error.put_member(success_field, false);
+				error.put_member(message_field, std::string("Schema already applied"));
+				return error;
+			}
+			else 
+			{
+                json create_object_body = jp.create_object();
+				create_object_body.put_member(class_name_field, "sys_schema"sv);
+                json create_object_request = create_system_request(create_object_body);
+                json result = create_object(create_object_request);
+				if (result.has_member(data_field)) 
+				{
+					json new_schema = result[data_field];
+                    new_schema.merge(_schema);
+					jschema = new_schema;
+					schema_id = jschema["object_id"].as_int64_t();
+				}
+			}
+
+            if (jschema.has_member("pre_dataset")) {                
+                process_data_set(jschema, "pre_dataset");
+            }
+
+			if (jschema.has_member("classes"))
+			{
+				date_time start_section = date_time::now();
+				timer txsect;
+				system_monitoring_interface::active_mon->log_job_section_start("", "Classes", start_section, __FILE__, __LINE__);
+
+				json class_array = jschema["classes"];
+				int64_t class_count = 1;
+				if (class_array.array())
+				{
+					class_count = class_array.size();
+					std::map<std::string, bool> visited_classes;
+
+					for (int i = 0; i < class_array.size(); i++)
+					{
+						date_time start_class = date_time::now();
+						timer txc;
+
+						json class_definition = class_array.get_element(i).clone();
+
+						try {
+
+							if constexpr (debug_teams)
+							{
+								if (class_definition[base_class_name_field].as_string() == "sys_team")
+								{
+									DebugBreak();
+								}
+							}
+
+							std::string new_class_name = class_definition["class_name"].as_string();
+							std::string new_class_author = class_definition["class_author"].as_string();
+							std::string new_class_version = class_definition["class_version"].as_string();
+
+							if (visited_classes.contains(new_class_name)) {
+								system_monitoring_interface::active_mon->log_warning(new_class_name + " already visited", __FILE__, __LINE__);
+								system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " already visited", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+								continue;
+							}
+
+                            visited_classes[new_class_name] = true;
+
+                            auto existing_class = read_lock_class(new_class_name);
+
+							if (existing_class) {
+                                if (existing_class->get_class_version() == new_class_version and
+                                    existing_class->get_class_author() == new_class_author)
+                                {
+                                    system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " up to date", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+                                    continue;
+                                }
+							}
+
+							json put_class_request = create_system_request(class_definition);
+							json class_result =  put_class(put_class_request);
+
+							if (class_result.error()) 
+							{
+								system_monitoring_interface::active_mon->log_warning(class_result["message"].as_string(), __FILE__, __LINE__);
+								continue;
+							}
+
+							system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " complete", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+						}
+						catch (std::exception exc)
+						{
+							system_monitoring_interface::active_mon->log_exception(exc);
+							continue;
+						}
+					}
+				}
+				system_monitoring_interface::active_mon->log_job_section_stop("", "Classes", txsect.get_elapsed_seconds(), class_count, __FILE__, __LINE__);
+			}
+			else
+			{
+				system_monitoring_interface::active_mon->log_warning("classes not found in schema");
+			}
+
+			class_cache.clear();
+
+			if (jschema.has_member("users"))
+			{
+				date_time start_section = date_time::now();
+				timer txsect;
+				system_monitoring_interface::active_mon->log_job_section_start("", "Users", start_section, __FILE__, __LINE__);
+				json user_array = jschema["users"];
+				int64_t user_count = 1;
+				if (user_array.array())
+				{
+					user_count = user_array.size();
+					for (int i = 0; i < user_array.size(); i++)
+					{
+						date_time start_user = date_time::now();
+						timer txu;
+
+						json user_definition = user_array.get_element(i);
+						system_monitoring_interface::active_mon->log_function_start("put user", user_definition[user_name_field].as_string(), start_user, __FILE__, __LINE__);
+						json put_user_request = create_system_request(user_definition);
+						create_user(put_user_request);
+					    system_monitoring_interface::active_mon->log_function_stop("put user", user_definition[user_name_field].as_string(), txu.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					}
+				}
+				system_monitoring_interface::active_mon->log_job_section_stop("", "Users", txsect.get_elapsed_seconds(), user_count, __FILE__, __LINE__);
+			}
+
+			if (jschema.has_member("post_dataset")) {
+				process_data_set(jschema, "post_dataset");
+			}
+
+			if (jschema.has_member("dataset")) {
+				process_data_set(jschema, "dataset");
 			}
 
 			if (jschema.has_member("application")) {

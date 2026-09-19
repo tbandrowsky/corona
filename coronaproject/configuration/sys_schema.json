@@ -5,7 +5,7 @@
   "schema_authors": [
     "TJ Bandrowsky"
   ],
-  "datasets": [
+  "pre_dataset": [
     {
       "dataset_name": "Revolution Ideas Teams",
       "dataset_description": "Teams and their default memberships",
@@ -538,7 +538,7 @@
         "contacts": [ "person" ],
         "employees": [ "employee" ],
         "contractors": [ "contractor" ],
-        "property": [ "property" ],
+        "property": [ "property" ]
       }
     },
 
@@ -557,9 +557,9 @@
       "class_name": "client",
       "base_class_name": "association",
       "class_description": "A client is an association ",
-      "parents": ["company"],
+      "parents": [ "company" ],
       "fields": {
-        
+
       }
     },
 
@@ -898,8 +898,69 @@
       "class_description": "A permitter in the system",
       "fields": {
       }
+    },
+    {
+      "class_name": "medical_engagement",
+      "base_class_name": "engagement",
+      "class_description": "A medical engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "medical",
+      "base_class_name": "company",
+      "class_description": "A medical center in the system",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "school_engagement",
+      "base_class_name": "engagement",
+      "class_description": "An education engagement",
+      "full_text": [],
+      "fields": {
+      }
+    },
+    {
+      "class_name": "school",
+      "base_class_name": "company",
+      "class_description": "A school in the system",
+      "fields": {
+      }
+    }
+
+  ],
+  "post_dataset": [
+    {
+      "dataset_name": "Revolution Ideas Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical, and the use of sys_team means it can go first",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "app_team",
+          "team_description": "local player team",
+          "team_domain": "localhost.com",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
     }
   ],
+
   "application": {
     "application_creator": "Country Video Games",
     "application_name": "Revolution : Ideas",
@@ -1126,7 +1187,11 @@
       "bank_engagement": "default",
       "bank": "default",
       "permit_engagement": "default",
-      "permitter": "default"
+      "permitter": "default",
+      "medical_engagement": "default",
+      "medical": "default",
+      "school_engagement": "default",
+      "school": "default"
     },
     "objects": [
       {
@@ -1244,27 +1309,27 @@
       "app_team": {
         "search_groups": [
           {
-            "title": "Advocates",
+            "title": "Associations",
             "classes": [
-              "advocate"
+              "advocate", "bank", "court", "law_firm", "library", "market", "medical", "outreacher", "permitter", "shop", "school"
             ],
-            "new_objects": [ "advocate" ],
-            "result_text": "Found {count} advocates",
-            "edit_text": "Editing advocate",
+            "new_objects": [ "advocate", "bank", "court", "law_firm", "library", "market", "medical", "outreacher", "permitter", "shop", "school" ],
+            "result_text": "Found {count}",
+            "edit_text": "Editing",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_advocate",
+            "chart_name": "chart_association",
             "charts": [
               {
-                "chart_button_name": "advocate_counts_button",
-                "chart_button_text": "Advocate Counts",
+                "chart_button_name": "chart_association_counts_button",
+                "chart_button_text": "chart_association Counts",
                 "chart_button_image": "assets\\chart_line.png",
                 "chart_class": "advocate",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
+                    "label_fields": [ "class_name" ],
                     "value_fields": [
                       {
                         "field_name": "count",
@@ -1279,7 +1344,7 @@
                   }
                 },
                 "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
+                  "field_names": [ "class_name"  ],
                   "aggregates": [
                     {
                       "dest_field_name": "count",
@@ -1292,253 +1357,20 @@
             ]
           },
           {
-            "title": "Banks",
+            "title": "Assets",
             "classes": [
-              "bank"
+              "building",
+              "property",
+              "book",
+              "movie",
+              "board_game",
+              "video_game",
+              "tool",
+              "security"
             ],
-            "new_objects": [ "bank" ],
-            "result_text": "Found {count} banks",
-            "edit_text": "Editing bank",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_name": "chart_bank",
-            "charts": [
-              {
-                "chart_button_name": "bank_counts_button",
-                "chart_button_text": "Bank Counts",
-                "chart_button_image": "assets\\bank.png",
-                "chart_class": "bank",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "title": "Courts",
-            "classes": [
-              "court"
-            ],
-            "new_objects": [ "court" ],
-            "result_text": "Found {count} courts",
-            "edit_text": "Editing court",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_name": "chart_court",
-            "charts": [
-              {
-                "chart_button_name": "court_counts_button",
-                "chart_button_text": "Court Counts",
-                "chart_button_image": "assets\\court.png",
-                "chart_class": "court",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "title": "Law Firms",
-            "classes": [
-              "law_firm"
-            ],
-            "new_objects": [ "law_firm" ],
-            "result_text": "Found {count} law firms",
-            "edit_text": "Editing law firm",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_name": "chart_law_firm",
-            "charts": [
-              {
-                "chart_button_name": "law_firm_counts_button",
-                "chart_button_text": "Law Firm Counts",
-                "chart_button_image": "assets\\law_firm.png",
-                "chart_class": "law_firm",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "title": "Libraries",
-            "classes": [
-              "library"
-            ],
-            "new_objects": [ "library" ],
-            "result_text": "Found {count} libraries",
-            "edit_text": "Editing library",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_name": "chart_library",
-            "charts": [
-              {
-                "chart_button_name": "law_firm_counts_button",
-                "chart_button_text": "Law Firm Counts",
-                "chart_button_image": "assets\\law_firm.png",
-                "chart_class": "law_firm",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "title": "Markets",
-            "classes": [
-              "market"
-            ],
-            "new_objects": [ "market" ],
-            "result_text": "Found {count} markets",
-            "edit_text": "Editing market",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_name": "chart_market",
-            "charts": [
-              {
-                "chart_button_name": "market_counts_button",
-                "chart_button_text": "Market Counts",
-                "chart_button_image": "assets\\market.png",
-                "chart_class": "market",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "title": "Outreacher",
-            "classes": [
-              "outreacher"
-            ],
-            "new_objects": [ "outreacher" ],
-            "result_text": "Found {count} outreachers",
-            "edit_text": "Editing market",
+            "new_objects": [ "building", "property", "book", "movie", "board_game", "video_game", "tool", "security" ],
+            "result_text": "Found {count} asset",
+            "edit_text": "Editing asset",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
@@ -1547,8 +1379,8 @@
               {
                 "chart_button_name": "outreacher_counts_button",
                 "chart_button_text": "Outreacher Counts",
-                "chart_button_image": "assets\\outreacher.png",
-                "chart_class": "outreacher",
+                "chart_button_image": "assets\\asset.png",
+                "chart_class": "chart_asset",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1567,7 +1399,121 @@
                   }
                 },
                 "group_by": {
-                  "field_names": [ "class_name", "type_name" ],
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "People",
+            "classes": [
+              "person",
+              "employee",
+              "contractor",
+              "salary",
+              "hourly",
+            ],
+            "new_objects": [ "person", "contractor", "hourly", "salary" ],
+            "result_text": "Found {count} asset",
+            "edit_text": "Editing asset",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_market",
+            "charts": [
+              {
+                "chart_button_name": "outreacher_counts_button",
+                "chart_button_text": "Outreacher Counts",
+                "chart_button_image": "assets\\asset.png",
+                "chart_class": "chart_asset",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Records",
+            "classes": [
+              "record",
+              "minutes",
+              "contract",
+              "deed",
+              "ruling",
+              "title",
+              "service_call"
+            ],
+            "new_objects": [
+              "record",
+              "minutes",
+              "contract",
+              "deed",
+              "ruling",
+              "title",
+              "service_call"
+            ],
+            "result_text": "Found {count}",
+            "edit_text": "Editing",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_name": "chart_market",
+            "charts": [
+              {
+                "chart_button_name": "record_counts_button",
+                "chart_button_text": "Record Counts",
+                "chart_button_image": "assets\\asset.png",
+                "chart_class": "chart_asset",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
                   "aggregates": [
                     {
                       "dest_field_name": "count",
@@ -1579,7 +1525,6 @@
               }
             ]
           }
-
         ]
       }
     }
