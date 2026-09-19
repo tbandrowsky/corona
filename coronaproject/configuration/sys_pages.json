@@ -1400,11 +1400,11 @@
         "file_name":"pages\\chart_association.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\chart_market.json" },
+      { "class_name":"import", "file_name":"pages\\.json" },
 
-      { "class_name":"import", "file_name":"pages\\chart_market.json" },
+      { "class_name":"import", "file_name":"pages\\.json" },
 
-      { "class_name":"import", "file_name":"pages\\chart_market.json" },
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\home_app_team.json" }
     ],

@@ -1311,11 +1311,11 @@
           {
             "title": "Associations",
             "classes": [
-              "advocate", "bank", "court", "law_firm", "library", "market", "medical", "outreacher", "permitter", "shop", "school"
+              "association"
             ],
             "new_objects": [ "advocate", "bank", "court", "law_firm", "library", "market", "medical", "outreacher", "permitter", "shop", "school" ],
-            "result_text": "Found {count}",
-            "edit_text": "Editing",
+            "result_text": "{count} associations",
+            "edit_text": "Editing association",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
@@ -1324,8 +1324,8 @@
               {
                 "chart_button_name": "chart_association_counts_button",
                 "chart_button_text": "chart_association Counts",
-                "chart_button_image": "assets\\chart_line.png",
-                "chart_class": "advocate",
+                "chart_button_image": "assets\\chart_bar.png",
+                "chart_class": "chart_association",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1344,7 +1344,7 @@
                   }
                 },
                 "group_by": {
-                  "field_names": [ "class_name"  ],
+                  "field_names": [ "class_name" ],
                   "aggregates": [
                     {
                       "dest_field_name": "count",
@@ -1359,27 +1359,20 @@
           {
             "title": "Assets",
             "classes": [
-              "building",
-              "property",
-              "book",
-              "movie",
-              "board_game",
-              "video_game",
-              "tool",
-              "security"
+              "asset"
             ],
             "new_objects": [ "building", "property", "book", "movie", "board_game", "video_game", "tool", "security" ],
-            "result_text": "Found {count} asset",
+            "result_text": "{count} assets",
             "edit_text": "Editing asset",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_market",
+            "chart_class": "chart_asset",
             "charts": [
               {
-                "chart_button_name": "outreacher_counts_button",
-                "chart_button_text": "Outreacher Counts",
-                "chart_button_image": "assets\\asset.png",
+                "chart_button_name": "asset_counts_button",
+                "chart_button_text": "Asset Types",
+                "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_asset",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1414,25 +1407,21 @@
           {
             "title": "People",
             "classes": [
-              "person",
-              "employee",
-              "contractor",
-              "salary",
-              "hourly",
+              "person"
             ],
             "new_objects": [ "person", "contractor", "hourly", "salary" ],
-            "result_text": "Found {count} asset",
-            "edit_text": "Editing asset",
+            "result_text": "{count} people",
+            "edit_text": "Editing person",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_market",
+            "chart_class": "chart_person",
             "charts": [
               {
-                "chart_button_name": "outreacher_counts_button",
-                "chart_button_text": "Outreacher Counts",
-                "chart_button_image": "assets\\asset.png",
-                "chart_class": "chart_asset",
+                "chart_button_name": "people_counts_button",
+                "chart_button_text": "People Types",
+                "chart_button_image": "assets\\chart_bar.png",
+                "chart_class": "chart_person",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1466,13 +1455,7 @@
           {
             "title": "Records",
             "classes": [
-              "record",
-              "minutes",
-              "contract",
-              "deed",
-              "ruling",
-              "title",
-              "service_call"
+              "record"
             ],
             "new_objects": [
               "record",
@@ -1483,18 +1466,18 @@
               "title",
               "service_call"
             ],
-            "result_text": "Found {count}",
-            "edit_text": "Editing",
+            "result_text": "{count} records",
+            "edit_text": "Editing record",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_market",
+            "chart_class": "chart_record",
             "charts": [
               {
                 "chart_button_name": "record_counts_button",
-                "chart_button_text": "Record Counts",
-                "chart_button_image": "assets\\record.png",
-                "chart_class": "chart_asset",
+                "chart_button_text": "Record Types",
+                "chart_button_image": "assets\\chart_bar.png",
+                "chart_class": "chart_record",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {

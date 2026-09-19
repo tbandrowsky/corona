@@ -9278,64 +9278,73 @@ private:
 								}
 							}
 
-							for (auto sg_class : sg_classes) {
+							json search_create_commands = jp.create_array();
+
+							for (auto sg_class : new_object_classes) {
+
+								auto sgclassd = read_lock_class(sg_class);
+								if (!sgclassd) {
+									log_warning("class " + sg_class + " not found", __FILE__, __LINE__);
+									return jp.create_object();
+								}
+
+								json create_command = create_command_class_template.clone();
+
+								create_command.apply_abbreviations({
+									{ "$create_button_class", jp.from_string(sgclassd->get_class_name()) },
+									{ "$create_button_name", jp.from_string("create_" + sgclassd->get_class_name() + "_button") },
+									{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", sgclassd->get_class_name())) },
+									{ "$create_button_text", jp.from_string(sgclassd->get_class_name()) },
+									{ "$create_button_message", jp.from_string("new " + sgclassd->get_class_name()) },
+									{ "$class_edit_page", form_sources[sgclassd->get_class_name()] }
+									});
+								search_create_commands.push_back(create_command);
+							}
+
+							if (charts.array()) {
+
+
+								for (int i = 0; i < charts.size(); i++) {
+
+									json chart_command = chart_command_class_template.clone();
+									json chart_spec = charts.get_element(i);
+
+									std::string chart_class = chart_spec["chart_class"].as_string();
+									std::string chart_button_name = chart_spec["chart_button_name"].as_string();
+									std::string chart_button_text = chart_spec["chart_button_text"].as_string();
+									std::string chart_button_image = chart_spec["chart_button_image"].as_string();
+
+									json chart_actual = chart_spec["chart"];
+									json chart_group_by = chart_spec["group_by"];
+									json chart_cross_tab = chart_spec["cross_tab"];
+
+									chart_command.apply_abbreviations({
+										{ "$chart_button_name", jp.from_string(chart_button_name) },
+										{ "$chart_button_text", jp.from_string(chart_button_text) },
+										{ "$chart_button_image", jp.from_string(chart_button_image) },
+										{ "$chart_name", jp.from_string(chart_name) },
+										{ "$chart_group_by", chart_group_by },
+										{ "$chart_cross_tab", chart_cross_tab },
+										{ "$chart", chart_actual }
+										});
+
+									search_create_commands.push_back(chart_command);
+								}
+
+							}
+
+                            for (auto sg_class : sg_classes) {
+
+								json search_command = search_command_class_template.clone();
+
+								auto sgclassd = read_lock_class(sg_class);
+								if (!sgclassd) {
+									log_warning("class " + sg_class + " not found", __FILE__, __LINE__);
+									return jp.create_object();
+								}
 
 								json update_filter = jp.create_object();
 								update_filter.put_member(class_name_field, sg_class);
-
-                                auto sgclassd = read_lock_class(sg_class);
-
-								json create_command = create_command_class_template.clone();
-								json search_command = search_command_class_template.clone();
-								json search_create_commands = jp.create_array();
-
-								if (new_object_classes.contains(sg_class)) {
-									create_command.apply_abbreviations({
-										{ "$create_button_class", jp.from_string(sgclassd->get_class_name()) },
-										{ "$create_button_name", jp.from_string("create_" + sgclassd->get_class_name() + "_button") },
-										{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", sgclassd->get_class_name())) },
-										{ "$create_button_text", jp.from_string(sgclassd->get_class_name()) },
-										{ "$create_button_message", jp.from_string("new " + sgclassd->get_class_name()) },
-										{ "$class_edit_page", form_sources[sgclassd->get_class_name()] }
-										});
-									search_create_commands.push_back(create_command);
-								}
-
-								if (charts.array()) {
-
-
-									for (int i = 0; i < charts.size(); i++) {
-
-										json chart_command = chart_command_class_template.clone();
-										json chart_spec = charts.get_element(i);
-
-										std::string chart_class = chart_spec["chart_class"].as_string();
-										if (!chart_class.empty() && chart_class != sg_class) {
-											continue;
-										}
-
-										std::string chart_button_name = chart_spec["chart_button_name"].as_string();
-										std::string chart_button_text = chart_spec["chart_button_text"].as_string();
-										std::string chart_button_image = chart_spec["chart_button_image"].as_string();
-
-										json chart_actual = chart_spec["chart"];
-										json chart_group_by = chart_spec["group_by"];
-										json chart_cross_tab = chart_spec["cross_tab"];
-
-										chart_command.apply_abbreviations({
-											{ "$chart_button_name", jp.from_string(chart_button_name) },
-											{ "$chart_button_text", jp.from_string(chart_button_text) },
-											{ "$chart_button_image", jp.from_string(chart_button_image) },
-											{ "$chart_name", jp.from_string(chart_name) },
-											{ "$chart_group_by", chart_group_by },
-											{ "$chart_cross_tab", chart_cross_tab },
-											{ "$chart", chart_actual }
-											});
-
-										search_create_commands.push_back(chart_command);
-									}
-
-								}
 
 								search_command.apply_abbreviations({
 	{ "$search_button_class", jp.from_string(sgclassd->get_class_name()) },
@@ -9351,12 +9360,8 @@ private:
 	{ "$update_filter", update_filter }
 									});
 
-
                                 search_group_commands.push_back(search_command);
 							}
-
-
-
 
 							search_group.apply_abbreviations({
 	{ "$search_group_name", jp.from_string(sg_title) },
