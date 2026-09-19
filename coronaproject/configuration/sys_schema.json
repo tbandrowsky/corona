@@ -1493,7 +1493,7 @@
               {
                 "chart_button_name": "record_counts_button",
                 "chart_button_text": "Record Counts",
-                "chart_button_image": "assets\\asset.png",
+                "chart_button_image": "assets\\record.png",
                 "chart_class": "chart_asset",
                 "chart": {
                   "class_name": "bar_chart",
