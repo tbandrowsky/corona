@@ -243,6 +243,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_advocate_fields.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_advocate_clients.json"
       },
 
@@ -256,16 +261,16 @@
         "file_name":"pages\\tab_advocate_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_advocate_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_advocate.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_advocate_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagement_fields.json"
       },
 
       {
@@ -280,26 +285,26 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_advocate_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_advocate_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_asset.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_asset_fields.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_asset_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_asset_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_asset.json" },
 
       { "class_name":"import", "file_name":"pages\\card_association.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -333,15 +338,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_association.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_bank.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_bank_clients.json" },
 
@@ -352,13 +354,16 @@
 
       { "class_name":"import", "file_name":"pages\\tab_bank_vendors.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_bank_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_bank.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_bank_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagement_fields.json"
       },
 
       {
@@ -373,11 +378,6 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_bank_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_bank_engagement.json"
       },
 
@@ -385,12 +385,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_board_game_description.json"
+        "file_name":"pages\\tab_board_game_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_board_game_fields.json"
+        "file_name":"pages\\tab_board_game_description.json"
       },
 
       {
@@ -400,12 +400,12 @@
 
       { "class_name":"import", "file_name":"pages\\card_book.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_book_fields.json" },
+
       {
         "class_name":"import",
         "file_name":"pages\\tab_book_description.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_book_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_book.json" },
 
@@ -413,12 +413,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_building_construction_type.json"
+        "file_name":"pages\\tab_building_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_building_description.json"
+        "file_name":"pages\\tab_building_construction_type.json"
       },
 
       {
@@ -428,23 +428,28 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_building_fields.json"
+        "file_name":"pages\\tab_building_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_building.json" },
 
       { "class_name":"import", "file_name":"pages\\card_cart.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_cart_fields.json" },
+
       {
         "class_name":"import",
         "file_name":"pages\\tab_cart_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_cart_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_cart.json" },
 
       { "class_name":"import", "file_name":"pages\\card_client.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -476,14 +481,14 @@
         "file_name":"pages\\tab_client_property.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_client_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_client.json" },
 
       { "class_name":"import", "file_name":"pages\\card_company.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -500,23 +505,18 @@
         "file_name":"pages\\tab_company_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_company_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_company.json" },
 
       { "class_name":"import", "file_name":"pages\\card_contract.json" },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_contract_description.json"
+        "file_name":"pages\\tab_contract_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_contract_fields.json"
+        "file_name":"pages\\tab_contract_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_contract.json" },
@@ -525,12 +525,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_contractor_direct_reports.json"
+        "file_name":"pages\\tab_contractor_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_contractor_fields.json"
+        "file_name":"pages\\tab_contractor_direct_reports.json"
       },
 
       {
@@ -539,6 +539,8 @@
       },
 
       { "class_name":"import", "file_name":"pages\\card_court.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_fields.json" },
 
       {
         "class_name":"import",
@@ -555,13 +557,16 @@
         "file_name":"pages\\tab_court_vendors.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_court_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_court.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_court_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_engagement_fields.json"
       },
 
       {
@@ -576,22 +581,17 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_court_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_court_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_deed.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_deed_fields.json" },
+
       {
         "class_name":"import",
         "file_name":"pages\\tab_deed_description.json"
       },
-
-      { "class_name":"import", "file_name":"pages\\tab_deed_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_deed.json" },
 
@@ -599,12 +599,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_employee_direct_reports.json"
+        "file_name":"pages\\tab_employee_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_employee_fields.json"
+        "file_name":"pages\\tab_employee_direct_reports.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_employee.json" },
@@ -613,17 +613,22 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_encounter_description.json"
+        "file_name":"pages\\tab_encounter_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_encounter_fields.json"
+        "file_name":"pages\\tab_encounter_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_encounter.json" },
 
       { "class_name":"import", "file_name":"pages\\card_engagement.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_engagement_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -637,11 +642,6 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_engagement.json"
       },
 
@@ -649,12 +649,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_hourly_direct_reports.json"
+        "file_name":"pages\\tab_hourly_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_hourly_fields.json"
+        "file_name":"pages\\tab_hourly_direct_reports.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_hourly.json" },
@@ -662,6 +662,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\card_insurance_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_fields.json"
       },
 
       {
@@ -676,15 +681,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_insurance_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_insurance_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_insurer.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -701,14 +706,14 @@
         "file_name":"pages\\tab_insurer_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_insurer_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_insurer.json" },
 
       { "class_name":"import", "file_name":"pages\\card_law_firm.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -725,16 +730,16 @@
         "file_name":"pages\\tab_law_firm_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_law_firm_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_law_firm.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_legal_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_legal_engagement_fields.json"
       },
 
       {
@@ -749,15 +754,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_legal_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_legal_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_library.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -767,6 +772,16 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_library_books.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_movies.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_video_games.json"
       },
 
       {
@@ -781,22 +796,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_library_movies.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_library_vendors.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_library_video_games.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_library_fields.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_library.json" },
@@ -804,6 +804,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\card_library_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_engagement_fields.json"
       },
 
       {
@@ -818,15 +823,20 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_library_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_library_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_market.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_securities.json"
+      },
 
       {
         "class_name":"import",
@@ -840,17 +850,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_market_securities.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_market_vendors.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_market_fields.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_market.json" },
@@ -858,6 +858,11 @@
       {
         "class_name":"import",
         "file_name":"pages\\card_market_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_engagement_fields.json"
       },
 
       {
@@ -872,15 +877,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_market_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_market_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_medical.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -897,16 +902,16 @@
         "file_name":"pages\\tab_medical_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_medical_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_medical.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_medical_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_fields.json"
       },
 
       {
@@ -921,11 +926,6 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_medical_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_medical_engagement.json"
       },
 
@@ -933,41 +933,46 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_minutes_description.json"
+        "file_name":"pages\\tab_minutes_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_minutes_fields.json"
+        "file_name":"pages\\tab_minutes_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_minutes.json" },
 
       { "class_name":"import", "file_name":"pages\\card_movie.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_movie_fields.json" },
+
       {
         "class_name":"import",
         "file_name":"pages\\tab_movie_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_movie_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_movie.json" },
 
       { "class_name":"import", "file_name":"pages\\card_news.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_news_fields.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_news_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_news_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_news.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_outreach_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreach_engagement_fields.json"
       },
 
       {
@@ -982,15 +987,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_outreach_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_outreach_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_outreacher.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -1009,17 +1014,17 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_outreacher_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_outreacher.json"
       },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_permit_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permit_engagement_fields.json"
       },
 
       {
@@ -1034,15 +1039,15 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_permit_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_permit_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_permitter.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -1057,11 +1062,6 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_permitter_vendors.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_permitter_fields.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_permitter.json" },
@@ -1079,12 +1079,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_product_description.json"
+        "file_name":"pages\\tab_product_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_product_fields.json"
+        "file_name":"pages\\tab_product_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_product.json" },
@@ -1093,12 +1093,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_property_description.json"
+        "file_name":"pages\\tab_property_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_property_fields.json"
+        "file_name":"pages\\tab_property_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_property.json" },
@@ -1107,12 +1107,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_record_description.json"
+        "file_name":"pages\\tab_record_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_record_fields.json"
+        "file_name":"pages\\tab_record_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_record.json" },
@@ -1124,12 +1124,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_rms_construction_type_description.json"
+        "file_name":"pages\\tab_rms_construction_type_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_rms_construction_type_fields.json"
+        "file_name":"pages\\tab_rms_construction_type_description.json"
       },
 
       {
@@ -1144,12 +1144,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_rms_occupancy_type_description.json"
+        "file_name":"pages\\tab_rms_occupancy_type_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_rms_occupancy_type_fields.json"
+        "file_name":"pages\\tab_rms_occupancy_type_description.json"
       },
 
       {
@@ -1161,12 +1161,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_ruling_description.json"
+        "file_name":"pages\\tab_ruling_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_ruling_fields.json"
+        "file_name":"pages\\tab_ruling_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_ruling.json" },
@@ -1175,17 +1175,22 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_salary_direct_reports.json"
+        "file_name":"pages\\tab_salary_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_salary_fields.json"
+        "file_name":"pages\\tab_salary_direct_reports.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_salary.json" },
 
       { "class_name":"import", "file_name":"pages\\card_school.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -1202,16 +1207,16 @@
         "file_name":"pages\\tab_school_vendors.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_school_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_school.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_school_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_fields.json"
       },
 
       {
@@ -1226,11 +1231,6 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_school_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_school_engagement.json"
       },
 
@@ -1238,7 +1238,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_security_description.json"
+        "file_name":"pages\\tab_security_fields.json"
       },
 
       {
@@ -1248,7 +1248,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_security_fields.json"
+        "file_name":"pages\\tab_security_description.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_security.json" },
@@ -1260,12 +1260,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_service_call_description.json"
+        "file_name":"pages\\tab_service_call_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_service_call_fields.json"
+        "file_name":"pages\\tab_service_call_description.json"
       },
 
       {
@@ -1275,6 +1275,12 @@
 
       { "class_name":"import", "file_name":"pages\\card_shop.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_shop_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_movies.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_tool.json" },
+
       { "class_name":"import", "file_name":"pages\\tab_shop_clients.json" },
 
       {
@@ -1282,19 +1288,18 @@
         "file_name":"pages\\tab_shop_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_shop_movies.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_shop_tool.json" },
-
       { "class_name":"import", "file_name":"pages\\tab_shop_vendors.json" },
-
-      { "class_name":"import", "file_name":"pages\\tab_shop_fields.json" },
 
       { "class_name":"import", "file_name":"pages\\object_shop.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\card_shop_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagement_fields.json"
       },
 
       {
@@ -1309,37 +1314,37 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_shop_engagement_fields.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\object_shop_engagement.json"
       },
 
       { "class_name":"import", "file_name":"pages\\card_title.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_title_fields.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_title_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_title_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_title.json" },
 
       { "class_name":"import", "file_name":"pages\\card_tool.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_tool_fields.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_tool_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_tool_fields.json" },
-
       { "class_name":"import", "file_name":"pages\\object_tool.json" },
 
       { "class_name":"import", "file_name":"pages\\card_vendor.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_fields.json"
+      },
 
       {
         "class_name":"import",
@@ -1371,23 +1376,18 @@
         "file_name":"pages\\tab_vendor_property.json"
       },
 
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_vendor_fields.json"
-      },
-
       { "class_name":"import", "file_name":"pages\\object_vendor.json" },
 
       { "class_name":"import", "file_name":"pages\\card_video_game.json" },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_video_game_description.json"
+        "file_name":"pages\\tab_video_game_fields.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_video_game_fields.json"
+        "file_name":"pages\\tab_video_game_description.json"
       },
 
       {

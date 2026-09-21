@@ -3814,6 +3814,16 @@ namespace corona
 			return put_element(-1, et);
 		}
 
+		json push_front(json et)
+		{
+            if (!array_impl()) {
+                throw std::logic_error("Not an array");
+            }
+            auto array = array_impl();
+            array->elements.insert(array->elements.begin(), et.value_base);
+			return *this;
+		}
+
 		json remove_element(int _index)
 		{
 			if (not array_impl()) {

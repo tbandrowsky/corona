@@ -1017,6 +1017,14 @@ namespace corona
 
 	class activity;
 
+	class field_section
+	{
+	public:
+		std::string section_name;
+		std::string section_description;
+		std::vector<std::shared_ptr<field_interface>> section_fields;
+	};
+
 	class class_interface : public shared_lockable, public class_interface_base
 	{
 	protected:
@@ -1087,6 +1095,7 @@ namespace corona
 		virtual void									put_bitmap(json& _dest, const std::string& _name, std::shared_ptr<bitmapInstanceDto>& _src) = 0;
 		virtual std::map<std::string, std::shared_ptr<field_interface>>&		use_fields() = 0;
 		virtual std::vector<std::shared_ptr<field_interface>> get_fields()  const = 0;
+		virtual std::vector<std::shared_ptr<field_section>> get_fields_for_ux(corona_database_interface *_db)  const = 0;
 		
 		virtual std::shared_ptr<index_interface>		get_index(const std::string& _name)  const = 0;
 		virtual std::vector<std::shared_ptr<index_interface>> get_indexes()  const = 0;
@@ -4658,7 +4667,7 @@ namespace corona
 
 			if (ancestors.size() > 0) {
 				json jancestor_array = jp.create_array();
-				for (auto class_ancestor : ancestors) {
+				for (auto& class_ancestor : ancestors) {
 					jancestor_array.push_back(class_ancestor.first);
 				}
 				_dest.put_member("ancestors", jancestor_array);
@@ -4666,7 +4675,7 @@ namespace corona
 
 			if (descendants.size() > 0) {
 				json jdescendants_array = jp.create_array();
-				for (auto class_descendant : descendants) {
+				for (auto& class_descendant : descendants) {
 					jdescendants_array.push_back(class_descendant.first);
 				}
 				_dest.put_member("descendants", jdescendants_array);
@@ -5523,6 +5532,39 @@ namespace corona
 				fields_list.push_back(fld.second);
 			}
 			return fields_list;
+		}
+
+		/// <summary>
+        /// This method returns a list of field sections that are used for the user interface.  
+		/// Each section is in order from the current class up to its base, and is named
+		/// for its class and description.
+		/// </summary>
+		/// <param name="_db"></param>
+		/// <returns></returns>
+		virtual std::vector<std::shared_ptr<field_section>> get_fields_for_ux(corona_database_interface* _db)  const override
+		{
+            // go through the ancestors, and for each ancestor, get its fields, and put them in a section.  Then add the current class's fields in a section.  Return the list of sections.
+            std::vector<std::shared_ptr<field_section>> sections;
+            auto current_class_name = class_name;
+            auto current_class = _db->read_lock_class(current_class_name);
+			auto flds = get_fields();
+			while (current_class) {
+                auto section = std::make_shared<field_section>();
+                section->section_name = current_class->get_class_name();
+                section->section_description = current_class->get_class_description();
+                for (auto& fld : flds) {
+					if (fld->get_field_class() == current_class->get_class_name()) {
+						section->section_fields.push_back(fld);
+					}
+                }
+                sections.push_back(section);
+                auto base_class_name = current_class->get_base_class_name();
+                if (base_class_name.empty()) {
+                    break;
+                }
+                current_class = _db->read_lock_class(base_class_name);
+            }
+            return sections;
 		}
 
 		virtual std::shared_ptr<index_interface> get_index(const std::string& _name)  const override
@@ -6798,9 +6840,9 @@ namespace corona
 		virtual void log_errors(validation_error_collection& _errors) override
 		{
 			for (auto &err : _errors) {
-				std::string msg = std::format("{0}.{1}: {2}", err.class_name, err.field_name, err.message);
+				std::string msg = std::format("{}.{}: {}", err.class_name, err.field_name, err.message);
 				system_monitoring_interface::active_mon->log_warning(msg);
-				std::string msg2 = std::format("Code Location: @({0},{1}), Occurrences:{2}", err.filename, err.line_number, err.count);
+				std::string msg2 = std::format("Code Location: @({},{}) , Occurrences:{}", err.filename, err.line_number, err.count);
 				system_monitoring_interface::active_mon->log_warning(msg2);
 			}
 		}
@@ -9481,54 +9523,98 @@ private:
 
         card.put_member("title", classd->get_class_name());
 
-		for (auto& field : fields) 
+		auto field_sections = classd->get_fields_for_ux(this);
+
+		for (auto& section : field_sections)
 		{
-			std::string field_class = field->get_field_class();
-
-			std::string tab_name = "tab_" + classd->get_class_name() + "_" + field->get_field_name();
-
-			json field_mapping = get_field_mapping(classd, field->get_field_name(), field_mappings);
-
-			std::string field_ux_class = "";
-			std::string field_tab_type = "";
-			layout_rect field_box = {};
-
-            if (field_mapping.object()) {
-				field_tab_type = field_mapping["tab_type"].as_string();
-				field_ux_class = field_mapping["class_name"].as_string();
-                json jbox = field_mapping["box"];
-                put_json(field_box, jbox);
-            }
-
-			if (field_tab_type == "custom" || field_tab_type == "inventory") {
-				json tab = jp.create_object();
-				tab.put_member_string("page_name", tab_name);
-				tab.put_member_string("name", field->get_label());
-				tab.put_member_string("member_name", field->get_field_name());
-				tab.put_member_string("ux_class", field_ux_class);
-				tab.put_member_string("tab_type", field_tab_type);
-				tabs.push_back(tab);
-			}
-			else if (field_tab_type == "edit")
-			{
+			if (section->section_fields.size() > 0) {
 				json tab_field = jp.create_object();
-				tab_field.put_member_string("field_name", field->get_field_name());
-				tab_field.put_member_string("field_label", field->get_label());
-				tab_field.put_member_string("field_class", field->get_field_class());
+				tab_field.put_member_string("field_name", ".section");
+				tab_field.put_member_string("field_label", section->section_description);
+				tab_field.put_member_string("field_class", section->section_name);
 				tab_edit_fields.push_back(tab_field);
 			}
-			else if (field->get_field_type() == field_types::ft_object) {
-				if (!field->is_relational_children()) {
+
+			for (auto& field : section->section_fields)
+			{
+				std::string field_class = field->get_field_class();
+
+				std::string tab_name = "tab_" + classd->get_class_name() + "_" + field->get_field_name();
+
+				json field_mapping = get_field_mapping(classd, field->get_field_name(), field_mappings);
+
+				std::string field_ux_class = "";
+				std::string field_tab_type = "";
+				layout_rect field_box = {};
+
+				if (field_mapping.object()) {
+					field_tab_type = field_mapping["tab_type"].as_string();
+					field_ux_class = field_mapping["class_name"].as_string();
+					json jbox = field_mapping["box"];
+					put_json(field_box, jbox);
+				}
+
+				if (field_tab_type == "custom" || field_tab_type == "inventory") {
 					json tab = jp.create_object();
 					tab.put_member_string("page_name", tab_name);
 					tab.put_member_string("name", field->get_label());
 					tab.put_member_string("member_name", field->get_field_name());
-					tab.put_member_string("ux_class", "scintilla");
+					tab.put_member_string("ux_class", field_ux_class);
 					tab.put_member_string("tab_type", field_tab_type);
 					tabs.push_back(tab);
 				}
-				else 
+				else if (field_tab_type == "edit")
 				{
+					json tab_field = jp.create_object();
+					tab_field.put_member_string("field_name", field->get_field_name());
+					tab_field.put_member_string("field_label", field->get_label());
+					tab_field.put_member_string("field_class", field->get_field_class());
+					tab_edit_fields.push_back(tab_field);
+				}
+				else if (field->get_field_type() == field_types::ft_object) {
+					if (!field->is_relational_children()) {
+						json tab = jp.create_object();
+						tab.put_member_string("page_name", tab_name);
+						tab.put_member_string("name", field->get_label());
+						tab.put_member_string("member_name", field->get_field_name());
+						tab.put_member_string("ux_class", "scintilla");
+						tab.put_member_string("tab_type", field_tab_type);
+						tabs.push_back(tab);
+					}
+					else
+					{
+						std::shared_ptr<child_bridges_interface> bridges;
+						bridges = field->get_bridges();
+
+						std::shared_ptr<child_bridge_interface> bridge;
+						if (bridges) {
+							bridge = bridges->get_bridge(field_class);
+						}
+
+						json tab = jp.create_object();
+
+						auto allowed_classes = field->get_allowed_classes();
+						if (allowed_classes.size() > 0) {
+							tab.put_member_string("ux_class", allowed_classes[0]);
+						}
+						if (bridge) {
+							json jcopy = bridge->get_copy_assignment();
+							tab.put_member("filter", jcopy);
+						}
+
+						tab.put_member_string("page_name", tab_name);
+						tab.put_member_string("name", field->get_label());
+						tab.put_member_string("member_name", field->get_field_name());
+						tab.put_member_string("tab_type", "object");
+						tabs.push_back(tab);
+					}
+				}
+				else if (field->get_field_type() == field_types::ft_array) {
+					json tab = jp.create_object();
+					tab.put_member_string("page_name", tab_name);
+					tab.put_member_string("name", field->get_label());
+					tab.put_member_string("member_name", field->get_field_name());
+
 					std::shared_ptr<child_bridges_interface> bridges;
 					bridges = field->get_bridges();
 
@@ -9536,8 +9622,6 @@ private:
 					if (bridges) {
 						bridge = bridges->get_bridge(field_class);
 					}
-
-					json tab = jp.create_object();
 
 					auto allowed_classes = field->get_allowed_classes();
 					if (allowed_classes.size() > 0) {
@@ -9547,55 +9631,27 @@ private:
 						json jcopy = bridge->get_copy_assignment();
 						tab.put_member("filter", jcopy);
 					}
-
-					tab.put_member_string("page_name", tab_name);
-					tab.put_member_string("name", field->get_label());
-					tab.put_member_string("member_name", field->get_field_name());
-					tab.put_member_string("tab_type", "object");
+					tab.put_member_string("tab_type", "list");
 					tabs.push_back(tab);
 				}
-			}
-			else if (field->get_field_type() == field_types::ft_array) {
-				json tab = jp.create_object();
-				tab.put_member_string("page_name", tab_name);
-				tab.put_member_string("name", field->get_label());
-				tab.put_member_string("member_name", field->get_field_name());
 
-				std::shared_ptr<child_bridges_interface> bridges;
-				bridges = field->get_bridges();
-
-				std::shared_ptr<child_bridge_interface> bridge;
-				if (bridges) {
-					bridge = bridges->get_bridge(field_class);
+				if (_card_fields.find(field->get_field_name()) != _card_fields.end()) {
+					json new_card_field = jp.create_object();
+					new_card_field.put_member("field_name", field->get_field_name());
+					new_card_field.put_member("expression", field->get_field_name());
+					card_fields.push_back(new_card_field);
 				}
 
-                auto allowed_classes = field->get_allowed_classes();
-                if (allowed_classes.size() > 0)	 {
-					tab.put_member_string("ux_class", allowed_classes[0]);
-				}
-				if (bridge) {
-					json jcopy = bridge->get_copy_assignment();
-					tab.put_member("filter", jcopy);
-				}
-				tab.put_member_string("tab_type", "list");
-                tabs.push_back(tab);
-			}
-			
-			if (_card_fields.find(field->get_field_name()) != _card_fields.end()) {
-				json new_card_field = jp.create_object();
-                new_card_field.put_member("field_name", field->get_field_name());
-				new_card_field.put_member("expression", field->get_field_name());
-				field->get_field_class();
-                card_fields.push_back(new_card_field);
 			}
 		}
+
 
 		std::string tab_name = "tab_" + classd->get_class_name() + "_fields";
 		default_tab.put_member_string("page_name", tab_name);
 		default_tab.put_member_string("name", classd->get_class_name());
 		default_tab.put_member_string("member_name", ".");
 		default_tab.put_member_string("tab_type", "edit");
-		tabs.push_back(default_tab);
+		tabs.push_front(default_tab);
 
 		page.put_member("tabs", tabs);
         card.put_member("fields", card_fields);
@@ -9727,34 +9783,34 @@ private:
 				return jp.create_object();
 			}
 
-			json sections = jp.create_object();
-
-			for (int i = 0; i < cfm.size(); i++) 
-			{
-				auto field = cfm.get_element(i);
-
-				std::string field_name = field["field_name"].as_string();
-				std::string field_label = field["field_label"].as_string();
-
-				json field_mapping = get_field_mapping(classd, field_name, field_mappings);
-				if (field_mapping.empty()) {
-					continue;
-				}
-			}			
-
 			for (int i = 0; i < cfm.size(); i++) {
 				auto field = cfm.get_element(i);
 
                 std::string field_name = field["field_name"].as_string();
 				std::string field_label = field["field_label"].as_string();
 
+				if (field_name == ".section") {
+					json content = jp.create_object();
+					content.put_member_string("class_name", "chaptersubtitle");
+					layout_rect section_box;
+					section_box.width = 300.0_px;
+					section_box.height = 40.0_px;
+                    json jsection_box = jp.create_object();
+					corona::get_json(jsection_box, section_box);
+					content.put_member("box", jsection_box);
+					content.put_member_string("text", field_label);
+					tab_contents.push_back(content);
+					continue;
+				}
+
                 json field_mapping = get_field_mapping(classd, field_name, field_mappings);
 				if (field_mapping.empty()  || field_mapping["tab_type"].as_string() != "edit") {
 					continue;
 				}
 
-                std::string field_class_name = field_mapping["class_name"].as_string();
 				json field_box = field_mapping["box"];
+
+				std::string field_class_name = field_mapping["class_name"].as_string();
 
 				json content = jp.create_object();
 				content.put_member_string("class_name", field_class_name);
