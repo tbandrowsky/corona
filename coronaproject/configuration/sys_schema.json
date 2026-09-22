@@ -38,12 +38,92 @@
     {
       "class_name": "news",
       "base_class_name": "sys_object",
-      "class_description": "A stock trade in the system",
+      "class_description": "Media news",
       "parents": [ "association", "person" ],
       "fields": {
         "name": "string",
         "description": "string",
         "publisher": "string",
+        "url": "string"
+      }
+    },
+    {
+      "class_name": "address",
+      "base_class_name": "sys_object",
+      "class_description": "A physical address",
+      "parents": [ "person", "property", "association" ],
+      "full_text": [ "street", "building", "city", "state", "zip", "country" ],
+      "fields": {
+        "street": {
+          "field_type": "string",
+          "label": "Street",
+          "max_length": 100
+        },
+        "building": {
+          "field_type": "string",
+          "label": "Building/Apt",
+          "max_length": 100
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City",
+          "max_length": 100
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 100
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "max_length": 20
+        },
+        "country": {
+          "field_type": "string",
+          "label": "Country",
+          "max_length": 100
+        }      
+      }
+    },
+    {
+      "class_name": "connection",
+      "base_class_name": "sys_object",
+      "class_description": "A connection in the system",
+      "parents": [ "person", "association" ],
+      "fields": {
+        "note": "string"
+      }
+    },
+    {
+      "class_name": "phone",
+      "base_class_name": "connection",
+      "class_description": "A phone number",
+      "fields": {
+        "phone": "string"
+      }
+    },
+    {
+      "class_name": "email",
+      "base_class_name": "connection",
+      "class_description": "An email address",
+      "fields": {
+        "email": "string"
+      }
+    },
+    {
+      "class_name": "fax",
+      "base_class_name": "connection",
+      "class_description": "A fax number",
+      "fields": {
+        "fax": "string"
+      }
+    },
+    {
+      "class_name": "web",
+      "base_class_name": "connection",
+      "class_description": "A web address",
+      "fields": {
         "url": "string"
       }
     },
@@ -218,30 +298,8 @@
           "label": "Last Name",
           "max_length": 50
         },
-        "street": {
-          "field_type": "string",
-          "label": "Street Address"
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code"
-        },
-        "phone": {
-          "field_type": "string",
-          "label": "Phone Number"
-        },
-        "email": {
-          "field_type": "string",
-          "label": "Email Address"
-        }
+        "connections": [ "connection" ],
+        "addresses": [ "address" ]
       }
     },
     {
@@ -446,33 +504,13 @@
       "class_description": "An asset",
       "full_text": [ "street", "city", "state", "zip" ],
       "fields": {
-        "street": {
-          "field_type": "string",
-          "label": "Street Address",
-          "max_length": 100
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City",
-          "max_length": 100
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State",
-          "max_length": 100
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code",
-          "max_length": 20
-        },
         "latitude": {
-          "field_type": "string",
+          "field_type": "double",
           "label": "Latitude",
           "max_length": 100
         },
         "longitude": {
-          "field_type": "string",
+          "field_type": "double",
           "label": "Longitude",
           "max_length": 100
         },
@@ -506,27 +544,12 @@
           "field_type": "string",
           "label": "Description"
         },
-        "street": {
-          "field_type": "string",
-          "label": "Street Address"
-        },
-        "city": {
-          "field_type": "string",
-          "label": "City"
-        },
-        "state": {
-          "field_type": "string",
-          "label": "State"
-        },
-        "zip": {
-          "field_type": "string",
-          "label": "Zip Code"
-        },
+        "address": [ "address" ],
+        "connections": [ "connection" ],
         "assets": [ "asset" ],
         "people": [ "person" ]
       }
     },
-
 
     {
       "class_name": "vendor",
@@ -892,7 +915,7 @@
       "class_name": "advocate",
       "base_class_name": "company",
       "class_description": "A community outreach and engagement",
-      "parents": [ "advocate" ],  
+      "parents": [ "advocate" ],
       "fields": {
         "engagements": [ "advocate_engagement" ]
       }
@@ -1360,7 +1383,13 @@
       "medical_engagement": "default",
       "medical": "default",
       "school_engagement": "default",
-      "school": "default"
+      "school": "default",
+      "address": "default",
+      "connection": "default",
+      "phone": "default",
+      "email": "default",
+      "fax": "default",
+      "web": "default"
     },
     "objects": [
       {
@@ -1492,7 +1521,7 @@
             "charts": [
               {
                 "chart_button_name": "chart_association_counts_button",
-                "chart_button_text": "chart_association Counts",
+                "chart_button_text": "Association Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_association",
                 "chart": {

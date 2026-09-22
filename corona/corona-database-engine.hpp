@@ -9529,9 +9529,34 @@ private:
 
 		for (auto& section : field_sections)
 		{
-			if (section->section_fields.size() > 0) {
+			int section_fields_count = 0;
+
+			for (auto& field : section->section_fields)
+			{
+				std::string field_class = field->get_field_class();
+				std::string tab_name = "tab_" + classd->get_class_name() + "_" + field->get_field_name();
+				json field_mapping = get_field_mapping(classd, field->get_field_name(), field_mappings);
+
+				std::string field_ux_class = "";
+				std::string field_tab_type = "";
+				layout_rect field_box = {};
+
+				if (field_mapping.object()) {
+					field_tab_type = field_mapping["tab_type"].as_string();
+					field_ux_class = field_mapping["class_name"].as_string();
+					json jbox = field_mapping["box"];
+					put_json(field_box, jbox);
+				}
+
+				if (field_tab_type == "edit") {
+					section_fields_count++;
+				}
+
+			}
+
+			if (section_fields_count > 0) {
 				json tab_field = jp.create_object();
-				tab_field.put_member_string("field_name", ".section");
+				 tab_field.put_member_string("field_name", ".section");
 				tab_field.put_member_string("field_label", section->section_description);
 				tab_field.put_member_string("field_class", section->section_name);
 				tab_edit_fields.push_back(tab_field);

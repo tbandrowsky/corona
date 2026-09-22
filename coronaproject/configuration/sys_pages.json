@@ -11,6 +11,7 @@
       "button_margin":{ "amount":20.000000, "units":"pixels" },
       "card_sources":
         {
+          "address":"card_address",
           "advocate":"card_advocate",
           "advocate_engagement":"card_advocate_engagement",
           "asset":"card_asset",
@@ -23,14 +24,17 @@
           "cart":"card_cart",
           "client":"card_client",
           "company":"card_company",
+          "connection":"card_connection",
           "contract":"card_contract",
           "contractor":"card_contractor",
           "court":"card_court",
           "court_engagement":"card_court_engagement",
           "deed":"card_deed",
+          "email":"card_email",
           "employee":"card_employee",
           "encounter":"card_encounter",
           "engagement":"card_engagement",
+          "fax":"card_fax",
           "hourly":"card_hourly",
           "insurance_engagement":"card_insurance_engagement",
           "insurer":"card_insurer",
@@ -50,6 +54,7 @@
           "permit_engagement":"card_permit_engagement",
           "permitter":"card_permitter",
           "person":"card_person",
+          "phone":"card_phone",
           "product":"card_product",
           "property":"card_property",
           "record":"card_record",
@@ -66,7 +71,8 @@
           "title":"card_title",
           "tool":"card_tool",
           "vendor":"card_vendor",
-          "video_game":"card_video_game"
+          "video_game":"card_video_game",
+          "web":"card_web"
         },
       "card_text_box":
         {
@@ -120,6 +126,7 @@
         },
       "form_sources":
         {
+          "address":"object_address",
           "advocate":"object_advocate",
           "advocate_engagement":"object_advocate_engagement",
           "asset":"object_asset",
@@ -132,14 +139,17 @@
           "cart":"object_cart",
           "client":"object_client",
           "company":"object_company",
+          "connection":"object_connection",
           "contract":"object_contract",
           "contractor":"object_contractor",
           "court":"object_court",
           "court_engagement":"object_court_engagement",
           "deed":"object_deed",
+          "email":"object_email",
           "employee":"object_employee",
           "encounter":"object_encounter",
           "engagement":"object_engagement",
+          "fax":"object_fax",
           "hourly":"object_hourly",
           "insurance_engagement":"object_insurance_engagement",
           "insurer":"object_insurer",
@@ -159,6 +169,7 @@
           "permit_engagement":"object_permit_engagement",
           "permitter":"object_permitter",
           "person":"object_person",
+          "phone":"object_phone",
           "product":"object_product",
           "property":"object_property",
           "record":"object_record",
@@ -175,7 +186,8 @@
           "title":"object_title",
           "tool":"object_tool",
           "vendor":"object_vendor",
-          "video_game":"object_video_game"
+          "video_game":"object_video_game",
+          "web":"object_web"
         },
       "full_container":
         {
@@ -239,6 +251,15 @@
 
       { "class_name":"import", "file_name":"pages\\page_home.json" },
 
+      { "class_name":"import", "file_name":"pages\\card_address.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_address_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_address.json" },
+
       { "class_name":"import", "file_name":"pages\\card_advocate.json" },
 
       {
@@ -263,7 +284,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_advocate_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_advocate_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_connections.json"
       },
 
       {
@@ -323,7 +354,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_association_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_association_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_connections.json"
       },
 
       {
@@ -354,7 +395,14 @@
 
       { "class_name":"import", "file_name":"pages\\tab_bank_vendors.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_bank_address.json" },
+
       { "class_name":"import", "file_name":"pages\\tab_bank_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_connections.json"
+      },
 
       {
         "class_name":"import",
@@ -452,7 +500,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_client_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_client_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_connections.json"
       },
 
       {
@@ -486,7 +544,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_company_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_company_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_connections.json"
       },
 
       {
@@ -500,6 +568,18 @@
       },
 
       { "class_name":"import", "file_name":"pages\\object_company.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_connection.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_connection_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_connection.json"
+      },
 
       { "class_name":"import", "file_name":"pages\\card_contract.json" },
 
@@ -529,6 +609,16 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_contractor_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contractor_connections.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\object_contractor.json"
       },
 
@@ -546,7 +636,17 @@
         "file_name":"pages\\tab_court_vendors.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_address.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\tab_court_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_connections.json"
+      },
 
       {
         "class_name":"import",
@@ -593,6 +693,12 @@
 
       { "class_name":"import", "file_name":"pages\\object_deed.json" },
 
+      { "class_name":"import", "file_name":"pages\\card_email.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_email_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_email.json" },
+
       { "class_name":"import", "file_name":"pages\\card_employee.json" },
 
       {
@@ -603,6 +709,16 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_employee_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_connections.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_employee.json" },
@@ -643,6 +759,12 @@
         "file_name":"pages\\object_engagement.json"
       },
 
+      { "class_name":"import", "file_name":"pages\\card_fax.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_fax_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_fax.json" },
+
       { "class_name":"import", "file_name":"pages\\card_hourly.json" },
 
       {
@@ -653,6 +775,16 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_hourly_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_connections.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_hourly.json" },
@@ -721,7 +853,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_insurer_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_insurer_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_connections.json"
       },
 
       {
@@ -760,7 +902,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_law_firm_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_law_firm_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_connections.json"
       },
 
       {
@@ -844,7 +996,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_library_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_library_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_connections.json"
       },
 
       {
@@ -913,7 +1075,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_market_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_market_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_connections.json"
       },
 
       {
@@ -972,7 +1144,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_medical_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_medical_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_connections.json"
       },
 
       {
@@ -1097,7 +1279,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_outreacher_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_outreacher_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_connections.json"
       },
 
       {
@@ -1159,7 +1351,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_permitter_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_permitter_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_connections.json"
       },
 
       {
@@ -1181,7 +1383,23 @@
         "file_name":"pages\\tab_person_fields.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_person_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_person_connections.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_person.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_phone.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_phone_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_phone.json" },
 
       { "class_name":"import", "file_name":"pages\\card_product.json" },
 
@@ -1291,6 +1509,16 @@
         "file_name":"pages\\tab_salary_direct_reports.json"
       },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_connections.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\object_salary.json" },
 
       { "class_name":"import", "file_name":"pages\\card_school.json" },
@@ -1312,7 +1540,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_school_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_school_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_connections.json"
       },
 
       {
@@ -1408,7 +1646,14 @@
 
       { "class_name":"import", "file_name":"pages\\tab_shop_vendors.json" },
 
+      { "class_name":"import", "file_name":"pages\\tab_shop_address.json" },
+
       { "class_name":"import", "file_name":"pages\\tab_shop_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_connections.json"
+      },
 
       {
         "class_name":"import",
@@ -1475,7 +1720,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_vendor_address.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_vendor_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_connections.json"
       },
 
       {
@@ -1506,6 +1761,12 @@
         "class_name":"import",
         "file_name":"pages\\object_video_game.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\card_web.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_web_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_web.json" },
 
       {
         "class_name":"import",
