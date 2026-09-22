@@ -248,7 +248,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_advocate_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_assets.json"
       },
 
       {
@@ -258,7 +273,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_advocate_vendors.json"
+        "file_name":"pages\\tab_advocate_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_advocate.json" },
@@ -313,27 +328,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_contacts.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_association_contractors.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_association_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_employees.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_association_property.json"
+        "file_name":"pages\\tab_association_people.json"
       },
 
       {
@@ -345,14 +345,23 @@
 
       { "class_name":"import", "file_name":"pages\\tab_bank_fields.json" },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagements.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\tab_bank_clients.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_vendors.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_assets.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_bank_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_bank_vendors.json" },
+      { "class_name":"import", "file_name":"pages\\tab_bank_people.json" },
 
       { "class_name":"import", "file_name":"pages\\object_bank.json" },
 
@@ -418,16 +427,6 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_building_construction_type.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_building_occupancy_type.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_building_description.json"
       },
 
@@ -458,27 +457,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_client_contacts.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_client_contractors.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_client_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_client_employees.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_client_property.json"
+        "file_name":"pages\\tab_client_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_client.json" },
@@ -497,12 +481,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_company_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_company_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_company_vendors.json"
+        "file_name":"pages\\tab_company_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_company.json" },
@@ -549,13 +543,17 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_court_description.json"
+        "file_name":"pages\\tab_court_vendors.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_assets.json" },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_court_vendors.json"
+        "file_name":"pages\\tab_court_description.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_people.json" },
 
       { "class_name":"import", "file_name":"pages\\object_court.json" },
 
@@ -671,6 +669,21 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_assets_to_insure.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_modelled_losses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_policy_proposal.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_insurance_engagement_description.json"
       },
 
@@ -693,7 +706,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_insurer_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_insurer_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_assets.json"
       },
 
       {
@@ -703,7 +731,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_insurer_vendors.json"
+        "file_name":"pages\\tab_insurer_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_insurer.json" },
@@ -717,7 +745,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_law_firm_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_law_firm_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_assets.json"
       },
 
       {
@@ -727,7 +770,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_law_firm_vendors.json"
+        "file_name":"pages\\tab_law_firm_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_law_firm.json" },
@@ -776,6 +819,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_library_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_library_movies.json"
       },
 
@@ -791,12 +839,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_library_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_library_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_library_vendors.json"
+        "file_name":"pages\\tab_library_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_library.json" },
@@ -835,6 +893,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_market_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_market_securities.json"
       },
 
@@ -845,12 +908,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_market_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_market_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_market_vendors.json"
+        "file_name":"pages\\tab_market_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_market.json" },
@@ -894,12 +967,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_medical_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_medical_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_medical_vendors.json"
+        "file_name":"pages\\tab_medical_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_medical.json" },
@@ -999,7 +1082,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_outreacher_outreacher_engagements.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_outreacher_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_assets.json"
       },
 
       {
@@ -1009,7 +1107,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_outreacher_vendors.json"
+        "file_name":"pages\\tab_outreacher_people.json"
       },
 
       {
@@ -1056,12 +1154,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_permitter_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_permitter_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_permitter_vendors.json"
+        "file_name":"pages\\tab_permitter_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_permitter.json" },
@@ -1199,12 +1307,22 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_school_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_assets.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_school_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_school_vendors.json"
+        "file_name":"pages\\tab_school_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_school.json" },
@@ -1277,18 +1395,27 @@
 
       { "class_name":"import", "file_name":"pages\\tab_shop_fields.json" },
 
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagements.json"
+      },
+
       { "class_name":"import", "file_name":"pages\\tab_shop_movies.json" },
 
-      { "class_name":"import", "file_name":"pages\\tab_shop_tool.json" },
+      { "class_name":"import", "file_name":"pages\\tab_shop_tools.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_shop_clients.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_vendors.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_assets.json" },
 
       {
         "class_name":"import",
         "file_name":"pages\\tab_shop_description.json"
       },
 
-      { "class_name":"import", "file_name":"pages\\tab_shop_vendors.json" },
+      { "class_name":"import", "file_name":"pages\\tab_shop_people.json" },
 
       { "class_name":"import", "file_name":"pages\\object_shop.json" },
 
@@ -1353,27 +1480,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_vendor_contacts.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_vendor_contractors.json"
-      },
-
-      {
-        "class_name":"import",
         "file_name":"pages\\tab_vendor_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_vendor_employees.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_vendor_property.json"
+        "file_name":"pages\\tab_vendor_people.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_vendor.json" },

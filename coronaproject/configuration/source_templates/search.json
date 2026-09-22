@@ -32,7 +32,7 @@
                 "width": "250 pixels",
                 "height": "40 pixels"
               },
-              "text": "FIND"
+              "text": "NAVIGATE"
             },
             {
               "class_name": "chaptersubtitle",
@@ -41,7 +41,7 @@
                 "width": "410 pixels",
                 "height": "40 pixels"
               },
-              "text": "{class_name} RESULTS"
+              "text": "LIST"
             },
             {
               "class_name": "chaptersubtitle",
@@ -98,8 +98,37 @@
                     "font_size": 18
                   }
                 },
-
-                "$search_groups"
+                {
+                  "class_name": "row",
+                  "name": "search_groups",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "175 pixels"
+                  },
+                  "wrap": true,
+                  "children": [
+                    "$search_groups"
+                  ]
+                },
+                {
+                  "class_name": "chaptersubtitle",
+                  "name": "search_common_text",
+                  "box": {
+                    "width": "250 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "OPTIONS"
+                },
+                {
+                  "class_name": "row",
+                  "name": "new_object_commands",
+                  "box": {
+                    "width": "1.0 remaining",
+                    "height": "1.0 remaining"
+                  },
+                  "wrap": true,
+                  "children": []
+                }
               ]
             },
 
@@ -111,17 +140,6 @@
                 "height": "1.0 container"
               },
               "children": [
-                {
-                  "class_name": "row",
-                  "box": {
-                    "width": "1.0 container",
-                    "height": "80 pixels"
-                  },
-                  "name": "new_object_commands",
-                  "children": [
-                    
-                  ]
-                },
                 {
                   "class_name": "items_view",
                   "name": "result_table",

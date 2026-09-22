@@ -9110,7 +9110,9 @@ private:
 			json result = jp.create_object();
 			json pages = jp.create_array();
 			json card_sources = jp.create_object();
-            json form_sources = jp.create_object();
+			json form_sources = jp.create_object();
+
+			json section_box = field_mappings[".section"]["box"];
 
 			// and objects
 
@@ -9250,7 +9252,7 @@ private:
 						}
 
 						// Generate object details page
-						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
@@ -9946,7 +9948,8 @@ private:
 			json& tab_inventory_template, 
 			json& tab_edit_template,
 			json& create_command_class_template, 
-			json& form_sources)
+			json& form_sources,
+			json& section_box)
 		{
 			json_parser jp;
 

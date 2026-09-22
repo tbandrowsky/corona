@@ -353,9 +353,7 @@
           "field_type": "string",
           "label": "Description"
         },
-        "encounter": [ "encounter" ],
-        "association": "->association",
-        "person": "->person"
+        "encounter": [ "encounter" ]
       }
     },
     {
@@ -385,11 +383,6 @@
         "description"
       ],
       "fields": {
-        "class_name": {
-          "field_type": "string",
-          "label": "Class Name",
-          "max_length": 100
-        },
         "code": {
           "field_type": "string",
           "label": "RMS Code",
@@ -411,11 +404,6 @@
         "description"
       ],
       "fields": {
-        "class_name": {
-          "field_type": "string",
-          "label": "Class Name",
-          "max_length": 100
-        },
         "code": {
           "field_type": "string",
           "label": "RMS Occupancy Code",
@@ -432,7 +420,7 @@
       "class_name": "building",
       "base_class_name": "asset",
       "class_description": "An asset",
-      "full_text": [],
+      "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
       "fields": {
         "latitude": {
           "field_type": "string",
@@ -444,8 +432,8 @@
           "label": "Longitude",
           "max_length": 100
         },
-        "construction_type": "rms_construction_type",
-        "occupancy_type": "rms_occupancy_type",
+        "construction_type": "->rms_construction_type",
+        "occupancy_type": "->rms_occupancy_type",
         "notes": {
           "field_type": "string",
           "label": "Notes"
@@ -456,7 +444,7 @@
       "class_name": "property",
       "base_class_name": "asset",
       "class_description": "An asset",
-      "full_text": [],
+      "full_text": [ "street", "city", "state", "zip" ],
       "fields": {
         "street": {
           "field_type": "string",
@@ -506,7 +494,7 @@
       "class_name": "association",
       "base_class_name": "sys_object",
       "class_description": "An association",
-      "full_text": [ "name", "street", "city", "state", "zip" ],
+      "full_text": [ "name", "description", "street", "city", "state", "zip" ],
       "parents": [],
       "fields": {
         "name": {
@@ -535,10 +523,7 @@
           "label": "Zip Code"
         },
         "assets": [ "asset" ],
-        "contacts": [ "person" ],
-        "employees": [ "employee" ],
-        "contractors": [ "contractor" ],
-        "property": [ "property" ]
+        "people": [ "person" ]
       }
     },
 
@@ -565,9 +550,8 @@
 
     {
       "class_name": "company",
-      "base_class_name": "sys_object",
+      "base_class_name": "association",
       "class_description": "A company",
-      "full_text": [ "name", "description" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -693,6 +677,7 @@
       "base_class_name": "engagement",
       "class_description": "A library engagement",
       "full_text": [],
+      "parents": [ "library" ],
       "fields": {
         "due_date": {
           "field_type": "datetime",
@@ -712,7 +697,8 @@
         "books": [ "book" ],
         "movies": [ "movie" ],
         "board_games": [ "board_game" ],
-        "video_games": [ "video_game" ]
+        "video_games": [ "video_game" ],
+        "engagements": [ "library_engagement" ]
       }
     },
     {
@@ -751,10 +737,27 @@
       "base_class_name": "engagement",
       "class_description": "A shop engagement",
       "full_text": [ "name", "engagement" ],
+      "parents": [ "shop" ],
       "fields": {
         "due_date": {
           "field_type": "datetime",
           "label": "Due Date"
+        },
+        "rfp": {
+          "field_type": "string",
+          "label": "Request for Proposal"
+        },
+        "quote": {
+          "field_type": "string",
+          "label": "Proposal"
+        },
+        "work_order": {
+          "field_type": "string",
+          "label": "Work Order"
+        },
+        "delivery": {
+          "field_type": "string",
+          "label": "Delivery"
         }
       }
     },
@@ -763,8 +766,9 @@
       "base_class_name": "company",
       "class_description": "A shop in the system",
       "fields": {
-        "tool": [ "tools" ],
-        "movies": [ "movie" ]
+        "tools": [ "tool" ],
+        "movies": [ "movie" ],
+        "engagements": [ "shop_engagement" ]
       }
     },
     {
@@ -783,7 +787,17 @@
       "base_class_name": "engagement",
       "class_description": "A market engagement",
       "full_text": [],
+      "parents": [ "market" ],
       "fields": {
+        "market_contract": "string",
+        "securities": "string",
+        "searches": "string",
+        "buy_sell": {
+
+          "field_type": "string",
+          "label": "Buy/Sell",
+          "enumeration": [ "buy", "sell" ]
+        }
       }
     },
     {
@@ -791,7 +805,8 @@
       "base_class_name": "company",
       "class_description": "An investment in the system",
       "fields": {
-        "securities": [ "security" ]
+        "securities": [ "security" ],
+        "engagements": [ "market_engagement" ]
       }
     },
     {
@@ -799,7 +814,21 @@
       "base_class_name": "engagement",
       "class_description": "An insurance engagement",
       "full_text": [],
+      "parents": [ "insurer" ],
       "fields": {
+        "assets_to_insure": [ "->asset" ],
+        "modelled_losses": {
+          "field_type": "object",
+          "label": "Insurance Policy"
+        },
+        "policy_proposal": {
+          "field_type": "object",
+          "label": "Insurance Policy Proposal"
+        },
+        "binder": {
+          "field_type": "string",
+          "label": "Binder"
+        }
       }
     },
     {
@@ -807,6 +836,7 @@
       "base_class_name": "company",
       "class_description": "An insurance provider",
       "fields": {
+        "engagements": [ "insurance_engagement" ]
       }
     },
     {
@@ -815,13 +845,27 @@
       "class_description": "An insurance engagement",
       "full_text": [],
       "fields": {
+        "interviews": {
+          "field_type": "string",
+          "label": "Interviews"
+        },
+        "surveys": {
+          "field_type": "string",
+          "label": "Surveys"
+        },
+        "meetings": {
+          "field_type": "string",
+          "label": "Meetings"
+        }
       }
     },
     {
       "class_name": "outreacher",
       "base_class_name": "company",
       "class_description": "A community outreach and engagement",
+      "parents": [ "outreacher" ],
       "fields": {
+        "outreacher_engagements": [ "outreach_engagement" ]
       }
     },
     {
@@ -830,13 +874,27 @@
       "class_description": "An insurance engagement",
       "full_text": [],
       "fields": {
+        "interviews": {
+          "field_type": "string",
+          "label": "Interviews"
+        },
+        "problem": {
+          "field_type": "string",
+          "label": "Problem"
+        },
+        "facilitation": {
+          "field_type": "string",
+          "label": "Facilitation"
+        }
       }
     },
     {
       "class_name": "advocate",
       "base_class_name": "company",
       "class_description": "A community outreach and engagement",
+      "parents": [ "advocate" ],  
       "fields": {
+        "engagements": [ "advocate_engagement" ]
       }
     },
     {
@@ -844,7 +902,14 @@
       "base_class_name": "engagement",
       "class_description": "A legal engagement",
       "full_text": [],
+      "parents": [ "law_firm" ],
       "fields": {
+        "client": "string",
+        "plaintiff": "string",
+        "case": {
+          "field_type": "string",
+          "label": "Case"
+        }
       }
     },
     {
@@ -852,6 +917,7 @@
       "base_class_name": "company",
       "class_description": "A law firm in the system",
       "fields": {
+        "engagements": [ "legal_engagement" ]
       }
     },
     {
@@ -859,7 +925,13 @@
       "base_class_name": "engagement",
       "class_description": "A bank engagement",
       "full_text": [],
+      "parents": [ "bank" ],
       "fields": {
+        "client": "string",
+        "loan_application": "string",
+        "loan_approvals": "string",
+        "loan_disbursments": "string",
+        "loan_payments": "string"
       }
     },
     {
@@ -867,6 +939,7 @@
       "base_class_name": "company",
       "class_description": "A bank in the system",
       "fields": {
+        "engagements": [ "bank_engagement" ]
       }
     },
     {
@@ -874,7 +947,24 @@
       "base_class_name": "engagement",
       "class_description": "A court engagement",
       "full_text": [],
+      "parents": [ "court" ],
       "fields": {
+        "motions": {
+          "field_type": "string",
+          "label": "Motions"
+        },
+        "pleadings": {
+          "field_type": "string",
+          "label": "Pleadings"
+        },
+        "depositions": {
+          "field_type": "string",
+          "label": "Depositions"
+        },
+        "orders": {
+          "field_type": "string",
+          "label": "Orders"
+        }
       }
     },
     {
@@ -889,7 +979,24 @@
       "base_class_name": "engagement",
       "class_description": "A permit engagement",
       "full_text": [],
+      "parents": [ "permitter" ],
       "fields": {
+        "permit_application": {
+          "field_type": "string",
+          "label": "Permit Application"
+        },
+        "property": {
+          "field_type": "string",
+          "label": "Property"
+        },
+        "approval": {
+          "field_type": "string",
+          "label": "Approval"
+        },
+        "discharges": {
+          "field_type": "string",
+          "label": "Discharges"
+        }
       }
     },
     {
@@ -903,8 +1010,35 @@
       "class_name": "medical_engagement",
       "base_class_name": "engagement",
       "class_description": "A medical engagement",
-      "full_text": [],
+      "full_text": [
+        "sympoms",
+        "triage",
+        "exams",
+        "treatment_plan",
+        "compliance"
+      ],
+      "parents": [ "medical" ],
       "fields": {
+        "symptoms": {
+          "field_type": "string",
+          "label": "Symptoms"
+        },
+        "triage": {
+          "field_type": "string",
+          "label": "Triage"
+        },
+        "exams": {
+          "field_type": "string",
+          "label": "Exams"
+        },
+        "treatment_plan": {
+          "field_type": "string",
+          "label": "Treatment Plan"
+        },
+        "compliance": {
+          "field_type": "string",
+          "label": "Compliance"
+        }
       }
     },
     {
@@ -919,7 +1053,28 @@
       "base_class_name": "engagement",
       "class_description": "An education engagement",
       "full_text": [],
+      "parents": [ "school" ],
       "fields": {
+        "financial": {
+          "field_type": "string",
+          "label": "Financial"
+        },
+        "curriculum": {
+          "field_type": "string",
+          "label": "Curriculum"
+        },
+        "exams": {
+          "field_type": "string",
+          "label": "Exams"
+        },
+        "achievements": {
+          "field_type": "string",
+          "label": "Achievements"
+        },
+        "certification": {
+          "field_type": "string",
+          "label": "Certification"
+        }
       }
     },
     {
@@ -965,6 +1120,20 @@
     "application_creator": "Country Video Games",
     "application_name": "Revolution : Ideas",
     "fields": {
+      ".section": {
+        "class_name": ".section",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
       ".animations": {
         "class_name": "animations",
         "box": {
