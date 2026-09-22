@@ -216,7 +216,6 @@ namespace corona
 						else if (*_src == 0 || *_src == ']')
 						{
                             if (cod.fundamental_type == field_types::ft_none) {
-								new_class->copy_values.insert_or_assign(_default_target_field + "_class", "class_name");
 								new_class->copy_values.insert_or_assign(_default_target_field, "object_id");
 							}
 							cod.child_classes.push_back(new_class);
@@ -248,21 +247,18 @@ namespace corona
 						{
 							_src++;
 							status = parsing_dst_field;
-							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 						}
 						else if (*_src == ';')
 						{
 							_src++;
 							status = parsing_class_name;
-							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 							cod.child_classes.push_back(new_class);
 							new_class = std::make_shared<child_object_class>();
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
-							new_class->copy_values.insert_or_assign(dest_field + "_class", "class_name");
 							new_class->copy_values.insert_or_assign(dest_field, "object_id");
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
@@ -1654,6 +1650,13 @@ namespace corona
 				{
 					std::string _dest_key = member.first;
 					std::string _src_key = member.second.as_string();
+                    if (_src_key == "object_id") {
+						object_reference dest;
+						dest.class_name = _src[class_name_field].as_string();
+                        dest.object_id = _src["object_id"].as_int64_t();
+                        _dest.put_member(_dest_key, dest);
+                        continue;
+                    }
 					json value = _src[_src_key];
 					_dest.put_member(_dest_key, value);
 				}
@@ -4816,13 +4819,7 @@ namespace corona
 			for (auto parent : parents)
 			{
 				if (!jfields.has_member(parent)) {
-					jfields.put_member(parent, std::string("int64"));
-				}
-
-				std::string pclass_name = parent + "_class";
-
-				if (!jfields.has_member(pclass_name)) {
-					jfields.put_member(pclass_name, std::string("string"));
+					jfields.put_member(parent, std::format("->{}", parent));
 				}
 			}
 
@@ -4910,7 +4907,6 @@ namespace corona
 									coc = std::make_shared<child_object_class>();
 									coc->class_name = ecn;
 									coc->copy_values.insert_or_assign(class_name, object_id_field);
-									coc->copy_values.insert_or_assign(class_name + "_class", class_name_field);
 									cod.child_classes.push_back(coc);
 								}
 							}
