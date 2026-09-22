@@ -74,12 +74,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <TargetName>coronaserver</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\scintilla\scintilla\include;$(SolutionDir)\scintilla\lexilla\include</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);D:\countrybit\scintilla\scintilla\bin;D:\countrybit\scintilla\lexilla\bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <CustomBuildBeforeTargets>BuildCompile</CustomBuildBeforeTargets>
     <TargetName>coronaserver</TargetName>
     <PublicIncludeDirectories>
     </PublicIncludeDirectories>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\scintilla\scintilla\include;$(SolutionDir)\scintilla\lexilla\include;$(SolutionDir)\scintilla\scintilla\include;$(SolutionDir)\scintilla\lexilla\include</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);D:\countrybit\scintilla\scintilla\bin;D:\countrybit\scintilla\lexilla\bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>coronaserver</TargetName>

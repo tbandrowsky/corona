@@ -1674,7 +1674,14 @@ namespace corona
 			{
 				std::string dest_key = member.first;
 				std::string src_key = member.second.as_string();
-                json v = _src[src_key];
+				if (_src_key == "object_id") {
+					object_reference dest;
+					dest.class_name = _src[class_name_field].as_string();
+					dest.object_id = _src["object_id"].as_int64_t();
+					key.put_member(_dest_key, dest);
+					continue;
+				}
+				json v = _src[src_key];
                 key.put_member(dest_key, v);
 			}
 
