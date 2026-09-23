@@ -4990,7 +4990,6 @@ namespace corona
                     new_index.put_member("index_class", class_name);
 					new_index.put_member("index_name", index_name);
 					json new_index_keys = jp.create_array();
-					new_index_keys.push_back(parent + "_class");
 					new_index_keys.push_back(parent);
 					new_index.put_member("index_keys", new_index_keys);
 					jindexes.put_member(index_name, new_index);

@@ -614,6 +614,13 @@ namespace corona
 						add_poco<int64_t>(acol.field_id, i8, field_types::ft_int64);
 					}
 					break;
+				case field_types::ft_reference:
+					{
+						auto rf = m.as_object_reference();
+						std::string rfstr = rf;
+						add(acol.field_id, rfstr);
+					}
+					break;
 				default:
                     throw std::logic_error("unsupported field type");
                     break;
@@ -736,6 +743,14 @@ namespace corona
 				{
 					int64_t t = *((int64_t*)s);
 					_dest.put_member_i64(acol.field_name.c_str(), t);
+				}
+				break;
+				case field_types::ft_reference:
+				{
+					std::string t = s;
+					object_reference rf;
+					rf = t;
+					_dest.put_member(acol.field_name.c_str(), rf);
 				}
 				break;
 				default:

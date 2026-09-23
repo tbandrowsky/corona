@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<!-- Base fallback only -->
+	<Type Name="corona::json_value" Inheritable="false">
+		<DisplayString>json_value</DisplayString>
+	</Type>
+
+	<Type Name="corona::json_null">
+		<DisplayString>null</DisplayString>
+	</Type>
+
+	<Type Name="corona::json_int64">
+		<DisplayString>{value}</DisplayString>
+		<Expand>
+			<Item Name="value">value</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_bool">
+		<DisplayString>{value}</DisplayString>
+		<Expand>
+			<Item Name="value">value</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_double">
+		<DisplayString>{value}</DisplayString>
+		<Expand>
+			<Item Name="value">value</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_reference">
+		<DisplayString>{value.class_name}:{value.object_id}</DisplayString>
+		<Expand>
+			<Item Name="class_name">value.class_name</Item>
+			<Item Name="object_id">value.object_id</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_string">
+		<DisplayString Condition="value._Ptr == 0">null</DisplayString>
+		<DisplayString Condition="value._Ptr != 0">"{*value._Ptr}"</DisplayString>
+		<Expand>
+			<Item Name="value" Condition="value.Ptr != 0">*value._Ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_object">
+		<DisplayString>object[{members._Mypair._Myval2._Myval2._Mysize}]</DisplayString>
+		<Expand>
+			<ExpandedItem>members</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json_array">
+		<DisplayString>array[{elements.size()}]</DisplayString>
+		<Expand>
+			<ExpandedItem>elements</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<!-- Pointer wrapper: dereference only -->
+	<Type Name="std::shared_ptr&lt;json_value&gt;">
+		<DisplayString Optional="true" Condition="_Ptr == 0">null</DisplayString>
+		<DisplayString Optional="true" Condition="_Ptr != 0">{_Ptr}</DisplayString>
+		<Expand>
+			<Item Name="_Ptr">ptr</Item>
+			<ExpandedItem Condition="_Ptr != 0">*_Ptr</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="corona::json">
+		<DisplayString Condition="value_base._Ptr == 0">null</DisplayString>
+		<DisplayString Condition="value_base._Ptr != 0">{*value_base._Ptr}</DisplayString>
+		<Expand>
+			<Item Name="value_base">value_base._Ptr</Item>
+			<ExpandedItem Condition="value_base._Ptr != 0">*value_base._Ptr</ExpandedItem>
+		</Expand>
+	</Type>
+
+</AutoVisualizer>

@@ -126,4 +126,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\machine_id.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)corona.natvis" />
+  </ItemGroup>
 </Project>
