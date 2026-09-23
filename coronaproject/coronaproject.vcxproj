@@ -273,7 +273,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include;;D:\countrybit\scintilla\lexilla\include;D:\countrybit\scintilla\scintilla\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include;D:\countrybit\scintilla\lexilla\include;D:\countrybit\scintilla\scintilla\include</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</ExternalIncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib;D:\countrybit\scintilla\scintilla\bin;D:\countrybit\scintilla\lexilla\bin</LibraryPath>
     <TargetName>coronaproject</TargetName>
