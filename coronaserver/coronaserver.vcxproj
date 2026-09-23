@@ -146,7 +146,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);Comctl32.lib;Winhttp.lib;D2d1.lib;dwrite.lib;Shlwapi.lib;DXGI.lib;D3D11.lib;DXGUID.lib;Dwmapi.lib;bcrypt.lib;httpapi.lib;mfplat.lib; mf.lib; mfreadwrite.lib; mfuuid.lib; Secur32.lib;xinput.lib;</AdditionalDependencies>
       <StackReserveSize>65000000</StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
@@ -227,6 +227,14 @@
   <ItemGroup>
     <ResourceCompile Include="corona.rc" />
     <ResourceCompile Include="eventmessages.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\scintilla\lexilla\src\Lexilla.vcxproj">
+      <Project>{e541c9be-13bc-4ce6-a0a4-31145f51a2c1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\scintilla\scintilla\win32\Scintilla.vcxproj">
+      <Project>{19cca8b8-46b9-4609-b7ce-198da19f07bd}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
