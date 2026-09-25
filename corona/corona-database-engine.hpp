@@ -14,6 +14,7 @@ This is the core database engine for the corona database server.
 #pragma once
 
 const bool debug_teams = false;
+const std::string reference_field = "$reference";
 
 /*********************************************** 
 
@@ -112,6 +113,7 @@ namespace corona
 	public:
 		bool					 is_undefined;
 		bool					 is_array;
+        bool                     is_reference;
 		field_types				 fundamental_type;
 		std::vector<std::shared_ptr<child_object_class>> child_classes;
 
@@ -146,6 +148,8 @@ namespace corona
 			// if ] end declaration
 			// if end, end 
 
+			cod.is_reference = false;
+
 			if ((not _src) or (*_src == 0))
 			{
 				return cod;
@@ -156,7 +160,20 @@ namespace corona
 			{
 				_src++;
 				cod.is_array = true;
-			}
+				_src = pb.eat_white(_src);
+            }
+			else if (_src[0] == '-' && _src[1] == '>') 
+			{
+                _src += 2;
+                cod.fundamental_type = field_types::ft_reference;
+				cod.is_undefined = false;
+				auto child_class = std::make_shared<child_object_class>();
+                child_class->class_name = _src;
+                child_class->copy_values[_default_target_field] = reference_field;
+                cod.child_classes.push_back(child_class);
+				cod.is_reference = true;
+				return cod;
+            }
 
 			enum parse_states {
 				parsing_class_name,
@@ -216,7 +233,7 @@ namespace corona
 						else if (*_src == 0 || *_src == ']')
 						{
                             if (cod.fundamental_type == field_types::ft_none) {
-								new_class->copy_values.insert_or_assign(_default_target_field, "object_id");
+								new_class->copy_values.insert_or_assign(_default_target_field, reference_field);
 							}
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
@@ -247,19 +264,19 @@ namespace corona
 						{
 							_src++;
 							status = parsing_dst_field;
-							new_class->copy_values.insert_or_assign(dest_field, "object_id");
+							new_class->copy_values.insert_or_assign(dest_field, reference_field);
 						}
 						else if (*_src == ';')
 						{
 							_src++;
 							status = parsing_class_name;
-							new_class->copy_values.insert_or_assign(dest_field, "object_id");
+							new_class->copy_values.insert_or_assign(dest_field, reference_field);
 							cod.child_classes.push_back(new_class);
 							new_class = std::make_shared<child_object_class>();
 						}
 						else if (*_src == 0 || *_src == ']')
 						{
-							new_class->copy_values.insert_or_assign(dest_field, "object_id");
+							new_class->copy_values.insert_or_assign(dest_field, reference_field);
 							cod.child_classes.push_back(new_class);
 							status = parsing_complete;
 						}
@@ -829,7 +846,7 @@ namespace corona
 
  	class corona_database_interface;
 
-	class child_bridge_interface
+	class child_relation_interface
 	{
 	public:
 		virtual std::string get_class_name() = 0;
@@ -841,13 +858,13 @@ namespace corona
 		virtual json get_copy_assignment() = 0;
 	};
 
-	class child_bridges_interface
+	class child_relations_interface
 	{
 	public:
 		virtual void get_json(json& _dest) = 0;
 		virtual void put_json(json& _src) = 0;
 
-		virtual std::shared_ptr<child_bridge_interface> get_bridge(std::string _class_name) = 0;
+		virtual std::shared_ptr<child_relation_interface> get_relation(std::string _class_name) = 0;
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) = 0;
 		virtual json get_children(corona_database_interface* _db, json _parent_object, class_permissions _permissions) = 0;
@@ -873,7 +890,7 @@ namespace corona
 		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json & _object) = 0;
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test) = 0;
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
+		virtual std::shared_ptr<child_relations_interface> get_relations() = 0;
 		virtual bool is_relational_children() = 0;
 		virtual json get_openapi_schema(corona_database_interface* _db) = 0;
         virtual bool is_required() = 0;
@@ -958,7 +975,7 @@ namespace corona
 
 		virtual json run_method(corona_database_interface* _db, std::string _method_name, std::string& _token, std::string& _class_name, json& _object) = 0;
 		virtual json run_queries(corona_database_interface* _db, std::string& _token, std::string& _class_name, json& _object) = 0;
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() = 0;
+		virtual std::shared_ptr<child_relations_interface> get_relations() = 0;
 
         virtual json get_openapi_schema(corona_database_interface* _db) = 0;
 
@@ -1073,6 +1090,7 @@ namespace corona
 
 		virtual	void									put_field(std::shared_ptr<field_interface>& _name) = 0;
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
+		virtual std::shared_ptr<field_interface>		get_field_for_reference(class_interface *_class)  const = 0;
 		virtual audio_function							get_audio(json _src, const std::string& _name) = 0;
 		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name)  = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
@@ -1563,7 +1581,7 @@ namespace corona
 
 		}
 
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
+		virtual std::shared_ptr<child_relations_interface> get_relations() override
 		{
 			return nullptr;
 		}
@@ -1594,9 +1612,9 @@ namespace corona
 		virtual std::vector<std::string> get_allowed_classes() override
 		{
 			std::vector<std::string> results;
-			auto bridges = get_bridges();
-			if (bridges) {
-				for (auto item : bridges->get_allowed_classes()) {
+			auto relations = get_relations();
+			if (relations) {
+				for (auto item : relations->get_allowed_classes()) {
 					results.push_back(item);
 				}
 			}
@@ -1606,7 +1624,7 @@ namespace corona
 
 	};
 
-	class child_bridge_implementation : public child_bridge_interface
+	class child_relation_implementation : public child_relation_interface
 	{
 		std::string							child_class_name;
 		json								copy_values;
@@ -1650,10 +1668,10 @@ namespace corona
 				{
 					std::string _dest_key = member.first;
 					std::string _src_key = member.second.as_string();
-                    if (_src_key == "object_id") {
+                    if (_src_key == reference_field) {
 						object_reference dest;
 						dest.class_name = _src[class_name_field].as_string();
-                        dest.object_id = _src["object_id"].as_int64_t();
+                        dest.object_id = _src[object_id_field].as_int64_t();
                         _dest.put_member(_dest_key, dest);
                         continue;
                     }
@@ -1674,13 +1692,6 @@ namespace corona
 			{
 				std::string dest_key = member.first;
 				std::string src_key = member.second.as_string();
-				if (src_key == "object_id") {
-					object_reference dest;
-					dest.class_name = _src[class_name_field].as_string();
-					dest.object_id = _src["object_id"].as_int64_t();
-					key.put_member(dest_key, dest);
-					continue;
-				}
 				json v = _src[src_key];
                 key.put_member(dest_key, v);
 			}
@@ -1696,11 +1707,11 @@ namespace corona
 		}			
 	};
 
-	class child_bridges: public child_bridges_interface
+	class child_relations: public child_relations_interface
 	{
 	public:
-		std::map<std::string, std::shared_ptr<child_bridge_interface>> base_constructors;
-		std::map<std::string, std::shared_ptr<child_bridge_interface>> all_constructors;
+		std::map<std::string, std::shared_ptr<child_relation_interface>> base_constructors;
+		std::map<std::string, std::shared_ptr<child_relation_interface>> all_constructors;
 
 		virtual void get_json(json& _dest) override
 		{
@@ -1719,16 +1730,16 @@ namespace corona
 			if (_cod.fundamental_type != field_types::ft_none)
 				return;
 			for (auto class_def : _cod.child_classes) {
-				std::shared_ptr<child_bridge_implementation> new_bridge = std::make_shared<child_bridge_implementation>();
+				std::shared_ptr<child_relation_implementation> new_relation = std::make_shared<child_relation_implementation>();
 				json_parser jp;
 				json copy_values = jp.create_object();
 				for (auto pair : class_def->copy_values)
 				{
 					copy_values.put_member(pair.first, pair.second);
 				}				
-				new_bridge->put_child_object(class_def->class_name, copy_values);
-				new_bridge->set_class_name(class_def->class_name);
-				base_constructors.insert_or_assign(class_def->class_name, new_bridge);
+				new_relation->put_child_object(class_def->class_name, copy_values);
+				new_relation->set_class_name(class_def->class_name);
+				base_constructors.insert_or_assign(class_def->class_name, new_relation);
 			}
 		}
 
@@ -1739,17 +1750,17 @@ namespace corona
 			auto members = _src.get_members();
 			for (auto member : members) {
 				json obj = member.second;
-				std::shared_ptr<child_bridge_implementation> new_bridge = std::make_shared<child_bridge_implementation>();
+				std::shared_ptr<child_relation_implementation> new_relation = std::make_shared<child_relation_implementation>();
 				std::string class_name = member.first;
-				new_bridge->put_json(obj);
-				new_bridge->set_class_name(class_name);
-				base_constructors.insert_or_assign(class_name, new_bridge);
+				new_relation->put_json(obj);
+				new_relation->set_class_name(class_name);
+				base_constructors.insert_or_assign(class_name, new_relation);
 			}
 		}
 
-		virtual std::shared_ptr<child_bridge_interface> get_bridge(std::string _class_name) override
+		virtual std::shared_ptr<child_relation_interface> get_relation(std::string _class_name) override
 		{
-			std::shared_ptr<child_bridge_interface> result;
+			std::shared_ptr<child_relation_interface> result;
 			auto iter = all_constructors.find(_class_name);
 			if (iter != std::end(all_constructors))
 				result = iter->second;
@@ -1845,7 +1856,7 @@ namespace corona
 	{
 	public:
 
-		std::shared_ptr<child_bridges> bridges;
+		std::shared_ptr<child_relations> relations;
 		field_types fundamental_type;
 
 		array_field_options() = default;
@@ -1861,10 +1872,10 @@ namespace corona
 
 			json_parser jp;
 
-			if (bridges) {
+			if (relations) {
 				json jctors = jp.create_object();
-				bridges->get_json(jctors);
-				_dest.share_member("child_objects", jctors);
+				relations->get_json(jctors);
+				_dest.share_member("relations", jctors);
 			}
 			if (field_type_names.contains(fundamental_type)) {
 				_dest.put_member("fundamental_type", field_type_names[fundamental_type]);
@@ -1875,29 +1886,29 @@ namespace corona
 		{
 			field_options_base::put_json(_src);
 
-			json jctors = _src["child_objects"];
+			json jctors = _src["relations"];
 			std::string fte = _src["fundamental_type"].as_string();
 			if (allowed_field_types.contains(fte)) {
 				fundamental_type = allowed_field_types[fte];
 			}
 
-			bridges = std::make_shared<child_bridges>();
+			relations = std::make_shared<child_relations>();
 			if (jctors.object()) {
-				bridges->put_json(jctors);
+				relations->put_json(jctors);
 			}
 		}
 
 		virtual void put_definition(child_object_definition& _cod)
 		{
 			fundamental_type = _cod.fundamental_type;
-			bridges = std::make_shared<child_bridges>();
-			bridges->put_child_object(_cod);
+			relations = std::make_shared<child_relations>();
+			relations->put_child_object(_cod);
 		}
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
-			if (bridges)
-				bridges->init_validation(_db, _permissions);
+			if (relations)
+				relations->init_validation(_db, _permissions);
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
@@ -1985,11 +1996,11 @@ namespace corona
 								return false;
 							}
 						}
-						else if (bridges)
+						else if (relations)
 						{
 							if (obj.object()) {
 								object_class_name = obj[class_name_field].as_string();
-								auto ctor = bridges->get_bridge(object_class_name);
+								auto ctor = relations->get_relation(object_class_name);
 								if (not ctor) {
 									validation_error ve;
 									ve.class_name = _class_name;
@@ -2041,9 +2052,9 @@ namespace corona
 			return fundamental_type == field_types::ft_none;
 		}
 
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
+		virtual std::shared_ptr<child_relations_interface> get_relations() override
 		{
-			return bridges;
+			return relations;
 		}
 
 		virtual json get_openapi_schema(corona_database_interface* _db) override
@@ -2054,7 +2065,7 @@ namespace corona
 
 			json jitems = jp.create_object();
 			json joneof = jp.create_array();
-			for (auto& bc : bridges->base_constructors) {
+			for (auto& bc : relations->base_constructors) {
 				json joneofi = jp.create_object();
 				joneofi.put_member("$ref", "#/components/schemas/" + bc.first);
 				joneof.push_back(joneofi);
@@ -2698,7 +2709,7 @@ namespace corona
 	class object_field_options : public field_options_base
 	{
 	public:
-		std::shared_ptr<child_bridges> bridges;
+		std::shared_ptr<child_relations> relations;
 		field_types fundamental_type;
 
 		object_field_options() = default;
@@ -2714,9 +2725,9 @@ namespace corona
 
 			json_parser jp;
 
-			if (bridges) {
+			if (relations) {
 				json jctors = jp.create_object();
-				bridges->get_json(jctors);
+				relations->get_json(jctors);
 				_dest.share_member("child_objects", jctors);
 			}
 			_dest.put_member_string("fundamental_type", field_type_names[fundamental_type]);
@@ -2727,9 +2738,9 @@ namespace corona
 			field_options_base::put_json(_src);
 
 			json jctors = _src["child_objects"];
-			bridges = std::make_shared<child_bridges>();
+			relations = std::make_shared<child_relations>();
 			if (jctors.object()) {
-				bridges->put_json(jctors);
+				relations->put_json(jctors);
 			}
 			std::string ft = _src["fundamental_type"].as_string();
 			fundamental_type = allowed_field_types[ft];
@@ -2738,8 +2749,8 @@ namespace corona
 		virtual void put_definition(child_object_definition& _cod)
 		{
 			fundamental_type = _cod.fundamental_type;
-			bridges = std::make_shared<child_bridges>();
-			bridges->put_child_object(_cod);
+			relations = std::make_shared<child_relations>();
+			relations->put_child_object(_cod);
 		}
 
 		virtual bool is_relational_children() override
@@ -2749,8 +2760,8 @@ namespace corona
 
 		virtual void init_validation(corona_database_interface* _db, class_permissions _permissions) override
 		{
-			if (bridges)
-				bridges->init_validation(_db, _permissions);
+			if (relations)
+				relations->init_validation(_db, _permissions);
 		}
 
 		virtual bool accepts(corona_database_interface* _db, validation_error_collection& _validation_errors, std::string _class_name, std::string _field_name, json& _object_to_test)
@@ -2892,11 +2903,11 @@ namespace corona
 						return false;
 					}
 					}
-				else if (bridges)
+				else if (relations)
 				{
 					if (obj.object()) {
 						object_class_name = obj[class_name_field].as_string();
-						auto ctor = bridges->get_bridge(object_class_name);
+						auto ctor = relations->get_relation(object_class_name);
 						if (not ctor) {
 							validation_error ve;
 							ve.class_name = _class_name;
@@ -2929,9 +2940,9 @@ namespace corona
 			return false;
 		}
 
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
+		virtual std::shared_ptr<child_relations_interface> get_relations() override
 		{
-			return bridges;
+			return relations;
 		}
 
 		virtual json get_openapi_schema(corona_database_interface* _db) override
@@ -2942,7 +2953,7 @@ namespace corona
 
 			json jitems = jp.create_object();
 			json joneof = jp.create_array();
-			for (auto& bc : bridges->base_constructors) {
+			for (auto& bc : relations->base_constructors) {
 				json joneofi = jp.create_object();
 				joneofi.put_member("$ref", "#/components/schemas/" + bc.first);
 				joneof.push_back(joneofi);
@@ -3195,6 +3206,14 @@ namespace corona
 		{
 			field_options_base::get_json(_dest);
 			_dest.put_member("ref_class", reference_class);
+		}
+
+		virtual void put_definition(child_object_definition& _rd)
+		{
+            if (_rd.child_classes.size() > 0) {
+                reference_class = _rd.child_classes[0]->class_name;
+            }
+			reference_class_descendants.clear();
 		}
 
 		virtual void put_definition(reference_definition& _rd)
@@ -3863,10 +3882,10 @@ namespace corona
 			return results;
 		}
 
-		virtual std::shared_ptr<child_bridges_interface> get_bridges() override
+		virtual std::shared_ptr<child_relations_interface> get_relations() override
 		{
 			if (options) {
-				return options->get_bridges();
+				return options->get_relations();
 			}
 			return nullptr;
 		}
@@ -4876,6 +4895,13 @@ namespace corona
 									field->set_options(options);
 								}
 							}
+							else if (cod.is_reference)
+							{
+								field->set_field_type(field_types::ft_reference);
+								auto options = std::make_shared<reference_field_options>();
+								options->put_definition(cod);
+								field->set_options(options);
+							}
 							else if (cod.is_array)
 							{
 								field->set_field_type(field_types::ft_array);
@@ -4913,7 +4939,7 @@ namespace corona
 								{
 									coc = std::make_shared<child_object_class>();
 									coc->class_name = ecn;
-									coc->copy_values.insert_or_assign(class_name, object_id_field);
+									coc->copy_values.insert_or_assign(class_name, reference_field);
 									cod.child_classes.push_back(coc);
 								}
 							}
@@ -4979,7 +5005,7 @@ namespace corona
 
 			for (auto parent : parents)
 			{
-				std::string index_name = parent;
+				std::string index_name = "idx_" + class_name + "_"  + parent;
 				if (jindexes.has_member(index_name)) {
 					continue;
 				}
@@ -5106,7 +5132,7 @@ namespace corona
 					}
 				}
 				else if (query_field->get_field_type() == field_types::ft_array || query_field->get_field_type() == field_types::ft_object) {
-					std::shared_ptr<child_bridges_interface> brs = query_field->get_bridges();
+					std::shared_ptr<child_relations_interface> brs = query_field->get_relations();
 					if (brs) {
 						auto class_list = brs->get_allowed_classes();
 
@@ -5522,6 +5548,25 @@ namespace corona
 			return nullptr;
 		}
 
+		virtual std::shared_ptr<field_interface>		get_field_for_reference(class_interface *_class)  const override
+		{
+			for (auto& f : fields) {
+                if (f.second->get_field_type() == field_types::ft_reference) {
+                    auto options = f.second->get_options();
+                    if (options) {
+                        auto ref_options = std::dynamic_pointer_cast<reference_field_options>(options);
+                        if (ref_options) {
+							auto& desc = _class->get_ancestors();
+                             if (_class->get_class_name() == ref_options->reference_class || desc.contains(ref_options->reference_class)) {
+                                return f.second;
+                            }
+                        }
+                    }
+                }
+			}
+			return nullptr;
+		}
+
 		virtual std::map<std::string, std::shared_ptr<field_interface>>& use_fields() override
 		{
 			return fields;
@@ -5924,16 +5969,16 @@ namespace corona
 								{
 									json array_field = write_object[fld->get_field_name()];
 									if (array_field.array() and fld->is_relational_children()) {
-										auto bridges = fld->get_bridges();
-										if (bridges) {
+										auto relations = fld->get_relations();
+										if (relations) {
 											for (auto obj : array_field) {
 												std::string obj_class_name = obj[class_name_field].as_string();
-												auto bridge = bridges->get_bridge(obj_class_name);
-												if (bridge) {
-													bridge->copy(obj, write_object);
+												auto relation = relations->get_relation(obj_class_name);
+												if (relation) {
+													relation->copy(obj, write_object);
 												}
 												else {
-                                                    log_warning(std::format("No bridge found for {0} in {1}", obj_class_name, fld->get_field_name()));
+                                                    log_warning(std::format("No relation found for {0} in {1}", obj_class_name, fld->get_field_name()));
 												}
 												child_objects.push_back(obj);
 											}
@@ -5946,14 +5991,14 @@ namespace corona
 									json obj = write_object[fld->get_field_name()];
 									if (obj.object() and fld->is_relational_children()) {
 										std::string obj_class_name = obj[class_name_field].as_string();
-										auto bridges = fld->get_bridges();
-										if (bridges) {
-											auto bridge = bridges->get_bridge(obj_class_name);
-											if (bridge) {
-												bridge->copy(obj, write_object);
+										auto relations = fld->get_relations();
+										if (relations) {
+											auto relation = relations->get_relation(obj_class_name);
+											if (relation) {
+												relation->copy(obj, write_object);
 											}
 											else {
-												log_warning(std::format("No bridge found for {0} in {1}", obj_class_name, fld->get_field_name()));
+												log_warning(std::format("No relation found for {0} in {1}", obj_class_name, fld->get_field_name()));
 											}
 											json empty;
 											write_object.erase_member(fld->get_field_name());
@@ -6557,17 +6602,17 @@ namespace corona
 						if (fld->is_relational_children()) {
 							if (fld->get_field_type() == field_types::ft_array)
 							{
-								auto bridges = fld->get_bridges();
-								if (bridges) {
-									json results = bridges->get_children(_db, _src_obj, _grant);
+								auto relations = fld->get_relations();
+								if (relations) {
+									json results = relations->get_children(_db, _src_obj, _grant);
 									_src_obj.put_member(fld->get_field_name(), results);
 								}
 							}
 							else if (fld->get_field_type() == field_types::ft_object)
 							{
-								auto bridges = fld->get_bridges();
-								if (bridges) {
-									json results = bridges->get_children(_db, _src_obj, _grant);
+								auto relations = fld->get_relations();
+								if (relations) {
+									json results = relations->get_children(_db, _src_obj, _grant);
 									json first = results.get_first_element();
 									_src_obj.put_member(fld->get_field_name(), first);
 								}
@@ -6684,8 +6729,8 @@ namespace corona
 						if (not fld->is_relational_children()) {
 							continue;
 						}
-						auto bridges = fld->get_bridges();
-						bridges->delete_children(_db, _src_obj, _permission);
+						auto relations = fld->get_relations();
+						relations->delete_children(_db, _src_obj, _permission);
 					}
 				}
 			}
@@ -9612,12 +9657,12 @@ private:
 					}
 					else
 					{
-						std::shared_ptr<child_bridges_interface> bridges;
-						bridges = field->get_bridges();
+						std::shared_ptr<child_relations_interface> relations;
+						relations = field->get_relations();
 
-						std::shared_ptr<child_bridge_interface> bridge;
-						if (bridges) {
-							bridge = bridges->get_bridge(field_class);
+						std::shared_ptr<child_relation_interface> relation;
+						if (relations) {
+							relation = relations->get_relation(field_class);
 						}
 
 						json tab = jp.create_object();
@@ -9626,8 +9671,8 @@ private:
 						if (allowed_classes.size() > 0) {
 							tab.put_member_string("ux_class", allowed_classes[0]);
 						}
-						if (bridge) {
-							json jcopy = bridge->get_copy_assignment();
+						if (relation) {
+							json jcopy = relation->get_copy_assignment();
 							tab.put_member("filter", jcopy);
 						}
 
@@ -9644,20 +9689,20 @@ private:
 					tab.put_member_string("name", field->get_label());
 					tab.put_member_string("member_name", field->get_field_name());
 
-					std::shared_ptr<child_bridges_interface> bridges;
-					bridges = field->get_bridges();
+					std::shared_ptr<child_relations_interface> relations;
+					relations = field->get_relations();
 
-					std::shared_ptr<child_bridge_interface> bridge;
-					if (bridges) {
-						bridge = bridges->get_bridge(field_class);
+					std::shared_ptr<child_relation_interface> relation;
+					if (relations) {
+						relation = relations->get_relation(field_class);
 					}
 
 					auto allowed_classes = field->get_allowed_classes();
 					if (allowed_classes.size() > 0) {
 						tab.put_member_string("ux_class", allowed_classes[0]);
 					}
-					if (bridge) {
-						json jcopy = bridge->get_copy_assignment();
+					if (relation) {
+						json jcopy = relation->get_copy_assignment();
 						tab.put_member("filter", jcopy);
 					}
 					tab.put_member_string("tab_type", "list");
@@ -9940,11 +9985,27 @@ private:
 					click_command.put_member_string("create_class_name", allowed_class);
 					click_command.put_member_string("constructor_frame", "frame_selected");
 
-					json jcopy = jp.create_object();
-					jcopy.put_member_string(classd->get_class_name(), "object_id");
-					jcopy.put_member_string(classd->get_class_name() + "_class", "class_name");
+					// so now, we need to get the class definition from the child, so we can get the field
+					// name where we need to stick our reference to the parent in the child 
 
-					click_command.put_member("constructor_copy", jcopy);
+                    auto target_parent_class = read_lock_class(allowed_class);
+					if (target_parent_class) {
+						auto ref_target = target_parent_class->get_field_for_reference(classd.get());
+						if (ref_target) {
+							json jcopy = jp.create_object();
+							jcopy.put_member_string(ref_target->get_field_name(), reference_field);
+							click_command.put_member("constructor_copy", jcopy);
+						}
+						else
+						{
+							log_warning("could not find reference target for " + class_name + "." + member_name + " in " + target_parent_class->get_class_name(), __FILE__, __LINE__);
+						}
+					} 
+					else
+					{
+						log_warning("could not find class " + allowed_class + " referred to in " + class_name + "." + member_name, __FILE__, __LINE__);
+					}
+
 					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
 					click_command.put_member_string("source_frame", form);
 					click_command.put_member_string("target_frame", "frame_selected");
@@ -10106,8 +10167,10 @@ private:
 
 						json new_dataset = dataset_array.get_element(i);
 						new_dataset.put_member(class_name_field, "sys_dataset"sv);
-						new_dataset.put_member_i64("sys_schema", jschema[object_id_field].as_int64_t());
-						new_dataset.put_member("sys_schema_class", jschema[class_name_field].as_string());
+						object_reference parent;
+						parent.object_id = jschema[object_id_field].as_int64_t();
+                        parent.class_name = jschema[class_name_field].as_string();
+						new_dataset.put_member("sys_schema", parent);
 						std::string dataset_name = new_dataset["dataset_name"].as_string();
 						std::string dataset_version = new_dataset["dataset_version"].as_string();
 
@@ -10538,12 +10601,10 @@ private:
 
 			json jschema_array =  select_object(schema_key, false, sys_perm);
             json jschema = jschema_array.get_first_element();
-			int64_t schema_id;
 
 			if (jschema.object()) 
 			{
                 jschema.merge(_schema);
-				schema_id = _schema["object_id"].as_int64_t();
 
 				std::string schema_msg = std::format("Schema '{0}' already applied", schema_key["schema_name"].as_string());
 				system_monitoring_interface::active_mon->log_information(schema_msg, __FILE__, __LINE__);
@@ -10564,7 +10625,6 @@ private:
 					json new_schema = result[data_field];
                     new_schema.merge(_schema);
 					jschema = new_schema;
-					schema_id = jschema["object_id"].as_int64_t();
 				}
 			}
 
@@ -10594,12 +10654,9 @@ private:
 
 						try {
 
-							if constexpr (debug_teams)
+							if (class_definition[class_name_field].as_string() == "company")
 							{
-								if (class_definition[base_class_name_field].as_string() == "sys_team")
-								{
-									DebugBreak();
-								}
+								DebugBreak();
 							}
 
 							std::string new_class_name = class_definition["class_name"].as_string();

@@ -1350,8 +1350,18 @@ namespace corona
 					auto members = constructor_copy.get_members();
 					for (auto member : members) {
 						std::string src_name = member.second.as_string();
-						json temp = data[src_name];
-						parent_key.put_member(member.first, temp);
+						if (src_name == reference_field) {
+							object_reference rf;
+                            rf.class_name = data[class_name_field].as_string();
+                            rf.object_id = data[object_id_field].as_int64_t();
+							parent_key.put_member(member.first, rf);
+							continue;
+						}
+						else 
+						{
+							json temp = data[src_name];
+							parent_key.put_member(member.first, temp);
+						}
 					}
 				}
 			}
@@ -1364,11 +1374,6 @@ namespace corona
 			auto response = _bus->create_object(instance, create_class_name);
 
 			if (response.success && request.object()) {
-
-				auto members = request.get_members();
-				for (auto member : members) {
-					response.data.put_member(member.first, member.second);
-				}
 
 				if (request.object()) {
 					response.data.merge(request);

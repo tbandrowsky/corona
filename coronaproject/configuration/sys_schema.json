@@ -419,7 +419,7 @@
       "base_class_name": "sys_object",
       "class_description": "An asset",
       "full_text": [ "name", "description" ],
-      "parents": [ "company" ],
+      "parents": [ "association" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -867,6 +867,7 @@
       "base_class_name": "engagement",
       "class_description": "An insurance engagement",
       "full_text": [],
+      "parents": [ "outreacher" ],
       "fields": {
         "interviews": {
           "field_type": "string",
@@ -895,6 +896,7 @@
       "class_name": "advocate_engagement",
       "base_class_name": "engagement",
       "class_description": "An insurance engagement",
+      "parents": [ "advocate" ],
       "full_text": [],
       "fields": {
         "interviews": {
@@ -915,7 +917,6 @@
       "class_name": "advocate",
       "base_class_name": "company",
       "class_description": "A community outreach and engagement",
-      "parents": [ "advocate" ],
       "fields": {
         "engagements": [ "advocate_engagement" ]
       }
