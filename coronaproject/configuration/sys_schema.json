@@ -45,7 +45,8 @@
         "description": "string",
         "publisher": "string",
         "url": "string"
-      }
+      },
+      "field_order": [ "name", "description", "publisher", "url" ]
     },
     {
       "class_name": "address",
@@ -83,8 +84,9 @@
           "field_type": "string",
           "label": "Country",
           "max_length": 100
-        }      
-      }
+        }
+      },
+      "field_order": [ "street", "building", "city", "state", "zip", "country" ]
     },
     {
       "class_name": "connection",
@@ -142,7 +144,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "minutes",
@@ -157,7 +160,8 @@
           "field_type": "string",
           "label": "Attendees"
         }
-      }
+      },
+      "field_order": [ "location", "attendees" ]
     },
     {
       "class_name": "contract",
@@ -172,7 +176,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "deed",
@@ -187,7 +192,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "ruling",
@@ -202,7 +208,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "title",
@@ -218,18 +225,18 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "service_call",
       "base_class_name": "record",
       "class_description": "A service call",
-      "parents": [],
+      "parents": [
+        "vendor",
+        "client"
+      ],
       "fields": {
-        "vendors": {
-          "field_type": "string",
-          "label": "Vendors"
-        },
         "problem": {
           "field_type": "string",
           "label": "Problem"
@@ -238,7 +245,8 @@
           "field_type": "string",
           "label": "Resolution"
         }
-      }
+      },
+      "field_order": [ "vendors", "problem", "resolution" ]
     },
     {
       "class_name": "product",
@@ -300,7 +308,8 @@
         },
         "connections": [ "connection" ],
         "addresses": [ "address" ]
-      }
+      },
+      "field_order": [ "first_name", "last_name", "connections", "addresses" ]
     },
     {
       "class_name": "employee",
@@ -328,7 +337,8 @@
           "label": "Emergency Contact Phone"
         },
         "direct_reports": [ "employee" ]
-      }
+      },
+      "field_order": [ "title", "national_id", "emergency_contact_name", "emergency_contact_phone", "direct_reports" ]
     },
     {
       "class_name": "contractor",
@@ -341,9 +351,14 @@
           "field_type": "string",
           "label": "Title",
           "max_length": 100
+        },
+        "hourly_rate": {
+          "field_type": "number",
+          "label": "Hourly Rate",
+          "min_value": 0
         }
-
-      }
+      },
+      "field_order": [ "title", "hourly_rate"  ]
     },
     {
       "class_name": "salary",
@@ -362,7 +377,8 @@
           "label": "Annual Salary",
           "min_value": 0
         }
-      }
+      },
+      "field_order": [ "title", "annual_salary" ]
     },
     {
       "class_name": "hourly",
@@ -375,8 +391,24 @@
           "field_type": "string",
           "label": "Title",
           "max_length": 100
+        },
+        "hourly_rate": {
+          "field_type": "number",
+          "label": "Hourly Rate",
+          "min_value": 0
+        },
+        "holiday_rate": {
+          "field_type": "number",
+          "label": "Holiday Rate",
+          "min_value": 0
+        },
+        "overtime_rate": {
+          "field_type": "number",
+          "label": "Overtime Rate",
+          "min_value": 0
         }
-      }
+      },
+      "field_order": [ "title", "hourly_rate", "holiday_rate", "overtime_rate" ]
     },
     {
       "class_name": "encounter",
@@ -394,7 +426,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "engagement",
@@ -412,7 +445,8 @@
           "label": "Description"
         },
         "encounter": [ "encounter" ]
-      }
+      },
+      "field_order": [ "name", "description", "encounter" ] 
     },
     {
       "class_name": "asset",
@@ -430,7 +464,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "rms_construction_type",
@@ -451,7 +486,8 @@
           "label": "Description",
           "max_length": 250
         }
-      }
+      },
+      "field_order": [ "code", "description" ]
     },
     {
       "class_name": "rms_occupancy_type",
@@ -472,13 +508,15 @@
           "label": "Description",
           "max_length": 250
         }
-      }
+      },
+      "field_order": [ "code","description" ]
     },
     {
       "class_name": "building",
       "base_class_name": "asset",
       "class_description": "An asset",
       "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
+      "field_order": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
       "fields": {
         "latitude": {
           "field_type": "string",
@@ -526,7 +564,8 @@
           "field_type": "string",
           "label": "Deeds"
         }
-      }
+      },
+      "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
     },
     {
       "class_name": "association",
@@ -548,7 +587,8 @@
         "connections": [ "connection" ],
         "assets": [ "asset" ],
         "people": [ "person" ]
-      }
+      },
+      "field_order": [ "name", "description", "address", "connections", "assets", "people" ]
     },
 
     {
@@ -587,7 +627,8 @@
         },
         "vendors": [ "vendor" ],
         "clients": [ "client" ]
-      }
+      },
+      "field_order" : ["name", "description", "vendors", "clients"]
     },
 
     {
@@ -1390,7 +1431,17 @@
       "phone": "default",
       "email": "default",
       "fax": "default",
-      "web": "default"
+      "web": "default",
+
+      "sys_schema": "default",
+      "sys_dataset": "default",
+      "sys_object": "default",
+      "sys_server": "default",
+      "sys_command": "default",
+      "sys_team": "default",
+      "sys_grant": "default",
+      "sys_user": "default",
+      "sys_error": "default"
     },
     "objects": [
       {
@@ -1706,7 +1757,64 @@
                 }
               }
             ]
+          },
+          {
+            "title": "Records",
+            "classes": [
+              "record"
+            ],
+            "new_objects": [
+              "record",
+              "minutes",
+              "contract",
+              "deed",
+              "ruling",
+              "title",
+              "service_call"
+            ],
+            "result_text": "{count} records",
+            "edit_text": "Editing record",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_class": "chart_record",
+            "charts": [
+              {
+                "chart_button_name": "record_counts_button",
+                "chart_button_text": "Record Types",
+                "chart_button_image": "assets\\chart_bar.png",
+                "chart_class": "chart_record",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           }
+
         ]
       }
     }

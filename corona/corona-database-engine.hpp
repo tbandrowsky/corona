@@ -67,11 +67,11 @@ namespace corona
 			"descendants":"[ string ]",
 			"fields" : "object",
 			"indexes" : "object",
-			"sql" : "object"	
+			"sql" : "object",
+			"field_order": "[ string ]"
 	}
 }
 )";
-
 
 	/// <summary>
     /// Class permissions	
@@ -1063,6 +1063,7 @@ namespace corona
 		virtual std::map<std::string, bool>  &			update_ancestors() = 0;
 		virtual std::vector<std::string>				get_parents() const = 0;
 		virtual std::vector<std::string>				get_full_text_fields() const = 0;
+        virtual std::vector<std::string>				get_field_display_order() const = 0;
 
 		virtual json									get_parent_objects(std::string _user_name, json& _reference_object, corona_database_interface* _db) const = 0;
 
@@ -4139,6 +4140,7 @@ namespace corona
 		std::shared_ptr<sql_integration> sql;
 		std::string class_author;
 		std::string class_version;
+		std::vector<std::string> field_order;
 
 		std::string get_class_filename(corona_database_interface *_db) { 
 			std::filesystem::path p = _db->get_directory();
@@ -4175,6 +4177,7 @@ namespace corona
 			display = _src->get_class_display();
 			class_author = _src->get_class_author();
 			class_version = _src->get_class_version();
+            field_order = _src->get_field_display_order();
 		}
 
 		std::shared_ptr<xtable> table;
@@ -4321,6 +4324,11 @@ namespace corona
 		virtual std::vector<std::string> get_full_text_fields() const override
 		{
 			return full_text_fields;
+		}
+
+		virtual std::vector<std::string> get_field_display_order() const override
+		{
+            return field_order;
 		}
 
 		virtual std::string get_class_author() const override
@@ -4659,6 +4667,12 @@ namespace corona
 				_dest.put_member("word_count", full_text_index->get_count());
 			}
 
+			json jfield_order = jp.create_array();
+			for (auto& field_name : field_order) {
+				jfield_order.push_back(field_name);
+			}
+			_dest.put_member("field_order", jfield_order);
+
 			json ja = jp.create_array();
 			for (auto p : parents)
 			{
@@ -4671,7 +4685,7 @@ namespace corona
 			{
 				ja.push_back(p);
 			}
-			_dest.share_member("full_text", ja);
+			_dest.put_member("full_text", ja);
 
 			if (fields.size() > 0) {
 				json jfield_object = jp.create_object();
@@ -4725,6 +4739,8 @@ namespace corona
 			std::string temp_class_name = _src[class_name_field].as_string();
 			std::string temp_base_class_name = _src["base_class_name"].as_string();
 
+            json jdisplay_order = _src["field_order"];
+			field_order = jdisplay_order.to_string_array();
 
 			if (temp_class_name.empty()) {
 				validation_error ve;
@@ -5262,6 +5278,7 @@ namespace corona
 			class_name = changed_class.class_name;
 			base_class_name = changed_class.base_class_name;
 			class_description = changed_class.class_description;
+            field_order = changed_class.field_order;
 			sql = changed_class.sql;
 
 			ancestors.clear();
@@ -5594,12 +5611,33 @@ namespace corona
             std::vector<std::shared_ptr<field_section>> sections;
             auto current_class_name = class_name;
             auto current_class = _db->read_lock_class(current_class_name);
+
 			auto flds = get_fields();
+			std::map<std::string, std::shared_ptr<field_interface>> field_map;
+			for (auto f : flds) {
+				field_map[f->get_field_name()] = f;
+			}
+
+            std::vector<std::shared_ptr<field_interface>> ordered_fields;
+
+			for (auto fs : field_order) {
+                if (field_map.contains(fs)) {
+                    ordered_fields.push_back(field_map[fs]);
+					field_map.erase(fs);
+                }
+			}
+
+			for (auto fs : flds) {
+				if (field_map.contains(fs->get_field_name())) {
+					ordered_fields.push_back(field_map[fs->get_field_name()]);
+				}
+			}
+
 			while (current_class) {
                 auto section = std::make_shared<field_section>();
                 section->section_name = current_class->get_class_name();
                 section->section_description = current_class->get_class_description();
-                for (auto& fld : flds) {
+                for (auto& fld : ordered_fields) {
 					if (fld->get_field_class() == current_class->get_class_name()) {
 						section->section_fields.push_back(fld);
 					}
@@ -7026,6 +7064,7 @@ namespace corona
 			class_data_header->object_members.columns[13] = { field_types::ft_string, 10, "class_author" };
 			class_data_header->object_members.columns[14] = { field_types::ft_string, 11, "class_version" };
 			class_data_header->object_members.columns[17] = { field_types::ft_array, 12, "full_text" };
+			class_data_header->object_members.columns[18] = { field_types::ft_array, 13, "field_order" };
 
 			std::filesystem::path class_table = data_path;
             class_table /= "classes.coronatbl";
@@ -7076,7 +7115,8 @@ namespace corona
 				"read_only": true,	
 				"label": "Team"
 			}
-	}
+	},
+	"field_order" : ["object_id", "class_name", "created", "created_by", "updated", "updated_by", "team"]	
 }
 )");
 
@@ -7107,6 +7147,11 @@ namespace corona
 				"read_only": true,
 				"label": "System Origin"
 			},
+			"level": {
+				"field_type":"string",
+				"read_only": true,
+				"label": "Error Level"
+			},
 			"message" :{
 				"field_type":"string",
 				"read_only": true,
@@ -7127,7 +7172,8 @@ namespace corona
 				"read_only": true,
 				"label": "Source Line #"
 			},
-	}
+	},
+	"field_order" : ["system", "level", "message", "body", "file", "line"]
 }
 )");
 
@@ -7258,7 +7304,8 @@ namespace corona
 				"enum" : [ "any", "none", "own", "team", "teamorown" ]
 			}
 			
-	}
+	},
+	"field_order" : ["grant_classes", "get", "put", "delete", "alter", "derive"]
 }
 )");
 
@@ -7307,6 +7354,7 @@ namespace corona
 			"allowed_teams" : "[ string ]",
 			"items" : "[ sys_item ]"
 	},
+	"field_order" : ["team_name", "team_description", "team_domain", "permissions", "allowed_teams", "items"],
 	"indexes" : {
         "sys_team_name": {
           "index_keys": [ "team_name" ]
@@ -7391,7 +7439,8 @@ namespace corona
 		"sys_dataset_dataset_name": {
 		  "index_keys": [ "dataset_name", "dataset_version" ]
 		}	
-	}
+	},
+	"field_order" : ["dataset_name", "dataset_description", "dataset_version", "dataset_author", "dataset_source", "completed", "run_on_change", "bytes_read", "bytes_total", "objects", "import"]
 }
 )");
 
@@ -10654,9 +10703,11 @@ private:
 
 						try {
 
-							if (class_definition[class_name_field].as_string() == "company")
-							{
-								DebugBreak();
+							if constexpr (false) {
+								if (class_definition[class_name_field].as_string() == "company")
+								{
+									DebugBreak();
+								}
 							}
 
 							std::string new_class_name = class_definition["class_name"].as_string();

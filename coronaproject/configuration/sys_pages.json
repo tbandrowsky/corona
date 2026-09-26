@@ -68,6 +68,15 @@
           "service_call":"card_service_call",
           "shop":"card_shop",
           "shop_engagement":"card_shop_engagement",
+          "sys_command":"card_sys_command",
+          "sys_dataset":"card_sys_dataset",
+          "sys_error":"card_sys_error",
+          "sys_grant":"card_sys_grant",
+          "sys_object":"card_sys_object",
+          "sys_schema":"card_sys_schema",
+          "sys_server":"card_sys_server",
+          "sys_team":"card_sys_team",
+          "sys_user":"card_sys_user",
           "title":"card_title",
           "tool":"card_tool",
           "vendor":"card_vendor",
@@ -183,6 +192,15 @@
           "service_call":"object_service_call",
           "shop":"object_shop",
           "shop_engagement":"object_shop_engagement",
+          "sys_command":"object_sys_command",
+          "sys_dataset":"object_sys_dataset",
+          "sys_error":"object_sys_error",
+          "sys_grant":"object_sys_grant",
+          "sys_object":"object_sys_object",
+          "sys_schema":"object_sys_schema",
+          "sys_server":"object_sys_server",
+          "sys_team":"object_sys_team",
+          "sys_user":"object_sys_user",
           "title":"object_title",
           "tool":"object_tool",
           "vendor":"object_vendor",
@@ -354,12 +372,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_address.json"
+        "file_name":"pages\\tab_association_description.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_assets.json"
+        "file_name":"pages\\tab_association_address.json"
       },
 
       {
@@ -369,7 +387,7 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_association_description.json"
+        "file_name":"pages\\tab_association_assets.json"
       },
 
       {
@@ -534,12 +552,17 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_company_vendors.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_company_clients.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_company_vendors.json"
+        "file_name":"pages\\tab_company_description.json"
       },
 
       {
@@ -555,11 +578,6 @@
       {
         "class_name":"import",
         "file_name":"pages\\tab_company_connections.json"
-      },
-
-      {
-        "class_name":"import",
-        "file_name":"pages\\tab_company_description.json"
       },
 
       {
@@ -1385,12 +1403,12 @@
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_person_addresses.json"
+        "file_name":"pages\\tab_person_connections.json"
       },
 
       {
         "class_name":"import",
-        "file_name":"pages\\tab_person_connections.json"
+        "file_name":"pages\\tab_person_addresses.json"
       },
 
       { "class_name":"import", "file_name":"pages\\object_person.json" },
@@ -1689,6 +1707,142 @@
         "file_name":"pages\\object_shop_engagement.json"
       },
 
+      { "class_name":"import", "file_name":"pages\\card_sys_command.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_command_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_command.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_dataset.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_dataset_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_dataset_objects.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_dataset.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_error.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_error_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_error.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_grant.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_grant_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_grant_grant_classes.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_grant.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_object.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_object_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_object.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_schema.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_classes.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_datasets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_users.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_schema.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_server.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_server_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_server.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_team.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_permissions.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_allowed_teams.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_items.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_team.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_user.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_user_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_user.json" },
+
       { "class_name":"import", "file_name":"pages\\card_title.json" },
 
       { "class_name":"import", "file_name":"pages\\tab_title_fields.json" },
@@ -1772,6 +1926,8 @@
         "class_name":"import",
         "file_name":"pages\\chart_association.json"
       },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
 
       { "class_name":"import", "file_name":"pages\\.json" },
 
