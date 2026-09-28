@@ -7482,11 +7482,7 @@ namespace corona
 				"field_type" : "string",		
 				"label":"Version"
 			},
-			"schema_authors" : {
-				"field_name:" : "schema_author",
-				"field_type" : "string",		
-				"label":"Authors"
-			},
+			"schema_authors" : [ "string" ],			
 			"classes" : "[object]",
 			"users" : "[object]",
 			"datasets" : [ "sys_dataset" ]
@@ -10633,7 +10629,7 @@ private:
 				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema version");
 			}
 
-			if (not _schema.has_member("schema_authors"))
+			if (not _schema.has_member("schema_author"))
 			{
 				system_monitoring_interface::active_mon->log_warning("Schema doesn't have a schema author");
 			}

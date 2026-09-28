@@ -1790,6 +1790,11 @@
 
       {
         "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_schema_authors.json"
+      },
+
+      {
+        "class_name":"import",
         "file_name":"pages\\tab_sys_schema_users.json"
       },
 
