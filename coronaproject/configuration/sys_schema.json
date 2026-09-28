@@ -1573,7 +1573,7 @@
             "charts": [
               {
                 "chart_button_name": "chart_association_counts_button",
-                "chart_button_text": "Association Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_association",
                 "chart": {
@@ -1621,7 +1621,7 @@
             "charts": [
               {
                 "chart_button_name": "asset_counts_button",
-                "chart_button_text": "Asset Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_asset",
                 "chart": {
@@ -1669,7 +1669,7 @@
             "charts": [
               {
                 "chart_button_name": "people_counts_button",
-                "chart_button_text": "People Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_person",
                 "chart": {
@@ -1725,7 +1725,7 @@
             "charts": [
               {
                 "chart_button_name": "record_counts_button",
-                "chart_button_text": "Record Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_record",
                 "chart": {
@@ -1759,31 +1759,33 @@
             ]
           },
           {
-            "title": "Records",
+            "title": "System",
             "classes": [
-              "record"
+              "sys_object"
             ],
             "new_objects": [
-              "record",
-              "minutes",
-              "contract",
-              "deed",
-              "ruling",
-              "title",
-              "service_call"
+              "sys_schema",
+              "sys_dataset",
+              "sys_object",
+              "sys_server",
+              "sys_command",
+              "sys_team",
+              "sys_grant",
+              "sys_user",
+              "sys_error"
             ],
-            "result_text": "{count} records",
-            "edit_text": "Editing record",
+            "result_text": "{count} objects",
+            "edit_text": "Editing object",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_class": "chart_record",
+            "chart_class": "chart_object",
             "charts": [
               {
-                "chart_button_name": "record_counts_button",
-                "chart_button_text": "Record Types",
+                "chart_button_name": "object_counts_button",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
-                "chart_class": "chart_record",
+                "chart_class": "chart_object",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
