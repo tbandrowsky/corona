@@ -45,7 +45,8 @@
         "description": "string",
         "publisher": "string",
         "url": "string"
-      }
+      },
+      "field_order": [ "name", "description", "publisher", "url" ]
     },
     {
       "class_name": "address",
@@ -83,8 +84,9 @@
           "field_type": "string",
           "label": "Country",
           "max_length": 100
-        }      
-      }
+        }
+      },
+      "field_order": [ "street", "building", "city", "state", "zip", "country" ]
     },
     {
       "class_name": "connection",
@@ -142,7 +144,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "minutes",
@@ -157,7 +160,8 @@
           "field_type": "string",
           "label": "Attendees"
         }
-      }
+      },
+      "field_order": [ "location", "attendees" ]
     },
     {
       "class_name": "contract",
@@ -172,7 +176,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "deed",
@@ -187,7 +192,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "ruling",
@@ -202,7 +208,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "title",
@@ -218,18 +225,18 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "general_terms", "URL" ]
     },
     {
       "class_name": "service_call",
       "base_class_name": "record",
       "class_description": "A service call",
-      "parents": [],
+      "parents": [
+        "vendor",
+        "client"
+      ],
       "fields": {
-        "vendors": {
-          "field_type": "string",
-          "label": "Vendors"
-        },
         "problem": {
           "field_type": "string",
           "label": "Problem"
@@ -238,7 +245,8 @@
           "field_type": "string",
           "label": "Resolution"
         }
-      }
+      },
+      "field_order": [ "vendors", "problem", "resolution" ]
     },
     {
       "class_name": "product",
@@ -300,7 +308,8 @@
         },
         "connections": [ "connection" ],
         "addresses": [ "address" ]
-      }
+      },
+      "field_order": [ "first_name", "last_name", "connections", "addresses" ]
     },
     {
       "class_name": "employee",
@@ -328,7 +337,8 @@
           "label": "Emergency Contact Phone"
         },
         "direct_reports": [ "employee" ]
-      }
+      },
+      "field_order": [ "title", "national_id", "emergency_contact_name", "emergency_contact_phone", "direct_reports" ]
     },
     {
       "class_name": "contractor",
@@ -341,9 +351,14 @@
           "field_type": "string",
           "label": "Title",
           "max_length": 100
+        },
+        "hourly_rate": {
+          "field_type": "number",
+          "label": "Hourly Rate",
+          "min_value": 0
         }
-
-      }
+      },
+      "field_order": [ "title", "hourly_rate"  ]
     },
     {
       "class_name": "salary",
@@ -362,7 +377,8 @@
           "label": "Annual Salary",
           "min_value": 0
         }
-      }
+      },
+      "field_order": [ "title", "annual_salary" ]
     },
     {
       "class_name": "hourly",
@@ -375,8 +391,24 @@
           "field_type": "string",
           "label": "Title",
           "max_length": 100
+        },
+        "hourly_rate": {
+          "field_type": "number",
+          "label": "Hourly Rate",
+          "min_value": 0
+        },
+        "holiday_rate": {
+          "field_type": "number",
+          "label": "Holiday Rate",
+          "min_value": 0
+        },
+        "overtime_rate": {
+          "field_type": "number",
+          "label": "Overtime Rate",
+          "min_value": 0
         }
-      }
+      },
+      "field_order": [ "title", "hourly_rate", "holiday_rate", "overtime_rate" ]
     },
     {
       "class_name": "encounter",
@@ -394,7 +426,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "engagement",
@@ -412,14 +445,15 @@
           "label": "Description"
         },
         "encounter": [ "encounter" ]
-      }
+      },
+      "field_order": [ "name", "description", "encounter" ] 
     },
     {
       "class_name": "asset",
       "base_class_name": "sys_object",
       "class_description": "An asset",
       "full_text": [ "name", "description" ],
-      "parents": [ "company" ],
+      "parents": [ "association" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -430,7 +464,8 @@
           "field_type": "string",
           "label": "Description"
         }
-      }
+      },
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "rms_construction_type",
@@ -451,7 +486,8 @@
           "label": "Description",
           "max_length": 250
         }
-      }
+      },
+      "field_order": [ "code", "description" ]
     },
     {
       "class_name": "rms_occupancy_type",
@@ -472,13 +508,15 @@
           "label": "Description",
           "max_length": 250
         }
-      }
+      },
+      "field_order": [ "code","description" ]
     },
     {
       "class_name": "building",
       "base_class_name": "asset",
       "class_description": "An asset",
       "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
+      "field_order": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
       "fields": {
         "latitude": {
           "field_type": "string",
@@ -526,12 +564,13 @@
           "field_type": "string",
           "label": "Deeds"
         }
-      }
+      },
+      "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
     },
     {
       "class_name": "association",
       "base_class_name": "sys_object",
-      "class_description": "An association",
+      "class_description": "Association",
       "full_text": [ "name", "description", "street", "city", "state", "zip" ],
       "parents": [],
       "fields": {
@@ -548,13 +587,14 @@
         "connections": [ "connection" ],
         "assets": [ "asset" ],
         "people": [ "person" ]
-      }
+      },
+      "field_order": [ "name", "description", "address", "connections", "assets", "people" ]
     },
 
     {
       "class_name": "vendor",
       "base_class_name": "association",
-      "class_description": "A vendor is an association",
+      "class_description": "Vendor",
       "parents": [ "company" ],
       "fields": {
 
@@ -564,7 +604,7 @@
     {
       "class_name": "client",
       "base_class_name": "association",
-      "class_description": "A client is an association ",
+      "class_description": "Client",
       "parents": [ "company" ],
       "fields": {
 
@@ -574,7 +614,7 @@
     {
       "class_name": "company",
       "base_class_name": "association",
-      "class_description": "A company",
+      "class_description": "Company",
       "fields": {
         "name": {
           "field_type": "string",
@@ -587,13 +627,14 @@
         },
         "vendors": [ "vendor" ],
         "clients": [ "client" ]
-      }
+      },
+      "field_order" : ["name", "description", "vendors", "clients"]
     },
 
     {
       "class_name": "book",
       "base_class_name": "asset",
-      "class_description": "An asset",
+      "class_description": "Book",
       "full_text": [ "author" ],
       "fields": {
         "author": {
@@ -632,7 +673,7 @@
     {
       "class_name": "movie",
       "base_class_name": "asset",
-      "class_description": "An asset",
+      "class_description": "Movie",
       "full_text": [ "director" ],
       "fields": {
         "director": {
@@ -662,7 +703,7 @@
     {
       "class_name": "board_game",
       "base_class_name": "asset",
-      "class_description": "An asset",
+      "class_description": "Board Game",
       "full_text": [ "director" ],
       "fields": {
         "hardcopy_url": {
@@ -680,7 +721,7 @@
     {
       "class_name": "video_game",
       "base_class_name": "asset",
-      "class_description": "An asset",
+      "class_description": "Video Game",
       "full_text": [ "director" ],
       "fields": {
         "hardcopy_url": {
@@ -698,7 +739,7 @@
     {
       "class_name": "library_engagement",
       "base_class_name": "engagement",
-      "class_description": "A library engagement",
+      "class_description": "Library Engagement",
       "full_text": [],
       "parents": [ "library" ],
       "fields": {
@@ -715,7 +756,7 @@
     {
       "class_name": "library",
       "base_class_name": "company",
-      "class_description": "A library in the system",
+      "class_description": "Library",
       "fields": {
         "books": [ "book" ],
         "movies": [ "movie" ],
@@ -727,7 +768,7 @@
     {
       "class_name": "tool",
       "base_class_name": "asset",
-      "class_description": "An asset",
+      "class_description": "Tool",
       "full_text": [],
       "fields": {
         "manufacturer": {
@@ -758,7 +799,7 @@
     {
       "class_name": "shop_engagement",
       "base_class_name": "engagement",
-      "class_description": "A shop engagement",
+      "class_description": "Shop Engagement",
       "full_text": [ "name", "engagement" ],
       "parents": [ "shop" ],
       "fields": {
@@ -787,7 +828,7 @@
     {
       "class_name": "shop",
       "base_class_name": "company",
-      "class_description": "A shop in the system",
+      "class_description": "Shop",
       "fields": {
         "tools": [ "tool" ],
         "movies": [ "movie" ],
@@ -797,7 +838,7 @@
     {
       "class_name": "security",
       "base_class_name": "asset",
-      "class_description": "An investment in the system",
+      "class_description": "Security (Market)",
       "fields": {
         "ticker_symbol": "string",
         "company_name": "string",
@@ -808,7 +849,7 @@
     {
       "class_name": "market_engagement",
       "base_class_name": "engagement",
-      "class_description": "A market engagement",
+      "class_description": "Market Engagement",
       "full_text": [],
       "parents": [ "market" ],
       "fields": {
@@ -826,7 +867,7 @@
     {
       "class_name": "market",
       "base_class_name": "company",
-      "class_description": "An investment in the system",
+      "class_description": "Market",
       "fields": {
         "securities": [ "security" ],
         "engagements": [ "market_engagement" ]
@@ -835,7 +876,7 @@
     {
       "class_name": "insurance_engagement",
       "base_class_name": "engagement",
-      "class_description": "An insurance engagement",
+      "class_description": "Insurance Engagement",
       "full_text": [],
       "parents": [ "insurer" ],
       "fields": {
@@ -857,7 +898,7 @@
     {
       "class_name": "insurer",
       "base_class_name": "company",
-      "class_description": "An insurance provider",
+      "class_description": "Insurance Provider",
       "fields": {
         "engagements": [ "insurance_engagement" ]
       }
@@ -865,8 +906,9 @@
     {
       "class_name": "outreach_engagement",
       "base_class_name": "engagement",
-      "class_description": "An insurance engagement",
+      "class_description": "Outreach Engagement",
       "full_text": [],
+      "parents": [ "outreacher" ],
       "fields": {
         "interviews": {
           "field_type": "string",
@@ -885,7 +927,7 @@
     {
       "class_name": "outreacher",
       "base_class_name": "company",
-      "class_description": "A community outreach and engagement",
+      "class_description": "Outreach Organization",
       "parents": [ "outreacher" ],
       "fields": {
         "outreacher_engagements": [ "outreach_engagement" ]
@@ -894,7 +936,8 @@
     {
       "class_name": "advocate_engagement",
       "base_class_name": "engagement",
-      "class_description": "An insurance engagement",
+      "class_description": "Advocate Engagement",
+      "parents": [ "advocate" ],
       "full_text": [],
       "fields": {
         "interviews": {
@@ -914,8 +957,7 @@
     {
       "class_name": "advocate",
       "base_class_name": "company",
-      "class_description": "A community outreach and engagement",
-      "parents": [ "advocate" ],
+      "class_description": "Advocacy Organization",
       "fields": {
         "engagements": [ "advocate_engagement" ]
       }
@@ -923,7 +965,7 @@
     {
       "class_name": "legal_engagement",
       "base_class_name": "engagement",
-      "class_description": "A legal engagement",
+      "class_description": "Legal Engagement",  
       "full_text": [],
       "parents": [ "law_firm" ],
       "fields": {
@@ -938,7 +980,7 @@
     {
       "class_name": "law_firm",
       "base_class_name": "company",
-      "class_description": "A law firm in the system",
+      "class_description": "Law Firm",
       "fields": {
         "engagements": [ "legal_engagement" ]
       }
@@ -946,7 +988,7 @@
     {
       "class_name": "bank_engagement",
       "base_class_name": "engagement",
-      "class_description": "A bank engagement",
+      "class_description": "Bank Engagement",
       "full_text": [],
       "parents": [ "bank" ],
       "fields": {
@@ -960,7 +1002,7 @@
     {
       "class_name": "bank",
       "base_class_name": "company",
-      "class_description": "A bank in the system",
+      "class_description": "Bank",
       "fields": {
         "engagements": [ "bank_engagement" ]
       }
@@ -968,7 +1010,7 @@
     {
       "class_name": "court_engagement",
       "base_class_name": "engagement",
-      "class_description": "A court engagement",
+      "class_description": "Court Engagement",
       "full_text": [],
       "parents": [ "court" ],
       "fields": {
@@ -993,14 +1035,14 @@
     {
       "class_name": "court",
       "base_class_name": "company",
-      "class_description": "A court in the system",
+      "class_description": "Court",
       "fields": {
       }
     },
     {
       "class_name": "permit_engagement",
       "base_class_name": "engagement",
-      "class_description": "A permit engagement",
+      "class_description": "Permit Engagement",
       "full_text": [],
       "parents": [ "permitter" ],
       "fields": {
@@ -1025,16 +1067,16 @@
     {
       "class_name": "permitter",
       "base_class_name": "company",
-      "class_description": "A permitter in the system",
+      "class_description": "Permitter - Issues Permits",
       "fields": {
       }
     },
     {
       "class_name": "medical_engagement",
       "base_class_name": "engagement",
-      "class_description": "A medical engagement",
+      "class_description": "Medical Engagement",
       "full_text": [
-        "sympoms",
+        "symptoms",
         "triage",
         "exams",
         "treatment_plan",
@@ -1067,7 +1109,7 @@
     {
       "class_name": "medical",
       "base_class_name": "company",
-      "class_description": "A medical center in the system",
+      "class_description": "Medical Center",
       "fields": {
       }
     },
@@ -1389,7 +1431,17 @@
       "phone": "default",
       "email": "default",
       "fax": "default",
-      "web": "default"
+      "web": "default",
+
+      "sys_schema": "default",
+      "sys_dataset": "default",
+      "sys_object": "default",
+      "sys_server": "default",
+      "sys_command": "default",
+      "sys_team": "default",
+      "sys_grant": "default",
+      "sys_user": "default",
+      "sys_error": "default"
     },
     "objects": [
       {
@@ -1521,7 +1573,7 @@
             "charts": [
               {
                 "chart_button_name": "chart_association_counts_button",
-                "chart_button_text": "Association Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_association",
                 "chart": {
@@ -1569,7 +1621,7 @@
             "charts": [
               {
                 "chart_button_name": "asset_counts_button",
-                "chart_button_text": "Asset Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_asset",
                 "chart": {
@@ -1617,7 +1669,7 @@
             "charts": [
               {
                 "chart_button_name": "people_counts_button",
-                "chart_button_text": "People Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_person",
                 "chart": {
@@ -1673,7 +1725,7 @@
             "charts": [
               {
                 "chart_button_name": "record_counts_button",
-                "chart_button_text": "Record Types",
+                "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
                 "chart_class": "chart_record",
                 "chart": {
@@ -1705,7 +1757,66 @@
                 }
               }
             ]
+          },
+          {
+            "title": "System",
+            "classes": [
+              "sys_object"
+            ],
+            "new_objects": [
+              "sys_schema",
+              "sys_dataset",
+              "sys_object",
+              "sys_server",
+              "sys_command",
+              "sys_team",
+              "sys_grant",
+              "sys_user",
+              "sys_error"
+            ],
+            "result_text": "{count} objects",
+            "edit_text": "Editing object",
+            "result_text_control": "search_prompt_text",
+            "edit_text_control": "edit_prompt_text",
+            "commands_control": "new_object_commands",
+            "chart_class": "chart_object",
+            "charts": [
+              {
+                "chart_button_name": "object_counts_button",
+                "chart_button_text": "Types",
+                "chart_button_image": "assets\\chart_bar.png",
+                "chart_class": "chart_object",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
           }
+
         ]
       }
     }

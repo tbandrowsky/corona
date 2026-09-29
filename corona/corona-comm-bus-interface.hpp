@@ -63,6 +63,51 @@ namespace corona
 
 		virtual void play_audio(audio_function _generator, float _volume = 1.0f, double _duration = -1.0) = 0;
 
+		virtual corona_client_response remote_register_user(json _user) = 0;
+		virtual corona_client_response remote_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
+		virtual corona_client_response remote_send_user(std::string _user_name) = 0;
+		virtual corona_client_response remote_login(std::string _user_name, std::string _password) = 0;
+		virtual corona_client_response remote_login() = 0;
+		virtual corona_client_response remote_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
+		virtual corona_client_response remote_get_classes() = 0;
+		virtual corona_client_response remote_get_class(std::string class_name) = 0;
+		virtual corona_client_response remote_put_class(json _class_data) = 0;
+		virtual corona_client_response remote_create_object(std::string class_name) = 0;
+		virtual corona_client_response remote_run_object(json object_information) = 0;
+		virtual corona_client_response remote_edit_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
+		virtual corona_client_response remote_put_object(json object_information) = 0;
+		virtual corona_client_response remote_get_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
+		virtual corona_client_response remote_delete_object(std::string _class_name, int64_t _object_id) = 0;
+		virtual corona_client_response remote_query_objects(json object_information) = 0;
+		virtual corona_client_response remote_query(json query_body) = 0;
+		virtual corona_client_response remote_add_item_chest(json add_to_chest_request) = 0;
+		virtual corona_client_response remote_remove_item_chest(json remove_from_chest_request) = 0;
+		virtual corona_client_response remote_move_item_chest(json move_chest_request) = 0;
+		virtual corona_client_response remote_copy_object(json move_chest_request) = 0;
+
+		virtual corona_client_response local_register_user(json _user) = 0;
+		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
+		virtual corona_client_response local_send_user(std::string _user_name) = 0;
+		virtual corona_client_response local_login(std::string _user_name, std::string _password) = 0;
+		virtual corona_client_response local_login() = 0;
+		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
+		virtual corona_client_response local_get_classes() = 0;
+		virtual corona_client_response local_get_class(std::string class_name) = 0;
+		virtual corona_client_response local_put_class(json _class_data) = 0;
+		virtual corona_client_response local_create_object(std::string class_name) = 0;
+		virtual corona_client_response local_run_object(json object_information) = 0;
+		virtual corona_client_response local_edit_object(std::string _class_name, int64_t _object_id) = 0;
+		virtual corona_client_response local_put_object(json object_information) = 0;
+		virtual corona_client_response local_get_object(json object_information) = 0;
+		virtual corona_client_response local_delete_object(json object_information) = 0;
+		virtual corona_client_response local_query_objects(json object_information) = 0;
+		virtual corona_client_response local_query(json query_body) = 0;
+		virtual corona_client_response local_copy_object(json query_body) = 0;
+		virtual corona_client_response local_add_item_chest(json add_to_chest_request) = 0;
+		virtual corona_client_response local_remove_item_chest(json remove_from_chest_request) = 0;
+		virtual corona_client_response local_move_item_chest(json move_chest_request) = 0;
+
+
 	};
 
     class comm_desktop_bus_interface : public comm_bus_interface
@@ -114,49 +159,7 @@ namespace corona
 		virtual HINSTANCE get_instance() = 0;
 		virtual std::string get_application_name() = 0;
 
-		virtual corona_client_response remote_register_user(json _user) = 0;
-		virtual corona_client_response remote_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
-		virtual corona_client_response remote_send_user(std::string _user_name) = 0;
-		virtual corona_client_response remote_login(std::string _user_name, std::string _password) = 0;
-		virtual corona_client_response remote_login() = 0;
-		virtual corona_client_response remote_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
-		virtual corona_client_response remote_get_classes() = 0;
-		virtual corona_client_response remote_get_class(std::string class_name) = 0;
-		virtual corona_client_response remote_put_class(json _class_data) = 0;
-		virtual corona_client_response remote_create_object(std::string class_name) = 0;
-		virtual corona_client_response remote_run_object(json object_information) = 0;
-		virtual corona_client_response remote_edit_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
-		virtual corona_client_response remote_put_object(json object_information) = 0;
-		virtual corona_client_response remote_get_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
-		virtual corona_client_response remote_delete_object(std::string _class_name, int64_t _object_id) = 0;
-		virtual corona_client_response remote_query_objects(json object_information) = 0;
-		virtual corona_client_response remote_query(json query_body) = 0;
-		virtual corona_client_response remote_add_item_chest(json add_to_chest_request) = 0;
-		virtual corona_client_response remote_remove_item_chest(json remove_from_chest_request) = 0;
-		virtual corona_client_response remote_move_item_chest(json move_chest_request) = 0;
-		virtual corona_client_response remote_copy_object(json move_chest_request) = 0;
 
-		virtual corona_client_response local_register_user(json _user) = 0;
-		virtual corona_client_response local_confirm_user(std::string _user_name, std::string _confirmation_code) = 0;
-		virtual corona_client_response local_send_user(std::string _user_name) = 0;
-		virtual corona_client_response local_login(std::string _user_name, std::string _password) = 0;
-		virtual corona_client_response local_login() = 0;
-		virtual corona_client_response local_set_password(std::string user_name, std::string validation_code, std::string password1, std::string password2) = 0;
-		virtual corona_client_response local_get_classes() = 0;
-		virtual corona_client_response local_get_class(std::string class_name) = 0;
-		virtual corona_client_response local_put_class(json _class_data) = 0;
-		virtual corona_client_response local_create_object(std::string class_name) = 0;
-		virtual corona_client_response local_run_object(json object_information) = 0;
-		virtual corona_client_response local_edit_object(std::string _class_name, int64_t _object_id) = 0;
-		virtual corona_client_response local_put_object(json object_information) = 0;
-		virtual corona_client_response local_get_object(json object_information) = 0;
-		virtual corona_client_response local_delete_object(json object_information) = 0;
-		virtual corona_client_response local_query_objects(json object_information) = 0;
-		virtual corona_client_response local_query(json query_body) = 0;
-		virtual corona_client_response local_copy_object(json query_body) = 0;
-		virtual corona_client_response local_add_item_chest(json add_to_chest_request) = 0;
-		virtual corona_client_response local_remove_item_chest(json remove_from_chest_request) = 0;
-		virtual corona_client_response local_move_item_chest(json move_chest_request) = 0;
 
 		virtual void update_focus_list() = 0;
 
