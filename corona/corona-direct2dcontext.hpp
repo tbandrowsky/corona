@@ -125,6 +125,8 @@ namespace corona
 		{
 		}
 
+		std::string asset_path;
+
 		virtual void clear(ccolor* _color)
 		{
 			D2D1_COLOR_F color;
@@ -147,6 +149,11 @@ namespace corona
 			std::string filename, name;
 
 			filename = _bitmap->filename.c_str();
+
+            if (std::filesystem::path(filename).is_relative()) {
+                filename = asset_path + filename;
+            }
+
 			name = _bitmap->name.c_str();
 
 			std::list<sizeCrop> sizes;

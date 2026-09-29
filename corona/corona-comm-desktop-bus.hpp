@@ -108,6 +108,7 @@ namespace corona
 
 		desktop_app_bus(std::string _config_path,
 			std::string _database_path,
+			std::string _asset_path,
 			json _system_config,
 			json _server_config,
 			bool _database_recreate = true)
@@ -115,6 +116,7 @@ namespace corona
 			poll_db_enabled = !corona::corona_db_read_only;
 
 			gui_thread_id = GetCurrentThreadId();
+			asset_path = _asset_path;
 
 			system_monitoring_interface::start(); // this will create the global log queue.
 

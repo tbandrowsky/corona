@@ -76,19 +76,23 @@ namespace corona
 		char dir[500];
 		GetModuleFileNameA(NULL, dir, 500);
 
-        std::string config_path = std::filesystem::path(dir).parent_path().string();
+        std::string local_asset_path = std::filesystem::path(dir).parent_path().string();
+        std::string local_config_path = local_asset_path;
 
-		config_path += "\\configuration\\";
+		local_config_path += "\\configuration\\";
+        local_asset_path += "\\assets\\";
 
 		if constexpr (use_project_for_config) {
-			config_path = "D:\\countrybit\\coronaproject\\configuration\\";
+			local_config_path = "D:\\countrybit\\coronaproject\\configuration\\";
+			local_asset_path = "D:\\countrybit\\coronaproject\\assets\\";
 		}
 
 		std::string database_path;
 
-        std::cout << "Config path: " << config_path << std::endl;
+        std::cout << "Config src path: " << local_config_path << std::endl;
+        std::cout << "Asset src path: " << local_asset_path << std::endl;
 
-		std::string config_full_file = config_path + config_filename;
+		std::string config_full_file = local_config_path + config_filename;
 		std::string config_contents = corona::read_all_string(config_full_file);
 
         json config_json = corona::json_parser().parse_object(config_contents);
@@ -103,6 +107,9 @@ namespace corona
             }
 		}
 
+        std::string config_path = local_config_path;
+        std::string asset_path = local_asset_path;
+
 		// database path
 		PWSTR userFolderPath = nullptr;
 		HRESULT result = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userFolderPath);
@@ -110,11 +117,32 @@ namespace corona
 		if (result == S_OK) {
 			istring<4096> dataPath(userFolderPath);
 
+			std::filesystem::path app_data_path = dataPath.c_str();
 			std::filesystem::path application_path = my_application_name;
-			std::filesystem::path database_path_path = dataPath.c_str();
-			database_path_path /= application_path;
+			app_data_path /= application_path;
+			std::filesystem::path database_path_path = app_data_path;
+            database_path_path = database_path_path / "database";
 			database_path = database_path_path.string();
 			CoTaskMemFree(userFolderPath); // Free memory allocated by SHGetKnownFolderPath
+
+            std::filesystem::path config_path_path = app_data_path;
+			config_path_path /= "configuration";
+            config_path = config_path_path.string();
+
+            if (!std::filesystem::exists(config_path)) {
+                std::filesystem::create_directories(config_path);
+				std::filesystem::copy(local_config_path, config_path, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            }
+
+			std::filesystem::path asset_path_path = app_data_path;
+			asset_path_path /= "assets";
+			asset_path = asset_path_path.string();
+
+			if (!std::filesystem::exists(asset_path)) {
+				std::filesystem::create_directories(asset_path);
+				std::filesystem::copy(local_asset_path, asset_path, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+			}
+
 		}
 		else 
 		{
@@ -145,6 +173,7 @@ namespace corona
 				try {
 					service = std::make_shared<corona::desktop_app_bus>(
 						config_path,
+						asset_path,
 						database_path,
 						config,
 						server,

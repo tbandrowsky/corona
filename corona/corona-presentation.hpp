@@ -427,6 +427,7 @@ namespace corona {
 				auto window = phost->getWindow();
 				if (auto pwindow = window.lock()) {
 					auto context = pwindow->getContext();
+					context->asset_path = bus->asset_path;
 					cp->create(context, phost);
 				}
 				cp->subscribe(this);

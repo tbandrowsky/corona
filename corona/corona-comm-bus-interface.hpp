@@ -126,6 +126,7 @@ namespace corona
 		time_t elapsed_seconds = 0;
 
 		static comm_desktop_bus_interface* global_bus;
+		std::string asset_path;
 
 		comm_desktop_bus_interface()
 		{
