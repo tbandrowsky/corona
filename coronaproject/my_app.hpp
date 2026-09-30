@@ -66,6 +66,19 @@ namespace corona
 
 	/* And now, this is the application */
 
+    void copy_if_newer(const std::filesystem::path& source, const std::filesystem::path& destination)
+    {
+        if (!std::filesystem::exists(destination))
+        {
+			std::filesystem::create_directories(destination);
+           	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);			
+		}
+		else if (std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
+		{
+			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
+		}
+	}
+
 	void my_app(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
 
@@ -128,21 +141,12 @@ namespace corona
             std::filesystem::path config_path_path = app_data_path;
 			config_path_path /= "configuration";
             config_path = config_path_path.string();
-
-            if (!std::filesystem::exists(config_path)) {
-                std::filesystem::create_directories(config_path);
-				std::filesystem::copy(local_config_path, config_path, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
-            }
+            copy_if_newer(local_config_path, config_path);
 
 			std::filesystem::path asset_path_path = app_data_path;
 			asset_path_path /= "assets";
 			asset_path = asset_path_path.string();
-
-			if (!std::filesystem::exists(asset_path)) {
-				std::filesystem::create_directories(asset_path);
-				std::filesystem::copy(local_asset_path, asset_path, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
-			}
-
+			copy_if_newer(local_asset_path, asset_path);
 		}
 		else 
 		{
@@ -173,8 +177,8 @@ namespace corona
 				try {
 					service = std::make_shared<corona::desktop_app_bus>(
 						config_path,
-						asset_path,
 						database_path,
+						asset_path,
 						config,
 						server,
 						true);

@@ -2073,7 +2073,7 @@ namespace corona
 			return result;
 		}
 
-		virtual void set_form_errors(std::string _form_name, std::vector<validation_error>& _errors)
+		virtual void set_form_errors(std::string _form_name, const validation_error_collection& _errors)
 		{
 			control_base *ctrl = presentation_layer->find_ptr<control_base>(_form_name);
 			if (ctrl) {

@@ -501,26 +501,38 @@ namespace corona
 			return _data;
 		}
 
-		virtual void set_error(validation_error& _errors)
-		{
-			for (auto child : children) {
-				child->set_error(_errors);
-            }
-		}
-
-		virtual void clear_error()
-		{
+		virtual void set_error(const validation_error& _errors) 
+		{ 
 
 		}
 
-		virtual void set_errors(std::vector<validation_error>& _errors)
+		virtual void clear_error() 
 		{
-			for (auto error : _errors)
+
+		}
+
+		virtual void set_errors(const validation_error_collection& _errors)
+		{
+			for (auto it = _errors.cbegin(); it != _errors.cend(); ++it)
 			{
-                control_base* b = find_by_json_name(error.field_name);
-				if (b) {
-					b->set_error(error);
+				const auto& error = *it;
+				if (error.field_name == json_field_name) {
+					set_error(error);
 				}
+				else 
+				{
+                    for (auto child : children) {
+                        child->set_errors(_errors);
+                    }
+				}
+			}
+		}
+
+		virtual void clear_errors()
+		{
+			clear_error();
+			for (auto child : children) {
+                child->clear_errors();
 			}
 		}
 

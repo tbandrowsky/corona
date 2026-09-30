@@ -107,6 +107,9 @@ namespace corona
 		auto end() { return errors.end(); }
 		auto size() { return errors.size(); }
 
+		auto cbegin() const { return errors.cbegin(); }
+		auto cend() const { return errors.cend(); }
+		
         void clear() { errors.clear(); }
 	};
 

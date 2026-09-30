@@ -51,7 +51,7 @@
     {
       "class_name": "address",
       "base_class_name": "sys_object",
-      "class_description": "A physical address",
+      "class_description": "Address",
       "parents": [ "person", "property", "association" ],
       "full_text": [ "street", "building", "city", "state", "zip", "country" ],
       "fields": {
@@ -73,12 +73,64 @@
         "state": {
           "field_type": "string",
           "label": "State",
-          "max_length": 100
+          "max_length": 100,
+          "enumeration": [
+            "AL",
+            "AK",
+            "AZ",
+            "AR",
+            "CA",
+            "CO",
+            "CT",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "ID",
+            "IL",
+            "IN",
+            "IA",
+            "KS",
+            "KY",
+            "LA",
+            "ME",
+            "MD",
+            "MA",
+            "MI",
+            "MN",
+            "MS",
+            "MO",
+            "MT",
+            "NE",
+            "NV",
+            "NH",
+            "NJ",
+            "NM",
+            "NY",
+            "NC",
+            "ND",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VT",
+            "VA",
+            "WA",
+            "WV",
+            "WI",
+            "WY"
+          ]
         },
         "zip": {
           "field_type": "string",
           "label": "Zip Code",
-          "max_length": 20
+          "max_length": 10
         },
         "country": {
           "field_type": "string",
@@ -91,7 +143,7 @@
     {
       "class_name": "connection",
       "base_class_name": "sys_object",
-      "class_description": "A connection in the system",
+      "class_description": "Connection (ex Phone / Email)",
       "parents": [ "person", "association" ],
       "fields": {
         "note": "string"
@@ -100,15 +152,20 @@
     {
       "class_name": "phone",
       "base_class_name": "connection",
-      "class_description": "A phone number",
+      "class_description": "Phone Number",
       "fields": {
-        "phone": "string"
+        "phone": {
+          "field_type": "string",
+          "label": "Phone",
+          "max_length": 20,
+          "match_pattern": "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$"
+        }
       }
     },
     {
       "class_name": "email",
       "base_class_name": "connection",
-      "class_description": "An email address",
+      "class_description": "E-Mail Address",
       "fields": {
         "email": "string"
       }
@@ -116,7 +173,7 @@
     {
       "class_name": "fax",
       "base_class_name": "connection",
-      "class_description": "A fax number",
+      "class_description": "Fax Number",
       "fields": {
         "fax": "string"
       }
@@ -124,7 +181,7 @@
     {
       "class_name": "web",
       "base_class_name": "connection",
-      "class_description": "A web address",
+      "class_description": "Web Address",
       "fields": {
         "url": "string"
       }
@@ -132,7 +189,7 @@
     {
       "class_name": "record",
       "base_class_name": "sys_object",
-      "class_description": "A record of something, financial",
+      "class_description": "Legal Record",
       "parents": [ "association", "person" ],
       "fields": {
         "name": {
@@ -150,7 +207,7 @@
     {
       "class_name": "minutes",
       "base_class_name": "record",
-      "class_description": "meeting minutes",
+      "class_description": "Meeting Minutes",
       "fields": {
         "location": {
           "field_type": "string",
@@ -166,7 +223,7 @@
     {
       "class_name": "contract",
       "base_class_name": "record",
-      "class_description": "A contract",
+      "class_description": "Contract",
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -182,7 +239,7 @@
     {
       "class_name": "deed",
       "base_class_name": "record",
-      "class_description": "A deed",
+      "class_description": "Deed",
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -198,7 +255,7 @@
     {
       "class_name": "ruling",
       "base_class_name": "record",
-      "class_description": "A court ruling",
+      "class_description": "Court Ruling",
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -214,7 +271,7 @@
     {
       "class_name": "title",
       "base_class_name": "record",
-      "class_description": "A title",
+      "class_description": "Title",
       "parents": [],
       "fields": {
         "general_terms": {
@@ -231,7 +288,7 @@
     {
       "class_name": "service_call",
       "base_class_name": "record",
-      "class_description": "A service call",
+      "class_description": "Service Call",
       "parents": [
         "vendor",
         "client"
@@ -251,7 +308,7 @@
     {
       "class_name": "product",
       "base_class_name": "sys_object",
-      "class_description": "A product",
+      "class_description": "Product",
       "parents": [ "company", "cart" ],
       "fields": {
         "name": {
@@ -272,7 +329,7 @@
     {
       "class_name": "cart",
       "base_class_name": "sys_object",
-      "class_description": "A cart",
+      "class_description": "Cart",
       "parents": [],
       "fields": {
         "name": {
@@ -292,19 +349,21 @@
     {
       "class_name": "person",
       "base_class_name": "sys_object",
-      "class_description": "A person",
+      "class_description": "Person",
       "full_text": [ "first_name", "last_name", "street", "city", "state", "zip" ],
-      "parents": [ "association" ],
+      "parents": [ "association", "employee" ],
       "fields": {
         "first_name": {
           "field_type": "string",
           "label": "First Name",
-          "max_length": 50
+          "max_length": 50,
+          "match_pattern": "[A-Za-z\\w]+"
         },
         "last_name": {
           "field_type": "string",
           "label": "Last Name",
-          "max_length": 50
+          "max_length": 50,
+          "match_pattern": "[A-Za-z\\w]+"
         },
         "connections": [ "connection" ],
         "addresses": [ "address" ]
@@ -314,7 +373,7 @@
     {
       "class_name": "employee",
       "base_class_name": "person",
-      "class_description": "An employee",
+      "class_description": "Employee",
       "full_text": [ "title" ],
       "parents": [],
       "fields": {
@@ -328,22 +387,14 @@
           "label": "National ID",
           "max_length": 50
         },
-        "emergency_contact_name": {
-          "field_type": "string",
-          "label": "Emergency Contact"
-        },
-        "emergency_contact_phone": {
-          "field_type": "string",
-          "label": "Emergency Contact Phone"
-        },
-        "direct_reports": [ "employee" ]
+        "emergency_contact": [ "person" ]
       },
       "field_order": [ "title", "national_id", "emergency_contact_name", "emergency_contact_phone", "direct_reports" ]
     },
     {
       "class_name": "contractor",
       "base_class_name": "employee",
-      "class_description": "A contractor",
+      "class_description": "Contractor",
       "full_text": [ "title" ],
       "parents": [],
       "fields": {
@@ -358,12 +409,12 @@
           "min_value": 0
         }
       },
-      "field_order": [ "title", "hourly_rate"  ]
+      "field_order": [ "title", "hourly_rate" ]
     },
     {
       "class_name": "salary",
       "base_class_name": "employee",
-      "class_description": "A salary worker",
+      "class_description": "Salaried Worker",
       "full_text": [ "title" ],
       "parents": [],
       "fields": {
@@ -376,14 +427,15 @@
           "field_type": "number",
           "label": "Annual Salary",
           "min_value": 0
-        }
+        },
+        "direct_reports": [ "employee" ]
       },
-      "field_order": [ "title", "annual_salary" ]
+      "field_order": [ "title", "annual_salary", "direct_reports" ]
     },
     {
       "class_name": "hourly",
       "base_class_name": "employee",
-      "class_description": "An hourly worker",
+      "class_description": "Hourly Worker",
       "full_text": [ "title" ],
       "parents": [],
       "fields": {
@@ -395,17 +447,20 @@
         "hourly_rate": {
           "field_type": "number",
           "label": "Hourly Rate",
-          "min_value": 0
+          "min_value": 0,
+          "max_value": 1000
         },
         "holiday_rate": {
           "field_type": "number",
           "label": "Holiday Rate",
-          "min_value": 0
+          "min_value": 0,
+          "max_value": 1000
         },
         "overtime_rate": {
           "field_type": "number",
           "label": "Overtime Rate",
-          "min_value": 0
+          "min_value": 0,
+          "max_value": 1000
         }
       },
       "field_order": [ "title", "hourly_rate", "holiday_rate", "overtime_rate" ]
@@ -1574,7 +1629,7 @@
               {
                 "chart_button_name": "chart_association_counts_button",
                 "chart_button_text": "Types",
-                "chart_button_image": "assets\\chart_bar.png",
+                "chart_button_image": "chart_bar.png",
                 "chart_class": "chart_association",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1670,7 +1725,7 @@
               {
                 "chart_button_name": "people_counts_button",
                 "chart_button_text": "Types",
-                "chart_button_image": "assets\\chart_bar.png",
+                "chart_button_image": "chart_bar.png",
                 "chart_class": "chart_person",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1726,7 +1781,7 @@
               {
                 "chart_button_name": "record_counts_button",
                 "chart_button_text": "Types",
-                "chart_button_image": "assets\\chart_bar.png",
+                "chart_button_image": "chart_bar.png",
                 "chart_class": "chart_record",
                 "chart": {
                   "class_name": "bar_chart",
@@ -1784,7 +1839,7 @@
               {
                 "chart_button_name": "object_counts_button",
                 "chart_button_text": "Types",
-                "chart_button_image": "assets\\chart_bar.png",
+                "chart_button_image": "chart_bar.png",
                 "chart_class": "chart_object",
                 "chart": {
                   "class_name": "bar_chart",

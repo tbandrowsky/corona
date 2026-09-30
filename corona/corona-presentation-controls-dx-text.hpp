@@ -449,7 +449,7 @@ namespace corona
 		status_control(const status_control& _src) = default;
 		status_control(control_base* _parent, int _id);
 
-		virtual void set_error(validation_error& _ve)
+		virtual void set_error(const validation_error& _ve) override
 		{
 			children.clear();
 			status_set = true;
@@ -463,7 +463,7 @@ namespace corona
 		virtual void clear_error()
 		{
 			children.clear();
-			status_set = true;
+			status_set = false;
 			arrange_children();
 		}
 
@@ -493,6 +493,7 @@ namespace corona
 			}
 			return status_set;
 		}
+
 
 		virtual std::shared_ptr<control_base> clone()
 		{

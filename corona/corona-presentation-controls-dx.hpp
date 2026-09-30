@@ -1589,7 +1589,7 @@ namespace corona
     {
         image_mode = image_modes::use_filename;
         image_filename = _name;
-        instance.bitmapName = std::format("bitmap_file_{0}_{1}", _name, (int)this);
+        instance.bitmapName = std::format("bitmap_file_{0}", _name);
     }
 
     void image_control::load_from_resource(DWORD _resource_id)
@@ -1664,7 +1664,7 @@ namespace corona
             request.cropEnabled = false;
             point pt = { inner_bounds.w, inner_bounds.h };
             request.sizes.push_back(pt);
-            _context->setBitmap(&request);
+            _context->setBitmap(&request); 
             break;
         }
         break;

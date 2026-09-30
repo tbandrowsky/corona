@@ -198,7 +198,7 @@
                 {
                   "class_name": "command_button",
                   "name": "back_object",
-                  "image": "assets\\back.png",
+                  "image": "back.png",
                   "text": "back",
                   "box": {
                     "width": "100 pixels",
@@ -213,7 +213,7 @@
                 {
                   "class_name": "command_button",
                   "name": "next_object",
-                  "image": "assets\\forward.png",
+                  "image": "forward.png",
                   "text": "forward",
                   "box": {
                     "width": "100  pixels",
@@ -228,7 +228,7 @@
                 {
                   "class_name": "command_button",
                   "name": "save_object",
-                  "image": "assets\\save.png",
+                  "image": "save.png",
                   "text": "save",
                   "box": {
                     "width": "100  pixels",
@@ -243,7 +243,7 @@
                 {
                   "class_name": "command_button",
                   "name": "delete_object",
-                  "image": "assets\\trash.png",
+                  "image": "trash.png",
                   "text": "delete",
                   "box": {
                     "width": "100  pixels",

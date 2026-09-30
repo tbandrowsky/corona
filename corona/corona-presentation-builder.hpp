@@ -137,20 +137,21 @@ namespace corona
 			return tv;
 		}
 
-		virtual void set_error(validation_error& _error)
+		virtual void set_error(const validation_error& _error) override
 		{
 			status->set_error(_error);
 		}
 		
-		virtual void clear_error()
+		virtual void clear_error() override
 		{
 			status->clear_error();
 		}
 
+
 		virtual void get_json(json& _dest)
 		{
 			json_parser jp;
-			control_base::get_json(_dest);
+			layout_container::get_json(_dest);
 			if (label) {
 				json label_json = jp.create_object();
 				label->get_json(label_json);
@@ -170,7 +171,7 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
-			control_base::put_json(_src);
+			layout_container::put_json(_src);
 
 			label = std::make_shared<edit_label_control>();
 			auto label_json = _src["label"];
@@ -200,11 +201,10 @@ namespace corona
 				field->box = field_box;
 			}
 
-			if (_src.has_member("json_field_name")) {
-				field->json_field_name = _src["json_field_name"].as_string();
-			}
-
 			status = std::make_shared<status_control>();
+			status->json_field_name = field->json_field_name;
+			layout_container::json_field_name = field->json_field_name;
+
 			auto status_json = _src["status"];
 			if (!label_json.object() || !field_json.has_member("box")) {
 				status->box = status_box;

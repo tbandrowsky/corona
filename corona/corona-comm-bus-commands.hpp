@@ -1574,25 +1574,31 @@ namespace corona
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
 			auto response = _bus->put_object(instance, request);
+            if (response.errors.size() > 0) {
+                return response;
+			}
+
 			std::string class_name = request["class_name"].as_string();
 			if (response.data.has_member(class_name)) {
                 response = _bus->edit_object(instance, request);
 				json obj = response.data["object"];
 				response.cooked_data = obj;
 			}
+
 			return response;
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
-			if (response.cooked_data.object()) {
-				control_base* cb = _bus->find_control(form_name);
-				if (cb) {
-					json_object obj;
+			control_base* cb = _bus->find_control(form_name);
+			if (cb) {
+				json_object obj;
+				if (response.cooked_data.object()) {
 					auto v = response.cooked_data.value();
-                    obj = v;
+					obj = v;
 					cb->set_data(obj);
 					_bus->object_updated(obj);
 				}
+                cb->set_errors(response.errors);
 			}
 			return response.data;
 		}

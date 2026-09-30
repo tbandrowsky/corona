@@ -151,7 +151,9 @@ namespace corona
 			filename = _bitmap->filename.c_str();
 
             if (std::filesystem::path(filename).is_relative()) {
-                filename = asset_path + filename;
+                std::filesystem::path asset_path_fs(asset_path);
+                asset_path_fs /= filename;
+                filename = asset_path_fs.string();
             }
 
 			name = _bitmap->name.c_str();

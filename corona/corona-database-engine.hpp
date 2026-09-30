@@ -9084,7 +9084,7 @@ private:
 
 								{
 				  "class_name": "command_button",
-				  "image": "assets\\day.png",
+				  "image": "day.png",
 				  "box": "button_box",
 				  "margin": "button_margin",
 				  "text": "today",
@@ -9429,7 +9429,7 @@ private:
 								create_command.apply_abbreviations({
 									{ "$create_button_class", jp.from_string(sgclassd->get_class_name()) },
 									{ "$create_button_name", jp.from_string("create_" + sgclassd->get_class_name() + "_button") },
-									{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", sgclassd->get_class_name())) },
+									{ "$create_button_image", jp.from_string(std::format("{}.png", sgclassd->get_class_name())) },
 									{ "$create_button_text", jp.from_string(sgclassd->get_class_name()) },
 									{ "$create_button_message", jp.from_string("new " + sgclassd->get_class_name()) },
 									{ "$class_edit_page", form_sources[sgclassd->get_class_name()] }
@@ -9485,7 +9485,7 @@ private:
 								search_command.apply_abbreviations({
 	{ "$search_button_class", jp.from_string(sgclassd->get_class_name()) },
 	{ "$search_button_name", jp.from_string("query_" + sgclassd->get_class_name() + "_button") },
-	{ "$search_button_image", jp.from_string(std::format("assets\\{}.png", sgclassd->get_class_name())) },
+	{ "$search_button_image", jp.from_string(std::format("{}.png", sgclassd->get_class_name())) },
 	{ "$search_button_text", jp.from_string(sgclassd->get_class_name()) },
 	{ "$result_text_control", jp.from_string(sg_search_results_control) },
 	{ "$edit_text_control", jp.from_string(sg_search_edit_control) },
@@ -9794,7 +9794,7 @@ private:
 			// Set icon
 			auto parameters = tab_edit_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+				parameters.put_member("$icon_image_file", class_name + ".png");
 
 				// Populate card contents
 				auto contents = parameters["$card_contents"];
@@ -9885,7 +9885,7 @@ private:
 			// Set icon
 			auto parameters = tab_edit_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + classd->get_class_name() + ".png");
+				parameters.put_member("$icon_image_file", classd->get_class_name() + ".png");
 			}
 
 			// Populate card contents
@@ -9952,7 +9952,7 @@ private:
 			// Set icon
 			auto parameters = tab_list_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+				parameters.put_member("$icon_image_file", class_name + ".png");
 
 				json tab_create_commands = jp.create_array();
 
@@ -9980,7 +9980,7 @@ private:
 			// Set icon
 			auto parameters = tab_custom_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+				parameters.put_member("$icon_image_file", class_name + ".png");
 
 				json tab_create_commands = jp.create_array();
 
@@ -10006,7 +10006,7 @@ private:
 			// Set icon
 			auto parameters = tab_list_page.find_member("using.parameters");
 			if (parameters.object()) {
-				parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+				parameters.put_member("$icon_image_file", class_name + ".png");
 
                 json tab_create_commands = jp.create_array();
 
@@ -10020,7 +10020,7 @@ private:
 					new_item.apply_abbreviations({
 							{ "$create_button_class", jp.from_string(allowed_class) },
 							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
-							{ "$create_button_image", jp.from_string(std::format("assets\\{}.png", allowed_class)) },
+							{ "$create_button_image", jp.from_string(std::format("{}.png", allowed_class)) },
 							{ "$create_button_text", jp.from_string(allowed_class) },
 							{ "$create_button_message", jp.from_string("new " + allowed_class) },
 							{ "$class_edit_page", form_sources[allowed_class] }
@@ -10096,7 +10096,7 @@ private:
 			auto src_tabs = class_mappings["page"]["tabs"];
             auto dest_tabs = object_page.find_member("using.parameters.$details_contents.tabs");
 			auto parameters = object_page.find_member("using.parameters");
-            parameters.put_member("$icon_image_file", "assets\\" + class_name + ".png");
+            parameters.put_member("$icon_image_file", class_name + ".png");
 
 			if (!src_tabs.array()) {
 				return result;
