@@ -288,6 +288,7 @@ namespace corona
 	{
 	protected:
 
+		std::string prompt;
 		std::string text;
 		std::string format;
 
@@ -320,6 +321,11 @@ namespace corona
 		}
 
 		virtual ~text_control_base() { ; }
+
+		virtual void set_prompt(const std::string& _prompt)
+		{
+			SendMessageA(window, EM_SETCUEBANNER, (WPARAM)TRUE, (LPARAM)_prompt.c_str());
+		}
 
 		virtual void set_text(const std::string& _text)
 		{
@@ -387,7 +393,7 @@ namespace corona
 				_dest.put_member("change_command", jcommand);
 			}
 
-			_dest.put_member("text", text);
+            _dest.put_member("text", prompt);
 			_dest.put_member("format", format);
 		}
 
@@ -399,7 +405,7 @@ namespace corona
 			corona::put_json(change_command, jcommand);
 
 			std::string temp = _src["text"].as_string();
-			set_text(temp);
+			set_prompt(temp);
 
 			format = _src["format"].as_string();
 			set_format(format);

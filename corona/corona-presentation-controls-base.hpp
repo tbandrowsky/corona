@@ -513,18 +513,14 @@ namespace corona
 
 		virtual void set_errors(const validation_error_collection& _errors)
 		{
+			system_monitoring_interface::active_mon->log_information( std::string(typeid(*this).name()) + ":set_errors: " + name + " has " + std::to_string(_errors.size()) + " errors");
 			for (auto it = _errors.cbegin(); it != _errors.cend(); ++it)
 			{
 				const auto& error = *it;
-				if (error.field_name == json_field_name) {
-					set_error(error);
-				}
-				else 
-				{
-                    for (auto child : children) {
-                        child->set_errors(_errors);
-                    }
-				}
+				set_error(error);
+			}
+			for (auto child : children) {
+				child->set_errors(_errors);
 			}
 		}
 

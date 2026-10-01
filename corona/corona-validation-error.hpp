@@ -105,7 +105,7 @@ namespace corona
 
 		auto begin() { return errors.begin(); }
 		auto end() { return errors.end(); }
-		auto size() { return errors.size(); }
+		auto size() const { return errors.size(); }
 
 		auto cbegin() const { return errors.cbegin(); }
 		auto cend() const { return errors.cend(); }

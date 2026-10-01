@@ -337,7 +337,8 @@ namespace corona {
 		if (repeat) {
 			return this;
 		}
-		else {
+		else 
+		{
 			return nullptr;
 		}
     }

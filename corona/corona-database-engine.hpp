@@ -9891,6 +9891,8 @@ private:
 			// Populate card contents
 			auto cfm = class_mappings["tab_edit"]["fields"];
 
+            auto fmb = field_mappings[".section"]["box"];
+
 			if (!cfm.array()) {
 				validation_error ve;
 				ve.class_name = classd->get_class_name();
@@ -9911,12 +9913,7 @@ private:
 				if (field_name == ".section") {
 					json content = jp.create_object();
 					content.put_member_string("class_name", "chaptersubtitle");
-					layout_rect section_box;
-					section_box.width = 300.0_px;
-					section_box.height = 40.0_px;
-                    json jsection_box = jp.create_object();
-					corona::get_json(jsection_box, section_box);
-					content.put_member("box", jsection_box);
+					content.put_member("box", fmb);
 					content.put_member_string("text", field_label);
 					tab_contents.push_back(content);
 					continue;

@@ -438,12 +438,15 @@ namespace corona
 		virtual ~success_control();
 	};
 
-	class status_control : public frame_layout
+	class status_control : public text_display_control
 	{
 	public:
 
 		using draw_control::host;
-		bool status_set;
+		bool	is_error;
+		std::shared_ptr<viewStyleRequest> error_view_style;
+		std::shared_ptr<viewStyleRequest> success_view_style;
+		
 
 		status_control();
 		status_control(const status_control& _src) = default;
@@ -451,49 +454,19 @@ namespace corona
 
 		virtual void set_error(const validation_error& _ve) override
 		{
-			children.clear();
-			status_set = true;
-			std::shared_ptr<error_control> sc = std::make_shared<error_control>(this, id_counter::next());
-			sc->set_text(_ve.message);
-			sc->set_size(1.0_container, 1.0_container);
-			children.push_back(sc);
-			arrange_children();
+			if (_ve.field_name == json_field_name) {
+				is_error = true;
+				set_text(_ve.message);
+				update_text();
+			}
 		}
 
 		virtual void clear_error()
 		{
-			children.clear();
-			status_set = false;
-			arrange_children();
+			is_error = false;
 		}
 
-		bool set_status(call_status _status)
-		{
-			children.clear();
-			status_set = false;
-			if (_status.message.size()) {
-				status_set = true;
-				if (_status.success) {
-					std::shared_ptr<success_control> sc = std::make_shared<success_control>(this, id_counter::next());
-					sc->set_status(_status);
-					sc->set_padding(8.0_px);
-					sc->set_size(1.0_container, 1.0_container);
-					children.push_back(sc);
-					arrange_children();
-				}
-				else
-				{
-					std::shared_ptr<error_control> sc = std::make_shared<error_control>(this, id_counter::next());
-					sc->set_status(_status);
-					sc->set_padding(8.0_px);
-					sc->set_size(1.0_container, 1.0_container);
-					children.push_back(sc);
-					arrange_children();
-				}
-			}
-			return status_set;
-		}
-
+		virtual void set_default_styles();
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -501,19 +474,15 @@ namespace corona
 			return tv;
 		}
 
-
-		virtual void arrange(control_base *_parent, rectangle *_bounds)
+		virtual json_object set_data(json_object _data) override
 		{
-			frame_layout::arrange(_parent, _bounds);
-			//std::cout << "status layout" << std::endl;
-			//std::cout << bounds.x << " " << bounds.y << std::endl;
-			//std::cout << inner_bounds.x << " " << inner_bounds.y << std::endl;
-			//for (auto child : children) {
-				//std::cout << "child layout" << std::endl;
-				//std::cout << child->get_bounds().x << " " << child->get_bounds().y << std::endl;
-				//std::cout << child->get_inner_bounds().x << " " << child->get_inner_bounds().y << std::endl;
-			//}
+			draw_control::set_data(_data);
+			return data;
 		}
+
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
+
 
 		virtual ~status_control();
 	};
@@ -852,20 +821,54 @@ namespace corona
 	{
 	}
 
-	status_control::status_control(control_base* _parent, int _id) : frame_layout(_parent, _id)
+	status_control::status_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
-		status_set = false;
+		is_error = false;
 		set_padding(0.0_px);
 	}
 
 	status_control::status_control()
 	{
-		status_set = false;
+		is_error = false;
 		set_padding(0.0_px);
 	}
 
 	status_control::~status_control()
 	{
+	}
+
+	void status_control::on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control)
+	{
+		auto draw_bounds = inner_bounds;
+
+		update_text();
+
+		if (not text.size()) text = "";
+
+		if (is_error) {
+			_context->drawText(text.c_str(), &draw_bounds, error_view_style->text_style.name, error_view_style->shape_fill_brush.get_name(), hit_word);
+		}
+		else {
+			_context->drawText(text.c_str(), &draw_bounds, success_view_style->text_style.name, success_view_style->shape_fill_brush.get_name(), hit_word);
+		}
+	}
+
+	void status_control::on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control)
+	{
+        if (not error_view_style or not success_view_style) {
+            set_default_styles();
+        }
+
+		_context->setViewStyle(*error_view_style);
+		_context->setViewStyle(*success_view_style);
+	}
+
+	void status_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		error_view_style = st->get_style()->ErrorStyle;
+		success_view_style = st->get_style()->SuccessStyle;
 	}
 
 }

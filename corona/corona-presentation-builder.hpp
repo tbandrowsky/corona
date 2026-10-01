@@ -32,9 +32,9 @@ namespace corona
 
 	class horizontal_field_layout {
 	public:
-		layout_rect label_box = { 0.0_px, 0.0_px, 0.40_container, 20.0_px };
-		layout_rect field_box = { 0.40_container, 0.0_px, 0.60_container, 25.0_px };
-		layout_rect status_box = { 0.0_px, 25.0_px, 0.40_container, 15.0_px };
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.30_container, 25.0_px };
+		layout_rect status_box = { 0.62_container, 0.0_px, 0.38_container, 45.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
@@ -87,7 +87,7 @@ namespace corona
 			control_base::children.add(status);
 		}
 
-		field_layout(const field_layout& _src)
+		field_layout(const field_layout& _src) : layout_container(_src)
 		{
 			label = std::dynamic_pointer_cast<edit_label_control>(_src.label->clone());
 			field = std::dynamic_pointer_cast<field_control>(_src.field->clone());
@@ -105,6 +105,7 @@ namespace corona
 			control_base::children.push_back(label);
 			control_base::children.push_back(field);
 			control_base::children.push_back(status);
+
 		}
 
 		field_layout(control_base* _parent, int _id) : layout_container(_parent, _id)
@@ -152,6 +153,9 @@ namespace corona
 		{
 			json_parser jp;
 			layout_container::get_json(_dest);
+
+            _dest.put_member_string("json_field_name", layout_container::json_field_name);
+
 			if (label) {
 				json label_json = jp.create_object();
 				label->get_json(label_json);
@@ -172,6 +176,8 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			layout_container::put_json(_src);
+
+			layout_container::json_field_name = _src["json_field_name"].as_string();
 
 			label = std::make_shared<edit_label_control>();
 			auto label_json = _src["label"];
@@ -197,19 +203,23 @@ namespace corona
 				field->put_json(field_json);
 			}
 
+			if (_src.has_member("text")) {
+				field->set_prompt(_src["text"].as_string());
+			}
+
 			if (!label_json.object() || !field_json.has_member("box")) {
 				field->box = field_box;
 			}
 
-			status = std::make_shared<status_control>();
-			status->json_field_name = field->json_field_name;
-			layout_container::json_field_name = field->json_field_name;
+            field->json_field_name = layout_container::json_field_name;
 
+			status = std::make_shared<status_control>();
 			auto status_json = _src["status"];
 			if (!label_json.object() || !field_json.has_member("box")) {
 				status->box = status_box;
 			}
 			status->put_json(status_json);
+			status->json_field_name = layout_container::json_field_name;
 
 			control_base::children.clear();
 
@@ -1014,7 +1024,6 @@ namespace corona
 		{
 			auto tc = create<status_control>(_id);
 			apply_item_sizes(tc);
-			tc->set_status(_status);
 			if (_settings) {
 				_settings(*tc);
 

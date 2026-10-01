@@ -1248,8 +1248,8 @@
             "units": "container"
           },
           "height": {
-            "amount": 1.0,
-            "units": "container"
+            "amount": 35,
+            "units": "pixels"
           }
         },
         "tab_type": "custom"
@@ -1328,11 +1328,11 @@
         "class_name": "edit_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1342,11 +1342,11 @@
         "class_name": "datetimepicker_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1356,11 +1356,11 @@
         "class_name": "number_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1370,11 +1370,11 @@
         "class_name": "number_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1384,11 +1384,11 @@
         "class_name": "number_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1398,11 +1398,11 @@
         "class_name": "checkbox_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 0.8 ,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },
@@ -1412,11 +1412,11 @@
         "class_name": "combobox_field",
         "box": {
           "width": {
-            "amount": 400,
-            "units": "pixels"
+            "amount": 1.0,
+            "units": "container"
           },
           "height": {
-            "amount": 35,
+            "amount": 50,
             "units": "pixels"
           }
         },

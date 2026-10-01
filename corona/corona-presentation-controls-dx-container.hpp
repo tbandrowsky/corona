@@ -513,11 +513,6 @@ namespace corona
 			return data;
 		}
 
-		virtual void set_errors(const validation_error_collection& _errors) override
-		{
-            container_control::set_errors(_errors);
-		}
-
 		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
 
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
