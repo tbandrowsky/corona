@@ -333,9 +333,7 @@ namespace corona
 		virtual void set_text(const std::string& _text)
 		{
 			text = _text;
-			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, text);
-			}
+			SendMessageA(window, WM_SETTEXT, (WPARAM)NULL, (LPARAM)text.c_str());
 		}
 
 		virtual std::string get_text()
