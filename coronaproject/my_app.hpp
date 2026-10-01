@@ -28,6 +28,7 @@ namespace corona
 	*****************************/
 
     const bool use_project_for_config = false;
+    const bool always_overwrite_app_data = true;
 
 	std::string config_filename = "sys_config.json";
 
@@ -73,7 +74,7 @@ namespace corona
 			std::filesystem::create_directories(destination);
            	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);			
 		}
-		else if (std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
+		else if (always_overwrite_app_data || std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
 		{
 			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 		}

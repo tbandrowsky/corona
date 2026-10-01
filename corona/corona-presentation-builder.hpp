@@ -2430,7 +2430,7 @@ namespace corona
 				_ctrl.set_data(control_data);
 				});
 		}
-		else if (class_name == "read_only_field")
+		else if (class_name == "readonly_field")
 		{
 			readonly_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);

@@ -26,17 +26,17 @@
               "box": "spacer_row_box"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "class_name",
               "prompt": "Class Name:"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "object_id",
               "prompt": "Object ID:"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "team",
               "prompt": "Team:"
             }
@@ -71,22 +71,22 @@
               "box": "spacer_row_box"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "created",
               "prompt": "Created:"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "created_by",
               "prompt": "By:"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "updated",
               "prompt": "Updated:"
             },
             {
-              "class_name": "read_only_field",
+              "class_name": "readonly_field",
               "json_field_name": "updated_by",
               "prompt": "By:"
             }

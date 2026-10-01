@@ -9665,12 +9665,13 @@ private:
 				std::string field_ux_class = "";
 				std::string field_tab_type = "";
 				layout_rect field_box = {};
+                json jfield_box = jp.create_object();
 
 				if (field_mapping.object()) {
 					field_tab_type = field_mapping["tab_type"].as_string();
 					field_ux_class = field_mapping["class_name"].as_string();
-					json jbox = field_mapping["box"];
-					put_json(field_box, jbox);
+					jfield_box = field_mapping["box"];
+					put_json(field_box, jfield_box);
 				}
 
 				if (field_tab_type == "custom" || field_tab_type == "inventory") {
@@ -9688,6 +9689,8 @@ private:
 					tab_field.put_member_string("field_name", field->get_field_name());
 					tab_field.put_member_string("field_label", field->get_label());
 					tab_field.put_member_string("field_class", field->get_field_class());
+                    tab_field.put_member_string("field_ux_class", field_ux_class);
+                    tab_field.put_member("field_box", jfield_box);
 					tab_edit_fields.push_back(tab_field);
 				}
 				else if (field->get_field_type() == field_types::ft_object) {
@@ -9919,20 +9922,15 @@ private:
 					continue;
 				}
 
-                json field_mapping = get_field_mapping(classd, field_name, field_mappings);
-				if (field_mapping.empty()  || field_mapping["tab_type"].as_string() != "edit") {
-					continue;
-				}
+				json field_box = field["field_box"];
 
-				json field_box = field_mapping["box"];
-
-				std::string field_class_name = field_mapping["class_name"].as_string();
+				std::string field_class_name = field["field_ux_class"].as_string();
 
 				json content = jp.create_object();
 				content.put_member_string("class_name", field_class_name);
 				content.put_member("box", field_box);
 				content.put_member_string("prompt", field_label);
-				content.put_member_string("field_name", field_name);
+				content.put_member_string("name", field_name);
 				content.put_member("json_field_name", field_name);
 				tab_contents.push_back(content);
 			}

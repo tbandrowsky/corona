@@ -1296,6 +1296,90 @@
         },
         "tab_type": "inventory"
       },
+      "sys_object.object_id": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.class_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.created_by": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.updated_by": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.created": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.updated": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
       ".description": {
         "class_name": "writepad",
         "box": {
@@ -1398,7 +1482,7 @@
         "class_name": "checkbox_field",
         "box": {
           "width": {
-            "amount": 0.8 ,
+            "amount": 0.8,
             "units": "container"
           },
           "height": {
