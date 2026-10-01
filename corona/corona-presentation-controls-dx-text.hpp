@@ -32,17 +32,22 @@ namespace corona
 		text_display_control(control_base* _parent, int _id);
 		virtual ~text_display_control() { ; }
 
+        virtual void set_prompt(std::string _prompt)
+        {
+            template_text = _prompt;
+        }
+
 		virtual void get_json(json& _dest)
 		{
 			draw_control::get_json(_dest);
-			_dest.put_member("text", template_text);
+			_dest.put_member("prompt", template_text);
 			_dest.put_member("hit_word", hit_word);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
-			template_text = _src["text"].as_string();
+			template_text = _src["prompt"].as_string();
 			text = template_text;
 			hit_word = _src["hit_word"].as_string();
 		}

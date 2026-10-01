@@ -54,6 +54,12 @@ namespace corona
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 100.0_px };
 	};
 
+	template <typename T, typename = void>
+	struct has_set_prompt : std::false_type {};
+
+	template <typename T>
+	struct has_set_prompt<T, std::void_t<decltype(std::declval<T>().set_prompt())>> : std::true_type {};
+
 	template <typename layout_container, typename field_control, typename layout_strategy> class field_layout : public layout_container
 	{
 	public:
@@ -173,6 +179,7 @@ namespace corona
 			}
 		}
 
+
 		virtual void put_json(json& _src)
 		{
 			layout_container::put_json(_src);
@@ -189,10 +196,6 @@ namespace corona
 			}
 			label->put_json(label_json);
 
-			if (_src.has_member("text")) {
-				label->set_text(_src["text"].as_string());
-            }
-
 			field = std::make_shared<field_control>();
 			auto field_json = _src["field"];
 
@@ -203,8 +206,13 @@ namespace corona
 				field->put_json(field_json);
 			}
 
-			if (_src.has_member("text")) {
-				field->set_prompt(_src["text"].as_string());
+			if (_src.has_member("prompt")) {
+                auto ps = _src["prompt"].as_string();
+				if constexpr (has_set_prompt<field_control>::value) {
+                // If the field_control has a set_prompt method, call it
+                    field->set_prompt(ps);
+                }
+				label->set_prompt(ps);
 			}
 
 			if (!label_json.object() || !field_json.has_member("box")) {

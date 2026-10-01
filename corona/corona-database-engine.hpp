@@ -9822,7 +9822,7 @@ private:
 						content.put_member_string("box", "card_text_box");
 						content.put_member("json_field_name", field["field_name"].as_string());
                         std::string expression = "{" + field["expression"].as_string() + "}";
-						content.put_member_string("text", expression);
+						content.put_member_string("prompt", expression);
 						contents.push_back(content);
 					}
 				}
@@ -9914,7 +9914,7 @@ private:
 					json content = jp.create_object();
 					content.put_member_string("class_name", "chaptersubtitle");
 					content.put_member("box", fmb);
-					content.put_member_string("text", field_label);
+					content.put_member_string("prompt", field_label);
 					tab_contents.push_back(content);
 					continue;
 				}
@@ -9931,7 +9931,8 @@ private:
 				json content = jp.create_object();
 				content.put_member_string("class_name", field_class_name);
 				content.put_member("box", field_box);
-				content.put_member_string("text", field_label);
+				content.put_member_string("prompt", field_label);
+				content.put_member_string("field_name", field_name);
 				content.put_member("json_field_name", field_name);
 				tab_contents.push_back(content);
 			}

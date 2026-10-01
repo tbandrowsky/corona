@@ -312,6 +312,7 @@ namespace corona
 		{
 			text = _src.text;
 			change_command = _src.change_command;
+			prompt = _src.prompt;
 		}
 
 		virtual std::shared_ptr<control_base> clone()
@@ -324,14 +325,16 @@ namespace corona
 
 		virtual void set_prompt(const std::string& _prompt)
 		{
-			SendMessageA(window, EM_SETCUEBANNER, (WPARAM)TRUE, (LPARAM)_prompt.c_str());
+			prompt = _prompt;
+			iwstring<256> xprompt = prompt;
+			SendMessageA(window, EM_SETCUEBANNER, (WPARAM)TRUE, (LPARAM)xprompt.c_str());
 		}
 
 		virtual void set_text(const std::string& _text)
 		{
 			text = _text;
 			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, _text);
+				phost->setEditText(id, text);
 			}
 		}
 
@@ -356,6 +359,7 @@ namespace corona
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
 		{
 			windows_control::create(_context, _host);
+			set_prompt(prompt);
 			if (auto phost = window_host.lock()) {
 				phost->setEditText(id, text);
 			}
@@ -393,7 +397,9 @@ namespace corona
 				_dest.put_member("change_command", jcommand);
 			}
 
-            _dest.put_member("text", prompt);
+			get_text();
+			_dest.put_member("text", text);
+            _dest.put_member("prompt", prompt);
 			_dest.put_member("format", format);
 		}
 
@@ -404,8 +410,11 @@ namespace corona
 			json jcommand = _src["change_command"];
 			corona::put_json(change_command, jcommand);
 
-			std::string temp = _src["text"].as_string();
+			std::string temp = _src["prompt"].as_string();
 			set_prompt(temp);
+
+			temp = _src["text"].as_string();
+			set_text(temp);
 
 			format = _src["format"].as_string();
 			set_format(format);
@@ -1389,6 +1398,7 @@ namespace corona
 			if (::IsWindow(window)) {
 				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
 			}
+
 		}
 	};
 

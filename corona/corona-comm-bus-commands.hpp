@@ -1323,8 +1323,8 @@ namespace corona
 		corona_client_response response;
 		std::string constructor_frame;
 		json constructor_copy;
-
-		std::shared_ptr<corona_select_frame_command> select_frame;
+		std::string target_frame;
+		std::string source_frame;
 
 		corona_create_object_command()
 		{
@@ -1398,9 +1398,8 @@ namespace corona
 
             json_object obj = corona::to_object(response.data.value());
 			_bus->object_updated(obj);
-			if (select_frame) {
-				select_frame->data = response.data;
-				select_frame->execute_sync(batch_id, _bus);
+			if (!target_frame.empty() && !source_frame.empty()) {
+				_bus->select_frame(batch_id, target_frame, source_frame, obj, true);
 			}
 			return response.data;
 		}
@@ -1414,10 +1413,8 @@ namespace corona
 			_dest.put_member("class_name", "create_object"sv);
 			_dest.put_member("constructor_frame", constructor_frame);
 			_dest.put_member("constructor_copy", constructor_copy);
-			if (select_frame) {
-				_dest.put_member("target_frame", select_frame->target_frame);
-				_dest.put_member("source_frame", select_frame->source_frame);
-			}
+			_dest.put_member("target_frame", target_frame);
+			_dest.put_member("source_frame", source_frame);
 		}
 
 		virtual void put_json(json& _src)
@@ -1440,12 +1437,12 @@ namespace corona
 			constructor_copy = _src["constructor_copy"];
 			create_class_name = _src["create_class_name"].as_string();
 			if (_src.has_member("target_frame") && _src.has_member("source_frame")) {
-				select_frame = std::make_shared<corona_select_frame_command>();
-				select_frame->target_frame = _src["target_frame"].as_string();
-				select_frame->source_frame = _src["source_frame"].as_string();
+				target_frame = _src["target_frame"].as_string();
+				source_frame = _src["source_frame"].as_string();
 			}
 			else {
-				select_frame = nullptr;
+				target_frame = "";
+				source_frame = "";
 			}
 		}
 

@@ -71,11 +71,11 @@ namespace corona
         if (!std::filesystem::exists(destination))
         {
 			std::filesystem::create_directories(destination);
-           	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);			
+           	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);			
 		}
 		else if (std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
 		{
-			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
+			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 		}
 	}
 
