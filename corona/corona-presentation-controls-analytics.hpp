@@ -1373,7 +1373,7 @@ namespace corona
 		{
 			elapsed_seconds = _time;
 
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_update(_time);
 			}
 		}

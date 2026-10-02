@@ -110,14 +110,6 @@ namespace corona
             }
         }
 
-        void destroy()
-        {
-            for (auto child : children) {
-                if (child) {
-                    child->destroy();
-                }
-            }
-        }
 
         void on_resize()
         {

@@ -441,7 +441,6 @@ namespace corona
         presentation_base* current_presentation = nullptr;
         page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
-		bool save_on_unload = false;
 
 	public:
 
@@ -543,7 +542,6 @@ namespace corona
 				jedit_bars.push_back(sbar);
 			}
 			_dest.put_member("edit_bars", jedit_bars);
-            _dest.put_member("save_on_unload", save_on_unload);
 		}
 
 		virtual void put_json(json& _src)
@@ -568,8 +566,8 @@ namespace corona
 					edit_bars.push_back(sbar);
 				}
 			}
-            save_on_unload = _src["save_on_unload"].as_bool();
 		}
+
 	};
 
 	class items_view_row

@@ -240,6 +240,8 @@ namespace corona
 			status->put_json(status_json);
 			status->json_field_name = layout_container::json_field_name;
 
+			layout_container::destroy();
+
 			control_base::children.clear();
 
 			control_base::children.push_back(label);
@@ -276,7 +278,9 @@ namespace corona
 			point origin = { lb.x, lb.y, 0.0 };
 			layout_container::remaining = { lb.w, lb.h, 0.0 };
 
-			for (auto child : layout_container::children) {
+			system_monitoring_interface::active_mon->log_information(std::format("arrange_field {}:{}", (int64_t)this, layout_container::json_field_name));
+
+			for (auto& child : layout_container::children) {
 				auto sz = child->get_size(this);
 				point item_origin = origin;
 				point item_position = child->get_position(this);
@@ -289,6 +293,24 @@ namespace corona
 
 			layout_container::on_resize();
 		}
+
+		virtual json_object get_data() override
+		{
+			json_object tempo = get_slice();
+			return tempo;
+		}
+
+		virtual json_object get_slice() override
+		{
+			json_object jo;
+
+			if (field) {
+				jo = field->get_slice();
+			}
+
+			return jo;
+		}
+
 
 	};
 
@@ -1667,14 +1689,14 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override
 		{
 			set_bounds(_parent, *_ctx);
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->arrange(this, _ctx);
 			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_subscribe(_presentation, _page);
 			}
 		}
@@ -1894,7 +1916,7 @@ namespace corona
 		void arrange_children()
 		{
 			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
-			for (auto child : children) {
+			for (auto& child		: children) {
 				auto sz = child->get_size(this);
 				point item_origin = { bounds.x, bounds.y, 0.0 };
 				point item_position = child->get_position(this);
@@ -2029,7 +2051,7 @@ namespace corona
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_subscribe(_presentation, _page);
 			}
 		}
@@ -2948,7 +2970,7 @@ namespace corona
         }
 
 		if (current_presentation && current_page) {
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_unsubscribe(current_presentation, current_page);
 			}
 		}
@@ -2958,24 +2980,20 @@ namespace corona
 
 		auto service = comm_desktop_bus_interface::get_service();
 
-		if (save_on_unload) {
-			service->put_object(corona_instance::local, json(data));
-		}
 
 		children.clear();
 
 		for (auto srcchild : _nav->contents_page->root->children)
 		{
-			auto new_child = srcchild->clone();
-			new_child->set_hit_word(hit_words);
-			children.push_back(new_child);
+			srcchild->set_hit_word(hit_words);
+			children.push_back(srcchild);
 		}
 
 		arrange_children();
 
 		set_data(_nav->data);
 
-		for (auto child : children) {
+		for (auto& child : children) {
 			child->on_subscribe(current_presentation, current_page);
 			child->loaded(_batch_id);
 		}

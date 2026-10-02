@@ -368,7 +368,7 @@ namespace corona
 
 		virtual bool set_focus()
 		{
-            for (auto child : children) {
+            for (auto& child : children) {
 				if (child->set_focus()) {
 					return true;
 				}
@@ -431,54 +431,69 @@ namespace corona
 				data += _data;
 				set_data(data);
 			}
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->object_updated(_data);
 			}
 		}
 
 		virtual void object_deleted(json_object _data)
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->object_deleted(_data);
 			}
 		}
 
 		virtual json_array get_edited_array()
 		{
-			return slice_array;
+			json_array temp;
+			return temp;
 		}
 
 		virtual json_object get_edited_object()
 		{
-			return control_slice;
+			json_object temp;
+			return temp;
 		}
 
         virtual json_object get_slice()
         {
-            json_object temp;
 			auto ot = get_edited_object();
 			auto oa = get_edited_array();
-            if (!ot.empty())
-                temp += ot;
-            if (!oa.empty())
-                temp += oa.as_object(json_field_name);
+			
+			json_object jslice;
 
-			for (auto child : children) {
+            if (!ot.empty())
+				jslice += ot;
+            if (!oa.empty())
+				jslice += oa.as_object(json_field_name);
+
+			for (auto& child : children) {
 				json_object child_data = child->get_slice();
-				temp += child_data;
+				jslice += child_data;
 			}
 
-            return temp;
+			for (auto& member : jslice) {
+                if (control_slice.has_member(member.first)) {
+                    control_slice[member.first] = member.second->clone();
+                }
+				if (slice_object.has_member(member.first)) {
+					slice_object[member.first] = member.second->clone();
+				}
+                if (data.has_member(member.first)) {
+                    data[member.first] = member.second->clone();
+                }
+			}			
+
+            return control_slice;
         }
 
-		virtual json_object get_data()
+		virtual json_object get_data() 
 		{
-			json_object tempo = data;
-			tempo += get_slice();
-			return tempo;
+			get_slice();
+			return data;
 		}
 
-		virtual json_object set_data(json_object _data)
+		virtual json_object set_data(json_object _data) 
 		{
 			data = _data;
 			control_slice = slice(_data, json_field_name);
@@ -492,10 +507,12 @@ namespace corona
 				field_data = control_slice[json_field_name];
 
 				if (field_data.object()) {
-					slice_object = *field_data.object_impl();
+					auto t = field_data.object_impl()->clone();
+					slice_object = t;
 				}
 				else if (field_data.array()) {
-					slice_array = *field_data.array_impl();
+					auto t = field_data.array_impl()->clone();
+					slice_array = t;
 				}
 			}
 			else 
@@ -504,7 +521,7 @@ namespace corona
                 slice_array.clear();
 			}
 
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->set_data(_data);
 			}
 
@@ -521,14 +538,22 @@ namespace corona
 
 		}
 
+		virtual void delete_windows()
+		{
+            for (auto& c : children) {
+                c->delete_windows();
+            }
+		}
+
 		virtual void set_errors(const validation_error_collection& _errors)
 		{
+			clear_errors();
 			for (auto it = _errors.cbegin(); it != _errors.cend(); ++it)
 			{
 				const auto& error = *it;
 				set_error(error);
 			}
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->set_errors(_errors);
 			}
 		}
@@ -536,7 +561,7 @@ namespace corona
 		virtual void clear_errors()
 		{
 			clear_error();
-			for (auto child : children) {
+			for (auto& child : children) {
                 child->clear_errors();
 			}
 		}
@@ -777,28 +802,28 @@ namespace corona
 		virtual void on_unsubscribe(presentation_base* _presentation, page_base* _page)
 		{
 			_page->clear_events(this);
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_unsubscribe(_presentation, _page);
 			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_subscribe(_presentation, _page);
 			}
 		}
 
 		virtual void on_update(double _time)
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->on_update(_time);
 			}
 		}
 
 		virtual void hardware_scan()
 		{
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->hardware_scan();
 			}
 		}
@@ -817,7 +842,7 @@ namespace corona
 
 		virtual void loaded( int _batch_id )
 		{
-            for (auto child : children) {
+            for (auto& child : children) {
 				child->loaded(_batch_id);
 			}
 		}
@@ -827,7 +852,7 @@ namespace corona
 			if (onrefresh_command) {
 				comm_desktop_bus_interface::get_service()->run_command(_batch_id, onrefresh_command);
 			}
-			for (auto child : children) {
+			for (auto& child : children) {
 				child->refresh(_batch_id);
 			}
 		}
@@ -844,7 +869,7 @@ namespace corona
 			{
 				return result;
 			}
-			for (auto child : children)
+			for (auto& child : children)
 			{
 				auto temp = child->find(p);
 				if (temp) {
@@ -898,7 +923,7 @@ namespace corona
 			result.second = this;
 			return result;
 		}
-		for (auto child : children) {
+		for (auto& child : children) {
 			auto result = child->find_if(_item);
 			if (result.second) {
                 if (result.first == nullptr) {
@@ -913,7 +938,7 @@ namespace corona
 	void control_base::foreach(std::function<void(control_base* _root)> _item)
 	{
 		_item(this);
-		for (auto child : children) {	
+		for (auto& child : children) {	
 			if (child) {
 				child->foreach(_item);
 			}
@@ -922,7 +947,7 @@ namespace corona
 
 	void control_base::create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host)
 	{
-		for (auto child : children) {
+		for (auto& child : children) {
 			try {
 				child->create(_context, _host);
 			}
@@ -935,7 +960,7 @@ namespace corona
 
 	void control_base::destroy()
 	{
-		for (auto child : children) {
+		for (auto& child : children) {
 			child->destroy();
 		}
 	}
@@ -943,7 +968,7 @@ namespace corona
 	void control_base::draw(std::shared_ptr<direct2dContext>& _context)
 	{
 		//std::cout << typeid(*this).name() << " control_base::draw" << std::endl;
-		for (auto child : children) 
+		for (auto& child : children) 
 		{
 			try 
 			{
@@ -958,7 +983,7 @@ namespace corona
 
 	void control_base::render(std::shared_ptr<direct2dContext>& _context)
 	{
-		for (auto child : children) {
+		for (auto& child : children) {
 			try
 			{
 				child->render(_context);
@@ -1013,8 +1038,7 @@ namespace corona
 			_right_click(this);
 		}
 
-		for (auto child : children)
-		{
+		for (auto& child : children) {
 			child->set_mouse(_position, _left_down, _right_down, _left_click, _right_click);
 		}
 		return mouse_over ? this : nullptr;
@@ -1066,7 +1090,7 @@ namespace corona
 		}
 		else if (length.units == measure_units::percent_contents)
 		{
-			for (auto c : children)
+			for (auto& c : children)
 			{
 				sz += c->get_size(nullptr).x;
             }
@@ -1121,7 +1145,7 @@ namespace corona
 		}
 		else if (length.units == measure_units::percent_contents)
 		{
-			for (auto c : children)
+			for (auto& c : children)
 			{
 				sz += c->get_size(nullptr).y;
 			}

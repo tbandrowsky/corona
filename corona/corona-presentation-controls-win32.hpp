@@ -41,8 +41,8 @@ namespace corona
 			text_style.font_stretch = DWRITE_FONT_STRETCH_NORMAL;
 		}
 
-		HFONT text_font;
-		HWND window;
+		HFONT text_font = nullptr;
+		HWND window = nullptr;
 
 	public:
 		short id;
@@ -74,6 +74,8 @@ namespace corona
 			text_style = _src.text_style;
 			is_default_focus = _src.is_default_focus;
 			is_default_button = _src.is_default_button;
+            is_group = _src.is_group;
+			window_host = _src.window_host;
 		}
 
 		windows_control(control_base*_parent, int _id) :
@@ -280,15 +282,17 @@ namespace corona
 			}
 		}
 
-		virtual void on_create()  { ; }
+		virtual void on_create()  { 
+			system_monitoring_interface::active_mon->log_information("text_control_base " + std::to_string((int64_t)window) + "::on_create " + json_field_name );	
+		}
 		virtual void on_recreate() { on_create(); }
 
 		virtual void destroy()
 		{
 			if (::IsWindow(window)) {
-				DestroyWindow(window);
-				window = nullptr;
+				DestroyWindow(window);	
 			}
+			window = nullptr;
 		}
 
 		virtual rectangle get_window_bounds() {
@@ -300,7 +304,6 @@ namespace corona
 		{
 			destroy();
 		}
-
 
 	};
 
@@ -334,6 +337,8 @@ namespace corona
 			text = _src.text;
 			change_command = _src.change_command;
 			prompt = _src.prompt;
+			format = _src.format;
+			system_monitoring_interface::active_mon->log_information("text_base " + std::to_string((int64_t)this) + "::created " + json_field_name + " = " + text);
 		}
 
 		virtual std::shared_ptr<control_base> clone()
@@ -354,27 +359,40 @@ namespace corona
 		virtual void set_text(const std::string& _text)
 		{
 			text = _text;
-			SendMessageA(window, WM_SETTEXT, (WPARAM)NULL, (LPARAM)text.c_str());
+            system_monitoring_interface::active_mon->log_information("text_base " + std::to_string((int64_t)this) + "::set_text " + json_field_name + " = " + text);
+			SetWindowText(window, text.c_str());
 		}
 
 		virtual std::string get_text()
 		{
 			int length = ::GetWindowTextLength(window) + 1;
-			char window_buffer[1024] = {};
+			char window_buffer[512] = {};
 
 			if (length < sizeof(window_buffer))
 			{
-				SendMessageA(window, WM_GETTEXT, length, (LPARAM)window_buffer);
+				GetWindowTextA(window, window_buffer, length);
 				text = window_buffer;
 			} 
 			else  {
 				char* buffer = new char[length];
 				if (buffer) {
-					SendMessageA(window, WM_GETTEXT, length, (LPARAM)buffer);
+					GetWindowTextA(window, buffer, length);
 					text = buffer;
 					delete[] buffer;
 				}
 			}
+
+			if (control_slice.has_member(json_field_name)) {
+				control_slice.put_member(json_field_name, text);
+			}
+			if (slice_object.has_member(json_field_name)) {
+				slice_object.put_member(json_field_name, text);
+			}
+			if (data.has_member(json_field_name)) {
+				data.put_member(json_field_name, text);
+			}
+
+            system_monitoring_interface::active_mon->log_information("edit " + std::to_string((int64_t)this) + "::get_text " + json_field_name + " = " + text);
 
 			return text;
 		}
@@ -403,25 +421,19 @@ namespace corona
 
 		virtual void on_recreate() override
 		{
-			;
 		}
 
-		virtual json_object get_edited_object() override
+		virtual json_object get_slice() override
 		{
-			if (not json_field_name.empty()) {
-				json_parser jp;
-				std::string text = get_text();
-				control_slice.put_member(json_field_name, text);
-			}
+			get_text();
 			return control_slice;
 		}
-
 
 		virtual json_object set_data(json_object _data) override
 		{
 			control_base::set_data(_data);
-			if (control_slice.has_member(json_field_name)) {
-				text = control_slice[json_field_name]->to_string();
+			if (_data.has_member(json_field_name)) {
+				text = _data[json_field_name]->to_string();
 				set_text(text);
 			}
 			return _data;
@@ -459,6 +471,7 @@ namespace corona
 
 			format = _src["format"].as_string();
 			set_format(format);
+
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
