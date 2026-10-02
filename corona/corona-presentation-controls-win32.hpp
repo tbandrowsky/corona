@@ -87,6 +87,7 @@ namespace corona
 			is_default_button = false;
 		}
 
+
 		virtual void set_window_size()
 		{
 			if (auto phost = window_host.lock()) {
@@ -106,6 +107,7 @@ namespace corona
 			auto tv = std::make_shared<windows_control>(*this);
 			return tv;
 		}
+
 
 		virtual const char* get_window_class()
 		{
@@ -272,8 +274,9 @@ namespace corona
 		}
 
 		virtual rectangle get_window_bounds() {
-			return bounds;
+			return inner_bounds;
 		};
+
 
 		virtual ~windows_control()
 		{

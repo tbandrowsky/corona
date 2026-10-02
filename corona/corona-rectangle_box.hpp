@@ -99,6 +99,15 @@ namespace corona {
 				(r.y <= y) and (r.bottom() > y);
 		}
 
+		static bool contains(rectangle r, rectangle i)
+		{
+			bool result = (r.x <= i.x) && 
+				(r.right() >= i.right()) &&
+				(r.y <= i.y) && 
+				(r.bottom() >= i.bottom());
+			return result;
+		}
+
 		static rectangle deflate(rectangle r0, rectangle amt)
 		{
 			rectangle r1 = r0;
@@ -246,6 +255,27 @@ namespace corona {
 			r.y += DirectX::XMVectorGetY(v);
 			return r;
 		}
+
+        static rectangle clip(rectangle r, rectangle clip)
+        {
+            if (r.x < clip.x) {
+                r.w -= (clip.x - r.x);
+                r.x = clip.x;
+            }
+            if (r.y < clip.y) {
+                r.h -= (clip.y - r.y);
+                r.y = clip.y;
+            }
+            if (r.right() > clip.right()) {
+                r.w -= (r.right() - clip.right());
+            }
+            if (r.bottom() > clip.bottom()) {
+                r.h -= (r.bottom() - clip.bottom());
+            }
+            if (r.h < 0) r.h = 0;
+            if (r.w < 0) r.w = 0;
+            return r;
+        }
 
 	};
 

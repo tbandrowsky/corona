@@ -631,7 +631,7 @@ namespace corona
 		point& get_margin_amount() { return margin_amount; }
 		point& get_padding_amount() { return padding_amount; }
 
-		rectangle& set_bounds(control_base *_parent, rectangle& _bounds, bool _clip_children = true);
+		virtual rectangle& set_bounds(control_base *_parent, rectangle& _bounds, bool _clip_children = true);
 
 		// default implementation for composed controls
         // this basically says, "arrange your children within the bounds you have"

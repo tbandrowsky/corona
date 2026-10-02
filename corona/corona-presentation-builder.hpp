@@ -236,6 +236,49 @@ namespace corona
 			control_base::children.push_back(status);
 
 		}
+
+		virtual void arrange(control_base* _parent, rectangle* _bounds) override
+		{
+			layout_container::bounds = *_bounds;
+
+			if (_parent) {
+				layout_container::bounds = rectangle_math::clip(layout_container::bounds, _parent->get_inner_bounds());
+			}
+
+			layout_container::margin_amount.x = layout_container::to_pixels_x(_parent, layout_container::margin);
+			layout_container::margin_amount.y = layout_container::to_pixels_y(_parent, layout_container::margin);
+			layout_container::padding_amount.x = layout_container::to_pixels_x(_parent, layout_container::padding);
+			layout_container::padding_amount.y = layout_container::to_pixels_y(_parent, layout_container::padding);
+
+			layout_container::inner_bounds = layout_container::bounds;
+
+			layout_container::inner_bounds.x += layout_container::padding_amount.x;
+			layout_container::inner_bounds.y += layout_container::padding_amount.y;
+			layout_container::inner_bounds.w -= (layout_container::padding_amount.x * 2.0);
+			layout_container::inner_bounds.h -= (layout_container::padding_amount.y * 2.0);
+
+			if (layout_container::inner_bounds.w < 0) layout_container::inner_bounds.w = 0;
+			if (layout_container::inner_bounds.h < 0) layout_container::inner_bounds.h = 0;
+
+			auto& lb = layout_container::bounds;
+
+			point origin = { lb.x, lb.y, 0.0 };
+			layout_container::remaining = { lb.w, lb.h, 0.0 };
+
+			for (auto child : layout_container::children) {
+				auto sz = child->get_size(this);
+				point item_origin = origin;
+				point item_position = child->get_position(this);
+				item_origin.x += item_position.x;
+				item_origin.y += item_position.y;
+				rectangle item_bounds = { item_origin.x, item_origin.y, sz.x, sz.y };
+				item_bounds = rectangle_math::clip(item_bounds, layout_container::inner_bounds);
+				child->arrange(this, &item_bounds);
+			}
+
+			layout_container::on_resize();
+		}
+
 	};
 
 	using default_layout = absolute_layout;
