@@ -1397,9 +1397,11 @@ namespace corona
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 
             json_object obj = corona::to_object(response.data.value());
-			_bus->object_updated(obj);
+			if (response.errors.size() == 0) {
+				_bus->object_updated(obj);
+			}
 			if (!target_frame.empty() && !source_frame.empty()) {
-				_bus->select_frame(batch_id, target_frame, source_frame, obj, true);
+				_bus->select_frame(batch_id, target_frame, source_frame, obj, true, response.errors);
 			}
 			return response.data;
 		}
@@ -1494,7 +1496,7 @@ namespace corona
 					std::string source_form = source_it->second;
 					auto objx = response.data["object"].value();
 					json_object obj(objx);
-					_bus->select_frame(batch_id, target_frame, source_form, obj, true);
+					_bus->select_frame(batch_id, target_frame, source_form, obj, true, response.errors);
 				}
 				control_base* cb = _bus->find_control(table_name);
 				if (cb) {
@@ -2535,7 +2537,7 @@ namespace corona
 					if (!cb_form)
 					{
                         json_object chart_empty;
-						_bus->select_frame(batch_id, detail_frame, chart_name, chart_empty);
+						_bus->select_frame(batch_id, detail_frame, chart_name, chart_empty, true, response.errors);
 						control_base* cb_form = _bus->find_control(chart_name);
 					}
 

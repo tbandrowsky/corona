@@ -2201,6 +2201,12 @@ namespace corona
 
 		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav) override
 		{
+			validation_error_collection vs;
+			select_frame(_batch_id, _dest, _src, _obj, _reset_nav, vs);
+		}
+
+		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav, validation_error_collection& _vs) override
+		{
 		
 			if (!this->is_on_ui_thread()) {
                 log_warning("select frame not on ui thread. IGNORED", __FILE__, __LINE__);
@@ -2283,6 +2289,7 @@ namespace corona
 							}
 						}
 						fl->set_data(_obj);
+                        fl->set_errors(_vs);
 					}
 					if (not _form_to_load.empty()) {
 						control_base* formx = find_control(_form_to_load);

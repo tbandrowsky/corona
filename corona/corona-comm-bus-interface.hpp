@@ -168,6 +168,7 @@ namespace corona
 
 		virtual void select_page(std::string _path, json_object _obj) = 0;
 		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json_object _obj, bool _reset_nav = false) = 0;
+		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json_object _obj, bool _reset_nav, validation_error_collection& _vs) = 0;
 
 		DWORD gui_thread_id = 0;
 

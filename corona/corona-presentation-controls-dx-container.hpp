@@ -1118,6 +1118,10 @@ namespace corona
 
 		virtual void object_updated(json_object _item) override
 		{
+			if (_item[object_id_field]->as_int64_t() == 0) {
+				return;
+			}
+
 			int i;
 			for (i = 0; i < slice_array.size(); i++)
 			{

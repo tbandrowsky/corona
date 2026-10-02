@@ -318,10 +318,19 @@ namespace corona {
 		job_notify jobNotify;
 		timer tx;
 
-		if (function_to_run)
-		{
-			function_to_run();
+		try {
+
+			if (function_to_run)
+			{
+				function_to_run();
+			}
+
 		}
+        catch (std::exception& exc)
+        {
+            jobNotify.shouldDelete = true;
+            system_monitoring_interface::active_mon->log_exception(exc, __FILE__, __LINE__);
+        }
 
 		if (notification_handle) {
 			jobNotify.setSignal(notification_handle);
