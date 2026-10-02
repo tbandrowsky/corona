@@ -1974,6 +1974,7 @@ namespace corona
 			if (!is_same_tab) {
 				if (current_tab != tab_panes.end()) {
 					json_object tab_object = content_frame->get_slice();
+					content_frame->destroy();
 					control_slice += tab_object;
 				}
 			}
@@ -2980,7 +2981,7 @@ namespace corona
 
 		auto service = comm_desktop_bus_interface::get_service();
 
-
+		destroy();
 		children.clear();
 
 		for (auto srcchild : _nav->contents_page->root->children)
@@ -3012,6 +3013,8 @@ namespace corona
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
 	{
+
+
 
 		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
 		for (auto srcchild : _contents_page->root->children)

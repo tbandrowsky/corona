@@ -9826,6 +9826,7 @@ private:
 						content.put_member("json_field_name", field["field_name"].as_string());
                         std::string expression = "{" + field["expression"].as_string() + "}";
 						content.put_member_string("prompt", expression);
+						content.put_member_string("text", expression);
 						contents.push_back(content);
 					}
 				}

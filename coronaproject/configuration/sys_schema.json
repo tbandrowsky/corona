@@ -1507,7 +1507,7 @@
         "tab_type": "edit"
       }
     },
-    "card_fields": [ "name", "description", "class_name" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
     "classes": {
       "news": "default",
       "record": "default",

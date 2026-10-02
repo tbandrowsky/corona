@@ -473,15 +473,17 @@ namespace corona
 			}
 
 			for (auto& member : jslice) {
-                if (control_slice.has_member(member.first)) {
-                    control_slice[member.first] = member.second->clone();
-                }
-				if (slice_object.has_member(member.first)) {
-					slice_object[member.first] = member.second->clone();
+				if (member.second) {
+					if (control_slice.has_member(member.first)) {
+						control_slice[member.first] = member.second->clone();
+					}
+					if (slice_object.has_member(member.first)) {
+						slice_object[member.first] = member.second->clone();
+					}
+					if (data.has_member(member.first)) {
+						data[member.first] = member.second->clone();
+					}
 				}
-                if (data.has_member(member.first)) {
-                    data[member.first] = member.second->clone();
-                }
 			}			
 
             return control_slice;
