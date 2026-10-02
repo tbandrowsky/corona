@@ -48,8 +48,8 @@ namespace corona
 
 		virtual void setVisible(int controlId, bool visible) = 0;
 		virtual void setEnable(int controlId, bool enabled) = 0;
-		virtual void setFocus(int ddlControlId) = 0;
-		virtual void killFocus(int ddlControlId) = 0;
+		virtual void focusSet(int ddlControlId) = 0;
+		virtual void focusKilled(int ddlControlId) = 0;
 
 		virtual void setEditText(int textControlId, const std::string& _string) = 0;
 		virtual void setEditText(int textControlId, const char* _string) = 0;

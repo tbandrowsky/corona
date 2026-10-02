@@ -368,11 +368,21 @@ namespace corona
 
 		virtual bool set_focus()
 		{
+            for (auto child : children) {
+				if (child->set_focus()) {
+					return true;
+				}
+            }
+			return false;
+		}
+
+		virtual bool focus_set()
+		{
 			is_focused = true;
 			return false;
 		}
 
-		virtual bool kill_focus()
+		virtual bool focus_killed()
 		{
 			is_focused = false;
 			return false;
@@ -513,7 +523,6 @@ namespace corona
 
 		virtual void set_errors(const validation_error_collection& _errors)
 		{
-			system_monitoring_interface::active_mon->log_information( std::string(typeid(*this).name()) + ":set_errors: " + name + " has " + std::to_string(_errors.size()) + " errors");
 			for (auto it = _errors.cbegin(); it != _errors.cend(); ++it)
 			{
 				const auto& error = *it;

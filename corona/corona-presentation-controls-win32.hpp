@@ -51,8 +51,8 @@ namespace corona
 		std::weak_ptr<applicationBase> window_host;
 		textStyleRequest	text_style;
 
-		bool is_default_focus;
-		bool is_default_button;
+		bool is_default_focus = false;
+		bool is_default_button = false;
 
 		windows_control() :
 			window(nullptr),
@@ -86,7 +86,6 @@ namespace corona
 			is_default_focus = false;
 			is_default_button = false;
 		}
-
 
 		virtual void set_window_size()
 		{
@@ -131,22 +130,41 @@ namespace corona
 
 		virtual double get_font_size() { return text_style.fontSize; }
 
-		virtual bool kill_focus()
+		virtual bool focus_killed()
 		{
 			is_focused = false;
 			return true;
 		}
 
-		virtual bool set_focus()
+		virtual bool focus_set()
 		{
 			is_focused = true;
-			::SetFocus(window);
 			return true;
 		}
+
+        virtual bool set_focus()
+        {
+            if (window) {
+                SetFocus(window);
+                return true;
+            }
+            return false;
+        }
 
 		virtual LRESULT send_message(UINT msg, WPARAM  wParam, LPARAM  lParam)
 		{
 			return SendMessageA(window, msg, wParam, lParam);
+		}
+
+		virtual void get_json(json& _src)
+		{
+			control_base::get_json(_src);
+            _src.put_member("default_focus", is_default_focus);
+			_src.put_member("default_button", is_default_button);
+			json jtext_style = _src["text_style"];
+			if (jtext_style.object()) {
+				corona::put_json(text_style, jtext_style);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -250,20 +268,20 @@ namespace corona
 					}
 
 					set_window_size();
-					on_create();
+					on_recreate();
 				}
 
+				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
+
 				if (is_default_focus) {
-					set_focus();
-                    if (auto phost = window_host.lock()) {
-                        phost->setFocus(id);
-                    }
+					SetFocus(window);
 				}
 
 			}
 		}
 
-		virtual void on_create() { ; }
+		virtual void on_create()  { ; }
+		virtual void on_recreate() { on_create(); }
 
 		virtual void destroy()
 		{
@@ -341,9 +359,23 @@ namespace corona
 
 		virtual std::string get_text()
 		{
-			if (auto phost = window_host.lock()) {
-				text = phost->getEditText(id);
+			int length = ::GetWindowTextLength(window) + 1;
+			char window_buffer[1024] = {};
+
+			if (length < sizeof(window_buffer))
+			{
+				SendMessageA(window, WM_GETTEXT, length, (LPARAM)window_buffer);
+				text = window_buffer;
+			} 
+			else  {
+				char* buffer = new char[length];
+				if (buffer) {
+					SendMessageA(window, WM_GETTEXT, length, (LPARAM)buffer);
+					text = buffer;
+					delete[] buffer;
+				}
 			}
+
 			return text;
 		}
 
@@ -360,10 +392,18 @@ namespace corona
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
 		{
 			windows_control::create(_context, _host);
-			set_prompt(prompt);
-			if (auto phost = window_host.lock()) {
-				phost->setEditText(id, text);
-			}
+		}
+
+        virtual void on_create() override
+        {
+            windows_control::on_create();
+            set_prompt(prompt);
+            set_text(text);
+        }
+
+		virtual void on_recreate() override
+		{
+			;
 		}
 
 		virtual json_object get_edited_object() override
@@ -516,8 +556,9 @@ namespace corona
 
 		virtual ~table_control_base() { ; }
 
-		virtual void on_create()
+		virtual void on_create() override
 		{
+			windows_control::on_create();
 			ListView_SetExtendedListViewStyle(window, LVS_EX_FULLROWSELECT );
 			data_changed();
 		}
@@ -703,8 +744,9 @@ namespace corona
 			data_changed();
 		}
 
-		virtual void on_create()
+		virtual void on_create() override
 		{
+			windows_control::on_create();
 			data_changed();
 		}
 
@@ -855,7 +897,7 @@ namespace corona
 			data_changed();
 		}
 		
-		virtual void on_create()
+		virtual void on_create() override
 		{
 			on_resize();
 			data_changed();
@@ -1445,12 +1487,6 @@ namespace corona
 			return CallWindowProcW(DefWindowProcW, hWnd, msg, wParam, lParam);
 		}
 
-		virtual void on_create()
-		{
-			if (::IsWindow(window)) {
-				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
-			}
-		}
 	};
 
 	class number_control : public edit_control

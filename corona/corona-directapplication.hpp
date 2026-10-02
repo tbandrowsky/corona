@@ -93,8 +93,8 @@ namespace corona
 		virtual void redraw();
 		virtual void setVisible(int controlId, bool visible);
 		virtual void setEnable(int controlId, bool enabled);
-		virtual void setFocus(int ddlControlId);
-		virtual void killFocus(int ddlControlId);
+		virtual void focusSet(int ddlControlId);
+		virtual void focusKilled(int ddlControlId);
 
 		virtual rectangle getWindowClientPos();
 		virtual rectangle getWindowPos(int ddlControlId);
@@ -478,7 +478,7 @@ namespace corona
 
 		navigationKey = ::IsDialogMessage(hwnd, msg);		
 
-		if (!navigationKey && msg->message == WM_KEYDOWN && msg->wParam == VK_TAB) {
+		if (false && msg->message == WM_KEYDOWN && msg->wParam == VK_TAB) {
 			currentController->keyDown(hwnd, VK_TAB);
 			navigationKey = true;
 		}
@@ -525,13 +525,13 @@ namespace corona
 		case WM_SETFOCUS:
 			if (currentController)
 			{
-				currentController->setFocus(hwndchild);
+				currentController->focusSet(hwndchild);
 			}
 			break;
 		case WM_KILLFOCUS:
 			if (currentController)
 			{
-				currentController->killFocus(hwndchild);
+				currentController->focusKilled(hwndchild);
 			}
 			break;
 
@@ -554,7 +554,7 @@ namespace corona
 					if (pcurrent_window) {
 						switch (message) {
 						case WM_LBUTTONUP:
-							setFocus(ctrlId);
+							focusSet(ctrlId);
 							currentController->mouseLeftUp(&ptxo);
 							break;
 						case WM_LBUTTONDOWN:
@@ -739,10 +739,13 @@ namespace corona
 					switch (notificationCode) {
 						case BN_CLICKED: // button or menu
 							currentController->onCommand(controlWindow);
-							break;
-						case EN_UPDATE:
+							return 0;
+						case EN_CHANGE:
 							currentController->onTextChanged(controlWindow);
-							break;
+							return 0;
+						case EN_KILLFOCUS:
+							currentController->onTextChanged(controlWindow);
+							return 0;
 						case LBN_SELCHANGE:
 						{
 							char window_class[500];
@@ -758,7 +761,7 @@ namespace corona
 									currentController->onListBoxChanged(controlWindow);
 								}
 							}
-							break;
+							return 0;
 						}
 					}
 				}
@@ -795,11 +798,9 @@ namespace corona
 						auto lpmnlv = (LPNMLISTVIEW)lParam;
 						if (lpmnlv->uNewState & LVIS_SELECTED)
 							currentController->onListViewChanged(lpnm->hwndFrom);
+						return 0;
 					}
 					break;
-					case EN_CHANGE:
-						currentController->onTextChanged(lpnm->hwndFrom);
-						break;
 					case NM_CLICK:
 					{
 
@@ -813,42 +814,6 @@ namespace corona
 						}
 					}
 					break;
-
-					/*
-								case NM_CUSTOMDRAW:
-								{
-									LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-									switch (lplvcd->nmcd.dwDrawStage) {
-									case CDDS_PREPAINT:
-										return CDRF_NOTIFYITEMDRAW;
-									case CDDS_ITEMPREPAINT:
-										LVITEM lvitem;
-										char buff[16384];
-										ZeroMemory(&lvitem, sizeof(lvitem));
-										lvitem.iItem = lplvcd->nmcd.dwItemSpec;
-										lvitem.stateMask = LVIS_SELECTED;
-										lvitem.mask = LVIF_STATE | LVIF_TEXT;
-										lvitem.cchTextMax = sizeof(buff) - 1;
-										lvitem.pszText = buff;
-										HWND control = ::GetDlgItem(hwndRoot, lplvcd->nmcd.hdr.idFrom);
-										ListView_GetItem(control, &lvitem);
-
-										RECT area = lplvcd->nmcd.rc;
-
-										if (lvitem.state & LVIS_SELECTED) {
-											::FillRect(lplvcd->nmcd.hdc, &area, GetSysColorBrush(COLOR_HIGHLIGHT));
-											::SetTextColor(lplvcd->nmcd.hdc, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
-											::DrawTextA(lplvcd->nmcd.hdc, lvitem.pszText, strlen(lvitem.pszText), &area, DT_CENTER);
-										}
-										else {
-											::FillRect(lplvcd->nmcd.hdc, &area, GetSysColorBrush(COLOR_WINDOW));
-											::SetTextColor(lplvcd->nmcd.hdc, ::GetSysColor(COLOR_WINDOWTEXT));
-											::DrawTextA(lplvcd->nmcd.hdc, lvitem.pszText, strlen(lvitem.pszText), &area, DT_CENTER);
-										}
-										return CDRF_SKIPDEFAULT;
-									}
-
-					*/
 					}
 				}
 				break;
@@ -1109,12 +1074,9 @@ namespace corona
 				}
 			}
 			break;
+			case DM_SETDEFID:
+				break;
 			case DM_GETDEFID:
-			{
-				if (currentController)
-					return MAKELONG(currentController->getDefaultButtonId(), DC_HASDEFID);
-
-			}
 			break;
 
 			}
@@ -1341,14 +1303,14 @@ namespace corona
 		::QueryPerformanceCounter((LARGE_INTEGER*)&lastCounter);
 
 		while (true) {
-			if (::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {								
-				if (not ::GetMessage(&msg, NULL, 0, 0))
-					break;
-				else if (checkBackgroundComplete(&msg))
+			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {								
+				
+				if (checkBackgroundComplete(&msg))
 				{
-					;
+					continue;
 				}
-				else if (not isDialogMessage(hwndRoot, &msg))
+				
+				if (not isDialogMessage(hwndRoot, &msg))
 				{
 					::TranslateMessage(&msg);
 					::DispatchMessage(&msg);
@@ -1405,14 +1367,14 @@ namespace corona
 		::EnableWindow(control, enabled);
 	}
 
-	void directApplicationWin32::setFocus(int ddlControlId)
+	void directApplicationWin32::focusSet(int ddlControlId)
 	{
 		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
 		::SetFocus(control);
 //		::PostMessage(hwndRoot, WM_NEXTDLGCTL, (WPARAM)control, TRUE);
 	}
 
-	void directApplicationWin32::killFocus(int ddlControlId)
+	void directApplicationWin32::focusKilled(int ddlControlId)
 	{
 		;
 	}

@@ -89,6 +89,7 @@
                   "name": "search_input",
                   "json_field_name": "full_text",
                   "placholder": "Search text",
+                  "default_focus": true,
                   "box": {
                     "width": "216 pixels",
                     "height": "32 pixels"

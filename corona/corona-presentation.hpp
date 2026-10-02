@@ -36,7 +36,6 @@ namespace corona {
 		point last_mouse_click;
         control_base* last_mouse_control = nullptr;
 		json json_pages;
-		std::vector<control_base *> focus_list;
 
 		comm_desktop_bus_interface *bus;
 
@@ -63,18 +62,6 @@ namespace corona {
 			last_mouse_click = {};
 		}
 
-		void update_focus_list()
-		{
-			focus_list.clear();
-			if (auto cpg = current_page.lock()) {
-				cpg->root->find_if([this](control_base* c)->bool {
-					if (c->captures_keyboard_focus()) {
-						focus_list.push_back(c);
-					}
-					return false;
-				});
-			}
-		}
 
 		page_base* get_current_page()
 		{
@@ -188,8 +175,8 @@ namespace corona {
 		virtual void mouseWheel(int _delta);
 		virtual void pointSelected(point* _point, ccolor* _color);
 		virtual LRESULT ncHitTest(point* _point);
-		virtual void setFocus(HWND _ctrl);
-		virtual void killFocus(HWND _ctrl);
+		virtual void focusSet(HWND _ctrl);
+		virtual void focusKilled(HWND _ctrl);
 		virtual bool navigationKey(int _key);
 		virtual void gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state);
 
@@ -369,16 +356,12 @@ namespace corona {
 
 		default_focus_name.clear();
 		default_push_button_name.clear();
-        focus_list.clear();
 
 		if (auto ppage = current_page.lock()) {
 			ppage->destroy();
 
 			auto root = ppage->get_root();
 			root->foreach([this](control_base* _item) {
-				if (_item->captures_keyboard_focus()) {
-					focus_list.push_back(_item);
-				}
 
 				pushbutton_control* pct = dynamic_cast<pushbutton_control*>(_item);
 				if (pct and pct->is_default_button) {
@@ -552,18 +535,18 @@ namespace corona {
 		return true;
 	}
 
-	void presentation::setFocus(HWND _ctrl)
+	void presentation::focusSet(HWND _ctrl)
 	{
         control_base* ctrl = (control_base*)GetWindowLongPtr(_ctrl, GWLP_USERDATA);
 		if (ctrl)
-			ctrl->set_focus();
+			ctrl->focus_set();
 	}
 
-	void presentation::killFocus(HWND _ctrl)
+	void presentation::focusKilled(HWND _ctrl)
 	{
 		control_base* ctrl = (control_base*)GetWindowLongPtr(_ctrl, GWLP_USERDATA);
 		if (ctrl)
-			ctrl->kill_focus();
+			ctrl->focus_killed();
 	}
 
 	bool presentation::navigationKey(int _key)
@@ -765,32 +748,6 @@ namespace corona {
 		if (cp) {
 			cp->handle_key_down(ctrl, kde);
 		}
-		if (_key == VK_TAB) {
-			if (focus_list.size() > 1) {
-				auto it = std::find(focus_list.begin(), focus_list.end(), ctrl);
-				int index = 0;
-				if (it != focus_list.end()) {
-					index = std::distance(focus_list.begin(), it);
-				}
-				if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-					index--;
-                    if (index < 0) {
-						index = (int)focus_list.size() - 1;
-					}
-				}
-				else {
-					index++;
-					if (index >= (int)focus_list.size()) {
-						index = 0;
-					}
-				}
-				auto next_ctrl = focus_list[index];
-				if (next_ctrl) {
-					next_ctrl->set_focus();
-					current_focused_name = next_ctrl->get_name();
-				}
-			}
-        }
 	}
 
 	void presentation::keyUp(HWND hwnd, int _key)
@@ -852,12 +809,11 @@ namespace corona {
 				if (false) {
 					cb->dump();
 				}
-				cb->set_focus();
-				control_base* last_focused = cp->root->find(current_focused_name);
-				if (last_focused) {
-					last_focused->kill_focus();
+                windows_control* wcb = dynamic_cast<windows_control*>(cb);
+                if (!wcb) {
+                    cb->set_focus();
+					this->current_focused_name = cb->get_name();
 				}
-				this->current_focused_name = cb->get_name();
 			}
 
 			cp->root->set_mouse(*_point, &leftMouse, nullptr, [cp, p, _point](control_base* _item) {
@@ -1010,10 +966,10 @@ namespace corona {
 	{
 		if (auto ptr = window_host.lock()) {
 			control_base* ctrl = (control_base*)::GetWindowLongPtr(textControlId, GWLP_USERDATA);
-            windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
+            text_control_base* wctrl = dynamic_cast<text_control_base*>(ctrl);
 			item_changed_event lce;
 			if (wctrl) {
-				std::string new_text = ptr->getEditText(wctrl->id);
+				std::string new_text = wctrl->get_text();
 				lce.text_value = new_text;
 			}
 			lce.bus = bus;

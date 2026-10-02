@@ -67,6 +67,8 @@ namespace corona
 		std::shared_ptr<field_control>		field;
 		std::shared_ptr<status_control>		status;
 
+		bool default_focus = false;
+
 		layout_rect label_box;
 		layout_rect field_box;
 		layout_rect status_box;
@@ -161,6 +163,7 @@ namespace corona
 			layout_container::get_json(_dest);
 
             _dest.put_member_string("json_field_name", layout_container::json_field_name);
+            _dest.put_member_bool("default_focus", default_focus);
 
 			if (label) {
 				json label_json = jp.create_object();
@@ -186,6 +189,8 @@ namespace corona
 
 			layout_container::json_field_name = _src["json_field_name"].as_string();
 
+			default_focus = _src["default_focus"].as_bool();
+
 			label = std::make_shared<edit_label_control>();
 			auto label_json = _src["label"];
 			if (!label_json.object()) {
@@ -197,6 +202,12 @@ namespace corona
 			label->put_json(label_json);
 
 			field = std::make_shared<field_control>();
+            std::shared_ptr<windows_control> field_as_windows_control = std::dynamic_pointer_cast<windows_control>(field);
+
+            if (field_as_windows_control) {
+                field_as_windows_control->is_default_focus = default_focus;
+            }
+
 			auto field_json = _src["field"];
 
 			if (field_json.empty()) {

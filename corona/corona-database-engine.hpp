@@ -9907,6 +9907,8 @@ private:
 				return jp.create_object();
 			}
 
+			bool default_set = true;
+
 			for (int i = 0; i < cfm.size(); i++) {
 				auto field = cfm.get_element(i);
 
@@ -9932,6 +9934,8 @@ private:
 				content.put_member_string("prompt", field_label);
 				content.put_member_string("name", field_name);
 				content.put_member("json_field_name", field_name);
+                content.put_member_bool("default_focus", default_set);
+				default_set = false;
 				tab_contents.push_back(content);
 			}
 

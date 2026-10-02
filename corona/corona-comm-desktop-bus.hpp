@@ -2189,7 +2189,6 @@ namespace corona
 						cb->set_data(_obj);
 					}
 				}
-				presentation_layer->update_focus_list();
 				log_function_start("select_page", _page, tx.get_elapsed_seconds());
 			});
 		}
@@ -2297,7 +2296,6 @@ namespace corona
 							formx->set_data(_obj);
 						}
 					}
-					presentation_layer->update_focus_list();
 					presentation_layer->onResize();
 				}
 			}
@@ -2307,7 +2305,6 @@ namespace corona
 		virtual bool refresh_ux() override
 		{
 			if (presentation_layer) {
-				presentation_layer->update_focus_list();
 				presentation_layer->onResize();
 				return true;
 			}
@@ -2367,7 +2364,7 @@ namespace corona
 
 		virtual void update_focus_list()
 		{
-			presentation_layer->update_focus_list();
+			;
 		}
 
 		virtual json get_local_games() 

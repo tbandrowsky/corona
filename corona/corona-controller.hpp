@@ -51,8 +51,8 @@ namespace corona
 		virtual void mouseWheel(int _delta) = 0;
 		virtual void pointSelected(point* _point, ccolor* _color) = 0;
 		virtual LRESULT ncHitTest(point* _point) = 0;
-		virtual void setFocus(HWND _ctrl) = 0;
-		virtual void killFocus(HWND _ctrl) = 0;
+		virtual void focusSet(HWND _ctrl) = 0;
+		virtual void focusKilled(HWND _ctrl) = 0;
 		virtual bool navigationKey(int _key) = 0;
 		virtual void gamePad(XINPUT_STATE new_state, XINPUT_STATE old_state) = 0;
 
