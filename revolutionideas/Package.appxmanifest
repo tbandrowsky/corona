@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="17d806d2-c609-41f8-803d-3688c5702b11"
-    Publisher="CN=toddb"
-    Version="1.0.0.0" />
+    Name="27629CountryVideoGames.RevolutionIdeas"
+    Publisher="CN=8855F627-AD63-41E1-990B-4633E16CE09E"
+    Version="1.0.2.0" />
 
   <Properties>
-    <DisplayName>Revolution: Ideas</DisplayName>
-    <PublisherDisplayName>TJ Bandrowsky</PublisherDisplayName>
+    <DisplayName>Revolution Ideas</DisplayName>
+    <PublisherDisplayName>Country Bit</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 

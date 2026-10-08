@@ -1,7 +1,7 @@
 {
   "schema_name": "Revolution Ideas",
   "schema_description": "Revolution IdeasApplication Schema",
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "schema_authors": [
     "TJ Bandrowsky"
   ],
@@ -1238,7 +1238,7 @@
 
   "application": {
     "application_creator": "Country Video Games",
-    "application_name": "Revolution : Ideas",
+    "application_name": "Revolution Ideas",
     "fields": {
       ".section": {
         "class_name": ".section",
