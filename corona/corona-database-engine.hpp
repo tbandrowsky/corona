@@ -1211,6 +1211,7 @@ namespace corona
 		virtual json get_classes(json get_classes_request) = 0;
 		virtual json get_class(json get_class_request) = 0;
 		virtual json put_class(json put_class_request) = 0;
+		virtual json alter_class(json alter_class_request) = 0;
 		virtual json user_home(json user_home_request) = 0;
 		virtual json user_set_team(json user_home_request) = 0;
 
@@ -12392,6 +12393,16 @@ grant_type=authorization_code
 
 			system_monitoring_interface::active_mon->log_function_stop(pc_name, pc_stop, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return result;
+		}
+
+        /// this method is used to alter a class definition.  
+		/// it will take an alter class request, with a new field definition, and new index definitions, 
+		/// get the existing class, then put the modifications in.
+		/// This method can then be used by a UX to allow a simpler way of self modifying applications
+		/// in flight.
+		virtual json alter_class(json alter_class_request)
+		{
+
 		}
 
 		public:
