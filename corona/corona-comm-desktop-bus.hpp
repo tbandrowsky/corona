@@ -683,6 +683,23 @@ namespace corona
 			return response;
 		}
 
+		virtual corona_client_response remote_alter_class(json _class_definition)
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.alter_class(_class_definition);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
 		virtual corona_client_response remote_create_object(std::string class_name)
 		{
 			corona_client_response response;
@@ -1156,6 +1173,29 @@ namespace corona
 				request.copy_member(token_field, token);
 				request.put_member("data", _class_definition);
 				json jresponse = local_db->put_class(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_alter_class(json _class_definition)  override
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				request.put_member("data", _class_definition);
+				json jresponse = local_db->alter_class(request);
 				response.set(jresponse);
 			}
 			catch (std::exception& exc)
@@ -1689,7 +1729,31 @@ namespace corona
 				}
 			}
 
-			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("get_class", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			return response;
+		}
+
+		virtual corona_client_response alter_class(corona_instance _instance, json _class_data)
+		{
+			date_time dt;
+			dt = date_time::now();
+			log_command_start("alter_class", "start", dt);
+			corona_client_response response;
+			timer tx;
+
+			if (_instance == corona_instance::local)
+			{
+				response = local_alter_class(_class_data);
+			}
+			else
+			{
+				response = remote_alter_class(_class_data);
+				if (!response.success) {
+					log_error(response, __FILE__, __LINE__);
+				}
+			}
+
+			log_command_stop("alter_class", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 
@@ -1697,7 +1761,7 @@ namespace corona
 		{
 			date_time dt;
 			dt = date_time::now();
-			log_command_start("get_class", "start", dt);
+			log_command_start("put_class", "start", dt);
 			corona_client_response response;
 			timer tx;
 
@@ -1713,7 +1777,7 @@ namespace corona
 				}
 			}
 
-			log_command_stop("send_user", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			log_command_stop("put_class", response.message, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 			return response;
 		}
 

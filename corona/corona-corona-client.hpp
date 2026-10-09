@@ -240,6 +240,26 @@ namespace corona
 			return result;
 		}
 
+		virtual corona_client_response alter_class(json _class_definition) override
+		{
+			corona_client_response result;
+			json_parser jp;
+			http_client cc;
+
+			std::string header = "Content-Type: application/json\r\n" + authorization_header;
+
+			json payload = jp.create_object();
+			payload.put_member("data", _class_definition);
+
+			std::string path = base_path + "/corona/classes/alter/";
+
+			http_params params = cc.post(host.c_str(), port, path.c_str(), payload, header.c_str());
+
+			result = params;
+
+			return result;
+		}
+
 		virtual corona_client_response create_object(std::string _class_name) override
 		{
 			corona_client_response result;

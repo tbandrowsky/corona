@@ -77,6 +77,7 @@ namespace corona
 		virtual corona_client_response get_classes() = 0;
 		virtual corona_client_response get_class(std::string class_name) = 0;
 		virtual corona_client_response put_class(json _class_definition) = 0;
+		virtual corona_client_response alter_class(json _class_definition) = 0;
 		virtual corona_client_response create_object(std::string _class_name) = 0;
 		virtual corona_client_response edit_object(std::string _class_name, int64_t _object_id, bool _object_id_field) = 0;
 		virtual corona_client_response get_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;

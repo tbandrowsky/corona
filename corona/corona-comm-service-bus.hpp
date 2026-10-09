@@ -2793,6 +2793,24 @@ Bind get classes
 			return response;
 		}
 
+		virtual corona_client_response remote_alter_class(json _class_definition)
+		{
+			corona_client_response response;
+
+			try
+			{
+				response = client.alter_class(_class_definition);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+
 		virtual corona_client_response remote_create_object(std::string class_name)
 		{
 			corona_client_response response;
@@ -3266,6 +3284,29 @@ Bind get classes
 				request.copy_member(token_field, token);
 				request.put_member("data", _class_definition);
 				json jresponse = local_db->put_class(request);
+				response.set(jresponse);
+			}
+			catch (std::exception& exc)
+			{
+				response.success = false;
+				response.message = exc.what();
+			}
+
+			return response;
+		}
+
+		virtual corona_client_response local_alter_class(json _class_definition)  override
+		{
+			corona_client_response response;
+
+			try
+			{
+				json_parser jp;
+				json request = jp.create_object();
+				json token = get_local_token();
+				request.copy_member(token_field, token);
+				request.put_member("data", _class_definition);
+				json jresponse = local_db->alter_class(request);
 				response.set(jresponse);
 			}
 			catch (std::exception& exc)

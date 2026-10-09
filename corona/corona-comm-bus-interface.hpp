@@ -72,6 +72,7 @@ namespace corona
 		virtual corona_client_response remote_get_classes() = 0;
 		virtual corona_client_response remote_get_class(std::string class_name) = 0;
 		virtual corona_client_response remote_put_class(json _class_data) = 0;
+		virtual corona_client_response remote_alter_class(json _class_data) = 0;
 		virtual corona_client_response remote_create_object(std::string class_name) = 0;
 		virtual corona_client_response remote_run_object(json object_information) = 0;
 		virtual corona_client_response remote_edit_object(std::string _class_name, int64_t _object_id, bool _include_children) = 0;
@@ -94,6 +95,7 @@ namespace corona
 		virtual corona_client_response local_get_classes() = 0;
 		virtual corona_client_response local_get_class(std::string class_name) = 0;
 		virtual corona_client_response local_put_class(json _class_data) = 0;
+		virtual corona_client_response local_alter_class(json _class_data) = 0;	
 		virtual corona_client_response local_create_object(std::string class_name) = 0;
 		virtual corona_client_response local_run_object(json object_information) = 0;
 		virtual corona_client_response local_edit_object(std::string _class_name, int64_t _object_id) = 0;

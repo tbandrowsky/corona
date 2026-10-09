@@ -12400,9 +12400,71 @@ grant_type=authorization_code
 		/// get the existing class, then put the modifications in.
 		/// This method can then be used by a UX to allow a simpler way of self modifying applications
 		/// in flight.
-		virtual json alter_class(json alter_class_request)
+		virtual json alter_class(json _alter_class_request) override
 		{
+			json result;
+			json_parser jp;
 
+			std::string user_name, user_auth;
+			
+			timer method_timer;
+			timer tx;
+			validation_error_collection errors;
+
+			std::string pc_name = "alter_class";
+			std::string pc_msg = _alter_class_request[data_field][class_name_field].as_string();
+			std::string pc_start = pc_msg + " start";
+			std::string pc_stop = pc_msg + " stop";
+			std::string pc_failed = pc_msg + " failed";
+
+			json_object data = corona::to_object(_alter_class_request[data_field]);
+
+			std::string target_class = data[class_name_field]->as_string();
+			json_array new_fields = data["fields"];
+			json_array new_indexes = data["indexes"];
+	
+			if (not check_message(_alter_class_request, { auth_general }, user_name, user_auth))
+			{
+				result = create_response(_alter_class_request, false, "alter_class denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop(pc_name, pc_failed, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+
+				return result;
+			}
+
+			if (auto classd = read_lock_class(target_class)) {
+                json class_definition = jp.create_object();
+				classd->get_json(class_definition);
+				json_object classdef = corona::to_object(class_definition);
+                json_object fields = classdef["fields"];
+                json_object indexes = classdef["indexes"];	
+
+                for (auto& field : new_fields) {
+                    json_object jfield = corona::to_object(field);
+                    std::string field_name = jfield["field_name"]->as_string();
+                    if (not field_name.empty()) {
+                        fields[field_name] = field;
+                    }
+                }
+
+				for (auto& index : new_indexes) {
+					json_object jindex = corona::to_object(index);
+					std::string index_name = jindex["index_name"]->as_string();
+					if (not index_name.empty()) {
+						indexes[index_name] = index;
+					}
+				}
+
+                json put_class_request = create_request(user_name, auth_general, classdef);
+
+                result = put_class(put_class_request);
+			}
+			else 
+			{
+				result = create_response(_alter_class_request, false, "alter_class denied", jp.create_object(), errors, method_timer.get_elapsed_seconds());
+				system_monitoring_interface::active_mon->log_function_stop(pc_name, pc_failed, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+			}
+
+			return result;
 		}
 
 		public:
