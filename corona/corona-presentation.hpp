@@ -1144,9 +1144,12 @@ namespace corona {
 		json_pages = _json_pages;
 		std::string default_page_name;
 
-		if (json_pages.error()) {
-			pages.clear();
-			return default_page_name;
+		if (_json_pages["add"].as_bool() == false) {
+
+			if (json_pages.error()) {
+				pages.clear();
+				return default_page_name;
+			}
 		}
 
 		json jstyles = json_pages.get_member("styles");
@@ -1179,7 +1182,11 @@ namespace corona {
 			if (auto cp = current_page.lock()) {
 				current_page_name = cp->name;
 			}
-			pages.clear();
+
+			if (_json_pages["add"].as_bool() == false) {
+				pages.clear();
+			}
+
 			for (auto pg : jpages)
 			{
 				if (pg.object()) {

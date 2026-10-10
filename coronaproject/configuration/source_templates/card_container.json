@@ -78,7 +78,7 @@
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "prompt": "{name}",
+              "template_text": "{name}",
               "box": "chaptersubtitle_box"
             },
             "$card_contents"

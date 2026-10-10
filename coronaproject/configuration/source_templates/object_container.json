@@ -93,7 +93,7 @@
             },
             {
               "class_name": "chaptertitle",
-              "text": "{class_name} {name} #{object_id}",
+              "template_text": "{class_name} {name} #{object_id}",
               "box": {
                 "width": "1.0 remaining",
                 "height": "30 pixels"

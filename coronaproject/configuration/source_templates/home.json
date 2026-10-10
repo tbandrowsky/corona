@@ -102,7 +102,7 @@
               "class_name": "code",
               "name": "call_success_message",
               "box": {
-                "width": "150 pixels",
+                "width": "125 pixels",
                 "height": "1.0 container"
               }
             },
@@ -116,13 +116,13 @@
             },
             {
               "class_name": "code",
-              "name": "call_timer_seconds",
+              "name": "call_timer_second_controls",
               "box": {
-                "width": "150 pixels",
+                "width": "300 pixels",
                 "height": "1.0 container"
               },
               "json_field_name": "call_timer_seconds",
-              "text": "{call_timer_seconds} secs"
+              "template_text": "{call_timer_seconds} secs"
             },
             {
               "class_name": "code",

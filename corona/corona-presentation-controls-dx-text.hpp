@@ -40,7 +40,8 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			draw_control::get_json(_dest);
-			_dest.put_member("text", template_text);
+			_dest.put_member("text_template", template_text);
+			_dest.put_member("text", text);
 			_dest.put_member("prompt", template_text);
 			_dest.put_member("hit_word", hit_word);
 		}
@@ -48,11 +49,11 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
-			template_text = _src["text"].as_string();
+			template_text = _src["text_template"].as_string();
 			if (template_text.empty()) {
 				template_text = _src["prompt"].as_string();
 			}
-			text = template_text;
+			text = _src["text"].as_string();
 			hit_word = _src["hit_word"].as_string();
 		}
 
@@ -184,6 +185,7 @@ namespace corona
 			update_text();
 			return data;
 		}
+
 
 		virtual double get_font_size() { return view_style ? view_style->text_style.fontSize : 14; }
 		text_display_control& set_text(std::string _text);

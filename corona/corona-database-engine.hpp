@@ -1182,6 +1182,7 @@ namespace corona
 		virtual void apply_config(json _system_config, json _server_config) = 0;
 		virtual json apply_schema(json _schema) = 0;
 		virtual json create_application(json _application_schema) = 0;
+		virtual json update_application(json _application_schema, std::string _class_name) = 0;
 
 		virtual std::string get_random_code(int _confirmation_code_digits = 8) = 0;
 
@@ -1236,6 +1237,7 @@ namespace corona
 		virtual json save_class(class_interface* _class_to_save) = 0;
 		virtual bool check_message(json& _message, std::vector<std::string> _authorizations, std::string& _user_name, std::string& _token_authority) = 0;
 		virtual json get_openapi_schema(std::string _user_name) = 0;
+
 	};
 
 	class from_join
@@ -9188,7 +9190,169 @@ private:
 			return result;
 		}
 
-		virtual json create_application(json _application_schema)
+		virtual json update_application(json _application_schema, std::string _class_name) override
+		{
+			validation_error_collection errors;
+
+			std::string version_string = _application_schema["schema_version"].as_string();
+            std::vector<std::string> version_parts = split(version_string, '.');
+
+            auto& last_string = version_parts.back();
+            int version_number = std::strtod(last_string.c_str(), nullptr);
+			version_number++;
+            std::string new_version_string = join(version_parts, ".");
+            _application_schema.put_member("schema_version", new_version_string);
+
+			json_parser jp;
+			json result_pages = jp.create_object();
+
+			json field_mappings = _application_schema["fields"];
+			json class_mappings = _application_schema["classes"];
+			json team_mappings = _application_schema["teams"];
+			json object_list = _application_schema["objects"];
+
+			json result = jp.create_object();
+			json pages = jp.create_array();
+			json card_sources = jp.create_object();
+			json form_sources = jp.create_object();
+
+			json section_box = field_mappings[".section"]["box"];
+
+			// config path always ends with a separator
+
+			// read the templates from the files.  everything is json object and we're just manipulating them
+			// in a C++ equivalent of what node.js might do.
+
+			json chart_template = read_json(errors, this->config_path + "source_templates\\chart.json");
+
+			json card_template = read_json(errors, this->config_path + "source_templates\\card.json");
+
+			json chest_item_card = read_json(errors, this->config_path + "source_templates\\card_chest_item.json");
+			json card_container_template = read_json(errors, this->config_path + "source_templates\\card_container.json");
+			json object_template = read_json(errors, this->config_path + "source_templates\\object.json");
+			json object_details = read_json(errors, this->config_path + "source_templates\\object_details.json");
+			json object_container_template = read_json(errors, this->config_path + "source_templates\\object_container.json");
+
+			json tab_edit_template = read_json(errors, this->config_path + "source_templates\\tab_edit.json");
+			json tab_list_template = read_json(errors, this->config_path + "source_templates\\tab_list.json");
+			json tab_inventory_template = read_json(errors, this->config_path + "source_templates\\tab_inventory.json");
+			json tab_custom_template = read_json(errors, this->config_path + "source_templates\\tab_custom.json");
+			json tab_container_template = read_json(errors, this->config_path + "source_templates\\tab_container.json");
+			json home_template = read_json(errors, this->config_path + "source_templates\\home.json");
+			json home_page = home_template.clone();
+
+			home_page.apply_abbreviations({
+				{ "$corporate_name", _application_schema["application_company"] },
+				{ "$title_name",  _application_schema["application_name"] }
+				});
+
+			json pages_template = read_json(errors, this->config_path + "source_templates\\pages.json");
+			json styles_template = read_json(errors, this->config_path + "source_templates\\styles.json");
+
+			json search_template = read_json(errors, this->config_path + "source_templates\\search.json");
+			json search_group_template = read_json(errors, this->config_path + "source_templates\\search_group.json");
+			json search_command_class_template = read_json(errors, this->config_path + "source_templates\\search_command_class.json");
+			json create_command_class_template = read_json(errors, this->config_path + "source_templates\\create_command_class.json");
+			json chart_command_class_template = read_json(errors, this->config_path + "source_templates\\chart_command_class.json");
+
+			json pages_array = pages_template["pages"];
+			json abbreviations = pages_template["abbreviations"];
+
+			pages.push_back(chest_item_card);
+			pages.push_back(card_container_template);
+			pages.push_back(object_container_template);
+			pages.push_back(tab_container_template);
+			pages.push_back(object_details);
+			pages.push_back(home_page);
+
+			std::map<std::string, bool> card_fields;
+
+			if (errors.size() > 0) {
+				log_errors(errors);
+				return jp.create_object();
+			}
+
+			json ja = _application_schema["card_fields"];
+			if (ja.array()) {
+				for (int i = 0; i < ja.size(); i++) {
+					std::string field_name = ja.get_element(i).as_string();
+					card_fields[field_name] = true;
+				}
+			}
+
+			// we're going to go through the list of classes here, applying ux maps for each class, and generating pages based on the templates for each class.  
+			// The ux maps will determine which fields are included in the generated pages, and the templates will determine the layout and structure of the pages.
+			// The generated pages will then be added to the pages array, and the pages template will be updated to include the new pages.  
+			// Finally, the pages template and styles template will be saved to the config path.
+
+			std::string class_name = _class_name;
+
+			auto classd = read_lock_class(class_name);
+			if (classd) {
+
+				json class_ux_map;
+
+				class_ux_map = class_mappings[class_name];
+
+				if (class_ux_map.is_string() && class_ux_map.as_string() == "default")
+				{
+					class_ux_map = create_ux_map(errors, classd, card_fields, field_mappings);
+				}
+
+				if (!class_ux_map.empty())
+				{
+					// Generate card page
+					json card_pages = generate_card_pages(errors, card_template, classd, class_ux_map, field_mappings);
+					if (!card_pages.empty()) {
+						card_sources.put_member(class_name, std::format("card_{}", class_name));
+						pages.push_back_array(card_pages);
+					}
+
+					// Generate object details page
+					json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box);
+					if (!object_pages.empty()) {
+						form_sources.put_member(class_name, std::format("object_{}", class_name));
+						pages.push_back_array(object_pages);
+					}
+
+					if (errors.size() > 0) {
+						log_warning("UX NOT CREATED");
+						log_errors(errors);
+						return jp.create_object();
+					}
+
+					for (int i = 0; i < pages.size(); i++)
+					{
+						json page = pages.get_element(i);
+						std::string page_name = page["page_name"].as_string();
+						std::string filename = "pages\\" + page_name + ".json";
+
+						json page_import = jp.create_object();
+						page_import.put_member_string("class_name", "import");
+						page_import.put_member("file_name", filename);
+
+						pages_array.push_back(page_import);
+
+						std::string page_file_path = this->config_path + filename;
+						page.save(page_file_path);
+
+						std::string override_path = this->config_path + "overrides\\" + page_name + ".json";
+						if (std::filesystem::exists(override_path)) {
+							json override_page = read_json(errors, override_path);
+							if (not override_page.empty()) {
+								override_page.save(page_file_path);
+							}
+						}
+					}
+
+					result_pages.put_member("pages", pages_array);
+				}			
+			}
+
+			return result_pages;
+		}
+
+		virtual json create_application(json _application_schema) override
 		{
 
 			validation_error_collection errors;
