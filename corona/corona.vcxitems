@@ -29,6 +29,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-comm-bus-commands.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-comm-service-bus.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-corona-client.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-class-implementation.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-class-interfaces.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-field-implementation.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-express-record.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-gaming-2d.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-interfaces.hpp" />
@@ -124,6 +127,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona_service_locator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-field-interfaces.hpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)utils\machine_id.cpp" />
   </ItemGroup>
   <ItemGroup>

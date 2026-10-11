@@ -747,6 +747,7 @@ namespace corona
 { "object", field_types::ft_object },
 { "array", field_types::ft_array },
 { "chest", field_types::ft_chest },
+{ "selection", field_types::ft_selection },
 { "double", field_types::ft_double },
 { "number", field_types::ft_double },
 { "int64", field_types::ft_int64 },

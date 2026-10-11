@@ -259,6 +259,17 @@ namespace corona {
 
 // this is the database engine and it lets you create an object database 
 // consisting of multiple classes
+#include "corona-database-engine-field-interfaces.hpp"
+// this is the database engine class and database interfaces
+#include "corona-database-engine-class-interfaces.hpp"
+
+/// this the field implementations, field specifications
+#include "corona-database-engine-field-implementation.hpp"
+
+#include "corona-database-engine-class-implementation.hpp"
+
+// this is the database engine and it lets you create an object database 
+// consisting of multiple classes
 #include "corona-database-engine.hpp"
 
 // this is the corona objects a view of the database
