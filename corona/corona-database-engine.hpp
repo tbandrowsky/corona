@@ -1000,7 +1000,7 @@ namespace corona
 	"class_description" : "Class Template",
 	"base_class_name" : "sys_object",
 	"fields" : {			
-		"base_class_name": { 
+		"base_name": { 
 			"field_type":"string",
 			"label": "Base Class Name",
 			"required": true
@@ -6459,7 +6459,11 @@ grant_type=authorization_code
 			auto pclass = put_class_impl(&pcactivity, jclass_definition);
 
 			if (pclass) 
-			{				
+			{
+				bool update_class = !put_class_request["is_class_update"].as_bool();
+				if (update_class) {
+					class_to_object(permission, class_name);
+				}
 				result = create_response(put_class_request, true, "Ok", jclass_definition, pcactivity.errors, method_timer.get_elapsed_seconds());
 			}
 			else 
@@ -6472,23 +6476,79 @@ grant_type=authorization_code
 			return result;
 		}
 
-		virtual json object_to_class(std::string _class_name) override
+		virtual json object_to_class(class_permissions _permission, std::string _class_name) 
 		{
-			json key = jp.create_object();
-			key.put_member(user_name_field, _class_name);
+			json_parser jp;
+			json result;
 
-			auto classd = read_get_class("sys_user");
+            // get the class for the sys_class table,
+			// so we can read our class record from it
+			auto classd = read_get_class("sys_class");
 			if (not classd)
-				return jp.create_array();
+				return result;
 
-			auto permission = get_system_permission();
+			json key = jp.create_object();
+			key.put_member("name", _class_name);
 
-			json users = classd->get_objects(this, key, true, permission);
+			json class_object = classd->get_objects(this, key, true, _permission);
+
+            if (class_object.array() and class_object.size() > 0) {
+                json class_object = class_object.get_element(0);
+                json new_class = jp.create_object();
+				new_class.put_member("class_name", class_object["name"].as_string());
+				new_class.put_member("class_description", class_object["description"].as_string());
+				new_class.put_member("class_author", class_object["author"].as_string());
+				new_class.put_member("class_version", class_object["version"].as_string());
+				new_class.put_member("full_text", class_object["full_text"].value());
+				new_class.put_member("fields", class_object["fields"].value());
+				new_class.put_member("indexes", class_object["indexes"].value());
+				new_class.put_member("sql", class_object["sql"].value());
+				new_class.put_member("field_order", class_object["field_order"].value());
+
+                json put_class_request = create_request(_permission.user_name, auth_general, new_class);
+				put_class_request.put_member("is_class_update", true);
+				result = put_class(put_class_request);
+            }
+
+			return result;
 		}
 
-		virtual json class_to_object(std::string _class_name) override
+		virtual json class_to_object(class_permissions _permission, std::string _class_name)
 		{
+			json_parser jp;
+			json result;
 
+			// get the class definition, so we can update the object to it
+			auto classs = read_get_class(_class_name);
+			if (not classs)
+				return result;
+
+            json class_definition = jp.create_object();
+			classs->get_json(class_definition);
+
+			// we want to find if this class has a matching definition
+			auto classd = read_get_class("sys_class");
+			if (not classd)
+				return result;
+
+			json key = jp.create_object();
+			key.put_member("name", _class_name);
+
+			json class_object = classd->get_objects(this, key, true, _permission);
+            if (class_object.array() and class_object.size() > 0) {
+                json class_object = class_object.get_element(0);
+                class_object.put_member("description", class_definition["class_description"].as_string());
+                class_object.put_member("author", class_definition["class_author"].as_string());
+                class_object.put_member("version", class_definition["class_version"].as_string());
+                class_object.put_member("full_text", class_definition["full_text"].value());
+                class_object.put_member("fields", class_definition["fields"].value());
+                class_object.put_member("indexes", class_definition["indexes"].value());
+                class_object.put_member("sql", class_definition["sql"].value());
+                class_object.put_member("field_order", class_definition["field_order"].value());				
+                json put_object_request = create_request(_permission.user_name, auth_general, class_object);
+				put_object_request.put_member("is_class_update", true);
+                put_object(put_object_request);
+            }
 		}
 
         /// this method is used to alter a class definition.  
@@ -6951,11 +7011,23 @@ grant_type=authorization_code
 						}
 					}
 
+
 					if (child_objects.size() > 0) {
 						put_object_request.put_member(data_field, child_objects);
 						result = put_object_nl(put_object_request);
 					}
 
+					for (auto class_pair : classes_and_data) {
+						bool update_class = !put_object_request["is_class_update"].as_bool();
+
+						// avoid recursision if this is a class update (put_class->put_object and put_object->put_class)
+						// the object here is a sys_class, and we're going to update the class definition, 
+						if (update_class && class_pair.first == "sys_class") {
+							auto perms = get_class_permission(user_name, class_pair.first);
+							object_to_class(perms, class_pair.first);
+						}
+					}
+						
 					result = create_response(put_object_request, true, message, grouped_by_class_name, errors, method_timer.get_elapsed_seconds(), success_objects, failed_objects, total_objects);
 					log_errors(errors);
 				}
