@@ -428,6 +428,42 @@ namespace corona
 
 			created_classes.put_member("sys_field", true);
 
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_index",
+	"class_description" : "Base Index",
+	"base_class_name" : "sys_object",
+	"parents" :[ "sys_class_template" ],
+	"fields" : {			
+			"index_name" : { 
+				"field_type":"string",
+				"label": "Index Name",
+				"required": true
+			},
+			"index_keys" :[ "string" ]
+	},
+	"field_order" : ["index_name", "index_keys" ]	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_field"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_field after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_field", true);
+
+
 			response = create_class(R"(
 {	
 	"class_name" : "sys_object_field",
@@ -655,7 +691,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -707,34 +743,6 @@ namespace corona
 
 			created_classes.put_member("sys_datetime_field", true);
 
-			response = create_class(R"(
-{	
-	"class_name" : "sys_function_field",
-	"class_description" : "Function Field",
-	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
-	"fields" : {			
-
-	},
-	"field_order" : ["field_name", "field_type"]	
-}
-)");
-
-			if (response[success_field].as_bool() == false) {
-				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json<json>(response);
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			test = classes->get(R"({"class_name":"sys_rectangle_field"})"_jobject);
-			if (test.empty() or test.error()) {
-				system_monitoring_interface::active_mon->log_warning("could not find class sys_function_field after creation.", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				return result;
-			}
-
-			created_classes.put_member("sys_function_field", true);
 
 
 
@@ -777,7 +785,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -808,7 +816,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -839,7 +847,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -870,7 +878,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -901,7 +909,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -932,7 +940,7 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
 }
 )");
 
@@ -964,7 +972,53 @@ namespace corona
 	"fields" : {			
 
 	},
-	"field_order" : ["field_name", "field_type"]	
+	"field_order" : []	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_selection_field"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_selection_field after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_selection_field", true);
+
+
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_class_template",
+	"class_description" : "Class Template",
+	"base_class_name" : "sys_object",
+	"fields" : {			
+		"class_name" : { 
+			"field_type":"string",
+			"label": "Class Name",
+			"required": true
+		},
+		"class_description" : { 
+			"field_type":"string",
+			"label": "Class Description",
+			"required": true
+		},
+		"base_class_name" : { 
+			"field_type":"string",
+			"label": "Base Class Name",
+			"required": true
+		},
+		"fields" : [ "sys_field"],
+		"indexes" : [ "sys_index"],
+	},
+	"field_order" : []	
 }
 )");
 
@@ -6852,12 +6906,16 @@ grant_type=authorization_code
 								system_monitoring_interface::active_mon->log_information("put " + class_pair.first, __FILE__, __LINE__);
 							}
 							json put_results = cd->put_objects(this, child_objects, class_pair.second, perms, errors, success_objects, failed_objects);
+
                             grouped_by_class_name.put_member(class_pair.first, put_results);
                             auto ancestors = cd->get_ancestors();
                             if (cd->get_class_name
 								() == "sys_team" || ancestors.find("sys_team") != ancestors.end()) {
 								permissions_cache.clear();
 							}
+                            if (cd->get_class_name() == "sys_user" || ancestors.find("sys_user") != ancestors.end()) {
+                                permissions_cache.clear();
+                            }
 						}
 					}
 
