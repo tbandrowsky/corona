@@ -179,6 +179,8 @@ namespace corona {
 		virtual json alter_class(json alter_class_request) = 0;
 		virtual json user_home(json user_home_request) = 0;
 		virtual json user_set_team(json user_home_request) = 0;
+		virtual json object_to_class(std::string _class_name) = 0;
+		virtual json class_to_object(std::string _class_name) = 0;
 
 		virtual json edit_object(json _edit_object_request) = 0;
 		virtual json run_object(json _edit_object_request) = 0;

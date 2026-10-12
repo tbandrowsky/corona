@@ -385,7 +385,7 @@ namespace corona
 	"class_name" : "sys_field",
 	"class_description" : "Base Field",
 	"base_class_name" : "sys_object",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 			"field_name" : { 
 				"field_type":"string",
@@ -434,7 +434,7 @@ namespace corona
 	"class_name" : "sys_index",
 	"class_description" : "Base Index",
 	"base_class_name" : "sys_object",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 			"index_name" : { 
 				"field_type":"string",
@@ -469,7 +469,7 @@ namespace corona
 	"class_name" : "sys_object_field",
 	"class_description" : "Object Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"relations":"object",
 		"fundamental_type":"string"
@@ -499,7 +499,7 @@ namespace corona
 	"class_name" : "sys_array_field",
 	"class_description" : "Array Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {	
 		"relations":"object",
 		"fundamental_type":"string"
@@ -529,7 +529,7 @@ namespace corona
 	"class_name" : "sys_chest_field",
 	"class_description" : "Chest Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"allowed_class_name":"string",
 		"allowed_item_type":"string",
@@ -561,7 +561,7 @@ namespace corona
 	"class_name" : "sys_double_field",
 	"class_description" : "Double Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {	
 			"max_value":"double",
 			"min_value":"double"
@@ -592,7 +592,7 @@ namespace corona
 	"class_name" : "sys_int64_field",
 	"class_description" : "Int64 Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"min_value":"int64",
 		"max_value":"int64"
@@ -623,7 +623,7 @@ namespace corona
 	"class_name" : "sys_reference_field",
 	"class_description" : "Reference Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"reference_class":"string"
 	},
@@ -653,7 +653,7 @@ namespace corona
 	"class_name" : "sys_string_field",
 	"class_description" : "String Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"match_pattern":"string",
 		"allowed_values":["string"],
@@ -687,7 +687,7 @@ namespace corona
 	"class_name" : "sys_bool_field",
 	"class_description" : "Bool Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -718,7 +718,7 @@ namespace corona
 	"class_name" : "sys_datetime_field",
 	"class_description" : "Datetime Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"min_value":"datetime",
 		"max_value":"datetime"
@@ -751,7 +751,7 @@ namespace corona
 	"class_name" : "sys_query_field",
 	"class_description" : "Query Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 		"query_body":"object"
 	},
@@ -781,7 +781,7 @@ namespace corona
 	"class_name" : "sys_vector_field",
 	"class_description" : "Vector Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -812,7 +812,7 @@ namespace corona
 	"class_name" : "sys_rectangle_field",
 	"class_description" : "Rectangle Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -843,7 +843,7 @@ namespace corona
 	"class_name" : "sys_path_field",
 	"class_description" : "Path Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -874,7 +874,7 @@ namespace corona
 	"class_name" : "sys_brush_field",
 	"class_description" : "Brush Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -905,7 +905,7 @@ namespace corona
 	"class_name" : "sys_bitmap_field",
 	"class_description" : "Bitmap Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -936,7 +936,7 @@ namespace corona
 	"class_name" : "sys_audio_field",
 	"class_description" : "Audio Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -968,7 +968,7 @@ namespace corona
 	"class_name" : "sys_selection_field",
 	"class_description" : "Selection Field",
 	"base_class_name" : "sys_field",
-	"parents" :[ "sys_class_template" ],
+	"parents" :[ "sys_class" ],
 	"fields" : {			
 
 	},
@@ -996,27 +996,40 @@ namespace corona
 
 			response = create_class(R"(
 {	
-	"class_name" : "sys_class_template",
+	"class_name" : "sys_class",
 	"class_description" : "Class Template",
 	"base_class_name" : "sys_object",
 	"fields" : {			
-		"class_name" : { 
+		"base_class_name": { 
+			"field_type":"string",
+			"label": "Base Class Name",
+			"required": true
+		},		
+		"name" : { 
 			"field_type":"string",
 			"label": "Class Name",
 			"required": true
 		},
-		"class_description" : { 
+		"description" : { 
 			"field_type":"string",
 			"label": "Class Description",
 			"required": true
 		},
-		"base_class_name" : { 
+		"author": { 
 			"field_type":"string",
-			"label": "Base Class Name",
+			"label": "Class Author",
 			"required": true
 		},
+		"version": { 
+			"field_type":"string",
+			"label": "Version",
+			"required": true
+		},
+		"full_text":[ "string"],
 		"fields" : [ "sys_field"],
 		"indexes" : [ "sys_index"],
+		"sql" : "object",
+		"field_order" : [ "string"]
 	},
 	"field_order" : []	
 }
@@ -6459,6 +6472,25 @@ grant_type=authorization_code
 			return result;
 		}
 
+		virtual json object_to_class(std::string _class_name) override
+		{
+			json key = jp.create_object();
+			key.put_member(user_name_field, _class_name);
+
+			auto classd = read_get_class("sys_user");
+			if (not classd)
+				return jp.create_array();
+
+			auto permission = get_system_permission();
+
+			json users = classd->get_objects(this, key, true, permission);
+		}
+
+		virtual json class_to_object(std::string _class_name) override
+		{
+
+		}
+
         /// this method is used to alter a class definition.  
 		/// it will take an alter class request, with a new field definition, and new index definitions, 
 		/// get the existing class, then put the modifications in.
@@ -6531,7 +6563,7 @@ grant_type=authorization_code
 			return result;
 		}
 
-		public:
+		
 
 		virtual json query_class(std::string _user_name, json query_details) override
 		{
