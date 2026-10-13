@@ -533,7 +533,7 @@ namespace corona
 	"fields" : {			
 		"allowed_class_name":"string",
 		"allowed_item_type":"string",
-		"unit_name:"string",
+		"unit_name":"string",
 		"max_items":"int64"
 	},
 	"field_order" : ["allowed_class_name", "allowed_item_type", "unit_name", "max_items"]	

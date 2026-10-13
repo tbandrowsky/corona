@@ -27,8 +27,8 @@ namespace corona
 	don't forget to set the default directory
 	*****************************/
 
-    const bool use_project_for_config = false;
-    const bool always_overwrite_app_data = false;
+    const bool use_project_for_config = true;
+    const bool always_overwrite_app_data = true;
 
 	std::string config_filename = "sys_config.json";
 

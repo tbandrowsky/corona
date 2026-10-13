@@ -1,13 +1,13 @@
 {
-  "schema_name": "Revolution Ideas",
-  "schema_description": "Revolution IdeasApplication Schema",
-  "schema_version": "1.2",
+  "schema_name": "Revolution Journal",
+  "schema_description": "Revolution Journal Application Schema",
+  "schema_version": "1.1",
   "schema_authors": [
     "TJ Bandrowsky"
   ],
   "pre_dataset": [
     {
-      "dataset_name": "Revolution Ideas Teams",
+      "dataset_name": "Revolution Journal Teams",
       "dataset_description": "Teams and their default memberships",
       "dataset_version": "1.1",
       "dataset_author": "Todd Bandrowsky",
@@ -36,23 +36,112 @@
   ],
   "classes": [
     {
-      "class_name": "news",
+      "class_name": "journal",
       "base_class_name": "sys_object",
-      "class_description": "Media news",
-      "parents": [ "association", "person" ],
+      "class_description": "Journal",
       "fields": {
-        "name": "string",
-        "description": "string",
-        "publisher": "string",
-        "url": "string"
+        "text": {
+          "field_type": "string",
+          "label": "Text"
+        }
       },
-      "field_order": [ "name", "description", "publisher", "url" ]
+      "field_order": [ "text" ]
     },
+    {
+      "class_name": "diary",
+      "base_class_name": "journal",
+      "class_description": "Diary",
+      "fields": {
+      },
+      "field_order": [ "text" ]
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "journal",
+      "class_description": "Task",
+      "fields": {
+        "task_date": {
+          "field_type": "datetime",
+          "label": "Task Date"
+        }
+      }
+    },
+    {
+      "class_name": "news",
+      "base_class_name": "journal",
+      "class_description": "News",
+      "fields": {
+        "url": {
+          "field_type": "string",
+          "label": "News URL"
+        },
+        "article_date": {
+          "field_type": "datetime",
+          "label": "Article Date"
+        },
+        "publisher": {
+          "field_type": "string",
+          "label": "Publisher"
+        },
+        "category": {
+          "field_type": "string",
+          "label": "Category",
+          "enumeration": [
+            "Occupation Propaganda",
+            "Occupation Threat",
+            "Revolution Progress",
+            "Art",
+            "Sports",
+            "Politics",
+            "Economics",
+            "Technology"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "status",
+      "base_class_name": "journal",
+      "class_description": "Status of Revolution",
+      "fields": {
+        "days_of_occupation": {
+          "field_type": "int64",
+          "label": "Days of Occupation",
+          "min_value": 0
+        },
+        "occupied_congress": {
+          "field_type": "int64",
+          "label": "Occupied Congress"
+        },
+        "occupied_states": {
+          "field_type": "int64",
+          "label": "Occupied States"
+        },
+        "americans_deported": {
+          "field_type": "int64",
+          "label": "Est. Americans Deported"
+        },
+        "confederates_imported": {
+          "field_type": "int64",
+          "label": "Est. Russo-Confederates Imported"
+        },
+        "confederates_arrests": {
+          "field_type": "int64",
+          "label": "Russo-Confederates Arrests"
+        },
+        "estimated_imposters": {
+          "field_type": "int64",
+          "label": "Estimated Russo-Confederate Imposter"
+        }
+      },
+      "field_order": [ "text" ]
+    },
+
     {
       "class_name": "address",
       "base_class_name": "sys_object",
       "class_description": "Address",
-      "parents": [ "person", "property", "association" ],
+      "parents": [ "person", "property" ],
       "full_text": [ "street", "building", "city", "state", "zip", "country" ],
       "fields": {
         "street": {
@@ -144,9 +233,12 @@
       "class_name": "connection",
       "base_class_name": "sys_object",
       "class_description": "Connection (ex Phone / Email)",
-      "parents": [ "person", "association" ],
+      "parents": [ "person" ],
       "fields": {
-        "note": "string"
+        "note": {
+          "field_type": "string",
+          "label": "Note"
+        }
       }
     },
     {
@@ -190,7 +282,7 @@
       "class_name": "record",
       "base_class_name": "sys_object",
       "class_description": "Legal Record",
-      "parents": [ "association", "person" ],
+      "parents": [ "asset", "person", "building", "property" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -219,6 +311,30 @@
         }
       },
       "field_order": [ "location", "attendees" ]
+    },
+    {
+      "class_name": "license",
+      "base_class_name": "record",
+      "class_description": "License",
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        },
+        "issued": {
+          "field_type": "datetime",
+          "label": "Issued Date"
+        },
+        "expires": {
+          "field_type": "datetime",
+          "label": "Expires Date"
+        }
+      },
+      "field_order": [ "general_terms", "issued", "expires", "URL" ]
     },
     {
       "class_name": "contract",
@@ -289,10 +405,6 @@
       "class_name": "service_call",
       "base_class_name": "record",
       "class_description": "Service Call",
-      "parents": [
-        "vendor",
-        "client"
-      ],
       "fields": {
         "problem": {
           "field_type": "string",
@@ -303,55 +415,13 @@
           "label": "Resolution"
         }
       },
-      "field_order": [ "vendors", "problem", "resolution" ]
-    },
-    {
-      "class_name": "product",
-      "base_class_name": "sys_object",
-      "class_description": "Product",
-      "parents": [ "company", "cart" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name"
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "price": {
-          "field_type": "number",
-          "label": "Price",
-          "min_value": 0
-        }
-      }
-    },
-    {
-      "class_name": "cart",
-      "base_class_name": "sys_object",
-      "class_description": "Cart",
-      "parents": [],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name"
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "products": {
-          "field_type": "chest",
-          "allowed_class_names": [ "product" ]
-        }
-      }
+      "field_order": [ "problem", "resolution" ]
     },
     {
       "class_name": "person",
       "base_class_name": "sys_object",
       "class_description": "Person",
-      "full_text": [ "first_name", "last_name", "street", "city", "state", "zip" ],
-      "parents": [ "association", "employee" ],
+      "full_text": [ "first_name", "last_name", "loyalty", "loyalty_evidence", "notes" ],
       "fields": {
         "first_name": {
           "field_type": "string",
@@ -365,163 +435,391 @@
           "max_length": 50,
           "match_pattern": "[A-Za-z\\w]+"
         },
+        "occupation": {
+          "field_type": "string",
+          "label": "Occupation",
+          "enumeration": [
+            "Laborer, General",
+            "Laborer, Critical",
+            "White-Collar, Office",
+            "White-Collar, STEM",
+            "White-Collar, Executive",
+            "Investor",
+            "Military Enlisted",
+            "Military Officer",
+            "Law Enforcement",
+            "Academia, Social",
+            "Academia, STEM",
+            "Government",
+            "Education, Social",
+            "Education, STEM",
+            "Entertainment, Sports",
+            "Entertainment, Arts"
+          ]
+        },
+        "loyalty": {
+          "field_type": "string",
+          "label": "Loyalty",
+          "enumeration": [
+            "Patriot",
+            "Russo-Confederate Asset",
+            "Uninformed",
+            "Unknown",
+            "Suspicious"
+          ]
+        },
+        "loyalty_evidence": {
+          "field_type": "string",
+          "label": "Evidence"
+        },
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        },
         "connections": [ "connection" ],
         "addresses": [ "address" ]
       },
-      "field_order": [ "first_name", "last_name", "connections", "addresses" ]
-    },
-    {
-      "class_name": "employee",
-      "base_class_name": "person",
-      "class_description": "Employee",
-      "full_text": [ "title" ],
-      "parents": [],
-      "fields": {
-        "title": {
-          "field_type": "string",
-          "label": "Title",
-          "max_length": 100
-        },
-        "national_id": {
-          "field_type": "string",
-          "label": "National ID",
-          "max_length": 50
-        },
-        "emergency_contact": [ "person" ]
-      },
-      "field_order": [ "title", "national_id", "emergency_contact_name", "emergency_contact_phone", "direct_reports" ]
-    },
-    {
-      "class_name": "contractor",
-      "base_class_name": "employee",
-      "class_description": "Contractor",
-      "full_text": [ "title" ],
-      "parents": [],
-      "fields": {
-        "title": {
-          "field_type": "string",
-          "label": "Title",
-          "max_length": 100
-        },
-        "hourly_rate": {
-          "field_type": "number",
-          "label": "Hourly Rate",
-          "min_value": 0
-        }
-      },
-      "field_order": [ "title", "hourly_rate" ]
-    },
-    {
-      "class_name": "salary",
-      "base_class_name": "employee",
-      "class_description": "Salaried Worker",
-      "full_text": [ "title" ],
-      "parents": [],
-      "fields": {
-        "title": {
-          "field_type": "string",
-          "label": "Title",
-          "max_length": 100
-        },
-        "annual_salary": {
-          "field_type": "number",
-          "label": "Annual Salary",
-          "min_value": 0
-        },
-        "direct_reports": [ "employee" ]
-      },
-      "field_order": [ "title", "annual_salary", "direct_reports" ]
-    },
-    {
-      "class_name": "hourly",
-      "base_class_name": "employee",
-      "class_description": "Hourly Worker",
-      "full_text": [ "title" ],
-      "parents": [],
-      "fields": {
-        "title": {
-          "field_type": "string",
-          "label": "Title",
-          "max_length": 100
-        },
-        "hourly_rate": {
-          "field_type": "number",
-          "label": "Hourly Rate",
-          "min_value": 0,
-          "max_value": 1000
-        },
-        "holiday_rate": {
-          "field_type": "number",
-          "label": "Holiday Rate",
-          "min_value": 0,
-          "max_value": 1000
-        },
-        "overtime_rate": {
-          "field_type": "number",
-          "label": "Overtime Rate",
-          "min_value": 0,
-          "max_value": 1000
-        }
-      },
-      "field_order": [ "title", "hourly_rate", "holiday_rate", "overtime_rate" ]
-    },
-    {
-      "class_name": "encounter",
-      "base_class_name": "sys_object",
-      "class_description": "An encounter",
-      "full_text": [ "name", "description" ],
-      "parents": [ "engagement" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        }
-      },
-      "field_order": [ "name", "description" ]
-    },
-    {
-      "class_name": "engagement",
-      "base_class_name": "sys_object",
-      "class_description": "An engagement",
-      "full_text": [ "name", "description" ],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "encounter": [ "encounter" ]
-      },
-      "field_order": [ "name", "description", "encounter" ] 
+      "field_order": [ "first_name", "last_name", "notes", "connections", "addresses" ]
     },
     {
       "class_name": "asset",
       "base_class_name": "sys_object",
       "class_description": "An asset",
-      "full_text": [ "name", "description" ],
-      "parents": [ "association" ],
+      "full_text": [ "name", "notes" ],
+      "parents": [ "building" ],
       "fields": {
         "name": {
           "field_type": "string",
           "label": "Name",
           "max_length": 50
         },
-        "description": {
+        "notes": {
           "field_type": "string",
-          "label": "Description"
+          "label": "Notes"
+        },
+        "records": [ "record " ],
+        "value": {
+          "field_type": "double",
+          "label": "Asset Value"
+        },
+        "purchase_price": {
+          "field_type": "double",
+          "label": "Purchase Price"
         }
       },
-      "field_order": [ "name", "description" ]
+      "field_order": [ "name", "notes" ]
     },
+    {
+      "class_name": "appliance",
+      "class_description": "A household appliance",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "furniture",
+      "class_description": "A household furniture item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [  "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "gun",
+      "class_description": "Swords, Bows and Firepower for Freedom",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "model", "year", "form_factor", "caliber", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "caliber": {
+          "field_type": "string",
+          "label": "Caliber"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
+    },
+    {
+      "class_name": "tractor",
+      "class_description": "Tractors, Farm & Construction Equipment",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
+    },
+    {
+      "class_name": "boat",
+      "class_description": "Boats and Watercraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
+
+    },
+    {
+      "class_name": "vehicle",
+      "class_description": "A vehicle",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "make", "model", "year", "engine", "vin", "website" ],
+      "fields": {
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "engine": {
+          "field_type": "string",
+          "label": "Engine"
+        },
+        "vin": {
+          "field_type": "string",
+          "label": "Vin"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "electronic",
+      "class_description": "A household electronic item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      }
+    },
+    {
+      "class_name": "jewelry",
+      "class_description": "A household jewelry item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model", "serial_number" ],
+      "fields": {
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "diamond_carats": {
+          "field_type": "string",
+          "label": "Diamond Carats"
+        },
+        "gold_content": {
+          "field_type": "string",
+          "label": "Gold Content"
+        },
+        "silver_content": {
+          "field_type": "string",
+          "label": "Silver Content"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+
+      }
+    },
+    {
+      "class_name": "collectible",
+      "class_description": "A household collectible item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model", "serial_number", "certificate" ],
+      "fields": {
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "certificate": {
+          "field_type": "string",
+          "label": "Certificate"
+        }
+      }
+    },
+    {
+      "class_name": "stock",
+      "class_description": "A stock in a corporatin",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "ticker", "website", "serial_number", "certificate" ],
+      "fields": {
+        "ticker": {
+          "field_type": "string",
+          "label": "Ticker"
+        },
+        "shares": {
+          "field_type": "double",
+          "label": "Shares",
+          "min_value": 0,
+          "max_value": 1000000
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "certificate": {
+          "field_type": "string",
+          "label": "Certificate"
+        }
+      }
+    },
+
     {
       "class_name": "rms_construction_type",
       "base_class_name": "sys_object",
@@ -564,14 +862,15 @@
           "max_length": 250
         }
       },
-      "field_order": [ "code","description" ]
+      "field_order": [ "code", "description" ]
     },
     {
       "class_name": "building",
-      "base_class_name": "asset",
-      "class_description": "An asset",
+      "base_class_name": "sys_object",
+      "class_description": "A building",
       "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
       "field_order": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
+      "parents": [ "property" ],
       "fields": {
         "latitude": {
           "field_type": "string",
@@ -588,13 +887,16 @@
         "notes": {
           "field_type": "string",
           "label": "Notes"
-        }
+        },
+        "records": [ "record" ],
+        "assets": [ "asset" ],
+        "property_value": "double"
       }
     },
     {
       "class_name": "property",
-      "base_class_name": "asset",
-      "class_description": "An asset",
+      "base_class_name": "sys_object",
+      "class_description": "A property",
       "full_text": [ "street", "city", "state", "zip" ],
       "fields": {
         "latitude": {
@@ -611,79 +913,12 @@
           "field_type": "path",
           "label": "Boundaries"
         },
-        "notes": {
-          "field_type": "string",
-          "label": "Notes"
-        },
-        "deeds": {
-          "field_type": "string",
-          "label": "Deeds"
-        }
+        "building": [ "building" ],
+        "records": [ "record" ],
+        "assets": [ "asset" ],
+        "property_value": "double"
       },
       "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
-    },
-    {
-      "class_name": "association",
-      "base_class_name": "sys_object",
-      "class_description": "Association",
-      "full_text": [ "name", "description", "street", "city", "state", "zip" ],
-      "parents": [],
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "address": [ "address" ],
-        "connections": [ "connection" ],
-        "assets": [ "asset" ],
-        "people": [ "person" ]
-      },
-      "field_order": [ "name", "description", "address", "connections", "assets", "people" ]
-    },
-
-    {
-      "class_name": "vendor",
-      "base_class_name": "association",
-      "class_description": "Vendor",
-      "parents": [ "company" ],
-      "fields": {
-
-      }
-    },
-
-    {
-      "class_name": "client",
-      "base_class_name": "association",
-      "class_description": "Client",
-      "parents": [ "company" ],
-      "fields": {
-
-      }
-    },
-
-    {
-      "class_name": "company",
-      "base_class_name": "association",
-      "class_description": "Company",
-      "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "vendors": [ "vendor" ],
-        "clients": [ "client" ]
-      },
-      "field_order" : ["name", "description", "vendors", "clients"]
     },
 
     {
@@ -792,35 +1027,6 @@
       }
     },
     {
-      "class_name": "library_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Library Engagement",
-      "full_text": [],
-      "parents": [ "library" ],
-      "fields": {
-        "due_date": {
-          "field_type": "datetime",
-          "label": "Due Date"
-        },
-        "items": {
-          "field_type": "chest",
-          "allowed_classes": "asset"
-        }
-      }
-    },
-    {
-      "class_name": "library",
-      "base_class_name": "company",
-      "class_description": "Library",
-      "fields": {
-        "books": [ "book" ],
-        "movies": [ "movie" ],
-        "board_games": [ "board_game" ],
-        "video_games": [ "video_game" ],
-        "engagements": [ "library_engagement" ]
-      }
-    },
-    {
       "class_name": "tool",
       "base_class_name": "asset",
       "class_description": "Tool",
@@ -852,363 +1058,119 @@
       }
     },
     {
-      "class_name": "shop_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Shop Engagement",
-      "full_text": [ "name", "engagement" ],
-      "parents": [ "shop" ],
-      "fields": {
-        "due_date": {
-          "field_type": "datetime",
-          "label": "Due Date"
-        },
-        "rfp": {
-          "field_type": "string",
-          "label": "Request for Proposal"
-        },
-        "quote": {
-          "field_type": "string",
-          "label": "Proposal"
-        },
-        "work_order": {
-          "field_type": "string",
-          "label": "Work Order"
-        },
-        "delivery": {
-          "field_type": "string",
-          "label": "Delivery"
-        }
-      }
-    },
-    {
-      "class_name": "shop",
-      "base_class_name": "company",
-      "class_description": "Shop",
-      "fields": {
-        "tools": [ "tool" ],
-        "movies": [ "movie" ],
-        "engagements": [ "shop_engagement" ]
-      }
-    },
-    {
-      "class_name": "security",
+      "class_name": "vehicle",
       "base_class_name": "asset",
-      "class_description": "Security (Market)",
+      "class_description": "Vehicle",
+      "full_text": [],
       "fields": {
-        "ticker_symbol": "string",
-        "company_name": "string",
-        "description": "notes",
-        "news": [ "news" ]
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer",
+          "max_length": 100
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model",
+          "max_length": 100
+        },
+        "engine": {
+          "field_type": "string",
+          "label": "Engine",
+          "max_length": 100
+        },
+        "VIN": {
+          "field_type": "string",
+          "label": "Vehicle Identification Number",
+          "max_length": 100
+        },
+        "warranty": {
+          "field_type": "string",
+          "label": "Warranty"
+        },
+        "url": {
+          "field_type": "string",
+          "label": "URL"
+        }
       }
     },
     {
-      "class_name": "market_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Market Engagement",
-      "full_text": [],
-      "parents": [ "market" ],
+      "class_name": "boat",
+      "class_description": "Boats and Watercraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
       "fields": {
-        "market_contract": "string",
-        "securities": "string",
-        "searches": "string",
-        "buy_sell": {
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      }
 
+    },
+    {
+      "class_name": "aircraft",
+      "class_description": "Aircraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "description": {
           "field_type": "string",
-          "label": "Buy/Sell",
-          "enumeration": [ "buy", "sell" ]
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
         }
       }
-    },
-    {
-      "class_name": "market",
-      "base_class_name": "company",
-      "class_description": "Market",
-      "fields": {
-        "securities": [ "security" ],
-        "engagements": [ "market_engagement" ]
-      }
-    },
-    {
-      "class_name": "insurance_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Insurance Engagement",
-      "full_text": [],
-      "parents": [ "insurer" ],
-      "fields": {
-        "assets_to_insure": [ "->asset" ],
-        "modelled_losses": {
-          "field_type": "object",
-          "label": "Insurance Policy"
-        },
-        "policy_proposal": {
-          "field_type": "object",
-          "label": "Insurance Policy Proposal"
-        },
-        "binder": {
-          "field_type": "string",
-          "label": "Binder"
-        }
-      }
-    },
-    {
-      "class_name": "insurer",
-      "base_class_name": "company",
-      "class_description": "Insurance Provider",
-      "fields": {
-        "engagements": [ "insurance_engagement" ]
-      }
-    },
-    {
-      "class_name": "outreach_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Outreach Engagement",
-      "full_text": [],
-      "parents": [ "outreacher" ],
-      "fields": {
-        "interviews": {
-          "field_type": "string",
-          "label": "Interviews"
-        },
-        "surveys": {
-          "field_type": "string",
-          "label": "Surveys"
-        },
-        "meetings": {
-          "field_type": "string",
-          "label": "Meetings"
-        }
-      }
-    },
-    {
-      "class_name": "outreacher",
-      "base_class_name": "company",
-      "class_description": "Outreach Organization",
-      "parents": [ "outreacher" ],
-      "fields": {
-        "outreacher_engagements": [ "outreach_engagement" ]
-      }
-    },
-    {
-      "class_name": "advocate_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Advocate Engagement",
-      "parents": [ "advocate" ],
-      "full_text": [],
-      "fields": {
-        "interviews": {
-          "field_type": "string",
-          "label": "Interviews"
-        },
-        "problem": {
-          "field_type": "string",
-          "label": "Problem"
-        },
-        "facilitation": {
-          "field_type": "string",
-          "label": "Facilitation"
-        }
-      }
-    },
-    {
-      "class_name": "advocate",
-      "base_class_name": "company",
-      "class_description": "Advocacy Organization",
-      "fields": {
-        "engagements": [ "advocate_engagement" ]
-      }
-    },
-    {
-      "class_name": "legal_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Legal Engagement",  
-      "full_text": [],
-      "parents": [ "law_firm" ],
-      "fields": {
-        "client": "string",
-        "plaintiff": "string",
-        "case": {
-          "field_type": "string",
-          "label": "Case"
-        }
-      }
-    },
-    {
-      "class_name": "law_firm",
-      "base_class_name": "company",
-      "class_description": "Law Firm",
-      "fields": {
-        "engagements": [ "legal_engagement" ]
-      }
-    },
-    {
-      "class_name": "bank_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Bank Engagement",
-      "full_text": [],
-      "parents": [ "bank" ],
-      "fields": {
-        "client": "string",
-        "loan_application": "string",
-        "loan_approvals": "string",
-        "loan_disbursments": "string",
-        "loan_payments": "string"
-      }
-    },
-    {
-      "class_name": "bank",
-      "base_class_name": "company",
-      "class_description": "Bank",
-      "fields": {
-        "engagements": [ "bank_engagement" ]
-      }
-    },
-    {
-      "class_name": "court_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Court Engagement",
-      "full_text": [],
-      "parents": [ "court" ],
-      "fields": {
-        "motions": {
-          "field_type": "string",
-          "label": "Motions"
-        },
-        "pleadings": {
-          "field_type": "string",
-          "label": "Pleadings"
-        },
-        "depositions": {
-          "field_type": "string",
-          "label": "Depositions"
-        },
-        "orders": {
-          "field_type": "string",
-          "label": "Orders"
-        }
-      }
-    },
-    {
-      "class_name": "court",
-      "base_class_name": "company",
-      "class_description": "Court",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "permit_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Permit Engagement",
-      "full_text": [],
-      "parents": [ "permitter" ],
-      "fields": {
-        "permit_application": {
-          "field_type": "string",
-          "label": "Permit Application"
-        },
-        "property": {
-          "field_type": "string",
-          "label": "Property"
-        },
-        "approval": {
-          "field_type": "string",
-          "label": "Approval"
-        },
-        "discharges": {
-          "field_type": "string",
-          "label": "Discharges"
-        }
-      }
-    },
-    {
-      "class_name": "permitter",
-      "base_class_name": "company",
-      "class_description": "Permitter - Issues Permits",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "medical_engagement",
-      "base_class_name": "engagement",
-      "class_description": "Medical Engagement",
-      "full_text": [
-        "symptoms",
-        "triage",
-        "exams",
-        "treatment_plan",
-        "compliance"
-      ],
-      "parents": [ "medical" ],
-      "fields": {
-        "symptoms": {
-          "field_type": "string",
-          "label": "Symptoms"
-        },
-        "triage": {
-          "field_type": "string",
-          "label": "Triage"
-        },
-        "exams": {
-          "field_type": "string",
-          "label": "Exams"
-        },
-        "treatment_plan": {
-          "field_type": "string",
-          "label": "Treatment Plan"
-        },
-        "compliance": {
-          "field_type": "string",
-          "label": "Compliance"
-        }
-      }
-    },
-    {
-      "class_name": "medical",
-      "base_class_name": "company",
-      "class_description": "Medical Center",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "school_engagement",
-      "base_class_name": "engagement",
-      "class_description": "An education engagement",
-      "full_text": [],
-      "parents": [ "school" ],
-      "fields": {
-        "financial": {
-          "field_type": "string",
-          "label": "Financial"
-        },
-        "curriculum": {
-          "field_type": "string",
-          "label": "Curriculum"
-        },
-        "exams": {
-          "field_type": "string",
-          "label": "Exams"
-        },
-        "achievements": {
-          "field_type": "string",
-          "label": "Achievements"
-        },
-        "certification": {
-          "field_type": "string",
-          "label": "Certification"
-        }
-      }
-    },
-    {
-      "class_name": "school",
-      "base_class_name": "company",
-      "class_description": "A school in the system",
-      "fields": {
-      }
+
     }
+
 
   ],
   "post_dataset": [
     {
-      "dataset_name": "Revolution Ideas Teams",
+      "dataset_name": "Revolution Journal Teams",
       "dataset_description": "Teams and their default memberships",
       "dataset_version": "1.1",
       "dataset_author": "Todd Bandrowsky",
@@ -1238,7 +1200,7 @@
 
   "application": {
     "application_creator": "Country Video Games",
-    "application_name": "Revolution Ideas",
+    "application_name": "Revolution Journal",
     "fields": {
       ".section": {
         "class_name": ".section",
@@ -1394,6 +1356,20 @@
         },
         "tab_type": "custom"
       },
+      ".text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": {
@@ -1509,69 +1485,46 @@
     },
     "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
     "classes": {
+      "appliance": "default",
+      "furniture": "default",
+      "gun": "default",
+      "tractor": "default",
+      "electronic": "default",
+      "jewelry": "default",
+      "collectible": "default",
+      "stock": "default",
+      "vehicle": "default",
+      "boat": "default",
+      "aircraft": "default",
       "news": "default",
       "record": "default",
       "minutes": "default",
+      "license": "default",
       "contract": "default",
       "deed": "default",
       "ruling": "default",
       "title": "default",
       "service_call": "default",
-      "product": "default",
-      "cart": "default",
       "person": "default",
-      "employee": "default",
-      "contractor": "default",
-      "salary": "default",
-      "hourly": "default",
-      "encounter": "default",
-      "engagement": "default",
       "asset": "default",
       "rms_construction_type": "default",
       "rms_occupancy_type": "default",
       "building": "default",
       "property": "default",
-      "association": "default",
-      "vendor": "default",
-      "client": "default",
-      "company": "default",
       "book": "default",
       "movie": "default",
       "board_game": "default",
       "video_game": "default",
-      "library_engagement": "default",
-      "library": "default",
       "tool": "default",
-      "shop_engagement": "default",
-      "shop": "default",
       "security": "default",
-      "market_engagement": "default",
-      "market": "default",
-      "insurance_engagement": "default",
-      "insurer": "default",
-      "outreach_engagement": "default",
-      "outreacher": "default",
-      "advocate_engagement": "default",
-      "advocate": "default",
-      "legal_engagement": "default",
-      "law_firm": "default",
-      "court_engagement": "default",
-      "court": "default",
-      "bank_engagement": "default",
-      "bank": "default",
-      "permit_engagement": "default",
-      "permitter": "default",
-      "medical_engagement": "default",
-      "medical": "default",
-      "school_engagement": "default",
-      "school": "default",
       "address": "default",
       "connection": "default",
       "phone": "default",
       "email": "default",
       "fax": "default",
       "web": "default",
-
+      "sys_class": "default",
+      "sys_field": "default",
       "sys_schema": "default",
       "sys_dataset": "default",
       "sys_object": "default",
@@ -1698,23 +1651,23 @@
       "app_team": {
         "search_groups": [
           {
-            "title": "Associations",
+            "title": "Status",
             "classes": [
-              "association"
+              "journal"
             ],
-            "new_objects": [ "advocate", "bank", "court", "law_firm", "library", "market", "medical", "outreacher", "permitter", "shop", "school" ],
-            "result_text": "{count} associations",
-            "edit_text": "Editing association",
+            "new_objects": [ "news","diary","task" ],
+            "result_text": "{count} entries",
+            "edit_text": "Editing entry",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_name": "chart_association",
+            "chart_name": "chart_journal",
             "charts": [
               {
-                "chart_button_name": "chart_association_counts_button",
+                "chart_button_name": "chart_journal_counts_button",
                 "chart_button_text": "Types",
                 "chart_button_image": "chart_bar.png",
-                "chart_class": "chart_association",
+                "chart_class": "chart_journal",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1746,23 +1699,23 @@
             ]
           },
           {
-            "title": "Assets",
+            "title": "Property",
             "classes": [
-              "asset"
+              "property"
             ],
-            "new_objects": [ "building", "property", "book", "movie", "board_game", "video_game", "tool", "security" ],
-            "result_text": "{count} assets",
-            "edit_text": "Editing asset",
+            "new_objects": [ "property"  ],
+            "result_text": "{count} properties",
+            "edit_text": "Editing property",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_class": "chart_asset",
+            "chart_class": "chart_property",
             "charts": [
               {
-                "chart_button_name": "asset_counts_button",
+                "chart_button_name": "property_counts_button",
                 "chart_button_text": "Types",
                 "chart_button_image": "assets\\chart_bar.png",
-                "chart_class": "chart_asset",
+                "chart_class": "chart_property",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
@@ -1798,7 +1751,7 @@
             "classes": [
               "person"
             ],
-            "new_objects": [ "person", "contractor", "hourly", "salary" ],
+            "new_objects": [ "person" ],
             "result_text": "{count} people",
             "edit_text": "Editing person",
             "result_text_control": "search_prompt_text",
@@ -1842,31 +1795,37 @@
             ]
           },
           {
-            "title": "Records",
+            "title": "Assets",
             "classes": [
-              "record"
+              "asset"
             ],
             "new_objects": [
-              "record",
-              "minutes",
-              "contract",
-              "deed",
-              "ruling",
-              "title",
-              "service_call"
+              "asset",
+              "book",
+              "movie",
+              "board_game",
+              "video_game",
+              "tool",
+              "electronic",
+              "jewelry",
+              "collectible",
+              "vehicle",
+              "boat",
+              "tractor",
+              "gun"
             ],
-            "result_text": "{count} records",
-            "edit_text": "Editing record",
+            "result_text": "{count} assets",
+            "edit_text": "Editing asset",
             "result_text_control": "search_prompt_text",
             "edit_text_control": "edit_prompt_text",
             "commands_control": "new_object_commands",
-            "chart_class": "chart_record",
+            "chart_class": "chart_asset",
             "charts": [
               {
-                "chart_button_name": "record_counts_button",
+                "chart_button_name": "asset_counts_button",
                 "chart_button_text": "Types",
                 "chart_button_image": "chart_bar.png",
-                "chart_class": "chart_record",
+                "chart_class": "chart_asset",
                 "chart": {
                   "class_name": "bar_chart",
                   "auto_series": {
