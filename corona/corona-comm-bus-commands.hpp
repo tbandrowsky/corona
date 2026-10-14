@@ -2201,7 +2201,7 @@ namespace corona
 
 			if (cb_form)
 			{
-				json_object dresult = cb_form->get_data();
+				json_object dresult = cb_form->gather_json_members();
 				object_data = dresult;
 				if (object_data.has_member("full_text"))
 				{

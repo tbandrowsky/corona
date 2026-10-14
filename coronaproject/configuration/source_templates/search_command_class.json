@@ -9,7 +9,7 @@
   },
   "on_click": {
     "class_name": "run_query",
-    "form_name": "search_ceremony",
+    "form_name": "search_input",
     "table_name": "result_table",
     "detail_frame": "frame_selected",
     "result_text": "$result_text",

@@ -495,6 +495,18 @@ namespace corona
 			return data;
 		}
 
+		virtual json_object gather_json_members()
+		{
+            if (!data.has_member(json_field_name)) {
+                data.put_member(json_field_name, "");
+            }
+            for (auto& child : children) {
+                json_object child_data = child->gather_json_members();
+                data += child_data;
+            }
+			return data;
+		}
+
 		virtual json_object set_data(json_object _data) 
 		{
 			data = _data;
