@@ -1840,66 +1840,7 @@
                 }
               }
             ]
-          },
-          {
-            "title": "System",
-            "classes": [
-              "sys_object"
-            ],
-            "new_objects": [
-              "sys_schema",
-              "sys_dataset",
-              "sys_object",
-              "sys_server",
-              "sys_command",
-              "sys_team",
-              "sys_grant",
-              "sys_user",
-              "sys_error"
-            ],
-            "result_text": "{count} objects",
-            "edit_text": "Editing object",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
-            "commands_control": "new_object_commands",
-            "chart_class": "chart_object",
-            "charts": [
-              {
-                "chart_button_name": "object_counts_button",
-                "chart_button_text": "Types",
-                "chart_button_image": "chart_bar.png",
-                "chart_class": "chart_object",
-                "chart": {
-                  "class_name": "bar_chart",
-                  "auto_series": {
-                    "label_fields": [ "class_name", "type_name" ],
-                    "value_fields": [
-                      {
-                        "field_name": "count",
-                        "units": "each"
-                      }
-                    ],
-                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
-                  },
-                  "background": {
-                    "class_name": "solid_brush",
-                    "color": "#F0F0F0"
-                  }
-                },
-                "group_by": {
-                  "field_names": [ "class_name" ],
-                  "aggregates": [
-                    {
-                      "dest_field_name": "count",
-                      "field_name": "object_id",
-                      "aggregate": "count"
-                    }
-                  ]
-                }
-              }
-            ]
           }
-
         ]
       }
     }
