@@ -3234,11 +3234,14 @@ private:
 						return jp.create_object();
 					}
 
+                    std::filesystem::path pages_path(this->config_path + "pages");
+                    std::filesystem::create_directory(pages_path);
+
 					for (int i = 0; i < pages.size(); i++)
 					{
 						json page = pages.get_element(i);
 						std::string page_name = page["page_name"].as_string();
-						std::string filename = "pages\\" + page_name + ".json";
+						std::string filename = pages_path.string() + page_name + ".json";
 
 						json page_import = jp.create_object();
 						page_import.put_member_string("class_name", "import");

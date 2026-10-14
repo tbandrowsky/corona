@@ -27,8 +27,7 @@ namespace corona
 	don't forget to set the default directory
 	*****************************/
 
-    const bool use_project_for_config = true;
-    const bool always_overwrite_app_data = true;
+    const bool developer_mode = true;
 
 	std::string config_filename = "sys_config.json";
 
@@ -74,7 +73,7 @@ namespace corona
 			std::filesystem::create_directories(destination);
            	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);			
 		}
-		else if (always_overwrite_app_data || std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
+		else if (developer_mode || std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
 		{
 			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
 		}
@@ -95,11 +94,6 @@ namespace corona
 
 		local_config_path += "\\configuration\\";
         local_asset_path += "\\assets\\";
-
-		if constexpr (use_project_for_config) {
-			local_config_path = "D:\\countrybit\\coronaproject\\configuration\\";
-			local_asset_path = "D:\\countrybit\\coronaproject\\assets\\";
-		}
 
 		std::string database_path;
 

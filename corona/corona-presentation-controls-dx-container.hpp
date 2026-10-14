@@ -477,14 +477,14 @@ namespace corona
 		{
 			auto nav = navigation_stack.back();
 			navigate(_batch_id, nav);
-			log_warning("Navigate back -> " + nav->name);
+			log_warning("Navigate back -> " + (nav ? nav->name : "empty"));
 		}
 
 		virtual void navigate_forward(int _batch_id)
 		{
 			auto nav = navigation_stack.forward();
 			navigate(_batch_id, nav);
-			log_warning("Navigate forward -> " + nav->name);
+			log_warning("Navigate forward -> " + (nav ? nav->name : "empty"));
 		}
 
 		virtual void loaded(int _batch_id) override

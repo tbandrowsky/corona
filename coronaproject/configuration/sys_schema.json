@@ -2,9 +2,7 @@
   "schema_name": "Revolution Journal",
   "schema_description": "Revolution Journal Application Schema",
   "schema_version": "1.1",
-  "schema_authors": [
-    "TJ Bandrowsky"
-  ],
+  "schema_author": "TJ Bandrowsky",
   "pre_dataset": [
     {
       "dataset_name": "Revolution Journal Teams",
@@ -36,9 +34,29 @@
   ],
   "classes": [
     {
+      "class_name": "record",
+      "base_class_name": "sys_object",
+      "class_description": "Legal Record",
+      "parents": [ "asset", "person", "building", "property" ],
+      "full_text": [ "name", "description" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      },
+      "field_order": [ "name", "description" ]
+    },
+    {
       "class_name": "journal",
       "base_class_name": "sys_object",
       "class_description": "Journal",
+      "full_text": [ "text" ],
       "fields": {
         "text": {
           "field_type": "string",
@@ -59,6 +77,7 @@
       "class_name": "task",
       "base_class_name": "journal",
       "class_description": "Task",
+      "full_text": [ "task_date" ],
       "fields": {
         "task_date": {
           "field_type": "datetime",
@@ -70,6 +89,7 @@
       "class_name": "news",
       "base_class_name": "journal",
       "class_description": "News",
+      "full_text": [ "url", "article_date", "publisher", "category" ],
       "fields": {
         "url": {
           "field_type": "string",
@@ -224,7 +244,7 @@
         "country": {
           "field_type": "string",
           "label": "Country",
-          "max_length": 100
+          "max_length": 50
         }
       },
       "field_order": [ "street", "building", "city", "state", "zip", "country" ]
@@ -234,6 +254,7 @@
       "base_class_name": "sys_object",
       "class_description": "Connection (ex Phone / Email)",
       "parents": [ "person" ],
+      "full_text": [ "note" ],
       "fields": {
         "note": {
           "field_type": "string",
@@ -245,6 +266,7 @@
       "class_name": "phone",
       "base_class_name": "connection",
       "class_description": "Phone Number",
+      "full_text": [ "phone" ],
       "fields": {
         "phone": {
           "field_type": "string",
@@ -258,48 +280,46 @@
       "class_name": "email",
       "base_class_name": "connection",
       "class_description": "E-Mail Address",
+      "full_text": [ "email" ],
       "fields": {
-        "email": "string"
+        "email": {
+          "field_type": "string",
+          "label": "Email",
+          "max_length": 100
+        }
       }
     },
     {
       "class_name": "fax",
       "base_class_name": "connection",
       "class_description": "Fax Number",
+      "full_text": [ "fax" ],
       "fields": {
-        "fax": "string"
+        "fax": {
+          "field_type": "string",
+          "label": "Fax",
+          "max_length": 20
+        }
       }
     },
     {
       "class_name": "web",
       "base_class_name": "connection",
       "class_description": "Web Address",
+      "full_text": [ "url" ],
       "fields": {
-        "url": "string"
-      }
-    },
-    {
-      "class_name": "record",
-      "base_class_name": "sys_object",
-      "class_description": "Legal Record",
-      "parents": [ "asset", "person", "building", "property" ],
-      "fields": {
-        "name": {
+        "url": {
           "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
+          "label": "URL",
+          "max_length": 200
         }
-      },
-      "field_order": [ "name", "description" ]
+      }
     },
     {
       "class_name": "minutes",
       "base_class_name": "record",
       "class_description": "Meeting Minutes",
+      "full_text": [ "location", "attendees" ],
       "fields": {
         "location": {
           "field_type": "string",
@@ -316,6 +336,7 @@
       "class_name": "license",
       "base_class_name": "record",
       "class_description": "License",
+      "full_text": [ "general_terms", "URL", "issued", "expires" ],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -340,6 +361,7 @@
       "class_name": "contract",
       "base_class_name": "record",
       "class_description": "Contract",
+      "full_text": [ "general_terms", "URL" ],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -356,6 +378,7 @@
       "class_name": "deed",
       "base_class_name": "record",
       "class_description": "Deed",
+      "full_text": [ "general_terms", "URL" ],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -372,6 +395,7 @@
       "class_name": "ruling",
       "base_class_name": "record",
       "class_description": "Court Ruling",
+      "full_text": [ "general_terms", "URL" ],
       "fields": {
         "general_terms": {
           "field_type": "string",
@@ -388,6 +412,7 @@
       "class_name": "title",
       "base_class_name": "record",
       "class_description": "Title",
+      "full_text": [ "general_terms", "URL" ],  
       "parents": [],
       "fields": {
         "general_terms": {
@@ -405,6 +430,7 @@
       "class_name": "service_call",
       "base_class_name": "record",
       "class_description": "Service Call",
+      "full_text": [ "problem", "resolution" ],
       "fields": {
         "problem": {
           "field_type": "string",
@@ -421,7 +447,7 @@
       "class_name": "person",
       "base_class_name": "sys_object",
       "class_description": "Person",
-      "full_text": [ "first_name", "last_name", "loyalty", "loyalty_evidence", "notes" ],
+      "full_text": [ "first_name", "last_name", "occupation", "loyalty", "loyalty_evidence", "notes" ],
       "fields": {
         "first_name": {
           "field_type": "string",
@@ -547,7 +573,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [  "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
         "manufacturer": {
           "field_type": "string",
@@ -667,7 +693,7 @@
     },
     {
       "class_name": "vehicle",
-      "class_description": "A vehicle",
+      "class_description": "Vehicle",
       "base_class_name": "asset",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
@@ -1058,78 +1084,6 @@
       }
     },
     {
-      "class_name": "vehicle",
-      "base_class_name": "asset",
-      "class_description": "Vehicle",
-      "full_text": [],
-      "fields": {
-        "manufacturer": {
-          "field_type": "string",
-          "label": "Manufacturer",
-          "max_length": 100
-        },
-        "model": {
-          "field_type": "string",
-          "label": "Model",
-          "max_length": 100
-        },
-        "engine": {
-          "field_type": "string",
-          "label": "Engine",
-          "max_length": 100
-        },
-        "VIN": {
-          "field_type": "string",
-          "label": "Vehicle Identification Number",
-          "max_length": 100
-        },
-        "warranty": {
-          "field_type": "string",
-          "label": "Warranty"
-        },
-        "url": {
-          "field_type": "string",
-          "label": "URL"
-        }
-      }
-    },
-    {
-      "class_name": "boat",
-      "class_description": "Boats and Watercraft",
-      "base_class_name": "asset",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
-      "fields": {
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        },
-        "manufacturer": {
-          "field_type": "string",
-          "label": "Manufacturer"
-        },
-        "make": {
-          "field_type": "string",
-          "label": "Make"
-        },
-        "model": {
-          "field_type": "string",
-          "label": "Model"
-        },
-        "year": {
-          "field_type": "string",
-          "label": "Year"
-        },
-        "serial_number": {
-          "field_type": "string",
-          "label": "Serial Number"
-        }
-      }
-
-    },
-    {
       "class_name": "aircraft",
       "class_description": "Aircraft",
       "base_class_name": "asset",
@@ -1370,6 +1324,34 @@
         },
         "tab_type": "custom"
       },
+      ".general_terms": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".certificate": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": {
@@ -1485,6 +1467,19 @@
     },
     "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
     "classes": {
+      "journal": "default",
+      "diary": "default",
+      "task": "default",
+      "news": "default",
+      "record": "default",
+      "minutes": "default",
+      "license": "default",
+      "contract": "default",
+      "deed": "default",
+      "ruling": "default",
+      "title": "default",
+      "service_call": "default",
+      "asset": "default",
       "appliance": "default",
       "furniture": "default",
       "gun": "default",
@@ -1496,27 +1491,17 @@
       "vehicle": "default",
       "boat": "default",
       "aircraft": "default",
-      "news": "default",
-      "record": "default",
-      "minutes": "default",
-      "license": "default",
-      "contract": "default",
-      "deed": "default",
-      "ruling": "default",
-      "title": "default",
-      "service_call": "default",
-      "person": "default",
-      "asset": "default",
-      "rms_construction_type": "default",
-      "rms_occupancy_type": "default",
-      "building": "default",
-      "property": "default",
       "book": "default",
       "movie": "default",
       "board_game": "default",
       "video_game": "default",
       "tool": "default",
       "security": "default",
+      "building": "default",
+      "property": "default",
+      "rms_construction_type": "default",
+      "rms_occupancy_type": "default",
+      "person": "default",
       "address": "default",
       "connection": "default",
       "phone": "default",
@@ -1714,7 +1699,7 @@
               {
                 "chart_button_name": "property_counts_button",
                 "chart_button_text": "Types",
-                "chart_button_image": "assets\\chart_bar.png",
+                "chart_button_image": "chart_bar.png",
                 "chart_class": "chart_property",
                 "chart": {
                   "class_name": "bar_chart",

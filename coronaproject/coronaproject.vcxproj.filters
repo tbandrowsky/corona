@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\object.json" />
-    <None Include="configuration\source_templates\card.json" />
     <None Include="configuration\source_templates\tab_container.json" />
     <None Include="configuration\source_templates\tab_list.json" />
     <None Include="configuration\source_templates\search.json" />
@@ -60,6 +59,9 @@
     <None Include="configuration\source_templates\chart.json" />
     <None Include="configuration\source_templates\chart_command_class.json" />
     <None Include="configuration\source_templates\tab_inventory.json" />
+    <None Include="configuration\sys_pages.json" />
+    <None Include="configuration\sys_schema.json" />
+    <None Include="configuration\sys_styles.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="configuration\source_templates\tab_edit.json" />
@@ -68,5 +70,9 @@
     <Image Include="coronaproject.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="configuration\sys_config.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card.json" />
   </ItemGroup>
 </Project>

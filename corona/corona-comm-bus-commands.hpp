@@ -2162,7 +2162,7 @@ namespace corona
 	public:
 		std::string			table_name = "";
         std::string         detail_frame = "";
-		std::string			query_defaults_field = "common";
+		std::string			query_defaults_field = "";
 		json				query_defaults;
 		json				query_body;
 		corona_instance instance = corona_instance::local;

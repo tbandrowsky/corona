@@ -270,6 +270,8 @@
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include</ExternalIncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib;D:\countrybit\scintilla\scintilla\bin;D:\countrybit\scintilla\lexilla\bin</LibraryPath>
     <TargetName>coronaproject</TargetName>
+    <OutDir>$(SolutionDir)\coronaproject\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\coronaproject\output\$(Platform)\(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
@@ -277,6 +279,8 @@
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)\vcpkg_installed\x64-windows\include;$(SolutionDir)\scintilla\scintilla\include;$(SolutionDir)\scintilla\lexilla\include</ExternalIncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(ProjectDir)\vcpkg_installed\x64-windows\lib;D:\countrybit\scintilla\scintilla\bin;D:\countrybit\scintilla\lexilla\bin</LibraryPath>
     <TargetName>coronaproject</TargetName>
+    <OutDir>$(SolutionDir)\coronaproject\output\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\coronaproject\output\$(Platform)\(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>false</VcpkgEnableManifest>
@@ -588,30 +592,112 @@
     <ResourceCompile Include="coronaproject.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="configuration\source_templates\card.json" />
-    <None Include="configuration\source_templates\card_adventure.json" />
-    <None Include="configuration\source_templates\card_chest_item.json" />
-    <None Include="configuration\source_templates\card_container.json" />
-    <None Include="configuration\source_templates\card_container_small.json" />
-    <None Include="configuration\source_templates\chart.json" />
-    <None Include="configuration\source_templates\chart_command_class.json" />
-    <None Include="configuration\source_templates\create_command_class.json" />
-    <None Include="configuration\source_templates\home.json" />
-    <None Include="configuration\source_templates\object_container.json" />
-    <None Include="configuration\source_templates\object_details.json" />
-    <None Include="configuration\source_templates\pages.json" />
-    <None Include="configuration\source_templates\search.json" />
-    <None Include="configuration\source_templates\search_command_class.json" />
-    <None Include="configuration\source_templates\search_group.json" />
-    <None Include="configuration\source_templates\styles.json" />
-    <None Include="configuration\source_templates\tab_custom.json" />
-    <None Include="configuration\source_templates\tab_inventory.json" />
-    <None Include="configuration\source_templates\tab_list.json" />
-    <None Include="configuration\source_templates\object.json" />
-    <None Include="configuration\source_templates\tab_container.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\card_adventure.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\card_chest_item.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\card_container.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\card_container_small.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\chart.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\chart_command_class.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\create_command_class.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\home.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\object_container.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\object_details.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\pages.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\search.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\search_command_class.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\search_group.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\styles.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\tab_custom.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\tab_inventory.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\tab_list.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\object.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\source_templates\tab_container.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\sys_config.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\sys_pages.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\sys_schema.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="configuration\sys_styles.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="configuration\source_templates\tab_edit.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_edit.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\scintilla\lexilla\src\Lexilla.vcxproj">
