@@ -1941,8 +1941,7 @@ namespace corona
 			container_control::set_data(_data);
 
 			if (current_tab_name.empty() and tab_panes.size() > 0) {
-				current_tab_name = tab_panes[0].pane.name;
-				select_tab(current_tab_name);
+				select_tab(tab_panes[0].pane.name);
 			}
 
  			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
@@ -1963,34 +1962,35 @@ namespace corona
 
             bool is_same_tab = current_tab_name == _name;
 
-			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
-				return tp.pane.name == this->current_tab_name;
-				});
-
 			if (!is_same_tab) {
+
+				auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+					return tp.pane.name == this->current_tab_name;
+					});
+
 				if (current_tab != tab_panes.end()) {
 					json_object tab_object = content_frame->get_slice();
 					content_frame->destroy();
 					control_slice += tab_object;
 				}
-			}
 
-			current_tab_name = _name;
+				current_tab_name = _name;
 
-			for (auto& tp : tab_panes) {
-				bool is_selected = tp.pane.name == this->current_tab_name;
-				tp.tab_button->selected_state = is_selected;
-				if (is_selected) {
-					auto service = comm_desktop_bus_interface::get_service();
-					int batch_id = service->start_batch();
-					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
+				for (auto& tp : tab_panes) {
+					bool is_selected = tp.pane.name == this->current_tab_name;
+					tp.tab_button->selected_state = is_selected;
+					if (is_selected) {
+						auto service = comm_desktop_bus_interface::get_service();
+						int batch_id = service->start_batch();
+						service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
+					}
 				}
 			}
 		}
 
 		void set_tabs(const std::vector<tab_pane>& _new_panes)
 		{
-            current_tab_name = "";
+			current_tab_name = {};
 			tab_panes.clear();
 			for (auto tp : _new_panes) {
 				tab_pane_instance tpi;
@@ -2001,7 +2001,7 @@ namespace corona
 				tab_panes.push_back(tpi);
 			}
 			init();
-			if (tab_panes.size() > 0) {
+			if (current_tab_name.empty() and tab_panes.size() > 0) {
 				select_tab(tab_panes[0].pane.name);
 			}
 		}
