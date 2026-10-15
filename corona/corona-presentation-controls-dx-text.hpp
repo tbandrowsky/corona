@@ -71,6 +71,28 @@ namespace corona
 			update_text();
         }
 
+		virtual bool set_property(std::string _property_name, json _value)
+		{
+			if (_property_name == json_field_name) {
+				data[json_field_name] = _value.value();
+			}
+			else if (_property_name == "text") {
+                template_text = _value.as_string();
+                update_text();
+            }
+            else if (_property_name == "prompt") {
+                template_text = _value.as_string();
+                update_text();
+            }
+            else if (_property_name == "hit_word") {
+                hit_word = _value.as_string();
+            }
+            else {
+                return draw_control::set_property(_property_name, _value);
+			}
+			return true;
+		}
+
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
 

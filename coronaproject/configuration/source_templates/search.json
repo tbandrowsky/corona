@@ -27,7 +27,7 @@
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "name": "search_common_text",
+              "name": "navigation_title",
               "box": {
                 "width": "450 pixels",
                 "height": "40 pixels"
@@ -36,7 +36,7 @@
             },
             {
               "class_name": "chaptersubtitle",
-              "name": "search_prompt_text",
+              "name": "list_title",
               "box": {
                 "width": "410 pixels",
                 "height": "40 pixels"
@@ -45,7 +45,7 @@
             },
             {
               "class_name": "chaptersubtitle",
-              "name": "edit_prompt_text",
+              "name": "edit_title",
               "box": {
                 "width": "1.0 remaining",
                 "height": "40 pixels"
@@ -56,7 +56,7 @@
         },
         {
           "class_name": "row",
-          "name": "search_ceremony",
+          "name": "search_section",
           "box": {
             "width": "1.0 container",
             "height": "1.0 remaining"
@@ -98,7 +98,7 @@
                 },
                 {
                   "class_name": "chaptersubtitle",
-                  "name": "search_common_text",
+                  "name": "section_title",
                   "box": {
                     "width": "250 pixels",
                     "height": "40 pixels"
@@ -154,9 +154,9 @@
                         "table_name": "result_table",
                         "detail_frame": "frame_selected",
                         "set": {
-                          "search_ceremony.search_common_text": "",
-                          "search_ceremony.search_prompt_text": "",
-                          "search_ceremony.edit_prompt_text": "",
+                          "search_section.search_commands.section_title.text": "",
+                          "search_top_bar.list_title.text": "",
+                          "search_top_bar.edit_title.text": "",
                           "this.from_class": "from_class"
                         },
                         "query": {

@@ -2476,7 +2476,7 @@ namespace corona
 
 			toolbar = std::make_shared<row_layout>(this, id_counter::next());
 			toolbar->set_box(toolbar_layout);
-			toolbar->wrap = true;
+			toolbar->wrap = false;
 
 			styles_dropdown = std::make_shared<combobox_control>(toolbar.get(), id_counter::next());
 			styles_dropdown->set_box(dropdown_layout);
@@ -2652,7 +2652,7 @@ namespace corona
 			toolbar->children.push_back(align_center_button);
 			toolbar->children.push_back(align_right_button);
 
-			toolbar->children.push_back(bullet_button);
+//			toolbar->children.push_back(bullet_button);
 
 			children.push_back(toolbar);
 			children.push_back(richedit_area);

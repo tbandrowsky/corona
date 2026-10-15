@@ -12,21 +12,19 @@
     "form_name": "search_input",
     "table_name": "result_table",
     "detail_frame": "frame_selected",
-    "result_text": "$result_text",
-    "edit_text": "$edit_text",
-    "search_common_text": "$search_common_text",
-    "result_text_control": "$result_text_control",
-    "edit_text_control": "$edit_text_control",
     "result_commands": [ "$create_commands" ],
     "result_commands_control": "$commands_control",
     "update_filter": "$update_filter",
     "set": {
       "search_criteria.search_button.set": {
-        "search_ceremony.search_common_text": "$search_common_text",
-        "search_ceremony.search_prompt_text": "$search_prompt_text",
-        "search_ceremony.edit_prompt_text": "$edit_prompt_text",
+        "search_section.search_commands.section_title.text": "$section_title_text",
+        "search_top_bar.list_title.text": "$list_title_text",
+        "search_top_bar.edit_title.text": "$edit_title_text",
         "this.from_class": "$search_button_class"
-      }
+      },
+      "search_section.search_commands.section_title.text": "$section_title_text",
+      "search_top_bar.list_title.text": "$list_title_text",
+      "search_top_bar.edit_title.text": "$edit_title_text"
     },
     "query": {
       "from": [

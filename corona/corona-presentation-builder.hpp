@@ -1940,22 +1940,18 @@ namespace corona
 
 			container_control::set_data(_data);
 
+			if (current_tab_name.empty() and tab_panes.size() > 0) {
+				current_tab_name = tab_panes[0].pane.name;
+				select_tab(current_tab_name);
+			}
+
  			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
 				return tp.pane.name == this->current_tab_name;
 				});
 
 			if (current_tab != tab_panes.end()) {
-				content_frame->set_data(slice_object);
-			}
-
-			if (!current_tab_name.empty()) 
-			{
-				select_tab(current_tab_name);
-			}
-			else if (tab_panes.size() > 0) 
-			{
-				select_tab(tab_panes[0].pane.name);
-			}
+				content_frame->set_data(slice_object);			
+			} 
 
 			return data;
         }

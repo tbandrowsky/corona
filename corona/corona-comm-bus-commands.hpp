@@ -2193,10 +2193,6 @@ namespace corona
 		json				query_body;
 		corona_instance instance = corona_instance::local;
 		std::string			hit_words = "";
-		std::string         result_text_control = "";
-        std::string         edit_text_control = "";
-        std::string         result_text = "";
-        std::string         edit_text = "";
 		std::vector<std::shared_ptr<control_base>> result_commands;
         std::string			result_commands_control = "";
 
@@ -2291,28 +2287,7 @@ namespace corona
 						cb_form->set_hit_word(hit_words);
 					}
 				}
-                json_object search_results;
-                search_results.put_member(std::string("count"), (int64_t)response.data.size());
-                if (result_text_control.size() > 0) {
-					control_base* cb_results = _bus->find_control(result_text_control);
-					if (cb_results) {
-						cb_results->set_data(search_results);
-						auto tx_results = dynamic_cast<text_template_base*>(cb_results);
-						if (tx_results) {
-							tx_results->set_text_template(result_text);
-						}
-					}
-				}
-				if (edit_text_control.size() > 0) {
-					control_base* cb_edit = _bus->find_control(edit_text_control);
-					if (cb_edit) {
-						cb_edit->set_data(search_results);
-						auto tx_edit = dynamic_cast<text_template_base*>(cb_edit);
-						if (tx_edit) {
-							tx_edit->set_text_template(edit_text);
-						}
-					}
-				}
+				set_properties(_bus);
 				if (result_commands_control.size() > 0) {
 					control_base* cb_commands = _bus->find_control(result_commands_control);
 					if (cb_commands) {
@@ -2340,6 +2315,7 @@ namespace corona
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
+			corona::corona_form_command::get_json(_dest);
 
 			_dest.put_member("class_name", "run_query"sv);
 			_dest.put_member("form_name", form_name);
@@ -2347,10 +2323,6 @@ namespace corona
 			_dest.put_member("detail_frame", form_name);
 			_dest.put_member("query", query_body);
             _dest.put_member("defaults_field", query_defaults_field);
-            _dest.put_member("result_text_control", result_text_control);
-			_dest.put_member("edit_text_control", edit_text_control);
-            _dest.put_member("result_text", result_text);
-			_dest.put_member("edit_text", edit_text);
 
 			json_parser jp;
 			json jcommands = jp.create_array();
@@ -2368,6 +2340,8 @@ namespace corona
 		{
 			std::vector<std::string> missing;
 			json_parser jp;
+
+			corona::corona_form_command::put_json(_src);
 
 			if (not _src.has_members(missing, { "form_name", "table_name", "query"})) {
 				system_monitoring_interface::active_mon->log_warning("search_objects_command missing:");
@@ -2400,10 +2374,6 @@ namespace corona
 				dates.put_member(s, jdt);
 			}
 			query_defaults.put_member("dates", dates);
-			result_text_control = _src["result_text_control"].as_string();
-            edit_text_control = _src["edit_text_control"].as_string();
-            result_text = _src["result_text"].as_string();
-            edit_text = _src["edit_text"].as_string();	
             result_commands_control = _src["result_commands_control"].as_string();
             json jcommands = _src["result_commands"];
 			if (jcommands.array()) {
@@ -3244,6 +3214,40 @@ namespace corona
 
 		return _src;
 	}
+
+	void command_button_control::on_subscribe(presentation_base* _presentation, page_base* _page)
+	{
+		_page->on_mouse_left_click(this, [this, _presentation, _page](mouse_left_click_event evt)
+			{
+				command_button_control* click_button = dynamic_cast<command_button_control*>(evt.control);
+				if (click_button && click_button->click_command)
+				{
+					int batch_id = evt.bus->start_batch();
+					evt.bus->run_command(batch_id, click_button->click_command);
+				}
+				if (click_button && click_button->on_click) {
+					click_button->on_click(this);
+				}
+			});
+	}
+
+	bool command_button_control::set_property(std::string _property_name, json _value)
+	{
+		if (_property_name == "set") {
+			on_click_set = to_object(_value);
+			if (click_command) {
+				auto fc = std::dynamic_pointer_cast<corona_form_command>(click_command);
+				if (fc) {
+					fc->property_set = on_click_set;
+				}
+			}
+		}
+		else {
+			return gradient_button_control::set_property(_property_name, _value);
+		}
+		return true;
+	}
+
 
 }
 

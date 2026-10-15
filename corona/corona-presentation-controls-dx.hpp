@@ -1885,6 +1885,7 @@ namespace corona
         std::string         enable_source_frame;
         std::string         enable_class_name;
         std::function<void(command_button_control*)> on_click;
+        json_object         on_click_set;
 
         bool                enabled;
         bool                toolbar_button = false;
@@ -1911,6 +1912,7 @@ namespace corona
             enable_class_name = _src.enable_class_name;
             enabled = true;
             toolbar_button = _src.toolbar_button;
+            on_click_set = _src.on_click_set;
             init();
         }
 
@@ -1987,6 +1989,8 @@ namespace corona
         {
 
         }
+
+        virtual bool set_property(std::string _property_name, json _value) override;
 
         virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
         {
@@ -2127,21 +2131,7 @@ namespace corona
             return HTCLIENT; // we lie here 
         }
 
-        virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
-        {
-            _page->on_mouse_left_click(this, [this, _presentation, _page](mouse_left_click_event evt)
-                {
-                    command_button_control* click_button = dynamic_cast<command_button_control*>(evt.control);
-                    if (click_button && click_button->click_command) {
-
-                       int batch_id = evt.bus->start_batch();
-                       evt.bus->run_command(batch_id, click_button->click_command);
-                    }
-                    if (click_button && click_button->on_click) {
-                        click_button->on_click(this);
-                    }
-                });
-        }
+        virtual void on_subscribe(presentation_base* _presentation, page_base* _page);
 
         virtual void get_json(json& _dest)
         {
@@ -2151,6 +2141,9 @@ namespace corona
             _dest.put_member("icon", icon);
             _dest.put_member("text", button_text);
             _dest.put_member("selected_state_enabled", selected_state_enabled);
+
+            json jset = on_click_set;
+            _dest.put_member("set", jset);
 
             if (click_command) {
                 json jcommand = jp.create_object();
@@ -2192,6 +2185,14 @@ namespace corona
             }
 
             corona::put_json(click_command, jcommand);
+
+            json jset = _src["set"];
+            if (jset.object()) {
+                on_click_set = to_object(jset);
+            }
+            else {
+                on_click_set = {};
+            }
 
             if (_src.has_member("image")) {
                 set_image(_src["image"].as_string());

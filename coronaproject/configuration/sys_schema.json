@@ -942,7 +942,8 @@
         "building": [ "building" ],
         "records": [ "record" ],
         "assets": [ "asset" ],
-        "property_value": "double"
+        "property_value": "double",
+        "address": "addresses"
       },
       "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
     },
@@ -1310,7 +1311,23 @@
         },
         "tab_type": "custom"
       },
-      ".text": {
+      ".problem": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+
+      },
+      ".resolution": {
         "class_name": "writepad",
         "box": {
           "width": {
@@ -1323,6 +1340,21 @@
           }
         },
         "tab_type": "custom"
+      },
+      ".text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
       },
       ".general_terms": {
         "class_name": "writepad",
@@ -1336,7 +1368,9 @@
             "units": "container"
           }
         },
-        "tab_type": "custom"
+        "tab_type": "custom",
+        "default_tab": true
+
       },
       ".certificate": {
         "class_name": "writepad",
@@ -1350,7 +1384,8 @@
             "units": "container"
           }
         },
-        "tab_type": "custom"
+        "tab_type": "custom",
+        "default_tab": true
       },
       "string.memo": {
         "class_name": "memo_field",
@@ -1636,15 +1671,14 @@
       "app_team": {
         "search_groups": [
           {
-            "title": "Status",
+            "title": "Journal",
             "classes": [
               "journal"
             ],
-            "new_objects": [ "news","diary","task" ],
-            "result_text": "{count} entries",
-            "edit_text": "Editing entry",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
+            "new_objects": [ "news", "diary", "task" ],
+            "section_title_text": "Journal Options",
+            "list_title_text": "Journal List",
+            "edit_title_text": "Journal Details",
             "commands_control": "new_object_commands",
             "chart_name": "chart_journal",
             "charts": [
@@ -1688,11 +1722,10 @@
             "classes": [
               "property"
             ],
-            "new_objects": [ "property"  ],
-            "result_text": "{count} properties",
-            "edit_text": "Editing property",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
+            "new_objects": [ "property" ],
+            "section_title_text": "Property Options",
+            "list_title_text": "Property List",
+            "edit_title_text": "Property Details",
             "commands_control": "new_object_commands",
             "chart_class": "chart_property",
             "charts": [
@@ -1737,10 +1770,9 @@
               "person"
             ],
             "new_objects": [ "person" ],
-            "result_text": "{count} people",
-            "edit_text": "Editing person",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
+            "section_title_text": "People Options",
+            "list_title_text": "People",
+            "edit_title_text": "Person Details",
             "commands_control": "new_object_commands",
             "chart_class": "chart_person",
             "charts": [
@@ -1799,10 +1831,9 @@
               "tractor",
               "gun"
             ],
-            "result_text": "{count} assets",
-            "edit_text": "Editing asset",
-            "result_text_control": "search_prompt_text",
-            "edit_text_control": "edit_prompt_text",
+            "section_title_text": "Asset Options",
+            "list_title_text": "Assets",
+            "edit_title_text": "Asset Details",
             "commands_control": "new_object_commands",
             "chart_class": "chart_asset",
             "charts": [

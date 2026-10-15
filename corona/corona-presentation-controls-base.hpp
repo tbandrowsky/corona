@@ -486,7 +486,7 @@ namespace corona
 				}
 			}			
 
-            return control_slice;
+            return jslice;
         }
 
 		virtual json_object get_data() 

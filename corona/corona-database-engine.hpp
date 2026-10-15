@@ -3466,10 +3466,10 @@ private:
 							json search_group = search_group_template.clone();
 							json search_group_commands = jp.create_array();
 
-							std::string sg_search_results_control = sg["result_text_control"].as_string();
-							std::string sg_search_edit_control = sg["edit_text_control"].as_string();
-							std::string sg_search_results_text = sg["result_text"].as_string();
-							std::string sg_search_edit_text = sg["edit_text"].as_string();
+							std::string sg_list_title_text = sg["list_title_text"].as_string();
+							std::string sg_edit_title_text = sg["edit_title_text"].as_string();
+							std::string sg_section_title_text = sg["section_title_text"].as_string();
+
 							json sg_new_objects = sg["new_objects"];
 							std::string sg_search_commands_control = sg["commands_control"].as_string();
 							std::string chart_name = sg["chart_name"].as_string();
@@ -3571,10 +3571,9 @@ private:
 	{ "$search_button_name", jp.from_string("query_" + sgclassd->get_class_name() + "_button") },
 	{ "$search_button_image", jp.from_string(std::format("{}.png", sgclassd->get_class_name())) },
 	{ "$search_button_text", jp.from_string(sgclassd->get_class_name()) },
-	{ "$result_text_control", jp.from_string(sg_search_results_control) },
-	{ "$edit_text_control", jp.from_string(sg_search_edit_control) },
-	{ "$result_text", jp.from_string(sg_search_results_text) },
-	{ "$edit_text", jp.from_string(sg_search_edit_text) },
+	{ "$section_title_text", jp.from_string(sg_section_title_text) },
+	{ "$list_title_text", jp.from_string(sg_list_title_text) },
+	{ "$edit_title_text", jp.from_string(sg_edit_title_text) },
 	{ "$create_commands", search_create_commands },
 	{ "$commands_control", jp.from_string(sg_search_commands_control) },
 	{ "$update_filter", update_filter }
@@ -3750,6 +3749,7 @@ private:
 				std::string field_tab_type = "";
 				layout_rect field_box = {};
                 json jfield_box = jp.create_object();
+				bool default_tab = field_mapping["default_tab"].as_bool();
 
 				if (field_mapping.object()) {
 					field_tab_type = field_mapping["tab_type"].as_string();
@@ -3765,6 +3765,7 @@ private:
 					tab.put_member_string("member_name", field->get_field_name());
 					tab.put_member_string("ux_class", field_ux_class);
 					tab.put_member_string("tab_type", field_tab_type);
+					tab.put_member_bool("default_tab", default_tab);
 					tabs.push_back(tab);
 				}
 				else if (field_tab_type == "edit")
@@ -3785,6 +3786,7 @@ private:
 						tab.put_member_string("member_name", field->get_field_name());
 						tab.put_member_string("ux_class", "scintilla");
 						tab.put_member_string("tab_type", field_tab_type);
+						tab.put_member_bool("default_tab", default_tab);
 						tabs.push_back(tab);
 					}
 					else
@@ -3812,6 +3814,7 @@ private:
 						tab.put_member_string("name", field->get_label());
 						tab.put_member_string("member_name", field->get_field_name());
 						tab.put_member_string("tab_type", "object");
+						tab.put_member_bool("default_tab", default_tab);
 						tabs.push_back(tab);
 					}
 				}
@@ -3838,6 +3841,7 @@ private:
 						tab.put_member("filter", jcopy);
 					}
 					tab.put_member_string("tab_type", "list");
+					tab.put_member_bool("default_tab", default_tab);
 					tabs.push_back(tab);
 				}
 
@@ -4229,13 +4233,21 @@ private:
 					new_tab.put_member("page_name", page_name);
 
 					if (dest_tabs.array()) {
-						dest_tabs.push_back(new_tab);
+						bool default_tab = src_tab["default_tab"].as_bool();
+                        if (default_tab) {
+                            dest_tabs.push_front(new_tab);
+						}
+						else {
+							dest_tabs.push_back(new_tab);
+						}
 					}
 				}
 				else {
 					//DebugBreak();
 				}
 			}
+
+			
 
             result.push_back(object_page);
 
