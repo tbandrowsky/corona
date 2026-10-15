@@ -127,6 +127,16 @@ namespace corona {
 			}
 		}
 
+        virtual void set_properties(json_object _data)
+        {
+            if (auto cp = current_page.lock()) {
+				for (auto& member : _data) {
+					std::vector<std::string> path = split(member.first, '.');
+					cp->root->set_property(path, member.second);
+				}
+            }
+        }
+
 		template <typename control_type> control_type* find_ptr(std::string _name)
 		{
 			if (auto cp = current_page.lock()) {

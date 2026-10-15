@@ -552,6 +552,42 @@ namespace corona
 
 		}
 
+		virtual bool set_property(std::string _property_name, json _value)
+		{
+			return false;
+		}
+
+        virtual void set_property(std::vector<std::string> _property_path, json _value)
+        {
+            if (_property_path.size() == 0) {
+                return;
+            }
+			else if (_property_path.size() == 1)
+			{
+				std::string object_property = _property_path[0];
+                if (object_property == json_field_name) {
+                    data[json_field_name] = _value.value();
+                }
+				set_property(object_property, _value);
+			}
+			else if (_property_path[0] == json_field_name || _property_path[0] == name) {
+				std::vector<std::string> subpath(_property_path.begin() + 1, _property_path.end());
+				if (subpath.size() == 1) {
+                    set_property(subpath[0], _value);
+                }
+                else {
+                    for (auto& child : children) {
+                        child->set_property(subpath, _value);
+                    }
+                }
+            }
+            else {
+                for (auto& child : children) {
+                    child->set_property(_property_path, _value);
+                }
+            }
+        }
+
 		virtual void delete_windows()
 		{
             for (auto& c : children) {

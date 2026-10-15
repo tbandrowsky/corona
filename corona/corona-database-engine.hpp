@@ -3464,10 +3464,10 @@ private:
 							json charts = sg["charts"];
 
 							json search_group = search_group_template.clone();
-                            json search_group_commands = jp.create_array();
+							json search_group_commands = jp.create_array();
 
-                            std::string sg_search_results_control = sg["result_text_control"].as_string();
-                            std::string sg_search_edit_control = sg["edit_text_control"].as_string();
+							std::string sg_search_results_control = sg["result_text_control"].as_string();
+							std::string sg_search_edit_control = sg["edit_text_control"].as_string();
 							std::string sg_search_results_text = sg["result_text"].as_string();
 							std::string sg_search_edit_text = sg["edit_text"].as_string();
 							json sg_new_objects = sg["new_objects"];
@@ -3485,19 +3485,21 @@ private:
 
 							pages.push_back(chart_pages);
 
-                            std::set<std::string> new_object_classes;
+							std::set<std::string> new_object_classes;
 
 							if (sg_new_objects.array()) {
 
 								for (int i = 0; i < sg_new_objects.size(); i++) {
 									auto option = sg_new_objects.get_element(i).as_string();
-                                    new_object_classes.insert(option);
+									new_object_classes.insert(option);
 								}
 							}
 
 							json search_create_commands = jp.create_array();
 
 							for (auto sg_class : new_object_classes) {
+
+								// this is for the classes you can create in the search group.  like the options panel
 
 								auto sgclassd = read_lock_class(sg_class);
 								if (!sgclassd) {
@@ -3520,7 +3522,7 @@ private:
 
 							if (charts.array()) {
 
-
+								// these are the charts that get tacked on.
 								for (int i = 0; i < charts.size(); i++) {
 
 									json chart_command = chart_command_class_template.clone();
@@ -3560,6 +3562,7 @@ private:
 									return jp.create_object();
 								}
 
+								// this is the guy that decorates the main search button that is next to the search text
 								json update_filter = jp.create_object();
 								update_filter.put_member(class_name_field, sg_class);
 

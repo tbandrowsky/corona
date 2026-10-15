@@ -77,6 +77,7 @@ namespace corona
 		std::string execution_time_field;
 		std::string error_table_field;
 		std::string topic;
+		json_object property_set;
 
 		int batch_id = 0;
 
@@ -107,6 +108,11 @@ namespace corona
 		{
 			return response.data;
 		}
+
+        virtual void set_properties(comm_desktop_bus_interface* _bus)
+        {
+			_bus->set_properties(property_set);
+        }
 
 		virtual void start_message(comm_desktop_bus_interface* _bus);
 		virtual void stop_message(comm_desktop_bus_interface* _bus);
@@ -227,6 +233,8 @@ namespace corona
 			_dest.put_member("status_message_field", status_message_field);
 			_dest.put_member("error_table_field", error_table_field);
 			_dest.put_member(seconds_field, execution_time_field);
+            json jset_properties = property_set;
+            _dest.put_member("set", jset_properties);
 			
 			corona::get_json(_dest, instance);
 		}
@@ -234,6 +242,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
+			json_parser jp;
 
 			if (not _src.has_members(missing, {  })) {
 				system_monitoring_interface::active_mon->log_warning("corona_command missing:");
@@ -264,6 +273,11 @@ namespace corona
 			status_message_field = _src["status_message_field"].as_string();
 			error_table_field = _src["error_table_field"].as_string();
 			execution_time_field = _src["execution_time_field"].as_string();
+			json jset = _src["set"];
+			if (!jset.object()) {
+				jset = jp.create_object();
+			}
+			property_set = corona::to_object(jset);
 
 			corona::put_json(instance, _src);
 
@@ -397,6 +411,7 @@ namespace corona
 				auto v = response.data.value();
 				json_object obj = json_object(v);
 				_bus->select_frame(batch_id, target_frame, source_frame, obj, false);
+				set_properties(_bus);
 			}
 			return response.data;
 		}
@@ -553,6 +568,7 @@ namespace corona
 			if (response.success) {
                 json_object obj = corona::to_object(response.data.value());
                 _bus->object_updated(obj);
+				set_properties(_bus);
 			}
 			return response.data;
 		}
@@ -633,6 +649,7 @@ namespace corona
 			if (response.success) {
                 json_object obj = corona::to_object(response.data.value());
 				_bus->object_updated(obj);
+				set_properties(_bus);
 			}
 			return response.data;
 		}
@@ -731,6 +748,7 @@ namespace corona
                 json_object to_obj = corona::to_object(to_object);
 				_bus->object_updated(from_obj);
 				_bus->object_updated(to_obj);
+				set_properties(_bus);
 			}
 			return response.data;
 		}
@@ -820,6 +838,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			set_properties(_bus);
 			return response.data;
 		}
 
@@ -902,6 +921,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			set_properties(_bus);
 			return response.data;
 		}
 
@@ -970,6 +990,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			set_properties(_bus);
 			return response.data;
 		}
 
@@ -1042,6 +1063,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			set_properties(_bus);
 			return response.data;
 		}
 
@@ -1116,6 +1138,7 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+			set_properties(_bus);
 			return response.data;
 		}
 
@@ -1399,6 +1422,7 @@ namespace corona
             json_object obj = corona::to_object(response.data.value());
 			if (response.errors.size() == 0) {
 				_bus->object_updated(obj);
+				set_properties(_bus);
 			}
 			if (!target_frame.empty() && !source_frame.empty()) {
 				_bus->select_frame(batch_id, target_frame, source_frame, obj, true, response.errors);
@@ -1497,6 +1521,7 @@ namespace corona
 					auto objx = response.data["object"].value();
 					json_object obj(objx);
 					_bus->select_frame(batch_id, target_frame, source_form, obj, true, response.errors);
+					set_properties(_bus);
 				}
 				control_base* cb = _bus->find_control(table_name);
 				if (cb) {
@@ -1596,6 +1621,7 @@ namespace corona
 					obj = v;
 					cb->set_data(obj);
 					_bus->object_updated(obj);
+					set_properties(_bus);
 				}
                 cb->set_errors(response.errors);
 			}

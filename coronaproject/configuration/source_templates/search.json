@@ -29,10 +29,10 @@
               "class_name": "chaptersubtitle",
               "name": "search_common_text",
               "box": {
-                "width": "350 pixels",
+                "width": "450 pixels",
                 "height": "40 pixels"
               },
-              "text": "NAVIGATE"
+              "text": "NAVIGATION"
             },
             {
               "class_name": "chaptersubtitle",
@@ -50,7 +50,7 @@
                 "width": "1.0 remaining",
                 "height": "40 pixels"
               },
-              "text": "EDIT"
+              "text": "DETAIL"
             }
           ]
         },
@@ -67,7 +67,7 @@
               "class_name": "column",
               "name": "search_commands",
               "box": {
-                "width": "350 pixels",
+                "width": "450 pixels",
                 "height": "1.0 container"
               },
               "view_style": {
@@ -84,21 +84,6 @@
               "padding": "0 pixels",
               "wrap": true,
               "children": [
-                {
-                  "class_name": "edit",
-                  "name": "search_input",
-                  "json_field_name": "full_text",
-                  "placholder": "Search text",
-                  "default_focus": true,
-                  "box": {
-                    "width": "216 pixels",
-                    "height": "32 pixels"
-                  },
-                  "text_style": {
-                    "font_name": "Georgia",
-                    "font_size": 18
-                  }
-                },
                 {
                   "class_name": "row",
                   "name": "search_groups",
@@ -118,7 +103,83 @@
                     "width": "250 pixels",
                     "height": "40 pixels"
                   },
-                  "text": "OPTIONS"
+                  "text": "SELECTED"
+                },
+                {
+                  "class_name": "row",
+                  "name": "search_criteria",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "50 pixels"
+                  },
+                  "view_style": {
+                    "box_fill_brush": {
+                      "class_name": "solid_brush",
+                      "color": "111121"
+                    },
+                    "box_border_brush": {
+                      "class_name": "solid_brush",
+                      "color": "111112"
+                    },
+                    "box_border_thickness": 4
+                  },
+                  "children": [
+                    {
+                      "class_name": "edit",
+                      "name": "search_input",
+                      "json_field_name": "full_text",
+                      "placholder": "Search text",
+                      "default_focus": true,
+                      "box": {
+                        "width": "300 pixels",
+                        "height": "50 pixels"
+                      },
+                      "text_style": {
+                        "font_name": "Arial",
+                        "font_size": 24
+                      }
+                    },
+                    {
+                      "class_name": "command_button",
+                      "name": "search_button",
+                      "icon": "Search",
+                      "text": "Search",
+                      "box": {
+                        "width": "100 pixels",
+                        "height": "50 pixels"
+                      },
+                      "on_click": {
+                        "class_name": "run_query",
+                        "form_name": "search_input",
+                        "table_name": "result_table",
+                        "detail_frame": "frame_selected",
+                        "set": {
+                          "search_ceremony.search_common_text": "",
+                          "search_ceremony.search_prompt_text": "",
+                          "search_ceremony.edit_prompt_text": "",
+                          "this.from_class": "from_class"
+                        },
+                        "query": {
+                          "from": [
+                            {
+                              "class_name": "sys_object",
+                              "name": "objects",
+                              "filter": {
+                                "full_text": "$this.full_text"
+                              }
+                            }
+                          ],
+                          "stages": [
+                            {
+                              "class_name": "result",
+                              "source": "objects",
+                              "name": "final"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
                 },
                 {
                   "class_name": "row",

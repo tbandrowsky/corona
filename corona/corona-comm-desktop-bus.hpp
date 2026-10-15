@@ -2318,6 +2318,13 @@ namespace corona
 			presentation_layer->object_deleted(_data);
 		}
 
+        virtual void set_properties(json_object _src) override
+        {
+			if (presentation_layer) {
+                presentation_layer->set_properties(_src);
+            }
+        }
+
 		virtual control_base* create_control(control_base* _src) override
 		{
 			if (presentation_layer) {

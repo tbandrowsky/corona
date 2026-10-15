@@ -352,6 +352,5 @@ namespace corona {
         virtual void on_gamepad_thumbstick_move(control_base* _base, std::function< void(gamepad_thumbstick_move_event) >) = 0;
 		virtual void clear_events(control_base* _base) = 0;
 		virtual void refresh() = 0;
-
 	};
 }

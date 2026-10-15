@@ -348,6 +348,8 @@ namespace corona
 		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
 
+		virtual void set_properties(json_object _src) = 0;
+
 		// this stuff here is wonky
 
 		virtual void set_variable(int _batch_id, std::string _name, json _value)
