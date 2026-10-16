@@ -3351,8 +3351,9 @@ private:
 			json home_page = home_template.clone();
 
 			home_page.apply_abbreviations({
-				{ "$corporate_name", _application_schema["application_company"] },
-				{ "$title_name",  _application_schema["application_name"] }
+				{ "$corporate_name", _application_schema["application_corporate_title"] },
+				{ "$title_name",  _application_schema["application_title"] },
+				{ "$subtitle_name",  _application_schema["application_subtitle"] }
                 });
 
 			json pages_template = read_json(errors, this->config_path + "source_templates\\pages.json");

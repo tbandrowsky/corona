@@ -168,7 +168,7 @@
               "position": 0.8
             },
             {
-              "color": "313180",
+              "color": "315180",
               "position": 0.93
             },
             {
@@ -184,43 +184,33 @@
       },
       "title_style": {
         "text_style": {
-          "font_name": "Century Gothic,Arial",
-          "font_size": 35,
+          "font_name": "Arial Rounded MT,Century Gothic,Arial",
+          "font_size": 28,
           "vertical_alignment": "center"
         },
         "shape_border_thickness": 0,
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
-        },
-        "box_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "00000044"
         }
       },
       "subtitle_style": {
         "text_style": {
-          "font_name": "Century Gothic,Arial",
-          "font_size": 18,
-          "bold": false,
-          "underline": false,
-          "vertical_alignment": "far"
+          "font_name": "French Script MT,Centaur,Century Schoolbook,Arial",
+          "font_size": 28,
+          "vertical_alignment": "center"
         },
         "shape_border_thickness": 0,
         "box_border_thickness": 0,
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
-        },
-        "box_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "00000044"
         }
       },
       "chapter_title_style": {
         "text_style": {
           "font_name": "Century Gothic,Arial",
-          "font_size": 24,
+          "font_size": 18,
           "vertical_alignment": "far"
         },
         "shape_border_thickness": 0,
@@ -237,7 +227,7 @@
       "chapter_subtitle_style": {
         "text_style": {
           "font_name": "Century Gothic,Arial",
-          "font_size": 17,
+          "font_size": 16,
           "underline": false,
           "vertical_alignment": "near"
         },

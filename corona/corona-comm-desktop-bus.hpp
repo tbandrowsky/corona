@@ -2432,10 +2432,22 @@ namespace corona
             return presentation_layer->get_page(_page_name);
 		}
 
+
 		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav) override
 		{
 			validation_error_collection vs;
 			select_frame(_batch_id, _dest, _src, _obj, _reset_nav, vs);
+		}
+
+		virtual void select_control(control_base* _control)
+		{
+			presentation_layer->onResize();
+
+			auto hwindow = this->app_ui->getWindow();
+			if (auto pwindow = hwindow.lock()) {
+				auto context = pwindow->getContext();
+				_control->create(context, app_ui);
+			}			
 		}
 
 		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav, validation_error_collection& _vs) override
@@ -2514,12 +2526,6 @@ namespace corona
 							auto pg_master = presentation_layer->get_current_page();
 
 							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
-
-							auto hwindow = this->app_ui->getWindow();
-							if (auto pwindow = hwindow.lock()) {
-								auto context = pwindow->getContext();
-								fl->create(context, app_ui);
-							}
 						}
 						fl->set_data(_obj);
                         fl->set_errors(_vs);
@@ -2527,10 +2533,10 @@ namespace corona
 					if (not _form_to_load.empty()) {
 						control_base* formx = find_control(_form_to_load);
 						if (formx) {
+							select_control(formx);	
 							formx->set_data(_obj);
 						}
 					}
-					presentation_layer->onResize();
 				}
 			}
 			log_command_stop("select_page stop", target_note, tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);

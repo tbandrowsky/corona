@@ -1156,6 +1156,9 @@
   "application": {
     "application_creator": "Country Video Games",
     "application_name": "Revolution Journal",
+    "application_title": "Revolution Journal",
+    "application_subtitle": "During the days of the Russo-Confederate Occupation",
+    "application_corporate_title": "Sponsored by Industrial Foods and Goods",
     "fields": {
       ".section": {
         "class_name": ".section",

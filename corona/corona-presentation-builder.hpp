@@ -1576,45 +1576,42 @@ namespace corona
 		{
 			control_builder cb;
 
+			set_nchittest(HTCLIENT);
+
 			auto main_row = cb.row_begin(id_counter::next(), [](row_layout& rl) {
 				rl.set_size(1.0_container, 1.0_container);
-				rl.set_content_align(visual_alignment::align_far);
-				rl.set_content_cross_align(visual_alignment::align_center);
-				rl.set_style(presentation_style_factory::get_current()->get_style()->CaptionStyle);
+				});
+
+			auto main_column = main_row.absolute_begin(id_counter::next(), [](absolute_layout& cl) {
+					cl.set_size(1.0_remaining, 1.0_container);
+					cl.set_nchittest(HTCAPTION);
 				});
 
 			if (image_file.size())
 			{
-				auto image_column = main_row.column_begin(id_counter::next(), [](column_layout& cl) {
-					cl.set_size(75.0_px, 1.0_container);
-					cl.set_content_align(visual_alignment::align_center);
-					});
-
-				image_column.image(image_control_id, image_file, [](image_control& _settings) {
-					_settings.box.x = 10.0_px;
-					_settings.set_size(1.0_container, 1.0_aspect);
+				main_column.image(image_control_id, image_file, [](image_control& _settings) {
+					_settings.set_size(1.0_container, 1.0_container);
 					});
 			}
 
-			auto padding_column = main_row.column_begin(id_counter::next(), [this](column_layout& cl) {
-				cl.set_size(16.0_px, 1.0_container);
-				cl.set_content_align(visual_alignment::align_center);
-				})
-				.end();
+			auto title_column = main_column.column_begin(id_counter::next(), [this](column_layout& cl) {
+				cl.set_size(1.0_container, 1.0_container);
+				cl.set_padding(10.0_px);
+				});
 
-			auto title_column = main_row.column_begin(id_counter::next(), [this](column_layout& cl) {
-				cl.set_size(1.0_remaining, 1.0_container);
-				cl.set_content_align(visual_alignment::align_center);
-				})
-				.title(title_name, [this](title_control& control) {
-						control.set_nchittest(HTCAPTION);
-						control.set_size(1.0_container, 0.5_container);
-					}, title_id)
-				.subtitle(subtitle_name, [this](subtitle_control& control) {
-						control.set_nchittest(HTCAPTION);
-						control.set_size(1.0_container, 0.5_container);
-					}, subtitle_id)
-			.end();
+			title_column.title(title_name, [this](title_control& control) {
+				control.set_size(1.0_container, 30.0_px);
+				}, title_id);
+
+			title_column.subtitle(subtitle_name, [this](subtitle_control& control) {
+				control.set_size(1.0_container, 28.0_px);
+					}, subtitle_id);
+
+			title_column.paragraph(corporate_name, [this](paragraph_control& control) {
+				control.set_size(1.0_container, 16.0_px);
+				}, corporate_id);
+
+			title_column.end();
 
 			auto frame_buttons_container = main_row.column_begin(id_counter::next(), [](column_layout& rl) {
 				rl.set_size(260.0_px, 1.0_container);
@@ -1648,6 +1645,7 @@ namespace corona
 		std::string subtitle_name;
 		int title_id;
 		int subtitle_id;
+        int corporate_id;
 		measure title_start;
 
 		caption_bar_control()
@@ -1667,6 +1665,7 @@ namespace corona
 			close_button_id = id_counter::next();
 			title_id = id_counter::next();
 			subtitle_id = id_counter::next();
+            corporate_id = id_counter::next();
 		}
 
 		std::shared_ptr<control_base> clone()
@@ -1705,7 +1704,7 @@ namespace corona
 		{
 			container_control::get_json(_dest);
 
-			_dest.put_member("image_file", image_file);
+			_dest.put_member("image", image_file);
 			_dest.put_member("corporate_name", corporate_name);
 			_dest.put_member("title_name", title_name);
 			_dest.put_member("subtitle_name", subtitle_name);
@@ -1719,7 +1718,7 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			container_control::put_json(_src);
-			image_file = _src["image_file"].as_string();
+			image_file = _src["image"].as_string();
 			corporate_name = _src["corporate_name"].as_string();
 			title_name = _src["title_name"].as_string();
 			subtitle_name = _src["subtitle_name"].as_string()	;
@@ -1792,16 +1791,18 @@ namespace corona
 		std::shared_ptr<frame_layout> content_frame;
 		std::string content_frame_name;
 		std::string current_tab_name;
+		std::shared_ptr<row_layout> tab_row;
+		std::shared_ptr<column_layout> main;
 
 		void init()
 		{
 			children.clear();
 
 			if (content_frame_name.empty()) {
-				content_frame_name = "tab_content_frame_" + std::to_string((int)this);
+				content_frame_name = "tab_content_frame_" + std::to_string((uint64_t)this);
             }
 
-            std::shared_ptr<column_layout> main = std::make_shared<column_layout>();
+            main = std::make_shared<column_layout>();
 			main->set_size(1.0_container, 1.0_container);
 
 			linearGradientBrushRequest tab_brush;
@@ -1817,7 +1818,7 @@ namespace corona
 			tab_back_style->name = "tab_back_style";
 			tab_back_style->box_fill_brush = tab_brush;
 
-			std::shared_ptr<row_layout> tab_row = std::make_shared<row_layout>();
+			tab_row = std::make_shared<row_layout>();
             tab_row->set_size(1.0_container, 50.0_px);
             tab_row->set_style(tab_back_style);
             main->children.push_back(tab_row);
@@ -1882,7 +1883,7 @@ namespace corona
 		tab_view_control(const tab_view_control& _src) : container_control(_src)
 		{
 			tab_panes = _src.tab_panes;
-			content_frame = _src.content_frame;
+			content_frame_name = _src.content_frame_name	;
 			init();
 		}
 
@@ -1938,14 +1939,14 @@ namespace corona
 			json_parser jp;
 			json_object tab_data;
 
-			container_control::set_data(_data);
-
-			if (current_tab_name.empty() and tab_panes.size() > 0) {
+			if (tab_panes.size() > 0) {
 				select_tab(tab_panes[0].pane.name);
 			}
 
+			container_control::set_data(_data);
+
  			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
-				return tp.pane.name == this->current_tab_name;
+				return tp.pane.name == current_tab_name;
 				});
 
 			if (current_tab != tab_panes.end()) {
@@ -1965,19 +1966,18 @@ namespace corona
 			if (!is_same_tab) {
 
 				auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
-					return tp.pane.name == this->current_tab_name;
+					return tp.pane.name == current_tab_name;
 					});
 
 				if (current_tab != tab_panes.end()) {
 					json_object tab_object = content_frame->get_slice();
-					content_frame->destroy();
 					control_slice += tab_object;
 				}
 
 				current_tab_name = _name;
 
 				for (auto& tp : tab_panes) {
-					bool is_selected = tp.pane.name == this->current_tab_name;
+					bool is_selected = tp.pane.name == current_tab_name;
 					tp.tab_button->selected_state = is_selected;
 					if (is_selected) {
 						auto service = comm_desktop_bus_interface::get_service();
@@ -2001,7 +2001,7 @@ namespace corona
 				tab_panes.push_back(tpi);
 			}
 			init();
-			if (current_tab_name.empty() and tab_panes.size() > 0) {
+			if (tab_panes.size() > 0) {
 				select_tab(tab_panes[0].pane.name);
 			}
 		}
@@ -2030,6 +2030,7 @@ namespace corona
 			}
 
 			content_frame_name = _src["content_frame_name"].as_string();
+			current_tab_name = {};
 			json tabs = _src["tabs"];
 			if (tabs.array()) {
 				std::vector<tab_pane> new_panes;
@@ -3009,9 +3010,6 @@ namespace corona
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
 	{
-
-
-
 		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
 		for (auto srcchild : _contents_page->root->children)
 		{
@@ -3029,6 +3027,10 @@ namespace corona
         navigation_stack.navigate(new_frame);
 
         navigate(_batch_id, new_frame);
+
+		auto service = comm_desktop_bus_interface::get_service();
+		service->select_control(this);
+
 	}
 
 	json corona_set_property_command::execute(comm_desktop_bus_interface* bus)

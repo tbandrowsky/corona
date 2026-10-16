@@ -915,7 +915,10 @@ namespace corona
 		if (rectangle_math::contains(inner_bounds, p.x, p.y))
 		{
 			result = this;
-            if (this->captures_keyboard_focus())
+            auto ht = get_nchittest();
+			if (ht == HTCAPTION)
+				return result;
+            else if (captures_keyboard_focus())
 			{
 				return result;
 			}

@@ -15,10 +15,11 @@
           "class_name": "caption_bar",
           "corporate_name": "$corporate_name",
           "title_name": "$title_name",
-          "title_start": "60 pixels",
+          "subtitle_name": "$subtitle_name",
+          "image": "revolution_caption.png",
           "box": {
             "width": "1.0 container",
-            "height": "80 pixels"
+            "height": "90 pixels"
           }
         },
         {

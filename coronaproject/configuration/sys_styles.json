@@ -33,7 +33,7 @@
 
                     { "color":"112150", "position":0.800000 },
 
-                    { "color":"313180", "position":0.930000 },
+                    { "color":"315180", "position":0.930000 },
 
                     { "color":"101020", "position":1.000000 }
                   ]
@@ -74,7 +74,7 @@
           },
         "code_style":
           {
-            "box_fill_brush":{ "class_name":"solid_brush", "color":"001500" },
+            "box_fill_brush":{ "class_name":"solid_brush", "color":"004500" },
             "shape_fill_brush":{ "class_name":"solid_brush", "color":"aaFFaa" },
             "text_style":
               {
@@ -230,7 +230,6 @@
         "subtitle_style":
           {
             "box_border_thickness":0.000000,
-            "box_fill_brush":{ "class_name":"solid_brush", "color":"00000044" },
             "shape_border_thickness":0.000000,
             "shape_fill_brush":{ "class_name":"solid_brush", "color":"FFFFEE" },
             "text_style":
@@ -266,7 +265,6 @@
           },
         "title_style":
           {
-            "box_fill_brush":{ "class_name":"solid_brush", "color":"00000044" },
             "shape_border_thickness":0.000000,
             "shape_fill_brush":{ "class_name":"solid_brush", "color":"FFFFEE" },
             "text_style":

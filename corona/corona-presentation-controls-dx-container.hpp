@@ -524,7 +524,6 @@ namespace corona
 			container_control::create(_context, _host);
 		}
 
-
 		virtual void get_json(json& _dest)
 		{
 			container_control::get_json(_dest);
