@@ -2090,6 +2090,10 @@ namespace corona
                     draw_bounds.w = inner_bounds.w;
                     _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                 }
+                else if (this->draw_style == gradient_button_styles::tab_style) {
+                    draw_bounds.y += 8;
+                    _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
+                }
                 else {
                     draw_bounds.y += 20;
                     _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
