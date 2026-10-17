@@ -2524,11 +2524,8 @@ namespace corona
 						if (presentation_layer->pages.contains(_frame_contents_page)) {
 							auto pg_src = presentation_layer->pages[_frame_contents_page];
 							auto pg_master = presentation_layer->get_current_page();
-
-							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get());
+							fl->set_contents(_batch_id, presentation_layer.get(), pg_master, pg_src.get(), _obj, _vs);
 						}
-						fl->set_data(_obj);
-                        fl->set_errors(_vs);
 					}
 					if (not _form_to_load.empty()) {
 						control_base* formx = find_control(_form_to_load);

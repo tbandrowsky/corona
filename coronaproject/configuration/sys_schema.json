@@ -38,40 +38,37 @@
       "base_class_name": "sys_object",
       "class_description": "Legal Record",
       "parents": [ "asset", "person", "building", "property" ],
-      "full_text": [ "name", "description" ],
+      "full_text": [ "name", "record_description" ],
       "fields": {
         "name": {
           "field_type": "string",
           "label": "Name",
           "max_length": 50
         },
-        "description": {
+        "record_description": {
           "field_type": "string",
-          "label": "Description"
+          "label": "Record Description"
         }
       },
-      "field_order": [ "name", "description" ]
+      "field_order": [ "name", "record_description" ]
     },
     {
       "class_name": "journal",
       "base_class_name": "sys_object",
       "class_description": "Journal",
-      "full_text": [ "text" ],
       "fields": {
-        "text": {
+        "story": {
           "field_type": "string",
-          "label": "Text"
+          "label": "Story"
         }
-      },
-      "field_order": [ "text" ]
+      }
     },
     {
       "class_name": "diary",
       "base_class_name": "journal",
       "class_description": "Diary",
       "fields": {
-      },
-      "field_order": [ "text" ]
+      }
     },
     {
       "class_name": "task",
@@ -82,6 +79,14 @@
         "task_date": {
           "field_type": "datetime",
           "label": "Task Date"
+        },
+        "completed": {
+          "field_type": "bool",
+          "label": "Completed"
+        },
+        "completed_date": {
+          "field_type": "datetime",
+          "label": "Completed Date"
         }
       }
     },
@@ -107,14 +112,16 @@
           "field_type": "string",
           "label": "Category",
           "enumeration": [
-            "Occupation Propaganda",
-            "Occupation Threat",
-            "Revolution Progress",
-            "Art",
-            "Sports",
-            "Politics",
-            "Economics",
-            "Technology"
+            "Occupation Treason",
+            "Occupation Brutality",
+            "Occupation Lies",
+            "Revolution Hope",
+            "Art and Hope",
+            "Sports and Inspiration",
+            "Politics and Reason",
+            "Economics and Modelling",
+            "Religion and Truth",
+            "Technology and Discovery"
           ]
         }
       }
@@ -444,6 +451,83 @@
       "field_order": [ "problem", "resolution" ]
     },
     {
+      "class_name": "incident",
+      "base_class_name": "sys_object",
+      "class_description": "Incident",
+      "full_text": [ "story" ],
+      "parents": [ "person" ],
+      "fields": {
+        "story": {
+          "field_type": "string",
+          "label": "Story"
+        },
+        "classification": {
+          "field_type": "string",
+          "label": "Classification",
+          "enumeration": [
+            "Positive Leadership",
+            "Technical or Trade Skill",
+            "Charitable",
+            "Dishonesty",
+            "Infidelity",
+            "Dominates Weaker",
+            "Broken Promise",
+            "Chooses Russia",
+            "Chooses Russia Ally",
+            "Insults UK or Canada",
+            "Management Forcing You Out",
+            "Management Lies About You",
+            "Coworker Lies About You",
+            "Connected Subordinate Lies About You",
+            "Ambushed in meeting",
+            "Hung out to dry by leadership",
+            "Took Medical Coverage",
+            "Took Pension Benefits",
+            "New Landlord Causes Problems",
+            "Says 'F*** Em' About Fellow Citizens",
+            "Treats Traitors as Heros",
+            "Refuses Service",
+            "Blames America",
+            "Identity Games",
+            "Paralizer", 
+            "Violence",
+            "Cruelty",
+            "Compassion",
+            "Theft",
+            "Fraud",
+            "Incompetence",
+            "Questionable",
+            "Filanderer",
+            "Drunkard",
+            "Stoner",
+            "Pirate",
+            "Idolatry",
+            "Blasphemy",
+            "Anti-productive",
+            "Anti-Christ",
+            "Treason",
+            "Cirumstantial Evidence",
+            "Spectral Evidence",
+            "Astronomical Signs",
+            "Sacred Text Parallel"
+          ]
+        },
+        "event_result": {
+          "field_type": "string",
+          "label": "Event Result",
+          "enumeration": [
+            "More Likely Russian Asset",
+            "Less Likely Russian Asset"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
       "class_name": "person",
       "base_class_name": "sys_object",
       "class_description": "Person",
@@ -483,21 +567,7 @@
             "Entertainment, Arts"
           ]
         },
-        "loyalty": {
-          "field_type": "string",
-          "label": "Loyalty",
-          "enumeration": [
-            "Patriot",
-            "Russo-Confederate Asset",
-            "Uninformed",
-            "Unknown",
-            "Suspicious"
-          ]
-        },
-        "loyalty_evidence": {
-          "field_type": "string",
-          "label": "Evidence"
-        },
+        "incidents": [ "incident" ],
         "notes": {
           "field_type": "string",
           "label": "Notes"
@@ -1390,6 +1460,36 @@
         "tab_type": "custom",
         "default_tab": true
       },
+      ".record_description": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+      },
+      ".story": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": {
@@ -1474,7 +1574,7 @@
         },
         "tab_type": "edit"
       },
-      "boolean": {
+      "bool": {
         "class_name": "checkbox_field",
         "box": {
           "width": {
@@ -1501,7 +1601,36 @@
           }
         },
         "tab_type": "edit"
+      },
+      ".incident": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".classification": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       }
+
     },
     "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
     "classes": {
@@ -1521,6 +1650,7 @@
       "appliance": "default",
       "furniture": "default",
       "gun": "default",
+      "incident": "default",
       "tractor": "default",
       "electronic": "default",
       "jewelry": "default",
@@ -1587,17 +1717,25 @@
       "board_game": "Keep track of your board games, as they may play them.",
       "video_game": "Keep track of your video games, because you enjoy them.",
       "tool": "Keep track of your tools, because you always need more.",
-      "building": "Protect your buildings on your property.",
+      "building": "Document your buildings on your property.",
       "property": "Remember your land holdings for they will not.",
       "rms_construction_type": "Define how a building is made.",
       "rms_occupancy_type": "Define how a building is used.",
-      "person": "Assets or allies, record people that you meet, track what they do, and figure out where you stand.",
-      "address": "Keep track of your addresses.",
-      "connection": "Keep track of your connections.",
-      "phone": "Keep track of your phone numbers.",
-      "email": "Keep track of your email addresses.",
-      "fax": "Keep track of your fax numbers.",
-      "web": "Keep track of your websites."
+      "person": "Record people that you know, and document your trust in them.",
+      "address": "Property has one or more addresses.",
+      "connection": "Keep track of your connections. The enemy will try to disconnect you.",
+      "phone": "Keep track of your phone numbers. The enemy may change your contacts stored elsewhere.",
+      "email": "Keep track of your email addresses.  The enemy may remove them from your contacts.",
+      "fax": "Keep track of your fax numbers. The enemy will lose those old numbers you need.",
+      "web": "Keep track of your websites. The enemy may remove them from search.",
+      "record_description": "Enter text and paste images to capture truth. The enemy will try to change it.",
+      "story": "Write down your thoughts so you can organize them. The enemy will seek to confuse you.",
+      "diary.story": "Keep your thoughts and dreams by writing them. The enemy will always try to replace them.",
+      "news.story": "Put your own thoughts on movements by the enemy, as the enemy will put their thoughts on you.",
+      "incident.story": "Preserve details of the incident. Every record can save the truth.",
+      "news_description": "A summary of an important news article. You can cut / paste.",
+      "incidents": "Record interactions, research possible patterns and behaviors of Russian Assets.",
+      "incident": "Capture an interaction as you search for Russian Assets."
     },
     "objects": [
       {

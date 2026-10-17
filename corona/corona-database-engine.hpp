@@ -3761,6 +3761,9 @@ private:
 					put_json(field_box, jfield_box);
 				}
 
+				std::string custom_description = classd->get_class_name() + "." + field->get_field_name();
+                std::string general_descdription = field->get_field_name();
+
 				if (field_tab_type == "custom" || field_tab_type == "inventory") {
 					json tab = jp.create_object();
 					tab.put_member_string("page_name", tab_name);
@@ -3769,8 +3772,12 @@ private:
 					tab.put_member_string("ux_class", field_ux_class);
 					tab.put_member_string("tab_type", field_tab_type);
 					tab.put_member_bool("default_tab", default_tab);
-					if (descriptions.has_member("member_name")) {
-                        std::string description = descriptions[field->get_field_name()].as_string();
+					if (descriptions.has_member(custom_description)) {
+						std::string description = descriptions[custom_description].as_string();
+						tab.put_member_string("description", description);
+					}
+					else if (descriptions.has_member(general_descdription)) {
+                        std::string description = descriptions[general_descdription].as_string();
                         tab.put_member_string("description", description);
 					}
 					tabs.push_back(tab);
@@ -3794,8 +3801,12 @@ private:
 						tab.put_member_string("ux_class", "scintilla");
 						tab.put_member_string("tab_type", field_tab_type);
 						tab.put_member_bool("default_tab", default_tab);
-						if (descriptions.has_member("member_name")) {
-							std::string description = descriptions[field->get_field_name()].as_string();
+						if (descriptions.has_member(custom_description)) {
+							std::string description = descriptions[custom_description].as_string();
+							tab.put_member_string("description", description);
+						}
+						else if (descriptions.has_member(general_descdription)) {
+							std::string description = descriptions[general_descdription].as_string();
 							tab.put_member_string("description", description);
 						}
 						tabs.push_back(tab);
@@ -3826,8 +3837,12 @@ private:
 						tab.put_member_string("member_name", field->get_field_name());
 						tab.put_member_string("tab_type", "object");
 						tab.put_member_bool("default_tab", default_tab);
-						if (descriptions.has_member("member_name")) {
-							std::string description = descriptions[field->get_field_name()].as_string();
+						if (descriptions.has_member(custom_description)) {
+							std::string description = descriptions[custom_description].as_string();
+							tab.put_member_string("description", description);
+						}
+						else if (descriptions.has_member(general_descdription)) {
+							std::string description = descriptions[general_descdription].as_string();
 							tab.put_member_string("description", description);
 						}
 						tabs.push_back(tab);
@@ -3857,8 +3872,12 @@ private:
 					}
 					tab.put_member_string("tab_type", "list");
 					tab.put_member_bool("default_tab", default_tab);
-					if (descriptions.has_member("member_name")) {
-						std::string description = descriptions[field->get_field_name()].as_string();
+					if (descriptions.has_member(custom_description)) {
+						std::string description = descriptions[custom_description].as_string();
+						tab.put_member_string("description", description);
+					}
+					else if (descriptions.has_member(general_descdription)) {
+						std::string description = descriptions[general_descdription].as_string();
 						tab.put_member_string("description", description);
 					}
 					tabs.push_back(tab);
@@ -3880,7 +3899,7 @@ private:
 		default_tab.put_member_string("name", classd->get_class_name());
 		default_tab.put_member_string("member_name", ".");
 		default_tab.put_member_string("tab_type", "edit");
-		if (descriptions.has_member("member_name")) {
+		if (descriptions.has_member(classd->get_class_name())) {
 			std::string description = descriptions[classd->get_class_name()].as_string();
 			default_tab.put_member_string("description", description);
 		}
@@ -3987,7 +4006,7 @@ private:
 		}
 
 		json generate_tab_edit_page(validation_error_collection& _errors, json& tab_template, 
-			read_class_sp& classd, json& class_mappings, json& field_mappings)
+			read_class_sp& classd, json& class_mappings, json& field_mappings, std::string description)
 		{
 			json_parser jp;
 
@@ -4052,11 +4071,13 @@ private:
 			}
 
             parameters.put_member("$tab_contents", tab_contents);
+			parameters.put_member_string("$tab_contents_description_name", "tab_" + classd->get_class_name() + "_description");
+			parameters.put_member_string("$tab_contents_description", description);
 
 			return tab_edit_page;
 		}
 
-		json generate_tab_inventory_page(json& tab_inventory_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
+		json generate_tab_inventory_page(json& tab_inventory_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string description)
 		{
 			json_parser jp;
 			json tab_list_page = tab_inventory_template.clone();
@@ -4072,20 +4093,21 @@ private:
 
 				std::string tab_list_table_name = "ti_" + class_name + "_" + member_name + "_table";
 
-				json abbrevations = jp.create_object();
-				abbrevations.put_member("$tab_inventory_commands", tab_create_commands);
-				abbrevations.put_member("$tab_inventory_class", _control_class);
-				abbrevations.put_member_string("$tab_inventory_commands_name", "ti_" + class_name + "_" + member_name + "_commands");
-				abbrevations.put_member_string("$tab_inventory_table_name", tab_list_table_name);
-				abbrevations.put_member_string("$json_field_name", member_name);
-				parameters.apply_abbreviations(abbrevations);
+				json abbreviations = jp.create_object();
+				abbreviations.put_member("$tab_inventory_commands", tab_create_commands);
+				abbreviations.put_member("$tab_inventory_class", _control_class);
+				abbreviations.put_member_string("$tab_contents_description_name", "ti_" + class_name + "_" + member_name + "_description");
+				abbreviations.put_member_string("$tab_contents_description", description);
+				abbreviations.put_member_string("$tab_inventory_commands_name", "ti_" + class_name + "_" + member_name + "_commands");
+				abbreviations.put_member_string("$tab_inventory_table_name", tab_list_table_name);
+				abbreviations.put_member_string("$json_field_name", member_name);
+				parameters.apply_abbreviations(abbreviations);
 			}
 
 			return tab_list_page;
 		}
 
-		json generate_tab_custom_page(json& tab_custom_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
-		{
+		json generate_tab_custom_page(json& tab_custom_template, std::string _control_class, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string description)		{
 			json_parser jp;
 			json tab_custom_page = tab_custom_template.clone();
 
@@ -4101,6 +4123,9 @@ private:
 				auto field = classd->get_field(member_name);
 
 				json abbreviations = jp.create_object();
+				abbreviations.put_member_string("$tab_contents_description_name", "ti_" + class_name + "_" + member_name + "_description");
+				abbreviations.put_member_string("$tab_contents_description", description);
+				abbreviations.put_member_string("$tab_inventory_commands_name", "ti_" + class_name + "_" + member_name + "_commands");
 				abbreviations.put_member("$tab_custom_class", _control_class);
 				abbreviations.put_member_string("$tab_custom_table_name", tab_custom_table_name);
 				abbreviations.put_member_string("$json_field_name", member_name);
@@ -4110,7 +4135,7 @@ private:
 			return tab_custom_page;
 		}
 
-		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
+		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string description)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
@@ -4119,6 +4144,8 @@ private:
 			auto parameters = tab_list_page.find_member("using.parameters");
 			if (parameters.object()) {
 				parameters.put_member("$icon_image_file", class_name + ".png");
+				parameters.put_member_string("$tab_contents_description_name", "ti_" + class_name + "_" + member_name + "_description");
+				parameters.put_member_string("$tab_contents_description", description);
 
                 json tab_create_commands = jp.create_array();
 
@@ -4171,13 +4198,13 @@ private:
                     tab_create_commands.push_back(new_item);
 				}
 
-				json abbrevations = jp.create_object();
-                abbrevations.put_member("$tab_list_commands", tab_create_commands);
-				abbrevations.put_member_string("$tab_list_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
-				abbrevations.put_member_string("$tab_list_table", tab_list_table_name);
-				abbrevations.put_member_string("$json_field_name", member_name);
-				abbrevations.put_member_string("$empty_text", "No " + member_name);
-                parameters.apply_abbreviations(abbrevations);
+				json abbreviations = jp.create_object();
+				abbreviations.put_member("$tab_list_commands", tab_create_commands);
+				abbreviations.put_member_string("$tab_list_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
+				abbreviations.put_member_string("$tab_list_table", tab_list_table_name);
+				abbreviations.put_member_string("$json_field_name", member_name);
+				abbreviations.put_member_string("$empty_text", "No " + member_name);
+                parameters.apply_abbreviations(abbreviations);
 			}
 
 			return tab_list_page;
@@ -4233,33 +4260,29 @@ private:
                 std::string description = new_tab["description"].as_string();
 
 				if (tab_type == "inventory") {
-					tab_page = generate_tab_inventory_page(tab_inventory_template, ux_class, classd, class_name, member_name, create_command_class_template, form_sources);
+					tab_page = generate_tab_inventory_page(tab_inventory_template, ux_class, classd, class_name, member_name, create_command_class_template, form_sources, description);
 				}
 				else if (tab_type == "custom") {
-					tab_page = generate_tab_custom_page(tab_custom_template, ux_class, classd, class_name, member_name, create_command_class_template, form_sources);
+					tab_page = generate_tab_custom_page(tab_custom_template, ux_class, classd, class_name, member_name, create_command_class_template, form_sources, description);
 				}
 				else if (tab_type == "object") {
-					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings);
+					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);
 				}
 				else if (tab_type == "list") {
-					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources);
+					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources, description);
 				}
 				else if (tab_type == "edit") {
-					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings);
+					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);
 				}
 
 				if (tab_page.object()) {
 					tab_page.put_member("page_name", page_name);
+
 					result.push_back_array(tab_page);
 
 					new_tab.erase_member("tab_type");
 					new_tab.erase_member("ux_type");
 					new_tab.put_member("page_name", page_name);
-
-					json abbrevations = jp.create_object();
-					abbrevations.put_member_string("$tab_contents_description_name", "tab_" + class_name + "_" + member_name + "_description");
-					abbrevations.put_member_string("$tab_contents_description", description);
-					new_tab.apply_abbreviations(abbrevations);
 
 					if (dest_tabs.array()) {
 						bool default_tab = src_tab["default_tab"].as_bool();

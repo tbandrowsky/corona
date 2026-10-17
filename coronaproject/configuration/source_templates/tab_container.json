@@ -8,12 +8,12 @@
       "box": "full_container",
       "children": [
         {
-          "class_name": "paragraph",
+          "class_name": "chaptertitle",
           "name": "$tab_contents_description_name",
           "text": "$tab_contents_description",
           "box": {
             "width": "1.0 container",
-            "height": "50 pixels"
+            "height": "45 pixels"
           }
         },
         "$tab_contents"

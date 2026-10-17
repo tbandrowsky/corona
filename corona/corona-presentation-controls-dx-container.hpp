@@ -442,7 +442,7 @@ namespace corona
         page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
 		bool needs_create = false;
-
+		validation_error_collection errors;
 	public:
 
 		frame_layout() 
@@ -513,7 +513,7 @@ namespace corona
 			return data;
 		}
 
-		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents);
+		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents, json_object _obj, validation_error_collection& _vs);
 
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
 		{
@@ -529,6 +529,7 @@ namespace corona
 		{
 			if (needs_create) {
 				create(_context, host);
+				set_errors(errors);
 				needs_create = false;
 			}
             container_control::on_draw(_context, _control);

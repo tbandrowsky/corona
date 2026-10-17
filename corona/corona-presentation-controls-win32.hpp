@@ -410,6 +410,7 @@ namespace corona
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
 		{
 			windows_control::create(_context, _host);
+			set_text(text);
 		}
 
         virtual void on_create() override

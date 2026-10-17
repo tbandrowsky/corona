@@ -1829,13 +1829,13 @@ namespace corona
 			tab_brush.start.x = 0;
 			tab_brush.start.y = 0;
 			tab_brush.stop.x = 0;
-			tab_brush.stop.y = 75;
+			tab_brush.stop.y = 40;
 			std::shared_ptr<viewStyleRequest> tab_back_style = std::make_shared<viewStyleRequest>();
 			tab_back_style->name = "tab_back_style";
 			tab_back_style->box_fill_brush = tab_brush;
 
 			tab_row = std::make_shared<row_layout>();
-            tab_row->set_size(1.0_container, 50.0_px);
+            tab_row->set_size(1.0_container, 40.0_px);
             tab_row->set_style(tab_back_style);
             main->children.push_back(tab_row);
 
@@ -1869,8 +1869,9 @@ namespace corona
 					dat.pane.id = id_counter::next();
                 }
                 std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
-				btn->set_size(100.00_px, 50.0_px);
+				btn->set_size(100.00_px, 40.0_px);
 				btn->draw_style = gradient_button_styles::tab_style;
+				btn->add_circle_backlight = false;
 				btn->button_text = dat.pane.name;
 				if (dat.pane.image_name.size()) {
 					btn->set_image(dat.pane.image_name);
@@ -1955,18 +1956,25 @@ namespace corona
 			json_parser jp;
 			json_object tab_data;
 
+			container_control::set_data(_data);
+
 			if (tab_panes.size() > 0) {
 				select_tab(tab_panes[0].pane.name);
 			}
-
-			container_control::set_data(_data);
 
  			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
 				return tp.pane.name == current_tab_name;
 				});
 
 			if (current_tab != tab_panes.end()) {
-				content_frame->set_data(slice_object);			
+                if (current_tab->pane.member_name == ".") {
+                    content_frame->set_data(control_slice);
+                }
+                else
+				if (control_slice.has_member(current_tab->pane.member_name)) {
+					json_object slice = control_slice[current_tab->pane.member_name];
+					content_frame->set_data(slice);
+				}
 			} 
 
 			std::shared_ptr<corona_select_tab_command> select_tab_command = std::make_shared<corona_select_tab_command>();
@@ -3014,8 +3022,6 @@ namespace corona
 
 		arrange_children();
 
-		set_data(_nav->data);
-
 		for (auto& child : children) {
 			child->on_subscribe(current_presentation, current_page);
 			child->loaded(_batch_id);
@@ -3032,18 +3038,22 @@ namespace corona
 			}
 		}
 
+		set_errors(errors);
+		set_data(_nav->data);
+
 		needs_create = true;
 	}
 
-	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
+	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page, json_object _obj, validation_error_collection& _vs)
 	{
+		errors = _vs;
 		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
 		for (auto srcchild : _contents_page->root->children)
 		{
 			auto new_child = srcchild->clone();
 			new_frame->contents.push_back(new_child);
 		}
-		new_frame->data = data;
+		new_frame->data = _obj;
 		new_frame->name = _contents_page->name;
         new_frame->presentation = _presentation;
         new_frame->parent_page = _parent_page;

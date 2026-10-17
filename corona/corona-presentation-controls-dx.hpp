@@ -1976,7 +1976,8 @@ namespace corona
         }
 
         const bool shrink_image_more = true;
-        const bool add_circle_backlight = true;
+
+        bool add_circle_backlight = true;
 
         void init()
         {
