@@ -513,6 +513,7 @@ namespace corona
 		inline control_builder& adventure(std::string _text) { return adventure(_text, nullptr, id_counter::next()); }
 		inline control_builder& chest_view_create(std::string _text) { return chest_view_create(_text, nullptr, id_counter::next()); }
 		inline control_builder& animations(std::string _text) { return animations(_text, nullptr, id_counter::next()); }
+		inline control_builder& footnote(std::string _text) { return footnote(_text, nullptr, id_counter::next()); }
 
 		inline control_builder& error(call_status _status) { return error(_status, nullptr, id_counter::next()); }
 		inline control_builder& status(call_status _status) { return status(_status, nullptr, id_counter::next()); }
@@ -531,6 +532,7 @@ namespace corona
 		inline control_builder& adventure(int _id, std::string _text) { return adventure(_text, nullptr, _id); }
 		inline control_builder& chest_view_create(int _id, std::string _text) { return chest_view_create(_text, nullptr, _id); }
 		inline control_builder& animations(int _id, std::string _text) { return animations(_text, nullptr, _id); }
+		inline control_builder& footnote(int _id, std::string _text) { return footnote(_text, nullptr, _id); }
 
 		inline control_builder& title(int _id, std::function<void(title_control&)> _settings) { return title("", _settings, _id); }
 		inline control_builder& subtitle(int _id, std::function<void(subtitle_control&)> _settings) { return subtitle("", _settings, _id); }
@@ -546,6 +548,7 @@ namespace corona
 		inline control_builder& adventure(int _id, std::function<void(adventure_control&)> _settings) { return adventure("", _settings, _id); }
 		inline control_builder& chest_view_create(int _id, std::function<void(corona::chest_view&)> _settings) { return chest_view_create("", _settings, _id); }
 		inline control_builder& animations(int _id, std::function<void(corona::animations_control&)> _settings) { return animations("", _settings, _id); }
+		inline control_builder& footnote(int _id, std::function<void(footnote_control&)> _settings) { return footnote("", _settings, _id); }
 
 		inline control_builder& title(std::string _text, std::function<void(title_control&)> _settings) { return title(_text, _settings, id_counter::next()); }
 		inline control_builder& subtitle(std::string _text, std::function<void(subtitle_control&)> _settings) { return subtitle(_text, _settings, id_counter::next()); }
@@ -557,11 +560,11 @@ namespace corona
 		inline control_builder& code(std::string _text, std::function<void(code_control&)> _settings) { return code(_text, _settings, id_counter::next()); }
 		inline control_builder& label(std::string _text, std::function<void(label_control&)> _settings) { return label(_text, _settings, id_counter::next()); }
 		inline control_builder& error(std::string _text, std::function<void(error_control&)> _settings) { return error(_text, _settings, id_counter::next()); }
- 
 		inline control_builder& placeholder(std::string _text, std::function<void(placeholder_control&)> _settings) { return placeholder(_text, _settings, id_counter::next()); }
 		inline control_builder& adventure(std::string _text, std::function<void(adventure_control&)> _settings) { return adventure(_text, _settings, id_counter::next()); }
 		inline control_builder& chest_view_create(std::string _text, std::function<void(corona::chest_view&)> _settings) { return chest_view_create(_text, _settings, id_counter::next()); }
 		inline control_builder& animations(std::string _text, std::function<void(corona::animations_control&)> _settings) { return animations(_text, _settings, id_counter::next()); }
+		inline control_builder& footnote(std::string _text, std::function<void(footnote_control&)> _settings) { return footnote(_text, _settings, id_counter::next()); }
 
 		inline control_builder& command_button(std::string _text, std::function<void(command_button_control&)> _settings) { return command_button(id_counter::next(), _text, _settings ); }
 
@@ -1029,6 +1032,17 @@ namespace corona
 		control_builder& paragraph(std::string text, std::function<void(paragraph_control&)> _settings, int _id)
 		{
 			auto tc = create<paragraph_control>(_id);
+			apply_item_sizes(tc);
+			tc->text = text;
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& footnote(std::string text, std::function<void(footnote_control&)> _settings, int _id)
+		{
+			auto tc = create<footnote_control>(_id);
 			apply_item_sizes(tc);
 			tc->text = text;
 			if (_settings) {
@@ -1600,16 +1614,18 @@ namespace corona
 				});
 
 			title_column.title(title_name, [this](title_control& control) {
-				control.set_size(1.0_container, 30.0_px);
+				control.set_size(1.0_container, 34.0_px);
 				}, title_id);
 
 			title_column.subtitle(subtitle_name, [this](subtitle_control& control) {
 				control.set_size(1.0_container, 28.0_px);
 					}, subtitle_id);
 
-			title_column.paragraph(corporate_name, [this](paragraph_control& control) {
-				control.set_size(1.0_container, 16.0_px);
-				}, corporate_id);
+			if (corporate_name.size()) {
+				title_column.footnote(corporate_name, [this](footnote_control& control) {
+					control.set_size(1.0_container, 10.0_px);
+					}, corporate_id);
+			}
 
 			title_column.end();
 
@@ -1953,6 +1969,13 @@ namespace corona
 				content_frame->set_data(slice_object);			
 			} 
 
+			std::shared_ptr<corona_select_tab_command> select_tab_command = std::make_shared<corona_select_tab_command>();
+			select_tab_command->tab_control = name;
+			select_tab_command->tab_name = tab_panes[0].pane.name;
+			auto service = comm_desktop_bus_interface::get_service();
+            service->run_command(service->start_batch(), select_tab_command);
+			
+
 			return data;
         }
 
@@ -1961,29 +1984,24 @@ namespace corona
 			json_parser jp;
 			json_object new_tab_data;
 
-            bool is_same_tab = current_tab_name == _name;
+			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+				return tp.pane.name == current_tab_name;
+				});
 
-			if (!is_same_tab) {
+			if (current_tab != tab_panes.end()) {
+				json_object tab_object = content_frame->get_slice();
+				control_slice += tab_object;
+			}
 
-				auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
-					return tp.pane.name == current_tab_name;
-					});
+			current_tab_name = _name;
 
-				if (current_tab != tab_panes.end()) {
-					json_object tab_object = content_frame->get_slice();
-					control_slice += tab_object;
-				}
-
-				current_tab_name = _name;
-
-				for (auto& tp : tab_panes) {
-					bool is_selected = tp.pane.name == current_tab_name;
-					tp.tab_button->selected_state = is_selected;
-					if (is_selected) {
-						auto service = comm_desktop_bus_interface::get_service();
-						int batch_id = service->start_batch();
-						service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
-					}
+			for (auto& tp : tab_panes) {
+				bool is_selected = tp.pane.name == current_tab_name;
+				tp.tab_button->selected_state = is_selected;
+				if (is_selected) {
+					auto service = comm_desktop_bus_interface::get_service();
+					int batch_id = service->start_batch();
+					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
 				}
 			}
 		}
@@ -2234,6 +2252,13 @@ namespace corona
 		else if (class_name == "paragraph")
 		{
 			paragraph(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data);
+				}, field_id);
+		}
+		else if (class_name == "footnote")
+		{
+			footnote(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data);
 				}, field_id);
@@ -3006,6 +3031,8 @@ namespace corona
 				}
 			}
 		}
+
+		needs_create = true;
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page)
@@ -3027,9 +3054,6 @@ namespace corona
         navigation_stack.navigate(new_frame);
 
         navigate(_batch_id, new_frame);
-
-		auto service = comm_desktop_bus_interface::get_service();
-		service->select_control(this);
 
 	}
 

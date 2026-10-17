@@ -7,6 +7,12 @@
       "name": "tab_container_column",
       "box": "full_container",
       "children": [
+        {
+          "class_name": "paragraph",
+          "name": "$tab_contents_description_name",
+          "text": "$tab_contents_description",
+          "box": "paragraph_box"
+        },
         "$tab_contents"
       ]
     }

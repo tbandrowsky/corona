@@ -85,6 +85,7 @@ namespace corona
 		std::shared_ptr<viewStyleRequest> CodeStyle;
 		std::shared_ptr<viewStyleRequest> EmptyListStyle;
 		std::shared_ptr<viewStyleRequest> TabStyle;
+		std::shared_ptr<viewStyleRequest> FootnoteStyle;
 	};
 
 	void get_json(json& _dest, presentation_style& _src)
@@ -109,6 +110,7 @@ namespace corona
 		json code_style = jp.create_object();
 		json empty_list_style = jp.create_object();
 		json tab_style = jp.create_object();
+        json footnot_style = jp.create_object();
 
 		_dest.put_member("primary_font", _src.PrimaryFont);
 		get_json(_dest, "primary_alignment", _src.PrimaryAlignment);
@@ -180,6 +182,10 @@ namespace corona
 			get_json(tab_style, *_src.TabStyle.get());
 			_dest.put_member("tab_style", tab_style);
 		}
+		if (_src.FootnoteStyle) {
+			get_json(footnot_style, *_src.FootnoteStyle.get());
+			_dest.put_member("footnote_style", footnot_style);
+		}
 
 	}
 
@@ -190,7 +196,7 @@ namespace corona
 			"title_style", "subtitle_style", 
 			"chapter_title_style", "tab_style", "chapter_subtitle_style", 
             "note_style", "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
-			"error_style", "success_style", "code_style", "empty_list_style" })) {
+			"error_style", "success_style", "code_style", "empty_list_style", "footnote_style" })) {
 			system_monitoring_interface::active_mon->log_warning("style sheet is missing");
 			std::for_each(missing.begin(), missing.end(), [](const std::string& s) { 
 				system_monitoring_interface::active_mon->log_warning(s);
@@ -237,6 +243,15 @@ namespace corona
 			}
 			put_json(_dest.SubtitleStyle, subtitle_style);
 			_dest.SubtitleStyle->set_default_name("subtitle_style");
+		}
+
+		json footnote_style = _src["footnote_style"];
+		if (footnote_style.object()) {
+			if (not _dest.FootnoteStyle) {
+				_dest.FootnoteStyle = std::make_shared<viewStyleRequest>();
+			}
+			put_json(_dest.FootnoteStyle, footnote_style);
+			_dest.FootnoteStyle->set_default_name("footnote_style");
 		}
 
 		json chapter_title_style = _src["chapter_title_style"];
@@ -560,7 +575,7 @@ namespace corona
 		countrybit->TitleStyle->shape_fill_brush.set_name("TitleText");
 		countrybit->TitleStyle->text_style = text_style;
 		countrybit->TitleStyle->text_style.fontName = bigFont;
-		countrybit->TitleStyle->text_style.fontSize = 38;
+		countrybit->TitleStyle->text_style.fontSize = 28;
 		countrybit->TitleStyle->text_style.name = "TitleFont";
 		countrybit->TitleStyle->text_style.vertical_align = visual_alignment::align_center;
 		countrybit->TitleStyle->text_style.horizontal_align = visual_alignment::align_near;
@@ -577,7 +592,7 @@ namespace corona
 		countrybit->SubtitleStyle->shape_fill_brush.set_name("SubtitleText");
 		countrybit->SubtitleStyle->text_style = text_style;
 		countrybit->SubtitleStyle->text_style.fontName = bigFont;
-		countrybit->SubtitleStyle->text_style.fontSize = 20;
+		countrybit->SubtitleStyle->text_style.fontSize = 24;
 		countrybit->SubtitleStyle->text_style.name = "SubtitleFont";
 		countrybit->SubtitleStyle->text_style.vertical_align = visual_alignment::align_center;
 		countrybit->SubtitleStyle->text_style.horizontal_align = visual_alignment::align_near;

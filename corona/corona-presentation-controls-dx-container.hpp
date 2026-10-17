@@ -441,6 +441,7 @@ namespace corona
         presentation_base* current_presentation = nullptr;
         page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
+		bool needs_create = false;
 
 	public:
 
@@ -522,6 +523,15 @@ namespace corona
 		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
 		{
 			container_control::create(_context, _host);
+		}
+
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
+		{
+			if (needs_create) {
+				create(_context, host);
+				needs_create = false;
+			}
+            container_control::on_draw(_context, _control);
 		}
 
 		virtual void get_json(json& _dest)

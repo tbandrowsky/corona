@@ -411,10 +411,14 @@ namespace corona
 								clipRect.Width = (originalWidth - (crop.right * originalWidth)) - clipRect.X;
 								hr = pClipper->Initialize(_source, &clipRect);
 								_source = pClipper;
+								size.width = clipRect.Width;
+								size.height = clipRect.Height;
 							}
 						}
 						else {
 							_source = pConverter;
+							size.width = originalWidth;
+							size.height = originalHeight;
 						}
 						hr = pfactory->getWicFactory()->CreateBitmapFromSource(_source, WICBitmapCreateCacheOption::WICBitmapCacheOnDemand, &originalScaledBitmap);
 						hr = pfactory->getWicFactory()->CreateBitmapFromSource(_source, WICBitmapCreateCacheOption::WICBitmapCacheOnDemand, &wicFilteredScaledBitmap);
@@ -688,15 +692,29 @@ namespace corona
 			bool success = false;
 			if (filteredBitmaps.size() > 0) {
 				if (*_sizex == 0 and *_sizey == 0) {
-					auto bm = filteredBitmaps.front();
-					*_sizex = bm->originalWidth;
-					*_sizey = bm->originalHeight;
+					auto bm = std::max_element(filteredBitmaps.begin(), filteredBitmaps.end(), [](filteredBitmap* a, filteredBitmap* b) {
+						return (a->size.width * a->size.height) < (b->size.width * b->size.height);
+					});
+					*_sizex = (*bm)->originalWidth;
+					*_sizey = (*bm)->originalHeight;
 					success = true;
 				}
 				else if (*_sizey == 0) {
-					auto iter = std::find_if(filteredBitmaps.begin(), filteredBitmaps.end(), [_sizex](filteredBitmap* _bm) { return _bm->size.width == *_sizex; });
-					if (iter != filteredBitmaps.end()) {
-						auto ix = *iter;
+
+                    filteredBitmap* bm = nullptr;
+					for (auto b = filteredBitmaps.begin(); b != filteredBitmaps.end(); b++) {
+						if (!bm) {
+							bm = *b;
+						}
+						if ((*b)->size.width >= bm->size.width) {
+							bm = *b;
+						}
+                        if (bm->size.width >= *_sizex and *_sizex > 0) {
+							break;
+                        }
+					}
+					if (bm != nullptr) {
+						auto ix = bm;
 						*_sizex = ix->size.width;
 						*_sizey = ix->size.height;
 						success = true;
@@ -715,13 +733,12 @@ namespace corona
 		ID2D1Bitmap* getBySize(int _width, int _height)
 		{
 			ID2D1Bitmap* current = nullptr;
-			int current_largest = 0;
+			int current_largest = _width;
 
 			for (auto fbm : filteredBitmaps) {
-				if ((fbm->size.width >= _width and fbm->size.height <= current_largest)
-					|| !_height
+				if ((fbm->size.width >= current_largest)
 					|| !current_largest) {
-					current_largest = fbm->size.height;
+					current_largest = fbm->size.width;
 					current = fbm->filteredScaledBitmap;
 				}
 			}

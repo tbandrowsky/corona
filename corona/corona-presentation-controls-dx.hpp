@@ -1671,6 +1671,8 @@ namespace corona
             request.cropEnabled = false;
             point pt = { inner_bounds.w, inner_bounds.h };
             request.sizes.push_back(pt);
+            pt = { 0, 0 };
+            request.sizes.push_back(pt);
 
             _context->setBitmap(&request);
             auto szfound = std::begin(request.sizes);

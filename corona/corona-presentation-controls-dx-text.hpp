@@ -348,6 +348,23 @@ namespace corona
 		virtual ~paragraph_control();
 	};
 
+	class footnote_control : public text_display_control
+	{
+	public:
+		footnote_control();
+		footnote_control(control_base* _parent, int _id);
+		footnote_control(const footnote_control& _src) = default;
+		virtual void set_default_styles();
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<footnote_control>(*this);
+			return tv;
+		}
+
+
+		virtual ~footnote_control();
+	};
+
 	class edit_label_control : public text_display_control
 	{
 	public:
@@ -746,6 +763,27 @@ namespace corona
 
 	paragraph_control::~paragraph_control()
 	{
+	}
+
+	footnote_control::footnote_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
+	{
+		set_default_styles();
+	}
+
+	footnote_control::footnote_control()
+	{
+		set_default_styles();
+	}
+
+	footnote_control::~footnote_control()
+	{
+	}
+
+	void footnote_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		view_style = st->get_style()->FootnoteStyle;
 	}
 
 	void code_control::set_default_styles()

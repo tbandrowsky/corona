@@ -184,8 +184,8 @@
       },
       "title_style": {
         "text_style": {
-          "font_name": "Arial Rounded MT,Century Gothic,Arial",
-          "font_size": 28,
+          "font_name": "Century Schoolbook,Arial",
+          "font_size": 30,
           "vertical_alignment": "center"
         },
         "shape_border_thickness": 0,
@@ -196,8 +196,8 @@
       },
       "subtitle_style": {
         "text_style": {
-          "font_name": "French Script MT,Centaur,Century Schoolbook,Arial",
-          "font_size": 28,
+          "font_name": "Century Gothic,Arial",
+          "font_size": 22,
           "vertical_alignment": "center"
         },
         "shape_border_thickness": 0,
@@ -426,7 +426,21 @@
           "class_name": "solid_brush",
           "color": "FFFFEE"
         }
+      },
+      "footnote_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 8,
+          "vertical_alignment": "left"
+        },
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
       }
+
     }
   ]
 }

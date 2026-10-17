@@ -13,7 +13,6 @@
       "children": [
         {
           "class_name": "caption_bar",
-          "corporate_name": "$corporate_name",
           "title_name": "$title_name",
           "subtitle_name": "$subtitle_name",
           "image": "revolution_caption.png",

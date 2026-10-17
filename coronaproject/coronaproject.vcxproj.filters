@@ -39,34 +39,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="configuration\source_templates\object.json" />
-    <None Include="configuration\source_templates\tab_container.json" />
-    <None Include="configuration\source_templates\tab_list.json" />
-    <None Include="configuration\source_templates\search.json" />
-    <None Include="configuration\source_templates\search_group.json" />
-    <None Include="configuration\source_templates\search_command_class.json" />
-    <None Include="configuration\source_templates\create_command_class.json" />
-    <None Include="configuration\source_templates\card_container.json" />
-    <None Include="configuration\source_templates\card_container_small.json" />
-    <None Include="configuration\source_templates\home.json" />
-    <None Include="configuration\source_templates\object_container.json" />
-    <None Include="configuration\source_templates\object_details.json" />
-    <None Include="configuration\source_templates\pages.json" />
-    <None Include="configuration\source_templates\styles.json" />
-    <None Include="configuration\source_templates\tab_custom.json" />
-    <None Include="configuration\source_templates\card_chest_item.json" />
-    <None Include="configuration\source_templates\card_adventure.json" />
-    <None Include="configuration\source_templates\chart.json" />
-    <None Include="configuration\source_templates\chart_command_class.json" />
-    <None Include="configuration\source_templates\tab_inventory.json" />
-    <None Include="configuration\sys_pages.json" />
-    <None Include="configuration\sys_schema.json" />
-    <None Include="configuration\sys_styles.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="configuration\source_templates\tab_edit.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="coronaproject.ico">
       <Filter>Resource Files</Filter>
     </Image>
@@ -74,5 +46,29 @@
   <ItemGroup>
     <CopyFileToFolders Include="configuration\sys_config.json" />
     <CopyFileToFolders Include="configuration\source_templates\card.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card_adventure.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card_chest_item.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card_container.json" />
+    <CopyFileToFolders Include="configuration\source_templates\card_container_small.json" />
+    <CopyFileToFolders Include="configuration\source_templates\chart.json" />
+    <CopyFileToFolders Include="configuration\source_templates\chart_command_class.json" />
+    <CopyFileToFolders Include="configuration\source_templates\create_command_class.json" />
+    <CopyFileToFolders Include="configuration\source_templates\home.json" />
+    <CopyFileToFolders Include="configuration\source_templates\object_container.json" />
+    <CopyFileToFolders Include="configuration\source_templates\object_details.json" />
+    <CopyFileToFolders Include="configuration\source_templates\pages.json" />
+    <CopyFileToFolders Include="configuration\source_templates\search.json" />
+    <CopyFileToFolders Include="configuration\source_templates\search_command_class.json" />
+    <CopyFileToFolders Include="configuration\source_templates\search_group.json" />
+    <CopyFileToFolders Include="configuration\source_templates\styles.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_custom.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_inventory.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_list.json" />
+    <CopyFileToFolders Include="configuration\source_templates\object.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_container.json" />
+    <CopyFileToFolders Include="configuration\sys_pages.json" />
+    <CopyFileToFolders Include="configuration\sys_schema.json" />
+    <CopyFileToFolders Include="configuration\sys_styles.json" />
+    <CopyFileToFolders Include="configuration\source_templates\tab_edit.json" />
   </ItemGroup>
 </Project>
