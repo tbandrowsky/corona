@@ -433,8 +433,11 @@ namespace corona
 		{
 			control_base::set_data(_data);
 			if (_data.has_member(json_field_name)) {
-				text = _data[json_field_name]->to_string();
-				set_text(text);
+                auto t = _data[json_field_name];
+				if (t) {
+					text = _data[json_field_name]->to_string();
+					set_text(text);
+				}
 			}
 			return _data;
 		}

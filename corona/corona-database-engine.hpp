@@ -3123,6 +3123,7 @@ private:
 			json class_mappings = _application_schema["classes"];
 			json team_mappings = _application_schema["teams"];
 			json object_list = _application_schema["objects"];
+			json descriptions = _application_schema["descriptions"];
 
 			json result = jp.create_object();
 			json pages = jp.create_array();
@@ -3209,7 +3210,7 @@ private:
 
 				if (class_ux_map.is_string() && class_ux_map.as_string() == "default")
 				{
-					class_ux_map = create_ux_map(errors, classd, card_fields, field_mappings);
+					class_ux_map = create_ux_map(errors, classd, card_fields, field_mappings, descriptions);
 				}
 
 				if (!class_ux_map.empty())
@@ -4109,7 +4110,7 @@ private:
 			return tab_custom_page;
 		}
 
-		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string _instructions)
+		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
