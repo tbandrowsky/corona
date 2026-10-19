@@ -4022,6 +4022,9 @@ private:
 				parameters.put_member("$icon_image_file", classd->get_class_name() + ".png");
 			}
 
+			tab_edit_page.put_member_string("$tab_contents_description_name", "ti_" + classd->get_class_name() + "_description");
+			tab_edit_page.put_member_string("$tab_contents_description", description);
+
 			// Populate card contents
 			auto cfm = class_mappings["tab_edit"]["fields"];
 
@@ -4122,9 +4125,10 @@ private:
 
 				auto field = classd->get_field(member_name);
 
+				parameters.put_member_string("$tab_contents_description_name", "ti_" + class_name + "_" + member_name + "_description");
+				parameters.put_member_string("$tab_contents_description", description);
+
 				json abbreviations = jp.create_object();
-				abbreviations.put_member_string("$tab_contents_description_name", "ti_" + class_name + "_" + member_name + "_description");
-				abbreviations.put_member_string("$tab_contents_description", description);
 				abbreviations.put_member_string("$tab_inventory_commands_name", "ti_" + class_name + "_" + member_name + "_commands");
 				abbreviations.put_member("$tab_custom_class", _control_class);
 				abbreviations.put_member_string("$tab_custom_table_name", tab_custom_table_name);

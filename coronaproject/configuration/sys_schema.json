@@ -38,19 +38,19 @@
       "base_class_name": "sys_object",
       "class_description": "Legal Record",
       "parents": [ "asset", "person", "building", "property" ],
-      "full_text": [ "name", "record_description" ],
+      "full_text": [ "name", "description" ],
       "fields": {
         "name": {
           "field_type": "string",
           "label": "Name",
           "max_length": 50
         },
-        "record_description": {
+        "description": {
           "field_type": "string",
-          "label": "Record Description"
+          "label": "Description"
         }
       },
-      "field_order": [ "name", "record_description" ]
+      "field_order": [ "name", "description" ]
     },
     {
       "class_name": "journal",
@@ -136,29 +136,25 @@
           "label": "Days of Occupation",
           "min_value": 0
         },
-        "occupied_congress": {
+        "occupied_legislatures": {
           "field_type": "int64",
-          "label": "Occupied Congress"
+          "label": "Occupied Legislatures"
         },
-        "occupied_states": {
+        "occupied_countries": {
           "field_type": "int64",
-          "label": "Occupied States"
+          "label": "Occupied Countries"
         },
-        "americans_deported": {
+        "citizens_deported": {
           "field_type": "int64",
-          "label": "Est. Americans Deported"
+          "label": "Est. Citizens Deported"
         },
-        "confederates_imported": {
+        "russians_imported": {
           "field_type": "int64",
-          "label": "Est. Russo-Confederates Imported"
+          "label": "Est. Russians Imported"
         },
-        "confederates_arrests": {
+        "russians_imposters": {
           "field_type": "int64",
-          "label": "Russo-Confederates Arrests"
-        },
-        "estimated_imposters": {
-          "field_type": "int64",
-          "label": "Estimated Russo-Confederate Imposter"
+          "label": "Estimated Russian Imposter"
         }
       },
       "field_order": [ "text" ]
@@ -168,7 +164,7 @@
       "class_name": "address",
       "base_class_name": "sys_object",
       "class_description": "Address",
-      "parents": [ "person", "property" ],
+      "parents": [ "person"  ],
       "full_text": [ "street", "building", "city", "state", "zip", "country" ],
       "fields": {
         "street": {
@@ -572,6 +568,7 @@
           "field_type": "string",
           "label": "Notes"
         },
+        "records": [ "record" ],
         "connections": [ "connection" ],
         "addresses": [ "address" ]
       },
@@ -991,29 +988,24 @@
     },
     {
       "class_name": "property",
-      "base_class_name": "sys_object",
+      "base_class_name": "address",
       "class_description": "A property",
       "full_text": [ "street", "city", "state", "zip" ],
       "fields": {
-        "latitude": {
-          "field_type": "double",
-          "label": "Latitude",
-          "max_length": 100
-        },
-        "longitude": {
-          "field_type": "double",
-          "label": "Longitude",
+        "property_name": {
+          "field_type": "string",
+          "label": "Property Name",
           "max_length": 100
         },
         "boundaries": {
           "field_type": "path",
           "label": "Boundaries"
         },
+        "associates": [ "person" ],
         "building": [ "building" ],
         "records": [ "record" ],
         "assets": [ "asset" ],
-        "property_value": "double",
-        "address": "addresses"
+        "property_value": "double"
       },
       "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
     },
@@ -1227,7 +1219,7 @@
     "application_creator": "Country Video Games",
     "application_name": "Revolution Journal",
     "application_title": "Revolution Journal",
-    "application_subtitle": "During the days of the Russo-Confederate Occupation",
+    "application_subtitle": "During the days of the Russian Occupation",
     "application_corporate_title": "Sponsored by Industrial Foods and Goods",
     "fields": {
       ".section": {
@@ -1460,21 +1452,6 @@
         "tab_type": "custom",
         "default_tab": true
       },
-      ".record_description": {
-        "class_name": "writepad",
-        "box": {
-          "width": {
-            "amount": 1.0,
-            "units": "container"
-          },
-          "height": {
-            "amount": 1.0,
-            "units": "container"
-          }
-        },
-        "tab_type": "custom",
-        "default_tab": true
-      },
       ".story": {
         "class_name": "writepad",
         "box": {
@@ -1692,8 +1669,8 @@
       "diary": "Recording your moments provides inner truth against the occupation of lies",
       "task": "Document a commitment to gain insight on what may be done to honor it",
       "news": "Capture links to important news events and practice categorizing them",
-      "record": "The law will be used against it.  Use it to protect yourself from the occupation.",
-      "minutes": "Capture your own view of meetings and discussions. You never really know who they are.",
+      "record": "Your own copy of the records protects you.",
+      "minutes": "Capture your own view of meetings and discussions for future insights.",
       "license": "Document that you have a license. They will say you do not have one.",
       "contract": "Document your contracts, for they will say that you have breached them.",
       "deed": "Keep your property deeds safe and documented, for they will take your property.",
@@ -1701,39 +1678,39 @@
       "title": "Keep the titles to your property safe and documented.",
       "service_call": "Record service calls because they will call you ramshackle.",
       "asset": "Describe your asset.",
-      "appliance": "Keep track of your appliances.",
-      "furniture": "Keep track of your furniture.",
-      "gun": "Keep track of your guns.",
-      "tractor": "Keep track of your tractors.",
-      "electronic": "Keep track of your electronic devices.",
-      "jewelry": "Keep track of your jewelry, for they will prize the taking of it.",
-      "collectible": "Keep track of your collectibles, for they will want to collect them.",
-      "stock": "Keep track of your stocks, so they are investments and not shakedown.",
-      "vehicle": "Keep track of your vehicles, for they will make newer vehicles worse.",
+      "appliance": "Record appliance makers and brands and records with it.",
+      "furniture": "Protect your furniture in case of losses.",
+      "gun": "Record your arsenal here.",
+      "tractor": "Tractors, inventory, for service records and proof of maintenance",
+      "electronic": "Electronic devices such as phones, televisions or computers.",
+      "jewelry": "Jewelry and family heirlooms.",
+      "collectible": "Collectible items.",
+      "stock": "Stocks and bonds.",
+      "vehicle": "Keep track of your old vehicles, for they will make new vehicles worse.",
       "boat": "Keep track of your boats.",
       "aircraft": "Keep track of your aircraft, or their aircraft will track you.",
       "book": "Keep track of your books, before they burn them.",
-      "movie": "Keep track of your movies, before they replace them.",
-      "board_game": "Keep track of your board games, as they may play them.",
-      "video_game": "Keep track of your video games, because you enjoy them.",
-      "tool": "Keep track of your tools, because you always need more.",
-      "building": "Document your buildings on your property.",
+      "movie": "Movie inventory, DVDs, BluRay, VHS or digital.",
+      "board_game": "Board game inventory.",
+      "video_game": "Video game inventory.",
+      "tool": "Tools and Tool service records",
+      "building": "Buildings you may have..",
       "property": "Remember your land holdings for they will not.",
       "rms_construction_type": "Define how a building is made.",
       "rms_occupancy_type": "Define how a building is used.",
       "person": "Record people that you know, and document your trust in them.",
       "address": "Property has one or more addresses.",
-      "connection": "Keep track of your connections. The enemy will try to disconnect you.",
-      "phone": "Keep track of your phone numbers. The enemy may change your contacts stored elsewhere.",
-      "email": "Keep track of your email addresses.  The enemy may remove them from your contacts.",
-      "fax": "Keep track of your fax numbers. The enemy will lose those old numbers you need.",
-      "web": "Keep track of your websites. The enemy may remove them from search.",
-      "record_description": "Enter text and paste images to capture truth. The enemy will try to change it.",
-      "story": "Write down your thoughts so you can organize them. The enemy will seek to confuse you.",
+      "connection": "Keep track of your connections.",
+      "phone": "Phone or Landline number to call.",
+      "email": "Enter email address.",
+      "fax": "Fax numbers you can fax to.",
+      "web": "websites associated with this person.",
+      "record.description": "Enter text and paste images to capture truth.",
+      "journal.story": "Write down your thoughts so you can organize them.",
       "diary.story": "Keep your thoughts and dreams by writing them. The enemy will always try to replace them.",
       "news.story": "Put your own thoughts on movements by the enemy, as the enemy will put their thoughts on you.",
       "incident.story": "Preserve details of the incident. Every record can save the truth.",
-      "news_description": "A summary of an important news article. You can cut / paste.",
+      "news.description": "A summary of an important news article. You can cut / paste.",
       "incidents": "Record interactions, research possible patterns and behaviors of Russian Assets.",
       "incident": "Capture an interaction as you search for Russian Assets."
     },

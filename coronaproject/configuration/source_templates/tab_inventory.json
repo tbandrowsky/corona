@@ -6,12 +6,6 @@
     "parameters": {
       "$tab_contents": [
         {
-          "class_name": "paragraph",
-          "name": "$tab_contents_description_name",
-          "text": "$tab_contents_description",
-          "box": "paragraph_box"
-        },
-        {
           "class_name": "$tab_inventory_class",
           "name": "$tab_inventory_table_name",
           "json_field_name": "$json_field_name",
