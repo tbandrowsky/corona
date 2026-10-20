@@ -31,6 +31,7 @@ namespace corona
 
 
 		lockable login_lock;
+		lockable database_change_poll_lock;
 
 		corona_client client;
 
@@ -94,12 +95,8 @@ namespace corona
 
 		bool database_recreate;
 
-		bool is_db_polling = false;
-		bool is_ux_polling = false;
-
 		json system_proof;
 
-		bool poll_ux_enabled = false;
 		bool poll_db_enabled = false;
 		
 		HMODULE hlexilla = nullptr;
@@ -279,14 +276,14 @@ namespace corona
 				json token = get_local_token();
 			}
 
-			poll_ux_enabled = true;
+			poll_db();
+			poll_pages(true);
 
 			log_command_stop("desktop_app_bus", "startup complete", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 		}
 
 		virtual ~desktop_app_bus()
 		{
-			poll_ux_enabled = false;
 			if (local_db) {
 				local_db->shutdown();
 			}
@@ -317,180 +314,34 @@ namespace corona
 
 		void poll_db()
 		{
+			scope_lock locker(database_change_poll_lock);
+
 			try {
-				if (is_db_polling) {
-					return;
-				}
-				is_db_polling = true;
 				timer tx;
 				json_parser jp;
 				json temp;
 				date_time start_time = date_time::now();
 				std::string full_schema_filename = config_path + database_schema_filename;
-				if (read_json(full_schema_filename, temp) != null_row) {
-					log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
-					auto tempo = local_db->apply_schema(temp);
-					get_local_token();
-					// local gaming must be created here, because it needs the database to be there 
-					// to feed the factories.
-					// this always hopefully happens before poll_pages
-					local_gaming = corona::game::engine_factory::create_engine(this);
-					log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				log_command_start("poll_db", "apply schema", start_time, __FILE__, __LINE__);
+				if (checker.check_changes({})) {
+					if (read_json(full_schema_filename, temp) != null_row) {
+						auto tempo = local_db->apply_schema(temp);
+						get_local_token();
+						// local gaming must be created here, because it needs the database to be there 
+						// to feed the factories.
+						// this always hopefully happens before poll_pages
+						local_gaming = corona::game::engine_factory::create_engine(this);
+						log_command_stop("poll_db", "schema applied", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+					}
 				}
-				is_db_polling = false;
+				else {
+					log_command_stop("poll_db", "schema applied skipped", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				}
 				// there is no apply config because that's a server only thing.
 			}
 			catch (std::exception& exc)
 			{
 				log_warning(std::format("poll_db exception: {0}", exc.what()), __FILE__, __LINE__);
-				is_db_polling = false;
-			}
-		}
-
-        void load_new_pages(json _new_pages, bool _select_default_page)
-        {
-			try {
-				json_parser			jp;
-				json				pages_json;
-				json				styles_json;
-
-				if (!poll_ux_enabled)
-					return;
-
-				if (is_ux_polling) {
-					return;
-				}
-
-				is_ux_polling = true;
-				read_json(pages_config_filename, pages_json);
-				read_json(styles_config_filename, styles_json);
-
-				if (pages_json.empty() || styles_json.empty())
-				{
-					log_warning("poll_pages: pages or styles json is empty", __FILE__, __LINE__);
-					return;
-				}
-
-				timer tx;
-				date_time t = date_time::now();
-
-				log_job_start("poll_pages", "apply pages", t, __FILE__, __LINE__);
-
-				abbreviations = jp.create_object();
-
-				// to do, at some point create a merge method in json proper.
-				json combined;
-				if (styles_json.object() and pages_json.object())
-				{
-					combined = styles_json.clone();
-
-					json jsrcstyles = pages_json["styles"].clone();
-					json jdststyles = combined["styles"];
-
-					json jabbreviations = pages_json["abbreviations"].clone();
-					if (jabbreviations.object()) {
-						auto jams = jabbreviations.get_members();
-						for (auto m : jams) {
-							abbreviations.put_member(m.first, m.second);
-						}
-					}
-
-					jabbreviations = combined["abbreviations"].clone();
-					if (jabbreviations.object()) {
-						auto jams = jabbreviations.get_members();
-						for (auto m : jams) {
-							abbreviations.put_member(m.first, m.second);
-						}
-					}
-
-					if (jsrcstyles.array() and jdststyles.array())
-					{
-						jdststyles.push_back_array(jsrcstyles);
-					}
-					else if (jsrcstyles.array())
-					{
-						combined.put_member_array("styles", jsrcstyles);
-					}
-
-					json jsrcpages = _new_pages["pages"].clone();
-					json jdstpages = combined["pages"];
-
-					if (jsrcpages.array())
-					{
-						json jpages_expanded_array = jp.create_array();
-
-						for (auto jpage : jsrcpages)
-						{
-							if (jpage.object()) {
-								jpage.apply_abbreviations(abbreviations);
-								std::string class_name = jpage[class_name_field].as_string();
-								std::string file_name = jpage["file_name"].as_string();
-								if (class_name == "import")
-								{
-									json_parser jpx;
-									std::string full_file_name = config_path + file_name;
-									std::string src_page = read_all_string(full_file_name);
-
-									if (src_page.size() > 0) {
-										log_information(std::format("loading {0}", file_name), __FILE__, __LINE__);
-
-										json expanded_page = jpx.parse_object(src_page);
-
-										if (expanded_page.error())
-										{
-											log_warning(file_name, __FILE__, __LINE__);
-											auto errs = jpx.get_errors();
-											log_error(errs, __FILE__, __LINE__);
-										}
-										else
-										{
-											expanded_page.apply_abbreviations(abbreviations);
-											jpages_expanded_array.append_element(expanded_page);
-											std::string story = std::format("imported page {0}", file_name);
-											log_information(story, __FILE__, __LINE__);
-										}
-									}
-								}
-								else
-								{
-									jpages_expanded_array.append_element(jpage);
-								}
-							}
-						}
-
-						if (jdstpages.array())
-						{
-							jdstpages.push_back_array(jpages_expanded_array);
-						}
-						else
-						{
-							combined.put_member_array("pages", jpages_expanded_array);
-						}
-					}
-
-					json jsrcstartup = pages_json["startup"].clone();
-					json jdststartup = combined["startup"];
-
-					if (jsrcstartup.array() and jdststartup.array())
-					{
-						jdststartup.push_back_array(jsrcstartup);
-					}
-					else if (jsrcstartup.array())
-					{
-						combined.put_member_array("startup", jsrcstartup);
-					}
-					
-					combined.put_member_bool("add", true);
-					load_pages(combined, _select_default_page);
-				}
-				log_job_stop("load_new_pages", "pages updated", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				is_ux_polling = false;
-
-			}
-			catch (std::exception& exc)
-			{
-				log_warning(std::format("poll_pages exception: {0}", exc.what()), __FILE__, __LINE__);
-				is_ux_polling = false;
 			}
 		}
 
@@ -501,13 +352,6 @@ namespace corona
 				json				pages_json;
 				json				styles_json;
 
-				if (!poll_ux_enabled)
-					return;
-
-				if (is_ux_polling) {
-					return;
-				}
-				is_ux_polling = true;
 				read_json(pages_config_filename, pages_json);
 				read_json(styles_config_filename, styles_json);
 
@@ -559,7 +403,8 @@ namespace corona
 					}
 
 					json jsrcpages = pages_json["pages"].clone();
-					json jdstpages = combined["pages"];
+					json jdstpages = combined["pages"]; 
+					jdstpages = jp.create_object();
 
 					if (jsrcpages.array())
 					{
@@ -629,13 +474,11 @@ namespace corona
 					load_pages(combined, _select_default_page);
 				}
 				log_job_stop("poll_pages", "pages updated", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
-				is_ux_polling = false;
 
 			}
 			catch (std::exception& exc)
 			{
 				log_warning(std::format("poll_pages exception: {0}", exc.what()), __FILE__, __LINE__);
-				is_ux_polling = false;
 			}
 		}
 
@@ -667,9 +510,7 @@ namespace corona
 							poll_pages(_select_default_page);
 							});
 						}, nullptr);
-				}
-				else if (poll_ux_enabled) {
-					poll_pages(_select_default_page);
+					checker.check_changes(options);
 				}
 			}
 		}
@@ -1357,8 +1198,7 @@ namespace corona
 
 				std::string full_schema_filename = config_path + database_schema_filename;
 				if (read_json(full_schema_filename, schema) != null_row) {
-					json pages = local_db->update_application(schema, class_name);
-					load_new_pages(pages, false);
+					json pages = local_db->update_application(schema, class_name);					
 				}
 			}
 			catch (std::exception& exc)

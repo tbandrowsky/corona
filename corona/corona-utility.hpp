@@ -169,6 +169,22 @@ namespace corona {
 		return input.substr(0, n);
 	}
 
+	std::string unpad(std::string str)
+	{
+		std::string return_value;
+		return_value = "";
+		int start_index = 0;
+        while (start_index < str.length() && std::isspace(str[start_index])) {
+            start_index++;
+        }
+        int stop_index = str.length() - 1;
+        while (stop_index >= start_index && std::isspace(str[stop_index])) {
+            stop_index--;
+        }
+        return_value = str.substr(start_index, stop_index - start_index + 1);
+		return return_value;
+	}
+
 	std::string trim(std::string str, size_t width)
 	{
 		if (width < 3)

@@ -382,6 +382,7 @@ namespace corona
 			auto relations = get_relations();
 			if (relations) {
 				for (auto item : relations->get_allowed_classes()) {
+					item = unpad(item);
 					results.push_back(item);
 				}
 			}

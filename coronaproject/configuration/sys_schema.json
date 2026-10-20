@@ -250,7 +250,7 @@
           "max_length": 50
         }
       },
-      "field_order": [ "street", "building", "city", "state", "zip", "country" ]
+      "field_order": [ "building", "street", "city", "state", "zip", "country" ]
     },
     {
       "class_name": "connection",
@@ -579,7 +579,7 @@
       "base_class_name": "sys_object",
       "class_description": "An asset",
       "full_text": [ "name", "notes" ],
-      "parents": [ "building" ],
+      "parents": [ "person", "building", "property" ],
       "fields": {
         "name": {
           "field_type": "string",
@@ -1001,7 +1001,6 @@
           "field_type": "path",
           "label": "Boundaries"
         },
-        "associates": [ "person" ],
         "building": [ "building" ],
         "records": [ "record" ],
         "assets": [ "asset" ],

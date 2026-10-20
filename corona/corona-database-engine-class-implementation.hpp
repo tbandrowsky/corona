@@ -966,13 +966,6 @@ namespace corona {
 				jfields = jp.create_object();
 			}
 
-			for (auto parent : parents)
-			{
-				if (!jfields.has_member(parent)) {
-					jfields.put_member(parent, std::format("->{}", parent));
-				}
-			}
-
 			if (jfields.object()) {
 				auto jfield_members = jfields.get_members();
 				for (auto jfield : jfield_members) {
@@ -1127,24 +1120,6 @@ namespace corona {
 				jindexes = jp.create_object();
 			}
 
-			for (auto parent : parents)
-			{
-				std::string index_name = "idx_" + class_name + "_" + parent;
-				if (jindexes.has_member(index_name)) {
-					continue;
-				}
-				else
-				{
-					json_parser jp;
-					json new_index = jp.create_object();
-					new_index.put_member("index_class", class_name);
-					new_index.put_member("index_name", index_name);
-					json new_index_keys = jp.create_array();
-					new_index_keys.push_back(parent);
-					new_index.put_member("index_keys", new_index_keys);
-					jindexes.put_member(index_name, new_index);
-				}
-			}
 
 			if (jindexes.object()) {
 
@@ -1345,6 +1320,14 @@ namespace corona {
 			return true;
 		}
 
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <remarks>Not exactly sure that this works</remarks>
+		/// <param name="_context"></param>
+		/// <param name="_changed_class"></param>
+		/// <returns></returns>
 		virtual bool update(activity* _context, json _changed_class) override
 		{
 			class_implementation changed_class;
@@ -1390,11 +1373,23 @@ namespace corona {
 			sql = changed_class.sql;
 
 			ancestors.clear();
+			std::map<std::string, bool> merged_parents;
 
 			if (not base_class_name.empty()) {
 
 				auto base_class = _context->db->read_get_class(base_class_name);
 				if (base_class and base_class->ready()) {
+
+					for (auto p : base_class->get_parents()) {
+						merged_parents.insert_or_assign(p, true);
+					}
+					for (auto p : parents) {
+						merged_parents.insert_or_assign(p, true);
+					}
+					parents.clear();
+					for (auto p : merged_parents) {
+						parents.push_back(p.first);
+					}
 
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
@@ -1440,6 +1435,33 @@ namespace corona {
 			std::map<std::string, std::shared_ptr<field_interface>> combined_fields;
 			std::map<std::string, bool> existing_table_fields;
 			std::vector<std::shared_ptr<field_interface>> new_fields;
+
+			for (auto pfield : parents) {
+				if (fields.find(pfield) == std::end(fields)) {
+					std::shared_ptr<field_implementation> new_field = std::make_shared<field_implementation>();
+					std::shared_ptr<reference_field_options> new_field_options = std::make_shared<reference_field_options>();
+					new_field->set_field_name(pfield);
+					new_field->set_field_class(class_name);
+					new_field->set_field_type(field_types::ft_reference);
+					new_field_options->reference_class = pfield;
+					new_field->set_options(new_field_options);
+					fields[pfield] = new_field;
+				}
+
+				std::string index_name = pfield + "_idx";
+				if (indexes.contains(index_name)) {
+					continue;
+				}
+				else
+				{
+					auto new_index = std::make_shared<index_implementation>();
+					new_index->set_index_class(class_name);
+					new_index->set_index_name(index_name);
+					new_index->get_index_keys().push_back(pfield);
+					auto new_index_interface = std::dynamic_pointer_cast<index_interface>(new_index);
+					indexes.insert_or_assign(index_name, new_index_interface);
+				}
+			}
 
 			for (auto f : changed_class.fields)
 			{
@@ -1586,11 +1608,23 @@ namespace corona {
 
 			ancestors.clear();
 
+			std::map<std::string, bool> merged_parents;
+
 			if (not base_class_name.empty()) {
 
 				auto base_class = _context->db->read_get_class(base_class_name);
 				if (base_class and base_class->ready()) {
 
+                    for (auto p : base_class->get_parents()) {
+                        merged_parents.insert_or_assign(p, true);
+                    }
+                    for (auto p : parents) {
+                        merged_parents.insert_or_assign(p, true);
+                    }
+					parents.clear();
+                    for (auto p : merged_parents) {
+                        parents.push_back(p.first);
+                    }
 					ancestors = base_class->get_ancestors();
 					ancestors.insert_or_assign(base_class_name, true);
 					base_class->update_descendants().insert_or_assign(class_name, true);
@@ -1621,6 +1655,33 @@ namespace corona {
 					ve.message = "base class not found or not created";
 					_context->errors.push_back(ve);
 					return false;
+				}
+			}
+
+			for (auto pfield : parents) {
+                if (fields.find(pfield) == std::end(fields)) {
+                    std::shared_ptr<field_implementation> new_field = std::make_shared<field_implementation>();
+					std::shared_ptr<reference_field_options> new_field_options = std::make_shared<reference_field_options>();
+                    new_field->set_field_name(pfield);
+                    new_field->set_field_class(class_name);
+                    new_field->set_field_type(field_types::ft_reference);
+                    new_field_options->reference_class = pfield;
+                    new_field->set_options(new_field_options);
+                    fields[pfield] = new_field;
+                }
+
+				std::string index_name = pfield + "_idx";
+				if (indexes.contains(index_name)) {
+					continue;
+				}
+				else
+				{
+                    auto new_index = std::make_shared<index_implementation>();
+                    new_index->set_index_class(class_name);
+                    new_index->set_index_name(index_name);
+                    new_index->get_index_keys().push_back(pfield);
+                    auto new_index_interface = std::dynamic_pointer_cast<index_interface>(new_index);
+					indexes.insert_or_assign(index_name, new_index_interface);
 				}
 			}
 

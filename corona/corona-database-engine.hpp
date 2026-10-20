@@ -4889,6 +4889,11 @@ private:
 								continue;
 							}
 
+							auto check_class = read_lock_class(new_class_name);
+                            if (!check_class) {
+                                system_monitoring_interface::active_mon->log_warning(new_class_name + " not found after put.", __FILE__, __LINE__);
+                            }
+
 							system_monitoring_interface::active_mon->log_job_section_stop("", new_class_name + " complete", txc.get_elapsed_seconds(), 1, __FILE__, __LINE__);
 						}
 						catch (std::exception exc)

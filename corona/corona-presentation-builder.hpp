@@ -1959,7 +1959,7 @@ namespace corona
 			container_control::set_data(_data);
 
 			if (tab_panes.size() > 0) {
-				select_tab(tab_panes[0].pane.name);
+				select_tab(tab_panes[0].pane.name, false);
 			}
 
  			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
@@ -1987,7 +1987,7 @@ namespace corona
 			return data;
         }
 
-		void select_tab(std::string _name)
+		void select_tab(std::string _name, bool _get_data)
 		{
 			json_parser jp;
 			json_object new_tab_data;
@@ -1996,9 +1996,11 @@ namespace corona
 				return tp.pane.name == current_tab_name;
 				});
 
-			if (current_tab != tab_panes.end()) {
-				json_object tab_object = content_frame->get_slice();
-				control_slice += tab_object;
+			if (_get_data) {
+				if (current_tab != tab_panes.end()) {
+					json_object tab_object = content_frame->get_slice();
+					control_slice += tab_object;
+				}
 			}
 
 			current_tab_name = _name;
@@ -2028,7 +2030,7 @@ namespace corona
 			}
 			init();
 			if (tab_panes.size() > 0) {
-				select_tab(tab_panes[0].pane.name);
+				select_tab(tab_panes[0].pane.name, false);
 			}
 		}
 
@@ -3112,7 +3114,7 @@ namespace corona
 			if (found_control) {
 				auto tab_control_ptr = dynamic_cast<tab_view_control*>(found_control);
 				if (tab_control_ptr) {
-					tab_control_ptr->select_tab(tab_name);
+					tab_control_ptr->select_tab(tab_name, false);
 				}
 			}
 			else {
