@@ -2430,8 +2430,15 @@ namespace corona
 
 		writepad_control() { class_name = "writepad"; }
 
-		writepad_control(const writepad_control& _src) : column_layout(_src) 
-		{ 		
+		writepad_control(const writepad_control& _src) : column_layout(_src)
+		{
+            paragraph_format = _src.paragraph_format;
+            character_format = _src.character_format;
+            button_layout = _src.button_layout;
+            dropdown_layout = _src.dropdown_layout;	
+			richedit_layout = _src.richedit_layout;
+            toolbar_layout = _src.toolbar_layout;
+			needs_create = true;
 			init();
 		}
 
@@ -2733,8 +2740,14 @@ namespace corona
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 		{
 			column_layout::on_create(_context, _src);
-		};
+		}
 
+		virtual void loaded(int _batch_id) override
+		{
+			init();
+			arrange(nullptr, &bounds);
+			needs_create = true;
+		}
 
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
 		{
