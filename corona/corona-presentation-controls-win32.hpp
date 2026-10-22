@@ -2423,6 +2423,8 @@ namespace corona
         layout_rect 	richedit_layout;
         layout_rect     toolbar_layout;
 
+		bool			needs_create = false;
+
 	protected:
 	public:
 
@@ -2441,6 +2443,19 @@ namespace corona
 		{
 
 			children.clear();
+
+			// this will just be a standard toolbar control
+			toolbar.reset();
+			italic_button.reset();
+			bold_button.reset();
+			underline_button.reset();
+			align_right_button.reset();
+			align_left_button.reset();
+			align_center_button.reset();
+			bullet_button.reset();
+			styles_dropdown.reset();
+			richedit_area.reset();
+
 
 			content_cross_alignment = visual_alignment::align_near;
 			content_alignment = visual_alignment::align_near;
@@ -2640,6 +2655,10 @@ namespace corona
 
 			toolbar->children.push_back(styles_dropdown);
 
+			if (richedit_area) {
+				richedit_area->json_field_name = json_field_name;
+			}
+
 			auto blank_control = std::make_shared<paragraph_control>();
 			blank_control->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
 
@@ -2707,6 +2726,7 @@ namespace corona
 					}
 				}
             };
+			needs_create = true;
 
 		}
 
@@ -2716,35 +2736,20 @@ namespace corona
 		};
 
 
-		virtual void arrange(control_base* _parent, rectangle* _ctx) override
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
 		{
-			set_bounds(_parent, *_ctx);
-            column_layout::arrange(_parent, _ctx);
-		}
-
-		virtual point get_size(control_base* _parent)
-		{
-			return column_layout::get_size(_parent);
-		}
-
-		virtual json_object get_data() override
-		{
-			json_parser jp;
-			json_object data;
-
-			if (richedit_area) {
-				richedit_area->json_field_name = json_field_name;
-				data = richedit_area->get_data();
+			if (needs_create) {
+				create(_context, host);
+				needs_create = false;
 			}
-			return data;
+			container_control::on_draw(_context, _control);
 		}
 
 		virtual json_object set_data(json_object _data) override
 		{
-			if (richedit_area) {
-                richedit_area->json_field_name = json_field_name;
-				richedit_area->set_data(_data);
-			}
+
+			column_layout::set_data(_data);
+
 			return _data;
 		}
 
@@ -2768,6 +2773,7 @@ namespace corona
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<writepad_control>(*this);
+			tv->init();
 			return tv;
 		}
 

@@ -1977,13 +1977,6 @@ namespace corona
 				}
 			} 
 
-			std::shared_ptr<corona_select_tab_command> select_tab_command = std::make_shared<corona_select_tab_command>();
-			select_tab_command->tab_control = name;
-			select_tab_command->tab_name = tab_panes[0].pane.name;
-			auto service = comm_desktop_bus_interface::get_service();
-            service->run_command(service->start_batch(), select_tab_command);
-			
-
 			return data;
         }
 
@@ -3044,6 +3037,23 @@ namespace corona
 		set_data(_nav->data);
 
 		needs_create = true;
+	}
+
+	void frame_layout::set_contents(int _batch_id, std::string _name, presentation_base* _presentation, page_base* _parent_page, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs)
+	{
+		errors = _vs;
+		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
+		new_frame->data = _obj;
+		new_frame->name = _name;
+		new_frame->presentation = _presentation;
+		new_frame->parent_page = _parent_page;
+		new_frame->contents.push_back(_contents);
+
+		log_warning("Navigate to -> " + new_frame->name);
+
+		navigation_stack.navigate(new_frame);
+
+		navigate(_batch_id, new_frame);
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page, json_object _obj, validation_error_collection& _vs)

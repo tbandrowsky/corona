@@ -513,6 +513,8 @@ namespace corona
 			return data;
 		}
 
+		virtual void set_contents(int _batch_id, std::string _name, presentation_base* _presentation, page_base* _parent_page, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs);
+
 		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents, json_object _obj, validation_error_collection& _vs);
 
 		virtual void set_contents(control_base* _parent, std::function<void(control_base* _page)> _contents)
