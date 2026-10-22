@@ -3124,7 +3124,7 @@ namespace corona
 			if (found_control) {
 				auto tab_control_ptr = dynamic_cast<tab_view_control*>(found_control);
 				if (tab_control_ptr) {
-					tab_control_ptr->select_tab(tab_name, false);
+					tab_control_ptr->select_tab(tab_name, true);
 				}
 			}
 			else {
