@@ -206,7 +206,7 @@ namespace corona
 			set_window_size();
 		}
 
-		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
+		virtual void create_windows(std::weak_ptr<applicationBase> _host)
 		{
 			window_host = _host;
 
@@ -224,7 +224,7 @@ namespace corona
 					}
 
 					if (is_default_button) {
-                        group_style |= BS_DEFPUSHBUTTON;
+						group_style |= BS_DEFPUSHBUTTON;
 					}
 
 					if (auto wclassname = get_window_class_w())
@@ -270,7 +270,6 @@ namespace corona
 					}
 
 					set_window_size();
-					on_recreate();
 				}
 
 				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
@@ -280,12 +279,18 @@ namespace corona
 				}
 
 			}
+
+		}
+
+		virtual void create(std::shared_ptr<direct2dContext>& _context, std::weak_ptr<applicationBase> _host) override
+		{
+			create_windows(_host);
 		}
 
 		virtual void on_create()  { 
 			system_monitoring_interface::active_mon->log_information("text_control_base " + std::to_string((int64_t)window) + "::on_create " + json_field_name );	
 		}
-		virtual void on_recreate() { on_create(); }
+		
 
 		virtual void destroy()
 		{
@@ -421,19 +426,15 @@ namespace corona
             set_text(text);
         }
 
-		virtual void on_recreate() override
-		{
-		}
-
 		virtual json_object get_slice() override
 		{
 			get_text();
 			return control_slice;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			control_base::set_data(_data);
+			control_base::set_data(_data, _include_children);
 			if (_data.has_member(json_field_name)) {
                 auto t = _data[json_field_name];
 				if (t) {
@@ -636,9 +637,9 @@ namespace corona
 			return result;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			control_base::set_data(_data);
+			control_base::set_data(_data, _include_children);
 
 			std::string text = slice_object[json_field_name]->as_string();
 			if (auto ptr = window_host.lock()) {
@@ -728,9 +729,9 @@ namespace corona
 			return result;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			control_base::set_data(_data);
+			control_base::set_data(_data, _include_children);
 
 			std::string text = slice_object[json_field_name]->as_string();
 			if (auto ptr = window_host.lock()) {
@@ -936,9 +937,9 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			control_base::set_data(_data);
+			control_base::set_data(_data, _include_children);
 			if (slice_object.has_member(json_field_name)) {
 				std::string text = slice_object[json_field_name]->as_string();
 				if (auto ptr = window_host.lock()) {
@@ -1095,9 +1096,9 @@ namespace corona
 			return control_slice;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			windows_control::set_data(_data);
+			windows_control::set_data(_data, _include_children);
 
 			if (control_slice.has_member(json_field_name)) {
 				std::string text = control_slice[json_field_name]->to_json();
@@ -1328,9 +1329,9 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-            button_control<RadioButtonWindowStyles>::set_data(_data);
+            button_control<RadioButtonWindowStyles>::set_data(_data, _include_children);
 
 			if (not json_field_name.empty()) {
 				json_parser jp;
@@ -1380,10 +1381,10 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
 
-            button_control<CheckboxWindowStyles>::set_data(_data);
+            button_control<CheckboxWindowStyles>::set_data(_data, _include_children);
 
 			if (not json_field_name.empty() ) {
 				if (auto ptr = window_host.lock()) {
@@ -1806,9 +1807,9 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			windows_control::set_data(_data);
+			windows_control::set_data(_data, _include_children);
 
 			if (slice_object.has_member(json_field_name)) {
 				double pos = slice_object[json_field_name]->as_double();
@@ -1840,7 +1841,7 @@ namespace corona
 		{
 			auto tv = std::make_shared<richedit_control>(*this);
             json_object temp = get_data();
-			tv->set_data(temp);
+			tv->set_data(temp, true);
 			return tv;
 		}
 
@@ -1918,6 +1919,10 @@ namespace corona
 			}
 		}
 
+		virtual void loaded(int _batch_id)
+		{
+			on_create();
+		}
 
 		static DWORD edit_stream_read(
 			DWORD_PTR dwCookie,
@@ -1933,7 +1938,7 @@ namespace corona
 		);
 
 		virtual json_object get_edited_object() override;
-		virtual json_object set_data(json_object _data) override;
+		virtual json_object set_data(json_object _data, bool _include_children) override;
 	};
 
 	class datetimepicker_control : public windows_control
@@ -2038,9 +2043,9 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			windows_control::set_data(_data);
+			windows_control::set_data(_data, _include_children);
 			if (slice_object.has_member(json_field_name)) {
 				current_date = slice_object[json_field_name]->as_date_time();
 				if (window) {
@@ -2168,9 +2173,9 @@ namespace corona
 			return slice_object;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			windows_control::set_data(_data);
+			windows_control::set_data(_data, _include_children);
 			if (slice_object.has_member(json_field_name)) {
 				current_date = slice_object[json_field_name]->as_date_time();
 				if (window) {
@@ -2790,10 +2795,17 @@ namespace corona
 			container_control::on_draw(_context, _control);
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object get_data() override
+		{
+			auto jo = richedit_area->get_data();
+
+			return jo;
+		}
+
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
 
-			column_layout::set_data(_data);
+			richedit_area->set_data(_data, _include_children);
 
 			return _data;
 		}
@@ -2957,9 +2969,9 @@ namespace corona
 		return control_slice;
 	}
 
-	json_object richedit_control::set_data(json_object _data) 
+	json_object richedit_control::set_data(json_object _data, bool _include_children) 
 	{
-		windows_control::set_data(_data);
+		windows_control::set_data(_data, _include_children);
 
 		if (control_slice.has_member(json_field_name)) {
 			std::string rtf_text = control_slice[json_field_name]->as_string();

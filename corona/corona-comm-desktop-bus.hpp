@@ -497,7 +497,7 @@ namespace corona
 					elapsed_seconds = command_current - command_start;
 					
 					status.put_member(std::string("call_timer_seconds"), elapsed_seconds);
-					timer_control->set_data(status);
+					timer_control->set_data(status, true);
 				}
 			}
 
@@ -2165,8 +2165,49 @@ namespace corona
             }
         }
 
+		virtual bool check_visual_tree(control_base *_current, control_base* match) 
+		{
+            if (_current == match) {
+                return true;
+            }
+            for (auto child : _current->children) {
+                if (check_visual_tree(child.get(), match)) {
+                    return true;
+                }
+            }
+			return false;
+		}
+
+        virtual bool in_visual_tree(control_base* _src) 
+        {
+            if (presentation_layer) {
+                auto current_page = presentation_layer->get_current_page();
+				if (current_page) {
+					return check_visual_tree(current_page->root.get(), _src);
+				}
+            }
+            return false;
+        }
+
+		virtual control_base* create_windows(control_base* _src) override
+		{
+			if (!in_visual_tree(_src))
+				return nullptr;
+
+			if (presentation_layer) {
+				if (auto host = presentation_layer->window_host.lock()) {
+					_src->create_windows(host);
+					return _src;
+				}
+			}
+			return nullptr;
+		}
+
 		virtual control_base* create_control(control_base* _src) override
 		{
+			if (!in_visual_tree(_src))
+				return nullptr;
+
 			if (presentation_layer) {
                 if (auto host = presentation_layer->window_host.lock()) {
 					if (auto window = host->getWindow().lock()) {

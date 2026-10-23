@@ -408,6 +408,13 @@ namespace corona
 			return false;
 		}
 
+		virtual void create_windows(std::weak_ptr<applicationBase> _host)
+		{
+            for (auto& c : children) {
+                c->create_windows(_host);
+            }
+		}
+
 		template <typename control_type> std::shared_ptr<control_type> create(int _id)
 		{
 			std::shared_ptr<control_type> temp;
@@ -507,7 +514,7 @@ namespace corona
 			return data;
 		}
 
-		virtual json_object set_data(json_object _data) 
+		virtual json_object set_data(json_object _data, bool _include_children = true)
 		{
 			data = _data;
 			control_slice = slice(_data, json_field_name);
@@ -535,8 +542,10 @@ namespace corona
                 slice_array.clear();
 			}
 
-			for (auto& child : children) {
-				child->set_data(_data);
+			if (_include_children) {
+				for (auto& child : children) {
+					child->set_data(_data, _include_children);
+				}
 			}
 
 			return _data;

@@ -327,6 +327,7 @@ namespace corona
 			}
 		}
 
+		virtual control_base* create_windows(control_base* _src) = 0;
 		virtual control_base* create_control(control_base* _src) = 0;
 		virtual control_base* find_control(std::string _name) = 0;
 

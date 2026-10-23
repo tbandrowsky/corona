@@ -1335,7 +1335,7 @@ namespace corona
 			current_chart = nullptr;
 			current_options = _chart;
 			json_field_name = _json_field_name;
-            set_data(_src);
+            set_data(_src, true);
 		}
 
 		virtual void set_chart(std::shared_ptr<chart_specification> chart)
@@ -1414,9 +1414,9 @@ namespace corona
 		}
 
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			draw_control::set_data(_data);
+			draw_control::set_data(_data, _include_children);
 			return _data;
 		}
 

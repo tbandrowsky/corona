@@ -6339,13 +6339,31 @@ namespace corona
 	int json_value::as_int() const
 	{
 		json_int64 *t = dynamic_cast<json_int64*>(const_cast<json_value*>(this));
-		return t->value;
+        if (t) {
+            return (int)t->value;
+        }
+        else {
+            json_double* td = dynamic_cast<json_double*>(const_cast<json_value*>(this));
+            if (td) {
+                return (int)td->value;
+            }
+        }
+		return 0;
 	}
 
 	double json_value::as_double() const
 	{
         json_double *t = dynamic_cast<json_double*>(const_cast<json_value*>(this));
-		return t ? t->value : 0.0;
+		if (t) {
+			return t->value;
+		}
+		else {
+            json_int64* ti = dynamic_cast<json_int64*>(const_cast<json_value*>(this));
+            if (ti) {
+                return (double)ti->value;
+            }
+		}
+		return 0.0;
 	}
 
 	int64_t	json_value::as_int64_t() const

@@ -327,9 +327,9 @@ namespace corona
 		}
 
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			draw_control::set_data(_data);
+			draw_control::set_data(_data, _include_children	);
 			set_items(slice_array);
 			return _data;
 		}

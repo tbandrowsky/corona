@@ -1952,12 +1952,39 @@ namespace corona
 			return tv;
 		}	
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object	get_data() override
 		{
 			json_parser jp;
 			json_object tab_data;
 
-			container_control::set_data(_data);
+			auto current_tab = std::find_if(tab_panes.begin(), tab_panes.end(), [this](const tab_pane_instance& tp) {
+				return tp.pane.name == current_tab_name;
+				});
+
+			if (current_tab != tab_panes.end()) {
+				if (current_tab->pane.member_name == ".") {
+					content_frame->set_data(control_slice, true);
+					auto slice1 = content_frame->get_data();
+					control_slice += slice1;
+					data += slice1;
+				}
+				else if (control_slice.has_member(current_tab->pane.member_name)) {
+					auto slice = content_frame->get_data();
+					control_slice += slice;
+					data += slice;
+				}
+			}
+
+			return data;
+		}
+
+
+		virtual json_object set_data(json_object _data, bool _include_children) override
+		{
+			json_parser jp;
+			json_object tab_data;
+
+			container_control::set_data(_data, false);
 
 			if (tab_panes.size() > 0) {
 				select_tab(tab_panes[0].pane.name, false);
@@ -1969,12 +1996,12 @@ namespace corona
 
 			if (current_tab != tab_panes.end()) {
                 if (current_tab->pane.member_name == ".") {
-                    content_frame->set_data(control_slice);
+                    content_frame->set_data(control_slice, true);
                 }
                 else
 				if (control_slice.has_member(current_tab->pane.member_name)) {
 					json_object slice = control_slice[current_tab->pane.member_name];
-					content_frame->set_data(slice);
+					content_frame->set_data(slice, true);
 				}
 			} 
 
@@ -2216,462 +2243,462 @@ namespace corona
 		{
 			title(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "subtitle")
 		{
 			subtitle(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "command_button")
 		{
 			command_button(field_id, default_text, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "authorscredit")
 		{
 			authorscredit(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "chaptertitle")
 		{
 			chaptertitle(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "chaptersubtitle")
 		{
 			chaptersubtitle(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "note")
 		{
 			note(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "paragraph")
 		{
 			paragraph(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "footnote")
 		{
 			footnote(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "code")
 		{
 			code(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "label")
 		{
 			label(default_text, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "error")
 		{
 			error(default_status, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "status")
 		{
 			status(default_status, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "success")
 		{
 			success(default_status, [&control_properties, control_data](auto& _ctrl) ->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				}, field_id);
 		}
 		else if (class_name == "row")
 		{
 			row_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "column")
 		{
 			column_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "absolute")
 		{
 			absolute_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "row_view")
 		{
 			row_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "items_view")
 		{
 			items_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "absolute_view")
 		{
 			absolute_view_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "frame")
 		{
 			frame_begin(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "listbox")
 		{
 			listbox(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "combobox")
 		{
 			combobox(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "password")
 		{
 			password(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "animations")
 		{
 			animations(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "edit")
 		{
 			edit(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "memo")
 		{
 			memo(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "writepad")
 		{
 			writepad(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "listview")
 		{
 			listview(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "treeview")
 		{
 			treeview(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "header")
 		{
 			header(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "toolbar")
 		{
 			toolbar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "statusbar")
 		{
 			statusbar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "hotkey")
 		{
 			hotkey(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "animate")
 		{
 			animate(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "edit")
 		{
 			edit(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "richedit")
 		{
 			richedit(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "draglistbox")
 		{
 			draglistbox(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "comboboxex")
 		{
 			comboboxex(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "datetimepicker")
 		{
 			datetimepicker(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "monthcalendar")
 		{
 			monthcalendar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "scintilla")
 		{
 			scintilla(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "radiobutton_list")
 		{
 			radiobutton_list(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "checkbox_list")
 		{
 			checkbox_list(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "edit_field")
 		{
 			edit_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "memo_field")
 		{
 			memo_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "writepad_field")
 		{
 			writepad_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "readonly_field")
 		{
 			readonly_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "password_field")
 		{
 			password_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "number_field")
 		{
 			number_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "listview_field")
 		{
 			listview_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "treeview_field")
 		{
 			treeview_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "header_field")
 		{
 			header_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "toolbar_field")
 		{
 			toolbar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "statusbar_field")
 		{
 			statusbar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "hotkey_field")
 		{
 			hotkey_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "animate_field")
 		{
 			animate_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "richedit_field")
 		{
 			richedit_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "draglistbox_field")
 		{
 			draglistbox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "combobox_field")
 		{
 			combobox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "comboboxex_field")
 		{
 			comboboxex_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "datetimepicker_field")
 		{
 			datetimepicker_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "monthcalendar_field")
 		{
 			monthcalendar_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "radiobutton_list_field")
 		{
 			radiobutton_list_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "checkbox_list_field")
 		{
 			checkbox_list_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "checkbox_field")
 		{
 			checkbox_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 
@@ -2679,154 +2706,154 @@ namespace corona
 		{
 			minimize_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "maximize_button")
 		{
 			maximize_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "close_button")
 		{
 			close_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "menu_button")
 		{
 			menu_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "corona_button")
 		{
 			corona_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "link_button")
 		{
 			link_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 				}
 		else if (class_name == "push_button")
 		{
 			push_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "radio_button")
 		{
 			radio_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "checkbox")
 		{
 			checkbox(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true	);
 				});
 		}
 		else if (class_name == "camera")
 		{
 			camera(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true	);
 				});
 		}
 		else if (class_name == "grid")
 		{
 			grid(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true	);
 				});
 		}
 		else if (class_name == "chart")
 		{
 			chart(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "slide")
 		{
 			slide(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true	);
 				});
 		}
 		else if (class_name == "grid")
 		{
 			grid(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "tab_button")
 		{
 			tab_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "tab_view")
 		{
 			tab_view(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "caption_bar")
 		{
 			caption_bar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "status_bar")
 		{
 			status_bar(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "image")
 		{
 			image(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "placeholder")
 		{
 			placeholder(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "adventure")
 		{
 			adventure(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name == "chest_view")
 		{
 			chest_view_create(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
-				_ctrl.set_data(control_data);
+				_ctrl.set_data(control_data, true);
 				});
 		}
 		else if (class_name.empty() && _control_properties.is_string() && _control_properties.as_string().starts_with("$"))
@@ -2913,7 +2940,7 @@ namespace corona
 					cb.radio_button(id, text, [cobj, choice, item, this, i](radiobutton_control& _rbc) {
 						_rbc.json_field_name = choices.selected_field;
 						_rbc.is_group = i == 0;
-						_rbc.set_data(*cobj);
+						_rbc.set_data(*cobj, true);
 						});
 				}
 			}
@@ -2971,7 +2998,7 @@ namespace corona
 						_rbc.json_field_name = choices.selected_field;
                         json_object item_obj;
                         item_obj.put_member(_rbc.json_field_name, false);
-						_rbc.set_data(item_obj);
+						_rbc.set_data(item_obj, true);
 						});
 				}
 			}
@@ -3041,11 +3068,12 @@ namespace corona
 		}
 
 		set_errors(errors);
-		set_data(_nav->data);
+		set_data(_nav->data, true);
+
+		service->create_control(this);
 
 		loaded(_batch_id);
 
-		needs_create = true;
 		return old_nav ? old_nav->contents : nullptr;
 	}
 
@@ -3059,7 +3087,8 @@ namespace corona
 
 		log_warning("Navigate to -> " + new_frame->name);
 
-		return navigate(_batch_id, new_frame);
+		auto results = navigate(_batch_id, new_frame);
+		return results;
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page, json_object _obj, validation_error_collection& _vs)

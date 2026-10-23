@@ -435,7 +435,6 @@ namespace corona
 		std::shared_ptr<corona_bus_command> onload_command;
         frame_navigation_stack navigation_stack;
 		std::vector<std::string> edit_bars;
-		bool needs_create = false;
 		validation_error_collection errors;
 
 	public:
@@ -499,9 +498,18 @@ namespace corona
 		virtual void arrange(control_base* _parent, rectangle* _ctx) override;
 		virtual point get_remaining(control_base* _parent) override;
 
-		virtual json_object set_data(json_object _data) override
+        virtual json_object get_data() override
+        {
+            json_object jo = container_control::get_data();
+            if (auto nav = navigation_stack.get_current()) {
+                nav->data = jo;
+            }
+            return jo;
+        }
+
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			container_control::set_data(_data);
+			container_control::set_data(_data, _include_children);
 
 			if (auto nav = navigation_stack.get_current()) {
 				nav->data = _data;
@@ -1098,9 +1106,9 @@ namespace corona
 			pages[page_index].stop_y = y;
 		}
 
-		virtual json_object set_data(json_object _data) override
+		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			draw_control::set_data(_data);
+			draw_control::set_data(_data, _include_children);
 			if (!keep_position_on_set_data) {
 				selected_item_index = 0;
 				selected_page_index = 0;
@@ -1447,9 +1455,9 @@ namespace corona
 			items_view::put_json(copy);
 		}
 
-        virtual json_object set_data(json_object _data) override
+        virtual json_object set_data(json_object _data, bool _include_children) override
         {
-            json_object data = items_view::set_data(_data);
+            json_object data = items_view::set_data(_data, _include_children);
 
 			for (int i = 0; i < slice_array.size(); i++) {
 				json item = slice_array[i];
