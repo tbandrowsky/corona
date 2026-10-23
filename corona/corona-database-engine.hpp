@@ -4037,23 +4037,6 @@ private:
 				}
 			}
 
-            std::string temp = R"({			
-				"class_name": "readonly_field",
-					"box" : {
-					"width": {
-						"amount": 1.0,
-							"units" : "container"
-					},
-						"height" : {
-						"amount": 50,
-							"units" : "pixels"
-					}
-				},
-				"tab_type": "edit"
-			})";
-
-			general = jp.parse_object(temp);
-
 			return general;
 		}
 
@@ -4335,7 +4318,8 @@ private:
 				}
                 else if (tab_type == "object_details") {
 					dest_tabs.push_back(new_tab);
-					continue;
+					json tp;
+					tab_page = tp;
                 }
                 else {
                     validation_error ve;

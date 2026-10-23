@@ -76,11 +76,6 @@
           },
           "children": [
             {
-              "class_name": "chaptersubtitle",
-              "prompt": "",
-              "box": "edit_label_box_full"
-            },
-            {
               "class_name": "paragraph",
               "prompt": "",
               "box": {

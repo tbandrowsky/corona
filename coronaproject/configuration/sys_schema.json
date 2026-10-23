@@ -1273,6 +1273,20 @@
         },
         "tab_type": "inventory"
       },
+      ".sql": {
+        "class_name": "scintilla",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
       "sys_object.object_id": {
         "class_name": "readonly_field",
         "box": {
@@ -1661,18 +1675,7 @@
       "phone": "default",
       "email": "default",
       "fax": "default",
-      "web": "default",
-      "sys_class": "default",
-      "sys_field": "default",
-      "sys_schema": "default",
-      "sys_dataset": "default",
-      "sys_object": "default",
-      "sys_server": "default",
-      "sys_command": "default",
-      "sys_team": "default",
-      "sys_grant": "default",
-      "sys_user": "default",
-      "sys_error": "default"
+      "web": "default"
     },
     "descriptions": {
       "diary": "Basic version and record information about this diary entry",

@@ -34,6 +34,7 @@ namespace corona
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
 		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
+		layout_rect status_box = { 0.9_container, 0.0_px, 0.10_container, 45.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
@@ -284,8 +285,6 @@ namespace corona
 
 			point origin = { lb.x, lb.y, 0.0 };
 			layout_container::remaining = { lb.w, lb.h, 0.0 };
-
-			system_monitoring_interface::active_mon->log_information(std::format("arrange_field {}:{}", (int64_t)this, layout_container::json_field_name));
 
 			for (auto& child : layout_container::children) {
 				auto sz = child->get_size(this);
