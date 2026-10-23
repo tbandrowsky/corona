@@ -27,12 +27,12 @@
           "children": [
             {
               "class_name": "chaptersubtitle",
-              "name": "navigation_title",
+              "name": "score_title",
               "box": {
                 "width": "450 pixels",
                 "height": "40 pixels"
               },
-              "text": "NAVIGATION"
+              "text": "SCORE"
             },
             {
               "class_name": "chaptersubtitle",
@@ -85,11 +85,49 @@
               "wrap": true,
               "children": [
                 {
+                  "class_name": "column",
+                  "name": "global_score_card",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "90 pixels"
+                  },
+                  "wrap": true,
+                  "children": [
+                    {
+                      "class_name": "code",
+                      "name": "invasion_score_card_title",
+                      "prompt": "INVADER SCORE {invasion_score}",
+                      "box": {
+                        "width": "1.0 container",
+                        "height": "40 pixels"
+                      }
+                    },
+                    {
+                      "class_name": "code",
+                      "name": "training_score_card_title",
+                      "prompt": "YOUR SCORE {training_score}",
+                      "box": {
+                        "width": "1.0 container",
+                        "height": "40 pixels"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "class_name": "chaptersubtitle",
+                  "name": "navigation_title",
+                  "box": {
+                    "width": "450 pixels",
+                    "height": "40 pixels"
+                  },
+                  "text": "RECORDS"
+                },
+                {
                   "class_name": "row",
                   "name": "search_groups",
                   "box": {
                     "width": "1.0 container",
-                    "height": "175 pixels"
+                    "height": "80 pixels"
                   },
                   "wrap": true,
                   "children": [
@@ -100,7 +138,7 @@
                   "class_name": "chaptersubtitle",
                   "name": "section_title",
                   "box": {
-                    "width": "250 pixels",
+                    "width": "450 pixels",
                     "height": "40 pixels"
                   },
                   "text": "SELECTED"
@@ -228,6 +266,7 @@
                 }
               ]
             },
+
             {
               "class_name": "paragraph",
               "name": "frame_spacer",
@@ -257,36 +296,6 @@
               },
 
               "children": [
-                {
-                  "class_name": "command_button",
-                  "name": "back_object",
-                  "image": "back.png",
-                  "text": "back",
-                  "box": {
-                    "width": "100 pixels",
-                    "height": "75 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward": false,
-                    "target_frame": "frame_selected"
-                  }
-                },
-                {
-                  "class_name": "command_button",
-                  "name": "next_object",
-                  "image": "forward.png",
-                  "text": "forward",
-                  "box": {
-                    "width": "100  pixels",
-                    "height": "75 pixels"
-                  },
-                  "on_click": {
-                    "class_name": "navigate",
-                    "forward": true,
-                    "target_frame": "frame_selected"
-                  }
-                },
                 {
                   "class_name": "command_button",
                   "name": "save_object",

@@ -1889,7 +1889,7 @@ namespace corona
         std::function<void(command_button_control*)> on_click;
         json_object         on_click_set;
 
-        bool                enabled;
+        bool                enabled = true;
         bool                toolbar_button = false;
 
         command_button_control() : gradient_button_control() {
@@ -1912,7 +1912,7 @@ namespace corona
             button_text = _src.button_text;
             enable_source_frame = _src.enable_source_frame;
             enable_class_name = _src.enable_class_name;
-            enabled = true;
+            enabled = _src.enabled;
             toolbar_button = _src.toolbar_button;
             on_click_set = _src.on_click_set;
             init();

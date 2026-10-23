@@ -289,6 +289,7 @@ namespace corona
 
 		virtual void destroy()
 		{
+			get_data();
 			if (::IsWindow(window)) {
 				DestroyWindow(window);	
 			}
@@ -1838,6 +1839,8 @@ namespace corona
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<richedit_control>(*this);
+            json_object temp = get_data();
+			tv->set_data(temp);
 			return tv;
 		}
 
@@ -2419,6 +2422,7 @@ namespace corona
 		PARAFORMAT		paragraph_format;
 		CHARFORMAT2A    character_format;
 		layout_rect		button_layout;
+		layout_rect		button_start_layout;
 		layout_rect		dropdown_layout;
         layout_rect 	richedit_layout;
         layout_rect     toolbar_layout;
@@ -2432,36 +2436,20 @@ namespace corona
 
 		writepad_control(const writepad_control& _src) : column_layout(_src)
 		{
+            content_cross_alignment = _src.content_cross_alignment;
+            content_alignment = _src.content_alignment;
             paragraph_format = _src.paragraph_format;
             character_format = _src.character_format;
             button_layout = _src.button_layout;
+            button_start_layout = _src.button_start_layout;
             dropdown_layout = _src.dropdown_layout;	
 			richedit_layout = _src.richedit_layout;
             toolbar_layout = _src.toolbar_layout;
-			needs_create = true;
+
 			init();
 		}
 
 		writepad_control(control_base* _parent, int _id) : column_layout(_parent, _id) {
-			init();
-		}
-
-		virtual void init()
-		{
-
-			children.clear();
-
-			// this will just be a standard toolbar control
-			toolbar.reset();
-			italic_button.reset();
-			bold_button.reset();
-			underline_button.reset();
-			align_right_button.reset();
-			align_left_button.reset();
-			align_center_button.reset();
-			bullet_button.reset();
-			styles_dropdown.reset();
-			richedit_area.reset();
 
 
 			content_cross_alignment = visual_alignment::align_near;
@@ -2500,17 +2488,22 @@ namespace corona
 			richedit_layout.width = 1.0_container;
 			richedit_layout.height = 1.0_remaining;
 
-			toolbar = std::make_shared<row_layout>(this, id_counter::next());
-			toolbar->set_box(toolbar_layout);
-			toolbar->wrap = false;
+			init();
+		}
 
-			styles_dropdown = std::make_shared<combobox_control>(toolbar.get(), id_counter::next());
-			styles_dropdown->set_box(dropdown_layout);
+		virtual void init()
+		{
 
-			list_data styles_list;
-			json_parser jp;
-			
-			auto styles = jp.parse_array(R"([
+			needs_create = false;
+
+			if (!styles_dropdown) {
+				styles_dropdown = std::make_shared<combobox_control>(toolbar.get(), id_counter::next());
+				styles_dropdown->set_box(dropdown_layout);
+
+				list_data styles_list;
+				json_parser jp;
+
+				auto styles = jp.parse_array(R"([
 				{ "id":"title_style", "description": "Title" },
 				{ "id":"subtitle_style", "description": "Subtitle" },
 				{ "id":"chapter_title_style", "description": "Chapter Title" },
@@ -2519,11 +2512,59 @@ namespace corona
 				{ "id":"code_style", "description": "Code" }
 			])");
 
-            styles_list.id_field = "id";
-			styles_list.text_field = "description";
-			styles_list.items = *styles.array_impl();
+				styles_list.id_field = "id";
+				styles_list.text_field = "description";
+				styles_list.items = *styles.array_impl();
 
-			styles_dropdown->set_list(styles_list);
+				styles_dropdown->set_list(styles_list);
+				needs_create = true;
+
+				styles_dropdown->on_selection_changed = [this](combobox_control* _src) {
+					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
+					json selected_object = _src->get_selected_object();
+					if (selected_object.object()) {
+						std::string style_id = selected_object["id"].as_string();
+						std::string style_description = selected_object["description"].as_string();
+						auto st = presentation_style_factory::get_current()->get_style();
+						if (st) {
+							richedit_area->get_character_format(&character_format);
+							if (style_id == "title_style") {
+								std::string face = first(st->TitleStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->TitleStyle->text_style.fontSize * pixels_to_twips;
+							}
+							else if (style_id == "subtitle_style") {
+								std::string face = first(st->SubtitleStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->SubtitleStyle->text_style.fontSize * pixels_to_twips;
+							}
+							else if (style_id == "chapter_title_style") {
+								std::string face = first(st->ChapterTitleStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->ChapterTitleStyle->text_style.fontSize * pixels_to_twips;
+							}
+							else if (style_id == "chapter_subtitle_style") {
+								std::string face = first(st->ChapterSubTitleStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->ChapterSubTitleStyle->text_style.fontSize * pixels_to_twips;
+							}
+							else if (style_id == "paragraph_style") {
+								std::string face = first(st->ParagraphStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->ParagraphStyle->text_style.fontSize * pixels_to_twips;
+							}
+							else if (style_id == "code_style") {
+								std::string face = first(st->CodeStyle->text_style.fontName, ',');
+								strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
+								character_format.yHeight = st->CodeStyle->text_style.fontSize * pixels_to_twips;
+							}
+							richedit_area->set_character_format(&character_format);
+						}
+					}
+					};	
+
+			}
+
 			/*
 					{ "Italic", L"\uE8DB" },
 		{ "Underline", L"\uE8DC" },
@@ -2538,46 +2579,55 @@ namespace corona
 
 			*/
 
-			italic_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			italic_button->icon = "Italic";
-			italic_button->toolbar_button = true;
-			italic_button->set_box(button_layout);
-			italic_button->on_click = [this](command_button_control* _src) {
-				int selected = character_format.dwEffects & CFE_ITALIC;
-				_src->enabled = !selected;
-				if (selected) {
-					character_format.dwEffects &= ~CFE_ITALIC;
-				}
-				else
-				{
-					character_format.dwEffects |= CFE_ITALIC;
-				}
-				richedit_area->set_character_format(&character_format);
-				};
+			if (!italic_button) {
+				italic_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				italic_button->icon = "Italic";
+				italic_button->toolbar_button = true;
+				italic_button->set_box(button_layout);
+				italic_button->on_click = [this](command_button_control* _src) {
+					int selected = character_format.dwEffects & CFE_ITALIC;
+					_src->enabled = !selected;
+					if (selected) {
+						character_format.dwEffects &= ~CFE_ITALIC;
+					}
+					else
+					{
+						character_format.dwEffects |= CFE_ITALIC;
+					}
+					richedit_area->set_character_format(&character_format);
+					};
+				needs_create = true;
 
-			bold_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			bold_button->icon = "Bold";
-			bold_button->toolbar_button = true;
-			bold_button->set_box(button_layout);
-			bold_button->on_click = [this](command_button_control* _src) {
-				int selected = character_format.dwEffects & CFE_BOLD;
-				_src->enabled = !selected;
-				if (selected) {
-					character_format.dwEffects &= ~CFE_BOLD;
-				}
-				else
-				{
-					character_format.dwEffects |= CFE_BOLD;
-				}
-				richedit_area->set_character_format(&character_format);
-				};
+			}
 
-			underline_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			underline_button->icon = "Underline";
-			underline_button->toolbar_button = true;
-			underline_button->set_box(button_layout);
-			underline_button->on_click = [this](command_button_control* _src) {
-				int selected = character_format.dwEffects & CFE_UNDERLINE;
+			if (!bold_button) {
+				bold_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				bold_button->icon = "Bold";
+				bold_button->toolbar_button = true;
+				bold_button->set_box(button_layout);
+				bold_button->on_click = [this](command_button_control* _src) {
+					int selected = character_format.dwEffects & CFE_BOLD;
+					_src->enabled = !selected;
+					if (selected) {
+						character_format.dwEffects &= ~CFE_BOLD;
+					}
+					else
+					{
+						character_format.dwEffects |= CFE_BOLD;
+					}
+					richedit_area->set_character_format(&character_format);
+					};
+				needs_create = true;
+
+			}
+
+			if (!underline_button) {
+				underline_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				underline_button->icon = "Underline";
+				underline_button->toolbar_button = true;
+				underline_button->set_box(button_layout);
+				underline_button->on_click = [this](command_button_control* _src) {
+					int selected = character_format.dwEffects & CFE_UNDERLINE;
 				_src->enabled = !selected;
 				if (selected) {
 					character_format.dwEffects &= ~CFE_UNDERLINE;
@@ -2588,71 +2638,92 @@ namespace corona
 				}
 				richedit_area->set_character_format(&character_format);
 				};
+				needs_create = true;
 
-			align_right_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			align_right_button->icon = "AlignRight";
-			align_right_button->toolbar_button = true;
-			align_right_button->set_box(button_start_layout);
-			align_right_button->on_click = [this](command_button_control* _src) {
-				paragraph_format.wAlignment = PFA_RIGHT;
-				_src->enabled = true;
-				align_left_button->enabled = false;
-				align_center_button->enabled = false;
-				richedit_area->set_paragraph_format(&paragraph_format);
-				};
+			}
 
-			align_left_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			align_left_button->icon = "AlignLeft";
-			align_left_button->toolbar_button = true;
-			align_left_button->set_box(button_layout);
-			align_left_button->on_click = [this](command_button_control* _src) {
-				paragraph_format.wAlignment = PFA_LEFT;
-				_src->enabled = true;
-				align_right_button->enabled = false;
-				align_center_button->enabled = false;
-				richedit_area->set_paragraph_format(&paragraph_format);
-				};
+			if (!align_right_button) {
+				align_right_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				align_right_button->icon = "AlignRight";
+				align_right_button->toolbar_button = true;
+				align_right_button->set_box(button_start_layout);
+				align_right_button->on_click = [this](command_button_control* _src) {
+					paragraph_format.wAlignment = PFA_RIGHT;
+					_src->enabled = true;
+					align_left_button->enabled = false;
+					align_center_button->enabled = false;
+					richedit_area->set_paragraph_format(&paragraph_format);
+					};
+				needs_create = true;
 
-			align_center_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			align_center_button->icon = "AlignCenter";
-			align_center_button->toolbar_button = true;
-			align_center_button->set_box(button_layout);
-			align_center_button->on_click = [this](command_button_control* _src) {
-				paragraph_format.wAlignment = PFA_CENTER;
-				_src->enabled = true;
-				align_left_button->enabled = false;
-				align_right_button->enabled = false;
-				richedit_area->set_paragraph_format(&paragraph_format);
-				};
+			}
 
-			bullet_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
-			bullet_button->set_box(button_start_layout);
-			bullet_button->icon = "Bullet";
-            bullet_button->toolbar_button = true;	
-			bullet_button->on_click = [this](command_button_control* _src) {
-				;
-				};
-
-			richedit_area = std::make_shared<richedit_control>(this, id_counter::next());
-			richedit_area->set_box(richedit_layout);
-			richedit_area->on_changed = [this](richedit_control* _src) {
-				richedit_area->get_paragraph_format(&paragraph_format);
-				switch (paragraph_format.wAlignment) {
-				case PFA_CENTER:
-					align_center_button->enabled = true;
+            if (!align_center_button) {
+				align_center_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				align_center_button->icon = "AlignCenter";
+				align_center_button->toolbar_button = true;
+				align_center_button->set_box(button_layout);
+				align_center_button->on_click = [this](command_button_control* _src) {
+					paragraph_format.wAlignment = PFA_CENTER;
+					_src->enabled = true;
 					align_left_button->enabled = false;
 					align_right_button->enabled = false;
-					break;
-				case PFA_LEFT:
-					align_center_button->enabled = false;
-					align_left_button->enabled = true;
+					richedit_area->set_paragraph_format(&paragraph_format);
+					};
+				needs_create = true;
+
+			}
+
+			if (!align_left_button) {
+				align_left_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				align_left_button->icon = "AlignLeft";
+				align_left_button->toolbar_button = true;
+				align_left_button->set_box(button_layout);
+				align_left_button->on_click = [this](command_button_control* _src) {
+					paragraph_format.wAlignment = PFA_LEFT;
+					_src->enabled = true;
 					align_right_button->enabled = false;
-					break;
-				case PFA_RIGHT:
 					align_center_button->enabled = false;
-					align_left_button->enabled = false;
-					align_right_button->enabled = true;
-					break;
+					richedit_area->set_paragraph_format(&paragraph_format);
+					};
+				needs_create = true;
+
+			}
+
+
+			if (!bullet_button) {
+				bullet_button = std::make_shared<command_button_control>(toolbar.get(), id_counter::next());
+				bullet_button->set_box(button_start_layout);
+				bullet_button->icon = "Bullet";
+				bullet_button->toolbar_button = true;	
+				bullet_button->on_click = [this](command_button_control* _src) {
+					;
+					};
+				needs_create = true;
+
+			}
+
+			if (!richedit_area) {
+				richedit_area = std::make_shared<richedit_control>(this, id_counter::next());
+				richedit_area->set_box(richedit_layout);
+				richedit_area->on_changed = [this](richedit_control* _src) {
+					richedit_area->get_paragraph_format(&paragraph_format);
+					switch (paragraph_format.wAlignment) {
+					case PFA_CENTER:
+						align_center_button->enabled = true;
+						align_left_button->enabled = false;
+						align_right_button->enabled = false;
+						break;
+					case PFA_LEFT:
+						align_center_button->enabled = false;
+						align_left_button->enabled = true;
+						align_right_button->enabled = false;
+						break;
+					case PFA_RIGHT:
+						align_center_button->enabled = false;
+						align_left_button->enabled = false;
+						align_right_button->enabled = true;
+						break;
 				}
 				richedit_area->get_character_format(&character_format);
 				bold_button->enabled = character_format.dwEffects & CFE_BOLD;
@@ -2660,101 +2731,62 @@ namespace corona
 				italic_button->enabled = character_format.dwEffects & CFE_ITALIC;
 				};
 
-			toolbar->children.push_back(styles_dropdown);
-
-			if (richedit_area) {
 				richedit_area->json_field_name = json_field_name;
+				needs_create = true;
+
 			}
 
-			auto blank_control = std::make_shared<paragraph_control>();
-			blank_control->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
-
-			toolbar->children.push_back(blank_control);
-			toolbar->children.push_back(bold_button);
-			toolbar->children.push_back(italic_button);
-			toolbar->children.push_back(underline_button);
-
-			auto blank_control2 = std::make_shared<paragraph_control>();
-            blank_control2->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
-			
-			toolbar->children.push_back(blank_control2);	
-			toolbar->children.push_back(align_left_button);
-			toolbar->children.push_back(align_center_button);
-			toolbar->children.push_back(align_right_button);
-
-//			toolbar->children.push_back(bullet_button);
-
-			children.push_back(toolbar);
-			children.push_back(richedit_area);
-
-			richedit_area->json_field_name = json_field_name;
+			if (!toolbar) {
+				toolbar = std::make_shared<row_layout>(this, id_counter::next());
+				toolbar->set_box(toolbar_layout);
+				toolbar->wrap = false;
 
 
-			styles_dropdown->on_selection_changed = [this](combobox_control* _src) {
-				int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
-				json selected_object = _src->get_selected_object();
-				if (selected_object.object()) {
-                    std::string style_id = selected_object["id"].as_string();
-					std::string style_description = selected_object["description"].as_string();
-					auto st = presentation_style_factory::get_current()->get_style();
-					if (st) {
-						richedit_area->get_character_format(&character_format);
-						if (style_id == "title_style") {
-                            std::string face = first(st->TitleStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-                            character_format.yHeight = st->TitleStyle->text_style.fontSize * pixels_to_twips;
-						}
-						else if (style_id == "subtitle_style") {
-							std::string face = first(st->SubtitleStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-							character_format.yHeight = st->SubtitleStyle->text_style.fontSize * pixels_to_twips;
-						}
-						else if (style_id == "chapter_title_style") {
-							std::string face = first(st->ChapterTitleStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-							character_format.yHeight = st->ChapterTitleStyle->text_style.fontSize * pixels_to_twips	;
-						}
-						else if (style_id == "chapter_subtitle_style") {
-							std::string face = first(st->ChapterSubTitleStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-							character_format.yHeight = st->ChapterSubTitleStyle->text_style.fontSize * pixels_to_twips;
-						}
-						else if (style_id == "paragraph_style") {
-							std::string face = first(st->ParagraphStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-							character_format.yHeight = st->ParagraphStyle->text_style.fontSize * pixels_to_twips;
-						}
-						else if (style_id == "code_style") {
-							std::string face = first(st->CodeStyle->text_style.fontName, ',');
-							strncpy_s(character_format.szFaceName, face.c_str(), sizeof(character_format.szFaceName));
-							character_format.yHeight = st->CodeStyle->text_style.fontSize * pixels_to_twips;
-						}
-                        richedit_area->set_character_format(&character_format);
-					}
+				toolbar->children.push_back(styles_dropdown);
+
+				if (richedit_area) {
+					richedit_area->json_field_name = json_field_name;
 				}
-            };
-			needs_create = true;
+
+				auto blank_control = std::make_shared<paragraph_control>();
+				blank_control->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
+
+				toolbar->children.push_back(blank_control);
+				toolbar->children.push_back(bold_button);
+				toolbar->children.push_back(italic_button);
+				toolbar->children.push_back(underline_button);
+
+				auto blank_control2 = std::make_shared<paragraph_control>();
+				blank_control2->set_box({ 00.0_px, 0.0_px, 20.0_px, 10.0_px });
+
+				toolbar->children.push_back(blank_control2);
+				toolbar->children.push_back(align_left_button);
+				toolbar->children.push_back(align_center_button);
+				toolbar->children.push_back(align_right_button);
+
+				//			toolbar->children.push_back(bullet_button);
+
+				children.push_back(toolbar);
+				children.push_back(richedit_area);
+				needs_create = true;
+			}
+
 
 		}
 
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 		{
+			init();
 			column_layout::on_create(_context, _src);
 		}
 
 		virtual void loaded(int _batch_id) override
-		{
-			init();
+		{			
 			arrange(nullptr, &bounds);
-			needs_create = true;
 		}
 
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
 		{
-			if (needs_create) {
-				create(_context, host);
-				needs_create = false;
-			}
 			container_control::on_draw(_context, _control);
 		}
 
@@ -2786,6 +2818,16 @@ namespace corona
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<writepad_control>(*this);
+			tv->toolbar.reset();
+			tv->italic_button.reset();
+			tv->bold_button.reset();
+			tv->underline_button.reset();
+			tv->align_right_button.reset();
+			tv->align_left_button.reset();
+			tv->align_center_button.reset();
+			tv->bullet_button.reset();
+			tv->styles_dropdown.reset();
+			tv->richedit_area.reset();
 			tv->init();
 			return tv;
 		}

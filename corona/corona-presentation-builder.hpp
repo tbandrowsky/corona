@@ -1799,6 +1799,7 @@ namespace corona
 	public:
 		tab_pane					  pane;
 		std::shared_ptr<command_button_control> tab_button;
+        std::shared_ptr<control_base> controls;
 	};
 
 	class tab_view_control : public container_control
@@ -1993,6 +1994,7 @@ namespace corona
 				if (current_tab != tab_panes.end()) {
 					json_object tab_object = content_frame->get_slice();
 					control_slice += tab_object;
+					data += control_slice;
 				}
 			}
 
@@ -2004,7 +2006,9 @@ namespace corona
 				if (is_selected) {
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
-					service->select_frame(batch_id, content_frame_name, tp.pane.page_name, control_slice);
+					auto controls = tp.controls;
+					validation_error_collection vs;
+                    content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, vs);
 				}
 			}
 		}
@@ -2013,12 +2017,16 @@ namespace corona
 		{
 			current_tab_name = {};
 			tab_panes.clear();
+            auto service = comm_desktop_bus_interface::get_service();
 			for (auto tp : _new_panes) {
 				tab_pane_instance tpi;
 				tpi.pane = tp;
 				if (tpi.pane.id == 0) {
 					tpi.pane.id = id_counter::next();
 				}
+				auto service = comm_desktop_bus_interface::get_service();
+				auto controls = service->get_page_controls(tpi.pane.page_name);
+				tpi.controls = controls;
 				tab_panes.push_back(tpi);
 			}
 			init();
@@ -2987,40 +2995,38 @@ namespace corona
 		set_size(100.0_px, 30.0_px);
 	}
 
-	void frame_layout::navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav)
+	std::shared_ptr<control_base> frame_layout::navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav)
 	{
 		control_builder cb;
 
         if (!_nav) {
-            return;
+            return nullptr;
         }
 
+		/*
 		if (current_presentation && current_page) {
 			for (auto& child : children) {
 				child->on_unsubscribe(current_presentation, current_page);
 			}
 		}
-
-        current_presentation = _nav->presentation;
-        current_page = _nav->parent_page;
+		*/
 
 		auto service = comm_desktop_bus_interface::get_service();
 
-		destroy();
-		children.clear();
+		service->unsubscribe(this);
 
-		for (auto srcchild : _nav->contents_page->root->children)
-		{
-			srcchild->set_hit_word(hit_words);
-			children.push_back(srcchild);
-		}
+		destroy();
+
+		children.clear();
+        children.push_back(_nav->contents);
+		_nav->contents->set_hit_word(hit_words);
 
 		arrange_children();
 
-		for (auto& child : children) {
-			child->on_subscribe(current_presentation, current_page);
-			child->loaded(_batch_id);
-		}
+        auto old_nav = navigation_stack.get_current();
+		navigation_stack.navigate(_nav);
+
+		service->subscribe(this);
 
         if (edit_bars.size() > 0) {
 			for (auto edit_bar_name : edit_bars) {
@@ -3036,40 +3042,32 @@ namespace corona
 		set_errors(errors);
 		set_data(_nav->data);
 
+		loaded(_batch_id);
+
 		needs_create = true;
+		return old_nav ? old_nav->contents : nullptr;
 	}
 
-	void frame_layout::set_contents(int _batch_id, std::string _name, presentation_base* _presentation, page_base* _parent_page, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs)
+	std::shared_ptr<control_base> frame_layout::set_contents(int _batch_id, std::string _name, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs)
 	{
 		errors = _vs;
 		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
 		new_frame->data = _obj;
 		new_frame->name = _name;
-		new_frame->presentation = _presentation;
-		new_frame->parent_page = _parent_page;
-		new_frame->contents.push_back(_contents);
+		new_frame->contents = _contents;
 
 		log_warning("Navigate to -> " + new_frame->name);
 
-		navigation_stack.navigate(new_frame);
-
-		navigate(_batch_id, new_frame);
+		return navigate(_batch_id, new_frame);
 	}
 
 	void frame_layout::set_contents(int _batch_id, presentation_base* _presentation, page_base* _parent_page, page_base* _contents_page, json_object _obj, validation_error_collection& _vs)
 	{
 		errors = _vs;
 		std::shared_ptr<frame_navigation> new_frame = std::make_shared<frame_navigation>();
-		for (auto srcchild : _contents_page->root->children)
-		{
-			auto new_child = srcchild->clone();
-			new_frame->contents.push_back(new_child);
-		}
+		new_frame->contents = _contents_page->root->clone();
 		new_frame->data = _obj;
 		new_frame->name = _contents_page->name;
-        new_frame->presentation = _presentation;
-        new_frame->parent_page = _parent_page;
-		new_frame->contents_page = _contents_page;
 
 		log_warning("Navigate to -> " + new_frame->name);
 

@@ -172,6 +172,9 @@ namespace corona
         virtual void select_control(control_base *_control) = 0;
 		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json_object _obj, bool _reset_nav = false) = 0;
 		virtual void select_frame(int _batch_id, std::string _dest_path, std::string _src_path, json_object _obj, bool _reset_nav, validation_error_collection& _vs) = 0;
+        virtual std::shared_ptr<control_base> get_page_controls(std::string _path) = 0;
+		virtual void subscribe(control_base* _control) = 0;
+		virtual void unsubscribe(control_base* _control) = 0;
 
 		DWORD gui_thread_id = 0;
 

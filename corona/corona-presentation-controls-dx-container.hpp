@@ -377,12 +377,8 @@ namespace corona
 	{
 	public:
 		std::string name;
-		std::vector<std::shared_ptr<control_base>> contents;
+		std::shared_ptr<control_base> contents;
 		json_object data;
-
-		presentation_base* presentation = nullptr;
-		page_base* parent_page = nullptr;
-		page_base* contents_page = nullptr;
 	};
 
 	class frame_navigation_stack
@@ -438,11 +434,10 @@ namespace corona
 		std::string hit_words;
 		std::shared_ptr<corona_bus_command> onload_command;
         frame_navigation_stack navigation_stack;
-        presentation_base* current_presentation = nullptr;
-        page_base* current_page = nullptr;
 		std::vector<std::string> edit_bars;
 		bool needs_create = false;
 		validation_error_collection errors;
+
 	public:
 
 		frame_layout() 
@@ -468,7 +463,7 @@ namespace corona
 			return tv;
 		}
 
-		virtual void navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav);
+		virtual std::shared_ptr<control_base> navigate(int _batch_id, std::shared_ptr<frame_navigation> _nav);
 
 		virtual void navigate_clear(int _batch_id)
 		{
@@ -490,6 +485,7 @@ namespace corona
 
 		virtual void loaded(int _batch_id) override
 		{
+            control_base::loaded(_batch_id);
 			if (onload_command) {
 				// the idea here is that the onload_command is invoked.
 				// the drag is, the command is invoked synchronously, so you don't want to do data loads on on_load, just yet.
@@ -513,7 +509,7 @@ namespace corona
 			return data;
 		}
 
-		virtual void set_contents(int _batch_id, std::string _name, presentation_base* _presentation, page_base* _parent_page, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs);
+		virtual std::shared_ptr<control_base> set_contents(int _batch_id, std::string _name, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs);
 
 		virtual void set_contents(int _batch_id, presentation_base *_presentation, page_base *_parent_page, page_base* _contents, json_object _obj, validation_error_collection& _vs);
 

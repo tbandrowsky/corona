@@ -2290,6 +2290,60 @@ namespace corona
 			}			
 		}
 
+		virtual void subscribe(control_base* _control)
+		{
+			auto current_page = presentation_layer->get_current_page();
+
+            if (_control) {
+                _control->on_subscribe(presentation_layer.get(), current_page);
+            }
+		}
+
+		virtual void unsubscribe(control_base* _control)
+		{
+			auto current_page = presentation_layer->get_current_page();
+
+            if (_control) {
+                _control->on_unsubscribe(presentation_layer.get(), current_page);
+            }
+		}
+
+		virtual std::shared_ptr<control_base> get_page_controls(std::string _src) override
+		{
+			// handle the special team case
+
+			if (_src == "$user_team") {
+				std::string team_name = get_user_team();
+				if (team_name.empty()) {
+					_src = default_page;
+				}
+				else {
+					_src = std::format("home_{0}", team_name);
+				}
+			}
+
+			std::string _frame_contents_page;
+			std::string _form_to_load;
+
+			std::vector<std::string> src_parts = split(_src, '.');
+
+			if (src_parts.size() > 0) {
+				// the page that will be loaded into the frame. This allows the frame to have its own page definition, with controls and commands, separate from the main page
+				_frame_contents_page = src_parts[0];
+			}
+			if (src_parts.size() > 1) {
+				// the form on the page that will be loaded with the data. This allows a specific form to be targeted on the page, rather than just loading the page and hoping it binds to the data correctly
+				_form_to_load = src_parts[1];
+			}
+
+
+			if (presentation_layer->pages.contains(_frame_contents_page)) {
+				auto pg_src = presentation_layer->pages[_frame_contents_page];
+				return pg_src->root;
+			}
+			return nullptr;
+		}
+
 		virtual void select_frame(int _batch_id, std::string _dest, std::string _src, json_object _obj, bool _reset_nav, validation_error_collection& _vs) override
 		{
 		
@@ -2334,7 +2388,7 @@ namespace corona
 				return;
 			}
 						
-			if (current_page && !presentation_layer->pages.contains(_page)) {
+			if (!presentation_layer->pages.contains(_page)) {
 				_target_frame = _page;
                 _page = current_page->name;
 			}
