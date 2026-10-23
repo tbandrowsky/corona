@@ -1932,6 +1932,8 @@ namespace corona
 
         bool is_enabled() 
         {
+            return true;
+
             if (enable_source_frame.empty() || enable_class_name.empty()) {
                 return enabled; // No enabling conditions, always enabled
             }

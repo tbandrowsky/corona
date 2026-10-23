@@ -467,6 +467,7 @@ namespace corona
 
 		virtual void navigate_clear(int _batch_id)
 		{
+			navigation_stack = frame_navigation_stack();
 		}
 
 		virtual void navigate_back(int _batch_id) 
@@ -508,6 +509,7 @@ namespace corona
 
 			return data;
 		}
+
 
 		virtual std::shared_ptr<control_base> set_contents(int _batch_id, std::string _name, std::shared_ptr<control_base> _contents, json_object _obj, validation_error_collection& _vs);
 

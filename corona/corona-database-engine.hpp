@@ -3680,6 +3680,30 @@ private:
         }
 */
 
+	std::string get_description(read_class_sp& classd, std::string field_name, json& descriptions)
+	{
+		auto sections = classd->get_fields_for_ux(this);
+        for (auto& section : sections) {
+			// section_name is a class_name here.
+            // so copilot that's one to look at if you wonder why descriptions are not being found.  the section name is the class name, and the field name is the field name.  so we need to look for a description that is section_name.field_name
+
+            std::string custom_description = section->section_name + "." + field_name;
+            if (descriptions.has_member(custom_description)) {
+                return descriptions[custom_description].as_string();
+            }
+        }
+
+        if (descriptions.has_member(field_name)) {
+            return descriptions[field_name].as_string();
+        }
+
+		if (descriptions.has_member(classd->get_class_name())) {
+			return descriptions[classd->get_class_name()].as_string();
+		}
+
+		return "";
+	}
+
 	json create_ux_map(validation_error_collection& vec, read_class_sp& classd, std::map<std::string, bool>& _card_fields, json& field_mappings, json& descriptions)
 	{
 		json_parser jp;
@@ -3743,10 +3767,11 @@ private:
 			for (auto& field : section->section_fields)
 			{
 				std::string field_class = field->get_field_class();
+                std::string field_name = field->get_field_name();
 
-				std::string tab_name = "tab_" + classd->get_class_name() + "_" + field->get_field_name();
+				std::string tab_name = "tab_" + classd->get_class_name() + "_" + field_name;
 
-				json field_mapping = get_field_mapping(classd, field->get_field_name(), field_mappings);
+				json field_mapping = get_field_mapping(classd, field_name, field_mappings);
 
 				std::string field_ux_class = "";
 				std::string field_tab_type = "";
@@ -3761,9 +3786,6 @@ private:
 					put_json(field_box, jfield_box);
 				}
 
-				std::string custom_description = classd->get_class_name() + "." + field->get_field_name();
-                std::string general_descdription = field->get_field_name();
-
 				if (field_tab_type == "custom" || field_tab_type == "inventory") {
 					json tab = jp.create_object();
 					tab.put_member_string("page_name", tab_name);
@@ -3772,20 +3794,16 @@ private:
 					tab.put_member_string("ux_class", field_ux_class);
 					tab.put_member_string("tab_type", field_tab_type);
 					tab.put_member_bool("default_tab", default_tab);
-					if (descriptions.has_member(custom_description)) {
-						std::string description = descriptions[custom_description].as_string();
+                    std::string description = get_description(classd, field_name, descriptions);	
+					if (!description.empty()) {
 						tab.put_member_string("description", description);
-					}
-					else if (descriptions.has_member(general_descdription)) {
-                        std::string description = descriptions[general_descdription].as_string();
-                        tab.put_member_string("description", description);
 					}
 					tabs.push_back(tab);
 				}
 				else if (field_tab_type == "edit")
 				{
 					json tab_field = jp.create_object();
-					tab_field.put_member_string("field_name", field->get_field_name());
+					tab_field.put_member_string("field_name", field_name);
 					tab_field.put_member_string("field_label", field->get_label());
 					tab_field.put_member_string("field_class", field->get_field_class());
                     tab_field.put_member_string("field_ux_class", field_ux_class);
@@ -3801,12 +3819,8 @@ private:
 						tab.put_member_string("ux_class", "scintilla");
 						tab.put_member_string("tab_type", field_tab_type);
 						tab.put_member_bool("default_tab", default_tab);
-						if (descriptions.has_member(custom_description)) {
-							std::string description = descriptions[custom_description].as_string();
-							tab.put_member_string("description", description);
-						}
-						else if (descriptions.has_member(general_descdription)) {
-							std::string description = descriptions[general_descdription].as_string();
+						std::string description = get_description(classd, field_name, descriptions);
+						if (!description.empty()) {
 							tab.put_member_string("description", description);
 						}
 						tabs.push_back(tab);
@@ -3837,12 +3851,8 @@ private:
 						tab.put_member_string("member_name", field->get_field_name());
 						tab.put_member_string("tab_type", "object");
 						tab.put_member_bool("default_tab", default_tab);
-						if (descriptions.has_member(custom_description)) {
-							std::string description = descriptions[custom_description].as_string();
-							tab.put_member_string("description", description);
-						}
-						else if (descriptions.has_member(general_descdription)) {
-							std::string description = descriptions[general_descdription].as_string();
+						std::string description = get_description(classd, field_name, descriptions);
+						if (!description.empty()) {
 							tab.put_member_string("description", description);
 						}
 						tabs.push_back(tab);
@@ -3872,21 +3882,17 @@ private:
 					}
 					tab.put_member_string("tab_type", "list");
 					tab.put_member_bool("default_tab", default_tab);
-					if (descriptions.has_member(custom_description)) {
-						std::string description = descriptions[custom_description].as_string();
-						tab.put_member_string("description", description);
-					}
-					else if (descriptions.has_member(general_descdription)) {
-						std::string description = descriptions[general_descdription].as_string();
+					std::string description = get_description(classd, field_name, descriptions);
+					if (!description.empty()) {
 						tab.put_member_string("description", description);
 					}
 					tabs.push_back(tab);
 				}
 
-				if (_card_fields.find(field->get_field_name()) != _card_fields.end()) {
+				if (_card_fields.find(field_name) != _card_fields.end()) {
 					json new_card_field = jp.create_object();
-					new_card_field.put_member("field_name", field->get_field_name());
-					new_card_field.put_member("expression", field->get_field_name());
+					new_card_field.put_member("field_name", field_name);
+					new_card_field.put_member("expression", field_name);
 					card_fields.push_back(new_card_field);
 				}
 
@@ -3899,8 +3905,8 @@ private:
 		default_tab.put_member_string("name", classd->get_class_name());
 		default_tab.put_member_string("member_name", ".");
 		default_tab.put_member_string("tab_type", "edit");
-		if (descriptions.has_member(classd->get_class_name())) {
-			std::string description = descriptions[classd->get_class_name()].as_string();
+		std::string description = get_description(classd, "", descriptions);
+		if (!description.empty()) {	
 			default_tab.put_member_string("description", description);
 		}
 		tabs.push_front(default_tab);

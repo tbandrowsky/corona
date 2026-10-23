@@ -2008,6 +2008,7 @@ namespace corona
 					int batch_id = service->start_batch();
 					auto controls = tp.controls;
 					validation_error_collection vs;
+					content_frame->navigate_clear(batch_id);
                     content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, vs);
 				}
 			}
