@@ -3223,7 +3223,7 @@ private:
 					}
 
 					// Generate object details page
-					json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box);
+					json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box, card_pages);
 					if (!object_pages.empty()) {
 						form_sources.put_member(class_name, std::format("object_{}", class_name));
 						pages.push_back_array(object_pages);
@@ -3427,8 +3427,25 @@ private:
 							pages.push_back_array(card_pages);
 						}
 
+						json card_contents = card_pages
+							.get_first_element()
+							.clone();
+
+						json card_client;
+						json using_clause = card_contents["using"];
+						if (using_clause.object()) {
+							json parameters = using_clause["parameters"];
+
+							std::string source_page = using_clause["page_name"].as_string();
+							if (source_page == "card_container") {
+                                card_client = card_container_template.clone();
+								card_client.apply_abbreviations(parameters);
+							}
+							card_client = card_client["children"];
+						}
+
 						// Generate object details page
-						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box, card_client);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
@@ -3731,6 +3748,9 @@ private:
 
 		for (auto& section : field_sections)
 		{
+			if (section->section_name == "sys_object")
+				continue;
+
 			int section_fields_count = 0;
 
 			for (auto& field : section->section_fields)
@@ -3899,7 +3919,6 @@ private:
 			}
 		}
 
-
 		std::string tab_name = "tab_" + classd->get_class_name() + "_fields";
 		default_tab.put_member_string("page_name", tab_name);
 		default_tab.put_member_string("name", classd->get_class_name());
@@ -3910,6 +3929,15 @@ private:
 			default_tab.put_member_string("description", description);
 		}
 		tabs.push_front(default_tab);
+
+		json details_tab = jp.create_object();
+		details_tab.put_member_string("page_name", "object_details");
+		details_tab.put_member_string("name", "System");
+		details_tab.put_member_string("member_name", ".");
+		details_tab.put_member_string("tab_type", "object_details");
+		details_tab.put_member_bool("default_tab", false);
+		details_tab.put_member_string("description", "System details");
+		tabs.push_back(details_tab);
 
 		page.put_member("tabs", tabs);
         card.put_member("fields", card_fields);
@@ -3978,7 +4006,8 @@ private:
         json get_field_mapping(read_class_sp& classd, const std::string& field_name, json& field_mappings)
 		{
 			std::string key = "." + field_name;
-			json empty;
+			json general;
+			json_parser jp;
 
 			if (field_mappings.has_member(key)) {
 				return field_mappings[key];
@@ -4008,7 +4037,24 @@ private:
 				}
 			}
 
-			return empty;
+            std::string temp = R"({			
+				"class_name": "readonly_field",
+					"box" : {
+					"width": {
+						"amount": 1.0,
+							"units" : "container"
+					},
+						"height" : {
+						"amount": 50,
+							"units" : "pixels"
+					}
+				},
+				"tab_type": "edit"
+			})";
+
+			general = jp.parse_object(temp);
+
+			return general;
 		}
 
 		json generate_tab_edit_page(validation_error_collection& _errors, json& tab_template, 
@@ -4231,7 +4277,8 @@ private:
 			json& tab_edit_template,
 			json& create_command_class_template, 
 			json& form_sources,
-			json& section_box)
+			json& section_box,
+			json& card_pages)
 		{
 			json_parser jp;
 
@@ -4243,7 +4290,9 @@ private:
 			object_page.put_member("page_name", "object_" + class_name);
 
 			auto src_tabs = class_mappings["page"]["tabs"];
-            auto dest_tabs = object_page.find_member("using.parameters.$details_contents.tabs");
+			auto dest_params = object_page.find_member("using.parameters");
+			auto dest_tabs = object_page.find_member("using.parameters.$details_contents.tabs");
+            dest_params.put_member("$details_card", card_pages);
 			auto parameters = object_page.find_member("using.parameters");
             parameters.put_member("$icon_image_file", class_name + ".png");
 
@@ -4284,6 +4333,19 @@ private:
 				else if (tab_type == "edit") {
 					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);
 				}
+                else if (tab_type == "object_details") {
+					dest_tabs.push_back(new_tab);
+					continue;
+                }
+                else {
+                    validation_error ve;
+                    ve.class_name = class_name;
+                    ve.count = 1;
+                    ve.message = "Unknown tab_type '" + tab_type + "' for " + class_name + "." + member_name;
+                    ve.filename = __FILE__;
+                    ve.line_number = __LINE__;
+                    _errors.push_back(ve);
+                }
 
 				if (tab_page.object()) {
 					tab_page.put_member("page_name", page_name);

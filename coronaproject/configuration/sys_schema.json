@@ -165,16 +165,16 @@
       "base_class_name": "sys_object",
       "class_description": "Address",
       "parents": [ "person"  ],
-      "full_text": [ "street", "building", "city", "state", "zip", "country" ],
+      "full_text": [ "street1", "street2", "city", "state", "zip", "country" ],
       "fields": {
-        "street": {
+        "street1": {
           "field_type": "string",
           "label": "Street",
           "max_length": 100
         },
-        "building": {
+        "street2": {
           "field_type": "string",
-          "label": "Building/Apt",
+          "label": "Apartment #",
           "max_length": 100
         },
         "city": {
@@ -250,7 +250,7 @@
           "max_length": 50
         }
       },
-      "field_order": [ "building", "street", "city", "state", "zip", "country" ]
+      "field_order": [ "street1", "street2", "city", "state", "zip", "country" ]
     },
     {
       "class_name": "connection",
@@ -990,23 +990,19 @@
       "class_name": "property",
       "base_class_name": "address",
       "class_description": "A property",
-      "full_text": [ "street", "city", "state", "zip" ],
+      "full_text": [  ],
       "fields": {
         "property_name": {
           "field_type": "string",
           "label": "Property Name",
           "max_length": 100
         },
-        "boundaries": {
-          "field_type": "path",
-          "label": "Boundaries"
-        },
         "building": [ "building" ],
         "records": [ "record" ],
         "assets": [ "asset" ],
         "property_value": "double"
       },
-      "field_order": [ "latitude", "longitude", "boundaries", "notes", "deeds" ]
+      "field_order": [ "property_name", "street1", "street2", "city", "state", "zip", "country" ]
     },
 
     {
@@ -1292,6 +1288,20 @@
         "tab_type": "edit"
       },
       "sys_object.class_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.team": {
         "class_name": "readonly_field",
         "box": {
           "width": {
@@ -1608,7 +1618,7 @@
       }
 
     },
-    "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web" ],
     "classes": {
       "journal": "default",
       "diary": "default",

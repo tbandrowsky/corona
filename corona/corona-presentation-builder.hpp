@@ -30,6 +30,13 @@ namespace corona
 	class placeholder_control;
 	class animations_control;
 
+	class readonly_field_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
+	};
+
 	class horizontal_field_layout {
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
@@ -320,7 +327,7 @@ namespace corona
 
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
 	using memo_field_control = field_layout<default_layout, memo_control, default_memo_layout>;
-	using readonly_field_control = field_layout<default_layout, readonly_control, default_field_layout>;
+	using readonly_field_control = field_layout<default_layout, readonly_control, readonly_field_layout>;
 	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
 	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
 	using checkbox_field_control = field_layout<default_layout, checkbox_control, default_field_layout>;

@@ -365,7 +365,6 @@ namespace corona
 		virtual void set_text(const std::string& _text)
 		{
 			text = _text;
-            system_monitoring_interface::active_mon->log_information("text_base " + std::to_string((int64_t)this) + "::set_text " + json_field_name + " = " + text);
 			SetWindowText(window, text.c_str());
 		}
 
@@ -397,8 +396,6 @@ namespace corona
 			if (data.has_member(json_field_name)) {
 				data.put_member(json_field_name, text);
 			}
-
-            system_monitoring_interface::active_mon->log_information("edit " + std::to_string((int64_t)this) + "::get_text " + json_field_name + " = " + text);
 
 			return text;
 		}

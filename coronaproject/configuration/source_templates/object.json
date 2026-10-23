@@ -5,6 +5,8 @@
     "page_name": "object_container",
     "parameters": {
       "$icon_image_file": "",
+      "$details_card": {
+      },
       "$details_contents": [
         {
           "class_name": "tab_view",
