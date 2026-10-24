@@ -4071,14 +4071,7 @@ private:
             auto fmb = field_mappings[".section"]["box"];
 
 			if (!cfm.array()) {
-				validation_error ve;
-				ve.class_name = classd->get_class_name();
-                ve.filename = __FILE__;
-				ve.line_number = __LINE__;
-				ve.count = 1;
-                ve.message = "tab_edit.fields must be supplied for " + classd->get_class_name();
-				_errors.push_back(ve);
-				return jp.create_object();
+				return tab_contents;
 			}
 
 			bool default_set = true;

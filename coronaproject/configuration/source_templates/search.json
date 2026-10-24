@@ -26,7 +26,7 @@
           "padding": "8 pixels",
           "children": [
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "chaptertitle",
               "name": "score_title",
               "box": {
                 "width": "450 pixels",
@@ -35,7 +35,7 @@
               "text": "SCORE"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "chaptertitle",
               "name": "list_title",
               "box": {
                 "width": "410 pixels",
@@ -44,7 +44,7 @@
               "text": "LIST"
             },
             {
-              "class_name": "chaptersubtitle",
+              "class_name": "chaptertitle",
               "name": "edit_title",
               "box": {
                 "width": "1.0 remaining",
@@ -114,7 +114,7 @@
                   ]
                 },
                 {
-                  "class_name": "chaptersubtitle",
+                  "class_name": "chaptertitle",
                   "name": "navigation_title",
                   "box": {
                     "width": "450 pixels",
@@ -135,7 +135,7 @@
                   ]
                 },
                 {
-                  "class_name": "chaptersubtitle",
+                  "class_name": "chaptertitle",
                   "name": "section_title",
                   "box": {
                     "width": "450 pixels",

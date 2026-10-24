@@ -3036,6 +3036,9 @@ namespace corona
         if (!_nav) {
             return nullptr;
         }
+        if (!_nav->contents) {
+            return nullptr;
+        }
 
 		/*
 		if (current_presentation && current_page) {

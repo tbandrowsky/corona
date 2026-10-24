@@ -3,9 +3,20 @@
   "page_name": "object_details",
   "children": [
     {
+        "class_name": "chaptertitle",
+        "prompt": "Object (Read Only)",
+        "box": {
+          "width": "1.0 container",
+          "height": "35 pixels"
+        }
+    },
+    {
       "class_name": "row",
       "name": "object_details",
-      "box": "full_container",
+      "box": {
+        "width": "1.0 container",
+        "height": "1.0 remaining"
+      },
       "children": [
         {
           "class_name": "column",
@@ -16,8 +27,9 @@
           },
           "children": [
             {
-              "class_name": "chaptersubtitle",
-              "prompt": "Object (Read Only)",
+              "class_name": "paragraph",
+              "json_field_name": "class_name",
+              "text_template": "Class Name: {class_name}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -25,31 +37,17 @@
             },
             {
               "class_name": "paragraph",
-              "prompt": "",
-              "box": "spacer_row_box"
-            },
-            {
-              "class_name": "readonly_field",
-              "json_field_name": "class_name",
-              "prompt": "Class Name:",
-              "box": {
-                "width": "1.0 container",
-                "height": "35 pixels"
-              }
-            },
-            {
-              "class_name": "readonly_field",
               "json_field_name": "object_id",
-              "prompt": "Object ID:",
+              "text_template": "Object ID: {object_id}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
               }
             },
             {
-              "class_name": "readonly_field",
+              "class_name": "paragraph",
               "json_field_name": "team",
-              "prompt": "Team:",
+              "text_template": "Team: {team}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -77,43 +75,35 @@
           "children": [
             {
               "class_name": "paragraph",
-              "prompt": "",
-              "box": {
-                "width": "1.0 container",
-                "height": "35 pixels"
-              }
-            },
-            {
-              "class_name": "readonly_field",
               "json_field_name": "created",
-              "prompt": "Created:",
+              "text_template": "Created: {created}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
               }
             },
             {
-              "class_name": "readonly_field",
+              "class_name": "paragraph",
               "json_field_name": "created_by",
-              "prompt": "By:",
+              "text_template": "Created By: {created_by}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
               }
             },
             {
-              "class_name": "readonly_field",
+              "class_name": "paragraph",
               "json_field_name": "updated",
-              "prompt": "Updated:",
+              "text_template": "Updated: {updated}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
               }
             },
             {
-              "class_name": "readonly_field",
+              "class_name": "paragraph",
               "json_field_name": "updated_by",
-              "prompt": "By:",
+              "text_template": "Updated By: {updated_by}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"

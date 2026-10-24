@@ -226,18 +226,14 @@
       },
       "chapter_subtitle_style": {
         "text_style": {
-          "font_name": "Century Gothic,Arial",
+          "font_name": "Book Antiqua,Century Schoolbook,Arial",
           "font_size": 16,
-          "underline": false,
+          "underline": true,
           "vertical_alignment": "near"
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
-        },
-        "box_fill_brush": {
-          "class_name": "solid_brush",
-          "color": "000000"
         }
       },
       "paragraph_style": {
