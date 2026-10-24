@@ -397,7 +397,7 @@ namespace corona
 				"read_only": true,	
 				"label": "Field Type",
 				"required": true,
-				"enumeration": ["string", "number", "int64", "datetime", "boolean", "array", "object", "selection", "chest", "path", "brush", "bitmap"]
+				"enum": ["string", "number", "int64", "datetime", "boolean", "array", "object", "selection", "chest", "path", "brush", "bitmap"]
 			},
 			"required":"bool",
 			"format":"string",
@@ -4102,6 +4102,37 @@ private:
 				content.put_member_string("name", field_name);
 				content.put_member("json_field_name", field_name);
                 content.put_member_bool("default_focus", default_set);
+
+				if (field_class_name == "combobox" || field_class_name == "comboboxex" || field_class_name == "combobox_field" || field_class_name == "comboboxex_field") {
+					auto cfield = classd->get_field(field_name);
+					if (cfield->get_field_type() == field_types::ft_string) {
+						auto options = cfield->get_options();
+                        auto sfo = std::dynamic_pointer_cast<string_field_options>(options);
+						if (sfo->allowed_values.size()>0) {
+                            json choices = jp.create_object();
+							/*			id_field = _src["id_field"].as_string();
+			text_field = _src["text_field"].as_string();
+			selected_field = _src["selected_field"].as_string();
+			items = *_src["items"].array_impl();
+			*/
+							choices.put_member_string("id_field", "id");
+                            choices.put_member_string("value_field", "value");
+                            choices.put_member_string("selected_field", "selected");
+
+                            json items = jp.create_array();
+                            for (auto value : sfo->allowed_values) {
+                                json item = jp.create_object();
+                                item.put_member_string("id", value);
+                                item.put_member_string("value", value);
+                                item.put_member_bool("selected", false);
+                                items.push_back(item);
+                            }
+                            choices.put_member("items", items);
+							content.put_member("choices", choices);
+						}
+					}
+				}
+
 				default_set = false;
 				tab_contents.push_back(content);
 			}

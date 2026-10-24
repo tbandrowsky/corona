@@ -1219,14 +1219,12 @@ namespace corona
 
 			text_control_base::put_json(_src);
 			json jcommand = _src["on_click"];
-			if (jcommand.empty()) {
-				system_monitoring_interface::active_mon->log_information("button control missing click_command", __FILE__, __LINE__);
-				system_monitoring_interface::active_mon->log_json(_src);
-			}
 
 			icon_path = _src["icon_path"].as_string();
 
-			corona::put_json(click_command, jcommand);
+			if (jcommand.object()) {
+				corona::put_json(click_command, jcommand);
+			}
 		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)

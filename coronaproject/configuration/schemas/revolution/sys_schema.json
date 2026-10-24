@@ -74,7 +74,7 @@
           "field_type": "string",
           "label": "State",
           "max_length": 100,
-          "enumeration": [
+          "enum": [
             "AL",
             "AK",
             "AZ",
@@ -915,7 +915,7 @@
 
           "field_type": "string",
           "label": "Buy/Sell",
-          "enumeration": [ "buy", "sell" ]
+          "enum": [ "buy", "sell" ]
         }
       }
     },
@@ -1492,7 +1492,7 @@
         },
         "tab_type": "edit"
       },
-      "string.enumeration": {
+      "string.enum": {
         "class_name": "combobox_field",
         "box": {
           "width": {
