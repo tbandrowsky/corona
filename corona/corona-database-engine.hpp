@@ -3734,7 +3734,6 @@ private:
 		json object_tab = jp.create_object();
 
 		ux_map.put_member("card", card);
-        ux_map.put_member("tab_edit", tab_edit);
         ux_map.put_member("page", page);
 
         auto fields = classd->get_fields();
@@ -3942,6 +3941,9 @@ private:
 		page.put_member("tabs", tabs);
         card.put_member("fields", card_fields);
         tab_edit.put_member("fields", tab_edit_fields);
+        if (tab_edit_fields.size() > 0) {
+			ux_map.put_member("tab_edit", tab_edit);
+		}
 
 		return ux_map;
     }
@@ -4046,6 +4048,9 @@ private:
 			json_parser jp;
 
 			json tab_contents = jp.create_array();
+            if (tab_template.empty()) {
+                return tab_contents;
+            }
 
 			json tab_edit_page = tab_template.clone();
 
