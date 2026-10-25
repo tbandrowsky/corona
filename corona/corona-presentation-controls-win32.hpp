@@ -1592,8 +1592,7 @@ namespace corona
 
 	class combobox_control : public dropdown_control_base
 	{
-		std::string text_buffer;
-
+	
 	public:
 
         std::function<void(combobox_control* _src)> on_selection_changed;
@@ -1613,7 +1612,28 @@ namespace corona
 		virtual DWORD get_window_style() { return ComboWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
 
+		virtual std::string get_text()
+		{
+			std::string text;
+			int length = ::GetWindowTextLength(window) + 1;
+			char window_buffer[512] = {};
 
+			if (length < sizeof(window_buffer))
+			{
+				GetWindowTextA(window, window_buffer, length);
+				text = window_buffer;
+			}
+			else {
+				char* buffer = new char[length];
+				if (buffer) {
+					GetWindowTextA(window, buffer, length);
+					text = buffer;
+					delete[] buffer;
+				}
+			}
+
+			return text;
+		}
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
@@ -1625,10 +1645,13 @@ namespace corona
 					}
 					});
 			}
+			_page->on_command(this, [this](command_event evt) {
+				if (evt.command == CBN_EDITUPDATE) {
+					list_filter = get_text();
+					data_changed();
+				}
+			});
 		}
-
-
-
 	};
 
 	class comboboxex_control : public dropdown_control_base

@@ -194,7 +194,7 @@ namespace corona {
 
 		virtual void onHostCreated();
 		virtual void onCreated();
-		virtual void onCommand(HWND _ctrl);
+		virtual void onCommand(HWND _ctrl, UINT _command);
 		virtual void onTextChanged(HWND _ctrl);
 		virtual void onDropDownChanged(HWND _ctrl);
 		virtual void onListBoxChanged(HWND _ctrl);
@@ -961,11 +961,12 @@ namespace corona {
 		return result;
 	}
 
-	void presentation::onCommand(HWND buttonHwnd)
+	void presentation::onCommand(HWND buttonHwnd, UINT command)
 	{
 		auto cp = current_page.lock();
 		command_event ce;
 		ce.bus = bus;
+		ce.command = command;
 		if (cp) {
             control_base* ctrl = (control_base*)::GetWindowLongPtr(buttonHwnd, GWLP_USERDATA);
 			cp->handle_command(ctrl, ce);

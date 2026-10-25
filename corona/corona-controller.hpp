@@ -58,8 +58,9 @@ namespace corona
 
 		virtual void onHostCreated() = 0;
 		virtual void onCreated() = 0;
-		virtual void onCommand(HWND _ctrl) = 0;
+		virtual void onCommand(HWND _ctrl, UINT _command) = 0;
 		virtual void onTextChanged(HWND _ctrl) = 0;
+		virtual void onNotify(HWND _ctrl, int _message) = 0;
 		virtual void onDropDownChanged(HWND _ctrl) = 0;
 		virtual void onListBoxChanged(HWND _ctrl) = 0;
 		virtual void onListViewChanged(HWND _ctrl) = 0;

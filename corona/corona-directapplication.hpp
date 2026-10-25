@@ -736,10 +736,8 @@ namespace corona
 					UINT controlId = LOWORD(wParam);
 					UINT notificationCode = HIWORD(wParam);
 					HWND controlWindow = (HWND)lParam;
+					currentController->onCommand(controlWindow, notificationCode);
 					switch (notificationCode) {
-						case BN_CLICKED: // button or menu
-							currentController->onCommand(controlWindow);
-							return 0;
 						case EN_CHANGE:
 							currentController->onTextChanged(controlWindow);
 							return 0;

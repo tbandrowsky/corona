@@ -59,6 +59,7 @@ namespace corona {
 	class command_event : public control_event
 	{
 	public:
+		int command;
 	};
 
 	class mouse_event : public control_event
@@ -90,6 +91,11 @@ namespace corona {
 	};
 
 	class mouse_right_click_event : public mouse_event
+	{
+
+	};
+
+	class notify_event : public control_event
 	{
 
 	};
