@@ -1000,7 +1000,7 @@ namespace corona
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
-	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
+	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWN;
 	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
 	const int PressButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_NOTIFY;

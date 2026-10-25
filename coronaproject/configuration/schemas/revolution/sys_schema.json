@@ -1492,7 +1492,21 @@
         },
         "tab_type": "edit"
       },
-      "string.enum": {
+      "state": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "occupation": {
         "class_name": "combobox_field",
         "box": {
           "width": {
@@ -1506,6 +1520,8 @@
         },
         "tab_type": "edit"
       }
+
+
     },
     "card_fields": [ "name", "description", "first_name", "last_name", "street", "city", "phone", "email", "fax", "web", "class_name" ],
     "classes": {
