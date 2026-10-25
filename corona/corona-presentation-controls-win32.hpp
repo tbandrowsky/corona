@@ -820,6 +820,7 @@ namespace corona
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
+		std::string list_filter;
 
 		dropdown_control_base()
 		{
@@ -851,7 +852,7 @@ namespace corona
 		};
 
 
-		void data_changed()
+		virtual void data_changed() 
 		{
 			if (auto phost = window_host.lock()) {
 				std::string selectedText = phost->getComboSelectedText(id);
@@ -861,6 +862,11 @@ namespace corona
 					json element = choices.items[i];
 					int lid = element[choices.id_field].as_int();
 					std::string description = element[choices.text_field].as_string();
+                    if (list_filter.size() > 0) {
+                        if (description.find(list_filter) == std::string::npos) {
+                            continue;
+                        }
+                    }
 					phost->addComboItem(id, description, lid);
 				}
 				phost->setComboSelectedText(id, selectedText);
@@ -1586,6 +1592,8 @@ namespace corona
 
 	class combobox_control : public dropdown_control_base
 	{
+		std::string text_buffer;
+
 	public:
 
         std::function<void(combobox_control* _src)> on_selection_changed;
@@ -1627,12 +1635,9 @@ namespace corona
 	{
 
 	public:
-
 		std::function<void(comboboxex_control* _src)> on_selection_changed;
 
 		using windows_control::window_host;
-		list_data choices;
-		std::shared_ptr<corona_bus_command> select_command;
 
 		comboboxex_control();
 		comboboxex_control(control_base* _parent, int _id);
@@ -1653,6 +1658,9 @@ namespace corona
 		virtual const char* get_window_class() { return WC_COMBOBOXEXA; }
 		virtual DWORD get_window_style() { return ComboWindowStyles; }
 		virtual DWORD get_window_ex_style() { return 0; }
+
+
+		// Function to populate ComboBoxEx with filtered items
 
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{

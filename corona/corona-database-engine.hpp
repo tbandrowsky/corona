@@ -4116,14 +4116,14 @@ private:
 			items = *_src["items"].array_impl();
 			*/
 							choices.put_member_string("id_field", "id");
-                            choices.put_member_string("value_field", "value");
+                            choices.put_member_string("text_field", "text");
                             choices.put_member_string("selected_field", "selected");
 
                             json items = jp.create_array();
                             for (auto value : sfo->allowed_values) {
                                 json item = jp.create_object();
                                 item.put_member_string("id", value);
-                                item.put_member_string("value", value);
+                                item.put_member_string("text", value);
                                 item.put_member_bool("selected", false);
                                 items.push_back(item);
                             }
