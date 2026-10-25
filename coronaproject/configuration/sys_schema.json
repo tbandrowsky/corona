@@ -111,7 +111,7 @@
         "category": {
           "field_type": "string",
           "label": "Category",
-          "enumeration": [
+          "enum": [
             "Occupation Treason",
             "Occupation Brutality",
             "Occupation Lies",
@@ -186,7 +186,7 @@
           "field_type": "string",
           "label": "State",
           "max_length": 100,
-          "enumeration": [
+          "enum": [
             "AL",
             "AK",
             "AZ",
@@ -459,7 +459,7 @@
         "classification": {
           "field_type": "string",
           "label": "Classification",
-          "enumeration": [
+          "enum": [
             "Positive Leadership",
             "Technical or Trade Skill",
             "Charitable",
@@ -510,7 +510,7 @@
         "event_result": {
           "field_type": "string",
           "label": "Event Result",
-          "enumeration": [
+          "enum": [
             "More Likely Russian Asset",
             "Less Likely Russian Asset"
           ]
@@ -543,7 +543,7 @@
         "occupation": {
           "field_type": "string",
           "label": "Occupation",
-          "enumeration": [
+          "enum": [
             "Laborer, General",
             "Laborer, Critical",
             "White-Collar, Office",
@@ -1587,7 +1587,7 @@
         },
         "tab_type": "edit"
       },
-      "string.enumeration": {
+      "string.enum": {
         "class_name": "combobox_field",
         "box": {
           "width": {
