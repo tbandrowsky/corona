@@ -1638,15 +1638,20 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			windows_control::on_subscribe(_presentation, _page);
-			if (on_selection_changed) {
 				_page->on_list_changed(this, [this](list_changed_event evt) {
 					if (on_selection_changed) {
 						on_selection_changed(this);
+
 					}
+					SetWindowText(window, evt.selected_text.c_str());
+					list_filter = evt.selected_text;
 					});
-			}
 			_page->on_command(this, [this](command_event evt) {
-				if (evt.command == CBN_EDITUPDATE) {
+				if (evt.command == CBN_EDITCHANGE) {
+					if (!SendMessage(window, CB_GETDROPPEDSTATE, 0, 0))
+						SendMessage(window, CB_SHOWDROPDOWN, TRUE, 0);
+				}
+				else if (evt.command == CBN_EDITUPDATE) {
 					list_filter = get_text();
 					data_changed();
 				}
