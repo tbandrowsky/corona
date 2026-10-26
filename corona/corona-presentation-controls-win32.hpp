@@ -820,7 +820,6 @@ namespace corona
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
-		std::string list_filter;
 
 		dropdown_control_base()
 		{
@@ -836,6 +835,82 @@ namespace corona
 		dropdown_control_base(control_base* _parent, int _id) : windows_control(_parent, _id)
 		{
 		}
+
+		std::string get_selected_text()
+		{
+			std::string value = "";
+			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
+			if (newSelection > -1) {
+				int length = (int)::SendMessage(window, CB_GETLBTEXTLEN, newSelection, 0);
+				char* buffer = new char[length + 16];
+				if (buffer) {
+					::SendMessage(window, CB_GETLBTEXT, newSelection, (LPARAM)buffer);
+					value = buffer;
+					delete[] buffer;
+				}
+			}
+			return value;
+		}
+
+		int get_selected_index()
+		{
+			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
+			return newSelection;
+		}
+
+		int get_selected_value()
+		{
+			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
+			int data = (int)::SendMessage(window, CB_GETITEMDATA, newSelection, 0);
+			return data;
+		}
+
+		void set_selected_index(int index_lists)
+		{
+			::SendMessage(window, CB_SETCURSEL, index_lists, NULL);
+		}
+
+		void set_selected_text(std::string& _text)
+		{
+			set_selected_text(_text.c_str());
+		}
+
+		void set_selected_text(const char* _text)
+		{
+			auto index_lists = ::SendMessage(window, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)_text);
+			auto result = ::SendMessage(window, CB_SETCURSEL, index_lists, NULL);
+		}
+
+		void set_selected_value(int value)
+		{
+			int count = (int)::SendMessage(window, CB_GETCOUNT, NULL, NULL);
+			for (int i = 0; i < count; i++) {
+				int data = (int)::SendMessage(window, CB_GETITEMDATA, i, 0);
+				if (data == value) {
+					::SendMessage(window, CB_SETCURSEL, i, NULL);
+					break;
+				}
+			}
+		}
+
+		void clear_combo_items()
+		{
+			::SendMessage(window, CB_RESETCONTENT, NULL, NULL);
+		}
+
+		void add_combo_item(std::string& _text, int _data)
+		{
+			add_combo_item(_text.c_str(), _data);
+		}
+
+		void add_combo_item(const char* _text, int _data)
+		{
+			int newItemIndex = (int)::SendMessage(window, CB_ADDSTRING, NULL, (LPARAM)_text);
+			if (newItemIndex != CB_ERR) {
+				int err = (int)::SendMessage(window, CB_SETITEMDATA, newItemIndex, (LPARAM)_data);
+			}
+		}
+
 
 		virtual std::shared_ptr<control_base> clone()
 		{
@@ -854,22 +929,16 @@ namespace corona
 
 		virtual void data_changed() 
 		{
-			if (auto phost = window_host.lock()) {
-				std::string selectedText = phost->getComboSelectedText(id);
-				phost->clearComboItems(id);
+				std::string selectedText = get_selected_text();
+				clear_combo_items();
 				for (int i = 0; i < choices.items.size(); i++)
 				{
 					json element = choices.items[i];
 					int lid = element[choices.id_field].as_int();
 					std::string description = element[choices.text_field].as_string();
-                    if (list_filter.size() > 0) {
-                        if (description.find(list_filter) == std::string::npos) {
-                            continue;
-                        }
-                    }
-					phost->addComboItem(id, description, lid);
+					add_combo_item(description, lid);
 				}
-				phost->setComboSelectedText(id, selectedText);
+				set_selected_text(selectedText);
 			}
 		}
 
@@ -904,11 +973,9 @@ namespace corona
 		virtual json get_selected_object()
 		{
 			json j;
-			if (auto ptr = window_host.lock()) {
-				int index_lists = ptr->getComboSelectedIndex(id);
-				if (index_lists >= 0) {
-					j = choices.items.get_element(index_lists);
-				}
+			int index_lists = get_selected_index();
+			if (index_lists >= 0) {
+				j = choices.items.get_element(index_lists);
 			}
 			return j;
 		}
@@ -930,12 +997,10 @@ namespace corona
 			if (not json_field_name.empty()) {
 				json_parser jp;
 
-				if (auto ptr = window_host.lock()) {
-					std::string new_text = ptr->getComboSelectedText(id);
-					int index_lists = ptr->getComboSelectedIndex(id);
-					int value = ptr->getComboSelectedValue(id);
-					slice_object.put_member(json_field_name, new_text);
-				}
+				std::string new_text = get_selected_text();
+				int index_lists = get_selected_index();
+				int value = get_selected_value();
+				control_slice.put_member(json_field_name, new_text);
 			}
 			return slice_object;
 		}
@@ -943,13 +1008,11 @@ namespace corona
 		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
 			control_base::set_data(_data, _include_children);
-			if (slice_object.has_member(json_field_name)) {
+			std::string existing = get_selected_text();
+			if (control_slice.has_member(json_field_name)) {
 				std::string text = slice_object[json_field_name]->as_string();
-				if (auto ptr = window_host.lock()) {
-					std::string existing = ptr->getComboSelectedText(id);
-					if (existing != text) {
-						ptr->setComboSelectedText(id, text.c_str());
-					}
+				if (existing != text) {
+					set_selected_text(text.c_str());
 				}
 			}
 			return _data;
@@ -1000,7 +1063,7 @@ namespace corona
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
-	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWN;
+	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
 	const int PressButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_NOTIFY;
@@ -1638,22 +1701,9 @@ namespace corona
 		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
 		{
 			windows_control::on_subscribe(_presentation, _page);
-				_page->on_list_changed(this, [this](list_changed_event evt) {
-					if (on_selection_changed) {
-						on_selection_changed(this);
-
-					}
-					SetWindowText(window, evt.selected_text.c_str());
-					list_filter = evt.selected_text;
-					});
-			_page->on_command(this, [this](command_event evt) {
-				if (evt.command == CBN_EDITCHANGE) {
-					if (!SendMessage(window, CB_GETDROPPEDSTATE, 0, 0))
-						SendMessage(window, CB_SHOWDROPDOWN, TRUE, 0);
-				}
-				else if (evt.command == CBN_EDITUPDATE) {
-					list_filter = get_text();
-					data_changed();
+			_page->on_list_changed(this, [this](list_changed_event evt) {
+				if (on_selection_changed) {
+					on_selection_changed(this);
 				}
 			});
 		}
