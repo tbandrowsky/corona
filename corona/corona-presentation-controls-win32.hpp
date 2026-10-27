@@ -1676,7 +1676,7 @@ namespace corona
 	
 	public:
 
-        std::function<void(combobox_control* _src)> on_selection_changed;
+        std::function<void(list_changed_event lce, combobox_control* _src)> on_selection_changed;
 
 		combobox_control() { id = id_counter::next(); }
 		combobox_control(control_base* _parent, int _id) : dropdown_control_base(_parent, _id) { ; }
@@ -1721,7 +1721,7 @@ namespace corona
 			windows_control::on_subscribe(_presentation, _page);
 			_page->on_list_changed(this, [this](list_changed_event evt) {
 				if (on_selection_changed) {
-					on_selection_changed(this);
+					on_selection_changed(evt, this);
 				}
 			});
 		}
@@ -1731,7 +1731,7 @@ namespace corona
 	{
 
 	public:
-		std::function<void(comboboxex_control* _src)> on_selection_changed;
+		std::function<void(list_changed_event lce, comboboxex_control* _src)> on_selection_changed;
 
 		using windows_control::window_host;
 
@@ -1764,7 +1764,7 @@ namespace corona
 			if (on_selection_changed) {
 				_page->on_list_changed(this, [this](list_changed_event evt) {
 					if (on_selection_changed) {
-						on_selection_changed(this);
+						on_selection_changed(evt, this);
 					}
 					});
 			}
@@ -2561,7 +2561,7 @@ namespace corona
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
 
-				command_dropdown->on_selection_changed = [this](combobox_control* _src) {
+				command_dropdown->on_selection_changed = [this](list_changed_event lce, combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
 					json selected_object = _src->get_selected_object();
 					if (selected_object.object()) {
@@ -2570,7 +2570,7 @@ namespace corona
 
                         if (change_command) {
                             change_command->set_parameter(command_parameter_name, target_name);
-
+							lce.bus->run_command(lce.bus->start_batch(), change_command);
                         }
 					}
 				};
@@ -2734,7 +2734,7 @@ namespace corona
 				styles_dropdown->set_list(styles_list);
 				needs_create = true;
 
-				styles_dropdown->on_selection_changed = [this](combobox_control* _src) {
+				styles_dropdown->on_selection_changed = [this](list_changed_event lce, combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
 					json selected_object = _src->get_selected_object();
 					if (selected_object.object()) {
