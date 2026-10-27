@@ -839,6 +839,9 @@ namespace corona
 		std::string get_selected_text()
 		{
 			std::string value = "";
+			if (!window)
+                return value;
+
 			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
 			if (newSelection > -1) {
 				int length = (int)::SendMessage(window, CB_GETLBTEXTLEN, newSelection, 0);
@@ -854,12 +857,16 @@ namespace corona
 
 		int get_selected_index()
 		{
+			if (!window)
+				return -1;
 			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
 			return newSelection;
 		}
 
 		int get_selected_value()
 		{
+			if (!window)
+				return -1;
 			int newSelection = (int)::SendMessage(window, CB_GETCURSEL, 0, 0);
 			int data = (int)::SendMessage(window, CB_GETITEMDATA, newSelection, 0);
 			return data;
@@ -877,17 +884,23 @@ namespace corona
 
 		void set_selected_text(const char* _text)
 		{
+			if (!window)
+				return;
 			auto index_lists = ::SendMessage(window, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)_text);
 			auto result = ::SendMessage(window, CB_SETCURSEL, index_lists, NULL);
+			SendMessage(window, EM_SETSEL, (WPARAM)-1, (LPARAM)0); // Remove selection
 		}
 
 		void set_selected_value(int value)
 		{
+			if (!window)
+				return;
 			int count = (int)::SendMessage(window, CB_GETCOUNT, NULL, NULL);
 			for (int i = 0; i < count; i++) {
 				int data = (int)::SendMessage(window, CB_GETITEMDATA, i, 0);
 				if (data == value) {
 					::SendMessage(window, CB_SETCURSEL, i, NULL);
+					SendMessage(window, EM_SETSEL, (WPARAM)-1, (LPARAM)0); // Remove selection
 					break;
 				}
 			}
@@ -929,17 +942,16 @@ namespace corona
 
 		virtual void data_changed() 
 		{
-				std::string selectedText = get_selected_text();
-				clear_combo_items();
-				for (int i = 0; i < choices.items.size(); i++)
-				{
-					json element = choices.items[i];
-					int lid = element[choices.id_field].as_int();
-					std::string description = element[choices.text_field].as_string();
-					add_combo_item(description, lid);
-				}
-				set_selected_text(selectedText);
+			std::string selectedText = get_selected_text();
+			clear_combo_items();
+			for (int i = 0; i < choices.items.size(); i++)
+			{
+				json element = choices.items[i];
+				int lid = element[choices.id_field].as_int();
+				std::string description = element[choices.text_field].as_string();
+				add_combo_item(description, lid);
 			}
+			set_selected_text(selectedText);
 		}
 
 		int get_dropdown_size()
@@ -1002,7 +1014,7 @@ namespace corona
 				int value = get_selected_value();
 				control_slice.put_member(json_field_name, new_text);
 			}
-			return slice_object;
+			return control_slice;
 		}
 
 		virtual json_object set_data(json_object _data, bool _include_children) override
@@ -1010,7 +1022,7 @@ namespace corona
 			control_base::set_data(_data, _include_children);
 			std::string existing = get_selected_text();
 			if (control_slice.has_member(json_field_name)) {
-				std::string text = slice_object[json_field_name]->as_string();
+				std::string text = control_slice[json_field_name]->as_string();
 				if (existing != text) {
 					set_selected_text(text.c_str());
 				}
@@ -1049,6 +1061,12 @@ namespace corona
 				_page->on_list_changed(this, [this](list_changed_event lce) {
 					lce.bus->run_command(lce.batch_id, select_command);
 					});
+
+                _page->on_command(this, [this](command_event ce) {
+                    if (ce.command == CBN_EDITCHANGE) {
+                        
+                    }
+                });
 			}
 		}
 
@@ -1063,7 +1081,7 @@ namespace corona
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
-	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
+	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWN;
 	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
 	const int PressButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_NOTIFY;
@@ -2489,6 +2507,117 @@ namespace corona
 
 	};
 
+	class splitbutton_control : public row_layout
+	{
+		std::shared_ptr<command_button_control>				command_button;
+		std::shared_ptr<combobox_control>					command_dropdown;
+		std::shared_ptr<corona_bus_command>					change_command;
+
+		layout_rect		button_layout;
+		layout_rect		dropdown_layout;
+		list_data		commands_list;
+
+		std::string     command_parameter_name;
+
+	public:
+
+		splitbutton_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+		splitbutton_control(const splitbutton_control& _src) = default;
+		splitbutton_control() = default;
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<splitbutton_control>(*this);
+			tv->command_dropdown.reset();
+            tv->command_button.reset();
+			return tv;
+		}
+
+		virtual ~splitbutton_control() { ; }
+
+		virtual void init()
+		{
+
+            dropdown_layout = {};
+            dropdown_layout.width = 1.0_remaining;
+            dropdown_layout.height = 35.0_px;
+
+			needs_create = false;
+
+            if (!command_button) {
+                command_button = std::make_shared<command_button_control>(this, id_counter::next());
+
+				button_layout = {};
+				button_layout.width = 35.0_px;
+				button_layout.height = 35.0_px;
+
+                command_button->set_box(button_layout);
+            }
+
+            if (!command_dropdown) {
+				needs_create = true;
+                command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
+				command_dropdown->set_box(dropdown_layout);
+				command_dropdown->set_list(commands_list);
+				needs_create = true;
+
+				command_dropdown->on_selection_changed = [this](combobox_control* _src) {
+					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
+					json selected_object = _src->get_selected_object();
+					if (selected_object.object()) {
+						std::string target_id = selected_object[commands_list.id_field].as_string();
+						std::string target_name = selected_object[commands_list.text_field].as_string();
+
+                        if (change_command) {
+                            change_command->set_parameter(command_parameter_name, target_name);
+                        }
+					}
+				};
+            }
+		}
+
+		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
+		{
+			init();
+			row_layout::on_create(_context, _src);
+		}
+
+		virtual void loaded(int _batch_id) override
+		{
+			arrange(nullptr, &bounds);
+		}
+
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
+		{
+			container_control::on_draw(_context, _control);
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			json_parser jp;
+
+			row_layout::get_json(_dest);
+			json jlist_data = jp.create_object();
+			commands_list.get_json(jlist_data);
+			_dest.put_member("list", jlist_data);
+            _dest.put_member("command_parameter_name", command_parameter_name);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			json_parser jp;
+
+			row_layout::put_json(_src);
+			json jlist_data = _src["list"];
+			commands_list.put_json(jlist_data);
+			command_parameter_name = _src["command_parameter_name"].as_string();
+
+			if (command_dropdown) {
+				command_dropdown->set_list(commands_list);
+			}
+		}
+	};
+
 	class writepad_control : public column_layout
 	{
 
@@ -2646,7 +2775,7 @@ namespace corona
 							richedit_area->set_character_format(&character_format);
 						}
 					}
-					};	
+				};	
 
 			}
 
@@ -2948,25 +3077,23 @@ namespace corona
 	void comboboxex_control::data_changed()
 	{
 		if (IsWindow(window)) {
-			if (auto phost = window_host.lock()) {
-				phost->clearComboItems(id);
-				for (int i = 0; i < choices.items.size(); i++)
-				{
-					json c = choices.items.get_element(i);
-					if (c.has_member(choices.id_field) and c.has_member(choices.text_field)) {
-						int lid = c[choices.id_field].as_int();
-						std::string description = c[choices.text_field].as_string();
+			clear_combo_items();
+			for (int i = 0; i < choices.items.size(); i++)
+			{
+				json c = choices.items.get_element(i);
+				if (c.has_member(choices.id_field) and c.has_member(choices.text_field)) {
+					int lid = c[choices.id_field].as_int();
+					std::string description = c[choices.text_field].as_string();
 
-						COMBOBOXEXITEMA cbex = {};
-						cbex.mask = CBEIF_TEXT | CBEIF_LPARAM;
-						cbex.iItem = -1;
-						cbex.pszText = (LPSTR)description.c_str();
-						cbex.iImage = 0;
-						cbex.iSelectedImage = 0;
-						cbex.iIndent = 0;
-						cbex.lParam = lid;
-						SendMessage(windows_control::window, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
-					}
+					COMBOBOXEXITEMA cbex = {};
+					cbex.mask = CBEIF_TEXT | CBEIF_LPARAM;
+					cbex.iItem = -1;
+					cbex.pszText = (LPSTR)description.c_str();
+					cbex.iImage = 0;
+					cbex.iSelectedImage = 0;
+					cbex.iIndent = 0;
+					cbex.lParam = lid;
+					SendMessage(windows_control::window, CBEM_INSERTITEM, 0, (LPARAM)&cbex);
 				}
 			}
 			set_window_size();

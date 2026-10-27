@@ -120,6 +120,7 @@ namespace corona
 
         virtual void set_parameter(std::string _name, std::string _value)
 		{
+            corona_bus_command::set_parameter(_name, _value);
 			if (_stricmp(_name.c_str(), "form_name") == 0) {
 				form_name = _value;
 			}

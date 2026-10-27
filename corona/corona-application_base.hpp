@@ -55,19 +55,6 @@ namespace corona
 		virtual void setEditText(int textControlId, const char* _string) = 0;
 		virtual std::string getEditText(int textControlId) = 0;
 
-		virtual std::string getComboSelectedText(int ddlControlId) = 0;
-		virtual int getComboSelectedValue(int ddlControlId) = 0;
-		virtual int getComboSelectedIndex(int ddlControlId) = 0;
-		virtual void setComboSelectedIndex(int ddlControlId, int index_lists) = 0;
-		virtual void setComboSelectedText(int ddlControlId, std::string& _text) = 0;
-		virtual void setComboSelectedText(int ddlControlId, const char* _text) = 0;
-		virtual void setComboSelectedValue(int ddlControlId, int value) = 0;
-		virtual void clearComboItems(int ddlControlId) = 0;
-		virtual void addComboItem(int ddlControlId, std::string& _text, int _data) = 0;
-		virtual void addComboItem(int ddlControlId, const char* _text, int _data) = 0;
-		virtual void addFoldersToCombo(int ddlControlId, const char* _path) = 0;
-		virtual void addPicturesFoldersToCombo(int ddlControlId) = 0;
-
 		virtual std::string getListSelectedText(int ddlControlId) = 0;
 		virtual int getListSelectedValue(int ddlControlId) = 0;
 		virtual int getListSelectedIndex(int ddlControlId) = 0;
