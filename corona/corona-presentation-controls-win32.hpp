@@ -2513,11 +2513,11 @@ namespace corona
 		std::shared_ptr<combobox_control>					command_dropdown;
 		std::shared_ptr<corona_bus_command>					change_command;
 
-		layout_rect		button_layout;
-		layout_rect		dropdown_layout;
-		list_data		commands_list;
+		layout_rect											button_layout;
+		layout_rect											dropdown_layout;
+		list_data											commands_list;
 
-		std::string     command_parameter_name;
+		std::string											command_parameter_name;
 
 	public:
 
@@ -2545,7 +2545,8 @@ namespace corona
 			needs_create = false;
 
             if (!command_button) {
-                command_button = std::make_shared<command_button_control>(this, id_counter::next());
+				needs_create = true;
+				command_button = std::make_shared<command_button_control>(this, id_counter::next());
 
 				button_layout = {};
 				button_layout.width = 35.0_px;
@@ -2559,7 +2560,6 @@ namespace corona
                 command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
-				needs_create = true;
 
 				command_dropdown->on_selection_changed = [this](combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
@@ -2570,6 +2570,7 @@ namespace corona
 
                         if (change_command) {
                             change_command->set_parameter(command_parameter_name, target_name);
+
                         }
 					}
 				};
