@@ -1347,6 +1347,7 @@ namespace corona
 		corona_client_response response;
 		std::string constructor_frame;
 		json constructor_copy;
+		json constructor_copies;
 		std::string target_frame;
 		std::string source_frame;
 
@@ -1360,18 +1361,39 @@ namespace corona
 			return "create_object";
 		}
 
+		std::string get_create_class_name()
+		{
+			std::string class_to_create;
+			if (parameters.has_member("create_class_name")) {
+				class_to_create = parameters["create_class_name"].as_string();
+			}
+			else {
+				class_to_create = create_class_name;
+			}
+			return class_to_create;
+		}
+
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json parent_key = jp.create_object();
 
-			if (!constructor_frame.empty() && constructor_copy.object()) {
+            std::string class_to_create = get_create_class_name();
+
+            json working_constructor = jp.create_object();
+            if (constructor_copies.object()) {
+                working_constructor = constructor_copies[class_to_create];
+            }
+			if (working_constructor.empty()) {
+				working_constructor = constructor_copy;
+			}
+			if (!constructor_frame.empty() && working_constructor.object()) {
 				auto ctrl = _bus->find_control(constructor_frame);
 
 				if (ctrl) {
 					json_object dresult = ctrl->get_data();
 					json data = dresult;
-					auto members = constructor_copy.get_members();
+					auto members = working_constructor.get_members();
 					for (auto member : members) {
 						std::string src_name = member.second.as_string();
 						if (src_name == reference_field) {
@@ -1395,7 +1417,14 @@ namespace corona
 
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
-			auto response = _bus->create_object(instance, create_class_name);
+			std::string class_to_create;
+            if (parameters.has_member("create_class_name")) {
+                class_to_create = parameters["create_class_name"].as_string();
+            }
+            else {
+                class_to_create = create_class_name;
+            }
+			auto response = _bus->create_object(instance, class_to_create);
 
 			if (response.success && request.object()) {
 
@@ -1439,9 +1468,14 @@ namespace corona
 
 			_dest.put_member("class_name", "create_object"sv);
 			_dest.put_member("constructor_frame", constructor_frame);
-			_dest.put_member("constructor_copy", constructor_copy);
+            if (constructor_copy.object()) {
+                _dest.put_member("constructor_copy", constructor_copy);
+            }
 			_dest.put_member("target_frame", target_frame);
 			_dest.put_member("source_frame", source_frame);
+			if (constructor_copies.object()) {
+				_dest.put_member("constructor_copies", constructor_copies);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1462,6 +1496,7 @@ namespace corona
 
 			constructor_frame = _src["constructor_frame"].as_string();
 			constructor_copy = _src["constructor_copy"];
+			constructor_copies = _src["constructor_copies"];
 			create_class_name = _src["create_class_name"].as_string();
 			if (_src.has_member("target_frame") && _src.has_member("source_frame")) {
 				target_frame = _src["target_frame"].as_string();

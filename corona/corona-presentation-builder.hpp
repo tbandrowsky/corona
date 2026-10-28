@@ -42,7 +42,7 @@ namespace corona
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
 		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
-		layout_rect status_box = { 0.0_px, 25.0_px, 0.10_container, 20.0_px };
+		layout_rect status_box = { 0.0_px, 25.0_px, 1.0_container, 20.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 

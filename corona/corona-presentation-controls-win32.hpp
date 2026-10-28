@@ -2518,6 +2518,7 @@ namespace corona
 		list_data											commands_list;
 
 		std::string											command_parameter_name;
+		json commmand_button_spec;
 
 	public:
 
@@ -2552,6 +2553,7 @@ namespace corona
 				button_layout.height = 35.0_px;
 
                 command_button->set_box(button_layout);
+                command_button->put_json(commmand_button_spec);
             }
 
             if (!command_dropdown) {
@@ -2601,6 +2603,9 @@ namespace corona
 			commands_list.get_json(jlist_data);
 			_dest.put_member("list", jlist_data);
             _dest.put_member("command_parameter_name", command_parameter_name);
+			if (command_button) {
+				_dest.put_member("command_button", commmand_button_spec);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -2611,6 +2616,7 @@ namespace corona
 			json jlist_data = _src["list"];
 			commands_list.put_json(jlist_data);
 			command_parameter_name = _src["command_parameter_name"].as_string();
+			commmand_button_spec = _src["command_button"];
 
 			if (command_dropdown) {
 				command_dropdown->set_list(commands_list);

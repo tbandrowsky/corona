@@ -2069,6 +2069,20 @@
         "tab_type": "custom",
         "default_tab": true
       },
+      ".scripture": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
       ".message_text": {
         "class_name": "writepad",
         "box": {

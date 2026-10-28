@@ -4221,6 +4221,15 @@ private:
 
                 auto field = classd->get_field(member_name);
 				for (auto allowed_class : field->get_allowed_classes()) {
+
+					auto classdef = read_lock_class(allowed_class);
+					auto descendants =classdef->get_descendants();
+
+					if (descendants.size()>1) 
+					{
+						continue;
+					}
+
 					json new_item = create_command_class_template.clone();
 
                     json update_filter = jp.create_object();				

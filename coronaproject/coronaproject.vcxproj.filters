@@ -74,4 +74,7 @@
   <ItemGroup>
     <Text Include="configuration\pages\dummy.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="configuration\source_templates\command_splitbutton.json" />
+  </ItemGroup>
 </Project>

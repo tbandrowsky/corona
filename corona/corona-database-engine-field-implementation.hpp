@@ -1842,14 +1842,22 @@ namespace corona
 					ve.field_name = _field_name;
 					ve.filename = get_file_name(__FILE__);
 					ve.line_number = __LINE__;
-					ve.message = std::format("Value '{0}' must be between {1} and {2} characters long", chumpy, minimum_length, maximum_length);
+					ve.message = std::format("Value '{0}' must: ", chumpy);
+                    if (maximum_length > 0) {
+                        ve.message += std::format("Less than {0} characters long.  ", maximum_length);
+                    }
+                    if (minimum_length > 0) {
+                        ve.message += std::format("At least {0} characters long.  ", minimum_length);
+                    }
 					if (match_pattern.size() > 0) {
-						ve.message += std::format(" and must match '{0}'", match_pattern);
+						ve.message += std::format("Match '{0}'.  ", match_pattern);
 					}
 					if (allowed_values.size())
 					{
+						ve.message += "On the list:(";
 						std::string setx = join(allowed_values, ", ");
-						ve.message += std::format(" and must be within '{0}'", setx);
+						setx = trim(setx, 50);
+						ve.message += std::format(" '{0}').  ", setx);
 					}
 					_validation_errors.push_back(ve);
 					return false;

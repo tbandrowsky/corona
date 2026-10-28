@@ -1,0 +1,30 @@
+{
+  "class_name": "split_button",
+  "name": "$split_button_name",
+  "command_parameter_name": "create_class_name",
+  "list": {
+    "id_field": "class_name",
+    "items": [
+      "$create_classes"
+    ]
+  },
+  "command_button": {
+    "class_name": "command_button",
+    "name": "new_item",
+    "image": "$create_button_image",
+    "text": "$create_button_text",
+    "icon": "Add",
+    "box": {
+      "width": "100 pixels",
+      "height": "75 pixels"
+    },
+    "on_click": {
+      "class_name": "create_object",
+      "create_class_name": "",
+      "source_frame": "$class_edit_page",
+      "target_frame": "frame_selected",
+      "message": "$create_button_message",
+      "constructor_copies": {}
+    }
+  }
+}
