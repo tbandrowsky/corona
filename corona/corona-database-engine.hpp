@@ -4219,6 +4219,19 @@ private:
 
 				std::string tab_list_table_name = "tl_" + class_name + "_" + member_name + "_table";
 
+				json command_dropdown = create_command_class_template.clone();
+				std::string class_name = classd->get_class_name();
+				command_dropdown.apply_abbreviations({
+						{ "$split_button_name", jp.from_string(class_name + "_button")},
+						{ "$create_button_image", jp.from_string(std::format("{}.png", class_name)) },
+						{ "$create_button_text", jp.from_string(class_name) },
+						{ "$create_button_message", jp.from_string("new " + class_name) },
+						{ "$class_edit_page", form_sources[class_name] }
+					});
+
+				json constructor_copies = jp.create_object();
+				json sources = jp.create_object();
+
                 auto field = classd->get_field(member_name);
 				for (auto allowed_class : field->get_allowed_classes()) {
 
@@ -4230,21 +4243,7 @@ private:
 						continue;
 					}
 
-					json new_item = create_command_class_template.clone();
-
                     json update_filter = jp.create_object();				
-					new_item.apply_abbreviations({
-							{ "$create_button_class", jp.from_string(allowed_class) },
-							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
-							{ "$create_button_image", jp.from_string(std::format("{}.png", allowed_class)) },
-							{ "$create_button_text", jp.from_string(allowed_class) },
-							{ "$create_button_message", jp.from_string("new " + allowed_class) },
-							{ "$class_edit_page", form_sources[allowed_class] }
-					});
-
-					json click_command = new_item["on_click"];
-					click_command.put_member_string("create_class_name", allowed_class);
-					click_command.put_member_string("constructor_frame", "frame_selected");
 
 					// so now, we need to get the class definition from the child, so we can get the field
 					// name where we need to stick our reference to the parent in the child 
@@ -4255,7 +4254,9 @@ private:
 						if (ref_target) {
 							json jcopy = jp.create_object();
 							jcopy.put_member_string(ref_target->get_field_name(), reference_field);
-							click_command.put_member("constructor_copy", jcopy);
+                            constructor_copies.put_member(allowed_class, jcopy);
+							json source = form_sources[allowed_class];
+                            sources.put_member(allowed_class, source);
 						}
 						else
 						{
@@ -4268,12 +4269,14 @@ private:
 					}
 
 					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
-					click_command.put_member_string("source_frame", form);
-					click_command.put_member_string("target_frame", "frame_selected");
-					new_item.put_member_string("message", "Create " + allowed_class);
-
-                    tab_create_commands.push_back(new_item);
 				}
+
+				command_dropdown.apply_abbreviations({
+		{ "$constructor_copies", constructor_copies },
+		{ "$sources", sources },
+					});
+
+				tab_create_commands.push_back(command_dropdown);
 
 				json abbreviations = jp.create_object();
 				abbreviations.put_member("$tab_list_commands", tab_create_commands);

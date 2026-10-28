@@ -24,7 +24,8 @@
       "source_frame": "$class_edit_page",
       "target_frame": "frame_selected",
       "message": "$create_button_message",
-      "constructor_copies": {}
+      "constructor_copies": "$constructor_copies",
+      "sources": "$sources"
     }
   }
 }

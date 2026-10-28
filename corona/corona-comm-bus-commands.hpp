@@ -1350,6 +1350,7 @@ namespace corona
 		json constructor_copies;
 		std::string target_frame;
 		std::string source_frame;
+		std::shared_ptr<corona_class_page_map> sources;
 
 		corona_create_object_command()
 		{
@@ -1449,13 +1450,26 @@ namespace corona
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 
+			std::string class_to_create;
+			if (parameters.has_member("create_class_name")) {
+				class_to_create = parameters["create_class_name"].as_string();
+			}
+			else {
+				class_to_create = create_class_name;
+			}
+
             json_object obj = corona::to_object(response.data.value());
 			if (response.errors.size() == 0) {
 				_bus->object_updated(obj);
 				set_properties(_bus);
 			}
-			if (!target_frame.empty() && !source_frame.empty()) {
-				_bus->select_frame(batch_id, target_frame, source_frame, obj, true, response.errors);
+			std::string edit_frame = target_frame;
+
+			if (sources && sources->pages_by_class.contains(class_to_create)) {
+				edit_frame = sources->pages_by_class[class_to_create];
+			}
+			if (!edit_frame.empty() && !source_frame.empty()) {
+				_bus->select_frame(batch_id, edit_frame, source_frame, obj, true, response.errors);
 			}
 			return response.data;
 		}
@@ -1475,6 +1489,9 @@ namespace corona
 			_dest.put_member("source_frame", source_frame);
 			if (constructor_copies.object()) {
 				_dest.put_member("constructor_copies", constructor_copies);
+			}
+			if (sources) {
+				sources->get_json(_dest);
 			}
 		}
 
@@ -1505,6 +1522,10 @@ namespace corona
 			else {
 				target_frame = "";
 				source_frame = "";
+			}
+			if (_src.has_member("sources")) {
+				sources = std::make_shared<corona_class_page_map>();
+				sources->put_json(_src);
 			}
 		}
 
