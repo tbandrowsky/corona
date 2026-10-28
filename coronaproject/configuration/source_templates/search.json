@@ -96,19 +96,29 @@
                     {
                       "class_name": "code",
                       "name": "invasion_score_card_title",
-                      "prompt": "INVADER SCORE {invasion_score}",
+                      "prompt": "MISSION SCORE {revolution_score}",
                       "box": {
                         "width": "1.0 container",
                         "height": "40 pixels"
                       }
                     },
                     {
-                      "class_name": "code",
-                      "name": "training_score_card_title",
-                      "prompt": "YOUR SCORE {training_score}",
+                      "class_name": "command_button",
+                      "name": "mission_button",
+                      "image": "mission.png",
+                      "text": "To Mission",
                       "box": {
-                        "width": "1.0 container",
-                        "height": "40 pixels"
+                        "width": "100 pixels",
+                        "height": "75 pixels"
+                      },
+                      "on_click": {
+                        "class_name": "load_object",
+                        "form_name": "search_input",
+                        "detail_frame": "frame_selected",
+                        "object_key": {
+                          "class_name": "mission",
+                          "object_id": 42
+                        }
                       }
                     }
                   ]

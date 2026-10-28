@@ -1081,7 +1081,7 @@ namespace corona
 	const int DisplayOnlyWindowStyles = WS_VISIBLE | WS_CHILD;
 	const int EditWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
 	const int RichEditWindowStyles = WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL;
-	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWN;
+	const int ComboWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int ComboExWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | CBS_DROPDOWNLIST;
 	const int PushButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_NOTIFY;
 	const int PressButtonWindowStyles = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_FLAT | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_NOTIFY;
@@ -2507,7 +2507,7 @@ namespace corona
 
 	};
 
-	class splitbutton_control : public row_layout
+	class split_button_control : public row_layout
 	{
 		std::shared_ptr<command_button_control>				command_button;
 		std::shared_ptr<combobox_control>					command_dropdown;
@@ -2521,19 +2521,19 @@ namespace corona
 
 	public:
 
-		splitbutton_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
-		splitbutton_control(const splitbutton_control& _src) = default;
-		splitbutton_control() = default;
+		split_button_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+		split_button_control(const split_button_control& _src) = default;
+		split_button_control() = default;
 
 		virtual std::shared_ptr<control_base> clone()
 		{
-			auto tv = std::make_shared<splitbutton_control>(*this);
+			auto tv = std::make_shared<split_button_control>(*this);
 			tv->command_dropdown.reset();
             tv->command_button.reset();
 			return tv;
 		}
 
-		virtual ~splitbutton_control() { ; }
+		virtual ~split_button_control() { ; }
 
 		virtual void init()
 		{
@@ -2541,7 +2541,6 @@ namespace corona
             dropdown_layout = {};
             dropdown_layout.width = 1.0_remaining;
             dropdown_layout.height = 35.0_px;
-
 			needs_create = false;
 
             if (!command_button) {

@@ -164,7 +164,7 @@
       "class_name": "address",
       "base_class_name": "sys_object",
       "class_description": "Address",
-      "parents": [ "person"  ],
+      "parents": [ "person" ],
       "full_text": [ "street1", "street2", "city", "state", "zip", "country" ],
       "fields": {
         "street1": {
@@ -414,7 +414,7 @@
       "class_name": "title",
       "base_class_name": "record",
       "class_description": "Title",
-      "full_text": [ "general_terms", "URL" ],  
+      "full_text": [ "general_terms", "URL" ],
       "parents": [],
       "fields": {
         "general_terms": {
@@ -446,73 +446,542 @@
       "field_order": [ "problem", "resolution" ]
     },
     {
+      "class_name": "holy_cite",
+      "base_class_name": "sys_object",
+      "class_description": "Holy Book Reference",
+      "parents": [ "incident" ]
+    },
+    {
+      "class_name": "bible_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Christian Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi",
+            "Matthew",
+            "Mark",
+            "Luke",
+            "John",
+            "Acts",
+            "Romans",
+            "1 Corinthians",
+            "2 Corinthians",
+            "Galatians",
+            "Ephesians",
+            "Philippians",
+            "Colossians",
+            "1 Thessalonians",
+            "2 Thessalonians",
+            "1 Timothy",
+            "2 Timothy",
+            "Titus",
+            "Philemon",
+            "Hebrews",
+            "James",
+            "1 Peter",
+            "2 Peter",
+            "1 John",
+            "2 John",
+            "3 John",
+            "Jude",
+            "Revelation"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "koran_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Islamic Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Surah",
+          "enum": [
+            "Al-Fatihah (The Opening)",
+            "Al-Baqarah (The Cow)",
+            "Ali 'Imran (Family of Imran)",
+            "An-Nisa (The Women)",
+            "Al-Ma'idah (The Table Spread)",
+            "Al-An'am (The Cattle)",
+            "Al-A'raf (The Heights)",
+            "Al-Anfal (The Spoils of War)",
+            "At-Tawbah (The Repentance)",
+            "Yunus (Jonah)",
+            "Hud",
+            "Yusuf (Joseph)",
+            "Ar-Ra'd (The Thunder)",
+            "Ibrahim (Abraham)",
+            "Al-Hijr",
+            "An-Nahl (The Bee)",
+            "Al-Isra (The Night Journey)",
+            "Al-Kahf (The Cave)",
+            "Maryam (Mary)",
+            "Ta-Ha",
+            "Al-Anbiya (The Prophets)",
+            "Al-Hajj (The Pilgrimage)",
+            "Al-Mu'minun (The Believers)",
+            "An-Nur (The Light)",
+            "Al-Furqan (The Criterion)",
+            "Ash-Shu'ara (The Poets)",
+            "An-Naml (The Ant)",
+            "Al-Qasas (The Stories)",
+            "Al-Ankabut (The Spider)",
+            "Ar-Rum (The Romans)",
+            "Luqman",
+            "As-Sajdah (The Prostration)",
+            "Al-Ahzab (The Confederates)",
+            "Saba (Sheba)",
+            "Fatir (Originator)",
+            "Ya-Sin",
+            "As-Saffat (Those Who Set the Ranks)",
+            "Sad",
+            "Az-Zumar (The Groups)",
+            "Ghafir (The Forgiver)",
+            "Fussilat",
+            "Ash-Shura (Consultation)",
+            "Az-Zukhruf (The Gold Adornments)",
+            "Ad-Dukhan (The Smoke)",
+            "Al-Jathiyah (The Kneeling)",
+            "Al-Ahqaf (The Wind-Curved Sandhills)",
+            "Muhammad",
+            "Al-Fath (The Victory)",
+            "Al-Hujurat (The Rooms)",
+            "Qaf",
+            "Adh-Dhariyat (The Winnowing Winds)",
+            "At-Tur (The Mount)",
+            "An-Najm (The Star)",
+            "Al-Qamar (The Moon)",
+            "Ar-Rahman (The Most Merciful)",
+            "Al-Waqi'ah (The Inevitable Event)",
+            "Al-Hadid (The Iron)",
+            "Al-Mujadilah (The Pleading Woman)",
+            "Al-Hashr (The Gathering)",
+            "Al-Mumtahanah (The Woman Tested)",
+            "As-Saff (The Ranks)",
+            "Al-Jumu'ah (Friday Congregation)",
+            "Al-Munafiqun (The Hypocrites)",
+            "At-Taghabun (Mutual Loss and Gain)",
+            "At-Talaq (Divorce)",
+            "At-Tahrim (Prohibition)",
+            "Al-Mulk (The Sovereignty)",
+            "Al-Qalam (The Pen)",
+            "Al-Haqqah (The Reality)",
+            "Al-Ma'arij (The Ascending Stairways)",
+            "Nuh (Noah)",
+            "Al-Jinn",
+            "Al-Muzzammil (The Enwrapped One)",
+            "Al-Muddaththir (The Cloaked One)",
+            "Al-Qiyamah (The Resurrection)",
+            "Al-Insan (The Human)",
+            "Al-Mursalat (The Emissaries)",
+            "An-Naba (The Tidings)",
+            "An-Nazi'at (Those Who Pull Out)",
+            "Abasa (He Frowned)",
+            "At-Takwir (The Folding Up)",
+            "Al-Infitar (The Cleaving)",
+            "Al-Mutaffifin (Defrauding)",
+            "Al-Inshiqaq (The Splitting Open)",
+            "Al-Buruj (The Constellations)",
+            "At-Tariq (The Night Comer)",
+            "Al-A'la (The Most High)",
+            "Al-Ghashiyah (The Overwhelming Event)",
+            "Al-Fajr (The Dawn)",
+            "Al-Balad (The City)",
+            "Ash-Shams (The Sun)",
+            "Al-Layl (The Night)",
+            "Ad-Duha (The Morning Brightness)",
+            "Ash-Sharh (The Relief)",
+            "At-Tin (The Fig)",
+            "Al-Alaq (The Clinging Substance)",
+            "Al-Qadr (The Power)",
+            "Al-Bayyinah (The Clear Proof)",
+            "Az-Zalzalah (The Earthquake)",
+            "Al-Adiyat (The Chargers)",
+            "Al-Qari'ah (The Calamity)",
+            "At-Takathur (Rivalry in Worldly Increase)",
+            "Al-Asr (Time)",
+            "Al-Humazah (The Slanderer)",
+            "Al-Fil (The Elephant)",
+            "Quraysh",
+            "Al-Ma'un (Small Kindnesses)",
+            "Al-Kawthar (Abundance)",
+            "Al-Kafirun (The Disbelievers)",
+            "An-Nasr (The Divine Support)",
+            "Al-Masad (The Palm Fiber)",
+            "Al-Ikhlas (Sincerity)",
+            "Al-Falaq (The Daybreak)",
+            "An-Nas (Mankind)"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "tanakh_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Jewish Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
       "class_name": "incident",
       "base_class_name": "sys_object",
-      "class_description": "Incident",
+      "class_description": "Actions of a Russian Asset",
       "full_text": [ "story" ],
       "parents": [ "person" ],
       "fields": {
-        "story": {
+        "incident_description": {
           "field_type": "string",
-          "label": "Story"
+          "label": "Incident Description"
         },
-        "classification": {
+        "date_occurred": {
+          "field_type": "datetime",
+          "label": "Date Occurred"
+        },
+        "spirtual_references": [ "holy_cite" ]
+      },
+      "field_order": [ "incident_description", "date_occurred", "spirtual_references" ]
+    },
+    {
+      "class_name": "betrayal",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets betray God and the USA.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
           "field_type": "string",
-          "label": "Classification",
+          "label": "Treason Attempt",
           "enum": [
-            "Positive Leadership",
-            "Technical or Trade Skill",
-            "Charitable",
-            "Dishonesty",
-            "Infidelity",
-            "Dominates Weaker",
-            "Broken Promise",
-            "Chooses Russia",
-            "Chooses Russia Ally",
-            "Insults UK or Canada",
-            "Management Forcing You Out",
-            "Management Lies About You",
-            "Coworker Lies About You",
-            "Connected Subordinate Lies About You",
-            "Ambushed in meeting",
-            "Hung out to dry by leadership",
-            "Took Medical Coverage",
-            "Took Pension Benefits",
-            "New Landlord Causes Problems",
-            "Says 'F*** Em' About Fellow Citizens",
-            "Treats Traitors as Heros",
-            "Refuses Service",
-            "Blames America",
-            "Identity Games",
-            "Paralizer", 
-            "Violence",
-            "Cruelty",
-            "Compassion",
-            "Theft",
-            "Fraud",
-            "Incompetence",
-            "Questionable",
-            "Filanderer",
-            "Drunkard",
-            "Stoner",
-            "Pirate",
-            "Idolatry",
-            "Blasphemy",
-            "Anti-productive",
-            "Anti-Christ",
-            "Treason",
-            "Cirumstantial Evidence",
-            "Spectral Evidence",
-            "Astronomical Signs",
-            "Sacred Text Parallel"
+            "Argues they are the only Americans",
+            "All Americans are Americans",
+            "Attacks American and American established institutions",
+            "Blames the weak for enemy attacks",
+            "Cheats",
+            "Defends the actions of enemies.",
+            "Foreign policy cannot be race based",
+            "Freedom is for everyone",
+            "Lowers USA arts",
+            "Lowers USA education",
+            "Lowers USA instituations",
+            "Lowers USA military",
+            "Lowers USA music",
+            "Lowers USA population",
+            "Lowers USA science",
+            "Lowers USA technology",
+            "Russian Asset sources lie more than American ones",
+            "They cheer their trampling of the weak",
+            "Supports bans on rifles and personal weapons development",
+            "Supports bans on possession of periodic elements",
+            "Subordinates the legislative branch to a Russian Asset President",
+            "Strong nations cannot subjugate and shakedown the weak",
+            "Uses false facts to betray allies",
+            "Uses safety and environment to disempower",
+            "Undermines separation of powers",
+            "Violates commitments"
           ]
         },
-        "event_result": {
+        "date_occurred": {
           "field_type": "string",
-          "label": "Event Result",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "blasphemy",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets mock God",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Blasphemy Attempt",
           "enum": [
-            "More Likely Russian Asset",
-            "Less Likely Russian Asset"
+            "Approaches the afterlife as a checklist",
+            "Attacks other religions and peoples as threats",
+            "Attacks the Pope and other religious leaders",
+            "Bears false witness, lies are necessary",
+            "Celebrates strength and condemns the weak",
+            "Christianity is not a suicide pact.",
+            "Condemns or dismisses the Sermon on the Mount",
+            "Covets goods and wives more than loves the Lord",
+            "Dismisses the obvious biblical role of the USA",
+            "Evil is necessary",
+            "Grace does not include murder and infidelity",
+            "Helping people is useless except for virtue establishment",
+            "Laughs at cruelty and mocks compassion",
+            "Leaves people behind",
+            "Pushes cultural buttons to inflame hatred",
+            "Their goals are more important than God's mission for you",
+            "Trusts only in violence and not in God",
+            "Uses the bible as an excuse for cruelty",
+            "Uses weapons as idols for power"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "domination",
+      "base_class_name": "incident",
+      "class_description": "Domination. Russian Assets make themselves God.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Domination Attempt",
+          "enum": [
+            "Attacks a perceived weaker player in a meeting.",
+            "Attacks your own curiosity and education as wasteful.",
+            "Disrupts group happiness, from playing kids to collaborating workers.",
+            "Bullies into their urgent priorities.",
+            "Criticizes to subjugate more than teach to improve.",
+            "Criticizes other people to make you feel weak",
+            "F* em, the strong survive, the weak are expendable.",
+            "Happiness at your expense",
+            "I hear you/understand/but, this is what I want.",
+            "Prove me wrong",
+            "Ruins someone and then laughs at their ruin",
+            "Tell me specifically why I am wrong",
+            "You are responsible for my random actions."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "sabotage",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets sabotage American progress.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Sabotage Attempt",
+          "enum": [
+            "Advocates offshoring, outsourcing, or dismantling organizations.",
+            "Against immigration",
+            "Against increasing industrial capacity",
+            "Against new infrastructure",
+            "Against nuclear or solar power",
+            "Against public education",
+            "Against public health",
+            "Against border security",
+            "Against military spending",
+            "Against scientific research",
+            "Blocks team self improvement",
+            "Bombards with ethnic grievances",
+            "Makes problems unsolvable.",
+            "Publishes false metrics about a project to undermine its success.",
+            "Uses security policing to prevent any product improvement on a timely basis."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "slavery",
+      "base_class_name": "incident",
+      "class_description": "Russo-Confederate Assets bring slavery and serfdom.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Slaving Attempt",
+          "enum": [
+            "Allows teams to believe in self determination and then destroys them.",
+            "Always pushes you into greater subjugation with threats and lies.",
+            "Argues that the organization exists to benefit its leaders.",
+            "Defends the Confederacy",
+            "Demands loyalty but doesn't pay for it.",
+            "Distorts the past to create psychosis",
+            "I asked you to do something.",
+            "Lost Cause supporter",
+            "Sells your bad treatment as good by showing how they others worse.",
+            "Threatens to offshore or relocate teams and products.",
+            "You are only allowed to have fun washing this kind of dishes.",
+            "Your self worth is entirely dependent on how useful you are to them."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "theft",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets steal and exploit.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Theft Attempt",
+          "enum": [
+            "Bait and switch with coercion",
+            "Blames subordinates for failure",
+            "Forces non-disclosure and non-compete agreements",
+            "Lawsuits to crush opposition",
+            "Legislates self-determination from cities",
+            "Lies",
+            "Lies to employees",
+            "Lies to partners",
+            "Lies and finger points to gain",
+            "Promotes one-sided contracts",
+            "Promotes looters more than investment.",
+            "Ruins natural resources for personal gain.",
+            "Steals intellectual property",
+            "Steals small property",
+            "Steals representation",
+            "Subjugates a city to a state",
+            "Steals valor",
+            "Takes credit from subordinates",
+            "Violates land treaties"
           ]
         },
         "date_occurred": {
@@ -989,7 +1458,7 @@
       "class_name": "property",
       "base_class_name": "address",
       "class_description": "A property",
-      "full_text": [  ],
+      "full_text": [],
       "fields": {
         "property_name": {
           "field_type": "string",
@@ -1174,10 +1643,121 @@
           "label": "Serial Number"
         }
       }
-
+    },
+    {
+      "class_name": "sent_message",
+      "class_description": "Sent Message",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "from", "subject", "message_text" ],
+      "parents": [ "mission" ],
+      "fields": {
+        "to": {
+          "field_type": "string",
+          "label": "To"
+        },
+        "subject": {
+          "field_type": "string",
+          "label": "Subject"
+        },
+        "message_text": {
+          "field_type": "string",
+          "label": "Message Text"
+        }
+      }
+    },
+    {
+      "class_name": "received_message",
+      "class_description": "Received Message",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "from", "subject", "message_text" ],
+      "parents": [ "mission" ],
+      "fields": {
+        "from": {
+          "field_type": "string",
+          "label": "From"
+        },
+        "subject": {
+          "field_type": "string",
+          "label": "Subject"
+        },
+        "message_text": {
+          "field_type": "string",
+          "label": "Message Text"
+        }
+      }
+    },
+    {
+      "class_name": "achievement",
+      "class_description": "Achievement",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "points" ],
+      "parents": [ "mission" ],
+      "fields": {
+        "points": {
+          "field_type": "number",
+          "label": "Points"
+        },
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
+      "class_name": "mission",
+      "class_description": "Mission",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "russia_score", "revolution_score", "people_assessed", "incidents_reported", "assets_reported" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "russia_score": {
+          "field_type": "number",
+          "label": "Russia Score"
+        },
+        "revolution_score": {
+          "field_type": "number",
+          "label": "Revolution Score"
+        },
+        "people_assessed": {
+          "field_type": "number",
+          "label": "People Assessed"
+        },
+        "incidents_reported": {
+          "field_type": "number",
+          "label": "Incidents Reported"
+        },
+        "assets_reported": {
+          "field_type": "number",
+          "label": "Assets Reported"
+        },
+        "inbox": [ "received_message" ],
+        "outbox": [ "sent_message" ],
+        "achievements": [ "achievement" ]
+      }
     }
-
-
   ],
   "post_dataset": [
     {
@@ -1489,6 +2069,20 @@
         "tab_type": "custom",
         "default_tab": true
       },
+      ".message_text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": {
@@ -1656,10 +2250,51 @@
           }
         },
         "tab_type": "edit"
+      },
+      ".attack": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "bible_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "koran_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       }
-
     },
-    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack" ],
     "classes": {
       "journal": "default",
       "diary": "default",
@@ -1702,7 +2337,18 @@
       "phone": "default",
       "email": "default",
       "fax": "default",
-      "web": "default"
+      "web": "default",
+      "betrayal": "default",
+      "blasphemy": "default",
+      "domination": "default",
+      "sabotage": "default",
+      "slavery": "default",
+      "theft": "default",
+      "mission": "default",
+      "bible_cite": "default",
+      "koran_cite": "default",
+      "tanakh_cite": "default",
+      "holy_cite": "default"
     },
     "descriptions": {
       "diary": "Basic version and record information about this diary entry",
@@ -1754,7 +2400,13 @@
       "incident": "Capture an interaction as you search for Russian Assets.",
       "property.assets": "Assets related to or located at this property.",
       "property.records": "Records associated with this property.",
-      "asset.records": "Records associated with this asset."
+      "asset.records": "Records associated with this asset.",
+      "betrayal.story": "What did the betrayer do?",
+      "blasphemy.story": "What did the blasphemer do?",
+      "domination.story": "What did the dominator do?",
+      "sabotage.story": "What did the sabatour do?",
+      "slavery.story": "What did the slaver do?",
+      "theft.story": "What did the thief do?"
     },
     "objects": [
       {
@@ -1866,6 +2518,22 @@
         "class_name": "rms_occupancy_type",
         "code": "3001-3023",
         "description": "Solar Occupancies"
+      },
+      {
+        "class_name": "mission",
+        "object_id": 42,
+        "revolution_score": 0,
+        "russians_imported": 3000000,
+        "americans_deported": 10000,
+        "immigrants_deported": 5000000,
+        "political_arrests": 500,
+        "allies_threatened": 17,
+        "people_assessed": 0,
+        "incidents_reported": 0,
+        "assets_reported": 0,
+        "inbox": [  ],
+        "outbox": [  ],
+        "achievements": [  ]
       }
     ],
     "teams": {

@@ -1666,8 +1666,10 @@ namespace corona
 	class corona_load_object_command : public corona_form_command
 	{
 	public:
-		json		object_data;
+		json		object_key;
+		std::string target_frame = "";
 		corona_instance instance = corona_instance::local;
+		std::shared_ptr<corona_class_page_map> sources;
 
 		corona_load_object_command()
 		{
@@ -1681,11 +1683,7 @@ namespace corona
 
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
-			json_parser jp;
-
-			json obj = _bus->get_form_data(form_name);
-
-			return obj;
+			return object_key;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
@@ -1694,26 +1692,42 @@ namespace corona
 			return response;
 		}
 
+
 		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			if (response.success) {
+				std::string class_name = response.data["object"][class_name_field].as_string();
+				auto source_it = sources->pages_by_class.find(class_name);
+				if (source_it != sources->pages_by_class.end()) {
+					std::string source_form = source_it->second;
+					auto objx = response.data["object"].value();
+					json_object obj(objx);
+					_bus->select_frame(batch_id, target_frame, source_form, obj, true, response.errors);
+					set_properties(_bus);
+				}
+			}
 			return response.data;
 		}
-
 
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
 
 			_dest.put_member("class_name", "load_object"sv);
-			_dest.put_member("data", object_data);
+			_dest.put_member("target_frame", target_frame);
+			if (sources) {
+				sources->get_json(_dest);
+			}
+            if (object_key.object()) {
+                _dest.put_member("object_key", object_key);
+            }
 			corona::get_json(_dest, instance);
-
 		}
 
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "data" })) {
-				system_monitoring_interface::active_mon->log_warning("load_object_command missing:");
+			if (not _src.has_members(missing, { "sources", "table_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_select_object missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -1721,7 +1735,12 @@ namespace corona
 				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			object_data = _src["data"];
+            object_key = _src["object_key"];
+            target_frame = _src["target_frame"].as_string();
+			if (_src.has_member("sources")) {
+				sources = std::make_shared<corona_class_page_map>();
+				sources->put_json(_src);
+			}
 			corona::put_json(instance, _src);
 		}
 

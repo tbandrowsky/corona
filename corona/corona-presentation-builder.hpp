@@ -38,6 +38,14 @@ namespace corona
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
+	class dropdown_field_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
+		layout_rect status_box = { 0.0_px, 25.0_px, 0.10_container, 20.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
+	};
+
 	class horizontal_field_layout {
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
@@ -339,8 +347,8 @@ namespace corona
 	using animate_field_control = field_layout<default_layout, animate_control, default_field_layout>;
 	using richedit_field_control = field_layout<default_layout, richedit_control, default_field_layout>;
 	using draglistbox_field_control = field_layout<default_layout, draglistbox_control, default_field_layout>;
-	using combobox_field_control = field_layout<default_layout, combobox_control, default_field_layout>;
-	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, default_field_layout>;
+	using combobox_field_control = field_layout<default_layout, combobox_control, dropdown_field_layout>;
+	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, dropdown_field_layout>;
 	using datetimepicker_field_control = field_layout<default_layout, datetimepicker_control, default_field_layout>;
 	using monthcalendar_field_control = field_layout<default_layout, monthcalendar_control, default_field_layout>;
 	using radiobutton_list_field_control = field_layout<default_layout, radiobutton_list_control, default_field_layout>;
@@ -1284,6 +1292,15 @@ namespace corona
 		control_builder& edit(int _id, std::function<void(edit_control&)> _settings = nullptr)
 		{
 			auto tc = create<edit_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& split_button(int _id, std::function<void(split_button_control&)> _settings = nullptr)
+		{
+			auto tc = create<split_button_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2430,6 +2447,13 @@ namespace corona
 		else if (class_name == "memo")
 		{
 			memo(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "split_button")
+		{
+			split_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});
