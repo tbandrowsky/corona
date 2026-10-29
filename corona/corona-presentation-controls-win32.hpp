@@ -2507,30 +2507,33 @@ namespace corona
 
 	};
 
-	class split_button_control : public row_layout
+	class split_button_control : public column_layout
 	{
 		std::shared_ptr<command_button_control>				command_button;
 		std::shared_ptr<combobox_control>					command_dropdown;
 		std::shared_ptr<corona_bus_command>					change_command;
 
-		layout_rect											button_layout;
 		layout_rect											dropdown_layout;
 		list_data											commands_list;
 
 		std::string											command_parameter_name;
-		json commmand_button_spec;
+		json												command_button_spec;
 
 	public:
 
-		split_button_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+		split_button_control(control_base* _parent, int _id) : column_layout(_parent, _id) { 
+			; 
+		}
 		split_button_control(const split_button_control& _src) = default;
 		split_button_control() = default;
 
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<split_button_control>(*this);
+			tv->children.clear();
 			tv->command_dropdown.reset();
             tv->command_button.reset();
+			tv->init(); // don't forget to init the clone!
 			return tv;
 		}
 
@@ -2540,28 +2543,15 @@ namespace corona
 		{
 
             dropdown_layout = {};
-            dropdown_layout.width = 1.0_remaining;
-            dropdown_layout.height = 35.0_px;
+            dropdown_layout.width = 1.0_container;
+            dropdown_layout.height = 20.0_px;
 			needs_create = false;
-
-            if (!command_button) {
-				needs_create = true;
-				command_button = std::make_shared<command_button_control>(this, id_counter::next());
-
-				button_layout = {};
-				button_layout.width = 35.0_px;
-				button_layout.height = 35.0_px;
-
-                command_button->set_box(button_layout);
-                command_button->put_json(commmand_button_spec);
-            }
 
             if (!command_dropdown) {
 				needs_create = true;
                 command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
-
 				command_dropdown->on_selection_changed = [this](list_changed_event lce, combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
 					json selected_object = _src->get_selected_object();
@@ -2575,13 +2565,21 @@ namespace corona
                         }
 					}
 				};
+				children.push_back(command_dropdown);
             }
+
+			if (!command_button) {
+				needs_create = true;
+				command_button = std::make_shared<command_button_control>(this, id_counter::next());
+				command_button->put_json(command_button_spec);
+				children.push_back(command_button);
+			}
 		}
 
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 		{
 			init();
-			row_layout::on_create(_context, _src);
+			column_layout::on_create(_context, _src);
 		}
 
 		virtual void loaded(int _batch_id) override
@@ -2598,13 +2596,15 @@ namespace corona
 		{
 			json_parser jp;
 
-			row_layout::get_json(_dest);
+			column_layout::get_json(_dest);
 			json jlist_data = jp.create_object();
 			commands_list.get_json(jlist_data);
 			_dest.put_member("list", jlist_data);
             _dest.put_member("command_parameter_name", command_parameter_name);
 			if (command_button) {
-				_dest.put_member("command_button", commmand_button_spec);
+				command_button_spec = jp.create_object();
+				command_button->get_json(command_button_spec);
+				_dest.put_member("command_button", command_button_spec);
 			}
 		}
 
@@ -2612,11 +2612,18 @@ namespace corona
 		{
 			json_parser jp;
 
-			row_layout::put_json(_src);
+			column_layout::put_json(_src);
 			json jlist_data = _src["list"];
+
 			commands_list.put_json(jlist_data);
+
 			command_parameter_name = _src["command_parameter_name"].as_string();
-			commmand_button_spec = _src["command_button"];
+			command_button_spec = _src["command_button"];
+
+			children.clear();
+			command_button.reset();
+			command_dropdown.reset();
+			init();
 
 			if (command_dropdown) {
 				command_dropdown->set_list(commands_list);

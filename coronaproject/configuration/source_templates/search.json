@@ -128,9 +128,9 @@
                   "name": "navigation_title",
                   "box": {
                     "width": "450 pixels",
-                    "height": "40 pixels"
+                    "height": "25 pixels"
                   },
-                  "text": "RECORDS"
+                  "text": "Dataset"
                 },
                 {
                   "class_name": "row",
@@ -146,12 +146,12 @@
                 },
                 {
                   "class_name": "chaptertitle",
-                  "name": "section_title",
+                  "name": "search_title",
                   "box": {
                     "width": "450 pixels",
-                    "height": "40 pixels"
+                    "height": "25 pixels"
                   },
-                  "text": "SELECTED"
+                  "text": "Search"
                 },
                 {
                   "class_name": "row",
@@ -176,15 +176,15 @@
                       "class_name": "edit",
                       "name": "search_input",
                       "json_field_name": "full_text",
-                      "placholder": "Search text",
+                      "placeholder": "Search text",
                       "default_focus": true,
                       "box": {
                         "width": "300 pixels",
-                        "height": "50 pixels"
+                        "height": "35 pixels"
                       },
                       "text_style": {
                         "font_name": "Arial",
-                        "font_size": 24
+                        "font_size": 16
                       }
                     },
                     {
@@ -194,7 +194,7 @@
                       "text": "Search",
                       "box": {
                         "width": "100 pixels",
-                        "height": "50 pixels"
+                        "height": "40 pixels"
                       },
                       "on_click": {
                         "class_name": "run_query",
@@ -230,10 +230,38 @@
                   ]
                 },
                 {
-                  "class_name": "row",
-                  "name": "new_object_commands",
+                  "class_name": "chaptertitle",
+                  "name": "create_title",
                   "box": {
-                    "width": "1.0 remaining",
+                    "width": "450 pixels",
+                    "height": "25 pixels"
+                  },
+                  "text": "Create"
+                },
+                {
+                  "class_name": "row",
+                  "name": "create_commands",
+                  "box": {
+                    "width": "450 pixels",
+                    "height": "45 pixels"
+                  },
+                  "wrap": true,
+                  "children": []
+                },
+                {
+                  "class_name": "chaptertitle",
+                  "name": "reports_title",
+                  "box": {
+                    "width": "450 pixels",
+                    "height": "25 pixels"
+                  },
+                  "text": "Reports"
+                },
+                {
+                  "class_name": "row",
+                  "name": "report_commands",
+                  "box": {
+                    "width": "450 pixels",
                     "height": "1.0 remaining"
                   },
                   "wrap": true,

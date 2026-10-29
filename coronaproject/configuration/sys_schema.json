@@ -2559,11 +2559,15 @@
               "journal"
             ],
             "new_objects": [ "news", "diary", "task" ],
-            "section_title_text": "Journal Options",
+            "section_title_text": "Search Journal",
             "list_title_text": "Journal List",
             "edit_title_text": "Journal Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Journal",
+            "create_control": "create_commands",
+            "reports_title_text": "Journal Reports",
+            "reports_control": "report_commands",
             "chart_name": "chart_journal",
+            "create_command_class": "journal",
             "charts": [
               {
                 "chart_button_name": "chart_journal_counts_button",
@@ -2606,11 +2610,15 @@
               "property"
             ],
             "new_objects": [ "property" ],
-            "section_title_text": "Property Options",
+            "search_title_text": "Search Property",
             "list_title_text": "Property List",
             "edit_title_text": "Property Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Person",
+            "create_control": "create_commands",
+            "reports_title_text": "People Reports",
+            "reports_control": "report_commands",
             "chart_class": "chart_property",
+            "create_command_class": "property",
             "charts": [
               {
                 "chart_button_name": "property_counts_button",
@@ -2653,11 +2661,15 @@
               "person"
             ],
             "new_objects": [ "person" ],
-            "section_title_text": "People Options",
+            "search_title_text": "Search People",
             "list_title_text": "People",
             "edit_title_text": "Person Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Person",
+            "create_control": "create_commands",
+            "reports_title_text": "People Reports",
+            "reports_control": "report_commands",
             "chart_class": "chart_person",
+            "create_command_class": "person",
             "charts": [
               {
                 "chart_button_name": "people_counts_button",
@@ -2714,11 +2726,13 @@
               "tractor",
               "gun"
             ],
-            "section_title_text": "Asset Options",
+            "section_title_text": "Search Assets",
             "list_title_text": "Assets",
             "edit_title_text": "Asset Details",
-            "commands_control": "new_object_commands",
+            "create_control": "create_commands",
+            "reports_control": "report_commands",
             "chart_class": "chart_asset",
+            "create_command_class": "asset",
             "charts": [
               {
                 "chart_button_name": "asset_counts_button",
