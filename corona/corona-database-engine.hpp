@@ -3493,8 +3493,8 @@ private:
 							std::string sg_create_title_text = sg["create_title_text"].as_string();
 
 							json sg_new_objects = sg["new_objects"];
-							std::string sg_report_commands_control = sg["create_control"].as_string();
-							std::string sg_create_commands_control = sg["reports_control"].as_string();
+							std::string sg_create_commands_control = sg["create_control"].as_string();
+							std::string sg_reports_commands_control = sg["reports_control"].as_string();
 							std::string chart_name = sg["chart_name"].as_string();
 
 							json chart_pages = chart_template.clone();
@@ -3610,7 +3610,7 @@ private:
 	{ "$create_commands", search_create_commands },
 	{ "$report_commands", search_report_commands },
 	{ "$create_commands_control", jp.from_string(sg_create_commands_control) },
-	{ "$report_commands_control", jp.from_string(sg_report_commands_control) },
+	{ "$report_commands_control", jp.from_string(sg_reports_commands_control) },
 	{ "$update_filter", update_filter }
 									});
 

@@ -3,7 +3,7 @@
   "name": "$split_button_name",
   "command_parameter_name": "create_class_name",
   "box": {
-    "width": "100 pixels",
+    "width": "400 pixels",
     "height": "75 pixels"
   },
   "list": {
@@ -13,6 +13,10 @@
       "$create_classes"
     ]
   },
+  "text_style": {
+    "font_name": "Arial",
+    "font_size": 20
+  },
   "command_button": {
     "class_name": "command_button",
     "name": "new_item",
@@ -21,7 +25,7 @@
     "icon": "Add",
     "box": {
       "width": "100 pixels",
-      "height": "55 pixels"
+      "height": "75 pixels"
     },
     "on_click": {
       "class_name": "create_object",

@@ -2507,7 +2507,7 @@ namespace corona
 
 	};
 
-	class split_button_control : public column_layout
+	class split_button_control : public row_layout
 	{
 		std::shared_ptr<command_button_control>				command_button;
 		std::shared_ptr<combobox_control>					command_dropdown;
@@ -2521,7 +2521,7 @@ namespace corona
 
 	public:
 
-		split_button_control(control_base* _parent, int _id) : column_layout(_parent, _id) { 
+		split_button_control(control_base* _parent, int _id) : row_layout(_parent, _id) { 
 			; 
 		}
 		split_button_control(const split_button_control& _src) = default;
@@ -2543,8 +2543,8 @@ namespace corona
 		{
 
             dropdown_layout = {};
-            dropdown_layout.width = 1.0_container;
-            dropdown_layout.height = 20.0_px;
+            dropdown_layout.width = 1.0_remaining;
+            dropdown_layout.height = 1.0_container;
 			needs_create = false;
 
             if (!command_dropdown) {
@@ -2552,6 +2552,7 @@ namespace corona
                 command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
+				
 				command_dropdown->on_selection_changed = [this](list_changed_event lce, combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
 					json selected_object = _src->get_selected_object();
@@ -2561,7 +2562,6 @@ namespace corona
 
                         if (change_command) {
                             change_command->set_parameter(command_parameter_name, target_name);
-							lce.bus->run_command(lce.bus->start_batch(), change_command);
                         }
 					}
 				};
@@ -2579,7 +2579,7 @@ namespace corona
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 		{
 			init();
-			column_layout::on_create(_context, _src);
+			row_layout::on_create(_context, _src);
 		}
 
 		virtual void loaded(int _batch_id) override
@@ -2596,7 +2596,7 @@ namespace corona
 		{
 			json_parser jp;
 
-			column_layout::get_json(_dest);
+			row_layout::get_json(_dest);
 			json jlist_data = jp.create_object();
 			commands_list.get_json(jlist_data);
 			_dest.put_member("list", jlist_data);
@@ -2612,7 +2612,7 @@ namespace corona
 		{
 			json_parser jp;
 
-			column_layout::put_json(_src);
+			row_layout::put_json(_src);
 			json jlist_data = _src["list"];
 
 			commands_list.put_json(jlist_data);
