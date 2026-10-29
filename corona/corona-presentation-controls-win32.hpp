@@ -2574,6 +2574,8 @@ namespace corona
                         if (change_command) {
                             change_command->set_parameter(command_parameter_name, target_name);
                         }
+						command_button->set_text(target_name);
+						command_button->set_parameter(command_parameter_name, target_name);
 					}
 				};
 				children.push_back(command_dropdown);

@@ -1997,6 +1997,13 @@ namespace corona
 
         virtual bool set_property(std::string _property_name, json _value) override;
 
+        virtual void set_parameter(std::string _name, std::string _value)
+        {
+            if (click_command) {
+                click_command->set_parameter(_name, _value);
+            }
+        }
+
         virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
         {
 
@@ -2116,6 +2123,11 @@ namespace corona
                 sz.x = 0;
             }
             return sz;
+        }
+
+        virtual void set_text(std::string _text) 
+        {
+            button_text = _text;
         }
 
         // this sort of thing is why MS went down the path of light and truth and had great
