@@ -158,6 +158,13 @@ namespace corona
 			return SendMessageA(window, msg, wParam, lParam);
 		}
 
+		virtual void set_text_style(json jtext_style)
+		{
+			if (jtext_style.object()) {
+				corona::put_json(text_style, jtext_style);
+			}
+		}
+
 		virtual void get_json(json& _src)
 		{
 			control_base::get_json(_src);
@@ -2518,6 +2525,7 @@ namespace corona
 
 		std::string											command_parameter_name;
 		json												command_button_spec;
+		json												jtext_style;
 
 	public:
 
@@ -2552,6 +2560,9 @@ namespace corona
                 command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
+				if (jtext_style.object()) {
+					command_dropdown->set_text_style(jtext_style);
+				}
 				
 				command_dropdown->on_selection_changed = [this](list_changed_event lce, combobox_control* _src) {
 					int pixels_to_twips = 1440.0 / GetDeviceCaps(GetDC(nullptr), LOGPIXELSY);
@@ -2600,6 +2611,7 @@ namespace corona
 			json jlist_data = jp.create_object();
 			commands_list.get_json(jlist_data);
 			_dest.put_member("list", jlist_data);
+			_dest.put_member("text_style", jtext_style);
             _dest.put_member("command_parameter_name", command_parameter_name);
 			if (command_button) {
 				command_button_spec = jp.create_object();
@@ -2619,7 +2631,7 @@ namespace corona
 
 			command_parameter_name = _src["command_parameter_name"].as_string();
 			command_button_spec = _src["command_button"];
-
+			jtext_style = _src["text_style"];
 			children.clear();
 			command_button.reset();
 			command_dropdown.reset();
