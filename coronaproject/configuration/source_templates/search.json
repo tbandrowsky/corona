@@ -158,7 +158,7 @@
                   "name": "search_criteria",
                   "box": {
                     "width": "1.0 container",
-                    "height": "50 pixels"
+                    "height": "75 pixels"
                   },
                   "view_style": {
                     "box_fill_brush": {
@@ -180,11 +180,11 @@
                       "default_focus": true,
                       "box": {
                         "width": "300 pixels",
-                        "height": "35 pixels"
+                        "height": "40 pixels"
                       },
                       "text_style": {
                         "font_name": "Arial",
-                        "font_size": 20
+                        "font_size": 25
                       }
                     },
                     {
@@ -194,7 +194,7 @@
                       "text": "Search",
                       "box": {
                         "width": "100 pixels",
-                        "height": "40 pixels"
+                        "height": "75 pixels"
                       },
                       "on_click": {
                         "class_name": "run_query",
@@ -243,7 +243,7 @@
                   "name": "create_commands",
                   "box": {
                     "width": "450 pixels",
-                    "height": "45 pixels"
+                    "height": "75 pixels"
                   },
                   "wrap": true,
                   "children": []

@@ -15,7 +15,7 @@
   },
   "text_style": {
     "font_name": "Arial",
-    "font_size": 20
+    "font_size": 25
   },
   "command_button": {
     "class_name": "command_button",
