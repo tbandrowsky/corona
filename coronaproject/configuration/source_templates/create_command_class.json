@@ -3,7 +3,7 @@
   "name": "$split_button_name",
   "command_parameter_name": "create_class_name",
   "box": {
-    "width": "400 pixels",
+    "width": "300 pixels",
     "height": "40 pixels"
   },
   "list": {

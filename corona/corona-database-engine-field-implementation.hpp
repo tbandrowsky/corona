@@ -1743,6 +1743,7 @@ namespace corona
 		int minimum_length;
 		std::string match_pattern;
 		std::vector<std::string> allowed_values;
+		std::string match_name;
 
 		string_field_options() = default;
 		string_field_options(const string_field_options& _src) = default;
@@ -1765,6 +1766,7 @@ namespace corona
 				}
 				_dest.share_member("enum", jallowed_values);
 			}
+			_dest.put_member("match_name", match_name);
 		}
 
 		virtual void put_json(json& _src)
@@ -1774,6 +1776,7 @@ namespace corona
 			minimum_length = _src["min_length"].as_int();
 			maximum_length = _src["max_length"].as_int();
 			match_pattern = _src["match_pattern"].as_string();
+            match_name = _src["match_name"].as_string();
 			for (auto& c : match_pattern) {
 				if (c == '/') c = '\\';
 			}
@@ -1842,21 +1845,20 @@ namespace corona
 					ve.field_name = _field_name;
 					ve.filename = get_file_name(__FILE__);
 					ve.line_number = __LINE__;
-					ve.message = std::format("Value '{0}' must: ", chumpy);
-                    if (maximum_length > 0) {
-                        ve.message += std::format("Less than {0} characters long.  ", maximum_length);
+                    if (maximum_length &&chumpy.size() > maximum_length) {
+                        ve.message = std::format("{0} Characters too long.  ", chumpy.size() - maximum_length);
                     }
-                    if (minimum_length > 0) {
-                        ve.message += std::format("At least {0} characters long.  ", minimum_length);
+                    if (minimum_length && chumpy.size() < minimum_length) {
+                        ve.message = std::format("{0} Characters short.  ", minimum_length - chumpy.size());
                     }
 					if (match_pattern.size() > 0) {
-						ve.message += std::format("Match '{0}'.  ", match_pattern);
+						ve.message = std::format("Match '{0}'.  ", match_pattern);
 					}
 					if (allowed_values.size())
 					{
-						ve.message += "On the list:(";
+						ve.message = "Select from list:(";
 						std::string setx = join(allowed_values, ", ");
-						setx = trim(setx, 50);
+						setx = trim(setx, 25);
 						ve.message += std::format(" '{0}').  ", setx);
 					}
 					_validation_errors.push_back(ve);
@@ -2034,7 +2036,7 @@ namespace corona
 					ve.field_name = _field_name;
 					ve.filename = get_file_name(__FILE__);
 					ve.line_number = __LINE__;
-					ve.message = std::format("Value '{0}' must be derived from {1}", (std::string)chumpy, reference_class);
+					ve.message = std::format("Value '{0}' must be a {1}", (std::string)chumpy, reference_class);
 					_validation_errors.push_back(ve);
 					return false;
 				};

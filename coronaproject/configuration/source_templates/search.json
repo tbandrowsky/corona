@@ -29,10 +29,10 @@
               "class_name": "chaptertitle",
               "name": "score_title",
               "box": {
-                "width": "450 pixels",
+                "width": "310 pixels",
                 "height": "40 pixels"
               },
-              "text": "MISSION"
+              "text": "Mission"
             },
             {
               "class_name": "chaptertitle",
@@ -41,7 +41,7 @@
                 "width": "410 pixels",
                 "height": "40 pixels"
               },
-              "text": "LIST"
+              "text": "List"
             },
             {
               "class_name": "chaptertitle",
@@ -50,7 +50,7 @@
                 "width": "1.0 remaining",
                 "height": "40 pixels"
               },
-              "text": "DETAIL"
+              "text": "Detail"
             }
           ]
         },
@@ -67,7 +67,7 @@
               "class_name": "column",
               "name": "search_commands",
               "box": {
-                "width": "450 pixels",
+                "width": "300 pixels",
                 "height": "1.0 container"
               },
               "view_style": {
@@ -98,7 +98,7 @@
                       "name": "invasion_score_card_title",
                       "prompt": "MISSION SCORE {revolution_score}",
                       "box": {
-                        "width": "300 pixels",
+                        "width": "200 pixels",
                         "height": "75 pixels"
                       }
                     },
@@ -127,7 +127,7 @@
                   "class_name": "chaptertitle",
                   "name": "navigation_title",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "25 pixels"
                   },
                   "text": "Dataset"
@@ -137,7 +137,7 @@
                   "name": "search_groups",
                   "box": {
                     "width": "1.0 container",
-                    "height": "80 pixels"
+                    "height": "160 pixels"
                   },
                   "wrap": true,
                   "children": [
@@ -145,10 +145,10 @@
                   ]
                 },
                 {
-                  "class_name": "chaptertitle",
+                  "class_name": "chaptersubtitle",
                   "name": "search_title",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "25 pixels"
                   },
                   "text": "Search"
@@ -179,7 +179,7 @@
                       "placeholder": "Search text",
                       "default_focus": true,
                       "box": {
-                        "width": "300 pixels",
+                        "width": "200 pixels",
                         "height": "40 pixels"
                       },
                       "text_style": {
@@ -231,10 +231,10 @@
                   ]
                 },
                 {
-                  "class_name": "chaptertitle",
+                  "class_name": "chaptersubtitle",
                   "name": "create_title",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "25 pixels"
                   },
                   "text": "Create"
@@ -243,17 +243,17 @@
                   "class_name": "row",
                   "name": "create_commands",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "75 pixels"
                   },
                   "wrap": true,
                   "children": []
                 },
                 {
-                  "class_name": "chaptertitle",
+                  "class_name": "chaptersubtitle",
                   "name": "reports_title",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "25 pixels"
                   },
                   "text": "Reports"
@@ -262,7 +262,7 @@
                   "class_name": "row",
                   "name": "report_commands",
                   "box": {
-                    "width": "450 pixels",
+                    "width": "1.0 container",
                     "height": "1.0 remaining"
                   },
                   "wrap": true,
