@@ -586,6 +586,13 @@ namespace corona
 			}
 		}
 
+		virtual void set_errors(const validation_error_collection& _errors)
+		{
+			errors = _errors;
+			container_control::set_errors(_errors);
+		}
+
+
 	};
 
 	class items_view_row

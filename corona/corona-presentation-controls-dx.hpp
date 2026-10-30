@@ -1916,6 +1916,8 @@ namespace corona
             enabled = _src.enabled;
             toolbar_button = _src.toolbar_button;
             on_click_set = _src.on_click_set;
+            toolbar_button = _src.toolbar_button;
+            split_button = _src.split_button;
             init();
         }
 

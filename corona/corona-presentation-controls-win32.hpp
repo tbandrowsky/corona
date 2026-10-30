@@ -827,6 +827,7 @@ namespace corona
 		using windows_control::window_host;
 		list_data choices;
 		std::shared_ptr<corona_bus_command> select_command;
+		bool default_first_item = false;
 
 		dropdown_control_base()
 		{
@@ -837,6 +838,7 @@ namespace corona
 		{
 			choices = _src.choices;
 			select_command = _src.select_command;
+            default_first_item = _src.default_first_item;
 		}
 
 		dropdown_control_base(control_base* _parent, int _id) : windows_control(_parent, _id)
@@ -954,11 +956,15 @@ namespace corona
 			for (int i = 0; i < choices.items.size(); i++)
 			{
 				json element = choices.items[i];
-				int lid = element[choices.id_field].as_int();
+                int lid = element[choices.id_field].as_int();
 				std::string description = element[choices.text_field].as_string();
 				add_combo_item(description, lid);
 			}
 			set_selected_text(selectedText);
+            std::string newSelectedText = get_selected_text();
+			if (newSelectedText.empty() && default_first_item) {
+				set_selected_index(0);
+			}
 		}
 
 		int get_dropdown_size()
@@ -1044,6 +1050,7 @@ namespace corona
 			control_base::get_json(_dest);
 			json jlist_data = jp.create_object();
 			choices.get_json(jlist_data);
+			_dest.put_member("default_first_item", default_first_item);
 			_dest.put_member("choices", jlist_data);
 		}
 
@@ -1052,6 +1059,7 @@ namespace corona
 			json_parser jp;
 
 			control_base::put_json(_src);
+            default_first_item = _src["default_first_item"].as_bool();
 			json jlist_data = _src["choices"];
 			choices.put_json(jlist_data);
 			json command = _src["select_command"];
@@ -1548,8 +1556,8 @@ namespace corona
 			if (::IsWindow(window)) {
 				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
 			}
-
 		}
+
 	};
 
 	class memo_control : public text_control_base
@@ -2547,6 +2555,21 @@ namespace corona
 
 		virtual ~split_button_control() { ; }
 
+		virtual void apply_default_selection()
+		{
+			json selected_object = command_dropdown->get_selected_object();
+			if (selected_object.object()) {
+				std::string target_id = selected_object[commands_list.id_field].as_string();
+				std::string target_name = selected_object[commands_list.text_field].as_string();
+
+				if (change_command) {
+					change_command->set_parameter(command_parameter_name, target_name);
+				}
+				command_button->set_text(target_name);
+				command_button->set_parameter(command_parameter_name, target_name);
+			}
+		}
+
 		virtual void init()
 		{
 
@@ -2558,8 +2581,11 @@ namespace corona
             if (!command_dropdown) {
 				needs_create = true;
                 command_dropdown = std::make_shared<combobox_control>(this, id_counter::next());
+				command_dropdown->default_first_item = true;
 				command_dropdown->set_box(dropdown_layout);
 				command_dropdown->set_list(commands_list);
+				apply_default_selection();
+
 				if (jtext_style.object()) {
 					command_dropdown->set_text_style(jtext_style);
 				}
@@ -2592,6 +2618,7 @@ namespace corona
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _src)
 		{
 			init();
+			apply_default_selection();
 			row_layout::on_create(_context, _src);
 		}
 
@@ -2641,6 +2668,7 @@ namespace corona
 
 			if (command_dropdown) {
 				command_dropdown->set_list(commands_list);
+				apply_default_selection();
 			}
 		}
 	};

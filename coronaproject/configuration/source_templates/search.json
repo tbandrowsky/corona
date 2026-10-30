@@ -192,9 +192,10 @@
                       "name": "search_button",
                       "icon": "Search",
                       "text": "Search",
+                      "split_button": true,
                       "box": {
                         "width": "100 pixels",
-                        "height": "75 pixels"
+                        "height": "40 pixels"
                       },
                       "on_click": {
                         "class_name": "run_query",

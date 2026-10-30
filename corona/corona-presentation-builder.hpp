@@ -1915,6 +1915,7 @@ namespace corona
 
 	public:
 
+		validation_error_collection errors;
 
 		tab_view_control()
 		{
@@ -2057,9 +2058,8 @@ namespace corona
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
 					auto controls = tp.controls;
-					validation_error_collection vs;
 					content_frame->navigate_clear(batch_id);
-                    content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, vs);
+                    content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, errors);
 				}
 			}
 		}
@@ -2170,6 +2170,20 @@ namespace corona
 		virtual void object_deleted(json_object _data) override
 		{
 
+		}
+
+		virtual void set_errors(const validation_error_collection& _errors)
+		{
+			errors = _errors;
+			if (content_frame) {
+				content_frame->set_errors(errors);
+			}
+		}
+
+		virtual void clear_errors()
+		{
+			errors.clear();
+			container_control::clear_errors();
 		}
 
 	};
