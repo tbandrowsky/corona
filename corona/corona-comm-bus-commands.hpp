@@ -1448,8 +1448,8 @@ namespace corona
 			if (sources && sources->pages_by_class.contains(class_to_create)) {
 				edit_frame = sources->pages_by_class[class_to_create];
 			}
-			if (!edit_frame.empty() && !source_frame.empty()) {
-				_bus->select_frame(batch_id, edit_frame, source_frame, obj, true, response.errors);
+			if (!edit_frame.empty() && !target_frame.empty()) {
+				_bus->select_frame(batch_id, target_frame, edit_frame, obj, true, response.errors);
 			}
 			return response.data;
 		}

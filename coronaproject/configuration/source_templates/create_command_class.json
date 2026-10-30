@@ -4,7 +4,7 @@
   "command_parameter_name": "create_class_name",
   "box": {
     "width": "400 pixels",
-    "height": "75 pixels"
+    "height": "40 pixels"
   },
   "list": {
     "id_field": "class_name",
@@ -23,9 +23,10 @@
     "image": "$create_button_image",
     "text": "$create_button_text",
     "icon": "Add",
+    "split_button": true,
     "box": {
       "width": "100 pixels",
-      "height": "75 pixels"
+      "height": "40 pixels"
     },
     "on_click": {
       "class_name": "create_object",

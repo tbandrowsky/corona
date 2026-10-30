@@ -85,7 +85,7 @@
               "wrap": true,
               "children": [
                 {
-                  "class_name": "column",
+                  "class_name": "row",
                   "name": "global_score_card",
                   "box": {
                     "width": "1.0 container",
@@ -98,8 +98,8 @@
                       "name": "invasion_score_card_title",
                       "prompt": "MISSION SCORE {revolution_score}",
                       "box": {
-                        "width": "1.0 container",
-                        "height": "40 pixels"
+                        "width": "300 pixels",
+                        "height": "75 pixels"
                       }
                     },
                     {

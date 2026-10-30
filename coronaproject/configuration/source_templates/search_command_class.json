@@ -3,6 +3,7 @@
   "name": "$search_button_name",
   "image": "$search_button_image",
   "text": "$search_button_text",
+  "split_button": true,
   "box": {
     "width": "100 pixels",
     "height": "75 pixels"
