@@ -73,11 +73,11 @@
               "view_style": {
                 "box_fill_brush": {
                   "class_name": "solid_brush",
-                  "color": "111121"
+                  "color": "111161"
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
-                  "color": "010102"
+                  "color": "010162"
                 },
                 "box_border_thickness": 0
               },

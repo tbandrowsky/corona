@@ -205,6 +205,10 @@
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
         }
       },
       "chapter_title_style": {
@@ -233,8 +237,13 @@
         },
         "shape_fill_brush": {
           "class_name": "solid_brush",
-          "color": "FFFFEE"
+          "color": "00000044"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
         }
+
       },
       "paragraph_style": {
         "text_style": {
@@ -249,7 +258,7 @@
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "00000000"
+          "color": "00000044"
         }
       },
       "edit_label_style": {
@@ -266,7 +275,7 @@
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "00000000"
+          "color": "00000044"
         }
       },
       "form_style": {
@@ -278,6 +287,57 @@
         "shape_fill_brush": {
           "class_name": "solid_brush",
           "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
+        }
+
+      },
+      "navigation_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
+        }
+
+      },
+      "list_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
+        }
+      },
+      "object_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
         }
       },
       "label_style": {
