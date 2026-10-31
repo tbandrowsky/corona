@@ -1679,8 +1679,8 @@ namespace corona
 		virtual void put_json(json& _src)
 		{
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "sources", "table_name" })) {
-				system_monitoring_interface::active_mon->log_warning("list_select_object missing:");
+			if (not _src.has_members(missing, { "table_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_clear missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -1806,12 +1806,15 @@ namespace corona
 
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
+			if (object_key.empty()) {
+                _bus->log_warning("load_object_command: object_key is empty");
+			}
 			return object_key;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
-			auto response = _bus->get_object(instance, request);
+			auto response = _bus->edit_object(instance, request);
 			return response;
 		}
 
@@ -1835,6 +1838,8 @@ namespace corona
 		{
 			using namespace std::literals;
 
+			corona_form_command::get_json(_dest);
+
 			_dest.put_member("class_name", "load_object"sv);
 			_dest.put_member("target_frame", target_frame);
 			if (sources) {
@@ -1848,9 +1853,11 @@ namespace corona
 
 		virtual void put_json(json& _src)
 		{
+			corona_form_command::put_json(_src);
+
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "sources", "table_name" })) {
-				system_monitoring_interface::active_mon->log_warning("list_select_object missing:");
+			if (not _src.has_members(missing, { "object_key", "target_frame" })) {
+				system_monitoring_interface::active_mon->log_warning("load_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
@@ -2592,8 +2599,9 @@ namespace corona
 		virtual json execute(comm_desktop_bus_interface* bus)
 		{
 			json obj;
+			auto batch_id = bus->start_batch();
 			for (auto comm : commands) {
-				obj = comm->execute_sync(batch_id, bus);
+				bus->run_command(batch_id, comm);
 			}
 			return obj;
 		}

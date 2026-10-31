@@ -48,20 +48,6 @@
                   "children": [
                     {
                       "class_name": "command_button",
-                      "name": "clear_list_button",
-                      "image": "clear.png",
-                      "text": "Clear List",
-                      "box": {
-                        "width": "100 pixels",
-                        "height": "75 pixels"
-                      },
-                      "on_click": {
-                        "class_name": "list_clear",
-                        "table_name": "result_table"
-                      }
-                    },
-                    {
-                      "class_name": "command_button",
                       "name": "mission_button",
                       "image": "mission.png",
                       "text": "To Mission",
@@ -72,11 +58,28 @@
                       "on_click": {
                         "class_name": "load_object",
                         "form_name": "search_input",
-                        "detail_frame": "frame_selected",
+                        "target_frame": "frame_selected",
                         "object_key": {
                           "class_name": "mission",
                           "object_id": 42
+                        },
+                        "sources": {
+                          "mission": "object_mission"
                         }
+                      }
+                    },
+                    {
+                      "class_name": "command_button",
+                      "name": "clear_list_button",
+                      "image": "clear.png",
+                      "text": "Clear List",
+                      "box": {
+                        "width": "100 pixels",
+                        "height": "75 pixels"
+                      },
+                      "on_click": {
+                        "class_name": "list_clear",
+                        "table_name": "result_table"
                       }
                     }
 

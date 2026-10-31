@@ -3460,6 +3460,8 @@ private:
 				}
 			}
 
+			json startup_command;
+
 			// here we build the search pages.  each team gets a search page.
 
 			if (team_mappings.object()) {
@@ -3614,6 +3616,10 @@ private:
 	{ "$update_filter", update_filter }
 									});
 
+								if (startup_command.empty()) {
+									startup_command = search_command["on_click"];
+								}
+
                                 search_group_commands.push_back(search_command);
 							}
 
@@ -3660,6 +3666,12 @@ private:
                         override_page.save(page_file_path);
                     }
                 }
+			}
+
+			if (startup_command.object()) {
+				pages_template.apply_abbreviations({
+                    { "$startup_command", startup_command }
+                    });
 			}
 
             abbreviations.put_member("card_sources", card_sources);

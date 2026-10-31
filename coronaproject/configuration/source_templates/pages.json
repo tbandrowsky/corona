@@ -203,7 +203,8 @@
       "target_frame": "page_home.frame_home",
       "source_frame": "$user_team",
       "message": "layout test."
-    }
+    },
+    "$startup_command"
   ],
   "pages": [
   ]
