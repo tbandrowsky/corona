@@ -8,53 +8,6 @@
       "box": "full_container",
       "children": [
         {
-          "class_name": "placeholder",
-          "name": "search_placeholder",
-          "text": "",
-          "box": {
-            "width": "1.0 container",
-            "height": "16.0 pixels"
-          }
-        },
-        {
-          "class_name": "row",
-          "name": "search_top_bar",
-          "box": {
-            "width": "1.0 container",
-            "height": "40 pixels"
-          },
-          "padding": "8 pixels",
-          "children": [
-            {
-              "class_name": "chaptertitle",
-              "name": "score_title",
-              "box": {
-                "width": "310 pixels",
-                "height": "40 pixels"
-              },
-              "text": "Mission"
-            },
-            {
-              "class_name": "chaptertitle",
-              "name": "list_title",
-              "box": {
-                "width": "410 pixels",
-                "height": "40 pixels"
-              },
-              "text": "List"
-            },
-            {
-              "class_name": "chaptertitle",
-              "name": "edit_title",
-              "box": {
-                "width": "1.0 remaining",
-                "height": "40 pixels"
-              },
-              "text": "Detail"
-            }
-          ]
-        },
-        {
           "class_name": "row",
           "name": "search_section",
           "box": {
@@ -64,7 +17,7 @@
           "padding": "8 pixels",
           "children": [
             {
-              "class_name": "column",
+              "class_name": "navigation",
               "name": "search_commands",
               "box": {
                 "width": "300 pixels",
@@ -73,7 +26,7 @@
               "view_style": {
                 "box_fill_brush": {
                   "class_name": "solid_brush",
-                  "color": "111161"
+                  "color": "263342"
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
@@ -85,7 +38,7 @@
               "wrap": true,
               "children": [
                 {
-                  "class_name": "row",
+                  "class_name": "navigation_section",
                   "name": "global_score_card",
                   "box": {
                     "width": "1.0 container",
@@ -124,7 +77,7 @@
                   ]
                 },
                 {
-                  "class_name": "chaptertitle",
+                  "class_name": "navigation_section_title",
                   "name": "navigation_title",
                   "box": {
                     "width": "1.0 container",
@@ -133,7 +86,7 @@
                   "text": "Dataset"
                 },
                 {
-                  "class_name": "row",
+                  "class_name": "navigation_section",
                   "name": "search_groups",
                   "box": {
                     "width": "1.0 container",
@@ -145,7 +98,7 @@
                   ]
                 },
                 {
-                  "class_name": "chaptersubtitle",
+                  "class_name": "navigation_section_subtitle",
                   "name": "search_title",
                   "box": {
                     "width": "1.0 container",
@@ -154,22 +107,11 @@
                   "text": "Search"
                 },
                 {
-                  "class_name": "row",
+                  "class_name": "navigation_section",
                   "name": "search_criteria",
                   "box": {
                     "width": "1.0 container",
                     "height": "75 pixels"
-                  },
-                  "view_style": {
-                    "box_fill_brush": {
-                      "class_name": "solid_brush",
-                      "color": "111121"
-                    },
-                    "box_border_brush": {
-                      "class_name": "solid_brush",
-                      "color": "111112"
-                    },
-                    "box_border_thickness": 4
                   },
                   "children": [
                     {
@@ -231,7 +173,7 @@
                   ]
                 },
                 {
-                  "class_name": "chaptersubtitle",
+                  "class_name": "navigation_section_subtitle",
                   "name": "create_title",
                   "box": {
                     "width": "1.0 container",
@@ -240,7 +182,7 @@
                   "text": "Create"
                 },
                 {
-                  "class_name": "row",
+                  "class_name": "navigation_section",
                   "name": "create_commands",
                   "box": {
                     "width": "1.0 container",
@@ -250,7 +192,7 @@
                   "children": []
                 },
                 {
-                  "class_name": "chaptersubtitle",
+                  "class_name": "navigation_section_subtitle",
                   "name": "reports_title",
                   "box": {
                     "width": "1.0 container",
@@ -259,7 +201,7 @@
                   "text": "Reports"
                 },
                 {
-                  "class_name": "row",
+                  "class_name": "navigation_section",
                   "name": "report_commands",
                   "box": {
                     "width": "1.0 container",

@@ -1010,6 +1010,46 @@ namespace corona
 			return *this;
 		}
 
+		control_builder& navigation(std::function<void(navigation_control&)> _settings, int _id)
+		{
+			auto tc = create<navigation_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section(std::function<void(navigation_section_control&)> _settings, int _id)
+		{
+			auto tc = create<navigation_section_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section_title(std::function<void(navigation_section_title_control&)> _settings)
+		{
+			auto tc = create<navigation_section_title_control>(id_counter::next());
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section_subtitle(std::function<void(navigation_section_subtitle_control&)> _settings)
+		{
+			auto tc = create<navigation_section_subtitle_control>(id_counter::next());
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
 		control_builder& chaptertitle(std::string text, std::function<void(chaptertitle_control&)> _settings, int _id)
 		{
 			auto tc = create<chaptertitle_control>(_id);
@@ -2896,6 +2936,34 @@ namespace corona
 		else if (class_name == "chest_view")
 		{
 			chest_view_create(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "navigation")
+		{
+			navigation([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				}, id_counter::next());
+		}
+		else if (class_name == "navigation_section")
+		{
+			navigation_section([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties); 
+				_ctrl.set_data(control_data, true);
+				}, id_counter::next());
+		}
+		else if (class_name == "navigation_section_title")
+		{
+			navigation_section_title([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "navigation_section_subtitle")
+		{
+			navigation_section_subtitle([&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});

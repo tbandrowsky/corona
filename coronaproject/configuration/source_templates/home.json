@@ -7,7 +7,7 @@
     {
       "class_name": "column",
       "box": "full_container",
-      "padding": "8 pixels",
+      "padding": "4 pixels",
       "content_alignment": "near",
       "content_cross_alignment": "center",
       "children": [
@@ -37,10 +37,6 @@
               "color": "111112"
             },
             "box_border_thickness": 4
-          },
-          "padding": {
-            "amount": 8,
-            "units": "pixels"
           },
           "content_alignment": "near",
           "content_cross_alignment": "near",

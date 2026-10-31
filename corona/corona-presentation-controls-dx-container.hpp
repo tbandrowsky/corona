@@ -310,6 +310,37 @@ namespace corona
 
 	};
 
+	class navigation_control :
+		public column_layout
+	{
+
+	public:
+
+		navigation_control() { ; }
+		navigation_control(const navigation_control& _src) : column_layout(_src)
+		{
+		}
+
+		navigation_control(control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
+
+		virtual ~navigation_control() { ; }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_control>(*this);
+			return tv;
+		}
+
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->NavigationStyle;
+		}
+
+	};
+
+
 	class row_layout :
 		public container_control
 	{
@@ -372,6 +403,36 @@ namespace corona
 		}
 
 	};
+
+	class navigation_section_control :
+		public row_layout
+	{
+
+	public:
+
+		navigation_section_control() { ; }
+		navigation_section_control(const navigation_section_control& _src) : row_layout(_src)
+		{}
+
+		navigation_section_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+
+		virtual ~navigation_section_control() { ; }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_section_control>(*this);
+			return tv;
+		}
+
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->NavigationSectionStyle;
+		}
+
+	};
+
 
 	class frame_navigation
 	{
