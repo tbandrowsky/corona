@@ -163,7 +163,7 @@ namespace corona
             }
 
             if (background_name.size()) {
-                rectangle r = inner_bounds;
+                rectangle r = bounds;
                 _context->drawRectangle(&r, "", 0, background_name);
             }
 
@@ -1891,6 +1891,7 @@ namespace corona
 
         bool                enabled = true;
         bool                toolbar_button = false;
+        bool                split_button = false;
 
         command_button_control() : gradient_button_control() {
             init_text_styles();
@@ -1915,6 +1916,8 @@ namespace corona
             enabled = _src.enabled;
             toolbar_button = _src.toolbar_button;
             on_click_set = _src.on_click_set;
+            toolbar_button = _src.toolbar_button;
+            split_button = _src.split_button;
             init();
         }
 
@@ -1997,6 +2000,13 @@ namespace corona
 
         virtual bool set_property(std::string _property_name, json _value) override;
 
+        virtual void set_parameter(std::string _name, std::string _value)
+        {
+            if (click_command) {
+                click_command->set_parameter(_name, _value);
+            }
+        }
+
         virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _item)
         {
 
@@ -2027,7 +2037,14 @@ namespace corona
                     if (backlight_brush) {
                         D2D1_ELLIPSE ellipse;
 
-                        if (toolbar_button)
+                        if (split_button)
+                        {
+                            ellipse.radiusX = _bounds->w / 2.3f;
+                            ellipse.radiusY = _bounds->h / 2.3f;
+                            ellipse.point.x = _bounds->x + _bounds->w * 2.0f / 3.3f;
+                            ellipse.point.y = _bounds->y + _bounds->h / 2.0; // I recognize the evil of exploiting this.
+                        }
+                        else if (toolbar_button)
                         {
                             ellipse.radiusX = _bounds->w / 3.3f;
                             ellipse.radiusY = _bounds->h / 3.3f;
@@ -2057,7 +2074,7 @@ namespace corona
                     }
                 }
 
-                if (child_draw_order == draw_children_order::draw_after_middleground) {
+                if (!split_button &&child_draw_order == draw_children_order::draw_after_middleground) {
                     for (auto child : children) {
                         auto child_bounds = child->get_bounds();
                         if (this->button_down || (this->selected_state_enabled && this->selected_state)) {
@@ -2082,6 +2099,19 @@ namespace corona
                         draw_bounds.y = inner_bounds.y + (inner_bounds.bottom() - inner_bounds.y) * 1.0 / 2.0;
                         _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
                     }
+                }
+                else if (split_button)
+                {
+                    draw_bounds.x += 4;
+                    if (icon_it != segoeMDL2Icons.end()) {
+                        draw_bounds.w = 16;
+                        draw_bounds.y += 8;
+                        _context->drawText(icon_it->second.c_str(), &draw_bounds, this->icon_style.name, _foreground->name);
+                        draw_bounds.x = draw_bounds.x + 16;
+                        draw_bounds.y -= 4;
+                    }
+                    draw_bounds.w = inner_bounds.right() - draw_bounds.x;
+                    _context->drawText(button_text, &draw_bounds, this->text_style.name, _foreground->name, std::string(""));
                 }
                 else if (icon_it != segoeMDL2Icons.end()) {
                     draw_bounds.x += 4;
@@ -2116,6 +2146,11 @@ namespace corona
                 sz.x = 0;
             }
             return sz;
+        }
+
+        virtual void set_text(std::string _text) 
+        {
+            button_text = _text;
         }
 
         // this sort of thing is why MS went down the path of light and truth and had great
@@ -2163,6 +2198,7 @@ namespace corona
             _dest.put_member("enable_source_frame", enable_source_frame);
             _dest.put_member("enable_class_name", enable_class_name);
             _dest.put_member("toolbar_button", toolbar_button);
+            _dest.put_member("split_button", split_button);
 
             switch (draw_style) 
             {
@@ -2186,6 +2222,7 @@ namespace corona
             selected_state_enabled = _src["selected_state_enabled"].as_bool();
             selected_state = false;
             toolbar_button = _src["toolbar_button"].as_bool();
+            split_button = _src["split_button"].as_bool();
 
             json jcommand = _src["on_click"];
             if (jcommand.empty()) {

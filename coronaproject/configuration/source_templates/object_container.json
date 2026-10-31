@@ -17,12 +17,7 @@
           "underline": false,
           "vertical_alignment": "far"
         },
-        "shape_border_thickness": 0,
-        "box_border_thickness": 4,
-        "box_border_brush": {
-          "class_name": "solid_brush",
-          "color": "000000"
-        }
+        "shape_border_thickness": 0
       },
       "children": [
         {
@@ -46,10 +41,6 @@
             "shape_fill_brush": {
               "class_name": "solid_brush",
               "color": "FFFFEE"
-            },
-            "box_fill_brush": {
-              "class_name": "solid_brush",
-              "color": "000000"
             }
           },
           "children": [

@@ -996,12 +996,12 @@ namespace corona {
 	{
 		if (auto ptr = window_host.lock()) {
 			control_base* ctrl = (control_base*)::GetWindowLongPtr(dropDownId, GWLP_USERDATA);
-			windows_control* wctrl = dynamic_cast<windows_control*>(ctrl);
+			combobox_control* wctrl = dynamic_cast<combobox_control*>(ctrl);
 			list_changed_event lce;
 			if (wctrl) {
-				std::string new_text = ptr->getComboSelectedText(wctrl->id);
-				int index_lists = ptr->getComboSelectedIndex(wctrl->id);
-				int value = ptr->getComboSelectedValue(wctrl->id);
+				std::string new_text = wctrl->get_selected_text();
+				int index_lists = wctrl->get_selected_index();
+				int value = wctrl->get_selected_value();
 				lce.selected_text = new_text;
 				lce.selected_value = value;
 				lce.selected_index = index_lists;
@@ -1024,9 +1024,9 @@ namespace corona {
 			list_changed_event lce;
 			if (wctrl) {
 				ptr->setRedraw(wctrl->id, true);
-				std::string new_text = ptr->getComboSelectedText(wctrl->id);
-				int index_lists = ptr->getComboSelectedIndex(wctrl->id);
-				int value = ptr->getComboSelectedValue(wctrl->id);
+				std::string new_text = ptr->getListSelectedText(wctrl->id);
+				int index_lists = ptr->getListSelectedIndex(wctrl->id);
+				int value = ptr->getListSelectedValue(wctrl->id);
 				lce.selected_text = new_text;
 				lce.selected_value = value;
 				lce.selected_index = index_lists;

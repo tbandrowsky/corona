@@ -331,6 +331,40 @@ namespace corona
 		virtual ~chaptersubtitle_control();
 	};
 
+	class navigation_section_title_control : public text_display_control
+	{
+	public:
+		navigation_section_title_control();
+		navigation_section_title_control(const navigation_section_title_control& _src) = default;
+		navigation_section_title_control(control_base* _parent, int _id);
+		virtual void set_default_styles();
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_section_title_control>(*this);
+			return tv;
+		}
+
+		virtual ~navigation_section_title_control();
+	};
+
+	class navigation_section_subtitle_control : public text_display_control
+	{
+	public:
+		navigation_section_subtitle_control();
+		navigation_section_subtitle_control(const navigation_section_subtitle_control& _src) = default;
+		navigation_section_subtitle_control(control_base* _parent, int _id);
+
+		virtual void set_default_styles();
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_section_subtitle_control>(*this);
+			return tv;
+		}
+
+		virtual ~navigation_section_subtitle_control();
+	};
+
 	class paragraph_control : public text_display_control
 	{
 	public:
@@ -724,6 +758,48 @@ namespace corona
 	chaptersubtitle_control::~chaptersubtitle_control()
 	{
 	}
+
+
+	void navigation_section_title_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		view_style = st->get_style()->NavigationSectionTitleStyle;
+	}
+
+	navigation_section_title_control::navigation_section_title_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
+	{
+
+	}
+
+	navigation_section_title_control::navigation_section_title_control()
+	{
+
+	}
+
+	navigation_section_title_control::~navigation_section_title_control()
+	{}
+
+	void navigation_section_subtitle_control::set_default_styles()
+	{
+		auto st = presentation_style_factory::get_current();
+
+		view_style = st->get_style()->NavigationSectionSubTitleStyle;
+
+	}
+
+	navigation_section_subtitle_control::navigation_section_subtitle_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
+	{
+
+	}
+
+	navigation_section_subtitle_control::navigation_section_subtitle_control()
+	{
+
+	}
+
+	navigation_section_subtitle_control::~navigation_section_subtitle_control()
+	{}
 
 
 	void edit_label_control::set_default_styles()

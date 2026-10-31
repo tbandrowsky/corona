@@ -38,6 +38,14 @@ namespace corona
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
+	class dropdown_field_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
+		layout_rect status_box = { 0.0_px, 25.0_px, 1.0_container, 20.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
+	};
+
 	class horizontal_field_layout {
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
@@ -339,8 +347,8 @@ namespace corona
 	using animate_field_control = field_layout<default_layout, animate_control, default_field_layout>;
 	using richedit_field_control = field_layout<default_layout, richedit_control, default_field_layout>;
 	using draglistbox_field_control = field_layout<default_layout, draglistbox_control, default_field_layout>;
-	using combobox_field_control = field_layout<default_layout, combobox_control, default_field_layout>;
-	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, default_field_layout>;
+	using combobox_field_control = field_layout<default_layout, combobox_control, dropdown_field_layout>;
+	using comboboxex_field_control	 = field_layout<default_layout, comboboxex_control, dropdown_field_layout>;
 	using datetimepicker_field_control = field_layout<default_layout, datetimepicker_control, default_field_layout>;
 	using monthcalendar_field_control = field_layout<default_layout, monthcalendar_control, default_field_layout>;
 	using radiobutton_list_field_control = field_layout<default_layout, radiobutton_list_control, default_field_layout>;
@@ -1002,6 +1010,46 @@ namespace corona
 			return *this;
 		}
 
+		control_builder& navigation(std::function<void(navigation_control&)> _settings, int _id)
+		{
+			auto tc = create<navigation_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section(std::function<void(navigation_section_control&)> _settings, int _id)
+		{
+			auto tc = create<navigation_section_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section_title(std::function<void(navigation_section_title_control&)> _settings)
+		{
+			auto tc = create<navigation_section_title_control>(id_counter::next());
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
+		control_builder& navigation_section_subtitle(std::function<void(navigation_section_subtitle_control&)> _settings)
+		{
+			auto tc = create<navigation_section_subtitle_control>(id_counter::next());
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+
 		control_builder& chaptertitle(std::string text, std::function<void(chaptertitle_control&)> _settings, int _id)
 		{
 			auto tc = create<chaptertitle_control>(_id);
@@ -1284,6 +1332,15 @@ namespace corona
 		control_builder& edit(int _id, std::function<void(edit_control&)> _settings = nullptr)
 		{
 			auto tc = create<edit_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
+		control_builder& split_button(int _id, std::function<void(split_button_control&)> _settings = nullptr)
+		{
+			auto tc = create<split_button_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -1821,6 +1878,7 @@ namespace corona
 		{
 			children.clear();
 
+
 			if (content_frame_name.empty()) {
 				content_frame_name = "tab_content_frame_" + std::to_string((uint64_t)this);
             }
@@ -1866,7 +1924,7 @@ namespace corona
             content_frame = std::make_shared<frame_layout>();
 			content_frame->set_size(1.0_container, 1.0_remaining);
 			content_frame->set_name(content_frame_name);
-			content_frame->set_padding(16.0_px);
+			content_frame->set_padding(8.0_px);
 			main->children.push_back(content_frame);
 
 			for (int i = 0; i < tab_panes.size(); i++)
@@ -1898,6 +1956,7 @@ namespace corona
 
 	public:
 
+		validation_error_collection errors;
 
 		tab_view_control()
 		{
@@ -1918,6 +1977,13 @@ namespace corona
 
 		virtual ~tab_view_control()
 		{
+		}
+
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->ObjectStyle;
 		}
 
 		virtual bool is_control_message(int _key)
@@ -1943,7 +2009,7 @@ namespace corona
 			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
 			for (auto& child		: children) {
 				auto sz = child->get_size(this);
-				point item_origin = { bounds.x, bounds.y, 0.0 };
+				point item_origin = { inner_bounds.x, inner_bounds.y, 0.0 };
 				point item_position = child->get_position(this);
 				item_origin.x += item_position.x;
 				item_origin.y += item_position.y;
@@ -2040,9 +2106,8 @@ namespace corona
 					auto service = comm_desktop_bus_interface::get_service();
 					int batch_id = service->start_batch();
 					auto controls = tp.controls;
-					validation_error_collection vs;
 					content_frame->navigate_clear(batch_id);
-                    content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, vs);
+                    content_frame->set_contents(batch_id, tp.pane.name, controls, control_slice, errors);
 				}
 			}
 		}
@@ -2153,6 +2218,20 @@ namespace corona
 		virtual void object_deleted(json_object _data) override
 		{
 
+		}
+
+		virtual void set_errors(const validation_error_collection& _errors)
+		{
+			errors = _errors;
+			if (content_frame) {
+				content_frame->set_errors(errors);
+			}
+		}
+
+		virtual void clear_errors()
+		{
+			errors.clear();
+			container_control::clear_errors();
 		}
 
 	};
@@ -2430,6 +2509,13 @@ namespace corona
 		else if (class_name == "memo")
 		{
 			memo(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "split_button")
+		{
+			split_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});
@@ -2858,6 +2944,34 @@ namespace corona
 		else if (class_name == "chest_view")
 		{
 			chest_view_create(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "navigation")
+		{
+			navigation([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				}, id_counter::next());
+		}
+		else if (class_name == "navigation_section")
+		{
+			navigation_section([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties); 
+				_ctrl.set_data(control_data, true);
+				}, id_counter::next());
+		}
+		else if (class_name == "navigation_section_title")
+		{
+			navigation_section_title([&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
+		else if (class_name == "navigation_section_subtitle")
+		{
+			navigation_section_subtitle([&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});

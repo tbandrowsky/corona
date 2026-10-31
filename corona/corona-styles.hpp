@@ -86,6 +86,12 @@ namespace corona
 		std::shared_ptr<viewStyleRequest> EmptyListStyle;
 		std::shared_ptr<viewStyleRequest> TabStyle;
 		std::shared_ptr<viewStyleRequest> FootnoteStyle;
+		std::shared_ptr<viewStyleRequest> NavigationStyle;
+		std::shared_ptr<viewStyleRequest> NavigationSectionStyle;
+		std::shared_ptr<viewStyleRequest> NavigationSectionTitleStyle;
+		std::shared_ptr<viewStyleRequest> NavigationSectionSubTitleStyle;
+		std::shared_ptr<viewStyleRequest> ItemsViewStyle;
+		std::shared_ptr<viewStyleRequest> ObjectStyle;
 	};
 
 	void get_json(json& _dest, presentation_style& _src)
@@ -111,6 +117,13 @@ namespace corona
 		json empty_list_style = jp.create_object();
 		json tab_style = jp.create_object();
         json footnot_style = jp.create_object();
+
+        json navigation_style = jp.create_object();
+		json navigation_section_style = jp.create_object();
+        json navigation_section_title_style = jp.create_object();
+        json navigation_section_subtitle_style = jp.create_object();
+        json items_view_style = jp.create_object();
+        json object_style = jp.create_object();
 
 		_dest.put_member("primary_font", _src.PrimaryFont);
 		get_json(_dest, "primary_alignment", _src.PrimaryAlignment);
@@ -186,7 +199,30 @@ namespace corona
 			get_json(footnot_style, *_src.FootnoteStyle.get());
 			_dest.put_member("footnote_style", footnot_style);
 		}
-
+        if (_src.NavigationStyle) {
+            get_json(navigation_style, *_src.NavigationStyle.get());
+            _dest.put_member("navigation_style", navigation_style);
+        }
+        if (_src.NavigationSectionStyle) {
+            get_json(navigation_section_style, *_src.NavigationSectionStyle.get());
+            _dest.put_member("navigation_section_style", navigation_section_style);
+        }
+        if (_src.ItemsViewStyle) {
+            get_json(items_view_style, *_src.ItemsViewStyle.get());
+            _dest.put_member("items_view_style", items_view_style);
+        }
+        if (_src.ObjectStyle) {
+            get_json(object_style, *_src.ObjectStyle.get());
+            _dest.put_member("object_style", object_style);
+        }
+        if (_src.NavigationSectionTitleStyle) {
+            get_json(navigation_section_title_style, *_src.NavigationSectionTitleStyle.get());
+            _dest.put_member("navigation_section_title_style", navigation_section_title_style);
+        }
+        if (_src.NavigationSectionSubTitleStyle) {
+            get_json(navigation_section_subtitle_style, *_src.NavigationSectionSubTitleStyle.get());
+            _dest.put_member("navigation_section_subtitle_style", navigation_section_subtitle_style);
+        }
 	}
 
 	void put_json(presentation_style& _dest, json& _src)
@@ -196,7 +232,7 @@ namespace corona
 			"title_style", "subtitle_style", 
 			"chapter_title_style", "tab_style", "chapter_subtitle_style", 
             "note_style", "paragraph_style", "form_style", "label_style", "edit_label_style", "placeholder_style",
-			"error_style", "success_style", "code_style", "empty_list_style", "footnote_style" })) {
+			"error_style", "success_style", "code_style", "empty_list_style", "footnote_style", "navigation_style", "navigation_section_style", "items_view_style", "object_style" })) {
 			system_monitoring_interface::active_mon->log_warning("style sheet is missing");
 			std::for_each(missing.begin(), missing.end(), [](const std::string& s) { 
 				system_monitoring_interface::active_mon->log_warning(s);
@@ -369,6 +405,55 @@ namespace corona
 			}
 			put_json(_dest.EmptyListStyle, empty_list_style);
 			_dest.EmptyListStyle->set_default_name("empty_list_style");
+		}
+
+        json navigation_style = _src["navigation_style"];
+        if (navigation_style.object()) {
+            if (not _dest.NavigationStyle) {
+                _dest.NavigationStyle = std::make_shared<viewStyleRequest>();
+            }
+            put_json(_dest.NavigationStyle, navigation_style);
+            _dest.NavigationStyle->set_default_name("navigation_style");
+        }
+        json navigation_section_style = _src["navigation_section_style"];
+        if (navigation_section_style.object()) {
+            if (not _dest.NavigationSectionStyle) {
+                _dest.NavigationSectionStyle = std::make_shared<viewStyleRequest>();
+            }
+            put_json(_dest.NavigationSectionStyle, navigation_section_style);
+            _dest.NavigationSectionStyle->set_default_name("navigation_section_style");
+        }
+        json items_view_style = _src["items_view_style"];
+        if (items_view_style.object()) {
+            if (not _dest.ItemsViewStyle) {
+                _dest.ItemsViewStyle = std::make_shared<viewStyleRequest>();
+            }
+            put_json(_dest.ItemsViewStyle, items_view_style);
+            _dest.ItemsViewStyle->set_default_name("items_view_style");
+        }
+        json object_style = _src["object_style"];
+        if (object_style.object()) {
+            if (not _dest.ObjectStyle) {
+                _dest.ObjectStyle = std::make_shared<viewStyleRequest>();
+            }
+            put_json(_dest.ObjectStyle, object_style);
+            _dest.ObjectStyle->set_default_name("object_style");
+        }
+        json navigation_section_title_style = _src["navigation_section_title_style"];
+        if (navigation_section_title_style.object()) {
+            if (not _dest.NavigationSectionTitleStyle) {
+                _dest.NavigationSectionTitleStyle = std::make_shared<viewStyleRequest>();
+            }
+            put_json(_dest.NavigationSectionTitleStyle, navigation_section_title_style);
+            _dest.NavigationSectionTitleStyle->set_default_name("navigation_section_title_style");
+        }
+		json navigation_section_subtitle_style = _src["navigation_section_subtitle_style"];
+		if (navigation_section_subtitle_style.object()) {
+			if (not _dest.NavigationSectionSubTitleStyle) {
+				_dest.NavigationSectionSubTitleStyle = std::make_shared<viewStyleRequest>();
+			}
+			put_json(_dest.NavigationSectionSubTitleStyle, navigation_section_subtitle_style);
+			_dest.NavigationSectionSubTitleStyle->set_default_name("navigation_section_subtitle_style");
 		}
 
 	}

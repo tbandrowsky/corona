@@ -453,10 +453,12 @@ namespace corona
 
 	public:
 		json data;
+		json parameters;
 
 		corona_bus_command()
 		{
-			;
+			json_parser jp;
+            parameters = jp.create_object();
 		}
 
 		virtual json execute(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
@@ -464,6 +466,7 @@ namespace corona
 
 		virtual void set_parameter(std::string _name, std::string _value)
 		{
+            parameters.put_member_string(_name, _value);
 		}
 
 		virtual void get_json(json& _dest)

@@ -3460,6 +3460,8 @@ private:
 				}
 			}
 
+			json startup_command;
+
 			// here we build the search pages.  each team gets a search page.
 
 			if (team_mappings.object()) {
@@ -3488,10 +3490,13 @@ private:
 
 							std::string sg_list_title_text = sg["list_title_text"].as_string();
 							std::string sg_edit_title_text = sg["edit_title_text"].as_string();
-							std::string sg_section_title_text = sg["section_title_text"].as_string();
+							std::string sg_search_title_text = sg["search_title_text"].as_string();
+							std::string sg_reports_title_text = sg["reports_title_text"].as_string();
+							std::string sg_create_title_text = sg["create_title_text"].as_string();
 
 							json sg_new_objects = sg["new_objects"];
-							std::string sg_search_commands_control = sg["commands_control"].as_string();
+							std::string sg_create_commands_control = sg["create_control"].as_string();
+							std::string sg_reports_commands_control = sg["reports_control"].as_string();
 							std::string chart_name = sg["chart_name"].as_string();
 
 							json chart_pages = chart_template.clone();
@@ -3516,28 +3521,36 @@ private:
 							}
 
 							json search_create_commands = jp.create_array();
+							json search_report_commands = jp.create_array();
+                            json search_create_command = create_command_class_template.clone();
+
+                            auto class_name = sg["create_command_class"].as_string();
+                            json empty = jp.create_object();
+
+							search_create_command.apply_abbreviations({
+									{ "$split_button_name", jp.from_string(class_name + "_button")},
+									{ "$create_button_image", jp.from_string(std::format("{}.png", class_name)) },
+									{ "$create_button_text", jp.from_string(class_name) },
+									{ "$create_button_message", jp.from_string("new " + class_name) },
+									{ "$class_edit_page", form_sources[class_name] },
+	                                { "$constructor_copies", empty },
+									{ "$sources", form_sources }
+								});
+
+							json create_classes = jp.create_array();
 
 							for (auto sg_class : new_object_classes) {
+                                json jcreate_class = jp.create_object();
+                                jcreate_class.put_member("class_name", sg_class); 
+								create_classes.push_back(jcreate_class);
+							}
 
-								// this is for the classes you can create in the search group.  like the options panel
-
-								auto sgclassd = read_lock_class(sg_class);
-								if (!sgclassd) {
-									log_warning("class " + sg_class + " not found", __FILE__, __LINE__);
-									return jp.create_object();
-								}
-
-								json create_command = create_command_class_template.clone();
-
-								create_command.apply_abbreviations({
-									{ "$create_button_class", jp.from_string(sgclassd->get_class_name()) },
-									{ "$create_button_name", jp.from_string("create_" + sgclassd->get_class_name() + "_button") },
-									{ "$create_button_image", jp.from_string(std::format("{}.png", sgclassd->get_class_name())) },
-									{ "$create_button_text", jp.from_string(sgclassd->get_class_name()) },
-									{ "$create_button_message", jp.from_string("new " + sgclassd->get_class_name()) },
-									{ "$class_edit_page", form_sources[sgclassd->get_class_name()] }
+							if (create_classes.size() > 0) 
+							{
+								search_create_command.apply_abbreviations({
+										{ "$create_classes", create_classes }
 									});
-								search_create_commands.push_back(create_command);
+								search_create_commands.push_back(search_create_command);
 							}
 
 							if (charts.array()) {
@@ -3567,7 +3580,7 @@ private:
 										{ "$chart", chart_actual }
 										});
 
-									search_create_commands.push_back(chart_command);
+									search_report_commands.push_back(chart_command);
 								}
 
 							}
@@ -3591,13 +3604,21 @@ private:
 	{ "$search_button_name", jp.from_string("query_" + sgclassd->get_class_name() + "_button") },
 	{ "$search_button_image", jp.from_string(std::format("{}.png", sgclassd->get_class_name())) },
 	{ "$search_button_text", jp.from_string(sgclassd->get_class_name()) },
-	{ "$section_title_text", jp.from_string(sg_section_title_text) },
+	{ "$search_title_text", jp.from_string(sg_search_title_text) },
+	{ "$create_title_text", jp.from_string(sg_create_title_text) },
+	{ "$reports_title_text", jp.from_string(sg_reports_title_text) },
 	{ "$list_title_text", jp.from_string(sg_list_title_text) },
 	{ "$edit_title_text", jp.from_string(sg_edit_title_text) },
 	{ "$create_commands", search_create_commands },
-	{ "$commands_control", jp.from_string(sg_search_commands_control) },
+	{ "$report_commands", search_report_commands },
+	{ "$create_commands_control", jp.from_string(sg_create_commands_control) },
+	{ "$report_commands_control", jp.from_string(sg_reports_commands_control) },
 	{ "$update_filter", update_filter }
 									});
+
+								if (startup_command.empty()) {
+									startup_command = search_command["on_click"];
+								}
 
                                 search_group_commands.push_back(search_command);
 							}
@@ -3645,6 +3666,12 @@ private:
                         override_page.save(page_file_path);
                     }
                 }
+			}
+
+			if (startup_command.object()) {
+				pages_template.apply_abbreviations({
+                    { "$startup_command", startup_command }
+                    });
 			}
 
             abbreviations.put_member("card_sources", card_sources);
@@ -4219,23 +4246,38 @@ private:
 
 				std::string tab_list_table_name = "tl_" + class_name + "_" + member_name + "_table";
 
-                auto field = classd->get_field(member_name);
-				for (auto allowed_class : field->get_allowed_classes()) {
-					json new_item = create_command_class_template.clone();
-
-                    json update_filter = jp.create_object();				
-					new_item.apply_abbreviations({
-							{ "$create_button_class", jp.from_string(allowed_class) },
-							{ "$create_button_name", jp.from_string("create_" + allowed_class + "_button") },
-							{ "$create_button_image", jp.from_string(std::format("{}.png", allowed_class)) },
-							{ "$create_button_text", jp.from_string(allowed_class) },
-							{ "$create_button_message", jp.from_string("new " + allowed_class) },
-							{ "$class_edit_page", form_sources[allowed_class] }
+				json command_dropdown = create_command_class_template.clone();
+				std::string class_name = classd->get_class_name();
+				command_dropdown.apply_abbreviations({
+						{ "$split_button_name", jp.from_string(class_name + "_button")},
+						{ "$create_button_image", jp.from_string(std::format("{}.png", class_name)) },
+						{ "$create_button_text", jp.from_string(class_name) },
+						{ "$create_button_message", jp.from_string("new " + class_name) },
+						{ "$class_edit_page", form_sources[class_name] }
 					});
 
-					json click_command = new_item["on_click"];
-					click_command.put_member_string("create_class_name", allowed_class);
-					click_command.put_member_string("constructor_frame", "frame_selected");
+				json constructor_copies = jp.create_object();
+				json sources = jp.create_object();
+
+                json create_classes = jp.create_array();
+
+                auto field = classd->get_field(member_name);
+				for (auto allowed_class : field->get_allowed_classes()) {
+
+					auto classdef = read_lock_class(allowed_class);
+					auto descendants =classdef->get_descendants();
+
+					if (descendants.size()>1) 
+					{
+						continue;
+					}
+
+                    json new_class = jp.create_object();
+                    new_class.put_member("class_name", allowed_class);
+
+                    create_classes.push_back(new_class);
+
+                    json update_filter = jp.create_object();				
 
 					// so now, we need to get the class definition from the child, so we can get the field
 					// name where we need to stick our reference to the parent in the child 
@@ -4246,7 +4288,9 @@ private:
 						if (ref_target) {
 							json jcopy = jp.create_object();
 							jcopy.put_member_string(ref_target->get_field_name(), reference_field);
-							click_command.put_member("constructor_copy", jcopy);
+                            constructor_copies.put_member(allowed_class, jcopy);
+							json source = form_sources[allowed_class];
+                            sources.put_member(allowed_class, source);
 						}
 						else
 						{
@@ -4259,12 +4303,15 @@ private:
 					}
 
 					std::string form = std::format("object_{}", allowed_class);//form_sources[class_name].as_string();
-					click_command.put_member_string("source_frame", form);
-					click_command.put_member_string("target_frame", "frame_selected");
-					new_item.put_member_string("message", "Create " + allowed_class);
-
-                    tab_create_commands.push_back(new_item);
 				}
+
+				command_dropdown.apply_abbreviations({
+		{ "$constructor_copies", constructor_copies },
+		{ "$sources", sources },
+        { "$create_classes", create_classes }
+					});
+
+				tab_create_commands.push_back(command_dropdown);
 
 				json abbreviations = jp.create_object();
 				abbreviations.put_member("$tab_list_commands", tab_create_commands);

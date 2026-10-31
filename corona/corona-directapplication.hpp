@@ -115,20 +115,6 @@ namespace corona
 		virtual void setEditText(int textControlId, const char* _string);
 		virtual std::string getEditText(int textControlId);
 
-		// drop downs
-		virtual void clearComboItems(int ddlControlId);
-		virtual void addComboItem(int ddlControlId, std::string& _src, int _data);
-		virtual void addComboItem(int ddlControlId, const char* _text, int _data);
-		virtual std::string getComboSelectedText(int ddlControlId);
-		virtual int getComboSelectedIndex(int ddlControlId);
-		virtual int getComboSelectedValue(int ddlControlId);
-		virtual void setComboSelectedIndex(int ddlControlId, int index_lists);
-		virtual void setComboSelectedText(int ddlControlId, std::string& _text);
-		virtual void setComboSelectedText(int ddlControlId, const char* _text);
-		virtual void setComboSelectedValue(int ddlControlId, int value);
-		virtual void addFoldersToCombo(int ddlControlId, const char* _path);
-		virtual void addPicturesFoldersToCombo(int ddlControlId);
-
 		// ListBox
 		virtual std::string getListSelectedText(int ddlControlId);
 		virtual int getListSelectedValue(int ddlControlId);
@@ -1403,89 +1389,6 @@ namespace corona
 		return value;
 	}
 
-	std::string directApplicationWin32::getComboSelectedText(int ddlControlId)
-	{
-		std::string value = "";
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int newSelection = (int)::SendMessage(control, CB_GETCURSEL, 0, 0);
-		if (newSelection > -1) {
-			int length = (int)::SendMessage(control, CB_GETLBTEXTLEN, newSelection, 0);
-			char* buffer = new char[length + 16];
-			if (buffer) {
-				::SendMessage(control, CB_GETLBTEXT, newSelection, (LPARAM)buffer);
-				value = buffer;
-				delete[] buffer;
-			}
-		}
-		return value;
-	}
-
-	int directApplicationWin32::getComboSelectedIndex(int ddlControlId)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int newSelection = (int)::SendMessage(control, CB_GETCURSEL, 0, 0);
-		return newSelection;
-	}
-
-	int directApplicationWin32::getComboSelectedValue(int ddlControlId)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int newSelection = (int)::SendMessage(control, CB_GETCURSEL, 0, 0);
-		int data = (int)::SendMessage(control, CB_GETITEMDATA, newSelection, 0);
-		return data;
-	}
-
-	void directApplicationWin32::setComboSelectedIndex(int ddlControlId, int index_lists)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		::SendMessage(control, CB_SETCURSEL, index_lists, NULL);
-	}
-
-	void directApplicationWin32::setComboSelectedText(int ddlControlId, std::string& _text)
-	{
-		setComboSelectedText(ddlControlId, _text.c_str());
-	}
-
-	void directApplicationWin32::setComboSelectedText(int ddlControlId, const char* _text)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		auto index_lists = ::SendMessage(control, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)_text);
-		auto result = ::SendMessage(control, CB_SETCURSEL, index_lists, NULL);
-	}
-
-	void directApplicationWin32::setComboSelectedValue(int ddlControlId, int value)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int count = ::SendMessage(control, CB_GETCOUNT, NULL, NULL);
-		for (int i = 0; i < count; i++) {
-			int data = (int)::SendMessage(control, CB_GETITEMDATA, i, 0);
-			if (data == value) {
-				::SendMessage(control, CB_SETCURSEL, i, NULL);
-				break;
-			}
-		}
-	}
-
-	void directApplicationWin32::clearComboItems(int ddlControlId)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		::SendMessage(control, CB_RESETCONTENT, NULL, NULL);
-	}
-
-	void directApplicationWin32::addComboItem(int ddlControlId, std::string& _text, int _data)
-	{
-		addComboItem(ddlControlId, _text.c_str(), _data);
-	}
-
-	void directApplicationWin32::addComboItem(int ddlControlId, const char* _text, int _data)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-		int newItemIndex = (int)::SendMessage(control, CB_ADDSTRING, NULL, (LPARAM)_text);
-		if (newItemIndex != CB_ERR) {
-			int err = ::SendMessage(control, CB_SETITEMDATA, newItemIndex, (LPARAM)_data);
-		}
-	}
-
 	// listbox
 
 	std::string directApplicationWin32::getListSelectedText(int ddlControlId)
@@ -1621,8 +1524,8 @@ namespace corona
 					recurseBuff[MAX_PATH] = 0;
 					::PathAddBackslashA(recurseBuff);
 					::PathAppendA(recurseBuff, findData.cFileName);
-					addComboItem(ddlControlId, recurseBuff, 0);
-					addFoldersToCombo(ddlControlId, recurseBuff);
+					addListItem(ddlControlId, recurseBuff, 0);
+					addFoldersToList(ddlControlId, recurseBuff);
 				}
 			} while (FindNextFileA(hfind, &findData) != 0);
 		}
@@ -1640,77 +1543,6 @@ namespace corona
 			picturePathiw = picturePath;
 			picturePathi.copy(picturePathiw.c_str_w(), 1 << 16);
 			addFoldersToList(ddlControlId, picturePathi.c_str());
-		}
-	}
-
-	void directApplicationWin32::addFoldersToCombo(int ddlControlId, const char* _path)
-	{
-		HWND control = ::GetDlgItem(hwndRoot, ddlControlId);
-
-		char searchPath[MAX_PATH + 8];
-		strncpy_s(searchPath, _path, MAX_PATH);
-		searchPath[MAX_PATH] = 0;
-
-		char* lastChar = getLastChar(searchPath);
-		if (not lastChar)
-			return;
-
-		if (*lastChar == '\\') {
-			lastChar++;
-			*lastChar = '*';
-			lastChar++;
-			*lastChar = 0;
-		}
-		else if (*lastChar != '*') {
-			lastChar++;
-			*lastChar = '\\';
-			lastChar++;
-			*lastChar = '*';
-			lastChar++;
-			*lastChar = 0;
-		}
-
-		WIN32_FIND_DATAA findData;
-		ZeroMemory(&findData, sizeof(findData));
-
-		HANDLE hfind = INVALID_HANDLE_VALUE;
-
-		hfind = ::FindFirstFileA(searchPath, &findData);
-		if (hfind != INVALID_HANDLE_VALUE) {
-			do
-			{
-				// oh windows, . is really a directory, seriously!
-				if (strcmp(findData.cFileName, ".") == 0)
-					continue;
-
-				if (strcmp(findData.cFileName, "..") == 0)
-					continue;
-
-				if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					char recurseBuff[MAX_PATH + 8];
-					strncpy_s(recurseBuff, _path, MAX_PATH);
-					recurseBuff[MAX_PATH] = 0;
-					::PathAddBackslashA(recurseBuff);
-					::PathAppendA(recurseBuff, findData.cFileName);
-					addComboItem(ddlControlId, recurseBuff, 0);
-					addFoldersToCombo(ddlControlId, recurseBuff);
-				}
-			} while (FindNextFileA(hfind, &findData) != 0);
-		}
-	}
-
-	void directApplicationWin32::addPicturesFoldersToCombo(int ddlControlId)
-	{
-		PWSTR picturePath = nullptr;
-		iwstring<1 << 16> picturePathiw;
-		istring<1 << 16> picturePathi;
-
-		SHGetKnownFolderPath(FOLDERID_Pictures, 0, NULL, &picturePath);
-		if (picturePath) {
-			picturePathiw = picturePath;
-			picturePathi.copy(picturePathiw.c_str_w(), 1 << 16);
-			addFoldersToCombo(ddlControlId, picturePathi.c_str());
 		}
 	}
 

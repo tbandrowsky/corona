@@ -310,6 +310,37 @@ namespace corona
 
 	};
 
+	class navigation_control :
+		public column_layout
+	{
+
+	public:
+
+		navigation_control() { ; }
+		navigation_control(const navigation_control& _src) : column_layout(_src)
+		{
+		}
+
+		navigation_control(control_base* _parent, int _id) : column_layout(_parent, _id) { ; }
+
+		virtual ~navigation_control() { ; }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_control>(*this);
+			return tv;
+		}
+
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->NavigationStyle;
+		}
+
+	};
+
+
 	class row_layout :
 		public container_control
 	{
@@ -372,6 +403,36 @@ namespace corona
 		}
 
 	};
+
+	class navigation_section_control :
+		public row_layout
+	{
+
+	public:
+
+		navigation_section_control() { ; }
+		navigation_section_control(const navigation_section_control& _src) : row_layout(_src)
+		{}
+
+		navigation_section_control(control_base* _parent, int _id) : row_layout(_parent, _id) { ; }
+
+		virtual ~navigation_section_control() { ; }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<navigation_section_control>(*this);
+			return tv;
+		}
+
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->NavigationSectionStyle;
+		}
+
+	};
+
 
 	class frame_navigation
 	{
@@ -585,6 +646,13 @@ namespace corona
 				}
 			}
 		}
+
+		virtual void set_errors(const validation_error_collection& _errors)
+		{
+			errors = _errors;
+			container_control::set_errors(_errors);
+		}
+
 
 	};
 
@@ -804,8 +872,9 @@ namespace corona
 		{
 
 			auto st = presentation_style_factory::get_current();
-			auto view_style = st->get_style()->EmptyListStyle;
-            text_style = *view_style;
+			auto t = st->get_style()->EmptyListStyle;
+            text_style = *t;
+            view_style = st->get_style()->ItemsViewStyle;
 
             empty_text = "No items in list";
 
@@ -918,12 +987,15 @@ namespace corona
 			_context->setSolidColorBrush(&scroll_well);
 			_context->setSolidColorBrush(&scroll_well_border);
             _context->setViewStyle(text_style);
+			_context->setViewStyle(*view_style);
 
 			auto draw_bounds = inner_bounds;
 
 			point offset = { view_port.x, view_port.y };
 
 			auto& context = _context;
+
+            _context->drawRectangle(&bounds, view_style->box_border_brush.get_name(), view_style->box_border_thickness, view_style->box_fill_brush.get_name());
 
 			if (is_focused) {
 				_context->drawRectangle(&bounds, focused_border.name, 2, "");
@@ -1106,9 +1178,46 @@ namespace corona
 			pages[page_index].stop_y = y;
 		}
 
+		void clear()
+		{
+			data.clear();
+			control_slice.clear();
+			slice_object.clear();
+			slice_array.clear();
+		}
+
 		virtual json_object set_data(json_object _data, bool _include_children) override
 		{
-			draw_control::set_data(_data, _include_children);
+			data = _data;
+			control_slice = slice(_data, json_field_name);
+
+			json field_data;
+
+			if (control_slice.has_member(json_field_name)) {
+
+				field_data = control_slice[json_field_name];
+
+				if (field_data.object()) {
+					auto t = field_data.object_impl()->clone();
+					slice_object = t;
+				}
+				else if (field_data.array()) {
+					auto t = field_data.array_impl()->clone();
+					slice_array.merge_objects(t);
+				}
+			}
+			else
+			{
+				slice_object = control_slice;
+				slice_array.clear();
+			}
+
+			if (_include_children) {
+				for (auto& child : children) {
+					child->set_data(_data, _include_children);
+				}
+			}
+
 			if (!keep_position_on_set_data) {
 				selected_item_index = 0;
 				selected_page_index = 0;

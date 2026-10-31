@@ -120,6 +120,7 @@ namespace corona
 
         virtual void set_parameter(std::string _name, std::string _value)
 		{
+            corona_bus_command::set_parameter(_name, _value);
 			if (_stricmp(_name.c_str(), "form_name") == 0) {
 				form_name = _value;
 			}
@@ -249,8 +250,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -353,8 +352,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -439,8 +436,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -509,8 +504,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -672,8 +665,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -772,8 +763,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -947,8 +936,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1015,8 +1002,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1091,8 +1076,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1260,8 +1243,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1346,8 +1327,10 @@ namespace corona
 		corona_client_response response;
 		std::string constructor_frame;
 		json constructor_copy;
+		json constructor_copies;
 		std::string target_frame;
 		std::string source_frame;
+		std::shared_ptr<corona_class_page_map> sources;
 
 		corona_create_object_command()
 		{
@@ -1359,18 +1342,39 @@ namespace corona
 			return "create_object";
 		}
 
+		std::string get_create_class_name()
+		{
+			std::string class_to_create;
+			if (parameters.has_member("create_class_name")) {
+				class_to_create = parameters["create_class_name"].as_string();
+			}
+			else {
+				class_to_create = create_class_name;
+			}
+			return class_to_create;
+		}
+
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
 			json_parser jp;
 			json parent_key = jp.create_object();
 
-			if (!constructor_frame.empty() && constructor_copy.object()) {
+            std::string class_to_create = get_create_class_name();
+
+            json working_constructor = jp.create_object();
+            if (constructor_copies.object()) {
+                working_constructor = constructor_copies[class_to_create];
+            }
+			if (working_constructor.empty()) {
+				working_constructor = constructor_copy;
+			}
+			if (!constructor_frame.empty() && working_constructor.object()) {
 				auto ctrl = _bus->find_control(constructor_frame);
 
 				if (ctrl) {
 					json_object dresult = ctrl->get_data();
 					json data = dresult;
-					auto members = constructor_copy.get_members();
+					auto members = working_constructor.get_members();
 					for (auto member : members) {
 						std::string src_name = member.second.as_string();
 						if (src_name == reference_field) {
@@ -1378,7 +1382,6 @@ namespace corona
                             rf.class_name = data[class_name_field].as_string();
                             rf.object_id = data[object_id_field].as_int64_t();
 							parent_key.put_member(member.first, rf);
-							continue;
 						}
 						else 
 						{
@@ -1394,7 +1397,34 @@ namespace corona
 
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
-			auto response = _bus->create_object(instance, create_class_name);
+			std::string class_to_create;
+            if (parameters.has_member("create_class_name")) {
+                class_to_create = parameters["create_class_name"].as_string();
+            }
+            else {
+                class_to_create = create_class_name;
+            }
+
+            for (auto member : request.get_members()) {
+				json field = member.second;
+				if (field.reference()) {
+					object_reference rf = field.as_object_reference();
+                    if (rf) {
+                        // make sure a parent exists
+                        json_parser jp;
+                        json parent = jp.create_object();
+                        parent.put_member(class_name_field, rf.class_name);
+                        parent.put_member(object_id_field, rf.object_id);
+                        corona_client_response parent_response = _bus->get_object(instance, parent);
+                        if (not parent_response.success) {
+                            parent_response.message = "Fix the errors on " + rf.class_name + " and save before creating " + class_to_create;
+                            return parent_response;
+                        }
+                    }
+				}
+            }
+
+			auto response = _bus->create_object(instance, class_to_create);
 
 			if (response.success && request.object()) {
 
@@ -1406,7 +1436,7 @@ namespace corona
 				if (response.success) {
 					// this is because put_object can accept sets of objects, and the return
 					// is broken out by class, with different messages for each.
-					auto response_data = response.data[create_class_name];
+					auto response_data = response.data[class_to_create];
 					if (response_data.array()) {
 						response_data = response_data.get_element(0);
 						response.data = response_data["data"];
@@ -1419,13 +1449,32 @@ namespace corona
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
 
+
+			if (!response.success) {
+                MessageBoxA(NULL, response.message.c_str(), "Error", MB_OK | MB_ICONERROR);
+				return response.data;
+			}
+
+			std::string class_to_create;
+			if (parameters.has_member("create_class_name")) {
+				class_to_create = parameters["create_class_name"].as_string();
+			}
+			else {
+				class_to_create = create_class_name;
+			}
+
             json_object obj = corona::to_object(response.data.value());
 			if (response.errors.size() == 0) {
 				_bus->object_updated(obj);
 				set_properties(_bus);
 			}
-			if (!target_frame.empty() && !source_frame.empty()) {
-				_bus->select_frame(batch_id, target_frame, source_frame, obj, true, response.errors);
+			std::string edit_frame = target_frame;
+
+			if (sources && sources->pages_by_class.contains(class_to_create)) {
+				edit_frame = sources->pages_by_class[class_to_create];
+			}
+			if (!edit_frame.empty() && !target_frame.empty()) {
+				_bus->select_frame(batch_id, target_frame, edit_frame, obj, true, response.errors);
 			}
 			return response.data;
 		}
@@ -1438,9 +1487,17 @@ namespace corona
 
 			_dest.put_member("class_name", "create_object"sv);
 			_dest.put_member("constructor_frame", constructor_frame);
-			_dest.put_member("constructor_copy", constructor_copy);
+            if (constructor_copy.object()) {
+                _dest.put_member("constructor_copy", constructor_copy);
+            }
 			_dest.put_member("target_frame", target_frame);
 			_dest.put_member("source_frame", source_frame);
+			if (constructor_copies.object()) {
+				_dest.put_member("constructor_copies", constructor_copies);
+			}
+			if (sources) {
+				sources->get_json(_dest);
+			}
 		}
 
 		virtual void put_json(json& _src)
@@ -1454,13 +1511,12 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
 			constructor_frame = _src["constructor_frame"].as_string();
 			constructor_copy = _src["constructor_copy"];
+			constructor_copies = _src["constructor_copies"];
 			create_class_name = _src["create_class_name"].as_string();
 			if (_src.has_member("target_frame") && _src.has_member("source_frame")) {
 				target_frame = _src["target_frame"].as_string();
@@ -1469,6 +1525,10 @@ namespace corona
 			else {
 				target_frame = "";
 				source_frame = "";
+			}
+			if (_src.has_member("sources")) {
+				sources = std::make_shared<corona_class_page_map>();
+				sources->put_json(_src);
 			}
 		}
 
@@ -1552,8 +1612,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1563,6 +1621,74 @@ namespace corona
 				sources = std::make_shared<corona_class_page_map>();
 				sources->put_json(_src);
 			}
+			corona::put_json(instance, _src);
+		}
+	};
+
+	class corona_list_clear_command : public corona_form_command
+	{
+	public:
+		std::string		table_name = "";
+		std::string     target_frame = "";
+
+		corona_instance instance = corona_instance::local;
+
+		corona_list_clear_command()
+		{
+			topic = "list_clear";
+		}
+
+		virtual std::string get_name()
+		{
+			return "list_clear";
+		}
+
+		virtual json create_request(comm_desktop_bus_interface* _bus)
+		{
+			json_parser jp;
+
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
+		{
+			corona_client_response response;
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			control_base* cb = _bus->find_control(table_name);
+			if (cb) {
+                items_view* iv = dynamic_cast<items_view*>(cb);
+				if (iv) {
+					iv->clear();
+				}
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "list_clear"sv);
+			_dest.put_member("table_name", table_name);
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "table_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_clear missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				return;
+			}
+
+			target_frame = _src["target_frame"].as_string();
+			table_name = _src["table_name"].as_string();
 			corona::put_json(instance, _src);
 		}
 	};
@@ -1652,8 +1778,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 			corona::put_json(instance, _src	);
@@ -1665,8 +1789,10 @@ namespace corona
 	class corona_load_object_command : public corona_form_command
 	{
 	public:
-		json		object_data;
+		json		object_key;
+		std::string target_frame = "";
 		corona_instance instance = corona_instance::local;
+		std::shared_ptr<corona_class_page_map> sources;
 
 		corona_load_object_command()
 		{
@@ -1680,47 +1806,69 @@ namespace corona
 
 		virtual json create_request(comm_desktop_bus_interface* _bus)
 		{
-			json_parser jp;
-
-			json obj = _bus->get_form_data(form_name);
-
-			return obj;
+			if (object_key.empty()) {
+                _bus->log_warning("load_object_command: object_key is empty");
+			}
+			return object_key;
 		}
 
 		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
 		{
-			auto response = _bus->get_object(instance, request);
+			auto response = _bus->edit_object(instance, request);
 			return response;
 		}
 
+
 		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			if (response.success) {
+				std::string class_name = response.data["object"][class_name_field].as_string();
+				auto source_it = sources->pages_by_class.find(class_name);
+				if (source_it != sources->pages_by_class.end()) {
+					std::string source_form = source_it->second;
+					auto objx = response.data["object"].value();
+					json_object obj(objx);
+					_bus->select_frame(batch_id, target_frame, source_form, obj, true, response.errors);
+					set_properties(_bus);
+				}
+			}
 			return response.data;
 		}
-
 
 		virtual void get_json(json& _dest)
 		{
 			using namespace std::literals;
 
-			_dest.put_member("class_name", "load_object"sv);
-			_dest.put_member("data", object_data);
-			corona::get_json(_dest, instance);
+			corona_form_command::get_json(_dest);
 
+			_dest.put_member("class_name", "load_object"sv);
+			_dest.put_member("target_frame", target_frame);
+			if (sources) {
+				sources->get_json(_dest);
+			}
+            if (object_key.object()) {
+                _dest.put_member("object_key", object_key);
+            }
+			corona::get_json(_dest, instance);
 		}
 
 		virtual void put_json(json& _src)
 		{
+			corona_form_command::put_json(_src);
+
 			std::vector<std::string> missing;
-			if (not _src.has_members(missing, { "data" })) {
+			if (not _src.has_members(missing, { "object_key", "target_frame" })) {
 				system_monitoring_interface::active_mon->log_warning("load_object_command missing:");
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
-			object_data = _src["data"];
+            object_key = _src["object_key"];
+            target_frame = _src["target_frame"].as_string();
+			if (_src.has_member("sources")) {
+				sources = std::make_shared<corona_class_page_map>();
+				sources->put_json(_src);
+			}
 			corona::put_json(instance, _src);
 		}
 
@@ -1823,8 +1971,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -1910,8 +2056,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2092,8 +2236,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2168,8 +2310,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2193,8 +2333,10 @@ namespace corona
 		json				query_body;
 		corona_instance instance = corona_instance::local;
 		std::string			hit_words = "";
-		std::vector<std::shared_ptr<control_base>> result_commands;
-        std::string			result_commands_control = "";
+		std::vector<std::shared_ptr<control_base>> report_commands;
+        std::string			report_commands_control = "";
+		std::vector<std::shared_ptr<control_base>> create_commands;
+		std::string			create_commands_control = "";
 
 		corona_run_query_command()
 		{
@@ -2288,12 +2430,22 @@ namespace corona
 					}
 				}
 				set_properties(_bus);
-				if (result_commands_control.size() > 0) {
-					control_base* cb_commands = _bus->find_control(result_commands_control);
+				if (create_commands_control.size() > 0) {
+					control_base* cb_commands = _bus->find_control(create_commands_control);
 					if (cb_commands) {
 						auto tx_commands = dynamic_cast<container_control*>(cb_commands);
 						if (tx_commands) {
-							tx_commands->set_contents(result_commands);
+							tx_commands->set_contents(create_commands);
+							_bus->refresh_ux();
+						}
+					}
+				}
+				if (report_commands_control.size() > 0) {
+					control_base* cb_commands = _bus->find_control(report_commands_control);
+					if (cb_commands) {
+						auto tx_commands = dynamic_cast<container_control*>(cb_commands);
+						if (tx_commands) {
+							tx_commands->set_contents(report_commands);
 							_bus->refresh_ux();
 						}
 					}
@@ -2326,13 +2478,23 @@ namespace corona
 
 			json_parser jp;
 			json jcommands = jp.create_array();
-			for (auto comm : result_commands) {
+			for (auto comm : report_commands) {
 				json jcomm = jp.create_object();
                 comm->get_json(jcomm);
 				jcommands.push_back(jcomm);
 			}
-            _dest.put_member("result_commands", jcommands);
-            _dest.put_member("result_commands_control", result_commands_control);
+            _dest.put_member("report_commands", jcommands);
+            _dest.put_member("result_commands_control", report_commands_control);
+
+			jcommands = jp.create_array();
+			for (auto comm : create_commands) {
+				json jcomm = jp.create_object();
+				comm->get_json(jcomm);
+				jcommands.push_back(jcomm);
+			}
+			_dest.put_member("create_commands", jcommands);
+			_dest.put_member("create_commands_control", create_commands_control);
+
 			corona::get_json(_dest, instance);
 		}
 
@@ -2348,8 +2510,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2374,16 +2534,47 @@ namespace corona
 				dates.put_member(s, jdt);
 			}
 			query_defaults.put_member("dates", dates);
-            result_commands_control = _src["result_commands_control"].as_string();
-            json jcommands = _src["result_commands"];
+
+			create_commands.clear();
+            create_commands_control = _src["create_commands_control"].as_string();
+            json jcommands = _src["create_commands"];
 			if (jcommands.array()) {
 				for (int i = 0; i < jcommands.size(); i++) {
 					json jcomm = jcommands.get_element(i);;
-					std::shared_ptr<command_button_control> comm = std::make_shared<command_button_control>();
-					comm->put_json(jcomm);
-					result_commands.push_back(comm);
+					std::string class_name = jcomm["class_name"].as_string();
+					if (class_name == "command_button") {
+						std::shared_ptr<command_button_control> comm = std::make_shared<command_button_control>();
+						comm->put_json(jcomm);
+						create_commands.push_back(comm);
+					}
+					else if (class_name == "split_button") {
+						std::shared_ptr<split_button_control> comm = std::make_shared<split_button_control>();
+						comm->put_json(jcomm);
+						create_commands.push_back(comm);
+					}
 				}
-            }			
+			}
+
+			report_commands.clear();
+			report_commands_control = _src["report_commands_control"].as_string();
+			jcommands = _src["report_commands"];
+			if (jcommands.array()) {
+				for (int i = 0; i < jcommands.size(); i++) {
+					json jcomm = jcommands.get_element(i);;
+					std::string class_name = jcomm["class_name"].as_string();
+					if (class_name == "command_button") {
+						std::shared_ptr<command_button_control> comm = std::make_shared<command_button_control>();
+						comm->put_json(jcomm);
+						report_commands.push_back(comm);
+					}
+					else if (class_name == "split_button") {
+						std::shared_ptr<split_button_control> comm = std::make_shared<split_button_control>();
+						comm->put_json(jcomm);
+						report_commands.push_back(comm);
+					}
+				}
+			}
+
 			corona::put_json(instance, _src);
 		}
 
@@ -2408,8 +2599,9 @@ namespace corona
 		virtual json execute(comm_desktop_bus_interface* bus)
 		{
 			json obj;
+			auto batch_id = bus->start_batch();
 			for (auto comm : commands) {
-				obj = comm->execute_sync(batch_id, bus);
+				bus->run_command(batch_id, comm);
 			}
 			return obj;
 		}
@@ -2452,8 +2644,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2619,8 +2809,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2765,8 +2953,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 			corona::put_json(instance, _src);
@@ -2827,8 +3013,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 			corona::put_json(instance, _src);
@@ -2929,8 +3113,6 @@ namespace corona
 				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
 					system_monitoring_interface::active_mon->log_warning(s);
 					});
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
 				return;
 			}
 
@@ -2956,10 +3138,6 @@ namespace corona
 
 		if (not _src.has_members(missing, { "class_name" })) {
 			system_monitoring_interface::active_mon->log_warning("command object missing class_name.");
-			if (_src.size()) {
-				system_monitoring_interface::active_mon->log_information("the source json is:");
-				system_monitoring_interface::active_mon->log_json<json>(_src, 2);
-			}
 			return;
 		}
 
@@ -2996,6 +3174,11 @@ namespace corona
 			{
 				_dest = std::make_shared<corona_list_select_object_command>();
 				_dest->put_json(_src);
+			}
+			else if (class_name == "list_clear")
+			{
+                _dest = std::make_shared<corona_list_clear_command>();
+                _dest->put_json(_src);
 			}
 			else if (class_name == "list_add_chest")
 			{

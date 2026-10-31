@@ -127,44 +127,10 @@
       }
     },
     {
-      "class_name": "status",
-      "base_class_name": "journal",
-      "class_description": "Status of Revolution",
-      "fields": {
-        "days_of_occupation": {
-          "field_type": "int64",
-          "label": "Days of Occupation",
-          "min_value": 0
-        },
-        "occupied_legislatures": {
-          "field_type": "int64",
-          "label": "Occupied Legislatures"
-        },
-        "occupied_countries": {
-          "field_type": "int64",
-          "label": "Occupied Countries"
-        },
-        "citizens_deported": {
-          "field_type": "int64",
-          "label": "Est. Citizens Deported"
-        },
-        "russians_imported": {
-          "field_type": "int64",
-          "label": "Est. Russians Imported"
-        },
-        "russians_imposters": {
-          "field_type": "int64",
-          "label": "Estimated Russian Imposter"
-        }
-      },
-      "field_order": [ "text" ]
-    },
-
-    {
       "class_name": "address",
       "base_class_name": "sys_object",
       "class_description": "Address",
-      "parents": [ "person"  ],
+      "parents": [ "person" ],
       "full_text": [ "street1", "street2", "city", "state", "zip", "country" ],
       "fields": {
         "street1": {
@@ -414,7 +380,7 @@
       "class_name": "title",
       "base_class_name": "record",
       "class_description": "Title",
-      "full_text": [ "general_terms", "URL" ],  
+      "full_text": [ "general_terms", "URL" ],
       "parents": [],
       "fields": {
         "general_terms": {
@@ -446,73 +412,542 @@
       "field_order": [ "problem", "resolution" ]
     },
     {
+      "class_name": "holy_cite",
+      "base_class_name": "sys_object",
+      "class_description": "Holy Book Reference",
+      "parents": [ "incident" ]
+    },
+    {
+      "class_name": "bible_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Christian Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi",
+            "Matthew",
+            "Mark",
+            "Luke",
+            "John",
+            "Acts",
+            "Romans",
+            "1 Corinthians",
+            "2 Corinthians",
+            "Galatians",
+            "Ephesians",
+            "Philippians",
+            "Colossians",
+            "1 Thessalonians",
+            "2 Thessalonians",
+            "1 Timothy",
+            "2 Timothy",
+            "Titus",
+            "Philemon",
+            "Hebrews",
+            "James",
+            "1 Peter",
+            "2 Peter",
+            "1 John",
+            "2 John",
+            "3 John",
+            "Jude",
+            "Revelation"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "koran_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Islamic Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Surah",
+          "enum": [
+            "Al-Fatihah (The Opening)",
+            "Al-Baqarah (The Cow)",
+            "Ali 'Imran (Family of Imran)",
+            "An-Nisa (The Women)",
+            "Al-Ma'idah (The Table Spread)",
+            "Al-An'am (The Cattle)",
+            "Al-A'raf (The Heights)",
+            "Al-Anfal (The Spoils of War)",
+            "At-Tawbah (The Repentance)",
+            "Yunus (Jonah)",
+            "Hud",
+            "Yusuf (Joseph)",
+            "Ar-Ra'd (The Thunder)",
+            "Ibrahim (Abraham)",
+            "Al-Hijr",
+            "An-Nahl (The Bee)",
+            "Al-Isra (The Night Journey)",
+            "Al-Kahf (The Cave)",
+            "Maryam (Mary)",
+            "Ta-Ha",
+            "Al-Anbiya (The Prophets)",
+            "Al-Hajj (The Pilgrimage)",
+            "Al-Mu'minun (The Believers)",
+            "An-Nur (The Light)",
+            "Al-Furqan (The Criterion)",
+            "Ash-Shu'ara (The Poets)",
+            "An-Naml (The Ant)",
+            "Al-Qasas (The Stories)",
+            "Al-Ankabut (The Spider)",
+            "Ar-Rum (The Romans)",
+            "Luqman",
+            "As-Sajdah (The Prostration)",
+            "Al-Ahzab (The Confederates)",
+            "Saba (Sheba)",
+            "Fatir (Originator)",
+            "Ya-Sin",
+            "As-Saffat (Those Who Set the Ranks)",
+            "Sad",
+            "Az-Zumar (The Groups)",
+            "Ghafir (The Forgiver)",
+            "Fussilat",
+            "Ash-Shura (Consultation)",
+            "Az-Zukhruf (The Gold Adornments)",
+            "Ad-Dukhan (The Smoke)",
+            "Al-Jathiyah (The Kneeling)",
+            "Al-Ahqaf (The Wind-Curved Sandhills)",
+            "Muhammad",
+            "Al-Fath (The Victory)",
+            "Al-Hujurat (The Rooms)",
+            "Qaf",
+            "Adh-Dhariyat (The Winnowing Winds)",
+            "At-Tur (The Mount)",
+            "An-Najm (The Star)",
+            "Al-Qamar (The Moon)",
+            "Ar-Rahman (The Most Merciful)",
+            "Al-Waqi'ah (The Inevitable Event)",
+            "Al-Hadid (The Iron)",
+            "Al-Mujadilah (The Pleading Woman)",
+            "Al-Hashr (The Gathering)",
+            "Al-Mumtahanah (The Woman Tested)",
+            "As-Saff (The Ranks)",
+            "Al-Jumu'ah (Friday Congregation)",
+            "Al-Munafiqun (The Hypocrites)",
+            "At-Taghabun (Mutual Loss and Gain)",
+            "At-Talaq (Divorce)",
+            "At-Tahrim (Prohibition)",
+            "Al-Mulk (The Sovereignty)",
+            "Al-Qalam (The Pen)",
+            "Al-Haqqah (The Reality)",
+            "Al-Ma'arij (The Ascending Stairways)",
+            "Nuh (Noah)",
+            "Al-Jinn",
+            "Al-Muzzammil (The Enwrapped One)",
+            "Al-Muddaththir (The Cloaked One)",
+            "Al-Qiyamah (The Resurrection)",
+            "Al-Insan (The Human)",
+            "Al-Mursalat (The Emissaries)",
+            "An-Naba (The Tidings)",
+            "An-Nazi'at (Those Who Pull Out)",
+            "Abasa (He Frowned)",
+            "At-Takwir (The Folding Up)",
+            "Al-Infitar (The Cleaving)",
+            "Al-Mutaffifin (Defrauding)",
+            "Al-Inshiqaq (The Splitting Open)",
+            "Al-Buruj (The Constellations)",
+            "At-Tariq (The Night Comer)",
+            "Al-A'la (The Most High)",
+            "Al-Ghashiyah (The Overwhelming Event)",
+            "Al-Fajr (The Dawn)",
+            "Al-Balad (The City)",
+            "Ash-Shams (The Sun)",
+            "Al-Layl (The Night)",
+            "Ad-Duha (The Morning Brightness)",
+            "Ash-Sharh (The Relief)",
+            "At-Tin (The Fig)",
+            "Al-Alaq (The Clinging Substance)",
+            "Al-Qadr (The Power)",
+            "Al-Bayyinah (The Clear Proof)",
+            "Az-Zalzalah (The Earthquake)",
+            "Al-Adiyat (The Chargers)",
+            "Al-Qari'ah (The Calamity)",
+            "At-Takathur (Rivalry in Worldly Increase)",
+            "Al-Asr (Time)",
+            "Al-Humazah (The Slanderer)",
+            "Al-Fil (The Elephant)",
+            "Quraysh",
+            "Al-Ma'un (Small Kindnesses)",
+            "Al-Kawthar (Abundance)",
+            "Al-Kafirun (The Disbelievers)",
+            "An-Nasr (The Divine Support)",
+            "Al-Masad (The Palm Fiber)",
+            "Al-Ikhlas (Sincerity)",
+            "Al-Falaq (The Daybreak)",
+            "An-Nas (Mankind)"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "tanakh_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Jewish Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
       "class_name": "incident",
       "base_class_name": "sys_object",
-      "class_description": "Incident",
+      "class_description": "Actions of a Russian Asset",
       "full_text": [ "story" ],
       "parents": [ "person" ],
       "fields": {
-        "story": {
+        "incident_description": {
           "field_type": "string",
-          "label": "Story"
+          "label": "Incident Description"
         },
-        "classification": {
+        "date_occurred": {
+          "field_type": "datetime",
+          "label": "Date Occurred"
+        },
+        "spirtual_references": [ "holy_cite" ]
+      },
+      "field_order": [ "incident_description", "date_occurred", "spirtual_references" ]
+    },
+    {
+      "class_name": "betrayal",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets betray God and the USA.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
           "field_type": "string",
-          "label": "Classification",
+          "label": "Treason Attempt",
           "enum": [
-            "Positive Leadership",
-            "Technical or Trade Skill",
-            "Charitable",
-            "Dishonesty",
-            "Infidelity",
-            "Dominates Weaker",
-            "Broken Promise",
-            "Chooses Russia",
-            "Chooses Russia Ally",
-            "Insults UK or Canada",
-            "Management Forcing You Out",
-            "Management Lies About You",
-            "Coworker Lies About You",
-            "Connected Subordinate Lies About You",
-            "Ambushed in meeting",
-            "Hung out to dry by leadership",
-            "Took Medical Coverage",
-            "Took Pension Benefits",
-            "New Landlord Causes Problems",
-            "Says 'F*** Em' About Fellow Citizens",
-            "Treats Traitors as Heros",
-            "Refuses Service",
-            "Blames America",
-            "Identity Games",
-            "Paralizer", 
-            "Violence",
-            "Cruelty",
-            "Compassion",
-            "Theft",
-            "Fraud",
-            "Incompetence",
-            "Questionable",
-            "Filanderer",
-            "Drunkard",
-            "Stoner",
-            "Pirate",
-            "Idolatry",
-            "Blasphemy",
-            "Anti-productive",
-            "Anti-Christ",
-            "Treason",
-            "Cirumstantial Evidence",
-            "Spectral Evidence",
-            "Astronomical Signs",
-            "Sacred Text Parallel"
+            "Argues they are the only Americans",
+            "All Americans are Americans",
+            "Attacks American and American established institutions",
+            "Blames the weak for enemy attacks",
+            "Cheats",
+            "Defends the actions of enemies.",
+            "Foreign policy cannot be race based",
+            "Freedom is for everyone",
+            "Lowers USA arts",
+            "Lowers USA education",
+            "Lowers USA instituations",
+            "Lowers USA military",
+            "Lowers USA music",
+            "Lowers USA population",
+            "Lowers USA science",
+            "Lowers USA technology",
+            "Russian Asset sources lie more than American ones",
+            "They cheer their trampling of the weak",
+            "Supports bans on rifles and personal weapons development",
+            "Supports bans on possession of periodic elements",
+            "Subordinates the legislative branch to a Russian Asset President",
+            "Strong nations cannot subjugate and shakedown the weak",
+            "Uses false facts to betray allies",
+            "Uses safety and environment to disempower",
+            "Undermines separation of powers",
+            "Violates commitments"
           ]
         },
-        "event_result": {
+        "date_occurred": {
           "field_type": "string",
-          "label": "Event Result",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "blasphemy",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets mock God",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Blasphemy Attempt",
           "enum": [
-            "More Likely Russian Asset",
-            "Less Likely Russian Asset"
+            "Approaches the afterlife as a checklist",
+            "Attacks other religions and peoples as threats",
+            "Attacks the Pope and other religious leaders",
+            "Bears false witness, lies are necessary",
+            "Celebrates strength and condemns the weak",
+            "Christianity is not a suicide pact.",
+            "Condemns or dismisses the Sermon on the Mount",
+            "Covets goods and wives more than loves the Lord",
+            "Dismisses the obvious biblical role of the USA",
+            "Evil is necessary",
+            "Grace does not include murder and infidelity",
+            "Helping people is useless except for virtue establishment",
+            "Laughs at cruelty and mocks compassion",
+            "Leaves people behind",
+            "Pushes cultural buttons to inflame hatred",
+            "Their goals are more important than God's mission for you",
+            "Trusts only in violence and not in God",
+            "Uses the bible as an excuse for cruelty",
+            "Uses weapons as idols for power"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "domination",
+      "base_class_name": "incident",
+      "class_description": "Domination. Russian Assets make themselves God.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Domination Attempt",
+          "enum": [
+            "Attacks a perceived weaker player in a meeting.",
+            "Attacks your own curiosity and education as wasteful.",
+            "Disrupts group happiness, from playing kids to collaborating workers.",
+            "Bullies into their urgent priorities.",
+            "Criticizes to subjugate more than teach to improve.",
+            "Criticizes other people to make you feel weak",
+            "F* em, the strong survive, the weak are expendable.",
+            "Happiness at your expense",
+            "I hear you/understand/but, this is what I want.",
+            "Prove me wrong",
+            "Ruins someone and then laughs at their ruin",
+            "Tell me specifically why I am wrong",
+            "You are responsible for my random actions."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "sabotage",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets sabotage American progress.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Sabotage Attempt",
+          "enum": [
+            "Advocates offshoring, outsourcing, or dismantling organizations.",
+            "Against immigration",
+            "Against increasing industrial capacity",
+            "Against new infrastructure",
+            "Against nuclear or solar power",
+            "Against public education",
+            "Against public health",
+            "Against border security",
+            "Against military spending",
+            "Against scientific research",
+            "Blocks team self improvement",
+            "Bombards with ethnic grievances",
+            "Makes problems unsolvable.",
+            "Publishes false metrics about a project to undermine its success.",
+            "Uses security policing to prevent any product improvement on a timely basis."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "slavery",
+      "base_class_name": "incident",
+      "class_description": "Russo-Confederate Assets bring slavery and serfdom.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Slaving Attempt",
+          "enum": [
+            "Allows teams to believe in self determination and then destroys them.",
+            "Always pushes you into greater subjugation with threats and lies.",
+            "Argues that the organization exists to benefit its leaders.",
+            "Defends the Confederacy",
+            "Demands loyalty but doesn't pay for it.",
+            "Distorts the past to create psychosis",
+            "I asked you to do something.",
+            "Lost Cause supporter",
+            "Sells your bad treatment as good by showing how they others worse.",
+            "Threatens to offshore or relocate teams and products.",
+            "You are only allowed to have fun washing this kind of dishes.",
+            "Your self worth is entirely dependent on how useful you are to them."
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "theft",
+      "base_class_name": "incident",
+      "class_description": "Russian Assets steal and exploit.",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Theft Attempt",
+          "enum": [
+            "Bait and switch with coercion",
+            "Blames subordinates for failure",
+            "Forces non-disclosure and non-compete agreements",
+            "Lawsuits to crush opposition",
+            "Legislates self-determination from cities",
+            "Lies",
+            "Lies to employees",
+            "Lies to partners",
+            "Lies and finger points to gain",
+            "Promotes one-sided contracts",
+            "Promotes looters more than investment.",
+            "Ruins natural resources for personal gain.",
+            "Steals intellectual property",
+            "Steals small property",
+            "Steals representation",
+            "Subjugates a city to a state",
+            "Steals valor",
+            "Takes credit from subordinates",
+            "Violates land treaties"
           ]
         },
         "date_occurred": {
@@ -987,16 +1422,98 @@
     },
     {
       "class_name": "property",
-      "base_class_name": "address",
+      "base_class_name": "sys_object",
       "class_description": "A property",
-      "full_text": [  ],
+      "full_text": [],
       "fields": {
         "property_name": {
           "field_type": "string",
           "label": "Property Name",
           "max_length": 100
         },
-        "building": [ "building" ],
+        "street1": {
+          "field_type": "string",
+          "label": "Street",
+          "max_length": 100
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Apartment #",
+          "max_length": 100
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City",
+          "max_length": 100
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 100,
+          "enum": [
+            "AL",
+            "AK",
+            "AZ",
+            "AR",
+            "CA",
+            "CO",
+            "CT",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "ID",
+            "IL",
+            "IN",
+            "IA",
+            "KS",
+            "KY",
+            "LA",
+            "ME",
+            "MD",
+            "MA",
+            "MI",
+            "MN",
+            "MS",
+            "MO",
+            "MT",
+            "NE",
+            "NV",
+            "NH",
+            "NJ",
+            "NM",
+            "NY",
+            "NC",
+            "ND",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VT",
+            "VA",
+            "WA",
+            "WV",
+            "WI",
+            "WY"
+          ]
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "max_length": 10
+        },
+        "country": {
+          "field_type": "string",
+          "label": "Country",
+          "max_length": 50
+        },
+        "buildings": [ "building" ],
         "records": [ "record" ],
         "assets": [ "asset" ],
         "property_value": "double"
@@ -1174,10 +1691,727 @@
           "label": "Serial Number"
         }
       }
-
+    },
+    {
+      "class_name": "achievement",
+      "class_description": "Achievement",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "points" ],
+      "parents": [ "mission" ],
+      "fields": {
+        "points": {
+          "field_type": "number",
+          "label": "Points"
+        },
+        "name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      }
+    },
+    {
+      "class_name": "mission_turn",
+      "class_description": "Mission Turn",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "points" ],
+      "parents": [ "mission" ],
+      "fields": {
+        "points": {
+          "field_type": "number",
+          "label": "Points"
+        },
+        "movement": {
+          "field_type": "string",
+          "label": "Movement"
+        }
+      }
+    },
+    {
+      "class_name": "enemy_move",
+      "class_description": "Enemy Move",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "movement" ],
+      "fields": {
+        "points": {
+          "field_type": "number",
+          "label": "Points"
+        },
+        "movement": {
+          "field_type": "string",
+          "label": "Movement"
+        }
+      }
+    },
+    {
+      "class_name": "revolution_move",
+      "class_description": "Revolution Move",
+      "base_class_name": "journal",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "movement" ],
+      "fields": {
+        "points": {
+          "field_type": "number",
+          "label": "Points"
+        },
+        "movement": {
+          "field_type": "string",
+          "label": "Movement"
+        }
+      }
+    },
+    {
+      "class_name": "spiritual_training",
+      "class_description": "Spiritual Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bible_study",
+      "class_description": "Bible Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "koran_study",
+      "class_description": "Koran Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "tanakh_study",
+      "class_description": "Tanakh Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "ancient_study",
+      "class_description": "Ancient Civilizations",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hindu_study",
+      "class_description": "Hindu Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "intro_practice",
+      "class_description": "Practice meeting people",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "wonder",
+      "class_description": "Wonder and awe",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunsets",
+      "class_description": "Earth and space",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "echoes",
+      "class_description": "Sounds and Echoes",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "beaches",
+      "class_description": "Land and ocean",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "splashes",
+      "class_description": "Water air and ground",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lightanddark",
+      "class_description": "Light and dark",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunlightandshadow",
+      "class_description": "Sunlit things and shadows",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "fieldandsky",
+      "class_description": "Fields and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "forests",
+      "class_description": "Life and life",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "trees",
+      "class_description": "Ground and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "starsandhydrogen",
+      "class_description": "Atoms and stars",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lifeanddeath",
+      "class_description": "Life and death",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "humility",
+      "class_description": "Acts of grounding and humility",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "try_new",
+      "class_description": "Try new things",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hear_new",
+      "class_description": "Receive new ideas",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "service",
+      "class_description": "Serve someone",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorspounse",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorancestors",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "holy_service",
+      "class_description": "Attend a holy service",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "aerobic_training",
+      "class_description": "Aerobic Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
+      "class_name": "running",
+      "class_description": "Running/Walking",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "miles": {
+          "field_type": "string",
+          "label": "Miles"
+        }
+      }
+    },
+    {
+      "class_name": "swimming",
+      "class_description": "Swimming",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "laps": {
+          "field_type": "string",
+          "label": "Laps"
+        }
+      }
+    },
+    {
+      "class_name": "strength_training",
+      "class_description": "Strength Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "sets": {
+          "field_type": "string",
+          "label": "Sets"
+        },
+        "bench_press": {
+          "field_type": "number",
+          "label": "Bench Press Lbs"
+        },
+        "deadlift": {
+          "field_type": "number",
+          "label": "Deadlift Lbs"
+        },
+        "squats": {
+          "field_type": "number",
+          "label": "Squats Lbs"
+        },
+        "dumbbell_curls": {
+          "field_type": "number",
+          "label": "Dumbbell Curls Lbs"
+        },
+        "shrugs": {
+          "field_type": "number",
+          "label": "Shrugs Lbs"
+        },
+        "pullups": {
+          "field_type": "number",
+          "label": "Pullups Lbs"
+        }
+      }
+    },
+    {
+      "class_name": "mind_training",
+      "class_description": "Mind Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "read_book",
+      "class_description": "Mind Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_music",
+      "class_description": "Music Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_math",
+      "class_description": "Math Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_algebra",
+      "class_description": "Algebra Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_trigonometry",
+      "class_description": "Trigonometry Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_calculus",
+      "class_description": "Calculus Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_diffeq",
+      "class_description": "Differential Equations Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_atoms",
+      "class_description": "Atoms and Molecules Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_materials",
+      "class_description": "Materials Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "biology_training",
+      "class_description": "Biology Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "engineering_practice",
+      "class_description": "Build and repair",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_identification",
+      "class_description": "Problem Identification",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_forces",
+      "class_description": "Determine Forces",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_solution",
+      "class_description": "Solution Conception",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_model",
+      "class_description": "Model design with math",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_build",
+      "class_description": "Build the design",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "eng_problem_test",
+      "class_description": "Test the product",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_practice",
+      "class_description": "Arts Practice",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_paint",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_water",
+      "class_description": "Watercolor",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_acrylic",
+      "class_description": "Acrylic",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_oil",
+      "class_description": "Oil painting",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_draw",
+      "class_description": "Drawing",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_ink",
+      "class_description": "Painting",
+      "base_class_name": "Inks/Gels",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_pencil",
+      "class_description": "Pencil/Charcoals",
+      "base_class_name": "arts_draw",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_sculpt",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "mission",
+      "class_description": "Mission",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "name", "description", "enemy_score", "revolution_score", "people_assessed", "incidents_reported", "assets_reported" ],
+      "fields": {
+        "mission_name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "mission_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "enemy_moves": {
+          "field_type": "number",
+          "label": "Enemy Moves"
+        },
+        "revolution_moves": {
+          "field_type": "number",
+          "label": "Revolution Moves"
+        },
+        "achievements": [ "achievement" ]
+      }
     }
-
-
   ],
   "post_dataset": [
     {
@@ -1213,7 +2447,7 @@
     "application_creator": "Country Video Games",
     "application_name": "Revolution Journal",
     "application_title": "Revolution Journal",
-    "application_subtitle": "During the days of the Russian Occupation",
+    "application_subtitle": "During the days of the Enemy Occupation",
     "application_corporate_title": "Sponsored by Industrial Foods and Goods",
     "fields": {
       ".section": {
@@ -1489,6 +2723,34 @@
         "tab_type": "custom",
         "default_tab": true
       },
+      ".scripture": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".message_text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
       "string.memo": {
         "class_name": "memo_field",
         "box": {
@@ -1656,10 +2918,51 @@
           }
         },
         "tab_type": "edit"
+      },
+      ".attack": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "bible_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "koran_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       }
-
     },
-    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack" ],
     "classes": {
       "journal": "default",
       "diary": "default",
@@ -1702,7 +3005,18 @@
       "phone": "default",
       "email": "default",
       "fax": "default",
-      "web": "default"
+      "web": "default",
+      "betrayal": "default",
+      "blasphemy": "default",
+      "domination": "default",
+      "sabotage": "default",
+      "slavery": "default",
+      "theft": "default",
+      "mission": "default",
+      "bible_cite": "default",
+      "koran_cite": "default",
+      "tanakh_cite": "default",
+      "holy_cite": "default"
     },
     "descriptions": {
       "diary": "Basic version and record information about this diary entry",
@@ -1750,11 +3064,17 @@
       "news.story": "Details about the news story.  Paste all kinds of stuff into here.",
       "incident.story": "Details about the incident.  Paste all kinds of stuff into here.",
       "news.description": "Details about the news story.  Paste all kinds of stuff into here.",
-      "incidents": "Record interactions, research possible patterns and behaviors of Russian Assets.",
-      "incident": "Capture an interaction as you search for Russian Assets.",
+      "incidents": "Record interactions, research possible patterns and behaviors of Enemy Assets.",
+      "incident": "Capture an interaction as you search for Enemy Assets.",
       "property.assets": "Assets related to or located at this property.",
       "property.records": "Records associated with this property.",
-      "asset.records": "Records associated with this asset."
+      "asset.records": "Records associated with this asset.",
+      "betrayal.story": "What did the betrayer do?",
+      "blasphemy.story": "What did the blasphemer do?",
+      "domination.story": "What did the dominator do?",
+      "sabotage.story": "What did the sabatour do?",
+      "slavery.story": "What did the slaver do?",
+      "theft.story": "What did the thief do?"
     },
     "objects": [
       {
@@ -1866,6 +3186,13 @@
         "class_name": "rms_occupancy_type",
         "code": "3001-3023",
         "description": "Solar Occupancies"
+      },
+      {
+        "class_name": "mission",
+        "object_id": 42,
+        "mission_name": "",
+        "mission_descripion": "",
+        "achievements": []
       }
     ],
     "teams": {
@@ -1877,11 +3204,15 @@
               "journal"
             ],
             "new_objects": [ "news", "diary", "task" ],
-            "section_title_text": "Journal Options",
+            "search_title_text": "Search Journal",
             "list_title_text": "Journal List",
             "edit_title_text": "Journal Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Journal",
+            "create_control": "create_commands",
+            "reports_title_text": "Journal Reports",
+            "reports_control": "report_commands",
             "chart_name": "chart_journal",
+            "create_command_class": "journal",
             "charts": [
               {
                 "chart_button_name": "chart_journal_counts_button",
@@ -1924,11 +3255,15 @@
               "property"
             ],
             "new_objects": [ "property" ],
-            "section_title_text": "Property Options",
+            "search_title_text": "Search Property",
             "list_title_text": "Property List",
             "edit_title_text": "Property Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Property",
+            "create_control": "create_commands",
+            "reports_title_text": "Property Reports",
+            "reports_control": "report_commands",
             "chart_class": "chart_property",
+            "create_command_class": "property",
             "charts": [
               {
                 "chart_button_name": "property_counts_button",
@@ -1971,11 +3306,15 @@
               "person"
             ],
             "new_objects": [ "person" ],
-            "section_title_text": "People Options",
+            "search_title_text": "Search People",
             "list_title_text": "People",
             "edit_title_text": "Person Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Person",
+            "create_control": "create_commands",
+            "reports_title_text": "People Reports",
+            "reports_control": "report_commands",
             "chart_class": "chart_person",
+            "create_command_class": "person",
             "charts": [
               {
                 "chart_button_name": "people_counts_button",
@@ -2032,11 +3371,15 @@
               "tractor",
               "gun"
             ],
-            "section_title_text": "Asset Options",
+            "search_title_text": "Search Assets",
             "list_title_text": "Assets",
             "edit_title_text": "Asset Details",
-            "commands_control": "new_object_commands",
+            "create_title_text": "Create Asset",
+            "create_control": "create_commands",
+            "reports_title_text": "Asset Reports",
+            "reports_control": "report_commands",
             "chart_class": "chart_asset",
+            "create_command_class": "asset",
             "charts": [
               {
                 "chart_button_name": "asset_counts_button",

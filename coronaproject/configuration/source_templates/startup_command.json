@@ -1,0 +1,44 @@
+{
+    "class_name": "run_query",
+    "form_name": "search_input",
+    "table_name": "result_table",
+    "detail_frame": "frame_selected",
+    "create_commands": [ "$create_commands" ],
+    "create_commands_control": "$create_commands_control",
+    "report_commands": [ "$report_commands" ],
+    "report_commands_control": "$report_commands_control",
+    "update_filter": "$update_filter",
+    "set": {
+      "search_criteria.search_button.set": {
+        "search_section.search_commands.search_title.text": "$search_title_text",
+        "search_section.search_commands.create_title.text": "$create_title_text",
+        "search_section.search_commands.reports_title.text": "$reports_title_text",
+        "search_top_bar.list_title.text": "$list_title_text",
+        "search_top_bar.edit_title.text": "$edit_title_text",
+        "this.from_class": "$search_button_class"
+      },
+      "search_section.search_commands.search_title.text": "$search_title_text",
+      "search_section.search_commands.create_title.text": "$create_title_text",
+      "search_section.search_commands.reports_title.text": "$reports_title_text",
+      "search_top_bar.list_title.text": "$list_title_text",
+      "search_top_bar.edit_title.text": "$edit_title_text"
+    },
+    "query": {
+      "from": [
+        {
+          "class_name": "$search_button_class",
+          "name": "objects",
+          "filter": {
+            
+          }
+        }
+      ],
+      "stages": [
+        {
+          "class_name": "result",
+          "source": "objects",
+          "name": "final"
+        }
+      ]
+    }
+}
