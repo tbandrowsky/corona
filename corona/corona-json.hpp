@@ -2099,6 +2099,31 @@ namespace corona
 			return jo;
 		}
 
+		void merge_objects(json_array _src)
+		{
+            std::map<object_reference, std::shared_ptr<json_value>> merged_map;
+			for (auto _item : _src) {
+				object_reference key;
+                json_object item = _item;
+				key.class_name = item[class_name_field]->as_string();
+                key.object_id = item[object_id_field]->as_int();
+				merged_map.insert_or_assign(key, _item);
+            }
+			for (auto _item : *this) {
+				object_reference key;
+                json_object item = _item;
+				key.class_name = item[class_name_field]->as_string();
+				key.object_id = item[object_id_field]->as_int();
+                if (merged_map.find(key) == merged_map.end()) {
+                    merged_map.insert_or_assign(key, _item);
+                }
+			}
+			elements.clear();
+            for (auto& item : merged_map) {
+                elements.push_back(item.second);
+            }
+		}
+
 	};
 
 

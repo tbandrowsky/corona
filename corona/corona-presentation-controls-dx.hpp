@@ -163,7 +163,7 @@ namespace corona
             }
 
             if (background_name.size()) {
-                rectangle r = inner_bounds;
+                rectangle r = bounds;
                 _context->drawRectangle(&r, "", 0, background_name);
             }
 

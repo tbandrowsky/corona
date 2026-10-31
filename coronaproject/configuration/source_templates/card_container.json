@@ -25,7 +25,7 @@
         },
         "box_fill_brush": {
           "class_name": "solid_brush",
-          "color": "000000"
+          "color": "333137"
         }
       },
       "padding": "8 pixels",

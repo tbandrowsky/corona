@@ -1878,6 +1878,7 @@ namespace corona
 		{
 			children.clear();
 
+
 			if (content_frame_name.empty()) {
 				content_frame_name = "tab_content_frame_" + std::to_string((uint64_t)this);
             }
@@ -1923,7 +1924,7 @@ namespace corona
             content_frame = std::make_shared<frame_layout>();
 			content_frame->set_size(1.0_container, 1.0_remaining);
 			content_frame->set_name(content_frame_name);
-			content_frame->set_padding(16.0_px);
+			content_frame->set_padding(8.0_px);
 			main->children.push_back(content_frame);
 
 			for (int i = 0; i < tab_panes.size(); i++)
@@ -1978,6 +1979,13 @@ namespace corona
 		{
 		}
 
+		void set_default_styles()
+		{
+			auto st = presentation_style_factory::get_current();
+
+			view_style = st->get_style()->ObjectStyle;
+		}
+
 		virtual bool is_control_message(int _key)
 		{
 			bool is_message = is_focused and
@@ -2001,7 +2009,7 @@ namespace corona
 			remaining = { inner_bounds.w, inner_bounds.h, 0.0 };
 			for (auto& child		: children) {
 				auto sz = child->get_size(this);
-				point item_origin = { bounds.x, bounds.y, 0.0 };
+				point item_origin = { inner_bounds.x, inner_bounds.y, 0.0 };
 				point item_position = child->get_position(this);
 				item_origin.x += item_position.x;
 				item_origin.y += item_position.y;

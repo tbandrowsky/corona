@@ -44,15 +44,20 @@
                     "width": "1.0 container",
                     "height": "90 pixels"
                   },
-                  "wrap": true,
+                  "content_alignment": "far",
                   "children": [
                     {
-                      "class_name": "code",
-                      "name": "invasion_score_card_title",
-                      "prompt": "MISSION SCORE {revolution_score}",
+                      "class_name": "command_button",
+                      "name": "clear_list_button",
+                      "image": "clear.png",
+                      "text": "Clear List",
                       "box": {
-                        "width": "200 pixels",
+                        "width": "100 pixels",
                         "height": "75 pixels"
+                      },
+                      "on_click": {
+                        "class_name": "list_clear",
+                        "table_name": "result_table"
                       }
                     },
                     {
@@ -74,6 +79,7 @@
                         }
                       }
                     }
+
                   ]
                 },
                 {
@@ -249,15 +255,6 @@
             },
 
             {
-              "class_name": "paragraph",
-              "name": "frame_spacer",
-              "box": {
-                "width": "10 pixels",
-                "height": "1.0 container"
-              }
-            },
-
-            {
               "class_name": "column",
               "name": "object_edit_bar",
               "box": {
@@ -267,13 +264,13 @@
               "view_style": {
                 "box_fill_brush": {
                   "class_name": "solid_brush",
-                  "color": "111121"
+                  "color": "263342"
                 },
                 "box_border_brush": {
                   "class_name": "solid_brush",
-                  "color": "111112"
+                  "color": "010162"
                 },
-                "box_border_thickness": 4
+                "box_border_thickness": 0
               },
 
               "children": [
@@ -309,19 +306,17 @@
               ]
             },
             {
-              "class_name": "paragraph",
-              "name": "frame_spacer",
-              "box": {
-                "width": "10 pixels",
-                "height": "1.0 container"
-              }
-            },
-            {
               "class_name": "column",
               "name": "frame_bar",
               "box": {
                 "width": "1.0 remaining",
                 "height": "1.0 container"
+              },
+              "view_style": {
+                "box_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "39495B"
+                }
               },
               "children": [
                 {

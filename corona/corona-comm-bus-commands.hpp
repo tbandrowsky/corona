@@ -1600,6 +1600,74 @@ namespace corona
 		}
 	};
 
+	class corona_list_clear_command : public corona_form_command
+	{
+	public:
+		std::string		table_name = "";
+		std::string     target_frame = "";
+
+		corona_instance instance = corona_instance::local;
+
+		corona_list_clear_command()
+		{
+			topic = "list_clear";
+		}
+
+		virtual std::string get_name()
+		{
+			return "list_clear";
+		}
+
+		virtual json create_request(comm_desktop_bus_interface* _bus)
+		{
+			json_parser jp;
+
+			return jp.create_object();
+		}
+
+		virtual corona_client_response execute_request(json request, comm_desktop_bus_interface* _bus)
+		{
+			corona_client_response response;
+			return response;
+		}
+
+		virtual json handle_response(corona_client_response response, comm_desktop_bus_interface* _bus) {
+			control_base* cb = _bus->find_control(table_name);
+			if (cb) {
+                items_view* iv = dynamic_cast<items_view*>(cb);
+				if (iv) {
+					iv->clear();
+				}
+			}
+			return response.data;
+		}
+
+		virtual void get_json(json& _dest)
+		{
+			using namespace std::literals;
+
+			_dest.put_member("class_name", "list_clear"sv);
+			_dest.put_member("table_name", table_name);
+			corona::get_json(_dest, instance);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			std::vector<std::string> missing;
+			if (not _src.has_members(missing, { "sources", "table_name" })) {
+				system_monitoring_interface::active_mon->log_warning("list_select_object missing:");
+				std::for_each(missing.begin(), missing.end(), [](const std::string& s) {
+					system_monitoring_interface::active_mon->log_warning(s);
+					});
+				return;
+			}
+
+			target_frame = _src["target_frame"].as_string();
+			table_name = _src["table_name"].as_string();
+			corona::put_json(instance, _src);
+		}
+	};
+
 	class corona_save_object_command : public corona_form_command
 	{
 	public:
@@ -3073,6 +3141,11 @@ namespace corona
 			{
 				_dest = std::make_shared<corona_list_select_object_command>();
 				_dest->put_json(_src);
+			}
+			else if (class_name == "list_clear")
+			{
+                _dest = std::make_shared<corona_list_clear_command>();
+                _dest->put_json(_src);
 			}
 			else if (class_name == "list_add_chest")
 			{
