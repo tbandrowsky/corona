@@ -1190,8 +1190,6 @@ namespace corona
 		{
 			data = _data;
 			control_slice = slice(_data, json_field_name);
-			slice_object.clear();
-			slice_array.clear();
 
 			json field_data;
 
