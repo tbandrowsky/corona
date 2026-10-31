@@ -35,6 +35,7 @@
       "target_frame": "frame_selected",
       "message": "$create_button_message",
       "constructor_copies": "$constructor_copies",
+      "constructor_frame": "frame_selected",
       "sources": "$sources"
     }
   }

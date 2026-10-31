@@ -1382,7 +1382,6 @@ namespace corona
                             rf.class_name = data[class_name_field].as_string();
                             rf.object_id = data[object_id_field].as_int64_t();
 							parent_key.put_member(member.first, rf);
-							continue;
 						}
 						else 
 						{
@@ -1405,6 +1404,26 @@ namespace corona
             else {
                 class_to_create = create_class_name;
             }
+
+            for (auto member : request.get_members()) {
+				json field = member.second;
+				if (field.reference()) {
+					object_reference rf = field.as_object_reference();
+                    if (rf) {
+                        // make sure a parent exists
+                        json_parser jp;
+                        json parent = jp.create_object();
+                        parent.put_member(class_name_field, rf.class_name);
+                        parent.put_member(object_id_field, rf.object_id);
+                        corona_client_response parent_response = _bus->get_object(instance, parent);
+                        if (not parent_response.success) {
+                            parent_response.message = "Fix the errors on " + rf.class_name + " and save before creating " + class_to_create;
+                            return parent_response;
+                        }
+                    }
+				}
+            }
+
 			auto response = _bus->create_object(instance, class_to_create);
 
 			if (response.success && request.object()) {
@@ -1429,6 +1448,12 @@ namespace corona
 		}
 
 		virtual json handle_response(corona_client_response response,  comm_desktop_bus_interface* _bus) {
+
+
+			if (!response.success) {
+                MessageBoxA(NULL, response.message.c_str(), "Error", MB_OK | MB_ICONERROR);
+				return response.data;
+			}
 
 			std::string class_to_create;
 			if (parameters.has_member("create_class_name")) {
