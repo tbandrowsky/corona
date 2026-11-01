@@ -723,7 +723,7 @@
     {
       "class_name": "incident",
       "base_class_name": "sys_object",
-      "class_description": "Actions of a Russian Asset",
+      "class_description": "Actions of an Enemy Asset",
       "full_text": [ "story" ],
       "parents": [ "person" ],
       "fields": {
@@ -742,7 +742,7 @@
     {
       "class_name": "betrayal",
       "base_class_name": "incident",
-      "class_description": "Russian Assets betray God and the USA.",
+      "class_description": "Enemy Assets betray God and the USA.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
@@ -765,11 +765,11 @@
             "Lowers USA population",
             "Lowers USA science",
             "Lowers USA technology",
-            "Russian Asset sources lie more than American ones",
+            "Enemy Asset sources lie more than American ones",
             "They cheer their trampling of the weak",
             "Supports bans on rifles and personal weapons development",
             "Supports bans on possession of periodic elements",
-            "Subordinates the legislative branch to a Russian Asset President",
+            "Subordinates the legislative branch to an Enemy Asset President",
             "Strong nations cannot subjugate and shakedown the weak",
             "Uses false facts to betray allies",
             "Uses safety and environment to disempower",
@@ -787,7 +787,7 @@
     {
       "class_name": "blasphemy",
       "base_class_name": "incident",
-      "class_description": "Russian Assets mock God",
+      "class_description": "Enemy Assets mock God",
       "parents": [ "person" ],
       "fields": {
         "attack": {
@@ -825,7 +825,7 @@
     {
       "class_name": "domination",
       "base_class_name": "incident",
-      "class_description": "Domination. Russian Assets make themselves God.",
+      "class_description": "Domination. Enemy Assets make themselves God.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
@@ -857,7 +857,7 @@
     {
       "class_name": "sabotage",
       "base_class_name": "incident",
-      "class_description": "Russian Assets sabotage American progress.",
+      "class_description": "Enemy Assets sabotage American progress.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
@@ -922,7 +922,7 @@
     {
       "class_name": "theft",
       "base_class_name": "incident",
-      "class_description": "Russian Assets steal and exploit.",
+      "class_description": "Enemy Assets steal and exploit.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
@@ -1717,26 +1717,6 @@
       }
     },
     {
-      "class_name": "mission_turn",
-      "class_description": "Mission Turn",
-      "base_class_name": "sys_object",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "name", "description", "points" ],
-      "parents": [ "mission" ],
-      "fields": {
-        "points": {
-          "field_type": "number",
-          "label": "Points"
-        },
-        "movement": {
-          "field_type": "string",
-          "label": "Movement"
-        }
-      }
-    },
-    {
       "class_name": "enemy_move",
       "class_description": "Enemy Move",
       "base_class_name": "sys_object",
@@ -2035,9 +2015,23 @@
       }
     },
     {
+      "class_name": "body_training",
+      "class_description": "Body Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
       "class_name": "aerobic_training",
       "class_description": "Aerobic Training",
-      "base_class_name": "revolution_move",
+      "base_class_name": "body_training",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
@@ -2079,7 +2073,7 @@
     {
       "class_name": "strength_training",
       "class_description": "Strength Training",
-      "base_class_name": "revolution_move",
+      "base_class_name": "body_training",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
