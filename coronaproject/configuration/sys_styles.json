@@ -1,400 +1,524 @@
-
 {
-  "styles":
-    [
-
-      {
-        "button_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000000"
-          },
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFFFFF"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 12.000000,
-            "vertical_alignment": "top"
-          }
+  "styles": [
+    {
+      "style_sheet_name": "App Styles",
+      "primary_font": "TW Cent MT, Century Gothic, Arial",
+      "colors": {
+        "Blue": [
+          "34657F",
+          "D4E1E8",
+          "AACDDA",
+          "6399AE",
+          "34657F",
+          "081F2C"
+        ],
+        "Gray": [
+          "7C878E",
+          "DEE1E1",
+          "C1C6C8",
+          "A2AAAD",
+          "7C878E",
+          "5B6770"
+        ],
+        "Green": [
+          "4BA24D",
+          "C8DFBC",
+          "AFD29E",
+          "6DB658",
+          "4BA24D",
+          "008A41"
+        ],
+        "Purple": [
+          "621244",
+          "D7D3DB",
+          "C1B2C3",
+          "996F8D",
+          "862663",
+          "621244"
+        ],
+        "Tan": [
+          "B6B7A2",
+          "DEDDD3",
+          "CBCBBC",
+          "B6B7A2",
+          "888F6E",
+          "67724C"
+        ],
+        "Deductible": [
+          "34657F"
+        ],
+        "Lavendar": [
+          "E0D4D9",
+          "CDB9C2",
+          "B898A7"
+        ],
+        "Perriwinkle": [
+          "C8D9E2",
+          "B0C9D7",
+          "98BBCC"
+        ],
+        "Grass": [
+          "C9DEBC",
+          "B2D2A2",
+          "A2C490"
+        ],
+        "Tulips": [
+          "F8E0A4",
+          "ECCF8F",
+          "EAC189"
+        ],
+        "Earth": [
+          "E1DACE",
+          "D8CEBE",
+          "C4B69D"
+        ],
+        "Stone": [
+          "DEE1E1",
+          "C1C6C8",
+          "A2AAAD"
+        ]
+      },
+      "page_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic, Arial",
+          "font_size": 32
         },
-        "caption_style": {
-          "box_border_brush": {},
-          "box_border_thickness": 0.000000,
-          "box_fill_brush": {
-            "class_name": "linear_brush",
-            "size": {
-              "x": 1.000000,
-              "y": 1.000000
+        "shape_border_thickness": 0,
+        "box_border_brush": {
+          "class_name": "solid_brush",
+          "color": "C0C0C0"
+        },
+        "box_border_thickness": 0,
+        "box_fill_brush": {
+          "class_name": "linear_brush",
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          },
+          "size": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "stops": [
+            {
+              "color": "#853570",
+              "position": 0.1
             },
-            "start": {
-              "x": 0.500000,
-              "y": 0.000000
+            {
+              "color": "#353570",
+              "position": 0.2
             },
-            "stop": {
-              "x": 0.500000,
-              "y": 1.000000
+            {
+              "color": "#353550",
+              "position": 0.3
             },
-            "stops": [
-
-              {
-                "color": "000000",
-                "position": 0.000000
-              },
-
-              {
-                "color": "112150",
-                "position": 0.800000
-              },
-
-              {
-                "color": "315180",
-                "position": 0.930000
-              },
-
-              {
-                "color": "101020",
-                "position": 1.000000
-              }
-            ]
-          },
-          "shape_border_brush": {},
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFFF"
-          },
-          "text_style": {
-            "font_name": "Arial, Georgia, Times New Roman, Times",
-            "font_size": 24.000000
-          }
-        },
-        "chapter_subtitle_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "000000"
-          },
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 17.000000,
-            "underline": false,
-            "vertical_alignment": "near"
-          }
-        },
-        "chapter_title_style": {
-          "box_border_thickness": 0.000000,
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000044"
-          },
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 24.000000,
-            "vertical_alignment": "far"
-          }
-        },
-        "code_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "004500"
-          },
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "aaFFaa"
-          },
-          "text_style": {
-            "font_name": "Consolas, CourierNew",
-            "font_size": 16.000000,
-            "underline": false,
-            "vertical_alignment": "top"
-          }
-        },
-        "colors": {
-          "Blue": [ "34657F", "D4E1E8", "AACDDA", "6399AE", "34657F", "081F2C" ],
-          "Deductible": [ "34657F" ],
-          "Earth": [ "E1DACE", "D8CEBE", "C4B69D" ],
-          "Grass": [ "C9DEBC", "B2D2A2", "A2C490" ],
-          "Gray": [ "7C878E", "DEE1E1", "C1C6C8", "A2AAAD", "7C878E", "5B6770" ],
-          "Green": [ "4BA24D", "C8DFBC", "AFD29E", "6DB658", "4BA24D", "008A41" ],
-          "Lavendar": [ "E0D4D9", "CDB9C2", "B898A7" ],
-          "Perriwinkle": [ "C8D9E2", "B0C9D7", "98BBCC" ],
-          "Purple": [ "621244", "D7D3DB", "C1B2C3", "996F8D", "862663", "621244" ],
-          "Stone": [ "DEE1E1", "C1C6C8", "A2AAAD" ],
-          "Tan": [ "B6B7A2", "DEDDD3", "CBCBBC", "B6B7A2", "888F6E", "67724C" ],
-          "Tulips": [ "F8E0A4", "ECCF8F", "EAC189" ]
-        },
-        "edit_label_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000000"
-          },
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Arial",
-            "font_size": 16.000000,
-            "horizontal_alignment": "near",
-            "underline": false,
-            "vertical_alignment": "center"
-          }
-        },
-        "empty_list_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000000"
-          },
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFFFFF"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 25.000000,
-            "vertical_alignment": "top"
-          }
-        },
-        "error_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FF7777"
-          },
-          "text_style": {
-            "font_name": "Consolas,Tahoma, Arial",
-            "font_size": 12.000000,
-            "underline": false
-          }
-        },
-        "form_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Tahoma, Arial",
-            "font_size": 14.000000,
-            "underline": true
-          }
-        },
-        "label_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "EEEEEE"
-          },
-          "text_style": {
-            "font_name": "Tahoma, Arial",
-            "font_size": 14.000000,
-            "underline": false,
-            "vertical_alignment": "far"
-          }
-        },
-        "note_style": {
-          "box_border_brush": {
-            "class_name": "solid_brush",
-            "color": "050505"
-          },
-          "box_border_thickness": "1",
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "111122"
-          },
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "f8f4f1"
-          },
-          "text_style": {
-            "font_name": "Franklin Gothic",
-            "font_size": 17.000000,
-            "underline": false,
-            "vertical_alignment": "top"
-          }
-        },
-        "page_style": {
-          "box_border_brush": {
-            "class_name": "solid_brush",
-            "color": "C0C0C0"
-          },
-          "box_border_thickness": 0.000000,
-          "box_fill_brush": {
-            "class_name": "linear_brush",
-            "size": {
-              "x": 1.000000,
-              "y": 1.000000
+            {
+              "color": "#353570",
+              "position": 0.5
             },
-            "start": {
-              "x": 0.500000,
-              "y": 0.000000
+            {
+              "color": "#353550",
+              "position": 0.7
             },
-            "stop": {
-              "x": 0.500000,
-              "y": 1.000000
+            {
+              "color": "#252521",
+              "position": 1.0
+            }
+          ]
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "000020"
+        }
+      },
+      "caption_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic,Arial",
+          "font_size": 24
+        },
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "box_border_brush": {},
+        "shape_border_brush": {},
+        "box_fill_brush": {
+          "class_name": "linear_brush",
+          "start": {
+            "x": 0.5,
+            "y": 0
+          },
+          "stop": {
+            "x": 0.5,
+            "y": 1
+          },
+          "size": {
+            "x": 1,
+            "y": 1
+          },
+          "stops": [
+            {
+              "color": "000000",
+              "position": 0.0
             },
-            "stops": [
-
-              {
-                "color": "#853570",
-                "position": 0.100000
-              },
-
-              {
-                "color": "#353570",
-                "position": 0.200000
-              },
-
-              {
-                "color": "#353550",
-                "position": 0.300000
-              },
-
-              {
-                "color": "#353570",
-                "position": 0.500000
-              },
-
-              {
-                "color": "#353550",
-                "position": 0.700000
-              },
-
-              {
-                "color": "#252521",
-                "position": 1.000000
-              }
-            ]
-          },
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "000020"
-          },
-          "text_style": {
-            "font_name": "TW Cent MT, Century Gothic, Arial",
-            "font_size": 32.000000
-          }
+            {
+              "color": "112150",
+              "position": 0.8
+            },
+            {
+              "color": "315180",
+              "position": 0.93
+            },
+            {
+              "color": "101020",
+              "position": 1
+            }
+          ]
         },
-        "paragraph_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000000"
-          },
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Arial",
-            "font_size": 14.000000,
-            "underline": false,
-            "vertical_alignment": "far"
-          }
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFFF"
+        }
+      },
+      "title_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic,Arial",
+          "font_size": 30,
+          "vertical_alignment": "center"
         },
-        "placeholder_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Tahoma, Arial",
-            "font_size": 14.000000,
-            "underline": true
-          }
+        "shape_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "subtitle_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic,Arial",
+          "font_size": 20,
+          "vertical_alignment": "center"
         },
-        "primary_font": "TW Cent MT, Century Gothic, Arial",
-        "style_sheet_name": "App Styles",
-        "subtitle_style": {
-          "box_border_thickness": 0.000000,
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "bold": false,
-            "font_name": "Century Gothic,Arial",
-            "font_size": 18.000000,
-            "underline": false,
-            "vertical_alignment": "far"
-          }
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
         },
-        "success_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Tahoma, Arial",
-            "font_size": 14.000000,
-            "underline": true
-          }
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
+        }
+      },
+      "chapter_title_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic,Arial",
+          "font_size": 18,
+          "vertical_alignment": "near"
         },
-        "tab_style": {
-          "box_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "00000000"
-          },
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFFFFF"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 12.000000,
-            "vertical_alignment": "top"
-          }
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "chapter_subtitle_style": {
+        "text_style": {
+          "font_name": "TW Cent MT, Century Gothic,Arial",
+          "font_size": 16,
+          "underline": true,
+          "vertical_alignment": "near"
         },
-        "title_style": {
-          "shape_border_thickness": 0.000000,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 35.000000,
-            "vertical_alignment": "center"
-          }
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "paragraph_style": {
+        "text_style": {
+          "font_name": "Arial",
+          "font_size": 14,
+          "underline": false,
+          "vertical_alignment": "far"
         },
-        "window_style": {
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          },
-          "text_style": {
-            "bold": true,
-            "font_name": "Tahoma, Arial",
-            "font_size": 22.000000,
-            "underline": false,
-            "vertical_alignment": "far"
-          }
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "edit_label_style": {
+        "text_style": {
+          "font_name": "Arial",
+          "font_size": 16,
+          "underline": false,
+          "vertical_alignment": "center",
+          "horizontal_alignment": "near"
         },
-        "footnote_style": {
-          "text_style": {
-            "font_name": "Century Gothic,Arial",
-            "font_size": 8,
-            "vertical_alignment": "left"
-          },
-          "shape_border_thickness": 0,
-          "box_border_thickness": 0,
-          "shape_fill_brush": {
-            "class_name": "solid_brush",
-            "color": "FFFFEE"
-          }
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "form_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000044"
         }
 
+      },
+      "navigation_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "#e5e4e2"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "263342"
+        }
+      },
+      "navigation_section_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "#e5e4e2"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "43444E"
+        }
+      },
+      "navigation_section_title_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 18,
+          "vertical_alignment": "near"
+        },
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "#e5e4e2"
+        }
+      },
+      "navigation_section_subtitle_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 16,
+          "underline": true,
+          "vertical_alignment": "near"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "#e5e4e2"
+        }
+      },
+      "items_view_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "39495B"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "39495B"
+        }
+      },
+      "object_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "39495B"
+        }
+      },
+      "label_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": false,
+          "vertical_alignment": "far"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "EEEEEE"
+        }
+      },
+      "placeholder_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "error_style": {
+        "text_style": {
+          "font_name": "Consolas,Tahoma, Arial",
+          "font_size": 12,
+          "underline": false
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FF7777"
+        }
+      },
+      "success_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 14,
+          "underline": true
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "note_style": {
+        "text_style": {
+          "font_name": "Franklin Gothic",
+          "font_size": 17,
+          "underline": false,
+          "vertical_alignment": "top"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "111122"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "f8f4f1"
+        },
+        "box_border_brush": {
+          "class_name": "solid_brush",
+          "color": "050505"
+        },
+        "box_border_thickness": "1"
+      },
+      "code_style": {
+        "text_style": {
+          "font_name": "Consolas, CourierNew",
+          "font_size": 16,
+          "underline": false,
+          "vertical_alignment": "top"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "aaFFaa"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "001500"
+        }
+      },
+      "button_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 12,
+          "vertical_alignment": "top"
+        },
+        "shape_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFFFFF"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000000"
+        }
+      },
+      "tab_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 12,
+          "vertical_alignment": "top"
+        },
+        "shape_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFFFFF"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000000"
+        }
+      },
+      "empty_list_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 25,
+          "vertical_alignment": "top"
+        },
+        "shape_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFFFFF"
+        },
+        "box_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "00000000"
+        }
+      },
+      "window_style": {
+        "text_style": {
+          "font_name": "Tahoma, Arial",
+          "font_size": 22,
+          "bold": true,
+          "underline": false,
+          "vertical_alignment": "far"
+        },
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
+      },
+      "footnote_style": {
+        "text_style": {
+          "font_name": "Century Gothic,Arial",
+          "font_size": 8,
+          "vertical_alignment": "left"
+        },
+        "shape_border_thickness": 0,
+        "box_border_thickness": 0,
+        "shape_fill_brush": {
+          "class_name": "solid_brush",
+          "color": "FFFFEE"
+        }
       }
-    ]
+
+    }
+  ]
 }

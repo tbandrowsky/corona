@@ -65,20 +65,69 @@ namespace corona
 	const int IDC_STATUS_DETAIL = 5002;
 
 	/* And now, this is the application */
-
-    void copy_if_newer(const std::filesystem::path& source, const std::filesystem::path& destination)
-    {
-        if (!std::filesystem::exists(destination))
-        {
-			std::filesystem::create_directories(destination);
-           	std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);			
-		}
-		else if (developer_mode || std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination)) 
+	void copy_if_newer(const std::filesystem::path& source, const std::filesystem::path& destination)
+	{
+		if (!std::filesystem::exists(source))
 		{
-			std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+			return;
+		}
+
+		// If source is a single file, compare that file directly.
+		if (std::filesystem::is_regular_file(source))
+		{
+			std::filesystem::create_directories(destination.parent_path());
+
+			const bool should_copy =
+				developer_mode ||
+				!std::filesystem::exists(destination) ||
+				std::filesystem::last_write_time(source) > std::filesystem::last_write_time(destination);
+
+			if (should_copy)
+			{
+				std::filesystem::copy_file(
+					source,
+					destination,
+					std::filesystem::copy_options::overwrite_existing);
+			}
+
+			return;
+		}
+
+		// Source is a directory: walk files and compare each one individually.
+		std::filesystem::create_directories(destination);
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(source))
+		{
+			const auto relative = std::filesystem::relative(entry.path(), source);
+			const auto target = destination / relative;
+
+			if (entry.is_directory())
+			{
+				std::filesystem::create_directories(target);
+				continue;
+			}
+
+			if (!entry.is_regular_file())
+			{
+				continue;
+			}
+
+			std::filesystem::create_directories(target.parent_path());
+
+			const bool should_copy =
+				developer_mode ||
+				!std::filesystem::exists(target) ||
+				std::filesystem::last_write_time(entry.path()) > std::filesystem::last_write_time(target);
+
+			if (should_copy)
+			{
+				std::filesystem::copy_file(
+					entry.path(),
+					target,
+					std::filesystem::copy_options::overwrite_existing);
+			}
 		}
 	}
-
 	void my_app(HINSTANCE hInstance, LPSTR lpszCmdParam)
 	{
 

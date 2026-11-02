@@ -21,7 +21,7 @@
       "recovery_email_filename": "account_recovery_email_template.html",
       "pages_filename": "sys_pages.json",
       "styles_filename": "sys_styles.json",
-      "default_page": "home_startup"
+      "default_page": "home_app_team"
     }
   ]
 

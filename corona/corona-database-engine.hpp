@@ -3270,7 +3270,7 @@ private:
 			return result_pages;
 		}
 
-		virtual json create_application(json _application_schema) override
+		virtual json create_application(json _application_schema, bool _do_objects = true) override
 		{
 
 			validation_error_collection errors;
@@ -3292,7 +3292,7 @@ private:
 
 			// and objects
 
-			if (object_list.array()) {
+			if (_do_objects && object_list.array()) {
 				for (int j = 0; j < object_list.size(); j++) {
 					json object_definition = object_list.get_element(j).clone();
 					json put_object_request = create_system_request(object_definition);
@@ -3656,18 +3656,24 @@ private:
 				page_import.put_member_string("class_name", "import");
 				page_import.put_member("file_name", filename);
 
-				pages_array.push_back(page_import);
+				if (filename.empty()) {
+					log_warning("page name is empty", __FILE__, __LINE__);
+				}
+				else {
 
-                std::string page_file_path = this->config_path + filename;
-                page.save(page_file_path);
+					pages_array.push_back(page_import);
 
-				std::string override_path = this->config_path + "overrides\\" + page_name + ".json";
-                if (std::filesystem::exists(override_path)) {
-                    json override_page = read_json(errors, override_path);
-                    if (not override_page.empty()) {
-                        override_page.save(page_file_path);
-                    }
-                }
+					std::string page_file_path = this->config_path + filename;
+					page.save(page_file_path);
+
+					std::string override_path = this->config_path + "overrides\\" + page_name + ".json";
+					if (std::filesystem::exists(override_path)) {
+						json override_page = read_json(errors, override_path);
+						if (not override_page.empty()) {
+							override_page.save(page_file_path);
+						}
+					}
+				}
 			}
 
 			if (startup_command.object()) {
@@ -4945,6 +4951,16 @@ private:
 				std::string schema_msg = std::format("Schema '{0}' already applied", schema_key["schema_name"].as_string());
 				system_monitoring_interface::active_mon->log_information(schema_msg, __FILE__, __LINE__);
 
+				if (jschema.has_member("application")) {
+					try {
+						json japplication = jschema["application"];
+						create_application(japplication, false);
+					}
+					catch (std::exception exc) {
+						system_monitoring_interface::active_mon->log_exception(exc);
+					}
+				}
+
 				json error = jp.create_object();
 				error.put_member(success_field, false);
 				error.put_member(message_field, std::string("Schema already applied"));
@@ -5088,7 +5104,7 @@ private:
 			if (jschema.has_member("application")) {
 				try {
 					json japplication = jschema["application"];
-					create_application(japplication);
+					create_application(japplication, true);
 				}
                 catch (std::exception exc) {
 					system_monitoring_interface::active_mon->log_exception(exc);

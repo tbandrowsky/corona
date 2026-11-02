@@ -145,7 +145,7 @@ namespace corona {
 		virtual void apply_config(json _system_config) = 0;
 		virtual void apply_config(json _system_config, json _server_config) = 0;
 		virtual json apply_schema(json _schema) = 0;
-		virtual json create_application(json _application_schema) = 0;
+		virtual json create_application(json _application_schema, bool _do_objects = true) = 0;
 		virtual json update_application(json _application_schema, std::string _class_name) = 0;
 
 		virtual std::string get_random_code(int _confirmation_code_digits = 8) = 0;
