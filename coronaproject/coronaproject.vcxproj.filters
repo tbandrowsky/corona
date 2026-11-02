@@ -76,5 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="configuration\source_templates\startup_command.json" />
+    <None Include="configuration\source_templates\create_tab_command_class.json" />
   </ItemGroup>
 </Project>

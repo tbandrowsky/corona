@@ -2641,7 +2641,8 @@ namespace corona
                         if (change_command) {
                             change_command->set_parameter(command_parameter_name, target_name);
                         }
-						command_button->set_text(target_name);
+						std::string human_target = human_case(target_name);
+						command_button->set_text(human_target);
 						command_button->set_parameter(command_parameter_name, target_name);
 					}
 				};

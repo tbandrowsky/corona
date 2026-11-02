@@ -3170,7 +3170,7 @@
       "holy_cite": "Study holy works",
       "enemy_move": "Stay abreast of Enemy moves",
       "revolution_move": "Make your own move",
-      "spiritual_training": "default",
+      "spiritual_training": "Become one with the Lord",
       "bible_study": "Study the Bible to build the new USA",
       "koran_study": "Study the Koran to build the new USA",
       "tanakh_study": "Study the Tanakh to build the new USA",
@@ -3226,8 +3226,8 @@
       "arts_oil": "Try oil",
       "arts_draw": "Draw something",
       "arts_pencil": "Draw something with a pencil",
-      "arts_sculpt": "Sculpt something"
-
+      "arts_sculpt": "Sculpt something",
+      "enemy_moves": "Stay abreast of Enemy moves, checking links on every front",
     },
     "objects": [
       {

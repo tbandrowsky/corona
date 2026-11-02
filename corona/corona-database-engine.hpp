@@ -3167,6 +3167,7 @@ private:
 			json search_group_template = read_json(errors, this->config_path + "source_templates\\search_group.json");
 			json search_command_class_template = read_json(errors, this->config_path + "source_templates\\search_command_class.json");
 			json create_command_class_template = read_json(errors, this->config_path + "source_templates\\create_command_class.json");
+			json create_tab_command_class_template = read_json(errors, this->config_path + "source_templates\\create_tab_command_class.json");
 			json chart_command_class_template = read_json(errors, this->config_path + "source_templates\\chart_command_class.json");
 
 			json pages_array = pages_template["pages"];
@@ -3223,7 +3224,7 @@ private:
 					}
 
 					// Generate object details page
-					json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box, card_pages);
+					json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, create_tab_command_class_template, form_sources, section_box, card_pages);
 					if (!object_pages.empty()) {
 						form_sources.put_member(class_name, std::format("object_{}", class_name));
 						pages.push_back_array(object_pages);
@@ -3365,6 +3366,7 @@ private:
             json search_group_template = read_json(errors, this->config_path + "source_templates\\search_group.json");
 			json search_command_class_template = read_json(errors, this->config_path + "source_templates\\search_command_class.json");
 			json create_command_class_template = read_json(errors, this->config_path + "source_templates\\create_command_class.json");
+			json create_tab_command_class_template = read_json(errors, this->config_path + "source_templates\\create_tab_command_class.json");
 			json chart_command_class_template = read_json(errors, this->config_path + "source_templates\\chart_command_class.json");
 
 			json pages_array = pages_template["pages"];
@@ -3445,7 +3447,7 @@ private:
 						}
 
 						// Generate object details page
-						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, form_sources, section_box, card_client);
+						json object_pages = generate_object_pages(errors, object_template, classd, class_ux_map, field_mappings, tab_list_template, tab_custom_template, tab_inventory_template, tab_edit_template, create_command_class_template, create_tab_command_class_template, form_sources, section_box, card_client);
 						if (!object_pages.empty()) {
 							form_sources.put_member(class_name, std::format("object_{}", class_name));
 							pages.push_back_array(object_pages);
@@ -3910,6 +3912,10 @@ private:
 					tab.put_member_string("name", field->get_label());
 					tab.put_member_string("member_name", field->get_field_name());
 
+					if (field->get_field_name() == "enemy_moves") {
+						tab.put_member_bool("readonly", true);
+					}
+
 					std::shared_ptr<child_relations_interface> relations;
 					relations = field->get_relations();
 
@@ -4113,7 +4119,7 @@ private:
 					json content = jp.create_object();
 					content.put_member_string("class_name", "chaptersubtitle");
 					content.put_member("box", fmb);
-					content.put_member_string("prompt", field_label);
+					content.put_member_string("text", field_label);
 					tab_contents.push_back(content);
 					continue;
 				}
@@ -4231,7 +4237,7 @@ private:
 			return tab_custom_page;
 		}
 
-		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string description)
+		json generate_tab_list_page(json& tab_list_template, read_class_sp& classd, const std::string& class_name, const std::string& member_name, json& create_command_class_template, json& form_sources, std::string description, bool readonly)
 		{
 			json_parser jp;
 			json tab_list_page = tab_list_template.clone();
@@ -4315,6 +4321,9 @@ private:
 				tab_create_commands.push_back(command_dropdown);
 
 				json abbreviations = jp.create_object();
+				if (readonly) {
+					tab_create_commands.clear();
+				} 
 				abbreviations.put_member("$tab_list_commands", tab_create_commands);
 				abbreviations.put_member_string("$tab_list_commands_name", "tl_" + class_name + "_" + member_name + "_commands");
 				abbreviations.put_member_string("$tab_list_table", tab_list_table_name);
@@ -4336,6 +4345,7 @@ private:
 			json& tab_inventory_template, 
 			json& tab_edit_template,
 			json& create_command_class_template, 
+			json& create_tab_command_class_template,
 			json& form_sources,
 			json& section_box,
 			json& card_pages)
@@ -4377,6 +4387,7 @@ private:
                 std::string tab_type = new_tab["tab_type"].as_string();
 				std::string ux_class = new_tab["ux_class"].as_string();
                 std::string description = new_tab["description"].as_string();
+                bool readonly = new_tab["readonly"].as_bool();
 
 				if (tab_type == "inventory") {
 					tab_page = generate_tab_inventory_page(tab_inventory_template, ux_class, classd, class_name, member_name, create_command_class_template, form_sources, description);
@@ -4388,7 +4399,7 @@ private:
 					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);
 				}
 				else if (tab_type == "list") {
-					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources, description);
+					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources, description, readonly);
 				}
 				else if (tab_type == "edit") {
 					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);

@@ -144,12 +144,12 @@
                       "placeholder": "Search text",
                       "default_focus": true,
                       "box": {
-                        "width": "200 pixels",
+                        "width": "150 pixels",
                         "height": "40 pixels"
                       },
                       "text_style": {
                         "font_name": "Arial",
-                        "font_size": 25
+                        "font_size": 16
                       }
                     },
                     {
@@ -159,7 +159,7 @@
                       "text": "Search",
                       "split_button": true,
                       "box": {
-                        "width": "100 pixels",
+                        "width": "150 pixels",
                         "height": "40 pixels"
                       },
                       "on_click": {

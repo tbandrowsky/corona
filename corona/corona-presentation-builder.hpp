@@ -1967,7 +1967,7 @@ namespace corona
 					dat.pane.id = id_counter::next();
                 }
                 std::shared_ptr<command_button_control> btn = std::make_shared<command_button_control>(nullptr, dat.pane.id);
-				btn->set_size(100.00_px, 40.0_px);
+				btn->set_size(150.00_px, 40.0_px);
 				btn->draw_style = gradient_button_styles::tab_style;
 				btn->add_circle_backlight = false;
 				btn->button_text = dat.pane.name;
