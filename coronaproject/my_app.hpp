@@ -27,7 +27,7 @@ namespace corona
 	don't forget to set the default directory
 	*****************************/
 
-    const bool developer_mode = true;
+    const bool developer_mode = false;
 
 	std::string config_filename = "sys_config.json";
 

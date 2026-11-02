@@ -1016,11 +1016,6 @@
       "full_text": [ "name", "notes" ],
       "parents": [ "person", "building", "property" ],
       "fields": {
-        "name": {
-          "field_type": "string",
-          "label": "Name",
-          "max_length": 50
-        },
         "notes": {
           "field_type": "string",
           "label": "Notes"
@@ -1046,6 +1041,16 @@
       "class_version": "1.0",
       "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1066,7 +1071,8 @@
           "field_type": "string",
           "label": "Website"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
     },
     {
       "class_name": "furniture",
@@ -1077,6 +1083,16 @@
       "class_version": "1.0",
       "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1097,7 +1113,9 @@
           "field_type": "string",
           "label": "Website"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
+
     },
     {
       "class_name": "gun",
@@ -1108,6 +1126,16 @@
       "class_version": "1.0",
       "full_text": [ "manufacturer", "model", "year", "form_factor", "caliber", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1128,7 +1156,9 @@
           "field_type": "string",
           "label": "Serial Number"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "model", "year", "caliber", "serial_number" ]
+
     },
     {
       "class_name": "tractor",
@@ -1139,6 +1169,16 @@
       "class_version": "1.0",
       "full_text": [ "manufacturer", "make", "model", "year", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1159,7 +1199,8 @@
           "field_type": "string",
           "label": "Serial Number"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
     },
     {
       "class_name": "boat",
@@ -1170,6 +1211,16 @@
       "class_version": "1.0",
       "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1190,7 +1241,8 @@
           "field_type": "string",
           "label": "Serial Number"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
 
     },
     {
@@ -1202,6 +1254,16 @@
       "class_version": "1.0",
       "full_text": [ "make", "model", "year", "engine", "vin", "website" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "make": {
           "field_type": "string",
           "label": "Make"
@@ -1226,7 +1288,8 @@
           "field_type": "string",
           "label": "Website"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "make", "model", "year", "vin", "website" ]
     },
     {
       "class_name": "electronic",
@@ -1237,6 +1300,16 @@
       "class_version": "1.0",
       "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer"
@@ -1257,7 +1330,9 @@
           "field_type": "string",
           "label": "Website"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
+
     },
     {
       "class_name": "jewelry",
@@ -1268,6 +1343,16 @@
       "class_version": "1.0",
       "full_text": [ "description", "model", "serial_number" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "website": {
           "field_type": "string",
           "label": "Website"
@@ -1289,7 +1374,9 @@
           "label": "Serial Number"
         }
 
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "website", "diamond_carots", "gold_content", "silver_content", "serial_number" ]
+
     },
     {
       "class_name": "collectible",
@@ -1300,6 +1387,16 @@
       "class_version": "1.0",
       "full_text": [ "description", "model", "serial_number", "certificate" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "website": {
           "field_type": "string",
           "label": "Website"
@@ -1312,7 +1409,9 @@
           "field_type": "string",
           "label": "Certificate"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "website", "serial_number", "certificate" ]
+
     },
     {
       "class_name": "stock",
@@ -1323,6 +1422,16 @@
       "class_version": "1.0",
       "full_text": [ "ticker", "website", "serial_number", "certificate" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "ticker": {
           "field_type": "string",
           "label": "Ticker"
@@ -1345,7 +1454,9 @@
           "field_type": "string",
           "label": "Certificate"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "ticker", "shares", "website", "serial_number", "certificate" ]
+
     },
 
     {
@@ -1397,7 +1508,6 @@
       "base_class_name": "sys_object",
       "class_description": "A building",
       "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
-      "field_order": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
       "parents": [ "property" ],
       "fields": {
         "latitude": {
@@ -1419,7 +1529,9 @@
         "records": [ "record" ],
         "assets": [ "asset" ],
         "property_value": "double"
-      }
+      },
+      "field_order": [ "property_value", "latitude", "longitude", "construction_type", "occupancy_type" ]
+
     },
     {
       "class_name": "property",
@@ -1528,6 +1640,16 @@
       "class_description": "Book",
       "full_text": [ "author" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "author": {
           "field_type": "string",
           "label": "Author",
@@ -1559,7 +1681,8 @@
           "label": "URL",
           "max_length": 500
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "author", "copyright_year", "isbn", "contents", "pages", "hardcopy_url" ]
     },
     {
       "class_name": "movie",
@@ -1567,6 +1690,16 @@
       "class_description": "Movie",
       "full_text": [ "director" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "director": {
           "field_type": "string",
           "label": "Director"
@@ -1589,7 +1722,9 @@
           "label": "Digital URL",
           "max_length": 500
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "director", "writer", "producer", "hardcopy_url", "digital_url" ]
+
     },
     {
       "class_name": "board_game",
@@ -1597,6 +1732,16 @@
       "class_description": "Board Game",
       "full_text": [ "director" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "hardcopy_url": {
           "field_type": "string",
           "label": "Hardcopy URL",
@@ -1607,7 +1752,8 @@
           "label": "Digital URL",
           "max_length": 500
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "hardcopy_url", "digital_url" ]
     },
     {
       "class_name": "video_game",
@@ -1615,6 +1761,16 @@
       "class_description": "Video Game",
       "full_text": [ "director" ],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "hardcopy_url": {
           "field_type": "string",
           "label": "Hardcopy URL",
@@ -1625,7 +1781,8 @@
           "label": "Digital URL",
           "max_length": 500
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "hardcopy_url", "digital_url" ]
     },
     {
       "class_name": "tool",
@@ -1633,6 +1790,16 @@
       "class_description": "Tool",
       "full_text": [],
       "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
         "manufacturer": {
           "field_type": "string",
           "label": "Manufacturer",
@@ -1656,7 +1823,8 @@
           "field_type": "string",
           "label": "URL"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "model", "serial", "warranty", "url" ]
     },
     {
       "class_name": "aircraft",
@@ -1667,7 +1835,12 @@
       "class_version": "1.0",
       "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
       "fields": {
-        "description": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
           "field_type": "string",
           "label": "Description"
         },
@@ -1691,7 +1864,8 @@
           "field_type": "string",
           "label": "Serial Number"
         }
-      }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
     },
     {
       "class_name": "enemy_move",
@@ -1703,6 +1877,7 @@
       "full_text": [ "movement" ],
       "parents": [ "mission" ],
       "fields": {
+
         "movement_name": {
           "field_type": "string",
           "label": "Name"
@@ -1965,7 +2140,7 @@
       }
     },
     {
-      "class_name": "honorspounse",
+      "class_name": "honorspouse",
       "class_description": "Honor your spouse",
       "base_class_name": "humility",
       "class_color": "#af9d66",
@@ -3073,7 +3248,7 @@
       "try_new": "default",
       "hear_new": "default",
       "service": "default",
-      "honorspounse": "default",
+      "honorspouse": "default",
       "honorancestors": "default",
       "holy_service": "default",
       "body_training": "default",
@@ -3194,7 +3369,7 @@
       "try_new": "Try a new thing and make mistakes",
       "hear_new": "Accept advice from someone you trust",
       "service": "Serve someone you trust as they need",
-      "honorspounse": "Treasure your spouse as your ally",
+      "honorspouse": "Treasure your spouse as your ally",
       "honorancestors": "Make your ancestors proud",
       "holy_service": "Serve your local Church, Temple or Mosque",
       "body_training": "A strong body creates a disciplined mind",
