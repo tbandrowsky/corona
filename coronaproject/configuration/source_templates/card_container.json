@@ -34,25 +34,43 @@
           "class_name": "column",
           "name": "current_object_header",
           "box": {
-            "width": "100.0 pixels",
+            "width": "125.0 pixels",
             "height": "1.0 container"
           },
           "children": [
-            {
-              "class_name": "paragraph",
-              "box": {
-                "width": "1.0 container",
-                "height": "20 pixels"
-              },
-              "json_field_name": "class_name",
-              "prompt": "{class_name} #{object_id}"
-            },
             {
               "class_name": "image",
               "image_filename": "$icon_image_file",
               "box": {
                 "width": "50 pixels",
                 "height": "50 pixels"
+              }
+            },
+            {
+              "class_name": "paragraph",
+              "box": {
+                "width": "1.0 container",
+                "height": "14 pixels"
+              },
+              "json_field_name": "class_name",
+              "text": "{class_name} #{object_id}",
+              "view_style": {
+                "text_style": {
+                  "font_name": "Century Gothic,Arial",
+                  "font_size": 12,
+                  "bold": false,
+                  "underline": false
+                },
+                "shape_border_thickness": 0,
+                "box_border_thickness": 0,
+                "shape_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "FFFFEE"
+                },
+                "box_fill_brush": {
+                  "class_name": "solid_brush",
+                  "color": "333137"
+                }
               }
             }
           ]
@@ -64,6 +82,7 @@
             "width": "1.0 remaining",
             "height": "1.0 container"
           },
+          "padding":  "4 pixels",
           "children": [
             "$card_contents"
           ]

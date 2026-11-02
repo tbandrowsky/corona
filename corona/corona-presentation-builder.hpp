@@ -38,11 +38,27 @@ namespace corona
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
+	class readonly_memo_field_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 200.0_px };
+		layout_rect status_box = { 0.9_container, 0.0_px, 0.10_container, 45.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 255.0_px };
+	};
+
 	class dropdown_field_layout {
 	public:
 		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
-		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 25.0_px };
-		layout_rect status_box = { 0.0_px, 25.0_px, 1.0_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.30_container, 25.0_px };
+		layout_rect status_box = { 0.62_container, 0.0_px, 0.38_container, 45.0_px };
+		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
+	};
+
+	class linkbutton_field_layout {
+	public:
+		layout_rect label_box = { 0.0_px, 0.0_px, 0.30_container, 20.0_px };
+		layout_rect field_box = { 0.30_container, 0.0_px, 0.70_container, 45.0_px };
+		layout_rect status_box = { 0.9_container, 0.0_px, 0.10_container, 45.0_px };
 		layout_rect box = { 0.0_px, 0.0_px, 1.0_container, 45.0_px };
 	};
 
@@ -242,6 +258,12 @@ namespace corona
 				label->set_prompt(ps);
 			}
 
+
+			if (_src.has_member("text")) {
+				auto ps = _src["text"].as_string();
+				label->set_text(ps);
+			}
+
 			if (!label_json.object() || !field_json.has_member("box")) {
 				field->box = field_box;
 			}
@@ -335,8 +357,10 @@ namespace corona
 	using edit_field_control = field_layout<default_layout, edit_control, default_field_layout>;
 	using memo_field_control = field_layout<default_layout, memo_control, default_memo_layout>;
 	using readonly_field_control = field_layout<default_layout, readonly_control, readonly_field_layout>;
+	using readonly_memo_field_control = field_layout<default_layout, readonly_memo_control, readonly_memo_field_layout>;
 	using password_field_control = field_layout<default_layout, password_control, default_field_layout>;
 	using number_field_control = field_layout<default_layout, number_control, default_field_layout>;
+	using linkbutton_field_control = field_layout<default_layout, linkbutton_control, linkbutton_field_layout>;
 	using checkbox_field_control = field_layout<default_layout, checkbox_control, default_field_layout>;
 	using listview_field_control = field_layout<default_layout, listview_control, default_field_layout>;
 	using treeview_field_control = field_layout<default_layout, treeview_control, default_field_layout>;
@@ -729,6 +753,15 @@ namespace corona
 			}
 			return *this;
 		}
+		control_builder& readonly_memo_field(int _id, std::function<void(readonly_memo_field_control&)> _settings)
+		{
+			auto tc = create<readonly_memo_field_control>(_id);
+			apply_item_sizes(tc);
+			if (_settings) {
+				_settings(*tc);
+			}
+			return *this;
+		}
 		control_builder& password_field(int _id, std::function<void(password_field_control&)> _settings)
 		{
 			auto tc = create<password_field_control>(_id);
@@ -981,7 +1014,7 @@ namespace corona
 		{
 			auto tc = create<title_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -992,7 +1025,7 @@ namespace corona
 		{
 			auto tc = create<subtitle_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1003,7 +1036,7 @@ namespace corona
 		{
 			auto tc = create<authorscredit_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1054,7 +1087,7 @@ namespace corona
 		{
 			auto tc = create<chaptertitle_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1065,7 +1098,7 @@ namespace corona
 		{
 			auto tc = create<chaptersubtitle_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1076,7 +1109,7 @@ namespace corona
 		{
 			auto tc = create<note_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1087,7 +1120,7 @@ namespace corona
 		{
 			auto tc = create<paragraph_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1098,7 +1131,7 @@ namespace corona
 		{
 			auto tc = create<footnote_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1109,7 +1142,7 @@ namespace corona
 		{
 			auto tc = create<code_control>(_id);
 			apply_item_sizes(tc);
-			tc->text = text;
+			tc->template_text = text;
 			if (_settings) {
 				_settings(*tc);
 			}
@@ -1203,9 +1236,9 @@ namespace corona
 			return *this;
 		}
 
-		control_builder& link_button(int _id, std::function<void(linkbutton_control&)> _settings = nullptr)
+		control_builder& link_button_field(int _id, std::function<void(linkbutton_field_control&)> _settings = nullptr)
 		{
-			auto tc = create<linkbutton_control>(_id);
+			auto tc = create<linkbutton_field_control>(_id);
 			apply_item_sizes(tc);
 			if (_settings) {
 				_settings(*tc);
@@ -2646,6 +2679,13 @@ namespace corona
 				_ctrl.set_data(control_data, true);
 				});
 		}
+		else if (class_name == "linkbutton_field")
+		{
+			link_button_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+			}
 		else if (class_name == "memo_field")
 		{
 			memo_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2666,7 +2706,14 @@ namespace corona
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});
-				}
+		}
+		else if (class_name == "readonly_memo_field")
+		{
+			readonly_memo_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+				_ctrl.put_json(control_properties);
+				_ctrl.set_data(control_data, true);
+				});
+		}
 		else if (class_name == "password_field")
 		{
 			password_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
@@ -2831,7 +2878,7 @@ namespace corona
 		}
 		else if (class_name == "link_button")
 		{
-			link_button(field_id, [&control_properties, control_data](auto& _ctrl)->void {
+			link_button_field(field_id, [&control_properties, control_data](auto& _ctrl)->void {
 				_ctrl.put_json(control_properties);
 				_ctrl.set_data(control_data, true);
 				});
@@ -3208,7 +3255,7 @@ namespace corona
 		new_frame->name = _name;
 		new_frame->contents = _contents;
 
-		log_warning("Navigate to -> " + new_frame->name);
+		log_information("Frame set to -> " + new_frame->name, __FILE__, __LINE__);
 
 		auto results = navigate(_batch_id, new_frame);
 		return results;
@@ -3222,7 +3269,7 @@ namespace corona
 		new_frame->data = _obj;
 		new_frame->name = _contents_page->name;
 
-		log_warning("Navigate to -> " + new_frame->name);
+		log_information("Frame set to -> " + new_frame->name, __FILE__, __LINE__);
 
         navigation_stack.navigate(new_frame);
 

@@ -72,50 +72,28 @@ namespace corona {
 
 	std::string human_case(const std::string& s)
 	{
-		std::string phrase;
-		std::string word;
+		std::string word = "";
 
         if (s.find(' ') != std::string::npos) {
 			return s;
 		}
 
-		if (s.find('_') != std::string::npos) {
-			for (char c : s) {
-				if (std::isupper(c) && !word.empty()) {
-					if (!phrase.empty()) {
-						phrase += " ";
-					}
-					phrase += word;
-					word.clear();
-				}
-				word += c;
+		bool make_upper = true;
+		for (char c : s) {
+			if (c == '_') {
+				word += " ";
+				make_upper = true;
 			}
-			phrase += word;
-		}
-		else 
-		{
-			bool make_upper = false;
-			for (char c : s) {
-				if (c == '_' && !word.empty()) {
-					if (!phrase.empty()) {
-						phrase += " ";
-					}
-					phrase += word;
-					word.clear();
-					make_upper = true;
-				}
-				else if (make_upper) {
-					word += std::toupper(c);
-					make_upper = false;
-				}
-				else {
-					word += c;
-				}
+			else if (make_upper) {
+				word += std::toupper(c);
+				make_upper = false;
 			}
-			phrase += word;
+			else {
+				word += std::tolower(c);
+			}
 		}
 
-		return phrase;
+		return word;
 	}
 
 	std::string join(std::vector<std::string> items, std::string delim)

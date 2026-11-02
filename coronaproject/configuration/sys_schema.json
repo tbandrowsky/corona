@@ -749,32 +749,22 @@
           "field_type": "string",
           "label": "Treason Attempt",
           "enum": [
-            "Argues they are the only Americans",
-            "All Americans are Americans",
-            "Attacks American and American established institutions",
-            "Blames the weak for enemy attacks",
+            "Gives things to enemies",
+            "Promotes enemy values",
+            "Chooses enemies",
+            "Blames allies",
+            "Blames others",
             "Cheats",
-            "Defends the actions of enemies.",
-            "Foreign policy cannot be race based",
-            "Freedom is for everyone",
-            "Lowers USA arts",
-            "Lowers USA education",
-            "Lowers USA instituations",
-            "Lowers USA military",
-            "Lowers USA music",
-            "Lowers USA population",
-            "Lowers USA science",
-            "Lowers USA technology",
-            "Enemy Asset sources lie more than American ones",
-            "They cheer their trampling of the weak",
-            "Supports bans on rifles and personal weapons development",
-            "Supports bans on possession of periodic elements",
-            "Subordinates the legislative branch to an Enemy Asset President",
-            "Strong nations cannot subjugate and shakedown the weak",
-            "Uses false facts to betray allies",
-            "Uses safety and environment to disempower",
-            "Undermines separation of powers",
-            "Violates commitments"
+            "Deceptive",
+            "False Witness",
+            "False promises",
+            "False pictures",
+            "Idolatry",
+            "Flirts with enemies",
+            "Gas lights promises",
+            "Abandons children",
+            "Abandons family",
+            "Abandons spouse"
           ]
         },
         "date_occurred": {
@@ -792,27 +782,31 @@
       "fields": {
         "attack": {
           "field_type": "string",
-          "label": "Blasphemy Attempt",
+          "label": "Blasphemy Nature",
           "enum": [
-            "Approaches the afterlife as a checklist",
-            "Attacks other religions and peoples as threats",
-            "Attacks the Pope and other religious leaders",
-            "Bears false witness, lies are necessary",
-            "Celebrates strength and condemns the weak",
-            "Christianity is not a suicide pact.",
-            "Condemns or dismisses the Sermon on the Mount",
-            "Covets goods and wives more than loves the Lord",
-            "Dismisses the obvious biblical role of the USA",
-            "Evil is necessary",
-            "Grace does not include murder and infidelity",
-            "Helping people is useless except for virtue establishment",
-            "Laughs at cruelty and mocks compassion",
+            "Fear based promotion",
+            "Idolatry of weapons",
+            "Divisive behavior",
+            "Casts away others",
             "Leaves people behind",
-            "Pushes cultural buttons to inflame hatred",
-            "Their goals are more important than God's mission for you",
-            "Trusts only in violence and not in God",
-            "Uses the bible as an excuse for cruelty",
-            "Uses weapons as idols for power"
+            "Ethnic slurs",
+            "'Natural Order'",
+            "They made me do it",
+            "The strongest should rule",
+            "Strongmen affinity",
+            "Only me",
+            "God is gone",
+            "F Them",
+            "God is not real",
+            "Race based mythologies",
+            "General cockmaster",
+            "Not a suicide pact",
+            "Isolationism",
+            "Insulting nations",
+            "Exploits the weak",
+            "Seeks leverage",
+            "Worships power",
+            "Earthly pleasures"
           ]
         },
         "date_occurred": {
@@ -830,21 +824,24 @@
       "fields": {
         "attack": {
           "field_type": "string",
-          "label": "Domination Attempt",
+          "label": "Domination Nature",
           "enum": [
-            "Attacks a perceived weaker player in a meeting.",
-            "Attacks your own curiosity and education as wasteful.",
-            "Disrupts group happiness, from playing kids to collaborating workers.",
-            "Bullies into their urgent priorities.",
-            "Criticizes to subjugate more than teach to improve.",
-            "Criticizes other people to make you feel weak",
-            "F* em, the strong survive, the weak are expendable.",
-            "Happiness at your expense",
-            "I hear you/understand/but, this is what I want.",
-            "Prove me wrong",
-            "Ruins someone and then laughs at their ruin",
-            "Tell me specifically why I am wrong",
-            "You are responsible for my random actions."
+            "Finds the weaker.",
+            "Commands your time.",
+            "Joy is useless.",
+            "Learning is wasteful.",
+            "Joy is unnecessary.",
+            "Spirit isn't real",
+            "I am your master",
+            "I am the gatekeeper",
+            "Servant of strongman",
+            "Domestic violence",
+            "What did she do",
+            "Not that big of a deal",
+            "Basically an asshole",
+            "Plays against you",
+            "False witness",
+            "Cheats"
           ]
         },
         "date_occurred": {
@@ -857,28 +854,25 @@
     {
       "class_name": "sabotage",
       "base_class_name": "incident",
-      "class_description": "Enemy Assets sabotage American progress.",
+      "class_description": "Enemy Assets sabotage progress.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
-          "label": "Sabotage Attempt",
+          "label": "Sabotage Act",
           "enum": [
-            "Advocates offshoring, outsourcing, or dismantling organizations.",
-            "Against immigration",
-            "Against increasing industrial capacity",
-            "Against new infrastructure",
-            "Against nuclear or solar power",
-            "Against public education",
-            "Against public health",
-            "Against border security",
-            "Against military spending",
-            "Against scientific research",
-            "Blocks team self improvement",
-            "Bombards with ethnic grievances",
-            "Makes problems unsolvable.",
-            "Publishes false metrics about a project to undermine its success.",
-            "Uses security policing to prevent any product improvement on a timely basis."
+            "Incorrect information",
+            "Undermines team",
+            "Division over minor details",
+            "Introduces doubt",
+            "Invents obstacles",
+            "Unnecessary complication",
+            "Overstates mistakes",
+            "Laments success",
+            "Bullying dumbass",
+            "Fakes results",
+            "Lies in key meetings",
+            "Jokes to ruin"
           ]
         },
         "date_occurred": {
@@ -889,27 +883,38 @@
       "field_order": [ "story", "date_occurred" ]
     },
     {
-      "class_name": "slavery",
+      "class_name": "genocide",
       "base_class_name": "incident",
-      "class_description": "Russo-Confederate Assets bring slavery and serfdom.",
+      "class_description": "Enemy Assets commit genocide.",
       "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
-          "label": "Slaving Attempt",
+          "label": "Genocidal Steps",
           "enum": [
-            "Allows teams to believe in self determination and then destroys them.",
-            "Always pushes you into greater subjugation with threats and lies.",
-            "Argues that the organization exists to benefit its leaders.",
-            "Defends the Confederacy",
-            "Demands loyalty but doesn't pay for it.",
-            "Distorts the past to create psychosis",
-            "I asked you to do something.",
-            "Lost Cause supporter",
-            "Sells your bad treatment as good by showing how they others worse.",
-            "Threatens to offshore or relocate teams and products.",
-            "You are only allowed to have fun washing this kind of dishes.",
-            "Your self worth is entirely dependent on how useful you are to them."
+            "Identifies target group",
+            "Alliances against target group",
+            "Mistreats to protest",
+            "Calls protest crime",
+            "Civic campaigns against group",
+            "Historical injustice",
+            "Serves no purpose",
+            "Undermine society",
+            "Social cancer",
+            "Its just a",
+            "Confederates,Communists,Nazis",
+            "Pogroms against group",
+            "Commercial rationalizations",
+            "Social rationalizations",
+            "Lowers group birth rate",
+            "Property seizure",
+            "Imprisons group members",
+            "Deports group members",
+            "Exterminates group members",
+            "It's the law",
+            "This has nothing to do with",
+            "Co-existance is impossible",
+            "Not a suicide pact"
           ]
         },
         "date_occurred": {
@@ -929,25 +934,21 @@
           "field_type": "string",
           "label": "Theft Attempt",
           "enum": [
-            "Bait and switch with coercion",
-            "Blames subordinates for failure",
-            "Forces non-disclosure and non-compete agreements",
-            "Lawsuits to crush opposition",
-            "Legislates self-determination from cities",
-            "Lies",
-            "Lies to employees",
-            "Lies to partners",
-            "Lies and finger points to gain",
-            "Promotes one-sided contracts",
-            "Promotes looters more than investment.",
-            "Ruins natural resources for personal gain.",
-            "Steals intellectual property",
-            "Steals small property",
-            "Steals representation",
-            "Subjugates a city to a state",
-            "Steals valor",
-            "Takes credit from subordinates",
-            "Violates land treaties"
+            "And that means its mine",
+            "Not worth that much",
+            "I've seen better",
+            "Not that good",
+            "Its there, why not",
+            "Someone else gets paid",
+            "Just not marketable",
+            "That's not that much",
+            "What's so hard",
+            "I could do it myself",
+            "I made it easy for you",
+            "Not a big deal",
+            "Part of the game",
+            "Lied to her",
+            "Technically it is mine"
           ]
         },
         "date_occurred": {
@@ -1693,30 +1694,6 @@
       }
     },
     {
-      "class_name": "achievement",
-      "class_description": "Achievement",
-      "base_class_name": "sys_object",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "name", "description", "points" ],
-      "parents": [ "mission" ],
-      "fields": {
-        "points": {
-          "field_type": "number",
-          "label": "Points"
-        },
-        "name": {
-          "field_type": "string",
-          "label": "Name"
-        },
-        "description": {
-          "field_type": "string",
-          "label": "Description"
-        }
-      }
-    },
-    {
       "class_name": "enemy_move",
       "class_description": "Enemy Move",
       "base_class_name": "sys_object",
@@ -1724,16 +1701,22 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "full_text": [ "movement" ],
+      "parents": [ "mission" ],
       "fields": {
-        "points": {
-          "field_type": "number",
-          "label": "Points"
-        },
-        "movement": {
+        "movement_name": {
           "field_type": "string",
-          "label": "Movement"
+          "label": "Name"
+        },
+        "movement_description": {
+          "field_type": "string",
+          "label": "Enemy Movement"
+        },
+        "movement_link": {
+          "field_type": "string",
+          "label": "Research"
         }
-      }
+      },
+      "field_order": [ "movement_name", "movement_description", "movement_link" ]
     },
     {
       "class_name": "revolution_move",
@@ -1743,14 +1726,11 @@
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
       "full_text": [ "movement" ],
+      "parents": [ "mission" ],
       "fields": {
-        "points": {
-          "field_type": "number",
-          "label": "Points"
-        },
-        "movement": {
+        "activity": {
           "field_type": "string",
-          "label": "Movement"
+          "label": "Your Experience"
         }
       }
     },
@@ -2349,16 +2329,6 @@
       }
     },
     {
-      "class_name": "arts_ink",
-      "class_description": "Painting",
-      "base_class_name": "Inks/Gels",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
       "class_name": "arts_pencil",
       "class_description": "Pencil/Charcoals",
       "base_class_name": "arts_draw",
@@ -2385,7 +2355,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "name", "description", "enemy_score", "revolution_score", "people_assessed", "incidents_reported", "assets_reported" ],
+      "full_text": [ "mission_name", "mission_description", "enemy_moves" ],
       "fields": {
         "mission_name": {
           "field_type": "string",
@@ -2395,15 +2365,10 @@
           "field_type": "string",
           "label": "Description"
         },
-        "enemy_moves": {
-          "field_type": "number",
-          "label": "Enemy Moves"
-        },
-        "revolution_moves": {
-          "field_type": "number",
-          "label": "Revolution Moves"
-        },
-        "achievements": [ "achievement" ]
+        "enemy_moves": [ "enemy_move" ],
+        "mind_training": [ "mind_training" ],
+        "body_training": [ "body_training" ],
+        "spiritual_training": [ "spiritual_training" ]
       }
     }
   ],
@@ -2954,9 +2919,80 @@
           }
         },
         "tab_type": "edit"
+      },
+      ".mission_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".mission_description": {
+        "class_name": "readonly_memo_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 255,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_link": {
+        "class_name": "linkbutton_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 100,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_description": {
+        "class_name": "readonly_memo_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 255,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 100,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
       }
+
     },
-    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack", "movement_name", "movement_description" ],
     "classes": {
       "journal": "default",
       "diary": "default",
@@ -3010,7 +3046,66 @@
       "bible_cite": "default",
       "koran_cite": "default",
       "tanakh_cite": "default",
-      "holy_cite": "default"
+      "holy_cite": "default",
+      "enemy_move": "default",
+      "revolution_move": "default",
+      "spiritual_training": "default",
+      "bible_study": "default",
+      "koran_study": "default",
+      "tanakh_study": "default",
+      "ancient_study": "default",
+      "hindu_study": "default",
+      "intro_practice": "default",
+      "wonder": "default",
+      "sunsets": "default",
+      "echoes": "default",
+      "beaches": "default",
+      "splashes": "default",
+      "lightanddark": "default",
+      "sunlightandshadow": "default",
+      "fieldandsky": "default",
+      "forests": "default",
+      "trees": "default",
+      "starsandhydrogen": "default",
+      "lifeanddeath": "default",
+      "humility": "default",
+      "try_new": "default",
+      "hear_new": "default",
+      "service": "default",
+      "honorspounse": "default",
+      "honorancestors": "default",
+      "holy_service": "default",
+      "body_training": "default",
+      "aerobic_training": "default",
+      "running": "default",
+      "swimming": "default",
+      "strength_training": "default",
+      "mind_training": "default",
+      "read_book": "default",
+      "practice_music": "default",
+      "practice_math": "default",
+      "practice_algebra": "default",
+      "practice_trigonometry": "default",
+      "practice_calculus": "default",
+      "practice_diffeq": "default",
+      "practice_atoms": "default",
+      "practice_materials": "default",
+      "biology_training": "default",
+      "engineering_practice": "default",
+      "eng_problem_identification": "default",
+      "eng_problem_forces": "default",
+      "eng_problem_solution": "default",
+      "eng_problem_model": "default",
+      "eng_problem_build": "default",
+      "eng_problem_test": "default",
+      "arts_practice": "default",
+      "arts_paint": "default",
+      "arts_water": "default",
+      "arts_acrylic": "default",
+      "arts_oil": "default",
+      "arts_draw": "default",
+      "arts_pencil": "default",
+      "arts_sculpt": "default"
     },
     "descriptions": {
       "diary": "Basic version and record information about this diary entry",
@@ -3068,7 +3163,71 @@
       "domination.story": "What did the dominator do?",
       "sabotage.story": "What did the sabatour do?",
       "slavery.story": "What did the slaver do?",
-      "theft.story": "What did the thief do?"
+      "theft.story": "What did the thief do?",
+      "bible_cite": "Study Christian Holy works",
+      "koran_cite": "Study Islamic Holy works",
+      "tanakh_cite": "Study Jewish Holy works",
+      "holy_cite": "Study holy works",
+      "enemy_move": "Stay abreast of Enemy moves",
+      "revolution_move": "Make your own move",
+      "spiritual_training": "default",
+      "bible_study": "Study the Bible to build the new USA",
+      "koran_study": "Study the Koran to build the new USA",
+      "tanakh_study": "Study the Tanakh to build the new USA",
+      "ancient_study": "Explore Ancient Civilizations",
+      "hindu_study": "Study the Hindu works to build the new USA",
+      "intro_practice": "Develop yourself",
+      "wonder": "Go outside to spaces of change to change yourself",
+      "sunsets": "Experience a sunset into night",
+      "echoes": "Here the sound and sound again",
+      "beaches": "The Lord's waters and land eternal",
+      "splashes": "Air and water, gravity and movement",
+      "lightanddark": "Light and dark",
+      "sunlightandshadow": "Explore the in between",
+      "fieldandsky": "Feel where the sky meets the field",
+      "forests": "Walk through a forest and listen",
+      "trees": "Imagine a tree as a connection between earth and air",
+      "starsandhydrogen": "The largest thing is many of the smallest",
+      "lifeanddeath": "Know the end and live well",
+      "humility": "default",
+      "try_new": "Try a new thing and make mistakes",
+      "hear_new": "Accept advice from someone you trust",
+      "service": "Serve someone you trust as they need",
+      "honorspounse": "Treasure your spouse as your ally",
+      "honorancestors": "Make your ancestors proud",
+      "holy_service": "Serve your local Church, Temple or Mosque",
+      "body_training": "A strong body creates a disciplined mind",
+      "aerobic_training": "Cardio training builds endurance",
+      "running": "Record your runs",
+      "swimming": "Record swimming",
+      "strength_training": "Strength training builds power",
+      "mind_training": "Cultivate your disciplined mind",
+      "read_book": "Reading a novel or a book builds pathways",
+      "practice_music": "Music marries mind and body",
+      "practice_math": "Math creates a vocabulary of engineering",
+      "practice_algebra": "Algebra teaches symbolic reasoning",
+      "practice_trigonometry": "Trigonometry is calculations in space",
+      "practice_calculus": "Calculus solves areas",
+      "practice_diffeq": "Understand natural shapes",
+      "practice_atoms": "Study Fundamental forces of nature",
+      "practice_materials": "Materials take their properties from their atoms",
+      "biology_training": "Learn how atoms form biological molecules and life",
+      "engineering_practice": "Learn engineering discipline",
+      "eng_problem_identification": "Identify a problem",
+      "eng_problem_forces": "Understand the forces involved",
+      "eng_problem_solution": "Come up with an idea",
+      "eng_problem_model": "Design something with math",
+      "eng_problem_build": "Build something",
+      "eng_problem_test": "Test",
+      "arts_practice": "Arts strenthen mind and voice",
+      "arts_paint": "Paint something",
+      "arts_water": "Try watercolors",
+      "arts_acrylic": "Try acrylic",
+      "arts_oil": "Try oil",
+      "arts_draw": "Draw something",
+      "arts_pencil": "Draw something with a pencil",
+      "arts_sculpt": "Sculpt something"
+
     },
     "objects": [
       {
@@ -3184,9 +3343,94 @@
       {
         "class_name": "mission",
         "object_id": 42,
-        "mission_name": "",
-        "mission_descripion": "",
-        "achievements": []
+        "mission_name": "The Constellation of Light",
+        "mission_description": "The Enemy seeks dominion over the free peoples of mankind.  Become a Constellation Knight of the Revolution to defend the West.  Intensely train the body, spirit and mind.  Learn to discern sins among yourself and the people you know.  Stay abreast of the movements of the enemy.  As you grow, he moves with deadly precision against us all.  You must be smart, holy and strong to defend the realm and unify all religions to create a new United States that walks with God.",
+        "enemy_moves": [
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Russian Invasion",
+            "movement_description": "The Enemy has animated the Duchy of Moscovy and its Russian Empire to attack the free people of Ukraine.",
+            "movement_link": "https://www.bing.com/search?q=Ukraine%20War"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "White Supremacy",
+            "movement_description": "The Enemy has duped many white people into the worship of the false gods of power, and many are financed by Russia.",
+            "movement_link": "https://www.bing.com/search?q=Russia%20White%20Supremacy%20Ties"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Neo Confederacy",
+            "movement_description": "Russia is allied with the Neo Confederacy movement in the USA, influencing white nationalist groups and supporting Confederate uprisings.",
+            "movement_link": "https://www.bing.com/search?q=Russia+USA+Neo-Confederate"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Iran/North Korea",
+            "movement_description": "Russia is allied with Iran and North Korea",
+            "movement_link": "https://www.bing.com/search?q=Russia+Iran+and+North+Korea+ties"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Administrative Asset",
+            "movement_description": "The President and his chief confederates are Russian assets",
+            "movement_link": "https://www.bing.com/search?q=Trump+Putin+Ally"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "The Henchmen",
+            "movement_description": "The Enemy's servants seek white supremacy with Russia",
+            "movement_link": "https://www.bing.com/search?q=Republican+white+supremacy"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Attacks on Education",
+            "movement_description": "The Enemy preys on weak minds.",
+            "movement_link": "https://www.bing.com/search?q=political%20attacks%20public%20education%20censorship"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Attacks on Elections",
+            "movement_description": "The Enemy attacks above all the will of men to choose their own government.",
+            "movement_link": "https://www.bing.com/search?q=Republican%20election%20rigging"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Sex Trafficking",
+            "movement_description": "The Enemy mercilessly exploits women as objects for their amusement.",
+            "movement_link": "https://www.bing.com/search?q=Russian%20sex%20traffic%20Epstein"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Surveillance State",
+            "movement_description": "The Enemy uses security as an excuse to subjugate.",
+            "movement_link": "https://www.bing.com/search?q=surveillance%20state"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Political Police",
+            "movement_description": "The Enemy deploys his police to ensure compliance.",
+            "movement_link": "https://www.bing.com/search?q=ice%20voting"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Corruption of Men",
+            "movement_description": "The Enemy seeks to weaken our nation with the corruption of men.",
+            "movement_link": "https://www.bing.com/search?q=manosphere%20corruption%20of%20men"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Mass deportations",
+            "movement_description": "The Enemy seeks to lower our population and divide us, using their assets to drive people out.",
+            "movement_link": "https://www.bing.com/search?q=mass%20deportations"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Public Threats",
+            "movement_description": "The Enemy tries to dominate with threats.",
+            "movement_link": "https://www.bing.com/search?q=republican%20threats"
+          }
+        ]
       }
     ],
     "teams": {

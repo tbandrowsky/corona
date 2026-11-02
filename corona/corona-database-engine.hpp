@@ -4126,6 +4126,7 @@ private:
 				content.put_member_string("class_name", field_class_name);
 				content.put_member("box", field_box);
 				content.put_member_string("prompt", field_label);
+				content.put_member_string("text", field_label);
 				content.put_member_string("name", field_name);
 				content.put_member("json_field_name", field_name);
                 content.put_member_bool("default_focus", default_set);

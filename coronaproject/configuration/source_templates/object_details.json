@@ -29,7 +29,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "class_name",
-              "text_template": "Class Name: {class_name}",
+              "text": "Class Name: {class_name}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -38,7 +38,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "object_id",
-              "text_template": "Object ID: {object_id}",
+              "text": "Object ID: {object_id}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -47,7 +47,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "team",
-              "text_template": "Team: {team}",
+              "text": "Team: {team}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -85,7 +85,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "created_by",
-              "text_template": "Created By: {created_by}",
+              "text": "Created By: {created_by}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -94,7 +94,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "updated",
-              "text_template": "Updated: {updated}",
+              "text": "Updated: {updated}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"
@@ -103,7 +103,7 @@
             {
               "class_name": "paragraph",
               "json_field_name": "updated_by",
-              "text_template": "Updated By: {updated_by}",
+              "text": "Updated By: {updated_by}",
               "box": {
                 "width": "1.0 container",
                 "height": "35 pixels"

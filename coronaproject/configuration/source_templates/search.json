@@ -50,21 +50,35 @@
                       "class_name": "command_button",
                       "name": "mission_button",
                       "image": "mission.png",
-                      "text": "To Mission",
+                      "text": "Mission",
                       "box": {
                         "width": "100 pixels",
                         "height": "75 pixels"
                       },
                       "on_click": {
-                        "class_name": "load_object",
+                        "class_name": "run_query",
                         "form_name": "search_input",
-                        "target_frame": "frame_selected",
-                        "object_key": {
-                          "class_name": "mission",
-                          "object_id": 42
+                        "table_name": "result_table",
+                        "detail_frame": "frame_selected",
+                        "set": {
                         },
-                        "sources": {
-                          "mission": "object_mission"
+                        "query": {
+                          "from": [
+                            {
+                              "class_name": "mission",
+                              "name": "objects",
+                              "filter": {
+                                "full_text": ""
+                              }
+                            }
+                          ],
+                          "stages": [
+                            {
+                              "class_name": "result",
+                              "source": "objects",
+                              "name": "final"
+                            }
+                          ]
                         }
                       }
                     },

@@ -1500,6 +1500,9 @@ namespace corona
 
 		linkbutton_control(control_base* _parent, int _id) : button_control<LinkButtonWindowStyles>(_parent, _id) { ; }
 		linkbutton_control(const linkbutton_control& _src) = default;
+        linkbutton_control() {
+            id = id_counter::next();
+        }
 		virtual std::shared_ptr<control_base> clone()
 		{
 			auto tv = std::make_shared<linkbutton_control>(*this);
@@ -1507,6 +1510,23 @@ namespace corona
 		}
 
 		virtual ~linkbutton_control() { ; }
+
+		virtual void on_create()
+		{
+			if (::IsWindow(window)) {
+				::SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
+			}
+		}
+
+		virtual void on_subscribe(presentation_base* _presentation, page_base* _page)
+		{
+			windows_control::on_subscribe(_presentation, _page);
+
+            _page->on_command(this, [this](command_event lce) {
+				ShellExecuteA(NULL, "open", text.c_str(), NULL, NULL, SW_SHOWNORMAL);
+                });
+		}
+
 	};
 
 	class edit_control : public text_control_base
@@ -1664,6 +1684,27 @@ namespace corona
 		virtual DWORD get_window_style() { return EditWindowStyles | ES_READONLY; }
 		virtual DWORD get_window_ex_style() { return 0; }
 	};
+
+	class readonly_memo_control : public edit_control
+	{
+	public:
+
+		readonly_memo_control(control_base* _parent, int _id) : edit_control(_parent, _id) { ; }
+		virtual ~readonly_memo_control() { ; }
+		readonly_memo_control(const readonly_memo_control& _src) = default;
+		readonly_memo_control() { id = id_counter::next(); }
+
+		virtual std::shared_ptr<control_base> clone()
+		{
+			auto tv = std::make_shared<readonly_memo_control>(*this);
+			return tv;
+		}
+
+		virtual const char* get_window_class() { return WC_EDITA; }
+		virtual DWORD get_window_style() { return RichEditWindowStyles | ES_READONLY; }
+		virtual DWORD get_window_ex_style() { return 0; }
+	};
+
 
 	class listbox_control : public list_control_base
 	{

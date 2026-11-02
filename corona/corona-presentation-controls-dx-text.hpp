@@ -23,7 +23,6 @@ namespace corona
 	class text_display_control : public draw_control, public text_template_base
 	{
 	public:
-		std::string			text;
 		std::string         hit_word;
 		std::string         template_text;
 
@@ -34,26 +33,20 @@ namespace corona
 
         virtual void set_prompt(std::string _prompt)
         {
-            template_text = _prompt;
+            ;
         }
 
 		virtual void get_json(json& _dest)
 		{
 			draw_control::get_json(_dest);
-			_dest.put_member("text_template", template_text);
-			_dest.put_member("text", text);
-			_dest.put_member("prompt", template_text);
+			_dest.put_member("text", template_text);
 			_dest.put_member("hit_word", hit_word);
 		}
 
 		virtual void put_json(json& _src)
 		{
 			draw_control::put_json(_src);
-			template_text = _src["text_template"].as_string();
-			if (template_text.empty()) {
-				template_text = _src["prompt"].as_string();
-			}
-			text = _src["text"].as_string();
+			template_text = _src["text"].as_string();
 			hit_word = _src["hit_word"].as_string();
 		}
 
@@ -76,11 +69,7 @@ namespace corona
 			if (_property_name == json_field_name) {
 				data[json_field_name] = _value.value();
 			}
-			else if (_property_name == "text") {
-                template_text = _value.as_string();
-                update_text();
-            }
-            else if (_property_name == "prompt") {
+            else if (_property_name == "text") {
                 template_text = _value.as_string();
                 update_text();
             }
@@ -96,17 +85,17 @@ namespace corona
 		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
 		virtual void on_create(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override;
 
-		void update_text()
+		std::string update_text()
 		{
+			std::string text = "";
             enum { in_text, in_braces } state = in_text;
 
             std::string replacement_path = "";
 			int brace_level = 0;
 
 			if (template_text.empty()) {
-				return;
+				return text;
             }
-			text = "";
 
 			for (auto c : template_text) {
 				if (state == in_braces) {
@@ -122,55 +111,63 @@ namespace corona
 
 							if (replacement_path.size()>0) {
 								json ldata(data);
-								Lexer lexer(replacement_path, ldata);
 
-								lexer.EvaluateValue = [](std::string _path, json _context) -> json
-									{
-										json result_data;
+								if (ldata.has_member(replacement_path))
+								{
+                                    text += ldata[replacement_path].as_string();
+								}
+								else {
 
-										json_parser jp;
+									Lexer lexer(replacement_path, ldata);
 
-										if (_path.starts_with("ux.")) {
-											auto controls = split(_path, '.');
+									lexer.EvaluateValue = [](std::string _path, json _context) -> json
+										{
+											json result_data;
 
-											if (controls.size() >= 3) {
-												std::string control_name = controls[1];
-												std::string value_name = controls[2];
-												auto ctrl = comm_desktop_bus_interface::get_service()->find_control(control_name);
-												if (ctrl) {
-                                                    json_object new_state = ctrl->get_data();
-												
-	
-													result_data = new_state;
+											json_parser jp;
+
+											if (_path.starts_with("ux.")) {
+												auto controls = split(_path, '.');
+
+												if (controls.size() >= 3) {
+													std::string control_name = controls[1];
+													std::string value_name = controls[2];
+													auto ctrl = comm_desktop_bus_interface::get_service()->find_control(control_name);
+													if (ctrl) {
+														json_object new_state = ctrl->get_data();
+
+
+														result_data = new_state;
+													}
 												}
 											}
-										}
 
-										if (_context.has_member(_path)) {
-											result_data = _context[_path];
-										}
-										else if (_path.starts_with("."))
-										{
-											_path = _path.substr(1);
-											result_data = _context.query(_path);
-											result_data = result_data["value"];
-										}
-										else {
-											result_data = jp.from_string(_path);
-										}
+											if (_context.has_member(_path)) {
+												result_data = _context[_path];
+											}
+											else if (_path.starts_with("."))
+											{
+												_path = _path.substr(1);
+												result_data = _context.query(_path);
+												result_data = result_data["value"];
+											}
+											else {
+												result_data = jp.from_string(_path);
+											}
 
-										return result_data;
-									};
+											return result_data;
+										};
 
-								Parser parser(lexer, ldata);
-								json result_data = parser.expr();
+									Parser parser(lexer, ldata);
+									json result_data = parser.expr();
 
-								if (result_data.is_datetime()) {
-									date_time dt = result_data.as_date_time();
-									text += dt.short_date();
-								}
-								else if (result_data.scalar()) {
-									text += result_data.as_string();
+									if (result_data.is_datetime()) {
+										date_time dt = result_data.as_date_time();
+										text += dt.short_date();
+									}
+									else if (result_data.scalar()) {
+										text += result_data.as_string();
+									}
 								}
 							}
 						}
@@ -194,6 +191,7 @@ namespace corona
 					}
 				}
 			}
+			return text;
 		}
 
 		virtual void set_default_styles()
@@ -256,6 +254,11 @@ namespace corona
 		{
 			auto tv = std::make_shared<title_control>(*this);
 			return tv;
+		}
+
+		virtual void on_draw(std::shared_ptr<direct2dContext>& _context, draw_control* _control) override
+		{
+			text_display_control::on_draw(_context, _control);
 		}
 
 		virtual ~title_control();
@@ -481,7 +484,7 @@ namespace corona
 		void set_status(call_status _status)
 		{
 			error_status = _status;
-			text = error_status.message;
+			template_text = error_status.message;
 		}
 
 		virtual void set_default_styles();
@@ -508,7 +511,7 @@ namespace corona
 		void set_status(call_status _status)
 		{
 			error_status = _status;
-			text = error_status.message;
+			template_text = error_status.message;		
 		}
 
 		virtual void set_default_styles();
@@ -599,9 +602,7 @@ namespace corona
 	{
 		auto draw_bounds = inner_bounds;
 
-		update_text();
-
-		if (not text.size()) text = "";
+		std::string text = update_text();
 
 		//			std::string test_text = std::format("{0}, {1}, {2}", t->text, draw_bounds.x, draw_bounds.y, (long)t);
 		//			std::cout << test_text << std::endl;
@@ -618,7 +619,7 @@ namespace corona
 
 	text_display_control& text_display_control::set_text(std::string _text)
 	{
-		text = _text;
+		template_text = _text;
 		return *this;
 	}
 
@@ -914,12 +915,12 @@ namespace corona
 
 	placeholder_control::placeholder_control()
 	{
-		text = "Placeholder";
+		template_text = "Placeholder";
 	}
 
 	placeholder_control::placeholder_control(control_base* _parent, int _id) : text_display_control(_parent, _id)
 	{
-		text = "Placeholder";
+		template_text = "Placeholder";
 	}
 
 	placeholder_control::~placeholder_control()
@@ -990,9 +991,7 @@ namespace corona
 	{
 		auto draw_bounds = inner_bounds;
 
-		update_text();
-
-		if (not text.size()) text = "";
+		std::string text = update_text();
 
 		if (is_error) {
 			_context->drawText(text.c_str(), &draw_bounds, error_view_style->text_style.name, error_view_style->shape_fill_brush.get_name(), hit_word);
