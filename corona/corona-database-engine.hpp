@@ -3953,7 +3953,7 @@ private:
 
 		std::string tab_name = "tab_" + classd->get_class_name() + "_fields";
 		default_tab.put_member_string("page_name", tab_name);
-		default_tab.put_member_string("name", classd->get_class_name());
+		default_tab.put_member_string("name", human_case(classd->get_class_name()));
 		default_tab.put_member_string("member_name", ".");
 		default_tab.put_member_string("tab_type", "edit");
 		std::string description = get_description(classd, "", descriptions);
@@ -4399,7 +4399,7 @@ private:
 					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);
 				}
 				else if (tab_type == "list") {
-					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_command_class_template, form_sources, description, readonly);
+					tab_page = generate_tab_list_page(tab_list_template, classd, class_name, member_name, create_tab_command_class_template, form_sources, description, readonly);
 				}
 				else if (tab_type == "edit") {
 					tab_page = generate_tab_edit_page(_errors, tab_edit_template, classd, class_mappings, field_mappings, description);

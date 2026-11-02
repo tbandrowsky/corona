@@ -2209,7 +2209,7 @@
       }
     },
     {
-      "class_name": "eng_problem_identification",
+      "class_name": "identify_problem",
       "class_description": "Problem Identification",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
@@ -2219,7 +2219,7 @@
       }
     },
     {
-      "class_name": "eng_problem_forces",
+      "class_name": "find_forces",
       "class_description": "Determine Forces",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
@@ -2229,8 +2229,8 @@
       }
     },
     {
-      "class_name": "eng_problem_solution",
-      "class_description": "Solution Conception",
+      "class_name": "solution",
+      "class_description": "Invent a solution",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
@@ -2239,8 +2239,8 @@
       }
     },
     {
-      "class_name": "eng_problem_model",
-      "class_description": "Model design with math",
+      "class_name": "math_problem",
+      "class_description": "Model - Check with physics engine",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
@@ -2249,7 +2249,7 @@
       }
     },
     {
-      "class_name": "eng_problem_build",
+      "class_name": "build_solution",
       "class_description": "Build the design",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
@@ -2259,7 +2259,7 @@
       }
     },
     {
-      "class_name": "eng_problem_test",
+      "class_name": "test_solution",
       "class_description": "Test the product",
       "base_class_name": "engineering_practice",
       "class_color": "#af9d66",
@@ -2369,7 +2369,8 @@
         "mind_training": [ "mind_training" ],
         "body_training": [ "body_training" ],
         "spiritual_training": [ "spiritual_training" ]
-      }
+      },
+      "field_order": [ "mission_name", "mission_description", "enemy_moves", "mind_training", "body_training", "spiritual_training" ]
     }
   ],
   "post_dataset": [
@@ -3092,12 +3093,12 @@
       "practice_materials": "default",
       "biology_training": "default",
       "engineering_practice": "default",
-      "eng_problem_identification": "default",
-      "eng_problem_forces": "default",
-      "eng_problem_solution": "default",
-      "eng_problem_model": "default",
-      "eng_problem_build": "default",
-      "eng_problem_test": "default",
+      "identify_problem": "default",
+      "find_forces": "default",
+      "solution": "default",
+      "math_problem": "default",
+      "build_solution": "default",
+      "test_solution": "default",
       "arts_practice": "default",
       "arts_paint": "default",
       "arts_water": "default",
@@ -3164,9 +3165,9 @@
       "sabotage.story": "What did the sabatour do?",
       "slavery.story": "What did the slaver do?",
       "theft.story": "What did the thief do?",
-      "bible_cite": "Study Christian Holy works",
-      "koran_cite": "Study Islamic Holy works",
-      "tanakh_cite": "Study Jewish Holy works",
+      "bible_cite": "Flip through a Bible to see what applies",
+      "koran_cite": "Flip through a Koran to see what applies",
+      "tanakh_cite": "Flip through a Tanakh to see what applies",
       "holy_cite": "Study holy works",
       "enemy_move": "Stay abreast of Enemy moves",
       "revolution_move": "Make your own move",
@@ -3203,31 +3204,31 @@
       "strength_training": "Strength training builds power",
       "mind_training": "Cultivate your disciplined mind",
       "read_book": "Reading a novel or a book builds pathways",
-      "practice_music": "Music marries mind and body",
-      "practice_math": "Math creates a vocabulary of engineering",
-      "practice_algebra": "Algebra teaches symbolic reasoning",
-      "practice_trigonometry": "Trigonometry is calculations in space",
-      "practice_calculus": "Calculus solves areas",
-      "practice_diffeq": "Understand natural shapes",
-      "practice_atoms": "Study Fundamental forces of nature",
-      "practice_materials": "Materials take their properties from their atoms",
-      "biology_training": "Learn how atoms form biological molecules and life",
-      "engineering_practice": "Learn engineering discipline",
-      "eng_problem_identification": "Identify a problem",
-      "eng_problem_forces": "Understand the forces involved",
-      "eng_problem_solution": "Come up with an idea",
-      "eng_problem_model": "Design something with math",
-      "eng_problem_build": "Build something",
-      "eng_problem_test": "Test",
-      "arts_practice": "Arts strenthen mind and voice",
-      "arts_paint": "Paint something",
+      "practice_music": "Practice music and record",
+      "practice_math": "Practice math. Math creates a vocabulary of engineering.",
+      "practice_algebra": "Practice algebra. Algebra teaches symbolic reasoning",
+      "practice_trigonometry": "Practice trigonometry. Trigonometry is calculations in space",
+      "practice_calculus": "Practice calculus. Calculus solves areas",
+      "practice_diffeq": "Practice differential equations. Understand natural shapes",
+      "practice_atoms": "Practice studying atoms. Study Fundamental forces of nature",
+      "practice_materials": "Practice studying materials. Materials take their properties from their atoms",
+      "biology_training": "Study. Learn how atoms form biological molecules and life",
+      "engineering_practice": "Apply. Use engineering principles",
+      "identify_problem": "Identify a problem",
+      "find_forces": "Find the forces and maths to use",
+      "solution": "Invent a solution",
+      "math_problem": "Check solution with maths",
+      "build_solution": "Build solution",
+      "test_solution": "Test solution to see if it works, and iterate if necessary",
+      "arts_practice": "Practice Arts to strengthen mind and voice",
+      "arts_paint": "Paint something and reflect",
       "arts_water": "Try watercolors",
-      "arts_acrylic": "Try acrylic",
+      "arts_acrylic": "Try acrylic and reflect",
       "arts_oil": "Try oil",
       "arts_draw": "Draw something",
       "arts_pencil": "Draw something with a pencil",
-      "arts_sculpt": "Sculpt something",
-      "enemy_moves": "Stay abreast of Enemy moves, checking links on every front",
+      "arts_sculpt": "Sculpt something and reflect",
+      "enemy_moves": "Stay abreast of Enemy moves, checking links on every front"
     },
     "objects": [
       {

@@ -137,7 +137,7 @@
       },
       "caption_style": {
         "text_style": {
-          "font_name": "Arial, Georgia, Times New Roman, Times",
+          "font_name": "TW Cent MT, Century Gothic,Arial",
           "font_size": 24
         },
         "shape_border_thickness": 0,
@@ -184,7 +184,7 @@
       },
       "title_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "TW Cent MT, Century Gothic,Arial",
           "font_size": 30,
           "vertical_alignment": "center"
         },
@@ -196,7 +196,7 @@
       },
       "subtitle_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "TW Cent MT, Century Gothic,Arial",
           "font_size": 20,
           "vertical_alignment": "center"
         },
@@ -213,7 +213,7 @@
       },
       "chapter_title_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "TW Cent MT, Century Gothic,Arial",
           "font_size": 18,
           "vertical_alignment": "near"
         },
@@ -226,7 +226,7 @@
       },
       "chapter_subtitle_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "TW Cent MT, Century Gothic,Arial",
           "font_size": 16,
           "underline": true,
           "vertical_alignment": "near"
@@ -309,7 +309,7 @@
       },
       "navigation_section_title_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "Century Gothic,Arial",
           "font_size": 18,
           "vertical_alignment": "near"
         },
@@ -322,7 +322,7 @@
       },
       "navigation_section_subtitle_style": {
         "text_style": {
-          "font_name": "Book Antiqua,Century Schoolbook,Arial",
+          "font_name": "Century Gothic,Arial",
           "font_size": 16,
           "underline": true,
           "vertical_alignment": "near"

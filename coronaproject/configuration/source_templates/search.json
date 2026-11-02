@@ -38,13 +38,22 @@
               "wrap": true,
               "children": [
                 {
+                  "class_name": "navigation_section_title",
+                  "name": "navigation_title",
+                  "box": {
+                    "width": "1.0 container",
+                    "height": "25 pixels"
+                  },
+                  "text": "List"
+                },
+                {
                   "class_name": "navigation_section",
                   "name": "global_score_card",
                   "box": {
                     "width": "1.0 container",
                     "height": "90 pixels"
                   },
-                  "content_alignment": "far",
+                  "content_alignment": "near",
                   "children": [
                     {
                       "class_name": "command_button",
@@ -144,12 +153,12 @@
                       "placeholder": "Search text",
                       "default_focus": true,
                       "box": {
-                        "width": "150 pixels",
+                        "width": "200 pixels",
                         "height": "40 pixels"
                       },
                       "text_style": {
                         "font_name": "Arial",
-                        "font_size": 16
+                        "font_size": 24
                       }
                     },
                     {
@@ -159,7 +168,7 @@
                       "text": "Search",
                       "split_button": true,
                       "box": {
-                        "width": "150 pixels",
+                        "width": "100 pixels",
                         "height": "40 pixels"
                       },
                       "on_click": {

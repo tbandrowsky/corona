@@ -1184,6 +1184,7 @@ namespace corona
 			control_slice.clear();
 			slice_object.clear();
 			slice_array.clear();
+			set_data(data, false);
 		}
 
 		virtual json_object set_data(json_object _data, bool _include_children) override
