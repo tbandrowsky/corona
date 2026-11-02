@@ -240,8 +240,7 @@
         "phone": {
           "field_type": "string",
           "label": "Phone",
-          "max_length": 20,
-          "match_pattern": "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$"
+          "max_length": 20
         }
       }
     },
@@ -266,8 +265,7 @@
         "fax": {
           "field_type": "string",
           "label": "Fax",
-          "max_length": 20,
-          "match_pattern": "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$"
+          "max_length": 20
         }
       }
     },
@@ -1020,7 +1018,7 @@
           "field_type": "string",
           "label": "Notes"
         },
-        "records": [ "record " ],
+        "records": [ "record" ],
         "value": {
           "field_type": "double",
           "label": "Asset Value"
@@ -3168,7 +3166,7 @@
       }
 
     },
-    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack", "movement_name", "movement_description" ],
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack", "movement_name", "movement_description", "mission_name", "asset_name", "asset_description" ],
     "classes": {
       "journal": "default",
       "diary": "default",
@@ -3771,7 +3769,6 @@
               "asset"
             ],
             "new_objects": [
-              "asset",
               "book",
               "movie",
               "board_game",

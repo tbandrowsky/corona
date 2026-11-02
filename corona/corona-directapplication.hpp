@@ -1287,6 +1287,8 @@ namespace corona
 		::QueryPerformanceCounter((LARGE_INTEGER*)&lastCounter);
 
 		while (true) {
+			if (!IsWindow(hwndRoot))
+				return true;
 			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {								
 				
 				if (checkBackgroundComplete(&msg))

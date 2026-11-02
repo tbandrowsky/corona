@@ -116,7 +116,7 @@ namespace corona
                     advance();
                     return Token{ RPAREN, empty };
                 }
-                throw std::runtime_error("Invalid character");
+//                throw std::runtime_error("Invalid character");
             }
             return Token{ END, empty };
         }
