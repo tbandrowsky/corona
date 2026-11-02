@@ -741,7 +741,6 @@
       "class_name": "betrayal",
       "base_class_name": "incident",
       "class_description": "Enemy Assets betray God and the USA.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -818,7 +817,6 @@
       "class_name": "domination",
       "base_class_name": "incident",
       "class_description": "Domination. Enemy Assets make themselves God.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -884,7 +882,6 @@
       "class_name": "genocide",
       "base_class_name": "incident",
       "class_description": "Enemy Assets commit genocide.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -926,7 +923,6 @@
       "class_name": "theft",
       "base_class_name": "incident",
       "class_description": "Enemy Assets steal and exploit.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
