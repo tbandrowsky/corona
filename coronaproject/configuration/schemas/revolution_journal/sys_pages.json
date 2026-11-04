@@ -1,0 +1,1955 @@
+
+{
+  "abbreviations":
+    {
+      "button_box":
+        {
+          "height":{ "amount":50.000000, "units":"pixels" },
+          "padding":"2 pixels",
+          "width":"100 pixels"
+        },
+      "button_margin":{ "amount":20.000000, "units":"pixels" },
+      "card_sources":
+        {
+          "address":"card_address",
+          "advocate":"card_advocate",
+          "advocate_engagement":"card_advocate_engagement",
+          "asset":"card_asset",
+          "association":"card_association",
+          "bank":"card_bank",
+          "bank_engagement":"card_bank_engagement",
+          "board_game":"card_board_game",
+          "book":"card_book",
+          "building":"card_building",
+          "cart":"card_cart",
+          "client":"card_client",
+          "company":"card_company",
+          "connection":"card_connection",
+          "contract":"card_contract",
+          "contractor":"card_contractor",
+          "court":"card_court",
+          "court_engagement":"card_court_engagement",
+          "deed":"card_deed",
+          "email":"card_email",
+          "employee":"card_employee",
+          "encounter":"card_encounter",
+          "engagement":"card_engagement",
+          "fax":"card_fax",
+          "hourly":"card_hourly",
+          "insurance_engagement":"card_insurance_engagement",
+          "insurer":"card_insurer",
+          "law_firm":"card_law_firm",
+          "legal_engagement":"card_legal_engagement",
+          "library":"card_library",
+          "library_engagement":"card_library_engagement",
+          "market":"card_market",
+          "market_engagement":"card_market_engagement",
+          "medical":"card_medical",
+          "medical_engagement":"card_medical_engagement",
+          "minutes":"card_minutes",
+          "movie":"card_movie",
+          "news":"card_news",
+          "outreach_engagement":"card_outreach_engagement",
+          "outreacher":"card_outreacher",
+          "permit_engagement":"card_permit_engagement",
+          "permitter":"card_permitter",
+          "person":"card_person",
+          "phone":"card_phone",
+          "product":"card_product",
+          "property":"card_property",
+          "record":"card_record",
+          "rms_construction_type":"card_rms_construction_type",
+          "rms_occupancy_type":"card_rms_occupancy_type",
+          "ruling":"card_ruling",
+          "salary":"card_salary",
+          "school":"card_school",
+          "school_engagement":"card_school_engagement",
+          "security":"card_security",
+          "service_call":"card_service_call",
+          "shop":"card_shop",
+          "shop_engagement":"card_shop_engagement",
+          "sys_command":"card_sys_command",
+          "sys_dataset":"card_sys_dataset",
+          "sys_error":"card_sys_error",
+          "sys_grant":"card_sys_grant",
+          "sys_object":"card_sys_object",
+          "sys_schema":"card_sys_schema",
+          "sys_server":"card_sys_server",
+          "sys_team":"card_sys_team",
+          "sys_user":"card_sys_user",
+          "title":"card_title",
+          "tool":"card_tool",
+          "vendor":"card_vendor",
+          "video_game":"card_video_game",
+          "web":"card_web"
+        },
+      "card_text_box":
+        {
+          "height":{ "amount":14.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "chaptersubtitle_box":
+        {
+          "height":{ "amount":25.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "chaptertitle_box":
+        {
+          "height":{ "amount":34.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "edit_container_box":
+        {
+          "height":{ "amount":80.000000, "units":"pixels" },
+          "width":{ "amount":200.000000, "units":"pixels" }
+        },
+      "edit_field_box":
+        {
+          "height":{ "amount":35.000000, "units":"pixels" },
+          "width":{ "amount":400.000000, "units":"pixels" }
+        },
+      "edit_field_box_large":
+        {
+          "height":{ "amount":35.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "edit_label_box":
+        {
+          "height":{ "amount":25.000000, "units":"pixels" },
+          "width":{ "amount":200.000000, "units":"pixels" }
+        },
+      "edit_label_box_full":
+        {
+          "height":{ "amount":35.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "edit_row_box":
+        {
+          "height":{ "amount":60.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "edit_section_box":
+        {
+          "height":{ "amount":60.000000, "units":"pixels" },
+          "width":{ "amount":200.000000, "units":"pixels" }
+        },
+      "form_sources":
+        {
+          "address":"object_address",
+          "advocate":"object_advocate",
+          "advocate_engagement":"object_advocate_engagement",
+          "asset":"object_asset",
+          "association":"object_association",
+          "bank":"object_bank",
+          "bank_engagement":"object_bank_engagement",
+          "board_game":"object_board_game",
+          "book":"object_book",
+          "building":"object_building",
+          "cart":"object_cart",
+          "client":"object_client",
+          "company":"object_company",
+          "connection":"object_connection",
+          "contract":"object_contract",
+          "contractor":"object_contractor",
+          "court":"object_court",
+          "court_engagement":"object_court_engagement",
+          "deed":"object_deed",
+          "email":"object_email",
+          "employee":"object_employee",
+          "encounter":"object_encounter",
+          "engagement":"object_engagement",
+          "fax":"object_fax",
+          "hourly":"object_hourly",
+          "insurance_engagement":"object_insurance_engagement",
+          "insurer":"object_insurer",
+          "law_firm":"object_law_firm",
+          "legal_engagement":"object_legal_engagement",
+          "library":"object_library",
+          "library_engagement":"object_library_engagement",
+          "market":"object_market",
+          "market_engagement":"object_market_engagement",
+          "medical":"object_medical",
+          "medical_engagement":"object_medical_engagement",
+          "minutes":"object_minutes",
+          "movie":"object_movie",
+          "news":"object_news",
+          "outreach_engagement":"object_outreach_engagement",
+          "outreacher":"object_outreacher",
+          "permit_engagement":"object_permit_engagement",
+          "permitter":"object_permitter",
+          "person":"object_person",
+          "phone":"object_phone",
+          "product":"object_product",
+          "property":"object_property",
+          "record":"object_record",
+          "rms_construction_type":"object_rms_construction_type",
+          "rms_occupancy_type":"object_rms_occupancy_type",
+          "ruling":"object_ruling",
+          "salary":"object_salary",
+          "school":"object_school",
+          "school_engagement":"object_school_engagement",
+          "security":"object_security",
+          "service_call":"object_service_call",
+          "shop":"object_shop",
+          "shop_engagement":"object_shop_engagement",
+          "sys_command":"object_sys_command",
+          "sys_dataset":"object_sys_dataset",
+          "sys_error":"object_sys_error",
+          "sys_grant":"object_sys_grant",
+          "sys_object":"object_sys_object",
+          "sys_schema":"object_sys_schema",
+          "sys_server":"object_sys_server",
+          "sys_team":"object_sys_team",
+          "sys_user":"object_sys_user",
+          "title":"object_title",
+          "tool":"object_tool",
+          "vendor":"object_vendor",
+          "video_game":"object_video_game",
+          "web":"object_web"
+        },
+      "full_container":
+        {
+          "height":{ "amount":1.000000, "units":"container" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "header_row_style":
+        {
+          "box_border_thickness":0.000000,
+          "box_fill_brush":{ "class_name":"solid_brush", "color":"000000" },
+          "shape_border_thickness":0.000000,
+          "shape_fill_brush":{ "class_name":"solid_brush", "color":"FFFFEE" },
+          "text_style":
+            {
+              "bold":false,
+              "font_name":"Century Gothic,Arial",
+              "font_size":18.000000,
+              "underline":false,
+              "vertical_alignment":"far"
+            }
+        },
+      "memo_field_box_large":
+        {
+          "height":{ "amount":60.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "paragraph_box":
+        {
+          "height":{ "amount":6.200000, "units":"text" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "search_box":
+        {
+          "height":{ "amount":1.000000, "units":"container" },
+          "width":{ "amount":1.000000, "units":"container" },
+          "x":"32.0 pixels"
+        },
+      "spacer_row_box":
+        {
+          "height":{ "amount":10.000000, "units":"pixels" },
+          "width":{ "amount":1.000000, "units":"container" }
+        },
+      "writepad_field_box":
+        {
+          "height":{ "amount":1.000000, "units":"remaining" },
+          "width":{ "amount":1.000000, "units":"container" }
+        }
+    },
+  "pages":
+    [
+
+      { "class_name":"import", "file_name":"pages\\card_chest_item.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_container.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_container.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_container.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_details.json" },
+
+      { "class_name":"import", "file_name":"pages\\page_home.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_address.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_address_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_address.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_advocate.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_advocate.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_advocate_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_advocate_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_advocate_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_asset.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_asset_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_asset_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_asset.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_association.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_association_people.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_association.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_bank.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagements.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_clients.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_vendors.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_address.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_bank_people.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_bank.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_bank_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_bank_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_bank_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_board_game.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_board_game_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_board_game_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_board_game.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_book.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_book_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_book_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_book.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_building.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_building_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_building_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_building.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_cart.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_cart_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_cart_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_cart.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_client.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_client_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_client.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_company.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_company_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_company.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_connection.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_connection_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_connection.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_contract.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contract_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contract_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_contract.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_contractor.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contractor_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contractor_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contractor_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_contractor_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_contractor.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_court.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_address.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_court_people.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_court.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_court_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_court_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_court_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_deed.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_deed_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_deed_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_deed.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_email.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_email_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_email.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_employee.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_employee_connections.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_employee.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_encounter.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_encounter_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_encounter_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_encounter.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_engagement.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_fax.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_fax_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_fax.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_hourly.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_hourly_connections.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_hourly.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_insurance_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_assets_to_insure.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_modelled_losses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_policy_proposal.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurance_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_insurance_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_insurer.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_insurer_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_insurer.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_law_firm.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_law_firm_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_law_firm.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_legal_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_legal_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_legal_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_legal_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_legal_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_library.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_board_games.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_books.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_movies.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_video_games.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_library.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_library_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_library_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_library_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_market.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_securities.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_market.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_market_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_market_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_market_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_medical.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_medical.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_medical_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_medical_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_medical_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_minutes.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_minutes_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_minutes_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_minutes.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_movie.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_movie_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_movie_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_movie.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_news.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_news_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_news_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_news.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_outreach_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreach_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreach_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreach_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_outreach_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_outreacher.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_outreacher_engagements.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_outreacher_people.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_outreacher.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_permit_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permit_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permit_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permit_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_permit_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_permitter.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_permitter_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_permitter.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_person.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_person_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_person_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_person_addresses.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_person.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_phone.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_phone_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_phone.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_product.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_product_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_product_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_product.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_property.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_property_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_property_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_property.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_record.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_record_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_record_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_record.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_rms_construction_type.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_rms_construction_type_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_rms_construction_type_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_rms_construction_type.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_rms_occupancy_type.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_rms_occupancy_type_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_rms_occupancy_type_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_rms_occupancy_type.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_ruling.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_ruling_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_ruling_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_ruling.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_salary.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_direct_reports.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_addresses.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_salary_connections.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_salary.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_school.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_clients.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_vendors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_school.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_school_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_school_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_school_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_security.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_security_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_security_news.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_security_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_security.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_service_call.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_service_call_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_service_call_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_service_call.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_shop.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagements.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_movies.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_tools.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_clients.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_vendors.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_address.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_assets.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\tab_shop_people.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_shop.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\card_shop_engagement.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagement_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagement_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_shop_engagement_encounter.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_shop_engagement.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_command.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_command_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_command.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_dataset.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_dataset_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_dataset_objects.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_dataset.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_error.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_error_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_error.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_grant.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_grant_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_grant_grant_classes.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_grant.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_object.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_object_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_object.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_schema.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_classes.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_datasets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_schema_authors.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_schema_users.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_schema.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_server.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_server_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_sys_server.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_team.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_permissions.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_allowed_teams.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_team_items.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_team.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_sys_user.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_sys_user_fields.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_sys_user.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_title.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_title_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_title_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_title.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_tool.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_tool_fields.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_tool_description.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_tool.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_vendor.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_address.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_assets.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_connections.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_vendor_people.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\object_vendor.json" },
+
+      { "class_name":"import", "file_name":"pages\\card_video_game.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_video_game_fields.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\tab_video_game_description.json"
+      },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\object_video_game.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\card_web.json" },
+
+      { "class_name":"import", "file_name":"pages\\tab_web_fields.json" },
+
+      { "class_name":"import", "file_name":"pages\\object_web.json" },
+
+      {
+        "class_name":"import",
+        "file_name":"pages\\chart_association.json"
+      },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\.json" },
+
+      { "class_name":"import", "file_name":"pages\\home_app_team.json" }
+    ],
+  "startup":
+    [
+
+      {
+        "class_name":"select_frame",
+        "message":"layout test.",
+        "source_frame":"$user_team",
+        "target_frame":"page_home.frame_home"
+      }
+    ]
+}

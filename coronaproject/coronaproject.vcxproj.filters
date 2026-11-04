@@ -77,5 +77,9 @@
   <ItemGroup>
     <None Include="configuration\source_templates\startup_command.json" />
     <None Include="configuration\source_templates\create_tab_command_class.json" />
+    <None Include="configuration\schemas\revolution_journal\sys_config.json" />
+    <None Include="configuration\schemas\revolution_journal\sys_pages.json" />
+    <None Include="configuration\schemas\revolution_journal\sys_schema.json" />
+    <None Include="configuration\schemas\revolution_journal\sys_styles.json" />
   </ItemGroup>
 </Project>

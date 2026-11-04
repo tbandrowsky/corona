@@ -1,11 +1,11 @@
 {
-  "schema_name": "Revolution Journal",
-  "schema_description": "Revolution Journal Application Schema",
+  "schema_name": "Revolution Training",
+  "schema_description": "Revolution Training Application Schema",
   "schema_version": "1.1",
   "schema_author": "TJ Bandrowsky",
   "pre_dataset": [
     {
-      "dataset_name": "Revolution Journal Teams",
+      "dataset_name": "Revolution Training Teams",
       "dataset_description": "Teams and their default memberships",
       "dataset_version": "1.1",
       "dataset_author": "Todd Bandrowsky",
@@ -2544,7 +2544,7 @@
   ],
   "post_dataset": [
     {
-      "dataset_name": "Revolution Journal Teams",
+      "dataset_name": "Revolution Training Teams",
       "dataset_description": "Teams and their default memberships",
       "dataset_version": "1.1",
       "dataset_author": "Todd Bandrowsky",
@@ -2573,9 +2573,9 @@
   ],
 
   "application": {
-    "application_creator": "Country Video Games",
-    "application_name": "Revolution Journal",
-    "application_title": "Revolution Journal",
+    "application_creator": "CountryBit",
+    "application_name": "Revolution Training",
+    "application_title": "Revolution Training",
     "application_subtitle": "During the days of the Enemy Occupation",
     "application_corporate_title": "Sponsored by Industrial Foods and Goods",
     "fields": {
