@@ -2233,9 +2233,7 @@ namespace corona
 		enum class actor_actions
 		{
 			standing,
-			crawling,
 			walking,
-			running,
 			throwing,
 			attacking
 		};
@@ -2252,7 +2250,6 @@ namespace corona
 			actor& operator =(const actor& _src) = default;
 			actor& operator =(actor&& _src) = default;
 
-			std::string								input_device;
 			std::shared_ptr<selection_field>		selection;
 			bool									ready;
 			bool									dead;
@@ -2262,34 +2259,26 @@ namespace corona
             actor_actions       actor_action;
 
 			double stopped_velocity;
-			double crawling_velocity;
 			double walking_velocity;
-			double running_velocity;
 			double throwing_velocity;
 
 			virtual void get_json(json& _dest)
 			{
 				piece::get_json(_dest);
-				_dest.put_member("input_device", input_device);
 				_dest.put_member_bool("ready", ready);
 				_dest.put_member_bool("dead", dead);
-				_dest.put_member("stopped_velocity", stopped_velocity);
-				_dest.put_member("crawling_velocity", crawling_velocity);
+				_dest.put_member("stopped_velocity", 0.0);
 				_dest.put_member("walking_velocity", walking_velocity);
-				_dest.put_member("running_velocity", running_velocity);
 				_dest.put_member("throwing_velocity", throwing_velocity);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
 				piece::put_json(_gbus.af, _src);
-				input_device = _src["input_device"].as_int();
 				ready = _src["ready"].as_bool();
 				dead = _src["dead"].as_bool();
 				stopped_velocity = _src["stopped_velocity"].as_double();
-				crawling_velocity = _src["crawling_velocity"].as_double();
 				walking_velocity = _src["walking_velocity"].as_double();
-				running_velocity = _src["running_velocity"].as_double();
 				throwing_velocity = _src["throwing_velocity"].as_double();
 			}
 
@@ -2306,12 +2295,8 @@ namespace corona
 				{
 					case actor_actions::standing:
                         return 0.0;
-					case actor_actions::crawling:
-						return crawling_velocity;
 					case actor_actions::walking:
                         return walking_velocity;
-					case actor_actions::running:
-                        return running_velocity;
 					case actor_actions::throwing:
 						return 0.0;
 					case actor_actions::attacking:
@@ -2322,8 +2307,7 @@ namespace corona
 			virtual void move_left()
 			{
                 float d = get_travel_velocity();
-				DirectX::XMVECTOR left = DirectX::XMVectorSet(-d, 0.0f, 0.0f, 0.0f);
-				
+				DirectX::XMVECTOR left = DirectX::XMVectorSet(-d, 0.0f, 0.0f, 0.0f);				
                 actor_direction = actor_directions::left;
 			}
 
@@ -2348,19 +2332,9 @@ namespace corona
 				actor_direction = actor_directions::down;
 			}
 
-			void run()
-			{
-                actor_action = actor_actions::running;
-			}
-
 			void walk()
 			{
 				actor_action = actor_actions::walking;
-			}
-
-			void crawl()
-			{
-				actor_action = actor_actions::crawling;
 			}
 
 			void stop()
@@ -2368,15 +2342,23 @@ namespace corona
 				actor_action = actor_actions::standing;
 			}
 
-			virtual void face(DirectX::XMVECTOR& _facing)
-			{
-				facing = DirectX::XMVector4Normalize(_facing);
-			}
+		};
+
+		enum player_input {
+			input_keymouse,
+			input_gamepad0,
+			input_gamepad1,
+			input_gamepad2,
+			input_gamepad3,
 		};
 
 		class player : public actor
 		{
 		public:
+
+			bool active;
+			player_input input_device;	
+
 			player() {
 				class_name = "player";
 			}
@@ -2465,7 +2447,6 @@ namespace corona
 			auto decorations() const { return get_pieces_of_type<decoration>(); }
 			auto shots() const { return get_pieces_of_type<shot>(); }
 			auto surfaces() const { return get_pieces_of_type<surface>(); }
-
 
 			virtual void get_json(json& _dest)
 			{
@@ -3241,39 +3222,119 @@ namespace corona
 			}
 		};
 
-		class adventure : public job, public corona_object, public adventure_app_interface
+		class adventure_base : public job, public corona_object, public adventure_app_interface
 		{
 
 		public:
 
-			adventure(comm_desktop_bus_interface* _bus, json& _src) : factories(_bus), bus(_bus)
+			adventure_base(comm_desktop_bus_interface* _bus, json& _src) 
 			{
 				class_name = "adventure";
+			}
+
+			adventure_base(const adventure_base& _src) = default;
+			adventure_base(adventure_base&& _src) = default;
+			adventure_base& operator =(const adventure_base& _src) = default;
+			adventure_base& operator =(adventure_base&& _src) = default;
+
+			virtual void handle_keydown(key_down_event evt) = 0;
+			virtual void handle_gamepad_button_up(gamepad_button_up_event gpbd) = 0;
+			virtual void handle_gamepad_button_down(gamepad_button_down_event gpbd) = 0;
+			virtual void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu) = 0;
+			virtual void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd) = 0;
+			virtual void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd) = 0;
+
+			void set_lobby() = 0;
+			void set_active() = 0;
+			void set_paused() = 0;
+			void set_complete() = 0;
+			void set_exit() = 0;
+
+			virtual job* get_next_job() = 0;
+
+			virtual void set_time(double _elapsed) = 0;
+
+			virtual std::shared_ptr<corona_object_interface> get_piece(object_reference& _reference, bool include_children) = 0;
+
+			player_input to_player_input(XINPUT_STATE _input_state)
+			{
+				switch (_input_state.dwPacketNumber) {
+				case 0:
+					return player_input::input_gamepad0;
+				case 1:
+					return player_input::input_gamepad1;
+				case 2:
+					return player_input::input_gamepad2;
+				case 3:
+					return player_input::input_gamepad3;
+				}
+                return player_input::input_gamepad3;
+			}
+
+			virtual std::shared_ptr<piece_base> create_piece_of_type(std::string _piece_type_name) = 0;
+			virtual std::shared_ptr<piece_base> create_piece_of_class(std::string _class_name) = 0;
+			virtual std::shared_ptr<piece_base> clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity) = 0;
+			virtual double fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level) = 0;
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0;
+			virtual double transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity) = 0	;
+			virtual double copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity) = 0;
+			virtual std::shared_ptr<piece_base> find(object_reference _piece_ref) = 0;
+			virtual std::shared_ptr<piece_base> erase(object_reference _piece_ref) = 0;
+			virtual void put(std::shared_ptr<piece_base> _src) = 0;
+
+			virtual void create_stage() = 0;
+			virtual void create_assets(direct2dContext& _src) = 0;
+			virtual	void draw(direct2dContext& _src) = 0;
+
+
+
+		};
+
+		class top_down_adventure : public adventure_base
+		{
+
+		public:
+
+			top_down_adventure(comm_desktop_bus_interface* _bus, json& _src) : adventure_base(_bus, _src), factories(_bus)
+			{
+				class_name = "top_down_adventure";
 				instance = corona_instance::local;
 				init();
 				put_json(_src);
 			}
 
-			adventure(const adventure& _src) = default;
-			adventure(adventure&& _src) = default;
-			adventure& operator =(const adventure& _src) = default;
-			adventure& operator =(adventure&& _src) = default;
+			top_down_adventure(const top_down_adventure& _src) = default;
+			top_down_adventure(top_down_adventure&& _src) = default;
+			top_down_adventure& operator =(const top_down_adventure& _src) = default;
+			top_down_adventure& operator =(top_down_adventure&& _src) = default;
 
-			void handle_gamepad_button_up(gamepad_button_up_event gpbd);
-			void handle_gamepad_button_down(gamepad_button_down_event gpbd);
-			void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu);
-			void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd);
-			void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd);
+            void handle_keydown(key_down_event evt) override;
+			void handle_gamepad_button_up(gamepad_button_up_event gpbd) override;
+			void handle_gamepad_button_down(gamepad_button_down_event gpbd) override;
+			void handle_gamepad_trigger_up(gamepad_trigger_up_event gptu) override;
+			void handle_gamepad_trigger_down(gamepad_trigger_down_event gptd) override;
+			void handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd) override;
 
-			void set_lobby();
-			void set_active();
-			void set_paused();
-			void set_complete();
-			void set_exit();
-			void start_play(std::string input_name);
-			virtual void get_json(json& _dest);
-			virtual void put_json(json& _src);
-			virtual job* get_next_job();
+			void manage_play(player_input input_device);
+            void move_left(player_input input_device);
+			void move_right(player_input input_device);
+			void move_up(player_input input_device);
+			void move_down(player_input input_device);
+			void fire(player_input input_device);
+			void stop(player_input input_device);
+			void select_next(player_input input_device);
+			void select_previous(player_input input_device);
+			void use(player_input input_device);
+
+			virtual void set_lobby() override;
+			virtual void set_active() override;
+			virtual void set_paused() override;
+			virtual void set_complete() override;
+			virtual void set_exit() override;
+			virtual void get_json(json& _dest) override;
+			virtual void put_json(json& _src) override;
+			virtual job* get_next_job() override;
 
             virtual void set_time(double _elapsed);
 
@@ -3299,9 +3360,9 @@ namespace corona
 			{
 				if (!stage) return nullptr;
 				auto piece = std::make_shared<T>();
-                piece->put_json(factories, _src);
+				piece->put_json(factories, _src);
 				return piece;
-            }
+			}
 
 
 		private:
@@ -3341,8 +3402,7 @@ namespace corona
 
 			DirectX::XMVECTOR zero_vector = {};
 
-			std::shared_ptr<player> attach_player(std::string input_name);
-			std::shared_ptr<player> attach_player(XINPUT_STATE& _input_state);
+			std::shared_ptr<player> find_player(player_input input_device);
 
 			// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 			// and only finds their state
@@ -3416,7 +3476,7 @@ namespace corona
 				auto ccr = bus->copy_object(instance, copy_plan);
 				if (ccr.success) {
 					json new_session = ccr.data;
-					std::shared_ptr<adventure> session = std::make_shared<adventure>(bus, new_session);
+					std::shared_ptr<top_down_adventure> session = std::make_shared<top_down_adventure>(bus, new_session);
 					session->create_stage();
 					adventures.push_back(session);
 					return session;
@@ -3430,7 +3490,7 @@ namespace corona
 				json_parser jp;
 				auto result = bus->get_object(instance, _game_key);
 				if (result.success) {
-					std::shared_ptr<adventure> session = std::make_shared<adventure>(bus, result.data);
+					std::shared_ptr<top_down_adventure> session = std::make_shared<top_down_adventure>(bus, result.data);
 					adventures.push_back(session);
 					return session;
 				}
@@ -3531,7 +3591,7 @@ namespace corona
 			}
 		}
 
-		void adventure::create_stage()
+		void top_down_adventure::create_stage()
 		{
 			if (stage) 
 			{
@@ -3539,7 +3599,7 @@ namespace corona
 			}
 		}
 
-		std::shared_ptr<corona_object_interface> adventure::get_piece(object_reference& _reference, bool include_children)
+		std::shared_ptr<corona_object_interface> top_down_adventure::get_piece(object_reference& _reference, bool include_children)
 		{
 			std::shared_ptr<corona_object_interface> result;
 			json_parser jp;
@@ -3551,7 +3611,7 @@ namespace corona
 			return result;
 		}
 
-		std::shared_ptr<piece_base> adventure::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
+		std::shared_ptr<piece_base> top_down_adventure::clone_piece(piece_base* _dest_inventory, piece_base* _src_piece, std::string _class_name, std::string _piece_type, int _quantity)
 		{
 			std::shared_ptr<piece>  response;
 
@@ -3590,7 +3650,7 @@ namespace corona
 			return response;
 		}
 
-		std::shared_ptr<piece_base> adventure::create_piece_of_type(std::string _piece_type_name )
+		std::shared_ptr<piece_base> top_down_adventure::create_piece_of_type(std::string _piece_type_name )
 		{		
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -3631,7 +3691,7 @@ namespace corona
 			return new_piece;
 		}
 
-		std::shared_ptr<piece_base> adventure::create_piece_of_class(std::string _class_name)
+		std::shared_ptr<piece_base> top_down_adventure::create_piece_of_class(std::string _class_name)
 		{
 			std::shared_ptr<piece> new_piece;
 			json_parser jp;
@@ -3640,7 +3700,7 @@ namespace corona
 			return new_piece;
 		}
 
-		double adventure::fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level)
+		double top_down_adventure::fill_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _level)
 		{
 			double quantity_filled = 0;
 
@@ -3696,7 +3756,7 @@ namespace corona
 			return quantity_filled;
 		}
 
-		double adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double top_down_adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -3740,7 +3800,7 @@ namespace corona
 			return quantity_transferred;
 		}
 
-		double adventure::copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
+		double top_down_adventure::copy_piece(piece_base* _dest, piece_base* _src, std::function<bool(const std::string&)> _type_names, double _quantity)
 		{
 			double quantity_transferred = 0;
 
@@ -3773,21 +3833,21 @@ namespace corona
 			return quantity_transferred;
 		}
 
-		double adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
+		double top_down_adventure::transfer_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return transfer_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
 				}, _quantity);
 		}
 
-		double adventure::copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
+		double top_down_adventure::copy_piece(piece_base* _dest, piece_base* _src, std::string _type_name, double _quantity)
 		{
 			return copy_piece(_dest, _src, [_type_name](const std::string _tn) {
 				return _tn.empty() || _type_name == _tn;
 				}, _quantity);
 		}
 
-		void adventure::init()
+		void top_down_adventure::init()
 		{
 			factories.init(instance);
 
@@ -3812,183 +3872,256 @@ namespace corona
 			collisions.register_command("player", "wall", std::make_shared<stop_collision_command>());
 		}
 
-		void adventure::handle_gamepad_button_up(gamepad_button_up_event gpbd)
+		void top_down_adventure::move_left(player_input input_device)
 		{
-            scope_lock locker(adventure_locker);
+			auto player = find_player(input_device);
 
-			auto player = attach_player(gpbd.state);
-
-			switch (gpbd.button)
-			{
-			case gamepad_button::A:
-				break;
-			case gamepad_button::B:
-				break;
-			case gamepad_button::X:
-				break;
-			case gamepad_button::Y:
-				break;
-			case gamepad_button::LeftShoulder:
-				break;
-			case gamepad_button::RightShoulder:
-				break;
-			case gamepad_button::Back:
-				break;
-			case gamepad_button::Start:
-				break;
-			case gamepad_button::DpadUp:
-				break;
-			case gamepad_button::DpadDown:
-				break;
-			case gamepad_button::DpadLeft:
-				break;
-			case gamepad_button::DpadRight:
-				break;
-			}
-		}
-
-		void adventure::handle_gamepad_button_down(gamepad_button_down_event gpbd)
-		{
-			scope_lock locker(adventure_locker);
-
-			auto player = attach_player(gpbd.state);
-
-			switch (gpbd.button)
-			{
-			case gamepad_button::A:
-				player->walk();
-				break;
-			case gamepad_button::B:
-				player->run();
-				break;
-			case gamepad_button::X:
-				player->crawl();
-				break;
-			case gamepad_button::Y:
-				break;
-			case gamepad_button::LeftShoulder:
-				player->select_next();
-				break;
-			case gamepad_button::RightShoulder:
-				player->select_previous();
-				break;
-			case gamepad_button::Back:
-				break;
-			case gamepad_button::Start:
-				start_play(player->input_device);
-				break;
-			case gamepad_button::DpadUp:
-				player->move_foward();
-				break;
-			case gamepad_button::DpadDown:
-				player->move_back();
-				break;
-			case gamepad_button::DpadLeft:
+			if (player) {
 				player->move_left();
-				break;
-			case gamepad_button::DpadRight:
-				player->move_right();
-				break;
 			}
 		}
 
-		void adventure::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
+		void top_down_adventure::move_right(player_input input_device)
 		{
-			scope_lock locker(adventure_locker);
+			auto player = find_player(input_device);
 
-			auto player = attach_player(gptu.state);
+			if (player) {
+				player->move_right();
+			}
 		}
 
-		void adventure::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
+		void top_down_adventure::move_up(player_input input_device)
 		{
-			scope_lock locker(adventure_locker);
+			auto player = find_player(input_device);
 
-			auto player = attach_player(gptd.state);
+			if (player) {
+				player->move_foward();
+			}
+		}
+
+		void top_down_adventure::move_down(player_input input_device)
+		{
+			auto player = find_player(input_device);
+
+			if (player) {
+				player->move_back();
+			}
+		}
+
+		void top_down_adventure::fire(player_input input_device)
+		{
+			auto player = find_player(input_device);
 
 			std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selection_rules.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
 
-			if (gptd.trigger == gamepad_trigger::LeftTrigger) 
-			{
-				auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
-						return _src == fire_c || _src == reload_c || _src == hit_c || _src == cast_c;
-					});
+			auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
+				return _src == fire_c || _src == reload_c || _src == hit_c || _src == cast_c;
+				});
 
-				if (command_range != std::end(commands)) {
-					std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
-					if (pcmd) {
-						pcmd->run(this, player.get());
-					}
-				}
-			}
-			else if (gptd.trigger == gamepad_trigger::RightTrigger) 
-			{
-				auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
-					return _src == drop_c;
-					});
-
-				if (command_range != std::end(commands)) {
-					std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
-					if (pcmd) {
-						pcmd->run(this, player.get());
-					}
+			if (command_range != std::end(commands)) {
+				std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
+				if (pcmd) {
+					pcmd->run(this, player.get());
 				}
 			}
 		}
 
-		void adventure::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
+        void top_down_adventure::use(player_input input_device)
+        {
+            auto player = find_player(input_device);
+            std::vector<std::shared_ptr<corona::selection_commands::command>> commands = selection_rules.get_commands_for_selection(*player->inventory.get(), *player->selection.get());
+            auto command_range = std::find_if(commands.begin(), commands.end(), [this](std::shared_ptr<corona::selection_commands::command>& _src) {
+                return _src == drop_c;
+                });
+            if (command_range != std::end(commands)) {
+                std::shared_ptr<player_command> pcmd = std::dynamic_pointer_cast<player_command>(*command_range);
+                if (pcmd) {
+                    pcmd->run(this, player.get());
+                }
+            }
+        }
+
+		void top_down_adventure::select_next(player_input input_device)
+		{
+			auto player = find_player(input_device);
+		}
+
+		void top_down_adventure::select_previous(player_input input_device)
+		{
+			auto player = find_player(input_device);
+		}
+
+
+		void top_down_adventure::manage_play(player_input input_device)
+		{
+			auto player = find_player(input_device);
+
+			if (state == game_state::lobby) {
+				player->ready = !player->ready;
+			}
+			else if (state == game_state::active) {
+				player->dead = false;
+				set_paused();
+			}
+			else if (state == game_state::paused) {
+				set_active();
+			}
+			else if (state == game_state::complete) {
+				set_lobby();
+			}
+			else if (state == game_state::exit) {
+				; // do nothing, we're exiting anyway
+			}
+		}
+
+		void top_down_adventure::handle_gamepad_button_up(gamepad_button_up_event gpbd)
+		{
+            scope_lock locker(adventure_locker);			
+		}
+
+		void top_down_adventure::handle_gamepad_button_down(gamepad_button_down_event gpbd)
 		{
 			scope_lock locker(adventure_locker);
 
-			auto player = attach_player(gpbd.state);
+			auto pi = to_player_input(gpbd.state);
+
+			switch (gpbd.button)
+			{
+			case gamepad_button::A:
+				break;
+			case gamepad_button::B:
+				break;
+			case gamepad_button::X:
+				break;
+			case gamepad_button::Y:
+				break;
+			case gamepad_button::LeftShoulder:
+				select_next(pi);
+				break;
+			case gamepad_button::RightShoulder:
+				select_previous(pi);
+				break;
+			case gamepad_button::Back:
+				break;
+			case gamepad_button::Start:
+				manage_play(pi);
+				break;
+			case gamepad_button::DpadUp:
+                move_up(pi);
+				break;
+			case gamepad_button::DpadDown:
+				move_down(pi);
+				break;
+			case gamepad_button::DpadLeft:
+				move_left(pi);
+				break;
+			case gamepad_button::DpadRight:
+				move_right(pi);
+				break;
+			}
+		}
+
+        void top_down_adventure::handle_keydown(key_down_event kde)
+        {
+            scope_lock locker(adventure_locker);
+			auto pi = player_input::input_keymouse;
+
+            switch (kde.key)
+            {
+            case VK_SPACE:
+                fire(pi);
+                break;
+            case VK_RETURN:
+                manage_play(pi);
+                break;
+            case VK_UP:
+                move_up(pi);
+                break;
+            case VK_DOWN:
+                move_down(pi);
+                break;
+            case VK_LEFT:
+                move_left(pi);
+                break;
+            case VK_RIGHT:
+                move_right(pi);
+                break;
+			}
+        }
+
+		void top_down_adventure::handle_gamepad_trigger_up(gamepad_trigger_up_event gptu)
+		{
+			scope_lock locker(adventure_locker);
+
+			auto pi = to_player_input(gptu.state);
+			auto p = find_player(pi);
+
+		}
+
+		void top_down_adventure::handle_gamepad_trigger_down(gamepad_trigger_down_event gptd)
+		{
+			scope_lock locker(adventure_locker);
+
+			auto pi = to_player_input(gptd.state);
+
+			if (gptd.trigger == gamepad_trigger::LeftTrigger) 
+			{
+				fire(pi);
+			}
+			else if (gptd.trigger == gamepad_trigger::RightTrigger) 
+			{
+			}
+		}
+
+		void top_down_adventure::handle_gamepad_thumbstick_move(gamepad_thumbstick_move_event gpbd)
+		{
+			scope_lock locker(adventure_locker);
+
+			auto pi = to_player_input(gpbd.state);
+			auto p = find_player(pi);
+
 
 			if (fabs(gpbd.x) < fabs(gpbd.y)) {
                 if (gpbd.y > 0) {
-					player->move_foward();
+					p->move_foward();
 				}
 				else if (gpbd.y < 0) {
-					player->move_back();
+					p->move_back();
 				}
 			}
 			else 
 			{
 				if (gpbd.x > 0) {
-					player->move_right();
+					p->move_right();
 				}
 				else if (gpbd.x < 0) {
-					player->move_left();
+					p->move_left();
 				}
 			}
 		}
 
-		std::shared_ptr<player> adventure::attach_player(std::string input_name)
+		std::shared_ptr<player> top_down_adventure::find_player(player_input input_device)
 		{
 			scope_lock locker(adventure_locker);
 
 			// Search for existing player with this input device
 			for (auto pl : stage->players()) {
-				if (pl->input_device == input_name) {
+				if (pl->input_device == input_device) {
 					return pl;
 				}
 			}
 			// Create new player and add to pieces only
 			auto npl = create_piece_of_class("player");
 			auto plt = std::dynamic_pointer_cast<player>(npl);
-			plt->input_device = input_name;
+			plt->input_device = input_device;
 			plt->ready = false;
 			stage->current->pieces.insert_or_assign(plt->to_reference(), plt);
 			return plt;
 		}
 
-		std::shared_ptr<player> adventure::attach_player(XINPUT_STATE& _input_state)
-		{
-			scope_lock locker(set_locker);
-
-			return attach_player(std::to_string(_input_state.dwPacketNumber));
-		}
-
 		// This has to be const because we want the assertion that this doesn't modify the map or the pieces,
 		// and only finds their state
-		collision_event adventure::model_piece(std::shared_ptr<set> _map, piece_collection_iterator _current, double _elapsed_secs) const
+		collision_event top_down_adventure::model_piece(std::shared_ptr<set> _map, piece_collection_iterator _current, double _elapsed_secs) const
 		{
 			using namespace DirectX;
 
@@ -4049,12 +4182,12 @@ namespace corona
 			return event;
 		}
 
-		void adventure::run_lobby(double delta, double elapsed)
+		void top_down_adventure::run_lobby(double delta, double elapsed)
 		{
 			;
 		}
 
-		collision_event adventure::find_closest_collision(double delta) const
+		collision_event top_down_adventure::find_closest_collision(double delta) const
 		{
 			collision_event closest_collision;
 			for (auto ipiece = stage->current->begin(); ipiece != stage->current->end(); ipiece++) {
@@ -4074,7 +4207,7 @@ namespace corona
 			return closest_collision;
 		}
 
-		void adventure::run_active(double delta, double elapsed)
+		void top_down_adventure::run_active(double delta, double elapsed)
 		{
 			// we have to resolve collision effects first, 
 
@@ -4112,27 +4245,27 @@ namespace corona
 			}
 		}
 
-		void adventure::run_complete(double delta, double elapsed)
+		void top_down_adventure::run_complete(double delta, double elapsed)
 		{
 			;
 		}
 
-		void adventure::run_paused(double delta, double elapsed)
+		void top_down_adventure::run_paused(double delta, double elapsed)
 		{
 			;
 		}
 
-		void adventure::run_exit(double delta, double elapsed)
+		void top_down_adventure::run_exit(double delta, double elapsed)
 		{
 			;
 		}
 
-		bool adventure::queued(job_queue* _callingQueue)
+		bool top_down_adventure::queued(job_queue* _callingQueue)
 		{
 			return true;
 		}
 
-		job_notify adventure::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+		job_notify top_down_adventure::execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
 		{
 			scope_lock locker(adventure_locker);
 
@@ -4172,54 +4305,32 @@ namespace corona
 			return notify;
 		}
 
-		void adventure::set_lobby()
+		void top_down_adventure::set_lobby()
 		{
 			state = game_state::lobby;
 		}
 
-		void adventure::set_active()
+		void top_down_adventure::set_active()
 		{
 			state = game_state::active;
 		}
 
-		void adventure::set_paused()
+		void top_down_adventure::set_paused()
 		{
 			state = game_state::paused;
 		}
 
-		void adventure::set_complete()
+		void top_down_adventure::set_complete()
 		{
 			state = game_state::complete;
 		}
 
-		void adventure::set_exit()
+		void top_down_adventure::set_exit()
 		{
 			state = game_state::exit;
 		}
 
-		void adventure::start_play(std::string input_name)
-		{
-			auto player = attach_player(input_name);
-
-			if (state == game_state::lobby) {
-				player->ready = !player->ready;
-			}
-			else if (state == game_state::active) {
-				player->dead = false;
-				set_paused();
-			}
-			else if (state == game_state::paused) {
-				set_active();
-			}
-			else if (state == game_state::complete) {
-				set_lobby();
-			}
-			else if (state == game_state::exit) {
-				; // do nothing, we're exiting anyway
-			}
-		}
-
-		void adventure::check_all_ready()
+		void top_down_adventure::check_all_ready()
 		{
 			if (state == game_state::lobby) {
 				auto players_view = stage->players();
@@ -4232,7 +4343,7 @@ namespace corona
 			}
 		}
 
-		void adventure::check_all_dead()
+		void top_down_adventure::check_all_dead()
 		{
 			auto players_view = stage->players();
 			bool all_dead = std::ranges::all_of(players_view, [](const auto& player) {
@@ -4243,7 +4354,7 @@ namespace corona
 			}
 		}
 
-		void adventure::get_json(json& _dest)
+		void top_down_adventure::get_json(json& _dest)
 		{
 			json_parser jp;
 			_dest.put_member("name", name);
@@ -4273,7 +4384,7 @@ namespace corona
 			}
 		}
 
-		void adventure::put_json(json& _src)
+		void top_down_adventure::put_json(json& _src)
 		{
 			name = _src["name"].as_string();
 			description = _src["description"].as_string();
@@ -4297,7 +4408,7 @@ namespace corona
 			}
 		}
 
-		job* adventure::get_next_job()
+		job* top_down_adventure::get_next_job()
 		{
 			if (state != game_state::exit)
 			{
@@ -4309,7 +4420,7 @@ namespace corona
 			}
 		}
 
-		void adventure::create_assets(direct2dContext& _src)
+		void top_down_adventure::create_assets(direct2dContext& _src)
 		{
 			scope_lock locker(adventure_locker);
 
@@ -4318,7 +4429,7 @@ namespace corona
 			}
 		}
 
-		void adventure::draw(direct2dContext& _src)
+		void top_down_adventure::draw(direct2dContext& _src)
 		{
             scope_lock locker(adventure_locker);
 
@@ -4327,7 +4438,7 @@ namespace corona
 			}
 		}
 
-		std::shared_ptr<piece_base> adventure::find(object_reference _piece_ref)
+		std::shared_ptr<piece_base> top_down_adventure::find(object_reference _piece_ref)
 		{
 			scope_lock locker(adventure_locker);
 
@@ -4338,7 +4449,7 @@ namespace corona
 			return nullptr;
 		}
 
-		std::shared_ptr<piece_base> adventure::erase(object_reference _piece_ref)
+		std::shared_ptr<piece_base> top_down_adventure::erase(object_reference _piece_ref)
 		{
 			scope_lock locker(adventure_locker);
 
@@ -4351,7 +4462,7 @@ namespace corona
 			return nullptr;
 		}
 
-		void adventure::put(std::shared_ptr<piece_base> _src)
+		void top_down_adventure::put(std::shared_ptr<piece_base> _src)
 		{
 			scope_lock locker(adventure_locker);
 
@@ -4359,7 +4470,7 @@ namespace corona
 			stage->current->pieces.insert_or_assign(dc->to_reference(), dc);
 		}
 
-		void adventure::set_time(double _elapsed_seconds)
+		void top_down_adventure::set_time(double _elapsed_seconds)
 		{
 			scope_lock locker(adventure_locker);
             stage->set_time(_elapsed_seconds);

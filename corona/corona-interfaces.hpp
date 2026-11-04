@@ -190,7 +190,6 @@ namespace corona
 			virtual void set_paused() = 0;
 			virtual void set_complete() = 0;
 			virtual void set_exit() = 0;
-			virtual void start_play(std::string input_name) = 0;
 			virtual void get_json(json& _dest) = 0;
 			virtual void put_json(json& _src) = 0;
 			virtual job* get_next_job() = 0;

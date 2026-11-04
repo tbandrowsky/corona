@@ -1,0 +1,3863 @@
+{
+  "schema_name": "Revolution Training",
+  "schema_description": "Revolution Training Application Schema",
+  "schema_version": "1.1",
+  "schema_author": "TJ Bandrowsky",
+  "pre_dataset": [
+    {
+      "dataset_name": "Revolution Training Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical, and the use of sys_team means it can go first",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "app_team",
+          "team_description": "local player team",
+          "team_domain": "localhost.com",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "classes": [
+    {
+      "class_name": "record",
+      "base_class_name": "sys_object",
+      "class_description": "Legal Record",
+      "parents": [ "asset", "person", "building", "property" ],
+      "full_text": [ "name", "description" ],
+      "fields": {
+        "name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description"
+        }
+      },
+      "field_order": [ "name", "description" ]
+    },
+    {
+      "class_name": "journal",
+      "base_class_name": "sys_object",
+      "class_description": "Journal",
+      "fields": {
+        "story": {
+          "field_type": "string",
+          "label": "Story"
+        }
+      }
+    },
+    {
+      "class_name": "diary",
+      "base_class_name": "journal",
+      "class_description": "Diary",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "task",
+      "base_class_name": "journal",
+      "class_description": "Task",
+      "full_text": [ "task_date" ],
+      "fields": {
+        "task_date": {
+          "field_type": "datetime",
+          "label": "Task Date"
+        },
+        "completed": {
+          "field_type": "bool",
+          "label": "Completed"
+        },
+        "completed_date": {
+          "field_type": "datetime",
+          "label": "Completed Date"
+        }
+      }
+    },
+    {
+      "class_name": "news",
+      "base_class_name": "journal",
+      "class_description": "News",
+      "full_text": [ "url", "article_date", "publisher", "category" ],
+      "fields": {
+        "url": {
+          "field_type": "string",
+          "label": "News URL"
+        },
+        "article_date": {
+          "field_type": "datetime",
+          "label": "Article Date"
+        },
+        "publisher": {
+          "field_type": "string",
+          "label": "Publisher"
+        },
+        "category": {
+          "field_type": "string",
+          "label": "Category",
+          "enum": [
+            "Occupation Treason",
+            "Occupation Brutality",
+            "Occupation Lies",
+            "Revolution Hope",
+            "Art and Hope",
+            "Sports and Inspiration",
+            "Politics and Reason",
+            "Economics and Modelling",
+            "Religion and Truth",
+            "Technology and Discovery"
+          ]
+        }
+      }
+    },
+    {
+      "class_name": "address",
+      "base_class_name": "sys_object",
+      "class_description": "Address",
+      "parents": [ "person" ],
+      "full_text": [ "street1", "street2", "city", "state", "zip", "country" ],
+      "fields": {
+        "street1": {
+          "field_type": "string",
+          "label": "Street",
+          "max_length": 100
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Apartment #",
+          "max_length": 100
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City",
+          "max_length": 100
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 100,
+          "enum": [
+            "AL",
+            "AK",
+            "AZ",
+            "AR",
+            "CA",
+            "CO",
+            "CT",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "ID",
+            "IL",
+            "IN",
+            "IA",
+            "KS",
+            "KY",
+            "LA",
+            "ME",
+            "MD",
+            "MA",
+            "MI",
+            "MN",
+            "MS",
+            "MO",
+            "MT",
+            "NE",
+            "NV",
+            "NH",
+            "NJ",
+            "NM",
+            "NY",
+            "NC",
+            "ND",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VT",
+            "VA",
+            "WA",
+            "WV",
+            "WI",
+            "WY"
+          ]
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "max_length": 10
+        },
+        "country": {
+          "field_type": "string",
+          "label": "Country",
+          "max_length": 50
+        }
+      },
+      "field_order": [ "street1", "street2", "city", "state", "zip", "country" ]
+    },
+    {
+      "class_name": "connection",
+      "base_class_name": "sys_object",
+      "class_description": "Connection (ex Phone / Email)",
+      "parents": [ "person" ],
+      "full_text": [ "note" ],
+      "fields": {
+        "note": {
+          "field_type": "string",
+          "label": "Note"
+        }
+      }
+    },
+    {
+      "class_name": "phone",
+      "base_class_name": "connection",
+      "class_description": "Phone Number",
+      "full_text": [ "phone" ],
+      "fields": {
+        "phone": {
+          "field_type": "string",
+          "label": "Phone",
+          "max_length": 20
+        }
+      }
+    },
+    {
+      "class_name": "email",
+      "base_class_name": "connection",
+      "class_description": "E-Mail Address",
+      "full_text": [ "email" ],
+      "fields": {
+        "email": {
+          "field_type": "string",
+          "label": "Email"
+        }
+      }
+    },
+    {
+      "class_name": "fax",
+      "base_class_name": "connection",
+      "class_description": "Fax Number",
+      "full_text": [ "fax" ],
+      "fields": {
+        "fax": {
+          "field_type": "string",
+          "label": "Fax",
+          "max_length": 20
+        }
+      }
+    },
+    {
+      "class_name": "web",
+      "base_class_name": "connection",
+      "class_description": "Web Address",
+      "full_text": [ "url" ],
+      "fields": {
+        "url": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      }
+    },
+    {
+      "class_name": "minutes",
+      "base_class_name": "record",
+      "class_description": "Meeting Minutes",
+      "full_text": [ "location", "attendees" ],
+      "fields": {
+        "location": {
+          "field_type": "string",
+          "label": "Location"
+        },
+        "attendees": {
+          "field_type": "string",
+          "label": "Attendees"
+        }
+      },
+      "field_order": [ "location", "attendees" ]
+    },
+    {
+      "class_name": "license",
+      "base_class_name": "record",
+      "class_description": "License",
+      "full_text": [ "general_terms", "URL", "issued", "expires" ],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        },
+        "issued": {
+          "field_type": "datetime",
+          "label": "Issued Date"
+        },
+        "expires": {
+          "field_type": "datetime",
+          "label": "Expires Date"
+        }
+      },
+      "field_order": [ "general_terms", "issued", "expires", "URL" ]
+    },
+    {
+      "class_name": "contract",
+      "base_class_name": "record",
+      "class_description": "Contract",
+      "full_text": [ "general_terms", "URL" ],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      },
+      "field_order": [ "general_terms", "URL" ]
+    },
+    {
+      "class_name": "deed",
+      "base_class_name": "record",
+      "class_description": "Deed",
+      "full_text": [ "general_terms", "URL" ],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      },
+      "field_order": [ "general_terms", "URL" ]
+    },
+    {
+      "class_name": "ruling",
+      "base_class_name": "record",
+      "class_description": "Court Ruling",
+      "full_text": [ "general_terms", "URL" ],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      },
+      "field_order": [ "general_terms", "URL" ]
+    },
+    {
+      "class_name": "title",
+      "base_class_name": "record",
+      "class_description": "Title",
+      "full_text": [ "general_terms", "URL" ],
+      "parents": [],
+      "fields": {
+        "general_terms": {
+          "field_type": "string",
+          "label": "General Terms"
+        },
+        "URL": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      },
+      "field_order": [ "general_terms", "URL" ]
+    },
+    {
+      "class_name": "service_call",
+      "base_class_name": "record",
+      "class_description": "Service Call",
+      "full_text": [ "problem", "resolution" ],
+      "fields": {
+        "problem": {
+          "field_type": "string",
+          "label": "Problem"
+        },
+        "resolution": {
+          "field_type": "string",
+          "label": "Resolution"
+        }
+      },
+      "field_order": [ "problem", "resolution" ]
+    },
+    {
+      "class_name": "holy_cite",
+      "base_class_name": "sys_object",
+      "class_description": "Holy Book Reference",
+      "parents": [ "incident" ]
+    },
+    {
+      "class_name": "bible_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Christian Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi",
+            "Matthew",
+            "Mark",
+            "Luke",
+            "John",
+            "Acts",
+            "Romans",
+            "1 Corinthians",
+            "2 Corinthians",
+            "Galatians",
+            "Ephesians",
+            "Philippians",
+            "Colossians",
+            "1 Thessalonians",
+            "2 Thessalonians",
+            "1 Timothy",
+            "2 Timothy",
+            "Titus",
+            "Philemon",
+            "Hebrews",
+            "James",
+            "1 Peter",
+            "2 Peter",
+            "1 John",
+            "2 John",
+            "3 John",
+            "Jude",
+            "Revelation"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "koran_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Islamic Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Surah",
+          "enum": [
+            "Al-Fatihah (The Opening)",
+            "Al-Baqarah (The Cow)",
+            "Ali 'Imran (Family of Imran)",
+            "An-Nisa (The Women)",
+            "Al-Ma'idah (The Table Spread)",
+            "Al-An'am (The Cattle)",
+            "Al-A'raf (The Heights)",
+            "Al-Anfal (The Spoils of War)",
+            "At-Tawbah (The Repentance)",
+            "Yunus (Jonah)",
+            "Hud",
+            "Yusuf (Joseph)",
+            "Ar-Ra'd (The Thunder)",
+            "Ibrahim (Abraham)",
+            "Al-Hijr",
+            "An-Nahl (The Bee)",
+            "Al-Isra (The Night Journey)",
+            "Al-Kahf (The Cave)",
+            "Maryam (Mary)",
+            "Ta-Ha",
+            "Al-Anbiya (The Prophets)",
+            "Al-Hajj (The Pilgrimage)",
+            "Al-Mu'minun (The Believers)",
+            "An-Nur (The Light)",
+            "Al-Furqan (The Criterion)",
+            "Ash-Shu'ara (The Poets)",
+            "An-Naml (The Ant)",
+            "Al-Qasas (The Stories)",
+            "Al-Ankabut (The Spider)",
+            "Ar-Rum (The Romans)",
+            "Luqman",
+            "As-Sajdah (The Prostration)",
+            "Al-Ahzab (The Confederates)",
+            "Saba (Sheba)",
+            "Fatir (Originator)",
+            "Ya-Sin",
+            "As-Saffat (Those Who Set the Ranks)",
+            "Sad",
+            "Az-Zumar (The Groups)",
+            "Ghafir (The Forgiver)",
+            "Fussilat",
+            "Ash-Shura (Consultation)",
+            "Az-Zukhruf (The Gold Adornments)",
+            "Ad-Dukhan (The Smoke)",
+            "Al-Jathiyah (The Kneeling)",
+            "Al-Ahqaf (The Wind-Curved Sandhills)",
+            "Muhammad",
+            "Al-Fath (The Victory)",
+            "Al-Hujurat (The Rooms)",
+            "Qaf",
+            "Adh-Dhariyat (The Winnowing Winds)",
+            "At-Tur (The Mount)",
+            "An-Najm (The Star)",
+            "Al-Qamar (The Moon)",
+            "Ar-Rahman (The Most Merciful)",
+            "Al-Waqi'ah (The Inevitable Event)",
+            "Al-Hadid (The Iron)",
+            "Al-Mujadilah (The Pleading Woman)",
+            "Al-Hashr (The Gathering)",
+            "Al-Mumtahanah (The Woman Tested)",
+            "As-Saff (The Ranks)",
+            "Al-Jumu'ah (Friday Congregation)",
+            "Al-Munafiqun (The Hypocrites)",
+            "At-Taghabun (Mutual Loss and Gain)",
+            "At-Talaq (Divorce)",
+            "At-Tahrim (Prohibition)",
+            "Al-Mulk (The Sovereignty)",
+            "Al-Qalam (The Pen)",
+            "Al-Haqqah (The Reality)",
+            "Al-Ma'arij (The Ascending Stairways)",
+            "Nuh (Noah)",
+            "Al-Jinn",
+            "Al-Muzzammil (The Enwrapped One)",
+            "Al-Muddaththir (The Cloaked One)",
+            "Al-Qiyamah (The Resurrection)",
+            "Al-Insan (The Human)",
+            "Al-Mursalat (The Emissaries)",
+            "An-Naba (The Tidings)",
+            "An-Nazi'at (Those Who Pull Out)",
+            "Abasa (He Frowned)",
+            "At-Takwir (The Folding Up)",
+            "Al-Infitar (The Cleaving)",
+            "Al-Mutaffifin (Defrauding)",
+            "Al-Inshiqaq (The Splitting Open)",
+            "Al-Buruj (The Constellations)",
+            "At-Tariq (The Night Comer)",
+            "Al-A'la (The Most High)",
+            "Al-Ghashiyah (The Overwhelming Event)",
+            "Al-Fajr (The Dawn)",
+            "Al-Balad (The City)",
+            "Ash-Shams (The Sun)",
+            "Al-Layl (The Night)",
+            "Ad-Duha (The Morning Brightness)",
+            "Ash-Sharh (The Relief)",
+            "At-Tin (The Fig)",
+            "Al-Alaq (The Clinging Substance)",
+            "Al-Qadr (The Power)",
+            "Al-Bayyinah (The Clear Proof)",
+            "Az-Zalzalah (The Earthquake)",
+            "Al-Adiyat (The Chargers)",
+            "Al-Qari'ah (The Calamity)",
+            "At-Takathur (Rivalry in Worldly Increase)",
+            "Al-Asr (Time)",
+            "Al-Humazah (The Slanderer)",
+            "Al-Fil (The Elephant)",
+            "Quraysh",
+            "Al-Ma'un (Small Kindnesses)",
+            "Al-Kawthar (Abundance)",
+            "Al-Kafirun (The Disbelievers)",
+            "An-Nasr (The Divine Support)",
+            "Al-Masad (The Palm Fiber)",
+            "Al-Ikhlas (Sincerity)",
+            "Al-Falaq (The Daybreak)",
+            "An-Nas (Mankind)"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "tanakh_cite",
+      "base_class_name": "holy_cite",
+      "class_description": "Jewish Holy Citation.",
+      "full_text": [ "book", "chapter", "verse", "scripture" ],
+      "fields": {
+        "book": {
+          "field_type": "string",
+          "label": "Book",
+          "enum": [
+            "Genesis",
+            "Exodus",
+            "Leviticus",
+            "Numbers",
+            "Deuteronomy",
+            "Joshua",
+            "Judges",
+            "Ruth",
+            "1 Samuel",
+            "2 Samuel",
+            "1 Kings",
+            "2 Kings",
+            "1 Chronicles",
+            "2 Chronicles",
+            "Ezra",
+            "Nehemiah",
+            "Esther",
+            "Job",
+            "Psalms",
+            "Proverbs",
+            "Ecclesiastes",
+            "Song of Solomon",
+            "Isaiah",
+            "Jeremiah",
+            "Lamentations",
+            "Ezekiel",
+            "Daniel",
+            "Hosea",
+            "Joel",
+            "Amos",
+            "Obadiah",
+            "Jonah",
+            "Micah",
+            "Nahum",
+            "Habakkuk",
+            "Zephaniah",
+            "Haggai",
+            "Zechariah",
+            "Malachi"
+          ]
+        },
+        "chapter": {
+          "field_type": "string",
+          "label": "Chapter"
+        },
+        "verse": {
+          "field_type": "string",
+          "label": "Verse"
+        },
+        "scripture": {
+          "field_type": "string",
+          "label": "Scripture and Commentary"
+        }
+      },
+      "field_order": [ "book", "chapter", "verse", "scripture" ]
+
+    },
+    {
+      "class_name": "incident",
+      "base_class_name": "sys_object",
+      "class_description": "Actions of an Enemy Asset",
+      "full_text": [ "story" ],
+      "parents": [ "person" ],
+      "fields": {
+        "incident_description": {
+          "field_type": "string",
+          "label": "Incident Description"
+        },
+        "date_occurred": {
+          "field_type": "datetime",
+          "label": "Date Occurred"
+        },
+        "spiritual_references": [ "holy_cite" ]
+      },
+      "field_order": [ "incident_description", "date_occurred", "spirtual_references" ]
+    },
+    {
+      "class_name": "betrayal",
+      "base_class_name": "incident",
+      "class_description": "Enemy Assets betray God and the USA.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Treason Attempt",
+          "enum": [
+            "Gives things to enemies",
+            "Promotes enemy values",
+            "Chooses enemies",
+            "Blames allies",
+            "Blames others",
+            "Cheats",
+            "Deceptive",
+            "False Witness",
+            "False promises",
+            "False pictures",
+            "Idolatry",
+            "Flirts with enemies",
+            "Gas lights promises",
+            "Abandons children",
+            "Abandons family",
+            "Abandons spouse"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "blasphemy",
+      "base_class_name": "incident",
+      "class_description": "Enemy Assets mock God",
+      "parents": [ "person" ],
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Blasphemy Nature",
+          "enum": [
+            "Fear based promotion",
+            "Idolatry of weapons",
+            "Divisive behavior",
+            "Casts away others",
+            "Leaves people behind",
+            "Ethnic slurs",
+            "'Natural Order'",
+            "They made me do it",
+            "The strongest should rule",
+            "Strongmen affinity",
+            "Only me",
+            "God is gone",
+            "F Them",
+            "God is not real",
+            "Race based mythologies",
+            "General cockmaster",
+            "Not a suicide pact",
+            "Isolationism",
+            "Insulting nations",
+            "Exploits the weak",
+            "Seeks leverage",
+            "Worships power",
+            "Earthly pleasures"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "domination",
+      "base_class_name": "incident",
+      "class_description": "Domination. Enemy Assets make themselves God.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Domination Nature",
+          "enum": [
+            "Finds the weaker.",
+            "Commands your time.",
+            "Joy is useless.",
+            "Learning is wasteful.",
+            "Joy is unnecessary.",
+            "Spirit isn't real",
+            "I am your master",
+            "I am the gatekeeper",
+            "Servant of strongman",
+            "Domestic violence",
+            "What did she do",
+            "Not that big of a deal",
+            "Basically an asshole",
+            "Plays against you",
+            "False witness",
+            "Cheats"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "sabotage",
+      "base_class_name": "incident",
+      "class_description": "Enemy Assets sabotage progress.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Sabotage Act",
+          "enum": [
+            "Incorrect information",
+            "Undermines team",
+            "Division over minor details",
+            "Introduces doubt",
+            "Invents obstacles",
+            "Unnecessary complication",
+            "Overstates mistakes",
+            "Laments success",
+            "Bullying dumbass",
+            "Fakes results",
+            "Lies in key meetings",
+            "Jokes to ruin"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "genocide",
+      "base_class_name": "incident",
+      "class_description": "Enemy Assets commit genocide.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Genocidal Steps",
+          "enum": [
+            "Identifies target group",
+            "Alliances against target group",
+            "Mistreats to protest",
+            "Calls protest crime",
+            "Civic campaigns against group",
+            "Historical injustice",
+            "Serves no purpose",
+            "Undermine society",
+            "Social cancer",
+            "Its just a",
+            "Confederates,Communists,Nazis",
+            "Pogroms against group",
+            "Commercial rationalizations",
+            "Social rationalizations",
+            "Lowers group birth rate",
+            "Property seizure",
+            "Imprisons group members",
+            "Deports group members",
+            "Exterminates group members",
+            "It's the law",
+            "This has nothing to do with",
+            "Co-existance is impossible",
+            "Not a suicide pact"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "theft",
+      "base_class_name": "incident",
+      "class_description": "Enemy Assets steal and exploit.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Theft Attempt",
+          "enum": [
+            "And that means its mine",
+            "Not worth that much",
+            "I've seen better",
+            "Not that good",
+            "Its there, why not",
+            "Someone else gets paid",
+            "Just not marketable",
+            "That's not that much",
+            "What's so hard",
+            "I could do it myself",
+            "I made it easy for you",
+            "Not a big deal",
+            "Part of the game",
+            "Lied to her",
+            "Technically it is mine"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "trust",
+      "base_class_name": "incident",
+      "class_description": "Ally engages in trust.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Trust Moment",
+          "enum": [
+            "Confident not arrogant",
+            "Strong not overbearing",
+            "Wins but not competitive",
+            "Supports and honest",
+            "Encourages and teaches",
+            "Humble yet brave",
+            "Shares but not pushover",
+            "Provides More than Takes",
+            "Owns More than Runs",
+            "Common thoughts",
+            "On Time",
+            "Kept Promise",
+            "Revolution Training"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "revolution_move",
+      "class_description": "Revolution Move",
+      "base_class_name": "journal",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "movement" ],
+      "parents": [ "mission", "person" ],
+      "fields": {
+        "activity": {
+          "field_type": "string",
+          "label": "Your Experience"
+        }
+      }
+    },
+    {
+      "class_name": "spiritual_training",
+      "class_description": "Spiritual Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bible_study",
+      "class_description": "Bible Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "koran_study",
+      "class_description": "Koran Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "tanakh_study",
+      "class_description": "Tanakh Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "ancient_study",
+      "class_description": "Ancient Civilizations",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hindu_study",
+      "class_description": "Hindu Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "intro_practice",
+      "class_description": "Practice meeting people",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "wonder",
+      "class_description": "Wonder and awe",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunsets",
+      "class_description": "Earth and space",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "echoes",
+      "class_description": "Sounds and Echoes",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "beaches",
+      "class_description": "Land and ocean",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "splashes",
+      "class_description": "Water air and ground",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lightanddark",
+      "class_description": "Light and dark",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunlightandshadow",
+      "class_description": "Sunlit things and shadows",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "fieldandsky",
+      "class_description": "Fields and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "forests",
+      "class_description": "Life and life",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "trees",
+      "class_description": "Ground and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "starsandhydrogen",
+      "class_description": "Atoms and stars",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lifeanddeath",
+      "class_description": "Life and death",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "humility",
+      "class_description": "Acts of grounding and humility",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "try_new",
+      "class_description": "Try new things",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hear_new",
+      "class_description": "Receive new ideas",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "service",
+      "class_description": "Serve someone",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorspouse",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorancestors",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "holy_service",
+      "class_description": "Attend a holy service",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "body_training",
+      "class_description": "Body Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
+      "class_name": "aerobic_training",
+      "class_description": "Aerobic Training",
+      "base_class_name": "body_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
+      "class_name": "running",
+      "class_description": "Running/Walking",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "miles": {
+          "field_type": "string",
+          "label": "Miles"
+        }
+      }
+    },
+    {
+      "class_name": "swimming",
+      "class_description": "Swimming",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "laps": {
+          "field_type": "string",
+          "label": "Laps"
+        }
+      }
+    },
+    {
+      "class_name": "strength_training",
+      "class_description": "Strength Training",
+      "base_class_name": "body_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "sets": {
+          "field_type": "string",
+          "label": "Sets"
+        },
+        "bench_press": {
+          "field_type": "number",
+          "label": "Bench Press Lbs"
+        },
+        "deadlift": {
+          "field_type": "number",
+          "label": "Deadlift Lbs"
+        },
+        "squats": {
+          "field_type": "number",
+          "label": "Squats Lbs"
+        },
+        "dumbbell_curls": {
+          "field_type": "number",
+          "label": "Dumbbell Curls Lbs"
+        },
+        "shrugs": {
+          "field_type": "number",
+          "label": "Shrugs Lbs"
+        },
+        "pullups": {
+          "field_type": "number",
+          "label": "Pullups Lbs"
+        }
+      }
+    },
+    {
+      "class_name": "mind_training",
+      "class_description": "Mind Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "read_book",
+      "class_description": "Mind Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_music",
+      "class_description": "Music Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_math",
+      "class_description": "Math Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_algebra",
+      "class_description": "Algebra Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_trigonometry",
+      "class_description": "Trigonometry Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_calculus",
+      "class_description": "Calculus Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_diffeq",
+      "class_description": "Differential Equations Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_atoms",
+      "class_description": "Atoms and Molecules Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_materials",
+      "class_description": "Materials Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "biology_training",
+      "class_description": "Biology Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "engineering_practice",
+      "class_description": "Build and repair",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "identify_problem",
+      "class_description": "Problem Identification",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "find_forces",
+      "class_description": "Determine Forces",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "solution",
+      "class_description": "Invent a solution",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "math_problem",
+      "class_description": "Model - Check with physics engine",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "build_solution",
+      "class_description": "Build the design",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "test_solution",
+      "class_description": "Test the product",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_practice",
+      "class_description": "Arts Practice",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_paint",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_water",
+      "class_description": "Watercolor",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_acrylic",
+      "class_description": "Acrylic",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_oil",
+      "class_description": "Oil painting",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_draw",
+      "class_description": "Drawing",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_pencil",
+      "class_description": "Pencil/Charcoals",
+      "base_class_name": "arts_draw",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_sculpt",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "person",
+      "base_class_name": "sys_object",
+      "class_description": "Person",
+      "full_text": [ "first_name", "last_name", "occupation", "loyalty", "loyalty_evidence", "notes" ],
+      "fields": {
+        "first_name": {
+          "field_type": "string",
+          "label": "First Name",
+          "max_length": 50,
+          "match_pattern": "[A-Za-z\\w]+"
+        },
+        "last_name": {
+          "field_type": "string",
+          "label": "Last Name",
+          "max_length": 50,
+          "match_pattern": "[A-Za-z\\w]+"
+        },
+        "occupation": {
+          "field_type": "string",
+          "label": "Occupation",
+          "enum": [
+            "Laborer, General",
+            "Laborer, Critical",
+            "White-Collar, Office",
+            "White-Collar, STEM",
+            "White-Collar, Executive",
+            "Investor",
+            "Military Enlisted",
+            "Military Officer",
+            "Law Enforcement",
+            "Academia, Social",
+            "Academia, STEM",
+            "Government",
+            "Education, Social",
+            "Education, STEM",
+            "Entertainment, Sports",
+            "Entertainment, Arts"
+          ]
+        },
+        "incidents": [ "incident" ],
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        },
+        "records": [ "record" ],
+        "connections": [ "connection" ],
+        "addresses": [ "address" ],
+        "mind_training": [ "mind_training" ],
+        "body_training": [ "body_training" ],
+        "spiritual_training": [ "spiritual_training" ]
+      },
+      "field_order": [ "first_name", "last_name", "notes", "connections", "addresses", "mind_training", "body_training", "spiritual_training" ]
+    },
+    {
+      "class_name": "asset",
+      "base_class_name": "sys_object",
+      "class_description": "An asset",
+      "full_text": [ "name", "notes" ],
+      "parents": [ "person", "building", "property" ],
+      "fields": {
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        },
+        "records": [ "record" ],
+        "value": {
+          "field_type": "double",
+          "label": "Asset Value"
+        },
+        "purchase_price": {
+          "field_type": "double",
+          "label": "Purchase Price"
+        }
+      },
+      "field_order": [ "name", "notes" ]
+    },
+    {
+      "class_name": "appliance",
+      "class_description": "A household appliance",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
+    },
+    {
+      "class_name": "furniture",
+      "class_description": "A household furniture item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
+
+    },
+    {
+      "class_name": "gun",
+      "class_description": "Swords, Bows and Firepower for Freedom",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "model", "year", "form_factor", "caliber", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "caliber": {
+          "field_type": "string",
+          "label": "Caliber"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "model", "year", "caliber", "serial_number" ]
+
+    },
+    {
+      "class_name": "tractor",
+      "class_description": "Tractors, Farm & Construction Equipment",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
+    },
+    {
+      "class_name": "boat",
+      "class_description": "Boats and Watercraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
+
+    },
+    {
+      "class_name": "vehicle",
+      "class_description": "Vehicle",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "make", "model", "year", "engine", "vin", "website" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "engine": {
+          "field_type": "string",
+          "label": "Engine"
+        },
+        "vin": {
+          "field_type": "string",
+          "label": "Vin"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "make", "model", "year", "vin", "website" ]
+    },
+    {
+      "class_name": "electronic",
+      "class_description": "A household electronic item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "product", "website", "model_number", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "product": {
+          "field_type": "string",
+          "label": "Product"
+        },
+        "model_number": {
+          "field_type": "string",
+          "label": "Model Number"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "product", "model_number", "serial_number", "website" ]
+
+    },
+    {
+      "class_name": "jewelry",
+      "class_description": "A household jewelry item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "diamond_carats": {
+          "field_type": "string",
+          "label": "Diamond Carats"
+        },
+        "gold_content": {
+          "field_type": "string",
+          "label": "Gold Content"
+        },
+        "silver_content": {
+          "field_type": "string",
+          "label": "Silver Content"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+
+      },
+      "field_order": [ "asset_name", "asset_description", "website", "diamond_carots", "gold_content", "silver_content", "serial_number" ]
+
+    },
+    {
+      "class_name": "collectible",
+      "class_description": "A household collectible item",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "model", "serial_number", "certificate" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "certificate": {
+          "field_type": "string",
+          "label": "Certificate"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "website", "serial_number", "certificate" ]
+
+    },
+    {
+      "class_name": "stock",
+      "class_description": "A stock in a corporatin",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "ticker", "website", "serial_number", "certificate" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "ticker": {
+          "field_type": "string",
+          "label": "Ticker"
+        },
+        "shares": {
+          "field_type": "double",
+          "label": "Shares",
+          "min_value": 0,
+          "max_value": 1000000
+        },
+        "website": {
+          "field_type": "string",
+          "label": "Website"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        },
+        "certificate": {
+          "field_type": "string",
+          "label": "Certificate"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "ticker", "shares", "website", "serial_number", "certificate" ]
+
+    },
+
+    {
+      "class_name": "rms_construction_type",
+      "base_class_name": "sys_object",
+      "class_description": "RMS construction type used for insurance and catastrophe risk modeling",
+      "full_text": [
+        "code",
+        "description"
+      ],
+      "fields": {
+        "code": {
+          "field_type": "string",
+          "label": "RMS Code",
+          "max_length": 10
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description",
+          "max_length": 250
+        }
+      },
+      "field_order": [ "code", "description" ]
+    },
+    {
+      "class_name": "rms_occupancy_type",
+      "base_class_name": "sys_object",
+      "class_description": "RMS occupancy type used for insurance and catastrophe risk modeling",
+      "full_text": [
+        "code",
+        "description"
+      ],
+      "fields": {
+        "code": {
+          "field_type": "string",
+          "label": "RMS Occupancy Code",
+          "max_length": 10
+        },
+        "description": {
+          "field_type": "string",
+          "label": "Description",
+          "max_length": 250
+        }
+      },
+      "field_order": [ "code", "description" ]
+    },
+    {
+      "class_name": "building",
+      "base_class_name": "sys_object",
+      "class_description": "A building",
+      "full_text": [ "latitude", "longitude", "construction_type", "occupancy_type", "notes" ],
+      "parents": [ "property" ],
+      "fields": {
+        "latitude": {
+          "field_type": "string",
+          "label": "Latitude",
+          "max_length": 100
+        },
+        "longitude": {
+          "field_type": "string",
+          "label": "Longitude",
+          "max_length": 100
+        },
+        "construction_type": "->rms_construction_type",
+        "occupancy_type": "->rms_occupancy_type",
+        "notes": {
+          "field_type": "string",
+          "label": "Notes"
+        },
+        "records": [ "record" ],
+        "assets": [ "asset" ],
+        "property_value": "double"
+      },
+      "field_order": [ "property_value", "latitude", "longitude", "construction_type", "occupancy_type" ]
+
+    },
+    {
+      "class_name": "property",
+      "base_class_name": "sys_object",
+      "class_description": "A property",
+      "full_text": [],
+      "fields": {
+        "property_name": {
+          "field_type": "string",
+          "label": "Property Name",
+          "max_length": 100
+        },
+        "street1": {
+          "field_type": "string",
+          "label": "Street",
+          "max_length": 100
+        },
+        "street2": {
+          "field_type": "string",
+          "label": "Apartment #",
+          "max_length": 100
+        },
+        "city": {
+          "field_type": "string",
+          "label": "City",
+          "max_length": 100
+        },
+        "state": {
+          "field_type": "string",
+          "label": "State",
+          "max_length": 100,
+          "enum": [
+            "AL",
+            "AK",
+            "AZ",
+            "AR",
+            "CA",
+            "CO",
+            "CT",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "ID",
+            "IL",
+            "IN",
+            "IA",
+            "KS",
+            "KY",
+            "LA",
+            "ME",
+            "MD",
+            "MA",
+            "MI",
+            "MN",
+            "MS",
+            "MO",
+            "MT",
+            "NE",
+            "NV",
+            "NH",
+            "NJ",
+            "NM",
+            "NY",
+            "NC",
+            "ND",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VT",
+            "VA",
+            "WA",
+            "WV",
+            "WI",
+            "WY"
+          ]
+        },
+        "zip": {
+          "field_type": "string",
+          "label": "Zip Code",
+          "max_length": 10
+        },
+        "country": {
+          "field_type": "string",
+          "label": "Country",
+          "max_length": 50
+        },
+        "buildings": [ "building" ],
+        "records": [ "record" ],
+        "assets": [ "asset" ],
+        "property_value": "double"
+      },
+      "field_order": [ "property_name", "street1", "street2", "city", "state", "zip", "country" ]
+    },
+
+    {
+      "class_name": "book",
+      "base_class_name": "asset",
+      "class_description": "Book",
+      "full_text": [ "author" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "author": {
+          "field_type": "string",
+          "label": "Author",
+          "max_length": 100
+        },
+        "copyright_year": {
+          "field_type": "number",
+          "label": "Copyright Year",
+          "min_value": 1000,
+          "max_value": 3000
+        },
+        "isbn": {
+          "field_type": "string",
+          "label": "ISBN",
+          "max_length": 50
+        },
+        "contents": {
+          "field_type": "string",
+          "label": "Contents"
+        },
+        "pages": {
+          "field_type": "number",
+          "label": "Pages",
+          "min_value": 1,
+          "max_value": 20000
+        },
+        "hardcopy_url": {
+          "field_type": "string",
+          "label": "URL",
+          "max_length": 500
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "author", "copyright_year", "isbn", "contents", "pages", "hardcopy_url" ]
+    },
+    {
+      "class_name": "movie",
+      "base_class_name": "asset",
+      "class_description": "Movie",
+      "full_text": [ "director" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "director": {
+          "field_type": "string",
+          "label": "Director"
+        },
+        "writer": {
+          "field_type": "string",
+          "label": "Writer"
+        },
+        "producer": {
+          "field_type": "string",
+          "label": "Producer"
+        },
+        "hardcopy_url": {
+          "field_type": "string",
+          "label": "Hardcopy URL",
+          "max_length": 500
+        },
+        "digital_url": {
+          "field_type": "string",
+          "label": "Digital URL",
+          "max_length": 500
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "director", "writer", "producer", "hardcopy_url", "digital_url" ]
+
+    },
+    {
+      "class_name": "board_game",
+      "base_class_name": "asset",
+      "class_description": "Board Game",
+      "full_text": [ "director" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "hardcopy_url": {
+          "field_type": "string",
+          "label": "Hardcopy URL",
+          "max_length": 500
+        },
+        "digital_url": {
+          "field_type": "string",
+          "label": "Digital URL",
+          "max_length": 500
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "hardcopy_url", "digital_url" ]
+    },
+    {
+      "class_name": "video_game",
+      "base_class_name": "asset",
+      "class_description": "Video Game",
+      "full_text": [ "director" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "hardcopy_url": {
+          "field_type": "string",
+          "label": "Hardcopy URL",
+          "max_length": 500
+        },
+        "digital_url": {
+          "field_type": "string",
+          "label": "Digital URL",
+          "max_length": 500
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "hardcopy_url", "digital_url" ]
+    },
+    {
+      "class_name": "tool",
+      "base_class_name": "asset",
+      "class_description": "Tool",
+      "full_text": [],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer",
+          "max_length": 100
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model",
+          "max_length": 100
+        },
+        "serial": {
+          "field_type": "string",
+          "label": "Serial Number",
+          "max_length": 100
+        },
+        "warranty": {
+          "field_type": "string",
+          "label": "Warranty"
+        },
+        "url": {
+          "field_type": "string",
+          "label": "URL"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "model", "serial", "warranty", "url" ]
+    },
+    {
+      "class_name": "aircraft",
+      "class_description": "Aircraft",
+      "base_class_name": "asset",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "description", "manufacturer", "make", "model", "year", "serial_number" ],
+      "fields": {
+        "asset_name": {
+          "field_type": "string",
+          "label": "Name",
+          "max_length": 50
+        },
+        "asset_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "manufacturer": {
+          "field_type": "string",
+          "label": "Manufacturer"
+        },
+        "make": {
+          "field_type": "string",
+          "label": "Make"
+        },
+        "model": {
+          "field_type": "string",
+          "label": "Model"
+        },
+        "year": {
+          "field_type": "string",
+          "label": "Year"
+        },
+        "serial_number": {
+          "field_type": "string",
+          "label": "Serial Number"
+        }
+      },
+      "field_order": [ "asset_name", "asset_description", "manufacturer", "make", "model", "year", "serial_number" ]
+    },
+    {
+      "class_name": "enemy_move",
+      "class_description": "Enemy Move",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "movement" ],
+      "parents": [ "mission" ],
+      "fields": {
+
+        "movement_name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "movement_description": {
+          "field_type": "string",
+          "label": "Enemy Movement"
+        },
+        "movement_link": {
+          "field_type": "string",
+          "label": "Research"
+        }
+      },
+      "field_order": [ "movement_name", "movement_description", "movement_link" ]
+    },
+    {
+      "class_name": "mission",
+      "class_description": "Mission",
+      "base_class_name": "sys_object",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "mission_name", "mission_description", "enemy_moves" ],
+      "fields": {
+        "mission_name": {
+          "field_type": "string",
+          "label": "Name"
+        },
+        "mission_description": {
+          "field_type": "string",
+          "label": "Description"
+        },
+        "enemy_moves": [ "enemy_move" ],
+        "mind_training": [ "mind_training" ],
+        "body_training": [ "body_training" ],
+        "spiritual_training": [ "spiritual_training" ]
+      },
+      "field_order": [ "mission_name", "mission_description", "enemy_moves", "mind_training", "body_training", "spiritual_training" ]
+    }
+  ],
+  "post_dataset": [
+    {
+      "dataset_name": "Revolution Training Teams",
+      "dataset_description": "Teams and their default memberships",
+      "dataset_version": "1.1",
+      "dataset_author": "Todd Bandrowsky",
+      "dataset_source": "This is canonical, and the use of sys_team means it can go first",
+      "objects": [
+        {
+          "class_name": "sys_team",
+          "team_name": "app_team",
+          "team_description": "local player team",
+          "team_domain": "localhost.com",
+          "inventory_classes": [],
+          "allowed_teams": [],
+          "permissions": [
+            {
+              "class_name": "sys_grant",
+              "grant_classes": [ "sys_object" ],
+              "get": "any",
+              "put": "any",
+              "delete": "any",
+              "alter": "any"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "application": {
+    "application_creator": "CountryBit",
+    "application_name": "Revolution Training",
+    "application_title": "Revolution Training",
+    "application_subtitle": "During the days of the Enemy Occupation",
+    "application_corporate_title": "Sponsored by Industrial Foods and Goods",
+    "fields": {
+      ".section": {
+        "class_name": ".section",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 35,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".animations": {
+        "class_name": "animations",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".inventory": {
+        "class_name": "chest_view",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
+      ".defaults": {
+        "class_name": "scintilla",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "inventory"
+      },
+      ".sql": {
+        "class_name": "scintilla",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      "sys_object.object_id": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.class_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.team": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.created_by": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.updated_by": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.created": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "sys_object.updated": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".description": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".problem": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+
+      },
+      ".resolution": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      ".text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+      },
+      ".general_terms": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+
+      },
+      ".certificate": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+      },
+      ".story": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom",
+        "default_tab": true
+      },
+      ".scripture": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".message_text": {
+        "class_name": "writepad",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "remaining"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "string.memo": {
+        "class_name": "memo_field",
+        "box": {
+          "width": {
+            "amount": 400,
+            "units": "pixels"
+          },
+          "height": {
+            "amount": 1.0,
+            "units": "container"
+          }
+        },
+        "tab_type": "custom"
+      },
+      "string": {
+        "class_name": "edit_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "datetime": {
+        "class_name": "datetimepicker_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "double": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "number": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "int64_t": {
+        "class_name": "number_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "bool": {
+        "class_name": "checkbox_field",
+        "box": {
+          "width": {
+            "amount": 0.8,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".category": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".occupation": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".state": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".incident": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".classification": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".attack": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "bible_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      "koran_reference.book": {
+        "class_name": "combobox_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".mission_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 50,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".mission_description": {
+        "class_name": "readonly_memo_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 255,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_link": {
+        "class_name": "linkbutton_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 100,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_description": {
+        "class_name": "readonly_memo_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 255,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      },
+      ".movement_name": {
+        "class_name": "readonly_field",
+        "box": {
+          "width": {
+            "amount": 1.0,
+            "units": "container"
+          },
+          "height": {
+            "amount": 100,
+            "units": "pixels"
+          }
+        },
+        "tab_type": "edit"
+      }
+
+    },
+    "card_fields": [ "name", "description", "first_name", "last_name", "property_name", "street1",  "city", "phone", "email", "fax", "web", "attack", "movement_name", "movement_description", "mission_name", "asset_name", "asset_description" ],
+    "classes": {
+      "journal": "default",
+      "diary": "default",
+      "task": "default",
+      "news": "default",
+      "record": "default",
+      "minutes": "default",
+      "license": "default",
+      "contract": "default",
+      "deed": "default",
+      "ruling": "default",
+      "title": "default",
+      "service_call": "default",
+      "asset": "default",
+      "appliance": "default",
+      "furniture": "default",
+      "gun": "default",
+      "incident": "default",
+      "tractor": "default",
+      "electronic": "default",
+      "jewelry": "default",
+      "collectible": "default",
+      "stock": "default",
+      "vehicle": "default",
+      "boat": "default",
+      "aircraft": "default",
+      "book": "default",
+      "movie": "default",
+      "board_game": "default",
+      "video_game": "default",
+      "tool": "default",
+      "security": "default",
+      "building": "default",
+      "property": "default",
+      "rms_construction_type": "default",
+      "rms_occupancy_type": "default",
+      "person": "default",
+      "address": "default",
+      "connection": "default",
+      "phone": "default",
+      "email": "default",
+      "fax": "default",
+      "web": "default",
+      "betrayal": "default",
+      "blasphemy": "default",
+      "domination": "default",
+      "sabotage": "default",
+      "slavery": "default",
+      "theft": "default",
+      "mission": "default",
+      "bible_cite": "default",
+      "koran_cite": "default",
+      "tanakh_cite": "default",
+      "holy_cite": "default",
+      "enemy_move": "default",
+      "revolution_move": "default",
+      "spiritual_training": "default",
+      "bible_study": "default",
+      "koran_study": "default",
+      "tanakh_study": "default",
+      "ancient_study": "default",
+      "hindu_study": "default",
+      "intro_practice": "default",
+      "wonder": "default",
+      "sunsets": "default",
+      "echoes": "default",
+      "beaches": "default",
+      "splashes": "default",
+      "lightanddark": "default",
+      "sunlightandshadow": "default",
+      "fieldandsky": "default",
+      "forests": "default",
+      "trees": "default",
+      "starsandhydrogen": "default",
+      "lifeanddeath": "default",
+      "humility": "default",
+      "try_new": "default",
+      "hear_new": "default",
+      "service": "default",
+      "honorspouse": "default",
+      "honorancestors": "default",
+      "holy_service": "default",
+      "body_training": "default",
+      "aerobic_training": "default",
+      "running": "default",
+      "swimming": "default",
+      "strength_training": "default",
+      "mind_training": "default",
+      "read_book": "default",
+      "practice_music": "default",
+      "practice_math": "default",
+      "practice_algebra": "default",
+      "practice_trigonometry": "default",
+      "practice_calculus": "default",
+      "practice_diffeq": "default",
+      "practice_atoms": "default",
+      "practice_materials": "default",
+      "biology_training": "default",
+      "engineering_practice": "default",
+      "identify_problem": "default",
+      "find_forces": "default",
+      "solution": "default",
+      "math_problem": "default",
+      "build_solution": "default",
+      "test_solution": "default",
+      "arts_practice": "default",
+      "arts_paint": "default",
+      "arts_water": "default",
+      "arts_acrylic": "default",
+      "arts_oil": "default",
+      "arts_draw": "default",
+      "arts_pencil": "default",
+      "arts_sculpt": "default"
+    },
+    "descriptions": {
+      "diary": "Basic version and record information about this diary entry",
+      "task": "Basic version and record information about this task",
+      "news": "Basic version and record information about this news item.",
+      "record": "Basic version and record information about this record.",
+      "minutes": "Basic version and record information about this minutes entry.",
+      "license": "Basic version and record information about this license.",
+      "contract": "Basic version and record information about this contract.",
+      "deed": "Basic version and record information about this deed.",
+      "ruling": "Basic version and record information about this ruling.",
+      "title": "Basic version and record information about this title.",
+      "service_call": "Basic version and record information about this service call.",
+      "asset": "Basic version and record information about this asset.",
+      "appliance": "Appliance details and record information.",
+      "furniture": "Furniture details and record information.",
+      "gun": "Gun details and record information.",
+      "tractor": "Tractor details and record information.",
+      "electronic": "Electronic details and record information.",
+      "jewelry": "Jewelry details and record information.",
+      "collectible": "Collectible details and record information.",
+      "stock": "Stock details and record information.",
+      "vehicle": "Vehicle details and record information.",
+      "boat": "Boat details and record information.",
+      "aircraft": "Aircraft details and record information.",
+      "book": "Book details and record information.",
+      "movie": "Movie details and record information.",
+      "board_game": "Board game details and record information.",
+      "video_game": "Video game details and record information.",
+      "tool": "Tool details and record information.",
+      "building": "Building details and record information.",
+      "property": "Property details and record information.",
+      "rms_construction_type": "Define how a building is made.",
+      "rms_occupancy_type": "Define how a building is used.",
+      "person": "Person details and record information.",
+      "address": "Address details and record information.",
+      "connection": "Connection details and record information.",
+      "phone": "Phone details and record information.",
+      "email": "Email details and record information.",
+      "fax": "Fax details and record information.",
+      "web": "Web details and record information.",
+      "record.description": "Description and images about this record. Paste all kinds of stuff into here.",
+      "journal.story": "Your story. Paste all kinds of stuff into here.",
+      "diary.story": "Your thoughts. Paste all kinds of stuff into here.",
+      "news.story": "Details about the news story.  Paste all kinds of stuff into here.",
+      "incident.story": "Details about the incident.  Paste all kinds of stuff into here.",
+      "news.description": "Details about the news story.  Paste all kinds of stuff into here.",
+      "incidents": "Record interactions, research possible patterns and behaviors of Enemy Assets.",
+      "incident": "Capture an interaction as you search for Enemy Assets.",
+      "property.assets": "Assets related to or located at this property.",
+      "property.records": "Records associated with this property.",
+      "asset.records": "Records associated with this asset.",
+      "betrayal.story": "What did the betrayer do?",
+      "blasphemy.story": "What did the blasphemer do?",
+      "domination.story": "What did the dominator do?",
+      "sabotage.story": "What did the sabatour do?",
+      "slavery.story": "What did the slaver do?",
+      "theft.story": "What did the thief do?",
+      "bible_cite": "Flip through a Bible to see what applies",
+      "koran_cite": "Flip through a Koran to see what applies",
+      "tanakh_cite": "Flip through a Tanakh to see what applies",
+      "holy_cite": "Study holy works",
+      "enemy_move": "Stay abreast of Enemy moves",
+      "revolution_move": "Make your own move",
+      "spiritual_training": "Become one with the Lord",
+      "bible_study": "Study the Bible to build the new USA",
+      "koran_study": "Study the Koran to build the new USA",
+      "tanakh_study": "Study the Tanakh to build the new USA",
+      "ancient_study": "Explore Ancient Civilizations",
+      "hindu_study": "Study the Hindu works to build the new USA",
+      "intro_practice": "Develop yourself",
+      "wonder": "Go outside to spaces of change to change yourself",
+      "sunsets": "Experience a sunset into night",
+      "echoes": "Here the sound and sound again",
+      "beaches": "The Lord's waters and land eternal",
+      "splashes": "Air and water, gravity and movement",
+      "lightanddark": "Light and dark",
+      "sunlightandshadow": "Explore the in between",
+      "fieldandsky": "Feel where the sky meets the field",
+      "forests": "Walk through a forest and listen",
+      "trees": "Imagine a tree as a connection between earth and air",
+      "starsandhydrogen": "The largest thing is many of the smallest",
+      "lifeanddeath": "Know the end and live well",
+      "humility": "default",
+      "try_new": "Try a new thing and make mistakes",
+      "hear_new": "Accept advice from someone you trust",
+      "service": "Serve someone you trust as they need",
+      "honorspouse": "Treasure your spouse as your ally",
+      "honorancestors": "Make your ancestors proud",
+      "holy_service": "Serve your local Church, Temple or Mosque",
+      "body_training": "A strong body creates a disciplined mind",
+      "aerobic_training": "Cardio training builds endurance",
+      "running": "Record your runs",
+      "swimming": "Record swimming",
+      "strength_training": "Strength training builds power",
+      "mind_training": "Cultivate your disciplined mind",
+      "read_book": "Reading a novel or a book builds pathways",
+      "practice_music": "Practice music and record",
+      "practice_math": "Practice math. Math creates a vocabulary of engineering.",
+      "practice_algebra": "Practice algebra. Algebra teaches symbolic reasoning",
+      "practice_trigonometry": "Practice trigonometry. Trigonometry is calculations in space",
+      "practice_calculus": "Practice calculus. Calculus solves areas",
+      "practice_diffeq": "Practice differential equations. Understand natural shapes",
+      "practice_atoms": "Practice studying atoms. Study Fundamental forces of nature",
+      "practice_materials": "Practice studying materials. Materials take their properties from their atoms",
+      "biology_training": "Study. Learn how atoms form biological molecules and life",
+      "engineering_practice": "Apply. Use engineering principles",
+      "identify_problem": "Identify a problem",
+      "find_forces": "Find the forces and maths to use",
+      "solution": "Invent a solution",
+      "math_problem": "Check solution with maths",
+      "build_solution": "Build solution",
+      "test_solution": "Test solution to see if it works, and iterate if necessary",
+      "arts_practice": "Practice Arts to strengthen mind and voice",
+      "arts_paint": "Paint something and reflect",
+      "arts_water": "Try watercolors",
+      "arts_acrylic": "Try acrylic and reflect",
+      "arts_oil": "Try oil",
+      "arts_draw": "Draw something",
+      "arts_pencil": "Draw something with a pencil",
+      "arts_sculpt": "Sculpt something and reflect",
+      "enemy_moves": "Stay abreast of Enemy moves, checking links on every front"
+    },
+    "objects": [
+      {
+        "class_name": "rms_construction_type",
+        "code": "1A1",
+        "description": "Light Wood Stud Walls"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "1A2",
+        "description": "Light Wood Post and Beam"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "2A2",
+        "description": "Adobe"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "2C1",
+        "description": "Reinforced Masonry"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "3A1",
+        "description": "Reinforced Concrete Moment Resisting Frame"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "4A1",
+        "description": "Steel Moment Resisting Frame"
+      },
+      {
+        "class_name": "rms_construction_type",
+        "code": "5B",
+        "description": "Manufactured/Mobile Home with Tie-Downs"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "300",
+        "description": "Unknown Occupancy"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "301-307",
+        "description": "Residential Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "311-319",
+        "description": "Commercial Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "321-330",
+        "description": "Industrial Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "331",
+        "description": "Restaurant Occupancy"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "335-336",
+        "description": "Mercantile Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "341-344",
+        "description": "Public Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "345-346",
+        "description": "Education Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "351-356",
+        "description": "Transportation Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "361-365",
+        "description": "Utility Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "371-381",
+        "description": "Miscellaneous Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "400-488",
+        "description": "Industrial Facility Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "900-909",
+        "description": "Offshore Asset Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "1001-1012",
+        "description": "Marine Cargo Occupancies"
+      },
+      {
+        "class_name": "rms_occupancy_type",
+        "code": "3001-3023",
+        "description": "Solar Occupancies"
+      },
+      {
+        "class_name": "mission",
+        "object_id": 42,
+        "mission_name": "The Constellation of Light",
+        "mission_description": "The Enemy seeks dominion over the free peoples of mankind.  Become a Constellation Knight of the Revolution to defend the West.  Intensely train the body, spirit and mind.  Learn to discern sins among yourself and the people you know.  Stay abreast of the movements of the enemy.  As you grow, he moves with deadly precision against us all.  You must be smart, holy and strong to defend the realm and unify all religions to create a new United States that walks with God.",
+        "enemy_moves": [
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Russian Invasion",
+            "movement_description": "The Enemy has animated the Duchy of Moscovy and its Russian Empire to attack the free people of Ukraine.",
+            "movement_link": "https://www.bing.com/search?q=Ukraine%20War"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "White Supremacy",
+            "movement_description": "The Enemy has duped many white people into the worship of the false gods of power, and many are financed by Russia.",
+            "movement_link": "https://www.bing.com/search?q=Russia%20White%20Supremacy%20Ties"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Neo Confederacy",
+            "movement_description": "Russia is allied with the Neo Confederacy movement in the USA, influencing white nationalist groups and supporting Confederate uprisings.",
+            "movement_link": "https://www.bing.com/search?q=Russia+USA+Neo-Confederate"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Iran/North Korea",
+            "movement_description": "Russia is allied with Iran and North Korea",
+            "movement_link": "https://www.bing.com/search?q=Russia+Iran+and+North+Korea+ties"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Administrative Asset",
+            "movement_description": "The President and his chief confederates are Russian assets",
+            "movement_link": "https://www.bing.com/search?q=Trump+Putin+Ally"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "The Henchmen",
+            "movement_description": "The Enemy's servants seek white supremacy with Russia",
+            "movement_link": "https://www.bing.com/search?q=Republican+white+supremacy"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Attacks on Education",
+            "movement_description": "The Enemy preys on weak minds.",
+            "movement_link": "https://www.bing.com/search?q=political%20attacks%20public%20education%20censorship"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Attacks on Elections",
+            "movement_description": "The Enemy attacks above all the will of men to choose their own government.",
+            "movement_link": "https://www.bing.com/search?q=Republican%20election%20rigging"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Sex Trafficking",
+            "movement_description": "The Enemy mercilessly exploits women as objects for their amusement.",
+            "movement_link": "https://www.bing.com/search?q=Russian%20sex%20traffic%20Epstein"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Surveillance State",
+            "movement_description": "The Enemy uses security as an excuse to subjugate.",
+            "movement_link": "https://www.bing.com/search?q=surveillance%20state"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Political Police",
+            "movement_description": "The Enemy deploys his police to ensure compliance.",
+            "movement_link": "https://www.bing.com/search?q=ice%20voting"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Corruption of Men",
+            "movement_description": "The Enemy seeks to weaken our nation with the corruption of men.",
+            "movement_link": "https://www.bing.com/search?q=manosphere%20corruption%20of%20men"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Mass deportations",
+            "movement_description": "The Enemy seeks to lower our population and divide us, using their assets to drive people out.",
+            "movement_link": "https://www.bing.com/search?q=mass%20deportations"
+          },
+          {
+            "class_name": "enemy_move",
+            "movement_name": "Public Threats",
+            "movement_description": "The Enemy tries to dominate with threats.",
+            "movement_link": "https://www.bing.com/search?q=republican%20threats"
+          }
+        ]
+      }
+    ],
+    "teams": {
+      "app_team": {
+        "search_groups": [
+          {
+            "title": "Journal",
+            "classes": [
+              "journal"
+            ],
+            "new_objects": [ "news", "diary", "task" ],
+            "search_title_text": "Search Journal",
+            "list_title_text": "Journal List",
+            "edit_title_text": "Journal Details",
+            "create_title_text": "Create Journal",
+            "create_control": "create_commands",
+            "reports_title_text": "Journal Reports",
+            "reports_control": "report_commands",
+            "chart_name": "chart_journal",
+            "create_command_class": "journal",
+            "charts": [
+              {
+                "chart_button_name": "chart_journal_counts_button",
+                "chart_button_text": "Types",
+                "chart_button_image": "chart_bar.png",
+                "chart_class": "chart_journal",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Property",
+            "classes": [
+              "property"
+            ],
+            "new_objects": [ "property" ],
+            "search_title_text": "Search Property",
+            "list_title_text": "Property List",
+            "edit_title_text": "Property Details",
+            "create_title_text": "Create Property",
+            "create_control": "create_commands",
+            "reports_title_text": "Property Reports",
+            "reports_control": "report_commands",
+            "chart_class": "chart_property",
+            "create_command_class": "property",
+            "charts": [
+              {
+                "chart_button_name": "property_counts_button",
+                "chart_button_text": "Types",
+                "chart_button_image": "chart_bar.png",
+                "chart_class": "chart_property",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "People",
+            "classes": [
+              "person"
+            ],
+            "new_objects": [ "person" ],
+            "search_title_text": "Search People",
+            "list_title_text": "People",
+            "edit_title_text": "Person Details",
+            "create_title_text": "Create Person",
+            "create_control": "create_commands",
+            "reports_title_text": "People Reports",
+            "reports_control": "report_commands",
+            "chart_class": "chart_person",
+            "create_command_class": "person",
+            "charts": [
+              {
+                "chart_button_name": "people_counts_button",
+                "chart_button_text": "Types",
+                "chart_button_image": "chart_bar.png",
+                "chart_class": "chart_person",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "title": "Assets",
+            "classes": [
+              "asset"
+            ],
+            "new_objects": [
+              "book",
+              "movie",
+              "board_game",
+              "video_game",
+              "tool",
+              "electronic",
+              "jewelry",
+              "collectible",
+              "vehicle",
+              "boat",
+              "tractor",
+              "gun"
+            ],
+            "search_title_text": "Search Assets",
+            "list_title_text": "Assets",
+            "edit_title_text": "Asset Details",
+            "create_title_text": "Create Asset",
+            "create_control": "create_commands",
+            "reports_title_text": "Asset Reports",
+            "reports_control": "report_commands",
+            "chart_class": "chart_asset",
+            "create_command_class": "asset",
+            "charts": [
+              {
+                "chart_button_name": "asset_counts_button",
+                "chart_button_text": "Types",
+                "chart_button_image": "chart_bar.png",
+                "chart_class": "chart_asset",
+                "chart": {
+                  "class_name": "bar_chart",
+                  "auto_series": {
+                    "label_fields": [ "class_name", "type_name" ],
+                    "value_fields": [
+                      {
+                        "field_name": "count",
+                        "units": "each"
+                      }
+                    ],
+                    "colors": [ "#D0D0B0", "#C8C8A8", "#C0C0A0", "#B8B898", "#B8B898" ]
+                  },
+                  "background": {
+                    "class_name": "solid_brush",
+                    "color": "#F0F0F0"
+                  }
+                },
+                "group_by": {
+                  "field_names": [ "class_name" ],
+                  "aggregates": [
+                    {
+                      "dest_field_name": "count",
+                      "field_name": "object_id",
+                      "aggregate": "count"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2557,7 +2557,7 @@
       "class_color": "#af9d66",
       "class_author": "TJ Bandrowsky",
       "class_version": "1.0",
-      "full_text": [ "mission_name", "mission_description", "enemy_moves" ],
+      "full_text": [ "mission_name", "mission_description" ],
       "fields": {
         "mission_name": {
           "field_type": "string",
@@ -2567,12 +2567,11 @@
           "field_type": "string",
           "label": "Description"
         },
-        "enemy_moves": [ "enemy_move" ],
         "mind_training": [ "mind_training" ],
         "body_training": [ "body_training" ],
         "spiritual_training": [ "spiritual_training" ]
       },
-      "field_order": [ "mission_name", "mission_description", "enemy_moves", "mind_training", "body_training", "spiritual_training" ]
+      "field_order": [ "mission_name", "mission_description", "mind_training", "body_training", "spiritual_training" ]
     }
   ],
   "post_dataset": [
@@ -3250,7 +3249,6 @@
       "koran_cite": "default",
       "tanakh_cite": "default",
       "holy_cite": "default",
-      "enemy_move": "default",
       "revolution_move": "default",
       "spiritual_training": "default",
       "bible_study": "default",
@@ -3371,7 +3369,6 @@
       "koran_cite": "Flip through a Koran to see what applies",
       "tanakh_cite": "Flip through a Tanakh to see what applies",
       "holy_cite": "Study holy works",
-      "enemy_move": "Stay abreast of Enemy moves",
       "revolution_move": "Make your own move",
       "spiritual_training": "Become one with the Lord",
       "bible_study": "Study the Bible to build the new USA",
@@ -3429,8 +3426,7 @@
       "arts_oil": "Try oil",
       "arts_draw": "Draw something",
       "arts_pencil": "Draw something with a pencil",
-      "arts_sculpt": "Sculpt something and reflect",
-      "enemy_moves": "Stay abreast of Enemy moves, checking links on every front"
+      "arts_sculpt": "Sculpt something and reflect"
     },
     "objects": [
       {
@@ -3548,92 +3544,6 @@
         "object_id": 42,
         "mission_name": "The Constellation of Light",
         "mission_description": "The Enemy seeks dominion over the free peoples of mankind.  Become a Constellation Knight of the Revolution to defend the West.  Intensely train the body, spirit and mind.  Learn to discern sins among yourself and the people you know.  Stay abreast of the movements of the enemy.  As you grow, he moves with deadly precision against us all.  You must be smart, holy and strong to defend the realm and unify all religions to create a new United States that walks with God.",
-        "enemy_moves": [
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Russian Invasion",
-            "movement_description": "The Enemy has animated the Duchy of Moscovy and its Russian Empire to attack the free people of Ukraine.",
-            "movement_link": "https://www.bing.com/search?q=Ukraine%20War"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "White Supremacy",
-            "movement_description": "The Enemy has duped many white people into the worship of the false gods of power, and many are financed by Russia.",
-            "movement_link": "https://www.bing.com/search?q=Russia%20White%20Supremacy%20Ties"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Neo Confederacy",
-            "movement_description": "Russia is allied with the Neo Confederacy movement in the USA, influencing white nationalist groups and supporting Confederate uprisings.",
-            "movement_link": "https://www.bing.com/search?q=Russia+USA+Neo-Confederate"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Iran/North Korea",
-            "movement_description": "Russia is allied with Iran and North Korea",
-            "movement_link": "https://www.bing.com/search?q=Russia+Iran+and+North+Korea+ties"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Administrative Asset",
-            "movement_description": "The President and his chief confederates are Russian assets",
-            "movement_link": "https://www.bing.com/search?q=Trump+Putin+Ally"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "The Henchmen",
-            "movement_description": "The Enemy's servants seek white supremacy with Russia",
-            "movement_link": "https://www.bing.com/search?q=Republican+white+supremacy"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Attacks on Education",
-            "movement_description": "The Enemy preys on weak minds.",
-            "movement_link": "https://www.bing.com/search?q=political%20attacks%20public%20education%20censorship"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Attacks on Elections",
-            "movement_description": "The Enemy attacks above all the will of men to choose their own government.",
-            "movement_link": "https://www.bing.com/search?q=Republican%20election%20rigging"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Sex Trafficking",
-            "movement_description": "The Enemy mercilessly exploits women as objects for their amusement.",
-            "movement_link": "https://www.bing.com/search?q=Russian%20sex%20traffic%20Epstein"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Surveillance State",
-            "movement_description": "The Enemy uses security as an excuse to subjugate.",
-            "movement_link": "https://www.bing.com/search?q=surveillance%20state"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Political Police",
-            "movement_description": "The Enemy deploys his police to ensure compliance.",
-            "movement_link": "https://www.bing.com/search?q=ice%20voting"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Corruption of Men",
-            "movement_description": "The Enemy seeks to weaken our nation with the corruption of men.",
-            "movement_link": "https://www.bing.com/search?q=manosphere%20corruption%20of%20men"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Mass deportations",
-            "movement_description": "The Enemy seeks to lower our population and divide us, using their assets to drive people out.",
-            "movement_link": "https://www.bing.com/search?q=mass%20deportations"
-          },
-          {
-            "class_name": "enemy_move",
-            "movement_name": "Public Threats",
-            "movement_description": "The Enemy tries to dominate with threats.",
-            "movement_link": "https://www.bing.com/search?q=republican%20threats"
-          }
-        ]
       }
     ],
     "teams": {

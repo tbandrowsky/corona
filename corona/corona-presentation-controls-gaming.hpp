@@ -6,7 +6,7 @@ namespace corona
 	class adventure_control :
 		public draw_control
 	{
-		std::shared_ptr<corona::game::adventure> current_session;
+		std::shared_ptr<corona::game::adventure_base> current_session;
 
 	public:
 
@@ -87,7 +87,7 @@ namespace corona
 				current_session->set_exit();
             }
 			auto session = current_session;
-			current_session = std::dynamic_pointer_cast<corona::game::adventure>(_session); 
+			current_session = std::dynamic_pointer_cast<corona::game::adventure_base>(_session); 
 			return session;
 		}
 

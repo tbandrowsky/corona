@@ -81,5 +81,9 @@
     <None Include="configuration\schemas\revolution_journal\sys_pages.json" />
     <None Include="configuration\schemas\revolution_journal\sys_schema.json" />
     <None Include="configuration\schemas\revolution_journal\sys_styles.json" />
+    <None Include="configuration\schemas\revolution_training\sys_config.json" />
+    <None Include="configuration\schemas\revolution_training\sys_pages.json" />
+    <None Include="configuration\schemas\revolution_training\sys_schema.json" />
+    <None Include="configuration\schemas\revolution_training\sys_styles.json" />
   </ItemGroup>
 </Project>

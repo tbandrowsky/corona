@@ -7,13 +7,13 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="13aa7d70-6bf9-4474-9f52-3273a5d74be3"
-    Publisher="CN=toddb"
+    Name="27629CountryVideoGames.RevolutionTraining"
+    Publisher="CN=8855F627-AD63-41E1-990B-4633E16CE09E"
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>RevolutionTraining</DisplayName>
-    <PublisherDisplayName>toddb</PublisherDisplayName>
+    <DisplayName>Revolution Training</DisplayName>
+    <PublisherDisplayName>Country Bit</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,7 +31,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="RevolutionTraining"
+        DisplayName="Revolution Training"
         Description="RevolutionTraining"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
