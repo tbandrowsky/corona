@@ -733,7 +733,7 @@
           "field_type": "datetime",
           "label": "Date Occurred"
         },
-        "spirtual_references": [ "holy_cite" ]
+        "spiritual_references": [ "holy_cite" ]
       },
       "field_order": [ "incident_description", "date_occurred", "spirtual_references" ]
     },
@@ -851,7 +851,6 @@
       "class_name": "sabotage",
       "base_class_name": "incident",
       "class_description": "Enemy Assets sabotage progress.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -953,6 +952,667 @@
       "field_order": [ "story", "date_occurred" ]
     },
     {
+      "class_name": "trust",
+      "base_class_name": "incident",
+      "class_description": "Ally engages in trust.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Trust Moment",
+          "enum": [
+            "Confident not arrogant",
+            "Strong not overbearing",
+            "Wins but not competitive",
+            "Supports and honest",
+            "Encourages and teaches",
+            "Humble yet brave",
+            "Shares but not pushover",
+            "Provides More than Takes",
+            "Owns More than Runs",
+            "Common thoughts",
+            "On Time",
+            "Kept Promise",
+            "Revolution Training"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "revolution_move",
+      "class_description": "Revolution Move",
+      "base_class_name": "journal",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "full_text": [ "movement" ],
+      "parents": [ "mission", "person" ],
+      "fields": {
+        "activity": {
+          "field_type": "string",
+          "label": "Your Experience"
+        }
+      }
+    },
+    {
+      "class_name": "spiritual_training",
+      "class_description": "Spiritual Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "bible_study",
+      "class_description": "Bible Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "koran_study",
+      "class_description": "Koran Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "tanakh_study",
+      "class_description": "Tanakh Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "ancient_study",
+      "class_description": "Ancient Civilizations",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hindu_study",
+      "class_description": "Hindu Study",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "intro_practice",
+      "class_description": "Practice meeting people",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "wonder",
+      "class_description": "Wonder and awe",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunsets",
+      "class_description": "Earth and space",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "echoes",
+      "class_description": "Sounds and Echoes",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "beaches",
+      "class_description": "Land and ocean",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "splashes",
+      "class_description": "Water air and ground",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lightanddark",
+      "class_description": "Light and dark",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "sunlightandshadow",
+      "class_description": "Sunlit things and shadows",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "fieldandsky",
+      "class_description": "Fields and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "forests",
+      "class_description": "Life and life",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "trees",
+      "class_description": "Ground and sky",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "starsandhydrogen",
+      "class_description": "Atoms and stars",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "lifeanddeath",
+      "class_description": "Life and death",
+      "base_class_name": "wonder",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "humility",
+      "class_description": "Acts of grounding and humility",
+      "base_class_name": "spiritual_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "try_new",
+      "class_description": "Try new things",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "hear_new",
+      "class_description": "Receive new ideas",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "service",
+      "class_description": "Serve someone",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorspouse",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "honorancestors",
+      "class_description": "Honor your spouse",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "holy_service",
+      "class_description": "Attend a holy service",
+      "base_class_name": "humility",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "body_training",
+      "class_description": "Body Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
+      "class_name": "aerobic_training",
+      "class_description": "Aerobic Training",
+      "base_class_name": "body_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "duration": {
+          "field_type": "string",
+          "label": "Duration Minutes"
+        }
+      }
+    },
+    {
+      "class_name": "running",
+      "class_description": "Running/Walking",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "miles": {
+          "field_type": "string",
+          "label": "Miles"
+        }
+      }
+    },
+    {
+      "class_name": "swimming",
+      "class_description": "Swimming",
+      "base_class_name": "aerobic_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "laps": {
+          "field_type": "string",
+          "label": "Laps"
+        }
+      }
+    },
+    {
+      "class_name": "strength_training",
+      "class_description": "Strength Training",
+      "base_class_name": "body_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+        "sets": {
+          "field_type": "string",
+          "label": "Sets"
+        },
+        "bench_press": {
+          "field_type": "number",
+          "label": "Bench Press Lbs"
+        },
+        "deadlift": {
+          "field_type": "number",
+          "label": "Deadlift Lbs"
+        },
+        "squats": {
+          "field_type": "number",
+          "label": "Squats Lbs"
+        },
+        "dumbbell_curls": {
+          "field_type": "number",
+          "label": "Dumbbell Curls Lbs"
+        },
+        "shrugs": {
+          "field_type": "number",
+          "label": "Shrugs Lbs"
+        },
+        "pullups": {
+          "field_type": "number",
+          "label": "Pullups Lbs"
+        }
+      }
+    },
+    {
+      "class_name": "mind_training",
+      "class_description": "Mind Training",
+      "base_class_name": "revolution_move",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "read_book",
+      "class_description": "Mind Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_music",
+      "class_description": "Music Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_math",
+      "class_description": "Math Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_algebra",
+      "class_description": "Algebra Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_trigonometry",
+      "class_description": "Trigonometry Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_calculus",
+      "class_description": "Calculus Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_diffeq",
+      "class_description": "Differential Equations Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_atoms",
+      "class_description": "Atoms and Molecules Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "practice_materials",
+      "class_description": "Materials Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "biology_training",
+      "class_description": "Biology Training",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "engineering_practice",
+      "class_description": "Build and repair",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "identify_problem",
+      "class_description": "Problem Identification",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "find_forces",
+      "class_description": "Determine Forces",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "solution",
+      "class_description": "Invent a solution",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "math_problem",
+      "class_description": "Model - Check with physics engine",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "build_solution",
+      "class_description": "Build the design",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "test_solution",
+      "class_description": "Test the product",
+      "base_class_name": "engineering_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_practice",
+      "class_description": "Arts Practice",
+      "base_class_name": "mind_training",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_paint",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_water",
+      "class_description": "Watercolor",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_acrylic",
+      "class_description": "Acrylic",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_oil",
+      "class_description": "Oil painting",
+      "base_class_name": "arts_paint",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_draw",
+      "class_description": "Drawing",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_pencil",
+      "class_description": "Pencil/Charcoals",
+      "base_class_name": "arts_draw",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
+      "class_name": "arts_sculpt",
+      "class_description": "Painting",
+      "base_class_name": "arts_practice",
+      "class_color": "#af9d66",
+      "class_author": "TJ Bandrowsky",
+      "class_version": "1.0",
+      "fields": {
+      }
+    },
+    {
       "class_name": "person",
       "base_class_name": "sys_object",
       "class_description": "Person",
@@ -999,9 +1659,12 @@
         },
         "records": [ "record" ],
         "connections": [ "connection" ],
-        "addresses": [ "address" ]
+        "addresses": [ "address" ],
+        "mind_training": [ "mind_training" ],
+        "body_training": [ "body_training" ],
+        "spiritual_training": [ "spiritual_training" ]
       },
-      "field_order": [ "first_name", "last_name", "notes", "connections", "addresses" ]
+      "field_order": [ "first_name", "last_name", "notes", "connections", "addresses", "mind_training", "body_training", "spiritual_training" ]
     },
     {
       "class_name": "asset",
@@ -1886,636 +2549,6 @@
         }
       },
       "field_order": [ "movement_name", "movement_description", "movement_link" ]
-    },
-    {
-      "class_name": "revolution_move",
-      "class_description": "Revolution Move",
-      "base_class_name": "journal",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "full_text": [ "movement" ],
-      "parents": [ "mission" ],
-      "fields": {
-        "activity": {
-          "field_type": "string",
-          "label": "Your Experience"
-        }
-      }
-    },
-    {
-      "class_name": "spiritual_training",
-      "class_description": "Spiritual Training",
-      "base_class_name": "revolution_move",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "bible_study",
-      "class_description": "Bible Study",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "koran_study",
-      "class_description": "Koran Study",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "tanakh_study",
-      "class_description": "Tanakh Study",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "ancient_study",
-      "class_description": "Ancient Civilizations",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "hindu_study",
-      "class_description": "Hindu Study",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "intro_practice",
-      "class_description": "Practice meeting people",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "wonder",
-      "class_description": "Wonder and awe",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "sunsets",
-      "class_description": "Earth and space",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "echoes",
-      "class_description": "Sounds and Echoes",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "beaches",
-      "class_description": "Land and ocean",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "splashes",
-      "class_description": "Water air and ground",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "lightanddark",
-      "class_description": "Light and dark",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "sunlightandshadow",
-      "class_description": "Sunlit things and shadows",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "fieldandsky",
-      "class_description": "Fields and sky",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "forests",
-      "class_description": "Life and life",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "trees",
-      "class_description": "Ground and sky",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "starsandhydrogen",
-      "class_description": "Atoms and stars",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "lifeanddeath",
-      "class_description": "Life and death",
-      "base_class_name": "wonder",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "humility",
-      "class_description": "Acts of grounding and humility",
-      "base_class_name": "spiritual_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "try_new",
-      "class_description": "Try new things",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "hear_new",
-      "class_description": "Receive new ideas",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "service",
-      "class_description": "Serve someone",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "honorspouse",
-      "class_description": "Honor your spouse",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "honorancestors",
-      "class_description": "Honor your spouse",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "holy_service",
-      "class_description": "Attend a holy service",
-      "base_class_name": "humility",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "body_training",
-      "class_description": "Body Training",
-      "base_class_name": "revolution_move",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-        "duration": {
-          "field_type": "string",
-          "label": "Duration Minutes"
-        }
-      }
-    },
-    {
-      "class_name": "aerobic_training",
-      "class_description": "Aerobic Training",
-      "base_class_name": "body_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-        "duration": {
-          "field_type": "string",
-          "label": "Duration Minutes"
-        }
-      }
-    },
-    {
-      "class_name": "running",
-      "class_description": "Running/Walking",
-      "base_class_name": "aerobic_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-        "miles": {
-          "field_type": "string",
-          "label": "Miles"
-        }
-      }
-    },
-    {
-      "class_name": "swimming",
-      "class_description": "Swimming",
-      "base_class_name": "aerobic_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-        "laps": {
-          "field_type": "string",
-          "label": "Laps"
-        }
-      }
-    },
-    {
-      "class_name": "strength_training",
-      "class_description": "Strength Training",
-      "base_class_name": "body_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-        "sets": {
-          "field_type": "string",
-          "label": "Sets"
-        },
-        "bench_press": {
-          "field_type": "number",
-          "label": "Bench Press Lbs"
-        },
-        "deadlift": {
-          "field_type": "number",
-          "label": "Deadlift Lbs"
-        },
-        "squats": {
-          "field_type": "number",
-          "label": "Squats Lbs"
-        },
-        "dumbbell_curls": {
-          "field_type": "number",
-          "label": "Dumbbell Curls Lbs"
-        },
-        "shrugs": {
-          "field_type": "number",
-          "label": "Shrugs Lbs"
-        },
-        "pullups": {
-          "field_type": "number",
-          "label": "Pullups Lbs"
-        }
-      }
-    },
-    {
-      "class_name": "mind_training",
-      "class_description": "Mind Training",
-      "base_class_name": "revolution_move",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "read_book",
-      "class_description": "Mind Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_music",
-      "class_description": "Music Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_math",
-      "class_description": "Math Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_algebra",
-      "class_description": "Algebra Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_trigonometry",
-      "class_description": "Trigonometry Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_calculus",
-      "class_description": "Calculus Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_diffeq",
-      "class_description": "Differential Equations Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_atoms",
-      "class_description": "Atoms and Molecules Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "practice_materials",
-      "class_description": "Materials Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "biology_training",
-      "class_description": "Biology Training",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "engineering_practice",
-      "class_description": "Build and repair",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "identify_problem",
-      "class_description": "Problem Identification",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "find_forces",
-      "class_description": "Determine Forces",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "solution",
-      "class_description": "Invent a solution",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "math_problem",
-      "class_description": "Model - Check with physics engine",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "build_solution",
-      "class_description": "Build the design",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "test_solution",
-      "class_description": "Test the product",
-      "base_class_name": "engineering_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_practice",
-      "class_description": "Arts Practice",
-      "base_class_name": "mind_training",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_paint",
-      "class_description": "Painting",
-      "base_class_name": "arts_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_water",
-      "class_description": "Watercolor",
-      "base_class_name": "arts_paint",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_acrylic",
-      "class_description": "Acrylic",
-      "base_class_name": "arts_paint",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_oil",
-      "class_description": "Oil painting",
-      "base_class_name": "arts_paint",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_draw",
-      "class_description": "Drawing",
-      "base_class_name": "arts_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_pencil",
-      "class_description": "Pencil/Charcoals",
-      "base_class_name": "arts_draw",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
-    },
-    {
-      "class_name": "arts_sculpt",
-      "class_description": "Painting",
-      "base_class_name": "arts_practice",
-      "class_color": "#af9d66",
-      "class_author": "TJ Bandrowsky",
-      "class_version": "1.0",
-      "fields": {
-      }
     },
     {
       "class_name": "mission",

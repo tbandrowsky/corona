@@ -775,7 +775,6 @@
       "class_name": "blasphemy",
       "base_class_name": "incident",
       "class_description": "Enemy Assets mock God",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -851,7 +850,6 @@
       "class_name": "sabotage",
       "base_class_name": "incident",
       "class_description": "Enemy Assets sabotage progress.",
-      "parents": [ "person" ],
       "fields": {
         "attack": {
           "field_type": "string",
@@ -943,6 +941,36 @@
             "Part of the game",
             "Lied to her",
             "Technically it is mine"
+          ]
+        },
+        "date_occurred": {
+          "field_type": "string",
+          "label": "Date Occurred"
+        }
+      },
+      "field_order": [ "story", "date_occurred" ]
+    },
+    {
+      "class_name": "trust",
+      "base_class_name": "incident",
+      "class_description": "Ally engages in trust.",
+      "fields": {
+        "attack": {
+          "field_type": "string",
+          "label": "Trust Moment",
+          "enum": [
+            "Confident not arrogant",
+            "Strong not overbearing",
+            "Wins but not competitive",
+            "Supports and honest",
+            "Encourages and teaches",
+            "Humble yet brave",
+            "Shares but not pushover",
+            "Provides More than Takes",
+            "Owns More than Runs",
+            "Common thoughts",
+            "On Time",
+            "Kept Promise"
           ]
         },
         "date_occurred": {
