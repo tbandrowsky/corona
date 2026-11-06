@@ -25,27 +25,193 @@
     }
 }
 
-<div class="text-center">
-    <h1 class="display-4">CountryBit</h1>
+@section Styles {
+    <style>
+        .cb-carousel {
+            position: relative;
+            max-width: 900px;
+            margin: 1.25rem auto 1.5rem auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,.16);
+            background: #111;
+        }
 
+        .cb-slide {
+            display: none;
+            position: relative;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .cb-slide.is-active {
+            display: block;
+        }
+
+        .cb-slide img {
+            width: 100%;
+            max-height: 460px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cb-caption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: .8rem 1rem;
+            background: linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,0));
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .cb-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.85);
+            color: #222;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .cb-control:hover {
+            background: #fff;
+        }
+
+        .cb-control.prev { left: 10px; }
+        .cb-control.next { right: 10px; }
+
+        .cb-indicators {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 12px;
+            display: flex;
+            justify-content: center;
+            gap: .5rem;
+            z-index: 2;
+        }
+
+        .cb-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 0;
+            background: rgba(255,255,255,.55);
+            cursor: pointer;
+        }
+
+        .cb-indicator.is-active {
+            background: #fff;
+        }
+    </style>
+}
+
+<div class="text-center">
     <h2>Applications for the Microsoft Store</h2>
 
-    <div>        
-    <img width="350" src="images/colorparty/screencap2release1.png" />
-    <img width="350" src="images/patriarch/patriarch.png" />
-    <img width="350" src="images/politicsdx/politicsdx.png" />
-    <img width="350" src="images/revolutionideas/revolutionideas.png" />
-    <img width="350" src="images/revolutiontraining/definemission.png" />
+    <div id="productCarousel" class="cb-carousel" aria-label="CountryBit product carousel">
+
+        <a class="cb-slide" href="/RevolutionTraining" aria-label="Open Revolution Training related page">
+            <img src="images/revolutiontraining/carousel_poster.png" alt="Revolution Training Poster" />
+            <span class="cb-caption">Revolution Training</span>
+        </a>
+
+        <a class="cb-slide is-active" href="/ColorParty" aria-label="Open Color Party product page">
+            <img src="images/colorparty/screencap2release1.png" alt="Color Party screenshot" />
+            <span class="cb-caption">Color Party</span>
+        </a>
+
+        <a class="cb-slide" href="/Patriarch" aria-label="Open Patriarch product page">
+            <img src="images/patriarch/patriarch.png" alt="Patriarch screenshot" />
+            <span class="cb-caption">Patriarch</span>
+        </a>
+
+        <a class="cb-slide" href="/RevolutionTraining" aria-label="Open Revolution Training related page">
+            <img src="images/revolutiontraining/carousel_poster.png" alt="Revolution Training Poster" />
+            <span class="cb-caption">Revolution Training</span>
+        </a>
+
+        <a class="cb-slide" href="/PoliticsDx" aria-label="Open PoliticsDx product page">
+            <img src="images/politicsdx/politicsdx.png" alt="PoliticsDx screenshot" />
+            <span class="cb-caption">PoliticsDx</span>
+        </a>
+
+        <a class="cb-slide" href="/RevolutionIdeas" aria-label="Open Revolution Ideas product page">
+            <img src="images/revolutionideas/revolutionideas.png" alt="Revolution Ideas screenshot" />
+            <span class="cb-caption">Revolution Ideas</span>
+        </a>
+
+
+        <button type="button" class="cb-control prev" aria-label="Previous slide">&#10094;</button>
+        <button type="button" class="cb-control next" aria-label="Next slide">&#10095;</button>
+
+        <div class="cb-indicators" aria-hidden="true"></div>
     </div>
 
     <h2>No one builds software quite the way I do.</h2>
 
     <a href="https://medium.com/@@todd.bandrowsky">Follow on Medium</a>
     <a href="https://www.linkedin.com/in/todd-bandrowsky/">Follow on LinkedIn</a>
-
 </div>
 
+@section Scripts {
+    <script>
+        (() => {
+            const carousel = document.getElementById("productCarousel");
+            if (!carousel) return;
 
+            const slides = Array.from(carousel.querySelectorAll(".cb-slide"));
+            const indicatorsHost = carousel.querySelector(".cb-indicators");
+            const prevBtn = carousel.querySelector(".cb-control.prev");
+            const nextBtn = carousel.querySelector(".cb-control.next");
 
+            if (slides.length < 2) return;
 
+            let index = 0;
+            let timerId;
 
+            const indicators = slides.map((_, i) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.className = "cb-indicator";
+                b.setAttribute("aria-label", `Go to slide ${i + 1}`);
+                b.addEventListener("click", () => show(i, true));
+                indicatorsHost.appendChild(b);
+                return b;
+            });
+
+            function show(i, resetTimer) {
+                index = (i + slides.length) % slides.length;
+
+                slides.forEach((s, n) => s.classList.toggle("is-active", n === index));
+                indicators.forEach((d, n) => d.classList.toggle("is-active", n === index));
+
+                if (resetTimer) restart();
+            }
+
+            function next(resetTimer = false) { show(index + 1, resetTimer); }
+            function prev(resetTimer = false) { show(index - 1, resetTimer); }
+
+            function restart() {
+                clearInterval(timerId);
+                timerId = setInterval(() => next(false), 5000);
+            }
+
+            prevBtn?.addEventListener("click", () => prev(true));
+            nextBtn?.addEventListener("click", () => next(true));
+
+            show(0, false);
+            restart();
+        })();
+    </script>
+}

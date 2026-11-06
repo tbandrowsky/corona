@@ -7,15 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\images\revolutionideasmarketing\contactmanagement.png" Link="wwwroot\images\revolutiontraining\contactmanagement.png" />
-    <Content Include="..\images\revolutionideasmarketing\define_mission.png" Link="wwwroot\images\revolutiontraining\define_mission.png" />
-    <Content Include="..\images\revolutionideasmarketing\establish_character3.png" Link="wwwroot\images\revolutiontraining\establish_character3.png" />
-    <Content Include="..\images\revolutionideasmarketing\fortify_your_mind.png" Link="wwwroot\images\revolutiontraining\fortify_your_mind.png" />
-    <Content Include="..\images\revolutionideasmarketing\track_assetspng.png" Link="wwwroot\images\revolutiontraining\track_assetspng.png" />
-    <Content Include="..\images\revolutionideasmarketing\track_property.png" Link="wwwroot\images\revolutiontraining\track_property.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\images\revolutiontraining\" />
     <Folder Include="wwwroot\images\revolutionideas\" />
     <Folder Include="wwwroot\NewFolder\" />

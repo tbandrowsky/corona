@@ -1,8 +1,96 @@
 ﻿@page
-@model countrybitweb.Pages.RevolutionJournalModel
+@model countrybitweb.Pages.RevolutionTrainingModel
 @{
-    ViewData["Title"] = "Revolution Journal";
+    ViewData["Title"] = "Revolution Training";
 }
+
+<style>
+    .rt-doom-scroll {
+        max-height: 85vh;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        border-radius: 12px;
+        padding: .5rem;
+        background: #0f0f12;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    }
+
+    .rt-shot {
+        scroll-snap-align: start;
+        margin: 0 0 1rem 0;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #1b1b21;
+        box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    }
+
+    .rt-shot:last-child {
+        margin-bottom: 0;
+    }
+
+    .rt-shot img {
+        display: block;
+        width: 100%;
+        max-height: 78vh;
+        object-fit: contain;
+        background: #0a0a0d;
+    }
+
+    .rt-shot h4 {
+        margin: 0;
+        padding: .75rem 1rem;
+        color: #f0f0f0;
+        font-size: 1rem;
+    }
+
+    .rt-store-link {
+        position: relative;
+        display: inline-block;
+        width: min(100%, 560px);
+        margin: .5rem 0 1rem 0;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #0a84ff;
+        box-shadow: 0 8px 22px rgba(0,0,0,.2);
+        text-decoration: none;
+    }
+
+    .rt-store-link:focus-visible {
+        outline: 3px solid #7fb8ff;
+        outline-offset: 2px;
+    }
+
+    .rt-store-image {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .rt-store-overlay {
+        position: absolute;
+        inset: auto 0 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: .75rem;
+        padding: .8rem 1rem;
+        background: linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,.12));
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .rt-store-cta {
+        display: inline-block;
+        padding: .35rem .7rem;
+        border: 1px solid rgba(255,255,255,.9);
+        border-radius: 999px;
+        background: rgba(10,132,255,.85);
+        color: #fff;
+        font-size: .9rem;
+        line-height: 1;
+        white-space: nowrap;
+    }
+</style>
 
 <h1>@ViewData["Title"]</h1>
 <!--<a style="font-size:20px; color:darkgreen;" href="https://apps.microsoft.com/detail/9mw7vxj5l36r?hl=en-US&gl=US">See in the Microsoft Store</a>-->
@@ -10,31 +98,51 @@
 
 <h3>We should hope his majesty might feel this to be a quite intense role play for the discerning audience.</h3>
 <p>
-    Revolution Journal introduces a new personal indoctrination tool to prepare the population to fight tyranny.
+    Revolution Training introduces a new personal indoctrination tool to prepare the population to fight tyranny.
     Is this divinely inspired or just a delusional experiment in psychosis.  You decide.
 </p>
 
 <p>
-    Accept the mission and being monitoring the incursions of the Enemy into the minds of the West.  Handy links 
+    Accept the mission and being monitoring the incursions of the Enemy into the minds of the West.  Handy links
     are provided to keep you abrest of the movements of the Enemy, from Russian invasions and threats to Confederate
     and other White Supremist movements to other Racial supremist movements as well. The enemy is everywhere, but you'll never miss a beat.
 </p>
 
 <p>
-    Begin your training.  Take your mind, body, and spirit to their absolute peak.  Revolution Journal provides 
+    Begin your training.  Take your mind, body, and spirit to their absolute peak.  Revolution Journal provides
     motivational tools for you to take recommended training actions from exploring liminal spaces to meditate and pray,
     learning music and art, to try new things and meet people. You'll go outside and say hello more.  You'll lift more weights and
-    do more aerobics, and you will study comparitive religions and philosophies, read more books, and learn more about 
-    math and chemistry and science and the engineering process. 
+    do more aerobics, and you will study comparitive religions and philosophies, read more books, and learn more about
+    math and chemistry and science and the engineering process.
 </p>
 
-<p>You will become a Constellation Knight, intelligent and strong, educated and wise, working to create a new mythology
+<p>
+    You will become a Constellation Knight, intelligent and strong, educated and wise, working to create a new mythology
     for the USA as we reboot the entire society into a new national spiritual movement comprised by the best of all of them.
 </p>
 
-<a href="https://apps.microsoft.com/detail/9p8b1lrxnq27?hl=en-US&gl=US">Microsoft Store</a>
+<ol>
+    <li>You may still be afraid when dealing with toxic people, but you will not lose.</li>
+    <li>You will not run any more.</li>
+    <li>As you win, you will gain confidence.</li>
+    <li>You will bend toxic people to your will.</li>
+    <li>You will stay on the path of justice when you do.</li>
+    <li>You will save them.</li>
+    <li>They will save you.</li>
+</ol>
 
-<a href="https://medium.com/@@todd.bandrowsky/revolution-journal-f4a89f940691?sharedUserId=todd.bandrowsky">Insane White Paper</a>
+<a class="rt-store-link"
+   href="https://apps.microsoft.com/detail/9p8b1lrxnq27?hl=en-US&gl=US"
+   aria-label="View Revolution Training in Microsoft Store">
+    <img class="rt-store-image"
+         src="images/revolutiontraining/carousel_poster.png"
+         alt="Revolution Training on Microsoft Store"
+         loading="lazy" />
+    <span class="rt-store-overlay">
+        <span>Revolution Training</span>
+        <span class="rt-store-cta">View in Microsoft Store</span>
+    </span>
+</a>
 
 <h3>Handcrafted, Small and Fast</h3>
 <p>
@@ -54,22 +162,54 @@
 
 <h3>Screen Shots</h3>
 
-<h4>Define Mission</h4>
-<img src="images/revolutiontraining/definemission.png" />
-<h4>Fortify Your Mind</h4>
-<img src="images/revolutiontraining/fortifyyourmind.png" />
-<h4>Gain Spirit</h4>
-<img src="images/revolutiontraining/gainspirit.png" />
-<h4>Strengthen Body</h4>
-<img src="images/revolutiontraining/strengthenbody.png" />
-<h4>Contact Management</h4>
-<img src="images/revolutiontraining/contactmanagement.png" />
-<img src="images/revolutiontraining/contactmanagement2.png" />
-<h4>Establish Character</h4>
-<img src="images/revolutiontraining/establish_character.png" />
-<img src="images/revolutiontraining/establish_character2.png" />
-<img src="images/revolutiontraining/establish_character3.png" />
-<h4>Property and Asset Management</h4>
-<img src="images/revolutiontraining/property_and_asset_management.png" />
+<div class="rt-doom-scroll" aria-label="Revolution Training screenshots">
+    <article class="rt-shot">
+        <h4>Define Mission</h4>
+        <img src="images/revolutiontraining/define_mission.png" alt="Define Mission screen" loading="lazy" />
+    </article>
 
-}
+    <article class="rt-shot">
+        <h4>Fortify Your Mind</h4>
+        <img src="images/revolutiontraining/fortify_your_mind.png" alt="Fortify Your Mind screen" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Gain Spirit</h4>
+        <img src="images/revolutiontraining/gain_spirit.png" alt="Gain Spirit screen" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Strengthen Body</h4>
+        <img src="images/revolutiontraining/strengthen_body.png" alt="Strengthen Body screen" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Contact Management</h4>
+        <img src="images/revolutiontraining/contact_management.png" alt="Contact Management screen 1" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Contact Management 2</h4>
+        <img src="images/revolutiontraining/contact_management2.png" alt="Contact Management screen 2" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Establish Character</h4>
+        <img src="images/revolutiontraining/establish_character.png" alt="Establish Character screen 1" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Establish Character 2</h4>
+        <img src="images/revolutiontraining/establish_character2.png" alt="Establish Character screen 2" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Establish Character 3</h4>
+        <img src="images/revolutiontraining/establish_character3.png" alt="Establish Character screen 3" loading="lazy" />
+    </article>
+
+    <article class="rt-shot">
+        <h4>Property and Asset Management</h4>
+        <img src="images/revolutiontraining/property_and_asset_management.png" alt="Property and Asset Management screen" loading="lazy" />
+    </article>
+</div>

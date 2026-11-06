@@ -16,8 +16,8 @@ namespace countrybitweb.Pages
         public void OnGet()
         {
             SetSeoData(
-                title: "Country Video Games - Home",
-                description: "Country Video Games builds Windows Applications like no one else.",
+                title: "Country Video Games/CountryBit web site",
+                description: "Country Video Games, also known as CountryBit, builds Conceptual Art Pieces of Windows Applications.",
                 keywords: "countrybit, main keyword, feature keyword, Windows SDK based apps, experimental, art",
                 ogImage: "/images/home-og.jpg"
             );

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace countrybitweb.Pages
 {
-    public class RevolutionJournalModel : PageModel
+    public class RevolutionTrainingModel : PageModel
     {
         public void OnGet()
         {
