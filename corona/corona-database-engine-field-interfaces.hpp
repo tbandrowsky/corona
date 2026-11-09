@@ -607,6 +607,7 @@ namespace corona
 		}
 	};
 
+
 	class selection_field
 	{
 	public:
@@ -678,122 +679,165 @@ namespace corona
 		}
 	};
 
-	namespace selection_commands
+	namespace inventory_commands
 	{
 
-		class requirement
+		class required_item
 		{
 		public:
-			std::string name;
-			std::string class_name;
-			std::string item_type;
-			double		quantity;
+			std::string			  item_class;
+			std::string			  item_type;
+			double				  quantity;
 
-			requirement() = default;
-			requirement(const requirement& _src) = default;
-			requirement(requirement&& _src) = default;
-			requirement& operator = (const requirement& _src) = default;
-			requirement& operator = (requirement&& _src) = default;
-		};
+			required_item() = default;
+			required_item(const required_item& _src) = default;
+			required_item(required_item&& _src) = default;
+			required_item& operator = (const required_item& _src) = default;
+			required_item& operator = (required_item&& _src) = default;
 
-		class match
-		{
-		public:
-			std::shared_ptr<requirement> requirement;
-			std::vector<chest_item> matches;
-
-			operator bool()
+			bool compare(chest_item& ct)
 			{
-				return requirement && matches.size() > 0;
-			}
-
-			chest_item first()
-			{
-				if (matches.size() > 0) {
-					return matches[0];
-				}
-				return chest_item();
+				return (ct.reference.class_name == item_class && ct.item_type == item_type && ct.quantity >= quantity);
 			}
 		};
 
-		class command
+		class command_option
 		{
-		public:
-			std::string command_name;
-			std::vector<std::shared_ptr<requirement>> requirements;
+        public:
+            std::string							option_name;
+            std::vector<required_item>			required_items;
+            std::shared_ptr<corona_bus_command> command;
 
-			bool matches(std::vector<match>& _matched_items, chest_field& _src, selection_field& _selection) const
+            command_option() = default;
+            command_option(const command_option& _src) = default;
+            command_option(command_option&& _src) = default;
+            command_option& operator = (const command_option& _src) = default;
+            command_option& operator = (command_option&& _src) = default;
+
+            bool compare(chest_field& cf)
+            {
+                for (auto& ri : required_items) {
+                    bool found = false;
+                    for (auto& item : cf.items) {
+                        if (ri.compare(item.second)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) return false;
+                }
+                return true;
+            }
+
+			void apply(chest_field& cf)
 			{
-				for (auto& req : requirements)
-				{
-					match mx;
-					bool matches = _src.match(mx.matches, req->class_name, req->item_type, req->quantity);
-					if (!matches) {
-						_matched_items.clear();
-						return false;
-					}
-					_matched_items.push_back(mx);
-				};
+                if (compare(cf)) {
+                    for (auto& ri : required_items) {
+						chest_item ci;
+						ci.item_type = ri.item_type;
+						ci.reference.class_name = ri.item_class;
+                        ci.quantity = ri.quantity;
+						cf.remove_part(ci);
+                    }
+                }
 				return true;
 			}
 
-			bool matches(chest_field& _src, selection_field& _selection) const
-			{
-				std::vector<match> dummy_matches;
-				return matches(dummy_matches, _src, _selection);
-			}
-
-			virtual match get_match(std::vector<match>& _matched_items, std::shared_ptr<requirement> _req)
-			{
-				match m;
-				auto found = std::find_if(_matched_items.begin(), _matched_items.end(), [&_req](const match& _match)->bool {
-					return _req == _match.requirement;
-					});
-				if (found != std::end(_matched_items)) {
-					m = *found;
+            void get_json(json& _dest)
+            {
+                json_parser jp;
+                _dest = jp.create_object();
+                _dest.put_member_string("option_name", option_name);
+                json jreqs = jp.create_array();
+                for (auto& ri : required_items) {
+                    json jreq = jp.create_object();
+                    jreq.put_member_string("item_class", ri.item_class);
+                    jreq.put_member_string("item_type", ri.item_type);
+                    jreq.put_member_double("quantity", ri.quantity);
+                    jreqs.push_back(jreq);
+                }
+                _dest.put_member("required_items", jreqs);
+                if (command) {
+					json jcmd = jp.create_object();
+					command->get_json(jcmd);
+					_dest.put_member("command", jcmd);
 				}
-				return m;
-			}
-		};
+            }
 
-		class command_collection
-		{
-			std::map<std::string, std::shared_ptr<command>> commands;
-
-		public:
-
-			command_collection() = default;
-			command_collection(const command_collection& _src) = default;
-			command_collection(command_collection&& _src) = default;
-			command_collection& operator = (const command_collection& _src) = default;
-			command_collection& operator = (command_collection&& _src) = default;
-
-			void put(std::shared_ptr<command> _command)
+			void put_json(json& _src)
 			{
-				commands[_command->command_name] = _command;
+				json_parser jp;
+                option_name = _src["option_name"].as_string();
+				required_items.clear();
+
+                json jreqs = _src["required_items"];
+                if (jreqs.array()) {
+                    for (int i = 0; i < jreqs.size(); i++) {
+                        json jreq = jreqs.get_element(i);
+                        required_item ri;
+                        ri.item_class = jreq["item_class"].as_string();
+                        ri.item_type = jreq["item_type"].as_string();
+                        ri.quantity = jreq["quantity"].as_double();
+                        required_items.push_back(ri);
+                    }
+                }
+
+                json jcommand = _src["command"];
+                if (jcommand.object()) {
+					corona::put_json(command, jcommand);
+                }
 			}
-
-			std::shared_ptr<command> get(std::string _name)
-			{
-				return commands[_name];
-			}
-
-			std::vector<std::shared_ptr<command>> get_commands_for_selection(chest_field& _all_items, selection_field& _selected_items)
-			{
-				std::vector<std::shared_ptr<command>> matching_commands;
-
-				for (auto& command : commands) {
-					if (command.second->matches(_all_items, _selected_items)) {
-						matching_commands.push_back(command.second);
-					}
-				}
-
-				return matching_commands;
-			}
-
-		};
+        };
 
 	}
+
+	class inventory_field
+	{
+		chest_field		chest;
+		selection_field	selection;
+
+	public:
+
+        std::vector<inventory_commands::command_option>	options;
+
+		inventory_field(std::shared_ptr<chest_field_options_interface> _chest_options, std::shared_ptr<selection_field_options_interface> _selection_options, json _src)
+			: chest(_chest_options, _src), selection(_selection_options, _src)
+		{
+
+		}
+
+        json put_json(json& _src)
+        {
+            chest.put_json(_src);
+            selection.put_json(_src);
+            json_parser jp;
+            options.clear();
+            json joptions = _src["options"];
+            if (joptions.array()) {
+                for (int i = 0; i < joptions.size(); i++) {
+                    json joption = joptions.get_element(i);
+                    inventory_commands::command_option option;
+                    option.put_json(joption);
+                    options.push_back(option);
+                }
+            }
+        }
+
+        json get_json(json& _dest)
+        {
+            chest.get_json(_dest);
+            selection.get_json(_dest);
+            json_parser jp;
+            json joptions = jp.create_array();
+            for (auto& option : options) {
+                json joption = jp.create_object();
+                option.get_json(joption);
+                joptions.push_back(joption);
+            }
+            _dest.put_member("options", joptions);
+        }
+	};
+
 
 	class class_permissions {
 	public:
