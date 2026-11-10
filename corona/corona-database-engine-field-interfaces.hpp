@@ -484,26 +484,6 @@ namespace corona
 			return ci;
 		}
 
-		bool match(std::vector<chest_item>& _matches, std::string _class_name, std::string _item_type, double _quantity) const
-		{
-			if (!options) return false;
-			double found_quantity = 0.0;
-
-			for (auto& item : items) {
-				if ((_class_name.empty() || (_class_name == item.first.class_name)) && (_item_type.empty() || item.second.item_type == _item_type))
-				{
-					chest_item temp = item.second;
-					double new_found_quantity = found_quantity + item.second.quantity;
-					if (new_found_quantity > _quantity) {
-						temp.quantity = new_found_quantity - item.second.quantity;
-					}
-					_matches.push_back(temp);
-				}
-			}
-
-			return found_quantity >= _quantity;
-		}
-
 		chest_item* find(const object_reference& _ref)
 		{
 			if (!options) return nullptr;
@@ -604,6 +584,14 @@ namespace corona
 					items.insert_or_assign(item.reference, item);
 				}
 			}
+		}
+
+		virtual bool contains(object_reference rf)
+		{
+            if (!options) return false;
+
+            auto iter = items.find(rf);
+            return iter != items.end();
 		}
 	};
 
@@ -729,9 +717,10 @@ namespace corona
                 return true;
             }
 
-			void apply(chest_field& cf)
+			bool apply(chest_field& cf)
 			{
-                if (compare(cf)) {
+				bool r = false;
+                if (r = compare(cf)) {
                     for (auto& ri : required_items) {
 						chest_item ci;
 						ci.item_type = ri.item_type;
@@ -740,7 +729,7 @@ namespace corona
 						cf.remove_part(ci);
                     }
                 }
-				return true;
+				return r;
 			}
 
             void get_json(json& _dest)
@@ -787,6 +776,7 @@ namespace corona
 					corona::put_json(command, jcommand);
                 }
 			}
+
         };
 
 	}
@@ -836,8 +826,65 @@ namespace corona
             }
             _dest.put_member("options", joptions);
         }
-	};
 
+		void clear_selection()
+		{
+			selection.clear();
+		}
+
+		void select(const object_reference& _item)
+		{
+			selection.create(_item);
+		}
+
+		void extend(const object_reference& _item)
+		{
+			selection.extend(_item);
+		}
+
+		void deselect(const object_reference& _item)
+		{
+			selection.remove(_item);
+		}
+
+		virtual bool is_selected(chest_item* _item)
+		{
+			return selection.is_selected(_item);
+		}
+
+		void add(const chest_item& _item)
+		{
+			selection.clear();
+			chest.add_part(_item);
+		}
+
+		bool remove(const chest_item& _item)
+		{
+			auto r = chest.remove_part(_item);
+			if (r) {
+				selection.remove(_item.reference);
+			}
+            return r;
+		}
+
+		bool move(chest_field& _dest, const chest_item& _item)
+		{
+			bool r = false;
+			if (r = chest.move_part(_dest, _item)) {
+                selection.remove(_item.reference);
+                return true;
+			}
+			return r;
+		}
+
+		bool loot(chest_field& _dest)
+		{
+			bool r = chest.loot(_dest);
+			selection.clear();
+            return r;
+		}
+
+	};
 
 	class class_permissions {
 	public:

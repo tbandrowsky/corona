@@ -1,0 +1,59 @@
+name: Build and deploy countrybitweb
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: countrybitweb-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Windows, countrybitweb-deploy]
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        shell: powershell
+        run: |
+          dotnet publish countrybitweb/countrybitweb.csproj `
+            --configuration Release `
+            --output "$env:RUNNER_TEMP\countrybitweb-publish"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Deploy to IIS
+        shell: powershell
+        env:
+          IIS_SITE_PATH: ${{ vars.IIS_SITE_PATH }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $destination = $env:IIS_SITE_PATH
+          $source = Join-Path $env:RUNNER_TEMP 'countrybitweb-publish'
+
+          if (-not $destination -or -not (Test-Path -LiteralPath $destination -PathType Container)) {
+            throw 'IIS_SITE_PATH must point to an existing website directory.'
+          }
+
+          $offline = Join-Path $destination 'app_offline.htm'
+          if (Test-Path -LiteralPath $offline) {
+            throw 'app_offline.htm already exists; resolve it before deploying.'
+          }
+
+          Set-Content -LiteralPath $offline -Value 'Deployment in progress.' -Encoding UTF8
+
+          robocopy $source $destination /E /R:12 /W:5 /XF app_offline.htm appsettings.Production.json
+          if ($LASTEXITCODE -ge 8) {
+            throw "Deployment copy failed with robocopy exit code $LASTEXITCODE. The site remains offline."
+          }
+
+          Remove-Item -LiteralPath $offline
+          exit 0
