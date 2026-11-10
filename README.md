@@ -15,9 +15,10 @@ Visual Studio Solution Structure as follows.
 
 3.  colorparty - Color Party application package for Microsoft Store
 
-3.  coronawinui - Win/RT client component for corona.  The idea is to drop this control into a nuget and we'll let anyone have apps with a local database and remote detabase, including our own Revolution.
+3.  coronaproject - 
 
-4.  revolution* - Main client EXE projects.  Revolution Win32 is the smallest possible client, and is built around Win32 native controls.  RevolutionWinUI is really the most active thing, as I love the MVVM of WinUI.
+4.  number of windows package projects for different applications in the ms store
+5.  countrybitweb - the countrybit web site in asp.net core.
 
 ## Getting Started, Windows Server
 
