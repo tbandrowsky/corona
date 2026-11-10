@@ -33,7 +33,7 @@ jobs:
       - name: Deploy to IIS
         shell: powershell
         env:
-          IIS_SITE_PATH: ${{ vars.IIS_SITE_PATH }}
+          IIS_SITE_PATH: "c:\\revolution\\web"
         run: |
           $ErrorActionPreference = 'Stop'
           $destination = $env:IIS_SITE_PATH
