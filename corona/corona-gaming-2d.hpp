@@ -11,7 +11,7 @@ namespace corona
 	namespace game
 	{
 
-		class piece_code : public corona_object
+		class piece_code : public corona_data_object
 		{
 		public:
 			std::string piece_code;
@@ -21,7 +21,7 @@ namespace corona
 			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 				_dest.put_member("piece_code", piece_code);
 				_dest.put_member("piece_class", piece_class);
 				_dest.put_member("piece_type", piece_type);
@@ -29,7 +29,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
                 piece_code = _src["piece_code"].as_string();
                 piece_class = _src["piece_class"].as_string();
                 piece_type = _src["piece_type"].as_string();
@@ -37,7 +37,7 @@ namespace corona
 
 		};
 
-		class piece_base : public corona_object {
+		class piece_base : public corona_data_object {
 		public:
 			piece_base() {
 				class_name = "piece";
@@ -127,7 +127,7 @@ namespace corona
 			intersection_side	collision_side;
 		};
 
-		class activity : public corona_object
+		class activity : public corona_data_object
 		{
 		public:
 			std::string			name;
@@ -146,7 +146,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
                 _dest.put_member("name", name);
                 _dest.put_member("description", description);
 				auto jbm = jp.create_object();
@@ -156,7 +156,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				json jbm = _src["image"];
 				bitmap.put_json(jbm);
@@ -183,7 +183,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("description", description);
 				auto jbm = jp.create_object();
@@ -193,7 +193,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				json jbm = _src["image"];
 				bitmap.put_json(jbm);
@@ -215,16 +215,16 @@ namespace corona
 			timepoint_change& operator =(const timepoint_change& _src) = default;
 			timepoint_change& operator =(timepoint_change&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 			}
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 			}
 		};
 
@@ -243,7 +243,7 @@ namespace corona
 			value_change& operator =(const value_change& _src) = default;
 			value_change& operator =(value_change&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
@@ -254,7 +254,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				new_value = _src["new_value"];
                 frame_name = _src["frame_name"].as_string();
@@ -276,7 +276,7 @@ namespace corona
 			audio_change& operator =(const audio_change& _src) = default;
 			audio_change& operator =(audio_change&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
@@ -342,11 +342,11 @@ namespace corona
 			timepoint& operator =(const timepoint& _src) = default;
 			timepoint& operator =(timepoint&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 
                 _dest.put_member("elapsed_seconds", elapsed_seconds);
                 json jchanges = jp.create_array();
@@ -361,7 +361,7 @@ namespace corona
 
 			virtual void put_json(timepoint_change_factory& _tpf, json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 				elapsed_seconds = _src["elapsed_seconds"].as_double();
 				changes.clear();
                 json jchanges = _src["changes"];
@@ -397,11 +397,11 @@ namespace corona
 			frame& operator =(const frame& _src) = default;
 			frame& operator =(frame&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const	
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("position", position);
 				_dest.put_member("rotation", rotation);
@@ -411,7 +411,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 				name = _src["name"].as_string();
 				position = _src["position"].as_vector();
 				rotation = _src["rotation"].as_double();
@@ -545,7 +545,7 @@ namespace corona
             bitmap_frame& operator =(const bitmap_frame& _src) = default;
             bitmap_frame& operator =(bitmap_frame&& _src) = default;
 
-            virtual void get_json(json& _dest)
+            virtual void get_json(json& _dest) const	
 			{
 				json_parser jp;
 				frame::get_json(_dest);
@@ -620,7 +620,7 @@ namespace corona
 			vector_frame& operator =(const vector_frame& _src) = default;
 			vector_frame& operator =(vector_frame&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const	
 			{
 				json_parser jp;
 				frame::get_json(_dest);
@@ -809,7 +809,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				name = _src["name"].as_string();
 				destination = _src["destination"].as_rectangle();
@@ -869,9 +869,9 @@ namespace corona
                 }
 			}
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("destination", destination);
 				_dest.put_member("direction", direction);
@@ -927,11 +927,11 @@ namespace corona
 
 			std::shared_ptr<chest_field> inventory;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 
 				_dest.put_member("name", name);
 				_dest.put_member("description", description);
@@ -961,7 +961,7 @@ namespace corona
 
 			virtual void put_json(animation_factory& _factory, json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				name = _src["name"].as_string();
 				description = _src["description"].as_string();
@@ -1022,82 +1022,6 @@ namespace corona
 
 			std::vector<std::shared_ptr<animation>> animations;
 
-			template <typename T>
-			std::shared_ptr<T> get_item_ptr(adventure_app_interface*	_game, std::string _class_name, std::string _type_name)
-			{
-				std::shared_ptr<corona_object_interface> holder;
-				if (inventory) {
-					// std::vector<chest_item>& _matches, std::string _class_name, std::string _item_type, double _quantity
-                    std::vector<chest_item> found_matches;
-                    bool matches = inventory->match(found_matches, _class_name, _type_name, 1.0);
-					if (matches && !found_matches.empty()) {
-						auto item = found_matches.front();
-						holder = _game->get_piece(item.reference, false);
-						return std::dynamic_pointer_cast<T>(holder);
-					}
-				}
-				return nullptr;
-			}
-
-            template <typename T>
-			item_holder<T> get_item(adventure_app_interface* _game, std::string _class_name, std::string _type_name)
-			{
-				item_holder<T> holder;
-				if (inventory) {
-					std::vector<chest_item> found_matches;
-					bool matches = inventory->match(found_matches, _class_name, _type_name, 1.0);
-                    if (matches && !found_matches.empty()) {
-						holder.container = found_matches.front();
-						auto obj = _game->get_piece(holder.container.reference, false);
-						holder.item_object = std::dynamic_pointer_cast<T>(obj);
-                        return holder;
-                    }
-                }
-				return holder;
-			}
-
-			template <typename T>
-			std::shared_ptr<T> get_item_ptr(adventure_app_interface* _game, chest_item& _src)
-			{
-				std::shared_ptr<corona_object_interface> holder;
-				if (inventory) {
-					auto item = inventory->find(&_src);
-					if (item) {
-						holder = _game->get_piece(item->reference, false);
-						return std::dynamic_pointer_cast<T>(holder);
-					}
-				}
-				return nullptr;
-			}
-
-			template <typename T>
-			item_holder<T> get_item(adventure_app_interface* _game, chest_item& _src)
-			{
-				item_holder<T> holder;
-				if (inventory) {
-					auto item = inventory->find(&_src);
-					if (item) {
-						auto obj = _game->get_piece(item->reference, false);
-                        holder.container = *item;
-						holder.item_object = std::dynamic_pointer_cast<T>(obj);
-					}
-				}
-				return holder;
-			}
-
-			bool remove_item(adventure_app_interface* _game, corona_object* _src)
-			{
-				if (inventory) {
-                    auto _src_ref = _src->to_reference();
-					auto item = inventory->find(_src_ref);
-					if (item) {
-						inventory->remove_part(*item);
-						return true;
-					}
-				}
-				return false;
-			}
-
 			virtual void use(adventure_app_interface* _game, piece* _piece);
 
 			virtual void run(adventure_app_interface* _game, double _delta, double _elapsed)
@@ -1115,11 +1039,11 @@ namespace corona
 				}
 			}
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 
 				_dest.put_member("name", name);
 				_dest.put_member("state", state);
@@ -1150,7 +1074,7 @@ namespace corona
 
 			virtual void put_json(animation_factory& _factory, json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 
 				remove = false;
 				name = _src["name"].as_string();
@@ -1237,7 +1161,7 @@ namespace corona
 		using piece_collection = std::map<object_reference, std::shared_ptr<piece>>;
 		using piece_collection_iterator = std::map<object_reference, std::shared_ptr<piece>>::iterator;
 
-		class piece_list : public corona_object
+		class piece_list : public corona_data_object
 		{
 		public:
 			piece_list() {
@@ -1251,11 +1175,11 @@ namespace corona
 			std::string state;
             std::map<object_reference, std::shared_ptr<piece>> pieces;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 				_dest.put_member("state", state);
 				json j = jp.create_array();
 				for (const auto& [id, p] : pieces) {
@@ -1268,7 +1192,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 				state = _src["state"].as_string();
                 json jpieces = _src["pieces"];
 				if (jpieces.array()) {
@@ -1304,7 +1228,7 @@ namespace corona
 			function_scheduler<piece *> scheduler;
 
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 				piece::get_json(_dest);
@@ -1340,7 +1264,7 @@ namespace corona
 
 			object_reference target_piece;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
 				piece::get_json(_dest);
@@ -1371,7 +1295,7 @@ namespace corona
 			effect & operator=(const effect& _src) = default;
 			effect & operator=(effect&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				piece::get_json(_dest);
 			}
@@ -1415,7 +1339,7 @@ namespace corona
 			spawn& operator =(const spawn& _src) = default;
 			spawn& operator =(spawn&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const	
 			{
 				feature::get_json(_dest);
 			}
@@ -1438,7 +1362,7 @@ namespace corona
 			player_spawn& operator =(const player_spawn& _src) = default;
 			player_spawn& operator =(player_spawn&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				spawn::get_json(_dest);
 			}
@@ -1464,7 +1388,7 @@ namespace corona
 			npc_spawn& operator =(const npc_spawn& _src) = default;
 			npc_spawn& operator =(npc_spawn&& _src) = default;
 
-			virtual void get_json(json& _dest)
+			virtual void get_json(json& _dest) const
 			{
 				spawn::get_json(_dest);
 				json_parser jp;
@@ -1863,12 +1787,12 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-				corona_object::get_json(_dest);
+				corona_data_object::get_json(_dest);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				corona_object::put_json(_src);
+				corona_data_object::put_json(_src);
 			}
 
 		};
@@ -2450,7 +2374,7 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-                corona_object::get_json(_dest);
+                corona_data_object::get_json(_dest);
 
 				_dest.put_member("name", name);
                 _dest.put_member("description", description);
@@ -2488,7 +2412,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-                corona_object::put_json(_src);
+                corona_data_object::put_json(_src);
 
 				name = _src["name"].as_string();
                 description = _src["description"].as_string();

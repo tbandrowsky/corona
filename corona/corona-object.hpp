@@ -275,6 +275,68 @@ namespace corona
        }
     };
 
+
+    class corona_data_object : public corona_object
+    {
+        json data;
+
+    public:
+
+        corona_data_object() = default;
+        corona_data_object(const corona_data_object& _src) : corona_object(_src)
+        {
+            data = _src.data.clone();
+        }
+        corona_data_object(corona_data_object&& _src) = default;
+        corona_data_object& operator =(const corona_data_object& _src) = default;
+        corona_data_object& operator =(corona_data_object&& _src) = default;
+
+        virtual void get_json(json& _dest) const
+        {
+            corona_object::get_json(data);
+            _dest = data;
+        }
+
+        virtual void put_json(json& _src)
+        {
+            corona_object::put_json(_src);
+            data = _src;
+        }
+
+        virtual std::shared_ptr<corona_object_interface> clone()
+        {
+            return std::make_shared<corona_data_object>(*this);
+        }
+
+        std::shared_ptr<inventory_field> get_inventory_field(std::string _field_name)
+        {
+            if (data.has_member(_field_name))
+            {
+                json field = data[_field_name];
+                if (field.object())
+                {
+                    std::shared_ptr<inventory_field> inv_field = std::make_shared<inventory_field>();
+                    inv_field->put_json(field);
+                    return inv_field;
+                }
+            }
+            return nullptr;
+        }
+
+        void put_inventory_field(std::string _field_name, std::shared_ptr<inventory_field> _field)
+        {
+            if (_field)
+            {
+                json field;
+                json_parser jp;
+                field = jp.create_object();
+                _field->get_json(field);
+                data.put_member(_field_name, field);
+            }
+        }
+
+    };
+
     enum class corona_grant_type
     {
         none,

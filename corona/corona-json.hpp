@@ -2337,7 +2337,7 @@ namespace corona
 
 		json query(std::string _path);
 
-		json clone()
+		json clone() const
 		{
 			json result;
 			if (value_base) {

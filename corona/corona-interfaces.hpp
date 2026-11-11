@@ -153,6 +153,7 @@ namespace corona
 	};
 
 
+
 	class selection_field_options_interface
 	{
 	public:

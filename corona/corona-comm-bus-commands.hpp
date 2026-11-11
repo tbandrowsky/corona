@@ -3431,6 +3431,52 @@ namespace corona
 		return true;
 	}
 
+	void inventory_commands::command_option::get_json(json& _dest)
+	{
+		json_parser jp;
+		_dest = jp.create_object();
+		_dest.put_member_string("option_name", option_name);
+		json jreqs = jp.create_array();
+		for (auto& ri : required_items) {
+			json jreq = jp.create_object();
+			jreq.put_member_string("item_class", ri.item_class);
+			jreq.put_member_string("item_type", ri.item_type);
+			jreq.put_member_double("quantity", ri.quantity);
+			jreqs.push_back(jreq);
+		}
+		_dest.put_member("required_items", jreqs);
+		if (command) {
+			json jcmd = jp.create_object();
+			command->get_json(jcmd);
+			_dest.put_member("command", jcmd);
+		}
+	}
+
+	void inventory_commands::command_option::put_json(json& _src)
+	{
+		json_parser jp;
+		option_name = _src["option_name"].as_string();
+		required_items.clear();
+
+		json jreqs = _src["required_items"];
+		if (jreqs.array()) {
+			for (int i = 0; i < jreqs.size(); i++) {
+				json jreq = jreqs.get_element(i);
+				required_item ri;
+				ri.item_class = jreq["item_class"].as_string();
+				ri.item_type = jreq["item_type"].as_string();
+				ri.quantity = jreq["quantity"].as_double();
+				required_items.push_back(ri);
+			}
+		}
+
+		json jcommand = _src["command"];
+		if (jcommand.object()) {
+			corona::put_json(command, jcommand);
+		}
+	}
+
+
 
 }
 

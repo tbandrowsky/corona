@@ -1,6 +1,18 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-636978042">
+    </script>
+    <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'AW-636978042');
+    </script>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script type="importmap"></script>
@@ -25,18 +37,6 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="@(ViewData["CanonicalUrl"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
 
-    <!-- Google tag (gtag.js) -->
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-636978042">
-    </script>
-    <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() { dataLayer.push(arguments); }
-            gtag('js', new Date());
-
-            gtag('config', 'AW-636978042');
-    </script>
-        
     @await RenderSectionAsync("Styles", required: false)
     @await RenderSectionAsync("MetaTags", required: false)
 
@@ -46,7 +46,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Country Video Games and Tools</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">CountryBit Home</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

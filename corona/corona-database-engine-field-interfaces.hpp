@@ -687,6 +687,24 @@ namespace corona
 			{
 				return (ct.reference.class_name == item_class && ct.item_type == item_type && ct.quantity >= quantity);
 			}
+
+            void get_json(json& _dest)
+            {
+                json_parser jp;
+                _dest = jp.create_object();
+                _dest.put_member("item_class", item_class);
+                _dest.put_member("item_type", item_type);
+                _dest.put_member("quantity", quantity);
+            }
+
+            void put_json(json& _src)
+            {
+                if (_src.object()) {
+                    item_class = _src.get_member("item_class").as_string();
+                    item_type = _src.get_member("item_type").as_string();
+                    quantity = _src.get_member("quantity").as_double();
+                }
+            }
 		};
 
 		class command_option
@@ -732,51 +750,8 @@ namespace corona
 				return r;
 			}
 
-            void get_json(json& _dest)
-            {
-                json_parser jp;
-                _dest = jp.create_object();
-                _dest.put_member_string("option_name", option_name);
-                json jreqs = jp.create_array();
-                for (auto& ri : required_items) {
-                    json jreq = jp.create_object();
-                    jreq.put_member_string("item_class", ri.item_class);
-                    jreq.put_member_string("item_type", ri.item_type);
-                    jreq.put_member_double("quantity", ri.quantity);
-                    jreqs.push_back(jreq);
-                }
-                _dest.put_member("required_items", jreqs);
-                if (command) {
-					json jcmd = jp.create_object();
-					command->get_json(jcmd);
-					_dest.put_member("command", jcmd);
-				}
-            }
-
-			void put_json(json& _src)
-			{
-				json_parser jp;
-                option_name = _src["option_name"].as_string();
-				required_items.clear();
-
-                json jreqs = _src["required_items"];
-                if (jreqs.array()) {
-                    for (int i = 0; i < jreqs.size(); i++) {
-                        json jreq = jreqs.get_element(i);
-                        required_item ri;
-                        ri.item_class = jreq["item_class"].as_string();
-                        ri.item_type = jreq["item_type"].as_string();
-                        ri.quantity = jreq["quantity"].as_double();
-                        required_items.push_back(ri);
-                    }
-                }
-
-                json jcommand = _src["command"];
-                if (jcommand.object()) {
-					corona::put_json(command, jcommand);
-                }
-			}
-
+			virtual void get_json(json& _dest);
+			virtual void put_json(json& _src);
         };
 
 	}
@@ -788,7 +763,7 @@ namespace corona
 
 	public:
 
-        std::vector<inventory_commands::command_option>	options;
+        std::vector<std::shared_ptr<inventory_commands::command_option>>	commands;
 
 		inventory_field(std::shared_ptr<chest_field_options_interface> _chest_options, std::shared_ptr<selection_field_options_interface> _selection_options, json _src)
 			: chest(_chest_options, _src), selection(_selection_options, _src)
@@ -801,16 +776,17 @@ namespace corona
             chest.put_json(_src);
             selection.put_json(_src);
             json_parser jp;
-            options.clear();
-            json joptions = _src["options"];
-            if (joptions.array()) {
-                for (int i = 0; i < joptions.size(); i++) {
-                    json joption = joptions.get_element(i);
-                    inventory_commands::command_option option;
-                    option.put_json(joption);
-                    options.push_back(option);
+            commands.clear();
+            json jcommands = _src["commands"];
+            if (jcommands.array()) {
+                for (int i = 0; i < jcommands.size(); i++) {
+                    json jcommand = jcommands.get_element(i);
+                    std::shared_ptr<inventory_commands::command_option> command = std::make_shared<inventory_commands::command_option>();
+                    command->put_json(jcommand);
+                    commands.push_back(command);
                 }
             }
+            return _src;
         }
 
         json get_json(json& _dest)
@@ -818,13 +794,13 @@ namespace corona
             chest.get_json(_dest);
             selection.get_json(_dest);
             json_parser jp;
-            json joptions = jp.create_array();
-            for (auto& option : options) {
-                json joption = jp.create_object();
-                option.get_json(joption);
-                joptions.push_back(joption);
+            json jcommands = jp.create_array();
+            for (auto& command : commands) {
+                json jcommand = jp.create_object();
+                command->get_json(jcommand);
+                jcommands.push_back(jcommand);
             }
-            _dest.put_member("options", joptions);
+            _dest.put_member("commands", jcommands);
         }
 
 		void clear_selection()

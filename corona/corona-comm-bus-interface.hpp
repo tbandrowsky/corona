@@ -482,5 +482,6 @@ namespace corona
 			return std::string("command");
 		}
 	};
+
 }
 
