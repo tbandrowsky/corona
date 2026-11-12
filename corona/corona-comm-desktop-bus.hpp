@@ -162,7 +162,7 @@ namespace corona
 			factory = std::make_shared<directXAdapter>();
 
 			// build the factory initially.  we may have occasion to call this 
-			// in the future in the event of a system setting change or something.
+			// in the future in the event of a system setting change or something 
 			// otherwise.... I hate doing big things in constructors.
 			factory->refresh();
 			// create a win32 set of windows that can use this factory

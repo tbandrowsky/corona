@@ -724,7 +724,7 @@ namespace corona
 		ft_brush = 'h',
 		ft_bitmap = 'm',
         ft_audio = 'u',
-        ft_inventory = 'y'
+        ft_workflow = 'w'
 	};
 	
 	const int field_type_size = 12;
@@ -764,7 +764,7 @@ namespace corona
 { "brush", field_types::ft_brush },
 { "bitmap", field_types::ft_bitmap },
 { "audio", field_types::ft_audio },
-{ "inventory", field_types::ft_inventory }
+{ "workflow", field_types::ft_workflow }
 	};
 
 	std::map<field_types, std::string> field_type_names = {
@@ -785,7 +785,7 @@ namespace corona
 { field_types::ft_brush, "brush"  },
 { field_types::ft_bitmap, "bitmap"  },
 { field_types::ft_audio, "audio"  },
-{ field_types::ft_inventory, "inventory"  },
+{ field_types::ft_workflow, "workflow"  },
 { field_types::ft_reference, "reference"  },
 	};
 
@@ -807,7 +807,7 @@ namespace corona
 { field_types::ft_brush, "brush"  },
 { field_types::ft_bitmap, "bitmap"  },
 { field_types::ft_audio, "audio"  },
-{ field_types::ft_inventory, "inventory"  },
+{ field_types::ft_workflow, "workflow"  },
 { field_types::ft_reference, "reference"  },
 	};
 

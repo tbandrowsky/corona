@@ -203,7 +203,7 @@ namespace corona
 
 		};
 
-		class timepoint_change : public corona_object
+		class timepoint_change : public corona_data_object
 		{
 		public:
 
@@ -233,7 +233,7 @@ namespace corona
 		public:
 
 			std::string		frame_name;
-			json		    new_value;
+			json_object	    new_value;
 
 			value_change() {
 				class_name = "value_change";
@@ -248,7 +248,7 @@ namespace corona
 				json_parser jp;
 
 				timepoint_change::get_json(_dest);
-				_dest.put_member("frame_name", frame_name);
+				_dest.put_member_string("frame_name", frame_name);
                 _dest.put_member("new_value", new_value);
 			}
 
@@ -256,7 +256,7 @@ namespace corona
 			{
 				corona_data_object::put_json(_src);
 
-				new_value = _src["new_value"];
+				new_value = to_object(_src["new_value"]);
                 frame_name = _src["frame_name"].as_string();
 			}
 
@@ -327,7 +327,7 @@ namespace corona
 			}
 		};
 
-		class timepoint : public corona_object
+		class timepoint : public corona_data_object
 		{
 		public:
 
@@ -377,7 +377,7 @@ namespace corona
 
 		};
 
-		class frame : public corona_object
+		class frame : public corona_data_object
 		{
 		public:
 			std::string			name;
@@ -765,7 +765,7 @@ namespace corona
 
 		};
 
-		class animation : public corona_object
+		class animation : public corona_data_object
 		{
 		public:
             std::string										name;
@@ -903,7 +903,7 @@ namespace corona
 
 		};
 
-		class piece_type : public corona_object
+		class piece_type : public corona_data_object
 		{
 
 		public:
@@ -923,7 +923,7 @@ namespace corona
 			double		health = 1.0;
 			double      full_health = 1.0;
 			std::string state;
-			json		defaults;
+			json_object	defaults;
 
 			std::shared_ptr<chest_field> inventory;
 
@@ -984,7 +984,7 @@ namespace corona
                 health = _src["health"].as_double();
                 full_health = _src["full_health"].as_double();
                 state = _src["state"].as_string();
-                defaults = _src["defaults"];
+                defaults = _src["defaults"].as_object();
 
 				if (fabs(mass) < 0.0001) {
 					mass = 1.0;
@@ -2324,7 +2324,7 @@ namespace corona
 			}
 		};
 
-        class set : public corona_object
+        class set : public corona_data_object
 		{
 		public:
 

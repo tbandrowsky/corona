@@ -552,7 +552,7 @@ namespace corona
 			return true;
 		}
 
-		virtual void get_json(json& _dest)
+		virtual void get_json(json& _dest) const
 		{
 			if (!options) return;
 
@@ -641,7 +641,7 @@ namespace corona
 			return selections.contains(_item->reference);
 		}
 
-		virtual void get_json(json& _dest)
+		virtual void get_json(json& _dest) const
 		{
 			json_parser jp;
 			_dest = jp.create_array();
@@ -667,140 +667,35 @@ namespace corona
 		}
 	};
 
-	namespace inventory_commands
-	{
 
-		class required_item
-		{
-		public:
-			std::string			  item_class;
-			std::string			  item_type;
-			double				  quantity;
-
-			required_item() = default;
-			required_item(const required_item& _src) = default;
-			required_item(required_item&& _src) = default;
-			required_item& operator = (const required_item& _src) = default;
-			required_item& operator = (required_item&& _src) = default;
-
-			bool compare(chest_item& ct)
-			{
-				return (ct.reference.class_name == item_class && ct.item_type == item_type && ct.quantity >= quantity);
-			}
-
-            void get_json(json& _dest)
-            {
-                json_parser jp;
-                _dest = jp.create_object();
-                _dest.put_member("item_class", item_class);
-                _dest.put_member("item_type", item_type);
-                _dest.put_member("quantity", quantity);
-            }
-
-            void put_json(json& _src)
-            {
-                if (_src.object()) {
-                    item_class = _src.get_member("item_class").as_string();
-                    item_type = _src.get_member("item_type").as_string();
-                    quantity = _src.get_member("quantity").as_double();
-                }
-            }
-		};
-
-		class command_option
-		{
-        public:
-            std::string							option_name;
-            std::vector<required_item>			required_items;
-            std::shared_ptr<corona_bus_command> command;
-
-            command_option() = default;
-            command_option(const command_option& _src) = default;
-            command_option(command_option&& _src) = default;
-            command_option& operator = (const command_option& _src) = default;
-            command_option& operator = (command_option&& _src) = default;
-
-            bool compare(chest_field& cf)
-            {
-                for (auto& ri : required_items) {
-                    bool found = false;
-                    for (auto& item : cf.items) {
-                        if (ri.compare(item.second)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) return false;
-                }
-                return true;
-            }
-
-			bool apply(chest_field& cf)
-			{
-				bool r = false;
-                if (r = compare(cf)) {
-                    for (auto& ri : required_items) {
-						chest_item ci;
-						ci.item_type = ri.item_type;
-						ci.reference.class_name = ri.item_class;
-                        ci.quantity = ri.quantity;
-						cf.remove_part(ci);
-                    }
-                }
-				return r;
-			}
-
-			virtual void get_json(json& _dest);
-			virtual void put_json(json& _src);
-        };
-
-	}
-
-	class inventory_field
+	class workflow_field
 	{
 		chest_field		chest;
 		selection_field	selection;
+		std::shared_ptr<workflow_field_options_interface> options;
 
 	public:
 
-        std::vector<std::shared_ptr<inventory_commands::command_option>>	commands;
-
-		inventory_field(std::shared_ptr<chest_field_options_interface> _chest_options, std::shared_ptr<selection_field_options_interface> _selection_options, json _src)
-			: chest(_chest_options, _src), selection(_selection_options, _src)
+		workflow_field(std::shared_ptr<workflow_field_options_interface> _workflow_options, json _src)
+			: chest(_workflow_options->chest_options, _src), selection(_workflow_options->selection_options, _src), options(_workflow_options)
 		{
 
-		}
+		} 
 
         json put_json(json& _src)
         {
+			json_parser jp;
             chest.put_json(_src);
             selection.put_json(_src);
-            json_parser jp;
-            commands.clear();
-            json jcommands = _src["commands"];
-            if (jcommands.array()) {
-                for (int i = 0; i < jcommands.size(); i++) {
-                    json jcommand = jcommands.get_element(i);
-                    std::shared_ptr<inventory_commands::command_option> command = std::make_shared<inventory_commands::command_option>();
-                    command->put_json(jcommand);
-                    commands.push_back(command);
-                }
-            }
             return _src;
         }
 
-        json get_json(json& _dest)
+        json get_json(json& _dest) const
         {
-            chest.get_json(_dest);
+			json_parser jp;            
+			chest.get_json(_dest);
             selection.get_json(_dest);
-            json_parser jp;
-            json jcommands = jp.create_array();
-            for (auto& command : commands) {
-                json jcommand = jp.create_object();
-                command->get_json(jcommand);
-                jcommands.push_back(jcommand);
-            }
-            _dest.put_member("commands", jcommands);
+            return _dest;
         }
 
 		void clear_selection()
@@ -938,7 +833,7 @@ namespace corona
 		virtual std::vector<std::string> get_allowed_classes() = 0;
 
 
-		virtual void get_json(json& _dest)
+		virtual void get_json(json& _dest) const
 		{
 			_dest.put_member("required", required);
 			_dest.put_member("format", format);

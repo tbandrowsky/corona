@@ -26,9 +26,9 @@ For Future Consideration
 namespace corona
 {
 
-	void get_json(json& _dest, time_span _src)
+	void get_json(json& _dest, const time_span& _src)
 	{
-		_dest.put_member("timespan_value", _src.value);
+		_dest.put_member_double("timespan_value", _src.value);
 		auto find_time = time_model_to_string.find(_src.units);
 
 		if (find_time != time_model_to_string.end())
@@ -48,11 +48,11 @@ namespace corona
 			_dest.units = time_models::seconds;
 	}
 
-	void get_json(json& _dest, point& _src)
+	void get_json(json& _dest, const point& _src)
 	{
-		_dest.put_member("x", _src.x);
-		_dest.put_member("y", _src.y);
-		_dest.put_member("z", _src.z);
+		_dest.put_member_double("x", _src.x);
+		_dest.put_member_double("y", _src.y);
+		_dest.put_member_double("z", _src.z);
 	}
 
 	void put_json(point& _dest, json& _src)
@@ -62,10 +62,10 @@ namespace corona
 		_dest.z = _src["z"].as_double();
 	}
 
-	void get_json(json& _dest, measure _src)
+	void get_json(json& _dest, const measure& _src)
 	{
 		using namespace std::literals;
-		_dest.put_member("amount", _src.amount);
+		_dest.put_member_double("amount", _src.amount);
 		switch (_src.units)
 		{
 		case measure_units::font:
@@ -185,7 +185,7 @@ namespace corona
 		}
 	}
 
-	void get_json(json& _dest, layout_rect& _src)
+	void get_json(json& _dest, const layout_rect& _src)
 	{
 		json_parser jp;
 		json jx, jy, jwidth, jheight;
@@ -231,12 +231,12 @@ namespace corona
 		put_json(_dest.height, jheight);
 	}
 
-	void get_json(json& _dest, rectangle& _src)
+	void get_json(json& _dest, const rectangle& _src)
 	{
-		_dest.put_member("x", _src.x);
-		_dest.put_member("y", _src.y);
-		_dest.put_member("w", _src.w);
-		_dest.put_member("h", _src.h);
+		_dest.put_member_double("x", _src.x);
+		_dest.put_member_double("y", _src.y);
+		_dest.put_member_double("w", _src.w);
+		_dest.put_member_double("h", _src.h);
 	}
 
 	void put_json(rectangle& _dest, json& _src)

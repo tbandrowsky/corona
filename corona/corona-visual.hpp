@@ -41,10 +41,10 @@ namespace corona {
 		D2D1_RECT_F crop;
 	};
 
-	void get_json(json& _dest, D2D1_SIZE_U& _src)
+	void get_json(json& _dest, const D2D1_SIZE_U& _src)
 	{
-		_dest.put_member("width", _src.width);
-		_dest.put_member("height", _src.height);
+		_dest.put_member_double("width", _src.width);
+		_dest.put_member_double("height", _src.height);
 	}
 
 	void put_json(D2D1_SIZE_U& _dest, json& _src)
@@ -58,12 +58,12 @@ namespace corona {
 		_dest.height = _src["height"].as_double();
 	}
 
-	void get_json(json& _dest, D2D1_RECT_F& _src)
+	void get_json(json& _dest, const D2D1_RECT_F& _src) 
 	{
-		_dest.put_member("left", _src.left);
-		_dest.put_member("top", _src.top);
-		_dest.put_member("right", _src.right);
-		_dest.put_member("bottom", _src.bottom);
+		_dest.put_member_double("left", _src.left);
+		_dest.put_member_double("top", _src.top);
+		_dest.put_member_double("right", _src.right);
+		_dest.put_member_double("bottom", _src.bottom);
 	}
 
 	void put_json(D2D1_RECT_F& _dest, json& _src)
@@ -86,7 +86,7 @@ namespace corona {
 		_dest.bottom =	_src["bottom"].as_double();
 	}
 
-	void get_json(json& _dest, sizeCrop& _src)
+	void get_json(json& _dest, const sizeCrop& _src) 
 	{
 		json_parser jp;
 		json jcrop, jsize;
@@ -190,7 +190,7 @@ namespace corona {
 		align_far = 4,
 	};
 
-	void get_json(json& _dest, std::string _member_name, visual_alignment& _src)
+	void get_json(json& _dest, std::string _member_name, const visual_alignment& _src) 
 	{
 		std::string dva = "near";
 		switch (_src) {
@@ -254,12 +254,12 @@ namespace corona {
 			stop_color = _color;
 		}
 
-		void get_json(json& _dest, ccolor& _src)
+		void get_json(json& _dest, const ccolor& _src) const
 		{
-			_dest.put_member("a", _src.a);
-			_dest.put_member("r", _src.r);
-			_dest.put_member("g", _src.g);
-			_dest.put_member("b", _src.b);
+			_dest.put_member_double("a", _src.a);
+			_dest.put_member_double("r", _src.r);
+			_dest.put_member_double("g", _src.g);
+			_dest.put_member_double("b", _src.b);
 		}
 
 		void put_json(ccolor& _dest, std::string _member_name, json& _src)
@@ -283,12 +283,12 @@ namespace corona {
 		}
 	};
 
-	void get_json(json& _dest, ccolor & _src)
+	void get_json(json& _dest, const ccolor & _src) 
 	{
-		_dest.put_member("a", _src.a);
-		_dest.put_member("r", _src.r);
-		_dest.put_member("g", _src.g);
-		_dest.put_member("b", _src.b);
+		_dest.put_member_double("a", _src.a);
+		_dest.put_member_double("r", _src.r);
+		_dest.put_member_double("g", _src.g);
+		_dest.put_member_double("b", _src.b);
 	}
 
 	void put_json(ccolor& _dest, std::string _member_name, json& _src)
@@ -311,13 +311,13 @@ namespace corona {
 		}
 	}
 
-	void get_json(json& _dest, gradientStop& _src)
+	void get_json(json& _dest, const gradientStop& _src) 
 	{
 		json_parser jp;
 		json jcolor = jp.create_object();
 		get_json(jcolor, _src.stop_color);
 		_dest.put_member("color", jcolor);
-		_dest.put_member("position", _src.stop_position);
+		_dest.put_member_double("position", _src.stop_position);
 	}
 
 	void put_json(gradientStop& _dest, json& _src)
@@ -377,7 +377,7 @@ namespace corona {
 
 	};
 
-	void get_json(json& _dest, bitmapRequest& _src)
+	void get_json(json& _dest, const bitmapRequest& _src)
 	{
 		json_parser jp;
 
@@ -450,7 +450,7 @@ namespace corona {
 			bitmapName = _request->bitmapName;
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			_dest.put_member("name", name);
 			_dest.put_member("bitmap_name", bitmapName);
@@ -492,7 +492,7 @@ namespace corona {
 			gradientStops = _request->gradientStops;
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 
@@ -584,7 +584,7 @@ namespace corona {
 			gradientStops = _request->gradientStops;
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 
@@ -684,7 +684,7 @@ namespace corona {
 			brushColor = corona::toColor(_request->brushColor);
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 			_dest.put_member("name", name);
@@ -711,7 +711,7 @@ namespace corona {
 
 	};
 
-	void get_json(std::string member, json& _dest, solidBrushRequest& _src)
+	void get_json(std::string member, json& _dest, const solidBrushRequest& _src)
 	{
 
 		json_parser jp;
@@ -764,7 +764,7 @@ namespace corona {
 		inline pathArcDto* asPathArcDto() { return eType == e_arc ? (pathArcDto*)this : NULL; }
 		inline pathBezierDto* asPathBezierDto() { return eType == e_bezier ? (pathBezierDto*)this : NULL; }
 		inline pathQuadraticBezierDto* asPathQuadraticBezierDto() { return eType == e_quadractic_bezier ? (pathQuadraticBezierDto*)this : NULL; }
-		virtual void get_json(json& _dest) = 0;
+		virtual void get_json(json& _dest) const = 0;
 		virtual void put_json(json& _src) = 0;
         virtual void move(double x, double y) = 0;
         virtual std::shared_ptr<pathBaseDto> clone() = 0;
@@ -844,7 +844,7 @@ namespace corona {
 			return std::make_shared<pathArcDto>(*this);
 		}
 
-		void get_json(json& _dest) override
+		void get_json(json& _dest) const override
 		{
 			_dest.put_member_vector("point", DirectX::XMVectorSet(m_point.x, m_point.y, m_point.z, 0));
             _dest.put_member_double("angleDegrees", angleDegrees);
@@ -915,7 +915,7 @@ namespace corona {
 			return std::make_shared<pathQuadraticBezierDto>(*this);
 		}
 
-		void get_json(json& _dest) override
+		void get_json(json& _dest) const override
 		{
 			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
 			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
@@ -986,7 +986,7 @@ namespace corona {
 			return std::make_shared<pathBezierDto>(*this);
 		}
 
-		void get_json(json& _dest) override
+		void get_json(json& _dest) const override
 		{
 			_dest.put_member_vector("point1", DirectX::XMVectorSet(point1.x, point1.y, point1.z, 0));
 			_dest.put_member_vector("point2", DirectX::XMVectorSet(point2.x, point2.y, point2.z, 0));
@@ -1142,7 +1142,7 @@ namespace corona {
 			return *this;
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			_dest.put_member_string("name", name);
 			_dest.put_member_string(class_name_field, "path");
@@ -1278,12 +1278,12 @@ namespace corona {
 			return _name;
 		}
 
-		bool has_brush()
+		bool has_brush() const
 		{
 			return solid_brush or radial_brush or linear_brush or bitmap_brush;
 		}
 
-		const char *get_name()
+		const char *get_name() const
 		{
 			static const char* empty = "";
 			const char* name = empty;
@@ -1422,7 +1422,7 @@ namespace corona {
 			}
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 			using namespace std::literals;
@@ -1515,7 +1515,7 @@ namespace corona {
 		float rotation;
 		bool closed;
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 			json jpath = jp.create_object();
@@ -1583,18 +1583,18 @@ namespace corona {
 			return (pt.x >= x) and (pt.x < (x + width)) and (pt.y >= y) and (pt.y < (y + height));
 		}
 
-		void get_json(json& _dest)
+		void get_json(json& _dest) const
 		{
 			json_parser jp;
 			_dest.put_member("bitmapName", bitmapName);
             _dest.put_member("bitmapPath", bitmapPath);
 			_dest.put_member("copyId", copyId);
-			_dest.put_member("x", x);
-			_dest.put_member("y", y);
-			_dest.put_member("width", width);
-			_dest.put_member("height", height);
-			_dest.put_member("selected", selected);
-			_dest.put_member("alpha", alpha);
+			_dest.put_member_double("x", x);
+			_dest.put_member_double("y", y);
+			_dest.put_member_double("width", width);
+			_dest.put_member_double("height", height);
+			_dest.put_member_bool("selected", selected);
+			_dest.put_member_double("alpha", alpha);
 			json jsource_rect = jp.create_object();
 			corona::get_json(jsource_rect, source_rectangle);
 			_dest.put_member("source_rectangle", jsource_rect);
@@ -1642,7 +1642,7 @@ namespace corona {
 		DWRITE_FONT_STRETCH font_stretch;
 	};
 
-	void get_json(json& _dest, textStyleRequest& _src)
+	void get_json(json& _dest, const textStyleRequest& _src)
 	{
 		json_parser jp;
 
@@ -1773,7 +1773,7 @@ namespace corona {
 		}
 	};
 
-	void get_json(json& _dest, viewStyleRequest& _src)
+	void get_json(json& _dest, const viewStyleRequest& _src)
 	{
 		json_parser jp;
 		json text_style = jp.create_object();

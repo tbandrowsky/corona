@@ -1073,6 +1073,53 @@ namespace corona
 		}
 	};
 
+	class workflow_field_options : public field_options_base, public workflow_field_options_interface
+	{
+	public:
+
+        workflow_field_options() = default;
+        workflow_field_options(const workflow_field_options& _src) = default;
+        workflow_field_options(workflow_field_options&& _src) = default;
+        workflow_field_options& operator = (const workflow_field_options& _src) = default;
+        workflow_field_options& operator = (workflow_field_options&& _src) = default;
+        virtual ~workflow_field_options() = default;
+
+        virtual void get_json(json& _dest) const
+        {
+            field_options_base::get_json(_dest);
+            json_parser jp;
+
+			json jselection = jp.create_object();
+
+			json jchest = jp.create_object();
+			if (chest_options) {
+				chest_options->get_json(jchest);
+			}
+
+			json jselection = jp.create_object();
+			if (selection_options) {
+				selection_options->get_json(jselection);
+			}
+
+            json jlanguage = jp.create_object();
+			for (auto rule : language) {
+				json jrule = jp.create_object();
+				rule->get_json(jrule);
+                jlanguage.push_back(jrule);
+			}
+
+			_dest.put_member("chest", jchest);
+			_dest.put_member("selection", jselection);
+			_dest.put_member("language", jlanguage);
+        }
+
+        virtual void put_json(json& _src)
+        {
+            field_options_base::put_json(_src);
+        }
+
+	};
+
 	/// <summary>
 	/// keeps track of a path field
 	/// </summary>

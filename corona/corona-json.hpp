@@ -2771,6 +2771,8 @@ namespace corona
 				return 0.0;
 		}
 
+		json_object as_object() const;
+
 		int64_t as_int64_t() const
 		{
 			if (value_base)
@@ -3807,7 +3809,7 @@ namespace corona
 			return object_impl()->members;
 		}
 
-		std::map<std::string, json> get_members();
+		std::map<std::string, json> get_members() const;
 
 		template <typename element_type> json append_element(element_type et)
 		{
@@ -4846,7 +4848,7 @@ namespace corona
 		return r;
 	}
 
-	std::map<std::string, json> json::get_members()
+	std::map<std::string, json> json::get_members() const
 	{
 		if (not object_impl()) {
 			throw std::logic_error("Not an object");
@@ -6493,6 +6495,14 @@ namespace corona
 		}
 
 		return result;
+	}
+
+	json_object json::as_object() const
+	{
+		json_object obj;
+		if (value_base)
+			obj = to_object(*this);
+		return obj;
 	}
 
 	json_object slice(json_object _object, std::string _member_name)

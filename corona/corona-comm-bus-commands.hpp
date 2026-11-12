@@ -3431,51 +3431,54 @@ namespace corona
 		return true;
 	}
 
-	void inventory_commands::command_option::get_json(json& _dest)
+	void workflow::production::get_json(json& _dest) const
 	{
 		json_parser jp;
 		_dest = jp.create_object();
-		_dest.put_member_string("option_name", option_name);
-		json jreqs = jp.create_array();
-		for (auto& ri : required_items) {
-			json jreq = jp.create_object();
-			jreq.put_member_string("item_class", ri.item_class);
-			jreq.put_member_string("item_type", ri.item_type);
-			jreq.put_member_double("quantity", ri.quantity);
-			jreqs.push_back(jreq);
+		_dest.put_member("rule_name", rule_name);
+		json jsymbols = jp.create_array();
+		for (auto f : required_symbols) {
+			json j;
+			f.get_json(j);
+			jsymbols.push_back(j);
 		}
-		_dest.put_member("required_items", jreqs);
+		_dest.put_member("required_symbols", jsymbols);
+		json jproduced = jp.create_object();
+		produced_symbol.get_json(jproduced);
+		_dest.put_member("produced_symbol", jproduced);
 		if (command) {
-			json jcmd = jp.create_object();
-			command->get_json(jcmd);
-			_dest.put_member("command", jcmd);
+            json jcommand = jp.create_object();
+			command->get_json(jcommand);
+			_dest.put_member("on_produce", jcommand);
 		}
 	}
 
-	void inventory_commands::command_option::put_json(json& _src)
+	void workflow::production::put_json(json& _src)
 	{
-		json_parser jp;
-		option_name = _src["option_name"].as_string();
-		required_items.clear();
+		if (_src.object()) {
+			rule_name = _src.get_member("rule_name").as_string();
+			json jrequired_symbols = _src.get_member("required_symbols");
+            if (jrequired_symbols.array()) {
+				for (int i = 0; i < jrequired_symbols.size(); i++) {
+					json j = jrequired_symbols.get_element(i);
+                    symbol s;
+                    s.put_json(j);
+                    required_symbols.push_back(s);
+                }
+            }
+			json jproduced_symbol = _src.get_member("produced_symbol");
+			if (jproduced_symbol.object()) {
+				produced_symbol.put_json(jproduced_symbol);
+			}
 
-		json jreqs = _src["required_items"];
-		if (jreqs.array()) {
-			for (int i = 0; i < jreqs.size(); i++) {
-				json jreq = jreqs.get_element(i);
-				required_item ri;
-				ri.item_class = jreq["item_class"].as_string();
-				ri.item_type = jreq["item_type"].as_string();
-				ri.quantity = jreq["quantity"].as_double();
-				required_items.push_back(ri);
+            json jcommand = _src["on_produce"];
+			if (jcommand.object()) {
+				command.reset();
+				corona::put_json(command, jcommand);
+
 			}
 		}
-
-		json jcommand = _src["command"];
-		if (jcommand.object()) {
-			corona::put_json(command, jcommand);
-		}
 	}
-
 
 
 }

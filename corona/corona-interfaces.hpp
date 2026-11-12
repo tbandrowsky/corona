@@ -157,11 +157,15 @@ namespace corona
 	class selection_field_options_interface
 	{
 	public:
+		virtual void get_json(json& _dest) const = 0;
+		virtual void put_json(json& _src) = 0;
 	};
 
 	class audio_field_options_interface
 	{
 	public:
+		virtual void get_json(json& _dest) const = 0;
+		virtual void put_json(json& _src) = 0;
 	};
 
 	class chest_field_options_interface
@@ -171,12 +175,119 @@ namespace corona
 		std::string allowed_item_type;
 		std::string unit_name;
 		int			max_items;
+
+		virtual void get_json(json& _dest) const = 0;
+		virtual void put_json(json& _src) = 0;
+	};
+
+	class workflow_field_options_interface {
+	public:
+        std::shared_ptr<chest_field_options_interface> chest_options;
+        std::shared_ptr<selection_field_options_interface> selection_options;
+		std::vector<std::shared_ptr<workflow::production>>	language;
+
+		virtual void get_json(json& _dest) const = 0;
+		virtual void put_json(json& _src) = 0;
 	};
 
 	class text_template_base {
 	public:
 		virtual void set_text_template(std::string _template) = 0;
 	};
+
+	namespace workflow
+	{
+
+		class symbol
+		{
+		public:
+			std::string			  item_class;
+			std::string			  item_type;
+			double				  quantity;
+
+			symbol() = default;
+			symbol(const symbol& _src) = default;
+			symbol(symbol&& _src) = default;
+			symbol& operator = (const symbol& _src) = default;
+			symbol& operator = (symbol&& _src) = default;
+
+			bool compare(chest_item& ct)
+			{
+				return (ct.reference.class_name == item_class && ct.item_type == item_type && ct.quantity >= quantity);
+			}
+
+			void get_json(json& _dest) const
+			{
+				json_parser jp;
+				_dest = jp.create_object();
+				_dest.put_member("item_class", item_class);
+				_dest.put_member("item_type", item_type);
+				_dest.put_member("quantity", quantity);
+			}
+
+			void put_json(json& _src)
+			{
+				if (_src.object()) {
+					item_class = _src.get_member("item_class").as_string();
+					item_type = _src.get_member("item_type").as_string();
+					quantity = _src.get_member("quantity").as_double();
+				}
+			}
+		};
+
+		class production
+		{
+		public:
+			std::string							rule_name;
+			// terminals and non-terminals that must be present in the inventory to execute this command,
+			// that is, if the inventory fits the grammar then the command can be produced.
+			std::vector<symbol>					required_symbols;
+			symbol		                        produced_symbol; // the symbol that is produced by this command	
+			std::shared_ptr<corona_bus_command> command; // the command that is executed
+
+			production() = default;
+			production(const production& _src) = default;
+			production(production&& _src) = default;
+			production& operator = (const production& _src) = default;
+			production& operator = (production&& _src) = default;
+
+			bool compare(chest_field& cf)
+			{
+				for (auto& ri : required_symbols) {
+					bool found = false;
+					for (auto& item : cf.items) {
+						if (ri.compare(item.second)) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) return false;
+				}
+				return true;
+			}
+
+			bool apply(chest_field& cf)
+			{
+				bool r = false;
+				if (r = compare(cf)) {
+					for (auto& ri : required_symbols) {
+						chest_item ci;
+						ci.item_type = ri.item_type;
+						ci.reference.class_name = ri.item_class;
+						ci.quantity = ri.quantity;
+						cf.remove_part(ci);
+					}
+				}
+				return r;
+			}
+
+			void get_json(json& _dest) const;
+			void put_json(json& _src);
+
+		};
+
+	}
+
 
 	namespace game 
 	{

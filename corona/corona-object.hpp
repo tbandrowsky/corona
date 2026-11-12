@@ -293,7 +293,13 @@ namespace corona
 
         virtual void get_json(json& _dest) const
         {
-            corona_object::get_json(data);
+            json_parser jp;
+            json body = jp.create_object();
+            json_object retvalue = to_object(data);
+            corona_object::get_json(body);
+            json_object jb = to_object(body);
+            retvalue += jb;
+            
             _dest = data;
         }
 
@@ -481,13 +487,13 @@ namespace corona
             return false;
         }
 
-        void get_json(json& _dest)
+        void get_json(json& _dest) const
         {
             corona_object::get_json(_dest);
-            _dest.put_member("frequency_seconds", frequency_seconds);
-            _dest.put_member("remaining_seconds", remaining_seconds);
-            _dest.put_member("duration_seconds", duration_seconds);
-            _dest.put_member("enabled", enabled);
+            _dest.put_member_double("frequency_seconds", frequency_seconds);
+            _dest.put_member_double("remaining_seconds", remaining_seconds);
+            _dest.put_member_double("duration_seconds", duration_seconds);
+            _dest.put_member_bool("enabled", enabled);
         }
 
         void put_json(json& _src)
