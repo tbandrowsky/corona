@@ -755,6 +755,20 @@ namespace corona
             return r;
 		}
 
+        std::vector<std::shared_ptr<workflow::production>> get_matched_productions()
+        {
+			std::vector<std::shared_ptr<workflow::production>> productions;
+
+			for (auto& p : options->language) 
+			{
+				if (p->compare(chest)) 
+				{
+					productions.push_back(p);
+				}
+			}
+
+			return productions;
+        }
 	};
 
 	class class_permissions {

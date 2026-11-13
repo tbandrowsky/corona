@@ -556,6 +556,134 @@ namespace corona
 
 			created_classes.put_member("sys_chest_field", true);
 
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_workflow_symbol_p",
+	"class_description" : "Workflow Symbol for Productions",
+	"base_class_name" : "sys_object",
+	"parents" :[ "sys_workflow_production" ],
+	"fields" : {			
+		"item_class":"string",
+		"item_qty":"string",
+		"item_type":"string"
+	},
+	"field_order" : ["item_class", "item_qty", "item_type"]	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_workflow_symbol_p"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow_symbol_p after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_workflow_symbol_p", true);
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_workflow_symbol_r",
+	"class_description" : "Workflow Symbol for Requirements",
+	"base_class_name" : "sys_object",
+	"parents" :[ "sys_workflow_production" ],
+	"fields" : {			
+		"item_class":"string",
+		"item_qty":"string",
+		"item_type":"string"
+	},
+	"field_order" : ["item_class", "item_qty", "item_type"]	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_workflow_symbol_r"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow_symbol_r after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_workflow_symbol_r", true);
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_workflow_production",
+	"class_description" : "Workflow Production",
+	"base_class_name" : "sys_field",
+	"parents" :[ "sys_workflow_field" ],
+	"fields" : {			
+		"rule_name":"string",
+		"required_symbols":[ "sys_workflow_symbol_r" ],
+		"produced_symbols":[ "sys_workflow_symbol_p" ]
+	},
+	"field_order" : ["rule_name", "required_symbols", "produced_symbols"]	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_workflow_production"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow_production after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_workflow_production", true);
+
+
+			response = create_class(R"(
+{	
+	"class_name" : "sys_workflow_field",
+	"class_description" : "Workflow Field",
+	"base_class_name" : "sys_field",
+	"parents" :[ "sys_class" ],
+	"fields" : {			
+		"allowed_class_name":"string",
+		"allowed_item_type":"string",
+		"unit_name":"string",
+		"max_items":"int64"
+	},
+	"field_order" : ["allowed_class_name", "allowed_item_type", "unit_name", "max_items"]	
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_workflow_field"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_workflow_field after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_workflow_field", true);
+
+
 			response = create_class(R"(
 {	
 	"class_name" : "sys_double_field",

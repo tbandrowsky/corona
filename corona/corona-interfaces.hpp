@@ -97,7 +97,7 @@ namespace corona
 		std::string			  item_type;
 		double				  quantity;
 
-		virtual void get_json(json& _dest)
+		virtual void get_json(json& _dest) const
 		{
             std::string temp = reference;
 			_dest.put_member("reference", temp);
@@ -180,15 +180,6 @@ namespace corona
 		virtual void put_json(json& _src) = 0;
 	};
 
-	class workflow_field_options_interface {
-	public:
-        std::shared_ptr<chest_field_options_interface> chest_options;
-        std::shared_ptr<selection_field_options_interface> selection_options;
-		std::vector<std::shared_ptr<workflow::production>>	language;
-
-		virtual void get_json(json& _dest) const = 0;
-		virtual void put_json(json& _src) = 0;
-	};
 
 	class text_template_base {
 	public:
@@ -211,7 +202,7 @@ namespace corona
 			symbol& operator = (const symbol& _src) = default;
 			symbol& operator = (symbol&& _src) = default;
 
-			bool compare(chest_item& ct)
+			bool compare(const chest_item& ct) const
 			{
 				return (ct.reference.class_name == item_class && ct.item_type == item_type && ct.quantity >= quantity);
 			}
@@ -242,7 +233,7 @@ namespace corona
 			// terminals and non-terminals that must be present in the inventory to execute this command,
 			// that is, if the inventory fits the grammar then the command can be produced.
 			std::vector<symbol>					required_symbols;
-			symbol		                        produced_symbol; // the symbol that is produced by this command	
+			std::vector<symbol>					produced_symbols; // the symbol that is produced by this command	
 			std::shared_ptr<corona_bus_command> command; // the command that is executed
 
 			production() = default;
@@ -251,12 +242,12 @@ namespace corona
 			production& operator = (const production& _src) = default;
 			production& operator = (production&& _src) = default;
 
-			bool compare(chest_field& cf)
+			bool compare(const chest_field& cf) const
 			{
 				for (auto& ri : required_symbols) {
 					bool found = false;
 					for (auto& item : cf.items) {
-						if (ri.compare(item.second)) {
+						if (ri.compare(item)) {
 							found = true;
 							break;
 						}
@@ -284,6 +275,16 @@ namespace corona
 			void get_json(json& _dest) const;
 			void put_json(json& _src);
 
+		};
+
+		class workflow_field_options_interface {
+		public:
+			std::shared_ptr<chest_field_options_interface> chest_options;
+			std::shared_ptr<selection_field_options_interface> selection_options;
+			std::vector<std::shared_ptr<workflow::production>>	language;
+
+			virtual void get_json(json& _dest) const = 0;
+			virtual void put_json(json& _src) = 0;
 		};
 
 	}

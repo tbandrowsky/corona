@@ -57,6 +57,9 @@ namespace corona {
 		virtual std::shared_ptr<field_interface>		get_field(const std::string& _name)  const = 0;
 		virtual std::shared_ptr<field_interface>		get_field_for_reference(class_interface* _class)  const = 0;
 		virtual audio_function							get_audio(json _src, const std::string& _name) = 0;
+		virtual std::shared_ptr<workflow_field>		    get_workflow(json _src, const std::string& _name) = 0;
+		virtual void									put_workflow(json& _dest, const std::string& _name, std::shared_ptr<workflow_field>& _src) = 0;
+		virtual void									put_workflow(json& _dest, const std::string& _name, workflow_field& _src) = 0;
 		virtual std::shared_ptr<chest_field>		    get_chest(json _src, const std::string& _name) = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) = 0;
 		virtual void									put_chest(json& _dest, const std::string& _name, chest_field& _src) = 0;

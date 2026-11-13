@@ -112,7 +112,7 @@ namespace corona
 		std::string class_name;
 		int64_t		object_id;
 
-		operator bool()
+		operator bool() const
 		{
 			return not class_name.empty() and object_id > 0;
 		}
@@ -147,15 +147,10 @@ namespace corona
 			return *this;
 		}
 
-		operator std::string()
+		operator std::string() const
 		{
 			return std::format("{0}:{1}", class_name, object_id);
 		}
-
-		operator bool() const
-		{
-			return not class_name.empty() and object_id > 0;
-        }
 
 		bool operator < (const object_reference& _src) const
 		{

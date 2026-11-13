@@ -2439,6 +2439,15 @@ namespace corona {
 			return cf;
 		}
 
+		virtual std::shared_ptr<workflow_field> get_workflow(json _src, const std::string& _name) override
+		{
+			std::shared_ptr<workflow_field> cf;
+
+			cf = get_field_object<workflow_field, field_types::ft_workflow, workflow_field_options_interface>(_src, _name);
+
+			return cf;
+		}
+
 		virtual std::shared_ptr<chest_field> get_chest(json _src, const std::string& _name) override
 		{
 			std::shared_ptr<chest_field> cf;
@@ -2586,6 +2595,11 @@ namespace corona {
 			}
 		}
 
+		virtual void put_workflow(json& _dest, const std::string& _name, std::shared_ptr<workflow_field>& _src) override
+		{
+			put_field_object<workflow_field, field_types::ft_workflow, workflow_field_options_interface>(_dest, _name, _src);
+		}
+
 		virtual void put_chest(json& _dest, const std::string& _name, std::shared_ptr<chest_field>& _src) override
 		{
 			put_field_object<chest_field, field_types::ft_chest, chest_field_options_interface>(_dest, _name, _src);
@@ -2611,6 +2625,10 @@ namespace corona {
 			put_field_object<bitmapInstanceDto, field_types::ft_bitmap, bitmap_field_options_interface>(_dest, _name, _src);
 		}
 
+		virtual void put_workflow(json& _dest, const std::string& _name, workflow_field& _src) override
+		{
+			put_field_object<workflow_field, field_types::ft_workflow, workflow_field_options_interface>(_dest, _name, _src);
+		}
 
 		virtual void put_chest(json& _dest, const std::string& _name, chest_field& _src) override
 		{

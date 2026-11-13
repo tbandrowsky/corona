@@ -1089,8 +1089,6 @@ namespace corona
             field_options_base::get_json(_dest);
             json_parser jp;
 
-			json jselection = jp.create_object();
-
 			json jchest = jp.create_object();
 			if (chest_options) {
 				chest_options->get_json(jchest);

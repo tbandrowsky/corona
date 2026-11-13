@@ -3443,9 +3443,14 @@ namespace corona
 			jsymbols.push_back(j);
 		}
 		_dest.put_member("required_symbols", jsymbols);
-		json jproduced = jp.create_object();
-		produced_symbol.get_json(jproduced);
-		_dest.put_member("produced_symbol", jproduced);
+		json jproduced = jp.create_array();
+		for (auto f : produced_symbols) {
+			json j;
+			f.get_json(j);
+			jproduced.push_back(j);
+		}
+		_dest.put_member("produced_symbols", jproduced);
+
 		if (command) {
             json jcommand = jp.create_object();
 			command->get_json(jcommand);
@@ -3466,20 +3471,23 @@ namespace corona
                     required_symbols.push_back(s);
                 }
             }
-			json jproduced_symbol = _src.get_member("produced_symbol");
-			if (jproduced_symbol.object()) {
-				produced_symbol.put_json(jproduced_symbol);
-			}
+
+            json jproduced_symbols = _src.get_member("produced_symbols");
+            if (jproduced_symbols.array()) {
+                for (int i = 0; i < jproduced_symbols.size(); i++) {
+                    json j = jproduced_symbols.get_element(i);
+                    symbol s;
+                    s.put_json(j);
+                    produced_symbols.push_back(s);
+                }
+            }
 
             json jcommand = _src["on_produce"];
 			if (jcommand.object()) {
 				command.reset();
 				corona::put_json(command, jcommand);
-
 			}
 		}
 	}
-
-
 }
 

@@ -547,6 +547,12 @@ namespace corona
 						add(acol.field_id, a);
 					}
 					break;
+				case field_types::ft_workflow:
+					{
+						std::string a = m.to_json_typed();
+						add(acol.field_id, a);
+					}
+					break;
 				case field_types::ft_audio:
 					{
 						std::string a = m.to_json_typed();
@@ -653,6 +659,13 @@ namespace corona
 				}
 				break;
 				case field_types::ft_path:
+				{
+					std::string t = s;
+					json result = jp.parse_object(t);
+					_dest.put_member(acol.field_name.c_str(), result);
+				}
+				break;
+				case field_types::ft_workflow:
 				{
 					std::string t = s;
 					json result = jp.parse_object(t);
