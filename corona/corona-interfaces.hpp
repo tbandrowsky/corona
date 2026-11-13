@@ -3,6 +3,44 @@
 
 namespace corona
 {
+	class corona_bus_command : public json_serializable
+	{
+	public:
+
+	};
+
+    class corona_desktop_bus_command : public corona_bus_command
+	{
+	public:
+		json data;
+		json parameters;
+
+		corona_desktop_bus_command()
+		{
+			json_parser jp;
+			parameters = jp.create_object();
+		}
+
+		virtual json execute(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
+		virtual json execute_sync(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
+
+		virtual void set_parameter(std::string _name, std::string _value)
+		{
+			parameters.put_member_string(_name, _value);
+		}
+
+		virtual void get_json(json& _dest)
+		{}
+
+		virtual void put_json(json& _src)
+		{}
+
+		virtual std::string get_name()
+		{
+			return std::string("command");
+		}
+	};
+
 	class client_class_interface
 	{
 
@@ -234,7 +272,7 @@ namespace corona
 			// that is, if the inventory fits the grammar then the command can be produced.
 			std::vector<symbol>					required_symbols;
 			std::vector<symbol>					produced_symbols; // the symbol that is produced by this command	
-			std::shared_ptr<corona_bus_command> command; // the command that is executed
+			std::shared_ptr<corona_desktop_bus_command> command; // the command that is executed
 
 			production() = default;
 			production(const production& _src) = default;

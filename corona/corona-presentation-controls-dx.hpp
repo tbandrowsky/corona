@@ -1881,7 +1881,7 @@ namespace corona
         textStyleRequest	text_style, icon_style;
         std::string         icon;
         std::string         button_text;
-        std::shared_ptr<corona_bus_command> click_command;
+        std::shared_ptr<corona_desktop_bus_command> click_command;
         std::shared_ptr<image_control> image;
 
         std::string         enable_source_frame;

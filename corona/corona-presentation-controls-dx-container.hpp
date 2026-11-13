@@ -493,7 +493,7 @@ namespace corona
 	protected:
 		void arrange_children();
 		std::string hit_words;
-		std::shared_ptr<corona_bus_command> onload_command;
+		std::shared_ptr<corona_desktop_bus_command> onload_command;
         frame_navigation_stack navigation_stack;
 		std::vector<std::string> edit_bars;
 		validation_error_collection errors;
@@ -705,8 +705,8 @@ namespace corona
 		int selected_page_index;
 		int selected_item_index;
 
-		std::shared_ptr<corona_bus_command> select_command;
-		std::shared_ptr<corona_bus_command> empty_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> empty_command;
 
 		std::string hit_words;
 

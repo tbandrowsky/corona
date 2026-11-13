@@ -26,7 +26,7 @@ For Future Consideration
 namespace corona
 {
 
-	void put_json(std::shared_ptr<corona_bus_command>& _dest, json _src);
+	void put_json(std::shared_ptr<corona_desktop_bus_command>& _dest, json _src);
 
 
 	void get_json(json& _dest, const corona_instance& _src)
@@ -64,7 +64,7 @@ namespace corona
 		}
 	}
 
-	class corona_form_command : public corona_bus_command
+	class corona_form_command : public corona_desktop_bus_command
 	{
 	public:
 
@@ -83,9 +83,9 @@ namespace corona
 
 		corona_client_response response;
 
-		std::shared_ptr<corona_bus_command> on_start;
-		std::shared_ptr<corona_bus_command> on_success;
-		std::shared_ptr<corona_bus_command> on_fail;
+		std::shared_ptr<corona_desktop_bus_command> on_start;
+		std::shared_ptr<corona_desktop_bus_command> on_success;
+		std::shared_ptr<corona_desktop_bus_command> on_fail;
 
 		corona_form_command() 
 		{
@@ -120,7 +120,7 @@ namespace corona
 
         virtual void set_parameter(std::string _name, std::string _value)
 		{
-            corona_bus_command::set_parameter(_name, _value);
+            corona_desktop_bus_command::set_parameter(_name, _value);
 			if (_stricmp(_name.c_str(), "form_name") == 0) {
 				form_name = _value;
 			}
@@ -2584,7 +2584,7 @@ namespace corona
 	class corona_script_command: public corona_form_command
 	{
 	public:
-		std::vector<std::shared_ptr<corona_bus_command>> commands;
+		std::vector<std::shared_ptr<corona_desktop_bus_command>> commands;
 
 		corona_script_command()
 		{
@@ -2654,7 +2654,7 @@ namespace corona
 			if (jcommand_array.array()) {
 				for (auto jcomm : jcommand_array)
 				{
-					std::shared_ptr<corona_bus_command> comm;
+					std::shared_ptr<corona_desktop_bus_command> comm;
 					corona::put_json(comm, jcomm);
 					if (not comm)
 						break;
@@ -3122,14 +3122,14 @@ namespace corona
 		}
 	};
 
-	void get_json(json& _dest, std::shared_ptr<corona_bus_command>& _src)
+	void get_json(json& _dest, std::shared_ptr<corona_desktop_bus_command>& _src)
 	{
 		json_parser jp;
 		_dest = jp.create_object();
 		_src->get_json(_dest);
 	}
 
-	void put_json(std::shared_ptr<corona_bus_command>& _dest, json _src)
+	void put_json(std::shared_ptr<corona_desktop_bus_command>& _dest, json _src)
 	{
 		std::vector<std::string> missing;
 

@@ -214,8 +214,8 @@ namespace corona
 		return cb;
 	}
 
-	void get_json(json& _dest, std::shared_ptr<corona_bus_command>& _src);
-	void put_json(std::shared_ptr<corona_bus_command>& _dest, json _src);
+	void get_json(json& _dest, std::shared_ptr<corona_desktop_bus_command>& _src);
+	void put_json(std::shared_ptr<corona_desktop_bus_command>& _dest, json _src);
 
 	class control_base : public container_control_base
 	{
@@ -290,7 +290,7 @@ namespace corona
 		std::string				class_name = {};
 		bool					wrap_break = false;
 
-		std::shared_ptr<corona_bus_command> onrefresh_command;
+		std::shared_ptr<corona_desktop_bus_command> onrefresh_command;
 
 		std::vector<std::shared_ptr<control_base>> children;
 

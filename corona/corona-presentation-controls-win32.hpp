@@ -333,7 +333,7 @@ namespace corona
 
 		using windows_control::window_host;
 
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		text_control_base()
 		{
@@ -555,7 +555,7 @@ namespace corona
 
 		using windows_control::window_host;
 		table_data choices;
-		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
 
 		table_control_base()
 		{
@@ -676,7 +676,7 @@ namespace corona
 	public:
 		using windows_control::window_host;
 		list_data choices;
-		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
 
 		list_control_base()
 		{
@@ -826,7 +826,7 @@ namespace corona
 
 		using windows_control::window_host;
 		list_data choices;
-		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
 		bool default_first_item = false;
 
 		dropdown_control_base()
@@ -1114,7 +1114,7 @@ namespace corona
 	public:
 		using windows_control::window_host;
 
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		scintilla_control()
 		{
@@ -1282,7 +1282,7 @@ namespace corona
 		std::string icon_path;
 		HICON icon;
 	public:
-		std::shared_ptr<corona_bus_command> click_command;
+		std::shared_ptr<corona_desktop_bus_command> click_command;
 
 		button_control(control_base* _parent, int _id) : text_control_base(_parent, _id), icon(nullptr) { ; }
 		button_control(const button_control& _src) = default;
@@ -1870,7 +1870,7 @@ namespace corona
 		double scaleMax;
 		double scale;
 
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		scrollbar_control(control_base* _parent, int _id) : windows_control(_parent, _id) 
 		{ 
@@ -1981,7 +1981,7 @@ namespace corona
 		int			transfer_point;
 
 	public:
-		std::shared_ptr<corona_bus_command> changed_command;
+		std::shared_ptr<corona_desktop_bus_command> changed_command;
 		std::function<void(richedit_control*)> on_changed;
 
 		richedit_control() { id = id_counter::next(); }
@@ -2102,7 +2102,7 @@ namespace corona
 		date_time current_date;
 		date_time min_date;
 		date_time max_date;
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		void set_text(const std::string& _text);
 		std::string get_text();
@@ -2217,7 +2217,7 @@ namespace corona
 		date_time current_date;
 		date_time min_date;
 		date_time max_date;
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		monthcalendar_control() { id = id_counter::next(); }
 
@@ -2348,7 +2348,7 @@ namespace corona
 		animate_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~animate_control() { ; }
 
-		std::shared_ptr<corona_bus_command> change_command;
+		std::shared_ptr<corona_desktop_bus_command> change_command;
 
 		animate_control() { id = id_counter::next(); }
 
@@ -2388,7 +2388,7 @@ namespace corona
 		treeview_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
 		virtual ~treeview_control() { ; }
 
-		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
 
 		treeview_control() { id = id_counter::next(); }
 
@@ -2418,7 +2418,7 @@ namespace corona
 
 	class header_control : public windows_control
 	{
-		std::shared_ptr<corona_bus_command> select_command;
+		std::shared_ptr<corona_desktop_bus_command> select_command;
 
 	public:
 		header_control(control_base* _parent, int _id) : windows_control(_parent, _id) { ; }
@@ -2567,7 +2567,7 @@ namespace corona
 	{
 		std::shared_ptr<command_button_control>				command_button;
 		std::shared_ptr<combobox_control>					command_dropdown;
-		std::shared_ptr<corona_bus_command>					change_command;
+		std::shared_ptr<corona_desktop_bus_command>					change_command;
 
 		layout_rect											dropdown_layout;
 		list_data											commands_list;

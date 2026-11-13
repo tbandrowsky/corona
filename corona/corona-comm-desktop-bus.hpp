@@ -2259,7 +2259,7 @@ namespace corona
 				if (jcommands.array())
 				{
 					for (auto cmd : jcommands) {
-						std::shared_ptr<corona_bus_command> command;
+						std::shared_ptr<corona_desktop_bus_command> command;
 						corona::put_json(command, cmd);
                         int batch_id = start_batch();
 						if (command) {
@@ -2498,7 +2498,7 @@ namespace corona
 			app_ui->runDialog(hInstance, app->application_name.c_str(), application_icon_id, fullScreen, presentation_layer);
 		}
 
-		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
+		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;
@@ -2508,12 +2508,12 @@ namespace corona
 			}
 		}
 
-		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
+		virtual void run_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;
 
-            std::weak_ptr<corona_bus_command> weak_command = _command;
+            std::weak_ptr<corona_desktop_bus_command> weak_command = _command;
 
 			run_ui([this, _batch_id, weak_command, &tx]() {
 				if (auto _command = weak_command.lock()) {
@@ -2524,7 +2524,7 @@ namespace corona
 				}});
 		}
 
-		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) override
+		virtual void exec_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) override
 		{
 			date_time start_time = date_time::now();
 			timer tx;

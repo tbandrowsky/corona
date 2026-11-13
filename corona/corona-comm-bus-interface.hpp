@@ -23,7 +23,7 @@ For Future Consideration
 namespace corona
 {
 
-	class corona_bus_command;
+	class corona_desktop_bus_command;
 	class control_base;
 
 
@@ -161,8 +161,6 @@ namespace corona
 		virtual bool refresh_ux() = 0;
 		virtual HINSTANCE get_instance() = 0;
 		virtual std::string get_application_name() = 0;
-
-
 
 		virtual void update_focus_list() = 0;
 
@@ -349,9 +347,9 @@ namespace corona
 			return next_batch;
 		}
 
-		virtual void run_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
-		virtual void exec_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
-		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_bus_command> _command) = 0;
+		virtual void run_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) = 0;
+		virtual void exec_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) = 0;
+		virtual void run_system_command(int _batch_id, std::shared_ptr<corona_desktop_bus_command> _command) = 0;
 
 		virtual void set_properties(json_object _src) = 0;
 
@@ -448,40 +446,6 @@ namespace corona
 
 	comm_desktop_bus_interface* comm_desktop_bus_interface::global_bus = nullptr;
 
-	class corona_bus_command : public json_serializable
-	{
-
-	public:
-		json data;
-		json parameters;
-
-		corona_bus_command()
-		{
-			json_parser jp;
-            parameters = jp.create_object();
-		}
-
-		virtual json execute(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
-		virtual json execute_sync(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
-
-		virtual void set_parameter(std::string _name, std::string _value)
-		{
-            parameters.put_member_string(_name, _value);
-		}
-
-		virtual void get_json(json& _dest)
-		{
-		}
-
-		virtual void put_json(json& _src)
-		{
-		}
-
-		virtual std::string get_name()
-		{
-			return std::string("command");
-		}
-	};
 
 }
 

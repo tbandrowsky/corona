@@ -3303,8 +3303,8 @@ namespace corona
 			std::shared_ptr<reload_command> reload_c = std::make_shared<reload_command>();
 			std::shared_ptr<drop_command> drop_c = std::make_shared<drop_command>();
 
-			std::shared_ptr<corona_bus_command> on_all_players_ready;
-			std::shared_ptr<corona_bus_command> on_all_players_dead;
+			std::shared_ptr<corona_desktop_bus_command> on_all_players_ready;
+			std::shared_ptr<corona_desktop_bus_command> on_all_players_dead;
 
 			game_factory factories;
 			corona::selection_commands::command_collection selection_rules;
