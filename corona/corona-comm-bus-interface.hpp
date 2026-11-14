@@ -112,6 +112,8 @@ namespace corona
 
 	};
 
+
+
     class comm_desktop_bus_interface : public comm_bus_interface
 	{
 
@@ -445,6 +447,45 @@ namespace corona
 	};
 
 	comm_desktop_bus_interface* comm_desktop_bus_interface::global_bus = nullptr;
+
+
+	class corona_server_bus_command : public corona_bus_command
+	{
+	public:
+
+	};
+
+	class corona_desktop_bus_command : public corona_bus_command
+	{
+	public:
+		json data;
+		json parameters;
+
+		corona_desktop_bus_command()
+		{
+			json_parser jp;
+			parameters = jp.create_object();
+		}
+
+		virtual json execute(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
+		virtual json execute_sync(int _batch_id, comm_desktop_bus_interface* _bus) = 0;
+
+		virtual void set_parameter(std::string _name, std::string _value)
+		{
+			parameters.put_member_string(_name, _value);
+		}
+
+		virtual void get_json(json& _dest)
+		{}
+
+		virtual void put_json(json& _src)
+		{}
+
+		virtual std::string get_name()
+		{
+			return std::string("command");
+		}
+	};
 
 
 }

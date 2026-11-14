@@ -2715,6 +2715,4 @@ namespace corona
 
 	};
 
-
-
 }
