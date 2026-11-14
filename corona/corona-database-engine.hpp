@@ -7739,6 +7739,22 @@ grant_type=authorization_code
 				});
 		}
 
+		virtual json run_command(json command_request) override
+		{
+			return corona_function("run_command", command_request,
+				[this](json data, std::string user_name, std::string user_auth, validation_error_collection& errors) {
+					return this->run_command_impl(data, user_name, user_auth, errors);
+				});
+		}
+
+		virtual json run_command_impl(json data, std::string user_name, std::string user_auth, validation_error_collection& errors) 
+		{
+
+		}
+
+		virtual json run_command_impl(std::shared_ptr<corona_server_bus_command> _command, std::string user_name, std::string user_auth, validation_error_collection& errors)
+		{
+		}
 
 		private:
 

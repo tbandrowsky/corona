@@ -9,6 +9,12 @@ namespace corona
 
 	};
 
+	class corona_server_bus_command : public corona_bus_command
+	{
+	public:
+
+	};
+
     class corona_desktop_bus_command : public corona_bus_command
 	{
 	public:

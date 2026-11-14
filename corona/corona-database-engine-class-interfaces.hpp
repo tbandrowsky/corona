@@ -195,6 +195,7 @@ namespace corona {
 		virtual json add_item_chest(json add_to_chest_request) = 0;
 		virtual json remove_item_chest(json remove_from_chest_request) = 0;
 		virtual json move_item_chest(json move_chest_request) = 0;
+		virtual json run_command(json command_request) = 0;
 
 		virtual json select_object(std::string _class_name, int64_t _object_id, class_permissions _permissions) = 0;
 		virtual json select_object(json _key, bool _include_children, class_permissions _permissions) = 0;
