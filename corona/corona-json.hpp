@@ -2369,7 +2369,7 @@ namespace corona
 			return _dest;
 		}
 
-		bool has_members(const std::vector<std::string>& _src)
+		bool has_members(const std::vector<std::string>& _src) const
 		{
             auto obj = object_impl();
 
@@ -2388,7 +2388,7 @@ namespace corona
 			return true;
 		}
 
-		bool has_members(std::vector<std::string>& _missing, const std::vector<std::string>& _src)
+		bool has_members(std::vector<std::string>& _missing, const std::vector<std::string>& _src) const
 		{
 			auto obj = object_impl();
 
@@ -3112,7 +3112,7 @@ namespace corona
 			set(_member.value_base);
 		}
 
-		bool has_member(std::string _key)
+		bool has_member(std::string _key) const
 		{
 			bool has_value = !_key.empty() and object_impl() and object_impl()->has_member(_key);
 			return has_value;

@@ -25,7 +25,7 @@ namespace corona
 		std::vector<std::shared_ptr<client_class_interface>> classes;
         json            cooked_data;
 
-		void set(json& response)
+		void set(json response)
 		{
 			success = response[success_field].as_bool();
 			message = response[message_field].as_string();
@@ -45,7 +45,13 @@ namespace corona
             }
 		}
 
-		corona_client_response& operator = (json& response)
+		corona_client_response& operator = (const json& response)
+		{
+			set(response);
+			return *this;
+		}
+
+		corona_client_response& operator = (json response)
 		{
 			set(response);
 			return *this;

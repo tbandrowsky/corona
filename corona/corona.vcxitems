@@ -32,6 +32,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-class-implementation.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-class-interfaces.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-engine-field-implementation.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)corona-database-object.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-express-record.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-gaming-2d.hpp" />
     <ClInclude Include="$(MSBuildThisFileDirectory)corona-interfaces.hpp" />

@@ -11,7 +11,7 @@ namespace corona
 	namespace game
 	{
 
-		class piece_code : public corona_data_object
+		class piece_code : public corona_object
 		{
 		public:
 			std::string piece_code;
@@ -21,7 +21,8 @@ namespace corona
 			virtual void get_json(json& _dest) const
 			{
 				json_parser jp;
-				corona_data_object::get_json(_dest);
+
+				corona_object::get_json(_dest);
 				_dest.put_member("piece_code", piece_code);
 				_dest.put_member("piece_class", piece_class);
 				_dest.put_member("piece_type", piece_type);
@@ -29,7 +30,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
                 piece_code = _src["piece_code"].as_string();
                 piece_class = _src["piece_class"].as_string();
                 piece_type = _src["piece_type"].as_string();
@@ -37,7 +38,7 @@ namespace corona
 
 		};
 
-		class piece_base : public corona_data_object {
+		class piece_base : public corona_object {
 		public:
 			piece_base() {
 				class_name = "piece";
@@ -54,7 +55,7 @@ namespace corona
 			DirectX::XMVECTOR velocity = {};
 			DirectX::XMVECTOR facing = {};
 
-			std::shared_ptr<chest_field> inventory;
+			std::shared_ptr<workflow_field> workflow;
 			object_reference owner;
 
 			double		mass = 1.0;
@@ -92,8 +93,49 @@ namespace corona
 				position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(velocity, static_cast<float>(_delta)));
 			}
 
+			virtual void get_json(json& _dest) const
+			{
+				json_parser jp;
+
+                _dest.put_member("name", name);
+                _dest.put_member("state", state);
+                _dest.put_member("mass", mass);
+                _dest.put_member("full_health", full_health);
+                _dest.put_member("health", health);
+                _dest.put_member("state_time", state_time);
+                _dest.put_member("remove", remove);
+                _dest.put_member("position", position);
+                _dest.put_member("size", size);
+                _dest.put_member("velocity", velocity);
+                _dest.put_member("facing", facing);
+
+				corona_object::get_json(_dest);
+			}
+
+			virtual void put_json(json& _src)
+			{
+				corona_object::put_json(_src);
+
+				name = _src["name"].as_string();
+				state = _src["state"].as_string();
+				position = _src["position"].as_vector();
+				size = _src["size"].as_vector();
+				velocity = _src["velocity"].as_vector();
+				facing = _src["facing"].as_vector();
+
+				mass = _src["mass"].as_double();
+				full_health = _src["full_health"].as_double();
+				health = _src["health"].as_double();
+				remove = _src["remove"].as_bool();
+				state_time = _src["state_time"].as_double();
+
+				std::shared_ptr<chest_field> inventory;
+				object_reference owner;
+
+			}
+
 		};
-		
+
 		class adventure_app_interface : public adventure_interface {
 		public:
 
@@ -127,7 +169,7 @@ namespace corona
 			intersection_side	collision_side;
 		};
 
-		class activity : public corona_data_object
+		class activity : public corona_object
 		{
 		public:
 			std::string			name;
@@ -146,7 +188,8 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
+
                 _dest.put_member("name", name);
                 _dest.put_member("description", description);
 				auto jbm = jp.create_object();
@@ -156,7 +199,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				json jbm = _src["image"];
 				bitmap.put_json(jbm);
@@ -183,7 +226,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("description", description);
 				auto jbm = jp.create_object();
@@ -193,7 +236,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				json jbm = _src["image"];
 				bitmap.put_json(jbm);
@@ -203,7 +246,7 @@ namespace corona
 
 		};
 
-		class timepoint_change : public corona_data_object
+		class timepoint_change : public corona_object
 		{
 		public:
 
@@ -219,12 +262,12 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 			}
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 			}
 		};
 
@@ -254,7 +297,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				new_value = to_object(_src["new_value"]);
                 frame_name = _src["frame_name"].as_string();
@@ -327,7 +370,7 @@ namespace corona
 			}
 		};
 
-		class timepoint : public corona_data_object
+		class timepoint : public corona_object
 		{
 		public:
 
@@ -346,7 +389,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 
                 _dest.put_member("elapsed_seconds", elapsed_seconds);
                 json jchanges = jp.create_array();
@@ -361,7 +404,7 @@ namespace corona
 
 			virtual void put_json(timepoint_change_factory& _tpf, json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 				elapsed_seconds = _src["elapsed_seconds"].as_double();
 				changes.clear();
                 json jchanges = _src["changes"];
@@ -377,7 +420,7 @@ namespace corona
 
 		};
 
-		class frame : public corona_data_object
+		class frame : public corona_object
 		{
 		public:
 			std::string			name;
@@ -401,7 +444,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("position", position);
 				_dest.put_member("rotation", rotation);
@@ -411,7 +454,7 @@ namespace corona
 
 			virtual void put_json(json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 				name = _src["name"].as_string();
 				position = _src["position"].as_vector();
 				rotation = _src["rotation"].as_double();
@@ -765,7 +808,7 @@ namespace corona
 
 		};
 
-		class animation : public corona_data_object
+		class animation : public corona_object
 		{
 		public:
             std::string										name;
@@ -809,7 +852,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
 				destination = _src["destination"].as_rectangle();
@@ -871,7 +914,7 @@ namespace corona
 
 			virtual void get_json(json& _dest) const
 			{
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 				_dest.put_member("name", name);
 				_dest.put_member("destination", destination);
 				_dest.put_member("direction", direction);
@@ -903,7 +946,7 @@ namespace corona
 
 		};
 
-		class piece_type : public corona_data_object
+		class piece_type : public corona_object
 		{
 
 		public:
@@ -931,7 +974,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 
 				_dest.put_member("name", name);
 				_dest.put_member("description", description);
@@ -961,7 +1004,7 @@ namespace corona
 
 			virtual void put_json(animation_factory& _factory, json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
 				description = _src["description"].as_string();
@@ -1043,7 +1086,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 
 				_dest.put_member("name", name);
 				_dest.put_member("state", state);
@@ -1074,7 +1117,7 @@ namespace corona
 
 			virtual void put_json(animation_factory& _factory, json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 
 				remove = false;
 				name = _src["name"].as_string();
@@ -1161,7 +1204,7 @@ namespace corona
 		using piece_collection = std::map<object_reference, std::shared_ptr<piece>>;
 		using piece_collection_iterator = std::map<object_reference, std::shared_ptr<piece>>::iterator;
 
-		class piece_list : public corona_data_object
+		class piece_list : public corona_object
 		{
 		public:
 			piece_list() {
@@ -1179,7 +1222,7 @@ namespace corona
 			{
 				json_parser jp;
 
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 				_dest.put_member("state", state);
 				json j = jp.create_array();
 				for (const auto& [id, p] : pieces) {
@@ -1192,7 +1235,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 				state = _src["state"].as_string();
                 json jpieces = _src["pieces"];
 				if (jpieces.array()) {
@@ -1787,12 +1830,12 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-				corona_data_object::get_json(_dest);
+				corona_object::get_json(_dest);
 			}
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-				corona_data_object::put_json(_src);
+				corona_object::put_json(_src);
 			}
 
 		};
@@ -2324,7 +2367,7 @@ namespace corona
 			}
 		};
 
-        class set : public corona_data_object
+        class set : public corona_object
 		{
 		public:
 
@@ -2374,7 +2417,7 @@ namespace corona
 
 			virtual void get_json(json& _dest)
 			{
-                corona_data_object::get_json(_dest);
+                corona_object::get_json(_dest);
 
 				_dest.put_member("name", name);
                 _dest.put_member("description", description);
@@ -2412,7 +2455,7 @@ namespace corona
 
 			virtual void put_json(game_factory& _gbus, json& _src)
 			{
-                corona_data_object::put_json(_src);
+                corona_object::put_json(_src);
 
 				name = _src["name"].as_string();
                 description = _src["description"].as_string();
