@@ -117,6 +117,31 @@ namespace corona
 		std::shared_ptr<xtable> classes;
 		bool trace_check_class = false;
 
+		using fn_create_object = std::function<std::shared_ptr<corona_object_interface>(corona_database_interface* _db, json& _src)>;
+
+		std::map<std::string, fn_create_object> object_factory;
+
+	public:
+
+		void register_constructor(std::string _class_name, fn_create_object _constructor)
+		{
+			object_factory[_class_name] = _constructor;
+		}
+
+		template <typename T>
+		std::shared_ptr<T> construct_as(json _data)
+		{
+			std::shared_ptr<T> temp;
+
+			auto co = construct(_data);
+			temp = std::dynamic_pointer_cast<T>(co);
+			return temp;
+		}
+
+		std::shared_ptr<corona_object_interface> construct(json _data);
+
+	private:
+
 		using corona_method_implementation = std::function<json(json obj, std::string user_name, std::string user_auth, validation_error_collection& _errors)>;
 
 		json corona_function(const std::string& _function_name, json request_message, corona_method_implementation fn)

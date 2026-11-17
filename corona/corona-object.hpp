@@ -124,53 +124,13 @@ namespace corona
         }
     };
 
-    class corona_user_context
-    {
-    public:
-        json user_token;
-        corona_database* database;
-
-        corona_user_context()
-        {
-            database = nullptr;
-        }
-        corona_user_context(json _user_token, corona_database* _database)
-        {
-            user_token = _user_token;
-            database = _database;
-        }
-        corona_user_context(const corona_user_context& _other)
-        {
-            user_token = _other.user_token;
-            database = _other.database;
-        }
-        corona_user_context(corona_user_context&& _other)
-        {
-            user_token = std::move(_other.user_token);
-            database = _other.database;
-            _other.database = nullptr;  
-        }
-        corona_user_context& operator =(const corona_user_context& _other)
-        {
-            user_token = _other.user_token;
-            database = _other.database;
-            return *this;
-        }
-        corona_user_context& operator =(corona_user_context&& _other)
-        {
-            user_token = std::move(_other.user_token);
-            database = _other.database;
-            _other.database = nullptr;
-            return *this;
-        }
-
-    };
-
     class corona_object : public corona_object_interface
     {
         json_object data;
 
     public:
+
+       corona_database* db = nullptr;
 
        corona_object() = default;
        corona_object(const corona_object& _src) = default;
@@ -178,17 +138,15 @@ namespace corona
        corona_object& operator =(const corona_object& _src) = default;
        corona_object& operator =(corona_object&& _src) = default;
 
-       corona_object(corona_user_context _context) : context(_context)
+       corona_object(corona_database *_db) : db(_db)
        {
 
        }
 
-       corona_object(corona_user_context _context, json_object _data) : context(_context), data(_data)
+       corona_object(corona_database* _db, json_object _data) : db(_db), data(_data)
        {
 
        }
-
-       corona_user_context context;
 
        virtual void get_json(json& _dest) const
        {
@@ -267,23 +225,6 @@ namespace corona
            return t;
        }
 
-       virtual corona_client_response save(corona_instance instance)
-       {
-            corona_client_response response;
-
-            json_parser jp;
-            json request = jp.create_object();
-            json request_body = jp.create_object();
-            get_json(request_body);
-
-            request.put_member(token_field, context.user_token);
-            request.put_member(data_field, request_body);
-
-            json jresponse = context.database->put_object(request);
-       
-            return response;
-       }
-
        virtual std::shared_ptr<corona_object_interface> clone() const
        {
            json_parser jp;
@@ -292,15 +233,6 @@ namespace corona
            auto p = std::make_shared<corona_object>(*this);
            p->put_json(body);
            return p;
-       }
-
-       template <typename T>
-       std::shared_ptr<T> copy_as(corona_instance instance)
-       {
-           std::shared_ptr<T> result;
-           std::shared_ptr<corona_object_interface> obj = copy(instance);
-           result = std::dynamic_pointer_cast<T>(obj);
-           return result;
        }
 
        std::string get_string(std::string _field_name)
@@ -360,42 +292,42 @@ namespace corona
 
        std::shared_ptr<workflow_field> get_workflow(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_workflow(data, _field_name); 
            return wf;
        }
 
        std::shared_ptr<chest_field> get_chest(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_chest(data, _field_name);
            return wf;
        }
 
        std::shared_ptr<selection_field> get_selection(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_selection(data, _field_name);
            return wf;
        }
 
        std::shared_ptr<pathDto> get_path(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_path(data, _field_name);
            return wf;
        }
 
        std::shared_ptr<bitmapInstanceDto> get_bitmap(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_bitmap(data, _field_name);
            return wf;
        }
 
        std::shared_ptr<generalBrushRequest> get_brush(std::string _field_name)
        {
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            auto wf = classd->get_brush(data, _field_name);
            return wf;
        }
@@ -403,35 +335,35 @@ namespace corona
        void put_workflow(std::string _field_name, std::shared_ptr<workflow_field> _workflow)
        {
            json jdata = to_object(data);
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            classd->put_workflow(jdata, _field_name, _workflow);
        }
 
        void put_chest(std::string _field_name, std::shared_ptr<chest_field> _chest)
        {
            json jdata = to_object(data);
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            classd->put_chest(jdata, _field_name, _chest);
        }
 
        void put_selection(std::string _field_name, std::shared_ptr<selection_field> _selection)
        {
            json jdata = to_object(data);
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            classd->put_selection(jdata, _field_name, _selection);
        }
 
        void put_path(std::string _field_name, std::shared_ptr<pathDto> _path)
        {
            json jdata = to_object(data);
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            classd->put_path(jdata, _field_name, _path);
        }
 
        void put_bitmap(std::string _field_name, std::shared_ptr<bitmapInstanceDto> _bitmap)
        {
            json jdata = to_object(data);
-           auto classd = context.database->read_lock_class(class_name);
+           auto classd = db->read_lock_class(class_name);
            classd->put_bitmap(jdata, _field_name, _bitmap);
        }
 
@@ -601,166 +533,30 @@ namespace corona
         }
     };
 
+    // T must derive from Base (or be Base itself)
+    template<typename T>
+    concept is_corona_object = std::derived_from<T, corona_object>;
 
-    template <typename T> class corona_object_factory
+    std::shared_ptr<corona_object_interface> corona_database::construct(json _data)
     {
+        std::shared_ptr<corona_object> result;
 
-        using fn_create_object = std::function<std::shared_ptr<T>(json& _src, comm_bus_interface* _bus)>;
-
-        std::map<std::string, fn_create_object> factory_map;
-        lockable factory_lock;
-
-        comm_bus_interface* bus;
-        std::map<std::string, json> class_cache;
-        corona_instance instance = corona_instance::local;
-
-    public:
-        corona_object_factory() noexcept : bus(nullptr) {
-        }
-        
-        corona_object_factory(comm_bus_interface* _bus) noexcept {
-            bus = _bus;
-        }
-        corona_object_factory(const corona_object_factory& _src) = default;
-        corona_object_factory(corona_object_factory&& _src) = default;
-        corona_object_factory& operator =(const corona_object_factory& _src) = default;
-        corona_object_factory& operator =(corona_object_factory&& _src) = default;
-
-        void register_class(std::string _class_name, fn_create_object _ctor)
+        if (_data.object())
         {
-            scope_lock lock(factory_lock);
-            factory_map.insert_or_assign(_class_name, _ctor);
-        }
+            std::string class_name = _data["class_name"].as_string();
+            auto ctor = object_factory.find(class_name);
 
-        // you can do this before or after register classes
-        // but, it is best to do it after, so that you can register the classes first, and then get the list of classes from the bus.
-        // and someday we want to filter this so that it is just the classes and descendants 
-        // of a particular item, so the corona api will have be tweaked to allow this.
-        virtual void init(corona_instance _instance)
-        {
-            if (instance != _instance) {
-                class_cache.clear();
-            }
-
-            if (class_cache.size() > 0) {
-                return;
-            }
-
-            auto result = bus->get_classes(_instance);
-            if (!result.success) {
-                bus->log_warning(result.message, __FILE__, __LINE__);
-                throw std::runtime_error(result.message);
-            }
-
-            if (result.data.array()) {
-                for (int i = 0; i < result.data.size(); i++) {
-                    auto jclass = result.data.get_element(i);
-                    if (!jclass.object()) {
-                        continue;
-                    }
-                    std::string class_name = jclass[class_name_field].as_string();
-                    if (!class_name.empty()) {
-                        class_cache[class_name] = jclass;
-                    }
-                }
-            }
-        }
-
-        template <typename U = T>
-        std::shared_ptr<U> get_object(corona_instance _instance, std::string class_name, int64_t object_id, bool include_children)
-        {
-            std::shared_ptr<U> result;
-            json_parser jp;
-
-            if (class_name.empty() || object_id <= 0 || !factory_map.contains(class_name)) {
-                return result;
-            }
-
-            json request = jp.create_object();
-            request.put_member(class_name_field, class_name);
-            request.put_member_i64(object_id_field, object_id);
-            request.put_member("include_children", include_children);
-
-            auto ccr = bus->get_object(_instance, request);
-
-            if (ccr.success) {
-                result = create_object<U>(ccr.data);
-            }
-
-            return result;
-        }
-
-        template<typename U = T> 
-        std::shared_ptr<U> get_object(object_reference& ref, bool _children)
-        {
-            auto obj = get_object<U>(instance, ref.class_name, ref.object_id, false);
-            return obj;
-        }
-
-        template <typename U=T> 
-        std::shared_ptr<U> create_object(json ji)
-        {
-            scope_lock lock(factory_lock);
-            std::shared_ptr<U> sp;
-
-            if (ji.object()) {
-                std::string class_name = ji[class_name_field].as_string();
-
-                auto foundit = factory_map.find(class_name);
-                if (foundit != std::end(factory_map)) {
-                    auto p = foundit->second(ji, bus);
-                    sp = std::dynamic_pointer_cast<U>(p);
-                    if (sp) {
-                        if constexpr ( std::is_base_of_v<corona_object, U>) {
-                            sp->bus = bus;
-                        }
-                    }
-                }
-            }
-            return sp;
-        }
-
-        template <typename U = T>
-        std::shared_ptr<U> create_object(std::string class_name)
-        {
-            scope_lock lock(factory_lock);
-            std::shared_ptr<U> sp;
-
-            auto foundit = factory_map.find(class_name);
-            if (foundit != std::end(factory_map)) {
-                json_parser jp;
-                json ji = jp.create_object();
-                ji.put_member("class_name", class_name);
-                auto p = foundit->second(ji, bus);
-                sp = std::dynamic_pointer_cast<U>(p);
-            }
-            return sp;
-        }
-
-        template <typename U=T>
-        std::vector<std::shared_ptr<U>> create_array(json j)
-        {
-            scope_lock lock(factory_lock);
-            std::vector<std::shared_ptr<T>> object_list;
-
-            if (j.array()) 
+            if (ctor != object_factory.end())
             {
-                for (int i = 0; i < j.size(); i++) 
-                {
-                    auto ji = j.get_element(i);
-
-                    if (ji.object()) 
-                    {
-                        auto obj = create_object<U>(ji);
-                        if (obj) {
-                            object_list.push_back(obj);
-                        }
-                    }
-                }
+                auto f = ctor->second(this, _data);
+                result = std::dynamic_pointer_cast<corona_object>(f);
             }
-
-            return object_list;
+            else
+            {
+                result = std::make_shared<corona_object>(this, _data);
+            }
         }
-    };
+        return result;
+    }
 
 }

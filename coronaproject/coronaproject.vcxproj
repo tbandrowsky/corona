@@ -719,6 +719,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <None Include="configuration\schemas\holiday_game\sys_styles.json" />
     <None Include="configuration\schemas\revolution_journal\sys_config.json" />
     <None Include="configuration\schemas\revolution_journal\sys_pages.json" />
     <None Include="configuration\schemas\revolution_journal\sys_schema.json" />

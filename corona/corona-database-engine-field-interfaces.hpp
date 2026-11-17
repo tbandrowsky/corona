@@ -818,6 +818,16 @@ namespace corona
 			selection.create(_item);
 		}
 
+		void select_next()
+		{
+			;
+		}
+
+		void select_previous()
+		{
+			;
+		}
+
 		void extend(const object_reference& _item)
 		{
 			selection.extend(_item);

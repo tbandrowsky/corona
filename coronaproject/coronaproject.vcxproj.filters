@@ -85,5 +85,6 @@
     <None Include="configuration\schemas\revolution_training\sys_pages.json" />
     <None Include="configuration\schemas\revolution_training\sys_schema.json" />
     <None Include="configuration\schemas\revolution_training\sys_styles.json" />
+    <None Include="configuration\schemas\holiday_game\sys_styles.json" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,8 @@
 
 namespace corona {
 
+
+
 	class class_interface : public shared_lockable, public class_interface_base
 	{
 	protected:
@@ -126,9 +128,13 @@ namespace corona {
 		virtual void on_frame(json& _commands) = 0;
 	};
 
+
 	class corona_database_interface
 	{
+
 	protected:
+
+
 
 	public:
 
@@ -205,6 +211,7 @@ namespace corona {
 		virtual json save_class(class_interface* _class_to_save) = 0;
 		virtual bool check_message(json& _message, std::vector<std::string> _authorizations, std::string& _user_name, std::string& _token_authority) = 0;
 		virtual json get_openapi_schema(std::string _user_name) = 0;
+
 
 	};
 
