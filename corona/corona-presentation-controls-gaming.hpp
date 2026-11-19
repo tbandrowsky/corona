@@ -81,14 +81,14 @@ namespace corona
 			return std::dynamic_pointer_cast<corona::game::adventure_interface>(current_session); 
 		}
 
-		std::shared_ptr<corona::game::adventure_app_interface> set_session(std::shared_ptr<corona::game::adventure_app_interface>& _session)
+		std::shared_ptr<corona::game::adventure_interface> set_session(std::shared_ptr<corona::game::adventure_interface>& _session)
 		{ 
 			if (current_session) {
 				current_session->set_exit();
             }
 			auto session = current_session;
-			current_session = std::dynamic_pointer_cast<corona::game::adventure_base>(_session); 
-			return session;
+			current_session = std::dynamic_pointer_cast<corona::game::adventure_base>(_session);
+			return std::dynamic_pointer_cast<corona::game::adventure_interface>(session);
 		}
 
 		virtual void on_update(double _time)
@@ -354,7 +354,7 @@ namespace corona
 		auto ctrl = _bus->find_control(form_name);
 		auto session_control = dynamic_cast<adventure_control*>(ctrl);
 		auto temp = session_control->get_session();
-		session = std::dynamic_pointer_cast<corona::game::adventure_app_interface>(temp);
+		session = std::dynamic_pointer_cast<corona::game::adventure_interface>(temp);
 		return obj;
 	}
 

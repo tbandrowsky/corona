@@ -1326,37 +1326,15 @@ namespace corona
 					if (member.second.array()) {
                         for (int i = 0; i < member.second.size(); i++) 
 						{
-                            auto piece_json = member.second[i];
+                            auto piece_json = member.second.get_element(i);
                             auto piece_ptr = std::make_shared<piece>();
                             piece_ptr->put_json(piece_json);
-                            sets[member.first]->add_piece(piece_ptr);
+							auto key = piece_ptr->to_reference();
+							sets[member.first]->pieces[key] = piece_ptr;
                         }
 					}
 				}
 			}
-
-			std::string get_state()
-			{
-				if (state.empty()) {
-					if (sets.size() > 0) {
-						state = sets[0]->state;
-					}
-				}
-				else {
-					for (int i = 0; i < sets.size(); i++) {
-						if (sets[i]->state == state) {
-							int next_index = i;
-							do {
-								next_index = (i + 1) % sets.size();
-							} while (next_index != i && sets[next_index]->state == state);
-							state = sets[next_index]->state;
-							break;
-						}
-					}
-				}
-				return state;
-			}
-
 		};
 
 		class door : public feature
@@ -1979,7 +1957,7 @@ namespace corona
 
 			virtual void select_next();
 			virtual void select_previous();
-			virtual void extend_selection(chest_item* _ci);
+			virtual void extend_selection(object_reference rf);
 			virtual void clear_selection();
 
 			virtual std::shared_ptr<piece> fire();
@@ -2070,9 +2048,9 @@ namespace corona
 				actor::get_json(_dest);
 			}
 
-			virtual void put_json(game_factory& _gbus, json& _src)
+			virtual void put_json(json& _src)
 			{
-				actor::put_json(_gbus, _src);
+				actor::put_json(_src);
 			}
 		};
 
@@ -2226,7 +2204,7 @@ namespace corona
 				}
 			}
 
-			virtual void construct(adventure_app_interface& _gbus)
+			virtual void construct(adventure_interface& _gbus)
 			{
                 current->pieces.clear();
 
@@ -2617,82 +2595,31 @@ namespace corona
 			return result;
 		}
 
-		/// gets called when a piece is used by a player.  default impl does nothing, and use is like a blah verb.
-		/// </summary>
-		/// <param name="_game"></param>
-		/// <param name="_user"></param>
-		void piece::use(adventure_app_interface* _game, piece* _user)
-		{
-
-		}
-
 		void actor::select_next()
 		{
-			selection->clear();
-			if (selection && inventory) {
-				auto selected = selection->selections.begin();
-				if (selected != std::end(selection->selections)) {
-                    auto iter = inventory->items.upper_bound(selected->first);
-					if (iter != std::end(inventory->items)) {
-						selection->extend(iter->second.reference);
-					}
-				}
-				else 
-				{
-                    auto default_item = inventory->items.begin();
-					if (default_item != std::end(inventory->items)) {
-						selection->extend(default_item->second.reference);
-					}
-				}
-			}
+			workflow->select_next();
 		}
 
 		void actor::select_previous()
 		{
-			selection->clear();
-			if (selection && inventory) {
-				auto selected = selection->selections.begin();
-				if (selected != std::end(selection->selections)) {
-					auto iter = inventory->items.lower_bound(selected->first);
-					if (iter != std::end(inventory->items)) {
-                        auto reverse_iter = std::make_reverse_iterator(iter);
-						reverse_iter++;
-                        if (reverse_iter != std::rend(inventory->items)) {
-							selection->extend(reverse_iter->second.reference);
-						}
-					}
-				}
-				else
-				{
-					auto default_item = inventory->items.begin();
-					if (default_item != std::end(inventory->items)) {
-						selection->extend(default_item->second.reference);
-					}
-				}
-			}
+			workflow->select_previous();
 		}
 
-		void actor::extend_selection(chest_item* _ci)
+		void actor::extend_selection(object_reference rf)
 		{
-			if (selection && _ci)
-			{
-				selection->extend(_ci->reference);
-			}
+			workflow->extend(rf);
 		}
 
 		void actor::clear_selection()
 		{
-			if (selection)
-			{
-				selection->clear();
-			}
+            workflow->clear();
 		}
 
 		void top_down_adventure::create_stage()
 		{
 			if (stage) 
 			{
-				stage->construct(*this);
+				stage->construct();
 			}
 		}
 

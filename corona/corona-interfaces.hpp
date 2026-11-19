@@ -51,12 +51,6 @@ namespace corona
 			return *this;
 		}
 
-		corona_client_response& operator = (json response)
-		{
-			set(response);
-			return *this;
-		}
-
 		corona_client_response& operator = (http_params& _params)
 		{
 			json_parser jp;

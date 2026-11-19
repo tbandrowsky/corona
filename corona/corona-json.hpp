@@ -3176,7 +3176,7 @@ namespace corona
 			return get_element(array_impl()->size() - 1);
 		}
 
-		json get_element(int _index)
+		json get_element(int _index) const
 		{
 			json t;
 			if (array_impl()) {
@@ -4741,7 +4741,7 @@ namespace corona
 			return new_object;
 		}
 
-		int size() 
+		int size() const
 		{
 			if (object_impl())
 				return object_impl()->members.size();
