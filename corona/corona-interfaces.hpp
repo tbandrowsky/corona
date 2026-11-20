@@ -204,6 +204,7 @@ namespace corona
 			virtual void get_json(json& _dest) = 0;
 			virtual void put_json(json& _src) = 0;
 			virtual job* get_next_job() = 0;
+
 		};
 
 		class engine_interface

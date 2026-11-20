@@ -1449,6 +1449,105 @@ namespace corona
 
 			created_classes.put_member("sys_team", true);
 
+
+			response = create_class(R"(
+{
+	"class_name" : "sys_model",
+	"base_class_name" : "sys_object",
+	"class_description" : "Model",
+	"fields" : {
+			"model_name" :  {
+				"field_name:" : "model_name",
+				"field_type" : "string",
+				"label":"Model Name"
+			},
+			"model_description" :  {
+				"field_name:" : "model_description",
+				"field_type" : "string",		
+				"label":"Model Description"
+			}
+	},
+	"field_order" : ["model_name", "model_description"],
+	"indexes" : {
+        "sys_model_name": {
+          "index_keys": [ "model_name" ]
+        }
+	}
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class sys_model put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				std::cout << response.to_json() << std::endl;
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_model"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_model after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_model", true);
+
+
+			response = create_class(R"(
+{
+	"class_name" : "sys_model_run",
+	"base_class_name" : "sys_object",
+	"class_description" : "Model Run",
+	"fields" : {
+			"model_name" :  {
+				"field_name:" : "model_name",
+				"field_type" : "string",
+				"label":"Model Name"
+			},
+			"model_description" :  {
+				"field_name:" : "model_description",
+				"field_type" : "string",		
+				"label":"Model Description"
+			},
+			"run_name" :  {
+				"field_name:" : "run_name",
+				"field_type" : "string",
+				"label":"Run Name"
+			},
+			"run_description" :  {
+				"field_name:" : "run_description",
+				"field_type" : "string",		
+				"label":"Run Description"
+			}
+	},
+	"field_order" : ["model_name", "model_description", "run_name", "run_description"],
+	"indexes" : {
+        "sys_model_run_name": {
+          "index_keys": [ "run_name" ]
+        }
+	}
+}
+)");
+
+			if (response[success_field].as_bool() == false) {
+				system_monitoring_interface::active_mon->log_warning("create_class sys_model_run put failed", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_json<json>(response);
+				std::cout << response.to_json() << std::endl;
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			test = classes->get(R"({"class_name":"sys_model_run"})"_jobject);
+			if (test.empty() or test.error()) {
+				system_monitoring_interface::active_mon->log_warning("could not find class sys_model_run after creation.", __FILE__, __LINE__);
+				system_monitoring_interface::active_mon->log_job_stop("create_database", "failed", tx.get_elapsed_seconds(), 1, __FILE__, __LINE__);
+				return result;
+			}
+
+			created_classes.put_member("sys_model_run", true);
+
+
 			response = create_class(R"(
 {
 	"class_name" : "sys_dataset",

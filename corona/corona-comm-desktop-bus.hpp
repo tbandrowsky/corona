@@ -2580,14 +2580,6 @@ namespace corona
 			local_audio_synth.play(_generator, _volume, _duration);
 		}
 
-		std::shared_ptr<game::game_factory> get_game_factory()
-		{
-			auto game_engine = std::dynamic_pointer_cast<game::engine>(local_gaming);
-			if (game_engine) {
-				return game_engine->get_factory();
-			}
-			return nullptr;
-		}
 	};
 
 	void items_view::create_controls()

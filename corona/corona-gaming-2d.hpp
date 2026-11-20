@@ -2221,6 +2221,10 @@ namespace corona
 						{
 							if (tile_codes.find(pa) != tile_codes.end()) {
 								auto& pc = tile_codes[pa];
+
+								json request = 
+								json result  = db->create_object();
+								
 								auto p = _gbus.create_piece_of_type(pc.piece_type);
 								if (p) {
 									p->position = DirectX::XMVectorMultiply(icurrent, tile_size);
@@ -2518,11 +2522,6 @@ namespace corona
 			virtual ~engine()
 			{
 
-			}
-
-			virtual std::shared_ptr<game_factory> get_factory() const
-			{
-				return factory;
 			}
 
 			std::shared_ptr<adventure_interface> new_adventure(json _world_key)

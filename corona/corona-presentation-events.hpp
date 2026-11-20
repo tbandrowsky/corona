@@ -67,6 +67,21 @@ namespace corona {
 	public:
 		point absolute_point;
 		point relative_point;
+
+        virtual void get_json(json& _dest)
+        {
+            _dest.put_member_double("absolute_point_x", absolute_point.x);
+            _dest.put_member_double("absolute_point_y", absolute_point.y);
+            _dest.put_member_double("relative_point_x", relative_point.x);
+            _dest.put_member_double("relative_point_y", relative_point.y);
+        }
+        virtual void put_json(json& _src)
+        {
+            absolute_point.x = _src["absolute_point_x"].as_double();
+            absolute_point.y = _src["absolute_point_y"].as_double();
+            relative_point.x = _src["relative_point_x"].as_double();
+            relative_point.y = _src["relative_point_y"].as_double();
+        }
 	};
 
 	class mouse_move_event : public mouse_event
@@ -78,6 +93,17 @@ namespace corona {
 	{
 	public:
 		double delta;
+
+		virtual void get_json(json& _dest)
+		{
+			mouse_event::get_json(_dest);
+            _dest.put_member_double("delta", delta);
+		}
+		virtual void put_json(json& _src)
+		{
+            mouse_event::put_json(_src);
+            delta = _src["delta"].as_double();
+		}
 	};
 
 	class mouse_click_event : public mouse_event
@@ -104,6 +130,15 @@ namespace corona {
 	{
 	public:
 		short key;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member_i64("key", key);
+		}
+		virtual void put_json(json& _src)
+		{
+			key = _src["key"].as_int64_t();
+		}
 	};
 
 	class key_down_event : public key_event
@@ -152,37 +187,85 @@ namespace corona {
 	{
 	public:
 		XINPUT_STATE state;
+
+		virtual void get_json(json& _dest)
+		{
+			_dest.put_member_i64("packet", state.dwPacketNumber);
+            _dest.put_member_i64("buttons", state.Gamepad.wButtons);
+            _dest.put_member_i64("left_trigger", state.Gamepad.bLeftTrigger);
+			_dest.put_member_i64("right_trigger", state.Gamepad.bRightTrigger);
+			_dest.put_member_i64("left_thumb_x", state.Gamepad.sThumbLX);
+			_dest.put_member_i64("left_thumb_y", state.Gamepad.sThumbLY);
+			_dest.put_member_i64("right_thumb_x", state.Gamepad.sThumbRX);
+			_dest.put_member_i64("right_thumb_y", state.Gamepad.sThumbRY);
+		}
+
+		virtual void put_json(json& _src)
+		{
+			state.dwPacketNumber = _src["packet"].as_int64_t();
+            state.Gamepad.wButtons = _src["buttons"].as_int64_t();
+            state.Gamepad.bLeftTrigger = (BYTE)_src["left_trigger"].as_int64_t();
+            state.Gamepad.bRightTrigger = (BYTE)_src["right_trigger"].as_int64_t();
+            state.Gamepad.sThumbLX = (SHORT)_src["left_thumb_x"].as_int64_t();
+            state.Gamepad.sThumbLY = (SHORT)_src["left_thumb_y"].as_int64_t();
+            state.Gamepad.sThumbRX = (SHORT)_src["right_thumb_x"].as_int64_t();
+            state.Gamepad.sThumbRY = (SHORT)_src["right_thumb_y"].as_int64_t();
+		}
 	};
 
-	class gamepad_button_down_event : public gamepad_event
+	class gamepad_button_event : public gamepad_event
 	{
 	public:
 		gamepad_button button;
+		virtual void get_json(json& _dest)
+		{
+			gamepad_event::get_json(_dest);
+			_dest.put_member_i64("button", (int64_t)button);
+		}
+		virtual void put_json(json& _src)
+		{
+			gamepad_event::put_json(_src);
+			button = (gamepad_button)_src["button"].as_int64_t();
+		}
+
 	};
 
-	class gamepad_button_up_event : public gamepad_event
+	class gamepad_button_down_event : public gamepad_button_event
 	{
 	public:
-		gamepad_button button;
 	};
 
-	class gamepad_trigger_down_event : public gamepad_event
+	class gamepad_button_up_event : public gamepad_button_event
 	{
 	public:
-		gamepad_trigger trigger;
 	};
 
-	class gamepad_trigger_up_event : public gamepad_event
+	class gamepad_trigger_down_event : public gamepad_button_event
 	{
 	public:
-		gamepad_trigger trigger;
 	};
 
-	class gamepad_thumbstick_move_event : public gamepad_event
+	class gamepad_trigger_up_event : public gamepad_button_event
+	{
+	public:
+	};
+
+	class gamepad_thumbstick_move_event : public gamepad_button_event
 	{
 	public:
 		gamepad_thumb thumb;
 		float x, y;
+
+		virtual void get_json(json& _dest)
+		{
+			gamepad_event::get_json(_dest);
+			_dest.put_member_i64("button", (int64_t)button);
+		}
+		virtual void put_json(json& _src)
+		{
+			gamepad_event::put_json(_src);
+			button = (gamepad_button)_src["button"].as_int64_t();
+		}
 	};
 
 	class key_press_event : public key_event

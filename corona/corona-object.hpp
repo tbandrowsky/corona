@@ -38,7 +38,8 @@ namespace corona
         {
             if (history.contains(_timepoint.elapsed_seconds)) {
                 history[_timepoint.elapsed_seconds].values.merge(_timepoint.values);
-            } else {
+            }
+            else {
                 corona_object_timepoint ntp;
                 ntp.elapsed_seconds = _timepoint.elapsed_seconds;
                 ntp.values = _timepoint.values.clone();
@@ -58,7 +59,7 @@ namespace corona
             if (history.begin() != history.end()) {
                 auto end_time = history.end();
                 end_time--;
-                if (end_time->first > 0.0) 
+                if (end_time->first > 0.0)
                 {
                     _time = fmod(_time, end_time->first);
                 }
@@ -71,7 +72,7 @@ namespace corona
                 return result;
             }
 
-            auto start_time = history.lower_bound(_time);            
+            auto start_time = history.lower_bound(_time);
             auto next_time = history.upper_bound(_time);
 
             if (next_time == history.end()) {
@@ -79,7 +80,7 @@ namespace corona
                 return result;
             }
 
-            while (start_time != history.begin() && start_time->first > _time) 
+            while (start_time != history.begin() && start_time->first > _time)
             {
                 start_time--;
             }
@@ -130,245 +131,473 @@ namespace corona
 
     public:
 
-       corona_database* db = nullptr;
+        corona_database* db = nullptr;
 
-       corona_object() = default;
-       corona_object(const corona_object& _src) = default;
-       corona_object(corona_object&& _src) = default;
-       corona_object& operator =(const corona_object& _src) = default;
-       corona_object& operator =(corona_object&& _src) = default;
+        corona_object() = default;
+        corona_object(const corona_object& _src) = default;
+        corona_object(corona_object&& _src) = default;
+        corona_object& operator =(const corona_object& _src) = default;
+        corona_object& operator =(corona_object&& _src) = default;
 
-       corona_object(corona_database *_db) : db(_db)
-       {
+        corona_object(corona_database* _db) : db(_db)
+        {
 
-       }
+        }
 
-       corona_object(corona_database* _db, json_object _data) : db(_db), data(_data)
-       {
+        corona_object(corona_database* _db, json_object _data) : db(_db), data(_data)
+        {
 
-       }
+        }
 
-       virtual void get_json(json& _dest) const
-       {
-           _dest = data;
-           _dest.put_member_string(class_name_field, class_name);
-           _dest.put_member_i64(object_id_field, object_id);
-           _dest.put_member_string("created_by", created_by);
-           _dest.put_member_string("updated_by", updated_by);
-           _dest.put_member("created", created);
-           _dest.put_member("updated", updated);
-       }
+        virtual void get_json(json& _dest) const
+        {
+            _dest = data;
+            _dest.put_member_string(class_name_field, class_name);
+            _dest.put_member_i64(object_id_field, object_id);
+            _dest.put_member_string("created_by", created_by);
+            _dest.put_member_string("updated_by", updated_by);
+            _dest.put_member("created", created);
+            _dest.put_member("updated", updated);
+        }
 
-       virtual void put_json(json& _src)
-       {
-           data = to_object(_src);
-           class_name = _src[class_name_field].as_string();
-           object_id = _src[object_id_field].as_int64_t();
-           created_by = _src["created_by"].as_string();
-           updated_by = _src["updated_by"].as_string();
-           created = _src["created"].as_date_time();
-           updated = _src["updated"].as_date_time();
-       }
+        virtual void put_json(json& _src)
+        {
+            data = to_object(_src);
+            class_name = _src[class_name_field].as_string();
+            object_id = _src[object_id_field].as_int64_t();
+            created_by = _src["created_by"].as_string();
+            updated_by = _src["updated_by"].as_string();
+            created = _src["created"].as_date_time();
+            updated = _src["updated"].as_date_time();
+        }
 
-       virtual void apply_json(json& _src)
-       {
-           json_parser jp;
-           json body = jp.create_object();
-           get_json(body);
-           body.merge(_src);
-           put_json(body);
-       }
+        virtual void apply_json(json& _src)
+        {
+            json_parser jp;
+            json body = jp.create_object();
+            get_json(body);
+            body.merge(_src);
+            put_json(body);
+        }
 
-       virtual std::string get_item_type() const
-       {
-           return class_name;
-       }
+        virtual std::string get_item_type() const
+        {
+            return class_name;
+        }
 
-       virtual object_reference to_reference() const
-       {
-           object_reference ref;
+        virtual object_reference to_reference() const
+        {
+            object_reference ref;
 
-           ref.class_name = class_name;
-           ref.object_id = object_id;
+            ref.class_name = class_name;
+            ref.object_id = object_id;
 
-           return ref;
-       }
+            return ref;
+        }
 
-       virtual chest_item to_chest_item(int _quantity) const
-       {
-           chest_item ci;
+        virtual chest_item to_chest_item(int _quantity) const
+        {
+            chest_item ci;
 
-           ci.reference.class_name = class_name;
-           ci.reference.object_id = object_id;
-           ci.item_type = get_item_type();
-           ci.quantity = _quantity;
+            ci.reference.class_name = class_name;
+            ci.reference.object_id = object_id;
+            ci.item_type = get_item_type();
+            ci.quantity = _quantity;
 
-           return ci;
-       }
+            return ci;
+        }
 
-       virtual bool operator < (corona_object& _src)
-       {
-           return to_reference() < _src.to_reference();
-       }
+        virtual bool operator < (corona_object& _src)
+        {
+            return to_reference() < _src.to_reference();
+        }
 
-       template <typename T>
-       bool is()
-       {
-           T* t = dynamic_cast<T*>(this);
-           return t != nullptr;
-       }
+        template <typename T>
+        bool is()
+        {
+            T* t = dynamic_cast<T*>(this);
+            return t != nullptr;
+        }
 
-       template <typename T>
-       T* as()
-       {
-           T* t = dynamic_cast<T*>(this);
-           return t;
-       }
+        template <typename T>
+        T* as()
+        {
+            T* t = dynamic_cast<T*>(this);
+            return t;
+        }
 
-       virtual std::shared_ptr<corona_object_interface> clone() const
-       {
-           json_parser jp;
-           json body = jp.create_object();
-           get_json(body);
-           auto p = std::make_shared<corona_object>(*this);
-           p->put_json(body);
-           return p;
-       }
+        virtual std::shared_ptr<corona_object_interface> clone() const
+        {
+            json_parser jp;
+            json body = jp.create_object();
+            get_json(body);
+            auto p = std::make_shared<corona_object>(*this);
+            p->put_json(body);
+            return p;
+        }
 
-       std::string get_string(std::string _field_name)
-       {
-           return data[_field_name]->as_string();
-       }
+        std::string get_string(std::string _field_name)
+        {
+            return data[_field_name]->as_string();
+        }
 
-       DirectX::XMVECTOR get_vector(std::string _field_name)
-       {
-           return data[_field_name]->as_vector();
-       }
+        DirectX::XMVECTOR get_vector(std::string _field_name)
+        {
+            return data[_field_name]->as_vector();
+        }
 
-       double get_double(std::string _field_name)
-       {
-           return data[_field_name]->as_double();
-       }
+        double get_double(std::string _field_name)
+        {
+            return data[_field_name]->as_double();
+        }
 
-       int64_t get_int64(std::string _field_name)
-       {
-           return data[_field_name]->as_int64_t();
-       }
+        int64_t get_int64(std::string _field_name)
+        {
+            return data[_field_name]->as_int64_t();
+        }
 
-       date_time get_datetime(std::string _field_name)
-       {
-           return data[_field_name]->as_date_time();
-       }
+        date_time get_datetime(std::string _field_name)
+        {
+            return data[_field_name]->as_date_time();
+        }
 
-       std::string put_string(std::string _field_name, std::string  _value)
-       {
-           data.put_member(_field_name, _value);
-           return _value;
-       }
+        std::string put_string(std::string _field_name, std::string  _value)
+        {
+            data.put_member(_field_name, _value);
+            return _value;
+        }
 
-       DirectX::XMVECTOR put_vector(std::string _field_name, DirectX::XMVECTOR _value)
-       {
-           data.put_member(_field_name, _value);
-           return _value;
-       }
+        DirectX::XMVECTOR put_vector(std::string _field_name, DirectX::XMVECTOR _value)
+        {
+            data.put_member(_field_name, _value);
+            return _value;
+        }
 
-       double put_double(std::string _field_name, double _value)
-       {
-           data.put_member(_field_name, _value);
-           return _value;  
-       }
+        double put_double(std::string _field_name, double _value)
+        {
+            data.put_member(_field_name, _value);
+            return _value;
+        }
 
-       int64_t put_int64(std::string _field_name, int64_t _value)
-       {
-           data.put_member(_field_name, _value);
-           return _value;
-       }
+        int64_t put_int64(std::string _field_name, int64_t _value)
+        {
+            data.put_member(_field_name, _value);
+            return _value;
+        }
 
-       date_time put_datetime(std::string _field_name, date_time _value)
-       {
-           data.put_member(_field_name, _value);
-           return _value;
-       }
+        date_time put_datetime(std::string _field_name, date_time _value)
+        {
+            data.put_member(_field_name, _value);
+            return _value;
+        }
 
-       std::shared_ptr<workflow_field> get_workflow(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_workflow(data, _field_name); 
-           return wf;
-       }
+        std::shared_ptr<workflow_field> get_workflow(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_workflow(data, _field_name);
+            return wf;
+        }
 
-       std::shared_ptr<chest_field> get_chest(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_chest(data, _field_name);
-           return wf;
-       }
+        std::shared_ptr<chest_field> get_chest(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_chest(data, _field_name);
+            return wf;
+        }
 
-       std::shared_ptr<selection_field> get_selection(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_selection(data, _field_name);
-           return wf;
-       }
+        std::shared_ptr<selection_field> get_selection(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_selection(data, _field_name);
+            return wf;
+        }
 
-       std::shared_ptr<pathDto> get_path(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_path(data, _field_name);
-           return wf;
-       }
+        std::shared_ptr<pathDto> get_path(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_path(data, _field_name);
+            return wf;
+        }
 
-       std::shared_ptr<bitmapInstanceDto> get_bitmap(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_bitmap(data, _field_name);
-           return wf;
-       }
+        std::shared_ptr<bitmapInstanceDto> get_bitmap(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_bitmap(data, _field_name);
+            return wf;
+        }
 
-       std::shared_ptr<generalBrushRequest> get_brush(std::string _field_name)
-       {
-           auto classd = db->read_lock_class(class_name);
-           auto wf = classd->get_brush(data, _field_name);
-           return wf;
-       }
+        std::shared_ptr<generalBrushRequest> get_brush(std::string _field_name)
+        {
+            auto classd = db->read_lock_class(class_name);
+            auto wf = classd->get_brush(data, _field_name);
+            return wf;
+        }
 
-       void put_workflow(std::string _field_name, std::shared_ptr<workflow_field> _workflow)
-       {
-           json jdata = to_object(data);
-           auto classd = db->read_lock_class(class_name);
-           classd->put_workflow(jdata, _field_name, _workflow);
-       }
+        void put_workflow(std::string _field_name, std::shared_ptr<workflow_field> _workflow)
+        {
+            json jdata = to_object(data);
+            auto classd = db->read_lock_class(class_name);
+            classd->put_workflow(jdata, _field_name, _workflow);
+        }
 
-       void put_chest(std::string _field_name, std::shared_ptr<chest_field> _chest)
-       {
-           json jdata = to_object(data);
-           auto classd = db->read_lock_class(class_name);
-           classd->put_chest(jdata, _field_name, _chest);
-       }
+        void put_chest(std::string _field_name, std::shared_ptr<chest_field> _chest)
+        {
+            json jdata = to_object(data);
+            auto classd = db->read_lock_class(class_name);
+            classd->put_chest(jdata, _field_name, _chest);
+        }
 
-       void put_selection(std::string _field_name, std::shared_ptr<selection_field> _selection)
-       {
-           json jdata = to_object(data);
-           auto classd = db->read_lock_class(class_name);
-           classd->put_selection(jdata, _field_name, _selection);
-       }
+        void put_selection(std::string _field_name, std::shared_ptr<selection_field> _selection)
+        {
+            json jdata = to_object(data);
+            auto classd = db->read_lock_class(class_name);
+            classd->put_selection(jdata, _field_name, _selection);
+        }
 
-       void put_path(std::string _field_name, std::shared_ptr<pathDto> _path)
-       {
-           json jdata = to_object(data);
-           auto classd = db->read_lock_class(class_name);
-           classd->put_path(jdata, _field_name, _path);
-       }
+        void put_path(std::string _field_name, std::shared_ptr<pathDto> _path)
+        {
+            json jdata = to_object(data);
+            auto classd = db->read_lock_class(class_name);
+            classd->put_path(jdata, _field_name, _path);
+        }
 
-       void put_bitmap(std::string _field_name, std::shared_ptr<bitmapInstanceDto> _bitmap)
-       {
-           json jdata = to_object(data);
-           auto classd = db->read_lock_class(class_name);
-           classd->put_bitmap(jdata, _field_name, _bitmap);
-       }
+        void put_bitmap(std::string _field_name, std::shared_ptr<bitmapInstanceDto> _bitmap)
+        {
+            json jdata = to_object(data);
+            auto classd = db->read_lock_class(class_name);
+            classd->put_bitmap(jdata, _field_name, _bitmap);
+        }
 
     };
 
+    class event_message_base {
+    public:
+        std::string user_token;
+
+        virtual void get_json(json& _dest)
+        {
+            _dest.put_member("user_token", user_token);
+        }
+        virtual void put_json(json& _src)
+        {
+            user_token = _src["user_token"].as_string();
+        }
+    };
+
+    template <typename T>
+    class event_message : public event_message_base
+    {
+    public:
+        std::string event_type;
+        std::string user_token;
+        T event_data;
+
+        virtual void get_json(json& _dest)
+        {
+            _dest.put_member("user_token", user_token);
+           corona::get_json(_dest, event_data);
+        }
+        virtual void put_json(json& _src)
+        {
+            user_token = _src["user_token"].as_string();
+            corona::put_json(_src, event_data);
+        }
+    };
+
+    class gamepad_event_message : public event_message<gamepad_event>   
+    {
+    public:
+
+        gamepad_event_message()
+        {
+            event_type = "gamepad_event";
+        }
+
+    };
+
+    class gamepad_button_down_event_message : public event_message<gamepad_button_down_event>
+    {
+    public:
+        gamepad_button_down_event_message()
+        {
+            event_type = "gamepad_button_down_event";
+        }
+    };
+
+    class gamepad_button_up_event_message : public event_message<gamepad_button_up_event>
+    {
+    public:
+        gamepad_button_up_event_message()
+        {
+            event_type = "gamepad_button_up_event";
+        }
+    };
+
+    class gamepad_trigger_down_event_message : public event_message<gamepad_trigger_down_event>
+    {
+    public:
+        gamepad_trigger_down_event_message()
+        {
+            event_type = "gamepad_trigger_down_event";
+        }
+    };
+
+    class gamepad_trigger_up_event_message : public event_message<gamepad_trigger_up_event>
+    {
+    public:
+        gamepad_trigger_up_event_message()
+        {
+            event_type = "gamepad_trigger_up_event";
+        }
+    };
+
+    class gamepad_thumbstick_move_event_message : public event_message<gamepad_thumbstick_move_event>
+    {
+    public:
+        gamepad_thumbstick_move_event_message()
+        {
+            event_type = "gamepad_thumbstick_move_event";
+        }
+    };
+
+    class key_press_event_message : public event_message<key_press_event>
+    {
+    public:
+        key_press_event_message()
+        {
+            event_type = "key_press_event";
+        }
+    };
+
+    class mouse_move_event_message : public event_message<mouse_move_event>
+    {
+    public:
+        mouse_move_event_message()
+        {
+            event_type = "mouse_move_event";
+        } 
+    };
+
+    class mouse_wheel_event_message : public event_message<mouse_wheel_event>
+    {
+    public:
+
+        mouse_wheel_event_message()
+        {
+            event_type = "mouse_wheel_event";
+        }
+
+    };
+
+    class mouse_left_click_event_message : public event_message<mouse_left_click_event>
+    {
+    public:
+
+        mouse_left_click_event_message()
+        {
+            event_type = "mouse_left_click_event_message";
+        }
+
+    };
+
+    class mouse_right_click_event_message : public event_message<mouse_right_click_event>
+    {
+    public:
+        mouse_right_click_event_message()
+        {
+            event_type = "mouse_right_click_event_message";
+        }
+    };
+
+    class model_run_object : public corona_object, public job
+    {
+    public:
+
+        std::string user_token;
+
+        std::string model_name;
+        std::string model_description;
+        
+        virtual void get_json(json& _dest) const override
+        {
+            corona_object::get_json(_dest);
+            _dest.put_member_string("model_name", model_name);
+            _dest.put_member_string("model_description", model_description);
+        }
+
+        virtual void put_json(json& _src) override
+        {
+            corona_object::put_json(_src);
+            model_name = _src["model_name"].as_string();
+            model_description = _src["model_description"].as_string();
+        }
+
+        virtual void on_gamepad_event(gamepad_event_message& _msg) {}
+        virtual void on_key_press_event(key_press_event_message& _msg) {}
+        virtual void on_mouse_move_event(mouse_move_event_message& _msg) {}
+        virtual void on_mouse_wheel_event(mouse_wheel_event_message& _msg) {}
+        virtual void on_mouse_left_click_event(mouse_left_click_event_message& _msg) {}
+        virtual void on_mouse_right_click_event(mouse_right_click_event_message& _msg) {}
+        virtual void on_gamepad_button_down_event(gamepad_button_down_event_message& _msg) {}
+        virtual void on_gamepad_button_up_event(gamepad_button_up_event_message& _msg) {}
+        virtual void on_gamepad_trigger_down_event(gamepad_trigger_down_event_message& _msg) {}
+        virtual void on_gamepad_trigger_up_event(gamepad_trigger_up_event_message& _msg) {}
+        virtual void on_gamepad_thumbstick_move_event(gamepad_thumbstick_move_event_message& _msg) {}
+
+        virtual void on_message(json& _message) 
+        {
+            std::string event_type = _message["event_type"].as_string();
+
+            if (event_type == "gamepad_event")
+            {
+                gamepad_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_event(msg);
+            }
+            else if (event_type == "gamepad_button_down_event")
+            {
+                gamepad_button_down_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_button_down_event(msg);
+            }
+            else if (event_type == "gamepad_button_up_event")
+            {
+                gamepad_button_up_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_button_up_event(msg);
+            }
+            else if (event_type == "gamepad_trigger_down_event")
+            {
+                gamepad_trigger_down_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_trigger_down_event(msg);
+            }
+            else if (event_type == "gamepad_trigger_up_event")
+            {
+                gamepad_trigger_up_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_trigger_up_event(msg);
+            }
+            else if (event_type == "gamepad_thumbstick_move_event")
+            {
+                gamepad_thumbstick_move_event_message msg;
+                msg.put_json(_message);
+                on_gamepad_thumbstick_move_event(msg);
+            }
+
+        }
+
+        virtual job_notify execute(job_queue* _callingQueue, DWORD _bytesTransferred, BOOL _success)
+        {
+
+        }
+
+        virtual bool queued(job_queue* _queue)
+        {
+
+        }
+
+    };
 
     enum class corona_grant_type
     {
